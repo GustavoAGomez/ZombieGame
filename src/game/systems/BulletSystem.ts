@@ -64,7 +64,7 @@ function hitZombieAlongSegment(ctx: SimContext, b: BulletState, step: number): b
   b.x = hx;
   b.y = hy;
   b.active = false;
-  damageZombie(ctx, z, b.damage);
+  damageZombie(ctx, z, b.damage, b.owner);
   return true;
 }
 

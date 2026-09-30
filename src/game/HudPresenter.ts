@@ -1,6 +1,7 @@
 import { DASH, PLAYER, type WeaponId } from '../config/balance';
 import type { EventBus } from '../core/EventBus';
 import type { GameState } from '../core/GameState';
+import type { MapData } from './map/MapLoader';
 import { repairPointsAvailable } from './systems/BarricadeSystem';
 import { reloadProgress } from './systems/WeaponSystem';
 
@@ -26,7 +27,10 @@ export class HudPresenter {
   private actionAmount = -1;
   private actionEnabled = false;
 
-  constructor(private readonly events: EventBus) {}
+  constructor(
+    private readonly events: EventBus,
+    private readonly map: MapData,
+  ) {}
 
   publish(state: GameState, playerIndex = 0): void {
     const p = state.players[playerIndex];
@@ -44,8 +48,16 @@ export class HudPresenter {
     }
 
     const kind = p.contextAction === 'none' ? null : p.contextAction;
-    const amount = kind === 'repair' ? repairPointsAvailable(p) : 0;
-    const enabled = kind !== null;
+    let amount = 0;
+    let enabled = kind !== null;
+    if (kind === 'repair') {
+      amount = repairPointsAvailable(p);
+    } else if (kind === 'door') {
+      // Affordable: show the cost. Otherwise: how many points are missing.
+      const cost = this.map.doors[p.contextTarget]?.cost ?? 0;
+      enabled = p.points >= cost;
+      amount = enabled ? cost : cost - p.points;
+    }
     if (kind !== this.actionKind || amount !== this.actionAmount || enabled !== this.actionEnabled) {
       this.actionKind = kind;
       this.actionAmount = amount;

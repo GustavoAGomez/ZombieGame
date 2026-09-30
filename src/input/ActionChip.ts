@@ -28,6 +28,7 @@ export class ActionChip extends PointerControl {
     parent.appendChild(chip);
 
     this.unsubscribe = events.on('action:context', this.onContext);
+    chip.addEventListener('animationend', () => chip.classList.remove('is-shaking'));
   }
 
   get isHeld(): boolean {
@@ -49,6 +50,12 @@ export class ActionChip extends PointerControl {
     this.held = true;
     this.pressed = true;
     this.target.classList.add('is-pressed');
+    if (this.target.classList.contains('is-disabled')) {
+      // Restart the shake animation even on repeated taps.
+      this.target.classList.remove('is-shaking');
+      void this.target.offsetWidth;
+      this.target.classList.add('is-shaking');
+    }
   }
 
   protected onDrag(): void {

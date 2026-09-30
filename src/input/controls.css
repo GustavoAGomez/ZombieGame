@@ -219,3 +219,20 @@
 .action-chip.is-disabled {
   opacity: 0.55;
 }
+
+.action-chip--door .action-chip__label {
+  color: var(--bone);
+}
+
+.action-chip.is-shaking {
+  animation: action-chip-shake 280ms steps(1, end);
+}
+
+@keyframes action-chip-shake {
+  0% { transform: translateX(-50%) translateX(0); }
+  20% { transform: translateX(-50%) translateX(-4px); }
+  40% { transform: translateX(-50%) translateX(4px); }
+  60% { transform: translateX(-50%) translateX(-3px); }
+  80% { transform: translateX(-50%) translateX(2px); }
+  100% { transform: translateX(-50%) translateX(0); }
+}

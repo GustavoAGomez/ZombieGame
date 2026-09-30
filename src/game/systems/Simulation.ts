@@ -1,7 +1,7 @@
-import { updateBarricades } from './BarricadeSystem';
 import { updateBullets } from './BulletSystem';
 import { updateBlood } from './Combat';
 import { updateHealth } from './HealthSystem';
+import { updateInteractions } from './InteractionSystem';
 import { updateMovement } from './MovementSystem';
 import { updatePickups } from './PickupSystem';
 import type { SimContext } from './SimContext';
@@ -23,7 +23,7 @@ export function stepSimulation(ctx: SimContext, dt: number): void {
   updateSpecial(ctx, dt);
   updateMovement(ctx, dt);
   updateWeapons(ctx, dt);
-  updateBarricades(ctx, dt);
+  updateInteractions(ctx, dt);
   updateBullets(ctx, dt);
   updateSpawns(ctx, dt);
   updateZombies(ctx, dt);

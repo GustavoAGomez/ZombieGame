@@ -1,19 +1,26 @@
-import { ZOMBIES } from '../../config/balance';
+import { POINTS, ZOMBIES } from '../../config/balance';
 import type { BloodState, ZombieState } from '../../core/GameState';
 import { random } from '../../core/Rng';
 import { BLOCK_SIGHT, segmentClear } from '../map/CollisionGrid';
 import { rollZombieDrop } from './PickupSystem';
+import { awardPoints } from './PointsSystem';
 import type { SimContext } from './SimContext';
 
 export function isZombieAlive(z: ZombieState): boolean {
   return z.active && z.hp > 0 && z.ai !== 'dead';
 }
 
-/** Applies damage; returns true if this hit killed the zombie. */
-export function damageZombie(ctx: SimContext, z: ZombieState, amount: number): boolean {
+/**
+ * Applies damage; returns true if this hit killed the zombie. The attacker
+ * (a player id, or -1 for none) gets +10 for the hit and +50 for the kill,
+ * so the killing blow is worth 60 like in BO1.
+ */
+export function damageZombie(ctx: SimContext, z: ZombieState, amount: number, attacker = -1): boolean {
   if (!isZombieAlive(z)) return false;
   z.hp -= amount;
+  if (attacker >= 0) awardPoints(ctx, attacker, POINTS.hit, 'hit');
   if (z.hp > 0) return false;
+  if (attacker >= 0) awardPoints(ctx, attacker, POINTS.kill, 'kill');
   z.hp = 0;
   z.ai = 'dead';
   z.timer = ZOMBIES.corpseTime;

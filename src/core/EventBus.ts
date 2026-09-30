@@ -11,6 +11,8 @@ export interface GameEvents {
   'player:died': { playerId: number };
   'zombie:killed': { x: number; y: number; kind: ZombieKind };
   'pickup:collected': { playerId: number; kind: PickupKind };
+  /** A door was bought (medium haptic in phase 9). */
+  'door:opened': { doorId: string; playerId: number };
   'weapon:state': {
     weapon: WeaponId;
     magazine: number;

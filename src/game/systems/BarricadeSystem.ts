@@ -1,7 +1,7 @@
 import { BARRICADES } from '../../config/balance';
 import type { PlayerState } from '../../core/GameState';
 import type { InputCommand } from '../../core/InputCommand';
-import { isPlayerAlive } from './HealthSystem';
+import { awardPoints } from './PointsSystem';
 import type { SimContext } from './SimContext';
 
 /**
@@ -10,23 +10,8 @@ import type { SimContext } from './SimContext';
  * the contextual chip puts back one plank every 0.6 s for +10 points, up
  * to 500 repair points per round. Repairing keeps working past the limit,
  * just without points, and works while a zombie is tearing the same window.
+ * InteractionSystem decides when a window is the chip's target.
  */
-export function updateBarricades(ctx: SimContext, dt: number): void {
-  const { state, commands } = ctx;
-  for (let i = 0; i < state.players.length; i++) {
-    const p = state.players[i];
-    const cmd = commands[i];
-    if (!p) continue;
-    if (p.repairRound !== state.wave.round) {
-      p.repairRound = state.wave.round;
-      p.repairPoints = 0;
-    }
-    const window = isPlayerAlive(p) ? repairableWindow(ctx, p) : -1;
-    p.contextAction = window >= 0 ? 'repair' : 'none';
-    p.contextTarget = window;
-    updateRepair(ctx, p, cmd, window, dt);
-  }
-}
 
 /** Nearest window within repair range that is missing planks, or -1. */
 export function repairableWindow(ctx: SimContext, p: PlayerState): number {
@@ -52,7 +37,8 @@ export function repairPointsAvailable(p: PlayerState): number {
   return Math.max(0, Math.min(BARRICADES.pointsPerPlank, BARRICADES.maxRepairPointsPerRound - p.repairPoints));
 }
 
-function updateRepair(ctx: SimContext, p: PlayerState, cmd: InputCommand | undefined, window: number, dt: number): void {
+/** Advances the hold-to-repair on `window` (-1 or no held action stops it). */
+export function updateRepair(ctx: SimContext, p: PlayerState, cmd: InputCommand | undefined, window: number, dt: number): void {
   const w = ctx.map.windows[window];
   if (!cmd?.action || !w) {
     p.repairing = false;
@@ -69,8 +55,7 @@ function updateRepair(ctx: SimContext, p: PlayerState, cmd: InputCommand | undef
   planks[window] = Math.min(w.planks, (planks[window] ?? 0) + 1);
   const gained = repairPointsAvailable(p);
   if (gained > 0) {
-    p.points += gained;
     p.repairPoints += gained;
-    ctx.events.emit('points:gained', { playerId: p.id, amount: gained, reason: 'repair' });
+    awardPoints(ctx, p.id, gained, 'repair');
   }
 }

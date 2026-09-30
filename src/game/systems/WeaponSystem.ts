@@ -143,7 +143,7 @@ function handleMelee(ctx: SimContext, p: PlayerState): void {
   p.lastAttackTick = ctx.state.tick;
   const target = findMeleeTarget(ctx, p.x, p.y, p.aimX, p.aimY, MELEE.range, degToRad(MELEE.coneHalfAngle));
   const z = target >= 0 ? ctx.state.zombies[target] : undefined;
-  if (z) damageZombie(ctx, z, MELEE.damage);
+  if (z) damageZombie(ctx, z, MELEE.damage, p.id);
 }
 
 /** 0..1 progress of the current reload, or null when not reloading. */

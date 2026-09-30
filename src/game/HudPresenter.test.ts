@@ -6,7 +6,7 @@ import { stepSimulation } from './systems/Simulation';
 describe('HudPresenter', () => {
   it('emits weapon and cooldown state once, then only on change', () => {
     const ctx = createTestContext();
-    const presenter = new HudPresenter(ctx.events);
+    const presenter = new HudPresenter(ctx.events, ctx.map);
     const weapon = vi.fn();
     const cooldown = vi.fn();
     ctx.events.on('weapon:state', weapon);
@@ -32,7 +32,7 @@ describe('HudPresenter', () => {
 describe('HudPresenter · action chip and points', () => {
   it('shows the repair chip with +10, then +0 once the round limit is reached', () => {
     const ctx = createTestContext();
-    const presenter = new HudPresenter(ctx.events);
+    const presenter = new HudPresenter(ctx.events, ctx.map);
     const action = vi.fn();
     const points = vi.fn();
     ctx.events.on('action:context', action);
@@ -56,5 +56,24 @@ describe('HudPresenter · action chip and points', () => {
     const calls = action.mock.calls.length;
     presenter.publish(ctx.state);
     expect(action.mock.calls.length).toBe(calls);
+  });
+});
+
+describe('HudPresenter · door chip', () => {
+  it('shows the cost when affordable and the missing points otherwise', () => {
+    const ctx = createTestContext();
+    const presenter = new HudPresenter(ctx.events, ctx.map);
+    const action = vi.fn();
+    ctx.events.on('action:context', action);
+    const d1 = ctx.map.doors[0]!;
+    const p = player(ctx);
+    p.x = d1.center.x;
+    p.y = d1.y - 10;
+    stepSimulation(ctx, 1 / 60);
+    presenter.publish(ctx.state);
+    expect(action).toHaveBeenLastCalledWith({ kind: 'door', amount: 250, enabled: false });
+    p.points = 900;
+    presenter.publish(ctx.state);
+    expect(action).toHaveBeenLastCalledWith({ kind: 'door', amount: 750, enabled: true });
   });
 });

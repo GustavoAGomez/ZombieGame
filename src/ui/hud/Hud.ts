@@ -1,10 +1,12 @@
-import { PLAYER } from '../../config/balance';
+import { PLAYER, POINTS } from '../../config/balance';
 import type { EventBus, GameEvents } from '../../core/EventBus';
 import { pixelIcon } from '../icons';
 import { STRINGS } from '../strings';
 import './hud.css';
 
 const HEALTH_SEGMENTS = 10;
+/** Floating "+N" texts alive at once; the oldest is reused when all are busy. */
+const FLOAT_POOL_SIZE = 8;
 
 /**
  * DOM HUD. It only listens to EventBus payloads and never imports or
@@ -23,12 +25,19 @@ export class Hud {
   private readonly magazine: HTMLSpanElement;
   private readonly reloadFill: HTMLDivElement;
   private readonly reserve: HTMLSpanElement;
+  private readonly floats: HTMLDivElement;
+  private readonly floatPool: HTMLSpanElement[] = [];
+  private nextFloat = 0;
   private readonly damage: HTMLDivElement;
   private readonly dead: HTMLDivElement;
   private damageTimer = 0;
   private readonly unsubscribers: (() => void)[] = [];
 
-  constructor(parent: HTMLElement, events: EventBus) {
+  constructor(
+    parent: HTMLElement,
+    events: EventBus,
+    private readonly localPlayerId = 0,
+  ) {
     this.root = el('div', 'hud');
 
     // Top-left: health row, round, and (later) a reserved row for stats.
@@ -64,7 +73,16 @@ export class Hud {
     reload.appendChild(this.reloadFill);
     this.reserve = el('span', 'hud-reserve');
     this.weaponRow.append(this.weaponName, pixelIcon('bullet', 21), this.magazine, reload, this.reserve);
-    right.append(pointsRow, this.weaponRow);
+    // Row 3: stack of floating "+N" texts, pooled (CLAUDE.md rule 7).
+    this.floats = el('div', 'hud-floats');
+    for (let i = 0; i < FLOAT_POOL_SIZE; i++) {
+      const span = el('span', 'hud-float');
+      span.style.animationDuration = `${POINTS.floatingTextMs}ms`;
+      span.addEventListener('animationend', () => span.classList.remove('is-active'));
+      this.floatPool.push(span);
+      this.floats.appendChild(span);
+    }
+    right.append(pointsRow, this.weaponRow, this.floats);
 
     this.damage = el('div', 'hud-damage');
     this.dead = el('div', 'hud-dead');
@@ -76,6 +94,7 @@ export class Hud {
     this.unsubscribers.push(
       events.on('player:health', this.onHealth),
       events.on('points:changed', this.onPoints),
+      events.on('points:gained', this.onPointsGained),
       events.on('round:changed', this.onRound),
       events.on('weapon:state', this.onWeapon),
       events.on('player:damaged', this.onDamaged),
@@ -98,6 +117,19 @@ export class Hud {
 
   private readonly onPoints = (e: GameEvents['points:changed']): void => {
     this.points.textContent = String(e.points);
+  };
+
+  private readonly onPointsGained = (e: GameEvents['points:gained']): void => {
+    if (e.playerId !== this.localPlayerId) return;
+    const span = this.floatPool[this.nextFloat];
+    if (!span) return;
+    this.nextFloat = (this.nextFloat + 1) % this.floatPool.length;
+    span.textContent = `+${e.amount}`;
+    // Newest at the bottom of the stack; restart its rise-and-fade animation.
+    this.floats.appendChild(span);
+    span.classList.remove('is-active');
+    void span.offsetWidth;
+    span.classList.add('is-active');
   };
 
   private readonly onRound = (e: GameEvents['round:changed']): void => {
