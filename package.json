@@ -13,7 +13,10 @@
     "test:watch": "vitest",
     "cap:sync": "npm run build && cap sync",
     "cap:ios": "cap open ios",
-    "cap:android": "cap open android"
+    "cap:android": "cap open android",
+    "map:gen": "tsx scripts/gen-placeholder-map.ts",
+    "assets:import": "tsx scripts/import-pixellab.ts",
+    "assets:check": "tsx scripts/check-assets.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",

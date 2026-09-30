@@ -1,3 +1,4 @@
+import type { MapData } from '../game/map/MapLoader';
 import type { RngState } from './Rng';
 
 /**
@@ -12,6 +13,8 @@ export interface PlayerState {
   /** Position at the start of the last tick, for render interpolation. */
   prevX: number;
   prevY: number;
+  /** Facing angle in radians (0 = east, π/2 = south). */
+  facing: number;
 }
 
 export interface GameState extends RngState {
@@ -20,17 +23,26 @@ export interface GameState extends RngState {
   time: number;
   /** One entry per player. The MVP has a single local player at index 0. */
   players: PlayerState[];
+  /** Parallel to MapData.doors. */
+  doorsOpen: boolean[];
+  /** Parallel to MapData.windows. */
+  windowPlanks: number[];
+  /** Parallel to MapData.zones. */
+  zonesUnlocked: boolean[];
 }
 
 export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
-  return { id, x, y, prevX: x, prevY: y };
+  return { id, x, y, prevX: x, prevY: y, facing: Math.PI / 2 };
 }
 
-export function createGameState(seed = 1): GameState {
+export function createGameState(map: MapData, seed = 1): GameState {
   return {
     tick: 0,
     time: 0,
     rng: seed | 0,
-    players: [createPlayerState(0)],
+    players: [createPlayerState(0, map.playerSpawn.x, map.playerSpawn.y)],
+    doorsOpen: map.doors.map(() => false),
+    windowPlanks: map.windows.map((w) => w.planks),
+    zonesUnlocked: map.zones.map((z) => z.startsUnlocked),
   };
 }

@@ -27,6 +27,7 @@ const services: Services = {
   events: new EventBus(),
   hudRoot,
   debug: isDebugRequested(),
+  stats: { fps: 0 },
 };
 
 const size = measureViewport(gameRoot);
@@ -51,6 +52,14 @@ watchViewport(game, gameRoot);
 
 new DebugOverlay(
   hudRoot,
-  () => ({ fps: game.loop.actualFps, dpr: size.dpr }),
+  () => {
+    services.stats.fps = game.loop.actualFps;
+    return services.stats;
+  },
   services.debug,
 );
+
+if (services.debug) {
+  // Handy for inspecting the running game from the browser console.
+  (window as unknown as { game: Phaser.Game }).game = game;
+}
