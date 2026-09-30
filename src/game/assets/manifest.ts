@@ -65,6 +65,9 @@ export const REQUIRED_ANIMATIONS: Readonly<Record<string, readonly string[]>> = 
   zombie_runner: ['walk', 'attack', 'death'],
 };
 
+/** Map objects that must exist, one per wall orientation (docs/ASSETS.md §4). */
+export const REQUIRED_OBJECTS: readonly string[] = ['window_planks', 'window_planks_v', 'door', 'door_v'];
+
 /** Asset keys the game code uses. */
 export const ASSET_KEYS = {
   player: 'player',
@@ -73,7 +76,9 @@ export const ASSET_KEYS = {
   zombieSprinter: 'zombie_sprinter',
   tilesetInterior: 'interior',
   windowPlanks: 'window_planks',
+  windowPlanksV: 'window_planks_v',
   door: 'door',
+  doorV: 'door_v',
   bullet: 'bullet',
   aimDot: 'aim_dot',
   mapRoom01: 'room01',

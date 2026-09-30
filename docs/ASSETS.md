@@ -68,8 +68,10 @@ public/assets/
     "interior": { "file": "tiles/interior.png", "tileWidth": 32, "tileHeight": 32 }
   },
   "objects": {
-    "window_planks": { "file": "sprites/objects/window_planks.png", "frameWidth": 32, "frameHeight": 32, "frames": 6 },
-    "door":          { "file": "sprites/objects/door.png",          "frameWidth": 32, "frameHeight": 32, "frames": 2 }
+    "window_planks":   { "file": "sprites/objects/window_planks.png",   "frameWidth": 32, "frameHeight": 32, "frames": 6 },
+    "window_planks_v": { "file": "sprites/objects/window_planks_v.png", "frameWidth": 32, "frameHeight": 32, "frames": 6 },
+    "door":            { "file": "sprites/objects/door.png",            "frameWidth": 32, "frameHeight": 32, "frames": 2 },
+    "door_v":          { "file": "sprites/objects/door_v.png",          "frameWidth": 32, "frameHeight": 32, "frames": 2 }
   },
   "maps": { "room01": "maps/room01.tmj" }
 }
@@ -78,6 +80,7 @@ public/assets/
 - **`"placeholder": true`** (o un archivo inexistente): el juego genera un rectángulo del tamaño declarado.
 - **`window_planks`:** el frame N representa la ventana con N tablones (del 0 al 5).
 - **`door`:** frame 0 = cerrada, frame 1 = abierta.
+- **Variantes verticales `window_planks_v` y `door_v`:** mismos frames y tamaño, dibujadas para paredes verticales (izquierda y derecha). Las versiones sin sufijo son para paredes horizontales (arriba y abajo). El motor **nunca rota** estos sprites, para que la luz siga viniendo de arriba a la izquierda; elige la variante según la orientación de la pared en el mapa.
 
 ## 5. Mapas (Tiled JSON, `.tmj`)
 

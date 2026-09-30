@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { ManifestError, REQUIRED_ANIMATIONS, directionRow, parseManifest } from './manifest';
+import { ManifestError, REQUIRED_ANIMATIONS, REQUIRED_OBJECTS, directionRow, parseManifest } from './manifest';
 
 const raw: unknown = JSON.parse(readFileSync(new URL('../../../public/assets/manifest.json', import.meta.url), 'utf8'));
 
@@ -15,10 +15,13 @@ describe('manifest.json', () => {
     }
   });
 
-  it('declares the room01 map and the window/door objects', () => {
+  it('declares the room01 map and the window/door objects for both wall orientations', () => {
     expect(manifest.maps.room01).toBe('maps/room01.tmj');
+    for (const key of REQUIRED_OBJECTS) expect(manifest.objects[key], key).toBeDefined();
     expect(manifest.objects.window_planks?.frames).toBe(6);
+    expect(manifest.objects.window_planks_v?.frames).toBe(6);
     expect(manifest.objects.door?.frames).toBe(2);
+    expect(manifest.objects.door_v?.frames).toBe(2);
   });
 });
 

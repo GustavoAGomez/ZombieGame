@@ -35,20 +35,17 @@ export class MapView {
     }
 
     for (const w of map.windows) {
-      const sprite = scene.add
-        .sprite(w.center.x, w.center.y, objectTextureKey(ASSET_KEYS.windowPlanks), w.planks)
-        .setDepth(DEPTH.mapObjects)
-        .setAngle(w.axis === 'vertical' ? 90 : 0);
+      // Each wall orientation has its own art (lit from the top-left): never rotate.
+      const key = w.axis === 'vertical' ? ASSET_KEYS.windowPlanksV : ASSET_KEYS.windowPlanks;
+      const sprite = scene.add.sprite(w.center.x, w.center.y, objectTextureKey(key), w.planks).setDepth(DEPTH.mapObjects);
       this.windowSprites.push(sprite);
       this.shownPlanks.push(w.planks);
     }
 
     for (const door of map.doors) {
+      const key = door.axis === 'vertical' ? ASSET_KEYS.doorV : ASSET_KEYS.door;
       const sprites = door.tiles.map((t) =>
-        scene.add
-          .sprite((t.x + 0.5) * ts, (t.y + 0.5) * ts, objectTextureKey(ASSET_KEYS.door), 0)
-          .setDepth(DEPTH.mapObjects)
-          .setAngle(door.axis === 'vertical' ? 90 : 0),
+        scene.add.sprite((t.x + 0.5) * ts, (t.y + 0.5) * ts, objectTextureKey(key), 0).setDepth(DEPTH.mapObjects),
       );
       this.doorSprites.push(sprites);
       this.shownDoorsOpen.push(false);

@@ -8,7 +8,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { PLAYER, ZOMBIES } from '../src/config/balance';
-import { REQUIRED_ANIMATIONS, parseManifest, type Manifest } from '../src/game/assets/manifest';
+import { REQUIRED_ANIMATIONS, REQUIRED_OBJECTS, parseManifest, type Manifest } from '../src/game/assets/manifest';
 import { parseMap } from '../src/game/map/MapLoader';
 import { colorsOutsidePalette, decodePng, parsePaletteHex, readPngInfo } from './lib/png';
 
@@ -83,6 +83,10 @@ export function checkAssets(root: string): CheckReport {
         needsTransparency: true,
       });
     }
+  }
+
+  for (const key of REQUIRED_OBJECTS) {
+    if (!manifest.objects[key]) report.errors.push(`Falta el objeto "${key}" en el manifiesto`);
   }
 
   for (const [key, def] of Object.entries(manifest.objects)) {

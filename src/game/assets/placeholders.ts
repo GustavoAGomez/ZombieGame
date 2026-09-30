@@ -163,41 +163,72 @@ export function createCharacterPlaceholder(
     });
 }
 
-/** Frame N = window with N planks, drawn for a horizontal wall. */
-function drawWindowPlanks(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number): void {
+/**
+ * Frame N = window with N planks. Horizontal walls stack planks top to
+ * bottom; vertical walls (the `_v` variant) stack them left to right.
+ */
+function drawWindowPlanks(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number, vertical: boolean): void {
   rect(ctx, PLACEHOLDER_COLORS.windowGap, ox, oy, w, h);
-  const plankHeight = Math.max(2, Math.floor(h / 8));
+  const across = vertical ? w : h;
+  const along = vertical ? h : w;
+  const thickness = Math.max(2, Math.floor(across / 8));
   const maxPlanks = 5;
-  const gap = Math.floor((h - maxPlanks * plankHeight) / (maxPlanks + 1));
+  const gap = Math.floor((across - maxPlanks * thickness) / (maxPlanks + 1));
   for (let i = 0; i < Math.min(frame, maxPlanks); i++) {
-    const y = oy + gap + i * (plankHeight + gap);
+    const offset = gap + i * (thickness + gap);
     // Alternate inset so the stack reads as nailed boards.
     const inset = i % 2 === 0 ? 1 : 3;
-    rect(ctx, i % 2 === 0 ? COLORS.wood : '#7a5c35', ox + inset, y, w - inset * 2, plankHeight);
-    rect(ctx, PLACEHOLDER_COLORS.plankNail, ox + inset + 2, y + 1, 1, 1);
-    rect(ctx, PLACEHOLDER_COLORS.plankNail, ox + w - inset - 3, y + 1, 1, 1);
+    const color = i % 2 === 0 ? COLORS.wood : '#7a5c35';
+    if (vertical) {
+      rect(ctx, color, ox + offset, oy + inset, thickness, along - inset * 2);
+      rect(ctx, PLACEHOLDER_COLORS.plankNail, ox + offset + 1, oy + inset + 2, 1, 1);
+      rect(ctx, PLACEHOLDER_COLORS.plankNail, ox + offset + 1, oy + along - inset - 3, 1, 1);
+    } else {
+      rect(ctx, color, ox + inset, oy + offset, along - inset * 2, thickness);
+      rect(ctx, PLACEHOLDER_COLORS.plankNail, ox + inset + 2, oy + offset + 1, 1, 1);
+      rect(ctx, PLACEHOLDER_COLORS.plankNail, ox + along - inset - 3, oy + offset + 1, 1, 1);
+    }
   }
 }
 
-/** Frame 0 = closed (with an amber padlock), frame 1 = open (transparent). */
-function drawDoor(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number): void {
+/**
+ * Frame 0 = closed (with an amber padlock), frame 1 = open (transparent).
+ * Light comes from the top-left, so the highlight sits on the top edge of
+ * horizontal doors and on the left edge of vertical ones.
+ */
+function drawDoor(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number, vertical: boolean): void {
   if (frame !== 0) return;
   rect(ctx, PLACEHOLDER_COLORS.doorClosed, ox, oy, w, h);
-  rect(ctx, COLORS.door, ox, oy, w, 2);
-  rect(ctx, COLORS.door, ox, oy + h / 2, w, 1);
+  if (vertical) {
+    rect(ctx, COLORS.door, ox, oy, 2, h);
+    rect(ctx, COLORS.door, ox + w / 2, oy, 1, h);
+  } else {
+    rect(ctx, COLORS.door, ox, oy, w, 2);
+    rect(ctx, COLORS.door, ox, oy + h / 2, w, 1);
+  }
   rect(ctx, COLORS.amber, ox + w / 2 - 2, oy + h / 2 - 2, 4, 4);
   rect(ctx, COLORS.amberDark, ox + w / 2 - 2, oy + h / 2 + 1, 4, 1);
 }
 
 export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def: ObjectDef): void {
   createSheet(scene, objectTextureKey(object), def.frameWidth, def.frameHeight, def.frames, 1, (ctx, col, _row, ox, oy) => {
-    if (object === ASSET_KEYS.windowPlanks) drawWindowPlanks(ctx, col, ox, oy, def.frameWidth, def.frameHeight);
-    else if (object === ASSET_KEYS.door) drawDoor(ctx, col, ox, oy, def.frameWidth, def.frameHeight);
-    else if (object === ASSET_KEYS.bullet || object === ASSET_KEYS.aimDot) {
-      rect(ctx, COLORS.amber, ox, oy, def.frameWidth, def.frameHeight);
-    } else {
-      rect(ctx, PLACEHOLDER_COLORS.generic, ox, oy, def.frameWidth, def.frameHeight);
-      rect(ctx, COLORS.ink, ox + 1, oy + 1, def.frameWidth - 2, def.frameHeight - 2);
+    const { frameWidth: w, frameHeight: h } = def;
+    switch (object) {
+      case ASSET_KEYS.windowPlanks:
+      case ASSET_KEYS.windowPlanksV:
+        drawWindowPlanks(ctx, col, ox, oy, w, h, object === ASSET_KEYS.windowPlanksV);
+        break;
+      case ASSET_KEYS.door:
+      case ASSET_KEYS.doorV:
+        drawDoor(ctx, col, ox, oy, w, h, object === ASSET_KEYS.doorV);
+        break;
+      case ASSET_KEYS.bullet:
+      case ASSET_KEYS.aimDot:
+        rect(ctx, COLORS.amber, ox, oy, w, h);
+        break;
+      default:
+        rect(ctx, PLACEHOLDER_COLORS.generic, ox, oy, w, h);
+        rect(ctx, COLORS.ink, ox + 1, oy + 1, w - 2, h - 2);
     }
   });
 }
