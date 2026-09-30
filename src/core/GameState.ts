@@ -26,6 +26,8 @@ export interface PlayerState {
   facing: number;
   /** True when the player moved during the last tick. */
   moving: boolean;
+  /** Analog speed factor of the last move (0..1); drives the run animation's pace. */
+  moveFactor: number;
   hp: number;
   maxHp: number;
   /** Simulated time of the last hit taken (regeneration waits after it). */
@@ -165,6 +167,7 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     prevY: y,
     facing: Math.PI / 2,
     moving: false,
+    moveFactor: 0,
     hp: PLAYER.maxHp,
     maxHp: PLAYER.maxHp,
     lastDamageTime: -Infinity,

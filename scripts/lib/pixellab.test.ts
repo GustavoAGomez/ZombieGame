@@ -1,23 +1,38 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { directionRows, normaliseAnimationName, parsePixelLabMetadata } from './pixellab';
+import { directionRows, normaliseAnimationName, parsePixelLabMetadata, selectAnimations, type ExportAnimation } from './pixellab';
 
 const realMetadata: unknown = JSON.parse(
   readFileSync(resolve(import.meta.dirname, '../../art-src/pixellab/player/metadata.json'), 'utf8'),
 );
 
 describe('parsePixelLabMetadata', () => {
-  it('turns a rotations-only state into a 1-frame animation named after it', () => {
+  it('reads the real player export: Running, Walking and the Idle rotations', () => {
     const parsed = parsePixelLabMetadata(realMetadata);
     expect(parsed.version).toBe('3.1');
     expect(parsed.warnings).toEqual([]);
-    expect(parsed.animations).toHaveLength(1);
-    const idle = parsed.animations[0]!;
-    expect(idle.name).toBe('idle');
+    expect(parsed.animations.map((a) => [a.name, a.sourceName])).toEqual([
+      ['walk', 'Running'],
+      ['walk', 'Walking'],
+      ['idle', 'Idle (rotaciones)'],
+    ]);
+    const idle = parsed.animations[2]!;
     expect([idle.width, idle.height]).toEqual([48, 48]);
     expect(idle.frames.get('south')).toEqual(['Idle/rotations/south.png']);
-    expect(idle.frames.size).toBe(8);
+    expect(parsed.animations[0]!.frames.get('east')).toHaveLength(6);
+
+    const { selected, skipped } = selectAnimations(parsed.animations);
+    expect(selected.map((a) => a.sourceName)).toEqual(['Running', 'Idle (rotaciones)']);
+    expect(skipped).toEqual(['"Walking": solo tiene south; se omite']);
+  });
+
+  it('turns a rotations-only state into a 1-frame animation named after it', () => {
+    const parsed = parsePixelLabMetadata({
+      export_version: '3.1',
+      states: [{ character: { name: 'Idle', size: { width: 48, height: 48 } }, folder: 'Idle', frames: { rotations: { south: 's.png' }, animations: {} } }],
+    });
+    expect(parsed.animations.map((a) => a.name)).toEqual(['idle']);
   });
 
   it('reads animations given as frame lists per direction', () => {
@@ -34,6 +49,7 @@ describe('parsePixelLabMetadata', () => {
         },
       ],
     });
+    // The animation, plus the rotations as the state's still pose ("Walking" → walk is taken, so no extra).
     expect(parsed.animations.map((a) => a.name)).toEqual(['walk']);
     expect(parsed.animations[0]!.frames.get('south')).toEqual(['a.png', 'b.png']);
     expect(parsed.animations[0]!.frames.get('east')).toEqual(['c.png']);
@@ -88,5 +104,47 @@ describe('directionRows', () => {
   it('accepts 4-direction exports and rejects incomplete ones', () => {
     expect(directionRows(all(['south', 'east', 'north', 'west'])).directions).toBe(4);
     expect(() => directionRows(all(['south', 'east']))).toThrow(/north/);
+  });
+});
+
+describe('selectAnimations', () => {
+  const DIRS = ['south', 'south-east', 'east', 'north-east', 'north', 'north-west', 'west', 'south-west'];
+  const anim = (sourceName: string, name: string, dirs: string[]): ExportAnimation => ({
+    name,
+    sourceName,
+    width: 48,
+    height: 48,
+    frames: new Map(dirs.map((d) => [d, [`${d}.png`]])),
+  });
+
+  it('imports the rotations as idle next to the animations (real export shape)', () => {
+    const parsed = parsePixelLabMetadata({
+      export_version: '3.1',
+      states: [
+        {
+          character: { name: 'Idle', size: { width: 48, height: 48 } },
+          folder: 'Idle',
+          frames: {
+            rotations: Object.fromEntries(DIRS.map((d) => [d, `Idle/rotations/${d}.png`])),
+            animations: {
+              Running: Object.fromEntries(DIRS.map((d) => [d, [`r/${d}/0.png`, `r/${d}/1.png`]])),
+              Walking: { south: ['w/south/0.png'] },
+            },
+          },
+        },
+      ],
+    });
+    const { selected, skipped } = selectAnimations(parsed.animations);
+    expect(selected.map((a) => [a.name, a.sourceName])).toEqual([
+      ['walk', 'Running'],
+      ['idle', 'Idle (rotaciones)'],
+    ]);
+    expect(skipped).toEqual(['"Walking": solo tiene south; se omite']);
+  });
+
+  it('prefers a run over a walk when both are complete', () => {
+    const { selected, skipped } = selectAnimations([anim('Walking', 'walk', DIRS), anim('Running', 'walk', DIRS)]);
+    expect(selected.map((a) => a.sourceName)).toEqual(['Running']);
+    expect(skipped).toHaveLength(1);
   });
 });

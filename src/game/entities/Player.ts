@@ -6,6 +6,10 @@ import { actorDepth } from '../depth';
 
 export type PlayerAnimation = 'idle' | 'walk' | 'shoot' | 'dash' | 'death';
 
+/** Slowest pace of the run animation, as a fraction of its frame rate. */
+const MIN_RUN_TIME_SCALE = 0.5;
+const RUN_PREFIX = `${ASSET_KEYS.player}:walk:`;
+
 /** Player sprite. Reads PlayerState every frame and holds no game logic. */
 export class PlayerView {
   readonly sprite: Phaser.GameObjects.Sprite;
@@ -21,11 +25,18 @@ export class PlayerView {
     const x = lerp(player.prevX, player.x, alpha);
     const y = lerp(player.prevY, player.y, alpha);
     this.sprite.setPosition(x, y).setDepth(actorDepth(y));
-    const key = animationKey(ASSET_KEYS.player, pickAnimation(player), dir8FromAngle(player.facing));
+    const animation = pickAnimation(player);
+    const key = animationKey(ASSET_KEYS.player, animation, dir8FromAngle(player.facing));
     if (key !== this.playing) {
+      // Turning while running keeps the stride instead of restarting the cycle.
+      const progress = this.playing.startsWith(RUN_PREFIX) && animation === 'walk' ? this.sprite.anims.getProgress() : 0;
       this.playing = key;
       this.sprite.play(key);
+      if (progress > 0) this.sprite.anims.setProgress(progress);
     }
+    // The run cycle follows the analog speed so a slow jog does not look like sliding.
+    const timeScale = animation === 'walk' ? Math.max(MIN_RUN_TIME_SCALE, player.moveFactor) : 1;
+    if (this.sprite.anims.timeScale !== timeScale) this.sprite.anims.timeScale = timeScale;
   }
 }
 

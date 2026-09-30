@@ -39,21 +39,26 @@ describe('applyImport', () => {
 });
 
 describe('importAssets (end to end on a copy of the repo assets)', () => {
-  it('writes the player idle sheet and a manifest that passes assets:check', () => {
+  it('writes the player idle and run sheets and a manifest that passes assets:check', () => {
     tmp = mkdtempSync(join(tmpdir(), 'zombies-import-'));
     cpSync(join(repo, 'public/assets'), join(tmp, 'public/assets'), { recursive: true });
     cpSync(join(repo, 'art-src/pixellab/player'), join(tmp, 'art-src/pixellab/player'), { recursive: true });
     const lines: string[] = [];
-    expect(importAssets(tmp, [], (l) => lines.push(l))).toBe(1);
+    expect(importAssets(tmp, [], (l) => lines.push(l))).toBe(2);
 
     const png = decodePng(readFileSync(join(tmp, 'public/assets/sprites/player/idle.png')));
     expect([png.width, png.height]).toEqual([48, 48 * 8]);
+    const run = decodePng(readFileSync(join(tmp, 'public/assets/sprites/player/walk.png')));
+    expect([run.width, run.height]).toEqual([48 * 6, 48 * 8]);
+    expect(lines.some((l) => l.includes('56×56'))).toBe(true);
     const manifest = JSON.parse(readFileSync(join(tmp, 'public/assets/manifest.json'), 'utf8')) as {
       characters: Record<string, { placeholder: boolean; animations: Record<string, { frames: number; placeholder?: boolean }> }>;
     };
     expect(manifest.characters.player?.placeholder).toBe(false);
     expect(manifest.characters.player?.animations.idle).toMatchObject({ frames: 1 });
-    expect(manifest.characters.player?.animations.walk?.placeholder).toBe(true);
+    expect(manifest.characters.player?.animations.walk).toMatchObject({ frames: 6 });
+    expect(manifest.characters.player?.animations.walk?.placeholder).toBeUndefined();
+    expect(manifest.characters.player?.animations.shoot?.placeholder).toBe(true);
     expect(checkAssets(tmp).errors).toEqual([]);
   });
 });
@@ -74,7 +79,8 @@ describe('importAssets with one export per subfolder', () => {
         states: [{ character: { name: 'Walk', size: { width: 48, height: 48 } }, folder: 'Idle', frames: { rotations: {}, animations: { walking: walk } } }],
       }),
     );
-    expect(importAssets(tmp, ['player'], () => undefined)).toBe(2);
+    // idle/ brings Running (walk) + rotations (idle); walk/ brings another walk, which wins as the later one.
+    expect(importAssets(tmp, ['player'], () => undefined)).toBe(3);
     const manifest = JSON.parse(readFileSync(join(tmp, 'public/assets/manifest.json'), 'utf8')) as {
       characters: Record<string, { animations: Record<string, { frames: number; placeholder?: boolean }> }>;
     };

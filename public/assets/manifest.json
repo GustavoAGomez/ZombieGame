@@ -23,9 +23,8 @@
         "walk": {
           "file": "sprites/player/walk.png",
           "frames": 6,
-          "fps": 10,
-          "loop": true,
-          "placeholder": true
+          "fps": 12,
+          "loop": true
         },
         "shoot": {
           "file": "sprites/player/shoot.png",

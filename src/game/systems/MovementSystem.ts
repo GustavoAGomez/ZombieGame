@@ -20,6 +20,7 @@ export function updateMovement(ctx: SimContext, dt: number): void {
       my /= len;
     }
     player.moving = len > 0;
+    player.moveFactor = Math.min(1, len);
     if (!player.moving) continue;
 
     moveCircle(grid, player, mx * PLAYER.speed * dt, my * PLAYER.speed * dt, PLAYER.hitboxRadius, BLOCK_PLAYER);

@@ -7,28 +7,23 @@ export interface Frame {
   pixels: Uint8Array;
 }
 
-export interface Anchor {
-  x: number;
-  y: number;
-}
-
 /**
  * Builds a sheet with one row per direction and one column per frame.
- * Each source frame is placed so that its anchor lands on the frame's
- * anchor (sources larger than the frame are cropped, smaller ones padded).
+ * A source canvas of another size (PixelLab sometimes renders a direction
+ * at 56×56 instead of 48×48) is assumed to be padded evenly around the
+ * character, so it is centred: 56×56 loses 4 px on each side. The anchor
+ * therefore keeps its pixel position relative to the canvas centre.
  */
-export function buildSheet(rows: Frame[][], frameWidth: number, frameHeight: number, anchor: Anchor): Frame {
+export function buildSheet(rows: Frame[][], frameWidth: number, frameHeight: number): Frame {
   const columns = Math.max(0, ...rows.map((r) => r.length));
   const width = frameWidth * columns;
   const height = frameHeight * rows.length;
   const pixels = new Uint8Array(width * height * 4);
-  const destAx = Math.round(frameWidth * anchor.x);
-  const destAy = Math.round(frameHeight * anchor.y);
 
   rows.forEach((row, r) => {
     row.forEach((src, c) => {
-      const offX = destAx - Math.round(src.width * anchor.x);
-      const offY = destAy - Math.round(src.height * anchor.y);
+      const offX = Math.floor((frameWidth - src.width) / 2);
+      const offY = Math.floor((frameHeight - src.height) / 2);
       for (let y = 0; y < src.height; y++) {
         const fy = y + offY;
         if (fy < 0 || fy >= frameHeight) continue;
@@ -46,6 +41,22 @@ export function buildSheet(rows: Frame[][], frameWidth: number, frameHeight: num
     });
   });
   return { width, height, pixels };
+}
+
+/** Opaque pixels that fall outside the frame when `src` is centred in it (would be cropped). */
+export function croppedPixels(src: Frame, frameWidth: number, frameHeight: number): number {
+  const offX = Math.floor((frameWidth - src.width) / 2);
+  const offY = Math.floor((frameHeight - src.height) / 2);
+  let lost = 0;
+  for (let y = 0; y < src.height; y++) {
+    for (let x = 0; x < src.width; x++) {
+      if ((src.pixels[(y * src.width + x) * 4 + 3] ?? 0) === 0) continue;
+      const fx = x + offX;
+      const fy = y + offY;
+      if (fx < 0 || fy < 0 || fx >= frameWidth || fy >= frameHeight) lost++;
+    }
+  }
+  return lost;
 }
 
 /** Pixel art has no partial transparency: alpha becomes 0 or 255. Returns how many pixels changed. */

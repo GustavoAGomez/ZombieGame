@@ -35,6 +35,7 @@ export function updateSpecial(ctx: SimContext, dt: number): void {
       moveCircle(grid, p, p.dashDirX * dist, p.dashDirY * dist, PLAYER.hitboxRadius, BLOCK_PLAYER);
       p.dashTimer -= t;
       p.moving = true;
+      p.moveFactor = 1;
       p.facing = Math.atan2(p.dashDirY, p.dashDirX);
     }
   }

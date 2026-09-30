@@ -13,8 +13,8 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSy
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { decodePng, encodePng, parsePaletteHex } from './lib/png';
-import { directionRows, parsePixelLabMetadata, type ExportAnimation } from './lib/pixellab';
-import { binarizeAlpha, buildSheet, opaqueBounds, quantize, type Frame } from './lib/sheet';
+import { directionRows, parsePixelLabMetadata, selectAnimations, type ExportAnimation } from './lib/pixellab';
+import { binarizeAlpha, buildSheet, croppedPixels, opaqueBounds, quantize, type Frame } from './lib/sheet';
 
 /** Defaults for animations the manifest does not declare yet. */
 const ANIMATION_DEFAULTS: Record<string, { fps: number; loop: boolean }> = {
@@ -71,6 +71,15 @@ export function applyImport(manifest: Json, asset: string, imported: ImportedAni
   }
 }
 
+function cutFrame(sheet: Frame, col: number, row: number, w: number, h: number): Frame {
+  const pixels = new Uint8Array(w * h * 4);
+  for (let y = 0; y < h; y++) {
+    const start = ((row * h + y) * sheet.width + col * w) * 4;
+    pixels.set(sheet.pixels.subarray(start, start + w * 4), y * w * 4);
+  }
+  return { width: w, height: h, pixels };
+}
+
 function readFrame(path: string): Frame {
   const png = decodePng(readFileSync(path));
   return { width: png.width, height: png.height, pixels: png.pixels };
@@ -88,10 +97,7 @@ function importAnimation(
   const frameWidth = typeof character.frameWidth === 'number' ? character.frameWidth : anim.width || 48;
   const frameHeight = typeof character.frameHeight === 'number' ? character.frameHeight : anim.height || 48;
   const anchorRaw = isRecord(character.anchor) ? character.anchor : {};
-  const anchor = {
-    x: typeof anchorRaw.x === 'number' ? anchorRaw.x : 0.5,
-    y: typeof anchorRaw.y === 'number' ? anchorRaw.y : 0.8,
-  };
+  const anchorY = typeof anchorRaw.y === 'number' ? anchorRaw.y : 0.8;
 
   const { directions, rows } = directionRows(anim.frames);
   const counts = new Set(rows.map((r) => r.length));
@@ -100,17 +106,28 @@ function importAnimation(
   if (frames === 0) throw new Error(`${anim.sourceName}: sin frames`);
 
   const decoded = rows.map((row) => row.map((rel) => readFrame(join(sourceDir, rel))));
-  const sizes = new Set(decoded.flat().map((f) => `${f.width}×${f.height}`));
-  if (!sizes.has(`${frameWidth}×${frameHeight}`) || sizes.size > 1) {
-    log(`  · ${anim.sourceName}: lienzo ${[...sizes].join(', ')} → ${frameWidth}×${frameHeight} alineado por el ancla`);
+  const odd = decoded.flat().filter((f) => f.width !== frameWidth || f.height !== frameHeight);
+  if (odd.length > 0) {
+    const sizes = [...new Set(odd.map((f) => `${f.width}×${f.height}`))].join(', ');
+    log(`  · ${anim.sourceName}: ${odd.length} frames de ${sizes}, centrados en ${frameWidth}×${frameHeight}`);
+    const lost = odd.reduce((n, f) => n + croppedPixels(f, frameWidth, frameHeight), 0);
+    if (lost > 0) log(`  ⚠ ${anim.sourceName}: se recortan ${lost} píxeles del personaje al centrarlo`);
   }
 
-  // Report where the feet land so the manifest anchor can be checked against the art.
-  const bottoms = decoded.flat().map((f) => opaqueBounds(f)?.maxY ?? 0).sort((a, b) => a - b);
-  const feet = bottoms[Math.floor(bottoms.length / 2)] ?? 0;
-  log(`  · ${anim.sourceName}: pies en y≈${feet} de ${frameHeight} (ancla del manifiesto y=${Math.round(anchor.y * frameHeight)})`);
+  const sheet = buildSheet(decoded, frameWidth, frameHeight);
 
-  const sheet = buildSheet(decoded, frameWidth, frameHeight, anchor);
+  // Report where the feet land so the manifest anchor can be checked against the art.
+  const bottoms: number[] = [];
+  for (let r = 0; r < rows.length; r++) {
+    for (let c = 0; c < frames; c++) {
+      const cell = cutFrame(sheet, c, r, frameWidth, frameHeight);
+      bottoms.push(opaqueBounds(cell)?.maxY ?? 0);
+    }
+  }
+  bottoms.sort((a, b) => a - b);
+  const feet = bottoms[Math.floor(bottoms.length / 2)] ?? 0;
+  log(`  · ${anim.sourceName}: pies en y≈${feet} de ${frameHeight} (ancla del manifiesto y=${Math.round(anchorY * frameHeight)})`);
+
   const softened = binarizeAlpha(sheet);
   if (softened > 0) log(`  · ${anim.sourceName}: ${softened} píxeles semitransparentes pasados a alfa 0/255`);
   if (palette) {
@@ -175,7 +192,9 @@ export function importAssets(root: string, only: readonly string[], log: (line: 
     for (const exportDir of exports) {
       const parsed = parsePixelLabMetadata(JSON.parse(readFileSync(join(exportDir, 'metadata.json'), 'utf8')));
       for (const w of parsed.warnings) log(`  ⚠ ${w}`);
-      for (const anim of parsed.animations) {
+      const { selected, skipped } = selectAnimations(parsed.animations);
+      for (const line of skipped) log(`  ⚠ ${line}`);
+      for (const anim of selected) {
         const previous = seen.get(anim.name);
         if (previous) log(`  ⚠ "${anim.name}" aparece en ${previous} y en ${exportDir}; se usa el último`);
         seen.set(anim.name, exportDir);

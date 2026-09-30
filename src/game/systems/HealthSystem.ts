@@ -28,6 +28,7 @@ export function damagePlayer(ctx: SimContext, p: PlayerState, amount: number, fr
     p.firing = false;
     p.aimManual = false;
     p.moving = false;
+    p.moveFactor = 0;
     ctx.events.emit('player:died', { playerId: p.id });
   }
   return true;

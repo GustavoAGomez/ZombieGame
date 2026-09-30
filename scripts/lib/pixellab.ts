@@ -35,7 +35,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 const ALIASES: readonly (readonly [RegExp, string])[] = [
   [/idle|breath|stand|rotation/, 'idle'],
-  [/walk|run|jog/, 'walk'],
+  // `walk` is the movement loop; for the player it is a run.
+  [/walk|run|jog|sprint/, 'walk'],
   [/shoot|fire|gun/, 'shoot'],
   [/attack|punch|bite|swipe|tear/, 'attack'],
   [/dash|roll|dodge/, 'dash'],
@@ -90,10 +91,12 @@ export function parsePixelLabMetadata(json: unknown): PixelLabExport {
       animations.push({ name: normaliseAnimationName(animName), sourceName: animName, width, height, frames });
     }
 
-    // A state without animations is a set of static rotations: use it as a 1-frame animation.
-    if (Object.keys(anims).length === 0) {
-      const frames = framesFromDirectionMap(state.frames.rotations);
-      if (frames.size > 0) animations.push({ name: normaliseAnimationName(stateName), sourceName: stateName, width, height, frames });
+    // The rotations are the character standing still: a 1-frame animation named after the
+    // state ("Idle" → idle), unless one of its animations already maps to that name.
+    const rotations = framesFromDirectionMap(state.frames.rotations);
+    const rotationName = normaliseAnimationName(stateName);
+    if (rotations.size > 0 && !animations.some((a) => a.name === rotationName)) {
+      animations.push({ name: rotationName, sourceName: `${stateName} (rotaciones)`, width, height, frames: rotations });
     }
   }
   return { version, animations, warnings };
@@ -110,4 +113,49 @@ export function directionRows(frames: Map<string, string[]>): { directions: 4 | 
   if (has4) return { directions: 4, rows: DIRECTIONS_4.map((d) => frames.get(d) ?? []) };
   const missing = DIRECTIONS_8.filter((d) => !frames.has(d));
   throw new Error(`Faltan direcciones: ${missing.join(', ')}`);
+}
+
+export interface Selection {
+  selected: ExportAnimation[];
+  skipped: string[];
+}
+
+function isComplete(anim: ExportAnimation): boolean {
+  try {
+    directionRows(anim.frames);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Running beats walking when both map to `walk`: the movement loop is a run. */
+function priority(anim: ExportAnimation): number {
+  return /run|sprint|jog/i.test(anim.sourceName) ? 1 : 0;
+}
+
+/**
+ * Keeps one export animation per manifest name. Animations missing
+ * directions are skipped; among complete ones for the same name, a run
+ * wins over a walk, then the first one found.
+ */
+export function selectAnimations(animations: readonly ExportAnimation[]): Selection {
+  const skipped: string[] = [];
+  const byName = new Map<string, ExportAnimation>();
+  for (const anim of animations) {
+    if (!isComplete(anim)) {
+      skipped.push(`"${anim.sourceName}": solo tiene ${[...anim.frames.keys()].join(', ')}; se omite`);
+      continue;
+    }
+    const current = byName.get(anim.name);
+    if (!current) {
+      byName.set(anim.name, anim);
+    } else if (priority(anim) > priority(current)) {
+      skipped.push(`"${current.sourceName}" y "${anim.sourceName}" van a "${anim.name}"; se usa "${anim.sourceName}"`);
+      byName.set(anim.name, anim);
+    } else {
+      skipped.push(`"${current.sourceName}" y "${anim.sourceName}" van a "${anim.name}"; se usa "${current.sourceName}"`);
+    }
+  }
+  return { selected: [...byName.values()], skipped };
 }
