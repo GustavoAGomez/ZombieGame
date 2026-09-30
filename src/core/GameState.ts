@@ -15,6 +15,8 @@ export interface PlayerState {
   prevY: number;
   /** Facing angle in radians (0 = east, π/2 = south). */
   facing: number;
+  /** True when the player moved during the last tick. */
+  moving: boolean;
 }
 
 export interface GameState extends RngState {
@@ -32,7 +34,7 @@ export interface GameState extends RngState {
 }
 
 export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
-  return { id, x, y, prevX: x, prevY: y, facing: Math.PI / 2 };
+  return { id, x, y, prevX: x, prevY: y, facing: Math.PI / 2, moving: false };
 }
 
 export function createGameState(map: MapData, seed = 1): GameState {

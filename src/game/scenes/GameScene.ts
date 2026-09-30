@@ -3,6 +3,8 @@ import { SIM } from '../../config/balance';
 import { DISPLAY, computeWorldZoom } from '../../config/display';
 import { FixedStep } from '../../core/FixedStep';
 import { createGameState, type GameState } from '../../core/GameState';
+import { createInputCommand } from '../../core/InputCommand';
+import { InputCollector } from '../../input/InputCollector';
 import type { AssetLibrary } from '../assets/AssetLibrary';
 import { ASSET_KEYS } from '../assets/manifest';
 import { PlayerView } from '../entities/Player';
@@ -10,6 +12,8 @@ import { buildCollisionGrid, type CollisionGrid } from '../map/CollisionGrid';
 import type { MapData } from '../map/MapLoader';
 import { MapView } from '../map/MapView';
 import type { Services } from '../services';
+import type { SimContext } from '../systems/SimContext';
+import { stepSimulation } from '../systems/Simulation';
 import { SCENE_KEYS, type GameSceneData } from './BootScene';
 
 export class GameScene extends Phaser.Scene {
@@ -20,6 +24,8 @@ export class GameScene extends Phaser.Scene {
   private grid!: CollisionGrid;
   private mapView!: MapView;
   private playerView!: PlayerView;
+  private controls!: InputCollector;
+  private sim!: SimContext;
   private readonly fixedStep = new FixedStep(SIM.hz, SIM.maxStepsPerFrame, SIM.maxFrameMs);
 
   constructor() {
@@ -35,6 +41,14 @@ export class GameScene extends Phaser.Scene {
     this.map = this.assets.map(ASSET_KEYS.mapRoom01);
     this.state = createGameState(this.map);
     this.grid = buildCollisionGrid(this.map, this.state.doorsOpen);
+    this.sim = {
+      state: this.state,
+      map: this.map,
+      grid: this.grid,
+      commands: this.state.players.map(() => createInputCommand()),
+      events: this.services.events,
+    };
+    this.controls = new InputCollector(this.services.hudRoot);
     this.fixedStep.reset();
 
     this.mapView = new MapView(this, this.map);
@@ -52,6 +66,7 @@ export class GameScene extends Phaser.Scene {
     this.scale.on(Phaser.Scale.Events.RESIZE, this.applyZoom);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.scale.off(Phaser.Scale.Events.RESIZE, this.applyZoom);
+      this.controls.destroy();
     });
   }
 
@@ -62,18 +77,14 @@ export class GameScene extends Phaser.Scene {
   }
 
   private step(dt: number): void {
-    const state = this.state;
-    for (const p of state.players) {
-      p.prevX = p.x;
-      p.prevY = p.y;
-    }
-    state.tick++;
-    state.time += dt;
+    const localCommand = this.sim.commands[0];
+    if (localCommand) this.controls.sample(localCommand, this.state.tick);
+    stepSimulation(this.sim, dt);
   }
 
   private syncViews(alpha: number): void {
     const player = this.state.players[0];
-    if (player) this.playerView.sync(player, alpha, 'idle');
+    if (player) this.playerView.sync(player, alpha, player.moving ? 'walk' : 'idle');
     this.mapView.sync(this.state);
   }
 
