@@ -72,3 +72,100 @@
 .hud-weapon.is-switching {
   opacity: 0.55;
 }
+
+/* Top-left block: health row + round (spec 01 §5). */
+.hud-left {
+  position: absolute;
+  left: var(--pad-x);
+  top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hud-heart {
+  display: block;
+}
+
+.hud-health.is-low .hud-heart {
+  animation: hud-heartbeat 0.6s steps(2, jump-none) infinite;
+}
+
+@keyframes hud-heartbeat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+.hud-bar {
+  width: 176px;
+  height: 14px;
+  padding: 2px;
+  display: flex;
+  gap: 2px;
+  background: var(--ink);
+  box-shadow: 0 0 0 2px #3a2f25;
+}
+
+.hud-bar__seg {
+  flex: 1 1 0;
+  background: var(--red-dark);
+}
+
+.hud-bar__seg.is-full {
+  background: var(--red);
+}
+
+.hud-health.is-low .hud-bar__seg.is-full {
+  background: var(--red-low);
+}
+
+.hud-hp {
+  font-family: var(--font-display);
+  font-size: 10px;
+  min-width: 30px;
+  text-shadow: 2px 2px 0 var(--ink);
+}
+
+.hud-round {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--red);
+  text-shadow: 3px 3px 0 var(--ink);
+}
+
+/* Red pixel border for 200 ms when the player is hit (spec 01 §4.1). */
+.hud-damage {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 4px var(--red),
+    inset 0 0 0 8px rgba(201, 58, 43, 0.55),
+    inset 0 0 0 12px rgba(58, 21, 17, 0.45);
+}
+
+.hud-damage.is-visible {
+  opacity: 1;
+}
+
+.hud-dead {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  transform: translate(-50%, -50%);
+  display: none;
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--red);
+  text-shadow: 3px 3px 0 var(--ink);
+}
+
+.hud-dead.is-visible {
+  display: block;
+}

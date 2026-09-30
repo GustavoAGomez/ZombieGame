@@ -1,6 +1,6 @@
 .debug-panel {
   position: absolute;
-  left: calc(var(--pad-x) + 220px);
+  left: calc(var(--pad-x) + 268px);
   top: 14px;
   z-index: 900;
   padding: 6px 8px;

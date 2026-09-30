@@ -1,9 +1,12 @@
 import { updateBullets } from './BulletSystem';
-import { updateDummies } from './DummySystem';
+import { updateBlood } from './Combat';
+import { updateHealth } from './HealthSystem';
 import { updateMovement } from './MovementSystem';
 import type { SimContext } from './SimContext';
+import { updateSpawns } from './SpawnSystem';
 import { updateSpecial } from './SpecialSystem';
 import { updateWeapons } from './WeaponSystem';
+import { updateZombies } from './ZombieSystem';
 
 /**
  * Advances the match by one fixed step. The order of systems is the order
@@ -19,7 +22,10 @@ export function stepSimulation(ctx: SimContext, dt: number): void {
   updateMovement(ctx, dt);
   updateWeapons(ctx, dt);
   updateBullets(ctx, dt);
-  updateDummies(ctx, dt);
+  updateSpawns(ctx, dt);
+  updateZombies(ctx, dt);
+  updateHealth(ctx, dt);
+  updateBlood(ctx, dt);
   state.tick++;
   state.time += dt;
 }

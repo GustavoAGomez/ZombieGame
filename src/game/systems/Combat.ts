@@ -1,19 +1,59 @@
 import { ZOMBIES } from '../../config/balance';
-import type { ZombieState } from '../../core/GameState';
+import type { BloodState, ZombieState } from '../../core/GameState';
+import { random } from '../../core/Rng';
 import { BLOCK_SIGHT, segmentClear } from '../map/CollisionGrid';
 import type { SimContext } from './SimContext';
 
 export function isZombieAlive(z: ZombieState): boolean {
-  return z.active && z.hp > 0;
+  return z.active && z.hp > 0 && z.ai !== 'dead';
 }
 
 /** Applies damage; returns true if this hit killed the zombie. */
-export function damageZombie(_ctx: SimContext, z: ZombieState, amount: number): boolean {
+export function damageZombie(ctx: SimContext, z: ZombieState, amount: number): boolean {
   if (!isZombieAlive(z)) return false;
   z.hp -= amount;
   if (z.hp > 0) return false;
   z.hp = 0;
+  z.ai = 'dead';
+  z.timer = ZOMBIES.corpseTime;
+  z.stateTick = ctx.state.tick;
+  spawnBlood(ctx, z.x, z.y);
+  ctx.events.emit('zombie:killed', { x: z.x, y: z.y, kind: z.kind });
   return true;
+}
+
+/** Leaves a blood decal; when all 40 are in use, the oldest is reused. */
+export function spawnBlood(ctx: SimContext, x: number, y: number): BloodState | undefined {
+  const { blood } = ctx.state;
+  let slot: BloodState | undefined;
+  let oldest: BloodState | undefined;
+  for (let i = 0; i < blood.length; i++) {
+    const b = blood[i];
+    if (!b) continue;
+    if (!b.active) {
+      slot = b;
+      break;
+    }
+    if (!oldest || b.age > oldest.age) oldest = b;
+  }
+  slot ??= oldest;
+  if (!slot) return undefined;
+  slot.active = true;
+  slot.x = x;
+  slot.y = y;
+  slot.age = 0;
+  slot.variant = Math.floor(random(ctx.state) * ZOMBIES.bloodVariants);
+  return slot;
+}
+
+export function updateBlood(ctx: SimContext, dt: number): void {
+  const { blood } = ctx.state;
+  for (let i = 0; i < blood.length; i++) {
+    const b = blood[i];
+    if (!b?.active) continue;
+    b.age += dt;
+    if (b.age >= ZOMBIES.bloodFadeTime) b.active = false;
+  }
 }
 
 /**

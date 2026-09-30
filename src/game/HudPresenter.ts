@@ -1,4 +1,4 @@
-import { DASH, type WeaponId } from '../config/balance';
+import { DASH, PLAYER, type WeaponId } from '../config/balance';
 import type { EventBus } from '../core/EventBus';
 import type { GameState } from '../core/GameState';
 import { reloadProgress } from './systems/WeaponSystem';
@@ -18,12 +18,25 @@ export class HudPresenter {
   private reload: number | null = -1;
   private switching = false;
   private cooldownStep = -1;
+  private hp = -1;
+  private round = -1;
 
   constructor(private readonly events: EventBus) {}
 
   publish(state: GameState, playerIndex = 0): void {
     const p = state.players[playerIndex];
     if (!p) return;
+
+    const hp = Math.ceil(p.hp);
+    if (hp !== this.hp) {
+      this.hp = hp;
+      this.events.emit('player:health', { hp, maxHp: p.maxHp, low: hp > 0 && hp < PLAYER.lowHpThreshold });
+    }
+
+    if (state.wave.round !== this.round) {
+      this.round = state.wave.round;
+      this.events.emit('round:changed', { round: this.round });
+    }
 
     const slot = p.weapons[p.activeSlot];
     if (slot) {

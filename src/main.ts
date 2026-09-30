@@ -4,7 +4,7 @@ import '@fontsource/silkscreen/latin-400.css';
 import './ui/global.css';
 import { COLORS, applyThemeTokens } from './config/theme';
 import { EventBus } from './core/EventBus';
-import { DebugOverlay, isDebugRequested } from './debug/DebugOverlay';
+import { DebugOverlay, isDebugRequested, requestedStartRound } from './debug/DebugOverlay';
 import { BootScene } from './game/scenes/BootScene';
 import { GameScene } from './game/scenes/GameScene';
 import type { Services } from './game/services';
@@ -28,6 +28,7 @@ const services: Services = {
   hudRoot,
   debug: isDebugRequested(),
   stats: { fps: 0 },
+  startRound: requestedStartRound(),
 };
 
 const size = measureViewport(gameRoot);

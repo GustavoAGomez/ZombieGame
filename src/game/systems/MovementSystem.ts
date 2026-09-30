@@ -1,5 +1,6 @@
-import { PLAYER } from '../../config/balance';
-import { BLOCK_PLAYER, moveCircle } from '../map/CollisionGrid';
+import { PLAYER, ZOMBIES } from '../../config/balance';
+import type { PlayerState, ZombieState } from '../../core/GameState';
+import { BLOCK_PLAYER, moveCircle, resolveCircle } from '../map/CollisionGrid';
 import type { SimContext } from './SimContext';
 import { isDashing } from './SpecialSystem';
 
@@ -9,7 +10,7 @@ export function updateMovement(ctx: SimContext, dt: number): void {
   for (let i = 0; i < state.players.length; i++) {
     const player = state.players[i];
     const cmd = commands[i];
-    if (!player || !cmd || isDashing(player)) continue;
+    if (!player || !cmd || player.hp <= 0 || isDashing(player)) continue;
 
     let mx = cmd.moveX;
     let my = cmd.moveY;
@@ -22,6 +23,31 @@ export function updateMovement(ctx: SimContext, dt: number): void {
     if (!player.moving) continue;
 
     moveCircle(grid, player, mx * PLAYER.speed * dt, my * PLAYER.speed * dt, PLAYER.hitboxRadius, BLOCK_PLAYER);
+    blockByZombies(ctx, player);
     player.facing = Math.atan2(my, mx);
   }
+}
+
+/** Zombies are solid: the player cannot walk into them (only dash through). */
+function blockByZombies(ctx: SimContext, p: PlayerState): void {
+  const minDist = PLAYER.hitboxRadius + ZOMBIES.hitboxRadius;
+  let pushed = false;
+  const { zombies } = ctx.state;
+  for (let i = 0; i < zombies.length; i++) {
+    const z = zombies[i];
+    if (!z || !solid(z)) continue;
+    const dx = p.x - z.x;
+    const dy = p.y - z.y;
+    const distSq = dx * dx + dy * dy;
+    if (distSq >= minDist * minDist || distSq < 1e-9) continue;
+    const dist = Math.sqrt(distSq);
+    p.x += (dx / dist) * (minDist - dist);
+    p.y += (dy / dist) * (minDist - dist);
+    pushed = true;
+  }
+  if (pushed) resolveCircle(ctx.grid, p, PLAYER.hitboxRadius, BLOCK_PLAYER);
+}
+
+function solid(z: ZombieState): boolean {
+  return z.active && z.hp > 0 && z.ai !== 'dead' && z.ai !== 'climbing';
 }

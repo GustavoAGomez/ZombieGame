@@ -28,6 +28,8 @@ export interface PlayerState {
   moving: boolean;
   hp: number;
   maxHp: number;
+  /** Simulated time of the last hit taken (regeneration waits after it). */
+  lastDamageTime: number;
 
   weapons: WeaponSlotState[];
   activeSlot: number;
@@ -72,8 +74,11 @@ export interface BulletState {
   remaining: number;
 }
 
-/** Only 'dummy' exists until the zombie AI lands in phase 4. */
-export type ZombieAi = 'dummy';
+/**
+ * Zombie behaviour (spec 01 §4.4): toWindow → tearing → climbing →
+ * chasing ⇄ attacking → dead. 'idle' stands still (tests and debug tools).
+ */
+export type ZombieAi = 'toWindow' | 'tearing' | 'climbing' | 'chasing' | 'attacking' | 'dead' | 'idle';
 
 export interface ZombieState {
   active: boolean;
@@ -86,11 +91,36 @@ export interface ZombieState {
   facing: number;
   hp: number;
   maxHp: number;
-  /** Generic timer used by the current AI state (e.g. dummy respawn). */
+  /** Index into MapData.windows of the window this zombie comes through. */
+  window: number;
+  /** Countdown used by the current state (tear, climb, windup, corpse). */
   timer: number;
-  /** Where this zombie (re)spawns; dummies return here. */
-  homeX: number;
-  homeY: number;
+  /** Seconds until this zombie may start another attack. */
+  attackCooldown: number;
+  /** Where the climb started, to interpolate to the window's interior point. */
+  fromX: number;
+  fromY: number;
+  /** Tick when the current state started. */
+  stateTick: number;
+  /** Tick of the last tear or strike (views restart the attack animation). */
+  actionTick: number;
+}
+
+export interface BloodState {
+  active: boolean;
+  x: number;
+  y: number;
+  /** Seconds since it appeared. */
+  age: number;
+  variant: number;
+}
+
+export interface WaveState {
+  round: number;
+  /** Zombies still to spawn this round; -1 = unlimited. */
+  toSpawn: number;
+  /** Seconds until the next spawn attempt. */
+  spawnTimer: number;
 }
 
 export interface GameState extends RngState {
@@ -101,6 +131,8 @@ export interface GameState extends RngState {
   players: PlayerState[];
   bullets: BulletState[];
   zombies: ZombieState[];
+  blood: BloodState[];
+  wave: WaveState;
   /** Parallel to MapData.doors. */
   doorsOpen: boolean[];
   /** Parallel to MapData.windows. */
@@ -125,6 +157,7 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     moving: false,
     hp: PLAYER.maxHp,
     maxHp: PLAYER.maxHp,
+    lastDamageTime: -Infinity,
     weapons: LOADOUT.startingWeapons.map(createWeaponSlot),
     activeSlot: 0,
     switchTimer: 0,
@@ -151,7 +184,7 @@ function createZombie(): ZombieState {
   return {
     active: false,
     kind: 'walker',
-    ai: 'dummy',
+    ai: 'idle',
     x: 0,
     y: 0,
     prevX: 0,
@@ -159,17 +192,33 @@ function createZombie(): ZombieState {
     facing: Math.PI / 2,
     hp: 0,
     maxHp: 0,
+    window: -1,
     timer: 0,
-    homeX: 0,
-    homeY: 0,
+    attackCooldown: 0,
+    fromX: 0,
+    fromY: 0,
+    stateTick: 0,
+    actionTick: -1,
   };
+}
+
+function createBlood(): BloodState {
+  return { active: false, x: 0, y: 0, age: 0, variant: 0 };
 }
 
 export function activeWeapon(player: PlayerState): WeaponSlotState | undefined {
   return player.weapons[player.activeSlot];
 }
 
-export function createGameState(map: MapData, seed = 1): GameState {
+export interface GameOptions {
+  seed?: number;
+  startRound?: number;
+  /** Zombies to spawn; -1 = unlimited (until the wave system exists). */
+  toSpawn?: number;
+}
+
+export function createGameState(map: MapData, options: GameOptions = {}): GameState {
+  const { seed = 1, startRound = 1, toSpawn = -1 } = options;
   return {
     tick: 0,
     time: 0,
@@ -177,6 +226,8 @@ export function createGameState(map: MapData, seed = 1): GameState {
     players: [createPlayerState(0, map.playerSpawn.x, map.playerSpawn.y)],
     bullets: Array.from({ length: BULLETS.poolSize }, createBullet),
     zombies: Array.from({ length: ZOMBIES.poolSize }, createZombie),
+    blood: Array.from({ length: ZOMBIES.maxBloodDecals }, createBlood),
+    wave: { round: Math.max(1, Math.floor(startRound)), toSpawn, spawnTimer: 0 },
     doorsOpen: map.doors.map(() => false),
     windowPlanks: map.windows.map((w) => w.planks),
     zonesUnlocked: map.zones.map((z) => z.startsUnlocked),

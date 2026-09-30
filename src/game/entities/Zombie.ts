@@ -13,9 +13,13 @@ const CHARACTER_BY_KIND: Record<ZombieKind, string> = {
 
 const HIT_FLASH_MS = 80;
 
+type ZombieAnimation = 'walk' | 'attack' | 'climb' | 'death';
+
 interface Slot {
   sprite: Phaser.GameObjects.Sprite;
   anim: string;
+  /** actionTick last used to (re)start the attack animation. */
+  action: number;
   lastHp: number;
   flashUntil: number;
 }
@@ -24,7 +28,7 @@ interface Slot {
 export class ZombieViewPool {
   private readonly slots: Slot[];
 
-  constructor(scene: Phaser.Scene, manifest: Manifest, poolSize: number) {
+  constructor(scene: Phaser.Scene, private readonly manifest: Manifest, poolSize: number) {
     const def = manifest.characters[ASSET_KEYS.zombieWalker];
     this.slots = Array.from({ length: poolSize }, () => ({
       sprite: scene.add
@@ -32,6 +36,7 @@ export class ZombieViewPool {
         .setOrigin(def?.anchor.x ?? 0.5, def?.anchor.y ?? 0.8)
         .setVisible(false),
       anim: '',
+      action: -1,
       lastHp: 0,
       flashUntil: 0,
     }));
@@ -43,22 +48,26 @@ export class ZombieViewPool {
       const z = zombies[i];
       if (!slot) continue;
       const { sprite } = slot;
-      if (!z?.active || z.hp <= 0) {
+      if (!z?.active) {
         if (sprite.visible) sprite.setVisible(false);
         slot.lastHp = 0;
+        slot.anim = '';
         continue;
       }
       const x = lerp(z.prevX, z.x, alpha);
       const y = lerp(z.prevY, z.y, alpha);
       sprite.setVisible(true).setPosition(x, y).setDepth(actorDepth(y));
 
-      const key = animationKey(CHARACTER_BY_KIND[z.kind], 'walk', dir8FromAngle(z.facing));
-      if (key !== slot.anim) {
+      const character = CHARACTER_BY_KIND[z.kind];
+      const key = animationKey(character, this.animationFor(character, z), dir8FromAngle(z.facing));
+      const restartAttack = (z.ai === 'tearing' || z.ai === 'attacking') && z.actionTick !== slot.action;
+      if (key !== slot.anim || restartAttack) {
         slot.anim = key;
+        slot.action = z.actionTick;
         sprite.play(key);
       }
 
-      if (slot.lastHp > 0 && z.hp < slot.lastHp) slot.flashUntil = now + HIT_FLASH_MS;
+      if (slot.lastHp > 0 && z.hp < slot.lastHp && z.hp > 0) slot.flashUntil = now + HIT_FLASH_MS;
       slot.lastHp = z.hp;
       const flashing = now < slot.flashUntil;
       if (flashing && sprite.tintMode !== Phaser.TintModes.FILL) {
@@ -66,6 +75,21 @@ export class ZombieViewPool {
       } else if (!flashing && sprite.tintMode === Phaser.TintModes.FILL) {
         sprite.clearTint().setTintMode(Phaser.TintModes.MULTIPLY);
       }
+    }
+  }
+
+  private animationFor(character: string, z: ZombieState): ZombieAnimation {
+    switch (z.ai) {
+      case 'dead':
+        return 'death';
+      case 'tearing':
+      case 'attacking':
+        return 'attack';
+      case 'climbing':
+        // `climb` is optional in the asset contract; fall back to walking.
+        return this.manifest.characters[character]?.animations.climb ? 'climb' : 'walk';
+      default:
+        return 'walk';
     }
   }
 }

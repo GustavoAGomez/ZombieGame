@@ -9,6 +9,7 @@ import { Hud } from '../../ui/hud/Hud';
 import type { AssetLibrary } from '../assets/AssetLibrary';
 import { ASSET_KEYS } from '../assets/manifest';
 import { AimLine } from '../entities/AimLine';
+import { BloodViewPool } from '../entities/Blood';
 import { BulletViewPool } from '../entities/Bullet';
 import { PlayerView } from '../entities/Player';
 import { ZombieViewPool } from '../entities/Zombie';
@@ -19,10 +20,11 @@ import { MapView } from '../map/MapView';
 import type { Services } from '../services';
 import { activeBulletCount } from '../systems/BulletSystem';
 import { isZombieAlive } from '../systems/Combat';
-import { spawnTrainingDummies } from '../systems/DummySystem';
-import type { SimContext } from '../systems/SimContext';
+import { createNav, type SimContext } from '../systems/SimContext';
 import { stepSimulation } from '../systems/Simulation';
 import { SCENE_KEYS, type GameSceneData } from './BootScene';
+
+const RESTART_AFTER_DEATH_MS = 2500;
 
 export class GameScene extends Phaser.Scene {
   private services!: Services;
@@ -38,6 +40,9 @@ export class GameScene extends Phaser.Scene {
   private zombieViews!: ZombieViewPool;
   private bulletViews!: BulletViewPool;
   private aimLine!: AimLine;
+  private bloodViews!: BloodViewPool;
+  /** ms since every player died; the scene restarts after a pause (until phase 7). */
+  private deadFor = 0;
   private readonly fixedStep = new FixedStep(SIM.hz, SIM.maxStepsPerFrame, SIM.maxFrameMs);
 
   constructor() {
@@ -52,16 +57,17 @@ export class GameScene extends Phaser.Scene {
   create(): void {
     const { events, hudRoot } = this.services;
     this.map = this.assets.map(ASSET_KEYS.mapRoom01);
-    this.state = createGameState(this.map);
+    this.state = createGameState(this.map, { seed: Date.now() | 0, startRound: this.services.startRound });
     this.sim = {
       state: this.state,
       map: this.map,
       grid: buildCollisionGrid(this.map, this.state.doorsOpen),
+      nav: createNav(this.map),
       commands: this.state.players.map(() => createInputCommand()),
       events,
     };
-    spawnTrainingDummies(this.sim);
     this.fixedStep.reset();
+    this.deadFor = 0;
 
     this.hud = new Hud(hudRoot, events);
     this.controls = new InputCollector(hudRoot, events);
@@ -71,6 +77,7 @@ export class GameScene extends Phaser.Scene {
     const playerDef = manifest.characters[ASSET_KEYS.player];
     if (!playerDef) throw new Error('The manifest has no "player" character');
     this.mapView = new MapView(this, this.map);
+    this.bloodViews = new BloodViewPool(this, this.state.blood.length);
     this.zombieViews = new ZombieViewPool(this, manifest, this.state.zombies.length);
     this.playerView = new PlayerView(this, playerDef);
     this.bulletViews = new BulletViewPool(this, this.state.bullets.length);
@@ -96,6 +103,14 @@ export class GameScene extends Phaser.Scene {
     this.syncViews(this.fixedStep.alpha, time);
     this.presenter.publish(this.state);
     this.updateStats();
+    this.checkAllDead(delta);
+  }
+
+  /** Temporary until the game-over screen (phase 7): restart after dying. */
+  private checkAllDead(delta: number): void {
+    for (const p of this.state.players) if (p.hp > 0) return;
+    this.deadFor += delta;
+    if (this.deadFor >= RESTART_AFTER_DEATH_MS) this.scene.restart();
   }
 
   private step(dt: number): void {
@@ -107,6 +122,7 @@ export class GameScene extends Phaser.Scene {
   private syncViews(alpha: number, now = 0): void {
     const player = this.state.players[0];
     this.mapView.sync(this.state);
+    this.bloodViews.sync(this.state.blood);
     this.zombieViews.sync(this.state.zombies, alpha, now);
     if (player) {
       this.playerView.sync(player, alpha);
@@ -121,6 +137,7 @@ export class GameScene extends Phaser.Scene {
     for (const z of this.state.zombies) if (isZombieAlive(z)) alive++;
     stats.zombies = alive;
     stats.bullets = activeBulletCount(this.state.bullets);
+    stats.round = this.state.wave.round;
     stats.tick = this.state.tick;
   }
 

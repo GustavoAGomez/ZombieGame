@@ -4,16 +4,20 @@ import { createGameState, type ZombieState } from '../core/GameState';
 import { createInputCommand } from '../core/InputCommand';
 import { buildCollisionGrid } from '../game/map/CollisionGrid';
 import { parseMap } from '../game/map/MapLoader';
-import type { SimContext } from '../game/systems/SimContext';
+import { createNav, type SimContext } from '../game/systems/SimContext';
 
-/** A fresh simulation on the placeholder map, for system tests. */
-export function createTestContext(seed = 1): SimContext {
+/**
+ * A fresh simulation on the placeholder map, for system tests. Spawning is
+ * off unless `toSpawn` is given (-1 = unlimited).
+ */
+export function createTestContext(seed = 1, toSpawn = 0): SimContext {
   const map = parseMap(buildRoom01Map());
-  const state = createGameState(map, seed);
+  const state = createGameState(map, { seed, toSpawn });
   return {
     state,
     map,
     grid: buildCollisionGrid(map, state.doorsOpen),
+    nav: createNav(map),
     commands: state.players.map(() => createInputCommand()),
     events: new EventBus(),
   };
@@ -23,11 +27,18 @@ export function runTicks(ctx: SimContext, ticks: number, step: (ctx: SimContext,
   for (let i = 0; i < ticks; i++) step(ctx, 1 / 60);
 }
 
-/** Activates pooled zombie `index` as a static target at (x, y). */
-export function placeZombie(ctx: SimContext, index: number, x: number, y: number, hp = 1000): ZombieState {
+/** Activates pooled zombie `index` at (x, y). 'idle' zombies stand still. */
+export function placeZombie(
+  ctx: SimContext,
+  index: number,
+  x: number,
+  y: number,
+  hp = 1000,
+  ai: ZombieState['ai'] = 'idle',
+): ZombieState {
   const z = ctx.state.zombies[index];
   if (!z) throw new Error(`No zombie slot ${index}`);
-  Object.assign(z, { active: true, ai: 'dummy', x, y, prevX: x, prevY: y, hp, maxHp: hp, homeX: x, homeY: y, timer: 0 });
+  Object.assign(z, { active: true, ai, x, y, prevX: x, prevY: y, hp, maxHp: hp, timer: 0, attackCooldown: 0, window: -1 });
   return z;
 }
 

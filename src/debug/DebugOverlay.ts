@@ -73,3 +73,9 @@ export class DebugOverlay {
 export function isDebugRequested(search: string = window.location.search): boolean {
   return new URLSearchParams(search).get('debug') === '1';
 }
+
+/** ?round=N (1..99), used to test later rounds before the wave flow exists. */
+export function requestedStartRound(search: string = window.location.search): number {
+  const n = Number.parseInt(new URLSearchParams(search).get('round') ?? '', 10);
+  return Number.isFinite(n) && n >= 1 ? Math.min(n, 99) : 1;
+}

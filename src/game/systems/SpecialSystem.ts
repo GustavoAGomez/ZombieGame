@@ -12,7 +12,7 @@ export function updateSpecial(ctx: SimContext, dt: number): void {
   for (let i = 0; i < state.players.length; i++) {
     const p = state.players[i];
     const cmd = commands[i];
-    if (!p || !cmd) continue;
+    if (!p || !cmd || p.hp <= 0) continue;
 
     if (p.dashCooldown > 0) p.dashCooldown = Math.max(0, p.dashCooldown - dt);
 

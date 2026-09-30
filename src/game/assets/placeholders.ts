@@ -210,6 +210,19 @@ function drawDoor(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h:
   rect(ctx, COLORS.amberDark, ox + w / 2 - 2, oy + h / 2 + 1, 4, 1);
 }
 
+/** Irregular blood splat; each frame is a different shape. */
+function drawBlood(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number): void {
+  const cx = ox + w / 2;
+  const cy = oy + h / 2;
+  const shapes: readonly (readonly [number, number, number, number])[][] = [
+    [[-4, -2, 8, 4], [-2, -4, 4, 8], [3, 2, 3, 2], [-6, 1, 2, 2]],
+    [[-5, -1, 9, 3], [-3, -3, 5, 6], [4, -4, 2, 2], [-2, 3, 3, 2]],
+    [[-3, -3, 6, 6], [-5, 0, 3, 2], [2, 2, 4, 3], [0, -5, 2, 2]],
+  ];
+  for (const [x, y, rw, rh] of shapes[frame % shapes.length] ?? []) rect(ctx, PLACEHOLDER_COLORS.blood, cx + x, cy + y, rw, rh);
+  rect(ctx, '#3f120e', cx - 1, cy - 1, 2, 2);
+}
+
 export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def: ObjectDef): void {
   createSheet(scene, objectTextureKey(object), def.frameWidth, def.frameHeight, def.frames, 1, (ctx, col, _row, ox, oy) => {
     const { frameWidth: w, frameHeight: h } = def;
@@ -225,6 +238,9 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
       case ASSET_KEYS.bullet:
       case ASSET_KEYS.aimDot:
         rect(ctx, COLORS.amber, ox, oy, w, h);
+        break;
+      case ASSET_KEYS.blood:
+        drawBlood(ctx, col, ox, oy, w, h);
         break;
       default:
         rect(ctx, PLACEHOLDER_COLORS.generic, ox, oy, w, h);

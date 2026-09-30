@@ -50,6 +50,8 @@ export type WallAxis = 'horizontal' | 'vertical';
 export interface MapWindow {
   id: string;
   zone: string;
+  /** Index into MapData.zones. */
+  zoneIndex: number;
   planks: number;
   tileX: number;
   tileY: number;
@@ -69,6 +71,9 @@ export interface MapDoor {
   cost: number;
   fromZone: string;
   toZone: string;
+  /** Indices into MapData.zones. */
+  fromZoneIndex: number;
+  toZoneIndex: number;
   /** Rectangle in world px. */
   x: number;
   y: number;
@@ -83,6 +88,8 @@ export interface MapZombieSpawn {
   x: number;
   y: number;
   window: string;
+  /** Index into MapData.windows. */
+  windowIndex: number;
 }
 
 export interface MapData {
@@ -246,7 +253,7 @@ export function parseMap(json: unknown): MapData {
         rawWindows.push(obj);
         break;
       case 'zombie_spawn':
-        zombieSpawns.push({ x: obj.x, y: obj.y, window: stringProp(obj, 'window') });
+        zombieSpawns.push({ x: obj.x, y: obj.y, window: stringProp(obj, 'window'), windowIndex: -1 });
         break;
       case 'door':
         rawDoors.push(obj);
@@ -302,6 +309,7 @@ export function parseMap(json: unknown): MapData {
     return {
       id,
       zone,
+      zoneIndex: zones.findIndex((z) => z.id === zone),
       planks: numberProp(obj, 'planks', BARRICADES.planksPerWindow),
       tileX,
       tileY,
@@ -316,7 +324,8 @@ export function parseMap(json: unknown): MapData {
   const windowIds = new Set(windows.map((w) => w.id));
   if (windowIds.size !== windows.length) fail('Window ids must be unique');
   for (const spawn of zombieSpawns) {
-    if (!windowIds.has(spawn.window)) fail(`zombie_spawn references unknown window "${spawn.window}"`);
+    spawn.windowIndex = windows.findIndex((w) => w.id === spawn.window);
+    if (spawn.windowIndex < 0) fail(`zombie_spawn references unknown window "${spawn.window}"`);
   }
 
   const doors: MapDoor[] = rawDoors.map((obj) => {
@@ -340,6 +349,8 @@ export function parseMap(json: unknown): MapData {
       cost: numberProp(obj, 'cost'),
       fromZone,
       toZone,
+      fromZoneIndex: zones.findIndex((z) => z.id === fromZone),
+      toZoneIndex: zones.findIndex((z) => z.id === toZone),
       x: x0 * tileSize,
       y: y0 * tileSize,
       width: (x1 - x0) * tileSize,

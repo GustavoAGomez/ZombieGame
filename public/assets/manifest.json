@@ -68,7 +68,8 @@
     "door":            { "file": "sprites/objects/door.png",            "frameWidth": 32, "frameHeight": 32, "frames": 2, "placeholder": true },
     "door_v":          { "file": "sprites/objects/door_v.png",          "frameWidth": 32, "frameHeight": 32, "frames": 2, "placeholder": true },
     "bullet":          { "file": "sprites/objects/bullet.png",        "frameWidth": 3,  "frameHeight": 2,  "frames": 1, "placeholder": true },
-    "aim_dot":         { "file": "sprites/objects/aim_dot.png",       "frameWidth": 2,  "frameHeight": 2,  "frames": 1, "placeholder": true }
+    "aim_dot":         { "file": "sprites/objects/aim_dot.png",       "frameWidth": 2,  "frameHeight": 2,  "frames": 1, "placeholder": true },
+    "blood":           { "file": "sprites/objects/blood.png",         "frameWidth": 16, "frameHeight": 16, "frames": 3, "placeholder": true }
   },
   "maps": { "room01": "maps/room01.tmj" }
 }

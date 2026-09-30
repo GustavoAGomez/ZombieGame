@@ -124,15 +124,41 @@ export const ZOMBIES = {
     runner: { speed: 58, tearTime: 1.0 },
     sprinter: { speed: 84, tearTime: 1.0 },
   } satisfies Record<ZombieKind, { speed: number; tearTime: number }>,
+  /** Measured from the zombie centre to the edge of the player's hitbox. */
   attackRange: 16,
   attackWindup: 0.35,
   attackDamage: 40,
   attackCooldown: 1.1,
   climbTime: 0.8,
   directChaseTiles: 2,
+  /** How close to the window's exterior point counts as "arrived". */
+  windowArriveRadius: 12,
+  /** Seconds a dead zombie stays on screen for its death animation. */
+  corpseTime: 0.6,
+  /** Extra gap kept between two zombie hitboxes. */
+  separationPadding: 2,
+  /** Fraction of the overlap between two zombies resolved per tick. */
+  separationStrength: 0.6,
+  /** Speed factor when stepping sideways around a zombie in front. */
+  sidestepFactor: 0.6,
   bloodFadeTime: 20,
   maxBloodDecals: 40,
+  bloodVariants: 3,
   poolSize: 32,
+} as const;
+
+/** Zombie type mix per round (spec 01 §4.4). Shares are 0..1. */
+export const ZOMBIE_MIX = {
+  runnerRampStartRound: 3,
+  runnerRampEndRound: 5,
+  runnerRampStartShare: 0.2,
+  runnerRampEndShare: 0.5,
+  runnerLateFromRound: 6,
+  runnerLateShare: 0.6,
+  sprinterFromRound: 8,
+  sprinterStartShare: 0.1,
+  sprinterSharePerRound: 0.1,
+  sprinterMaxShare: 0.3,
 } as const;
 
 export const NAVIGATION = {
@@ -167,20 +193,7 @@ export const WAVES = {
   spawnIntervalBase: 2.0,
   spawnIntervalPerRound: 0.1,
   spawnIntervalMin: 0.4,
+  /** Spawn weight = 1 / (1 + distanceToPlayer / falloff): closer spawns are likelier. */
+  spawnDistanceFalloff: 256,
   restTime: 8,
-} as const;
-
-/**
- * Static targets to try shooting and auto-aim before zombies exist
- * (phase 3 only; replaced by real zombies in phase 4). Offsets are in
- * tiles from the player spawn.
- */
-export const TRAINING_DUMMIES = {
-  hp: 100,
-  respawnTime: 2,
-  offsets: [
-    [-4, -2],
-    [4, -2],
-    [0, 3],
-  ] as const satisfies readonly (readonly [number, number])[],
 } as const;

@@ -19,5 +19,7 @@ export const STRINGS = {
     points: 'PUNTOS',
     round: 'RONDA',
     reloading: 'Recargando',
+    health: 'Vida',
+    dead: 'HAS MUERTO',
   },
 } as const;

@@ -8,4 +8,6 @@ export interface Services {
   debug: boolean;
   /** Filled in by the running scene; read by the debug overlay on a timer. */
   stats: DebugStats;
+  /** Round to start at (?round=N), for testing until the wave flow exists. */
+  startRound: number;
 }

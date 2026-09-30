@@ -1,11 +1,15 @@
-import type { WeaponId } from '../config/balance';
+import type { WeaponId, ZombieKind } from '../config/balance';
 
 /**
  * Game -> HUD events. The HUD only ever sees these payloads; it never
  * imports or queries Phaser (CLAUDE.md rule 4).
  */
 export interface GameEvents {
-  'player:health': { hp: number; maxHp: number };
+  'player:health': { hp: number; maxHp: number; low: boolean };
+  /** A player took a hit (red border, haptics). */
+  'player:damaged': { playerId: number; hp: number; maxHp: number };
+  'player:died': { playerId: number };
+  'zombie:killed': { x: number; y: number; kind: ZombieKind };
   'weapon:state': {
     weapon: WeaponId;
     magazine: number;

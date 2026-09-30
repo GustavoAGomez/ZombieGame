@@ -81,6 +81,7 @@ export const ASSET_KEYS = {
   doorV: 'door_v',
   bullet: 'bullet',
   aimDot: 'aim_dot',
+  blood: 'blood',
   mapRoom01: 'room01',
 } as const;
 

@@ -16,7 +16,7 @@ export function updateWeapons(ctx: SimContext, dt: number): void {
   for (let i = 0; i < state.players.length; i++) {
     const p = state.players[i];
     const cmd = commands[i];
-    if (!p || !cmd) continue;
+    if (!p || !cmd || p.hp <= 0) continue;
     tickTimers(p, cmd, dt);
     handleSwitch(p, cmd);
     handleReload(p, dt);
