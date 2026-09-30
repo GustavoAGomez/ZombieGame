@@ -120,7 +120,8 @@ export class Hud {
   };
 
   private readonly onPointsGained = (e: GameEvents['points:gained']): void => {
-    if (e.playerId !== this.localPlayerId) return;
+    // Gains with a world position (repaired windows) float in the world instead.
+    if (e.playerId !== this.localPlayerId || e.x !== undefined) return;
     const span = this.floatPool[this.nextFloat];
     if (!span) return;
     this.nextFloat = (this.nextFloat + 1) % this.floatPool.length;

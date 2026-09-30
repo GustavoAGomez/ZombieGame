@@ -71,9 +71,9 @@ export interface PlayerState {
   /** Points earned repairing during `repairRound` (capped per round). */
   repairPoints: number;
   repairRound: number;
-  /** Seconds the repair has been held towards the next plank. */
-  repairTimer: number;
-  /** True while a plank is being repaired (held chip, in range). */
+  /** Seconds until the next tap can repair a plank. */
+  repairCooldown: number;
+  /** True right after a plank was repaired (the player faces the window). */
   repairing: boolean;
   contextAction: ContextAction;
   /** Window or door index the context action applies to, -1 when none. */
@@ -212,7 +212,7 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     points: POINTS.start,
     repairPoints: 0,
     repairRound: 1,
-    repairTimer: 0,
+    repairCooldown: 0,
     repairing: false,
     contextAction: 'none',
     contextTarget: -1,

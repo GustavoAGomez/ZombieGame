@@ -14,6 +14,7 @@ import { BulletViewPool } from '../entities/Bullet';
 import { MuzzleFlash } from '../entities/MuzzleFlash';
 import { PickupViewPool } from '../entities/Pickup';
 import { PlayerView } from '../entities/Player';
+import { WorldTextPool } from '../entities/WorldText';
 import { ZombieViewPool } from '../entities/Zombie';
 import { HudPresenter } from '../HudPresenter';
 import { buildCollisionGrid } from '../map/CollisionGrid';
@@ -43,6 +44,7 @@ export class GameScene extends Phaser.Scene {
   private bulletViews!: BulletViewPool;
   private aimLine!: AimLine;
   private muzzleFlash!: MuzzleFlash;
+  private worldTexts!: WorldTextPool;
   private bloodViews!: BloodViewPool;
   private pickupViews!: PickupViewPool;
   /** ms since every player died; the scene restarts after a pause (until phase 7). */
@@ -88,6 +90,7 @@ export class GameScene extends Phaser.Scene {
     this.bulletViews = new BulletViewPool(this, this.state.bullets.length, playerDef);
     this.aimLine = new AimLine(this, playerDef);
     this.muzzleFlash = new MuzzleFlash(this, playerDef);
+    this.worldTexts = new WorldTextPool(this, events);
     this.syncViews(0);
 
     const camera = this.cameras.main;
@@ -101,6 +104,7 @@ export class GameScene extends Phaser.Scene {
       this.scale.off(Phaser.Scale.Events.RESIZE, this.applyZoom);
       this.controls.destroy();
       this.hud.destroy();
+      this.worldTexts.destroy();
     });
   }
 
@@ -137,6 +141,7 @@ export class GameScene extends Phaser.Scene {
       this.muzzleFlash.sync(player, alpha, this.state.tick);
     }
     this.bulletViews.sync(this.state.bullets, this.state.players, alpha);
+    this.worldTexts.sync(now);
   }
 
   private updateStats(): void {

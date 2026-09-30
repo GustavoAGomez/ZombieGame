@@ -17,7 +17,23 @@ function atWindow(ctx: Ctx, index: number, planks: number) {
   return { w, p };
 }
 
-const repairTicks = Math.round(BARRICADES.repairInterval * 60);
+const cooldownTicks = Math.round(BARRICADES.repairTapCooldown * 60);
+
+/** One tap of the chip (press edge for a single tick). */
+function tap(ctx: Ctx): void {
+  const cmd = command(ctx);
+  cmd.actionPressed = true;
+  stepSimulation(ctx, 1 / 60);
+  cmd.actionPressed = false;
+}
+
+/** Taps `n` times, waiting out the cooldown between taps. */
+function tapTimes(ctx: Ctx, n: number): void {
+  for (let i = 0; i < n; i++) {
+    tap(ctx);
+    runTicks(ctx, cooldownTicks, stepSimulation);
+  }
+}
 
 describe('BarricadeSystem · context action', () => {
   it('offers repair within 40 px of a window that is missing planks', () => {
@@ -50,44 +66,47 @@ describe('BarricadeSystem · context action', () => {
   });
 });
 
-describe('BarricadeSystem · repairing', () => {
-  it('puts back one plank every 0.6 s while held, +10 points each', () => {
+describe('BarricadeSystem · repairing with taps', () => {
+  it('puts back one plank per tap, +10 points each, announced at the window', () => {
     const ctx = createTestContext();
-    const { p } = atWindow(ctx, 0, 0);
+    const { w, p } = atWindow(ctx, 0, 0);
     const onPoints = vi.fn();
     ctx.events.on('points:gained', onPoints);
-    command(ctx).action = true;
-    runTicks(ctx, repairTicks - 1, stepSimulation);
-    expect(ctx.state.windowPlanks[0]).toBe(0);
-    runTicks(ctx, 2, stepSimulation);
+    tap(ctx);
     expect(ctx.state.windowPlanks[0]).toBe(1);
     expect(p.points).toBe(POINTS.start + BARRICADES.pointsPerPlank);
-    expect(onPoints).toHaveBeenCalledWith({ playerId: 0, amount: 10, reason: 'repair' });
+    expect(onPoints).toHaveBeenCalledWith({ playerId: 0, amount: 10, reason: 'repair', x: w.center.x, y: w.center.y });
     expect(p.repairing).toBe(true);
 
-    runTicks(ctx, repairTicks * 6, stepSimulation);
+    tapTimes(ctx, 7);
     expect(ctx.state.windowPlanks[0]).toBe(5); // never above the window's planks
     expect(p.points).toBe(POINTS.start + 5 * BARRICADES.pointsPerPlank);
   });
 
-  it('starts over when the chip is released', () => {
+  it('ignores taps faster than the cooldown', () => {
     const ctx = createTestContext();
-    atWindow(ctx, 0, 2);
-    const cmd = command(ctx);
-    cmd.action = true;
-    runTicks(ctx, repairTicks - 5, stepSimulation);
-    cmd.action = false;
-    stepSimulation(ctx, 1 / 60);
-    cmd.action = true;
-    runTicks(ctx, repairTicks - 5, stepSimulation);
+    atWindow(ctx, 0, 0);
+    tap(ctx);
+    tap(ctx);
+    tap(ctx);
+    expect(ctx.state.windowPlanks[0]).toBe(1);
+    runTicks(ctx, cooldownTicks, stepSimulation);
+    tap(ctx);
     expect(ctx.state.windowPlanks[0]).toBe(2);
   });
 
-  it('faces the window while repairing', () => {
+  it('does not repair while simply holding the chip', () => {
+    const ctx = createTestContext();
+    atWindow(ctx, 0, 2);
+    command(ctx).action = true;
+    runTicks(ctx, 120, stepSimulation);
+    expect(ctx.state.windowPlanks[0]).toBe(2);
+  });
+
+  it('faces the window when repairing', () => {
     const ctx = createTestContext();
     const { p } = atWindow(ctx, 1, 2); // left window
-    command(ctx).action = true;
-    stepSimulation(ctx, 1 / 60);
+    tap(ctx);
     expect(Math.abs(p.facing)).toBeCloseTo(Math.PI);
   });
 
@@ -96,8 +115,7 @@ describe('BarricadeSystem · repairing', () => {
     const { p } = atWindow(ctx, 0, 0);
     p.repairPoints = BARRICADES.maxRepairPointsPerRound - 10;
     const start = p.points;
-    command(ctx).action = true;
-    runTicks(ctx, repairTicks * 3 + 2, stepSimulation);
+    tapTimes(ctx, 3);
     expect(ctx.state.windowPlanks[0]).toBe(3);
     expect(p.points).toBe(start + 10);
     expect(p.repairPoints).toBe(BARRICADES.maxRepairPointsPerRound);
@@ -109,8 +127,7 @@ describe('BarricadeSystem · repairing', () => {
     p.repairPoints = BARRICADES.maxRepairPointsPerRound;
     ctx.state.wave.round = 2;
     const start = p.points;
-    command(ctx).action = true;
-    runTicks(ctx, repairTicks + 2, stepSimulation);
+    tap(ctx);
     expect(p.points).toBe(start + 10);
     expect(p.repairRound).toBe(2);
   });
@@ -122,11 +139,13 @@ describe('BarricadeSystem · repairing', () => {
     spawnZombie(ctx, z, ctx.map.zombieSpawns.findIndex((s) => s.windowIndex === 0));
     z.kind = 'walker';
     p.hp = 1e9; // survive if it gets in
-    command(ctx).action = true;
-    // Repairs (1 plank / 0.6 s) outpace a walker tearing (1 plank / 1.4 s).
-    runTicks(ctx, 60 * 6, stepSimulation);
+    // Tapping twice per second outpaces a walker tearing one plank every 1.4 s.
+    for (let i = 0; i < 12; i++) {
+      tap(ctx);
+      runTicks(ctx, 29, stepSimulation);
+    }
     expect(z.ai).toBe('tearing');
     expect(ctx.state.windowPlanks[0]).toBeGreaterThanOrEqual(4);
-    expect(ZOMBIES.kinds.walker.tearTime).toBeGreaterThan(BARRICADES.repairInterval);
+    expect(ZOMBIES.kinds.walker.tearTime).toBeGreaterThan(0.5);
   });
 });

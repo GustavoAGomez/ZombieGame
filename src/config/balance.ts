@@ -15,7 +15,7 @@ export const SIM = {
 export const PLAYER = {
   maxHp: 100,
   /** Running speed (the basic movement animation is a run). */
-  speed: 120,
+  speed: 140,
   hitboxRadius: 6,
   regenDelay: 3,
   regenPerSecond: 40,
@@ -28,7 +28,7 @@ export const PLAYER = {
    * Speed factor while shooting: the player walks (shoot_walk animation)
    * instead of running. 1 keeps the running speed.
    */
-  shootingSpeedFactor: 0.6,
+  shootingSpeedFactor: 0.5,
 } as const;
 
 export type WeaponId = 'pistol' | 'smg';
@@ -57,7 +57,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponStats>> = {
     maxReserve: 64,
     reloadTime: 1.6,
     spread: 2,
-    range: 260,
+    range: 340,
     bulletSpeed: 520,
   },
   smg: {
@@ -68,7 +68,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponStats>> = {
     maxReserve: 120,
     reloadTime: 2.2,
     spread: 6,
-    range: 220,
+    range: 300,
     bulletSpeed: 560,
   },
 };
@@ -178,7 +178,8 @@ export const NAVIGATION = {
 export const BARRICADES = {
   planksPerWindow: 5,
   repairRange: 40,
-  repairInterval: 0.6,
+  /** Each tap of the chip repairs one plank; faster taps than this are ignored. */
+  repairTapCooldown: 0.2,
   pointsPerPlank: 10,
   maxRepairPointsPerRound: 500,
 } as const;

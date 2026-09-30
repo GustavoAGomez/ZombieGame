@@ -23,22 +23,31 @@ class TapButton {
     this.el.append(pixelIcon(icon, 24), text);
     parent.appendChild(this.el);
 
+    // Every press counts, even if a previous release was never delivered,
+    // so a missed pointerup can never leave the button unresponsive.
     this.el.addEventListener('pointerdown', (e) => {
       e.preventDefault();
-      if (this.pointerId !== null) return;
       this.pointerId = e.pointerId;
       this.pressed = true;
       this.el.classList.add('is-pressed');
     });
-    const release = (e: PointerEvent): void => {
-      if (e.pointerId !== this.pointerId) return;
-      this.pointerId = null;
-      this.el.classList.remove('is-pressed');
-    };
-    this.el.addEventListener('pointerup', release);
-    this.el.addEventListener('pointercancel', release);
-    this.el.addEventListener('pointerleave', release);
+    this.el.addEventListener('pointerup', this.release);
+    this.el.addEventListener('pointercancel', this.release);
+    this.el.addEventListener('pointerleave', this.release);
     this.el.addEventListener('contextmenu', (e) => e.preventDefault());
+    window.addEventListener('pointerup', this.release, true);
+    window.addEventListener('pointercancel', this.release, true);
+  }
+
+  private readonly release = (e: PointerEvent): void => {
+    if (e.pointerId !== this.pointerId) return;
+    this.pointerId = null;
+    this.el.classList.remove('is-pressed');
+  };
+
+  dispose(): void {
+    window.removeEventListener('pointerup', this.release, true);
+    window.removeEventListener('pointercancel', this.release, true);
   }
 
   /** True once per press. */
@@ -96,5 +105,7 @@ export class ActionButtons {
 
   destroy(): void {
     this.unsubscribe();
+    this.switchButton.dispose();
+    this.specialButton.dispose();
   }
 }

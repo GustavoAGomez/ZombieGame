@@ -6,8 +6,9 @@ import type { SimContext } from './SimContext';
 
 /**
  * Barricades (spec 01 §4.6). Zombies tear planks in ZombieSystem; here the
- * player repairs them: within 40 px of a window that is not full, holding
- * the contextual chip puts back one plank every 0.6 s for +10 points, up
+ * player repairs them: within 40 px of a window that is not full, each tap on
+ * the contextual chip puts back one plank per tap (at most one every 0.2 s)
+ * for +10 points, up
  * to 500 repair points per round. Repairing keeps working past the limit,
  * just without points, and works while a zombie is tearing the same window.
  * InteractionSystem decides when a window is the chip's target.
@@ -37,25 +38,25 @@ export function repairPointsAvailable(p: PlayerState): number {
   return Math.max(0, Math.min(BARRICADES.pointsPerPlank, BARRICADES.maxRepairPointsPerRound - p.repairPoints));
 }
 
-/** Advances the hold-to-repair on `window` (-1 or no held action stops it). */
+/**
+ * Tap-to-repair on `window` (-1 when there is none in range): every tap of
+ * the chip puts back one plank, at most one every 0.2 s.
+ */
 export function updateRepair(ctx: SimContext, p: PlayerState, cmd: InputCommand | undefined, window: number, dt: number): void {
+  if (p.repairCooldown > 0) p.repairCooldown = Math.max(0, p.repairCooldown - dt);
+  p.repairing = p.repairCooldown > 0;
   const w = ctx.map.windows[window];
-  if (!cmd?.action || !w) {
-    p.repairing = false;
-    p.repairTimer = 0;
-    return;
-  }
-  p.repairing = true;
-  p.facing = Math.atan2(w.center.y - p.y, w.center.x - p.x);
-  p.repairTimer += dt;
-  if (p.repairTimer < BARRICADES.repairInterval) return;
-  p.repairTimer -= BARRICADES.repairInterval;
+  if (!w || !cmd?.actionPressed || p.repairCooldown > 0) return;
 
   const planks = ctx.state.windowPlanks;
   planks[window] = Math.min(w.planks, (planks[window] ?? 0) + 1);
+  p.repairCooldown = BARRICADES.repairTapCooldown;
+  p.repairing = true;
+  p.facing = Math.atan2(w.center.y - p.y, w.center.x - p.x);
   const gained = repairPointsAvailable(p);
   if (gained > 0) {
     p.repairPoints += gained;
-    awardPoints(ctx, p.id, gained, 'repair');
+    // The "+10" floats up from the window itself, not from the HUD.
+    awardPoints(ctx, p.id, gained, 'repair', w.center.x, w.center.y);
   }
 }

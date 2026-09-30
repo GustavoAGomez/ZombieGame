@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { FONTS } from '../../config/theme';
 import { AssetLibrary } from '../assets/AssetLibrary';
 import { MANIFEST_URL, parseManifest } from '../assets/manifest';
 import type { Services } from '../services';
@@ -9,6 +10,12 @@ export const SCENE_KEYS = {
 } as const;
 
 const MANIFEST_KEY = 'manifest';
+
+/** Resolves once the pixel fonts are loaded (or failed: text then falls back to monospace). */
+function loadFonts(): Promise<unknown> {
+  if (!('fonts' in document)) return Promise.resolve();
+  return Promise.allSettled([document.fonts.load(`8px ${FONTS.display}`), document.fonts.load(`8px ${FONTS.label}`)]);
+}
 
 export interface GameSceneData {
   services: Services;
@@ -31,7 +38,8 @@ export class BootScene extends Phaser.Scene {
     this.load.once(Phaser.Loader.Events.COMPLETE, () => {
       assets.finalize(this);
       const data: GameSceneData = { services: this.services, assets };
-      this.scene.start(SCENE_KEYS.game, data);
+      // World texts use the pixel font: make sure it is ready before drawing them.
+      void loadFonts().then(() => this.scene.start(SCENE_KEYS.game, data));
     });
     this.load.start();
   }

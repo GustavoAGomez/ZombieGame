@@ -38,6 +38,9 @@ export class InputCollector {
   sample(cmd: InputCommand, tick: number): InputCommand {
     const kb = this.keyboard;
     cmd.tick = tick;
+    this.joystick.validate();
+    this.fireStick.validate();
+    this.chip.validate();
 
     kb.moveAxis(this.axis);
     if (this.axis.x !== 0 || this.axis.y !== 0) {
@@ -80,6 +83,8 @@ export class InputCollector {
   destroy(): void {
     document.removeEventListener('visibilitychange', this.onVisibility);
     window.removeEventListener('blur', this.resetAll);
+    this.joystick.dispose();
+    this.fireStick.dispose();
     this.buttons.destroy();
     this.chip.destroy();
     this.keyboard.destroy();

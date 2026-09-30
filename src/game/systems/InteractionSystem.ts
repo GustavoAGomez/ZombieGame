@@ -49,7 +49,6 @@ function clearContext(p: PlayerState): void {
   p.contextAction = 'none';
   p.contextTarget = -1;
   p.repairing = false;
-  p.repairTimer = 0;
 }
 
 function windowDistSq(ctx: SimContext, p: PlayerState, index: number): number {

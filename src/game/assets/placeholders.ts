@@ -255,6 +255,18 @@ function drawHealthPickup(ctx: Ctx, ox: number, oy: number, w: number, h: number
   rect(ctx, COLORS.red, cx - 4, cy - 1, 9, 3);
 }
 
+/**
+ * Bullet tracer, pointing right (+x = direction of travel): hot orange tail
+ * to a white head, so it never blends with the amber aim line.
+ */
+function drawTracer(ctx: Ctx, ox: number, oy: number, w: number, h: number): void {
+  const ramp = ['#ff4a12', '#ff8a1a', '#ffd23a', '#fff3b0', '#ffffff'];
+  for (let x = 0; x < w; x++) {
+    const color = ramp[Math.min(ramp.length - 1, Math.floor((x / w) * ramp.length))] ?? '#ffffff';
+    rect(ctx, color, ox + x, oy, 1, h);
+  }
+}
+
 /** Pixel muzzle flash: frame 0 a plus-shaped burst, frame 1 an x-shaped one. */
 function drawMuzzleFlash(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number): void {
   const cx = ox + Math.floor(w / 2);
@@ -289,6 +301,8 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
         drawDoor(ctx, col, ox, oy, w, h, object === ASSET_KEYS.doorV);
         break;
       case ASSET_KEYS.bullet:
+        drawTracer(ctx, ox, oy, w, h);
+        break;
       case ASSET_KEYS.aimDot:
         rect(ctx, COLORS.amber, ox, oy, w, h);
         break;

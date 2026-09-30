@@ -236,3 +236,25 @@
   80% { transform: translateX(-50%) translateX(2px); }
   100% { transform: translateX(-50%) translateX(0); }
 }
+
+/* Repair = repeated taps: the border blinks between the door blue and amber. */
+.action-chip--repair {
+  animation: action-chip-tap-hint 0.5s steps(1, end) infinite;
+}
+
+.action-chip--repair.is-shaking {
+  animation: action-chip-shake 280ms steps(1, end);
+}
+
+@keyframes action-chip-tap-hint {
+  0% {
+    box-shadow:
+      0 0 0 2px var(--ink),
+      inset 0 0 0 2px var(--door);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px var(--ink),
+      inset 0 0 0 2px var(--amber);
+  }
+}

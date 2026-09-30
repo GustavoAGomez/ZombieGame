@@ -4,8 +4,8 @@ import { PointerControl } from './PointerControl';
 
 /**
  * Contextual action chip (spec 01 §2.4). It only shows up when the game
- * says an action is available (via the EventBus) and reports whether it is
- * held (repair) and when it was pressed (doors, phase 6). No game logic.
+ * says an action is available (via the EventBus) and reports each press:
+ * one tap repairs one plank, one tap buys a door. No game logic.
  */
 export class ActionChip extends PointerControl {
   private readonly label: HTMLSpanElement;
@@ -44,6 +44,7 @@ export class ActionChip extends PointerControl {
 
   destroy(): void {
     this.unsubscribe();
+    this.dispose();
   }
 
   protected onPress(): void {
@@ -72,6 +73,8 @@ export class ActionChip extends PointerControl {
     chip.classList.toggle('is-visible', e.kind !== null);
     chip.classList.toggle('is-disabled', !e.enabled);
     chip.classList.toggle('action-chip--door', e.kind === 'door');
+    // Blinking border: repairing is done with repeated taps.
+    chip.classList.toggle('action-chip--repair', e.kind === 'repair');
     if (e.kind === 'repair') {
       this.label.textContent = STRINGS.actions.repair;
       this.value.textContent = e.amount > 0 ? `+${e.amount}` : '';
