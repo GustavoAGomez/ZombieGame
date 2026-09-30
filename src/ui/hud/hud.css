@@ -169,3 +169,14 @@
 .hud-dead.is-visible {
   display: block;
 }
+
+.hud-points {
+  align-items: baseline;
+  gap: 10px;
+}
+
+.hud-points__value {
+  font-family: var(--font-display);
+  font-size: 20px;
+  text-shadow: 3px 3px 0 var(--ink);
+}

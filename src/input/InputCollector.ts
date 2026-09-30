@@ -1,6 +1,7 @@
 import type { EventBus } from '../core/EventBus';
 import type { InputCommand } from '../core/InputCommand';
 import { ActionButtons } from './ActionButtons';
+import { ActionChip } from './ActionChip';
 import { FireStick } from './FireStick';
 import { KeyboardInput } from './KeyboardInput';
 import { VirtualJoystick } from './VirtualJoystick';
@@ -15,6 +16,7 @@ export class InputCollector {
   private readonly joystick: VirtualJoystick;
   private readonly fireStick: FireStick;
   private readonly buttons: ActionButtons;
+  private readonly chip: ActionChip;
   private readonly keyboard = new KeyboardInput();
   private readonly axis = { x: 0, y: 0 };
 
@@ -25,6 +27,7 @@ export class InputCollector {
     this.joystick = new VirtualJoystick(this.root);
     this.fireStick = new FireStick(this.root);
     this.buttons = new ActionButtons(this.root, events);
+    this.chip = new ActionChip(this.root, events);
 
     // A finger lifted while the app was hidden never sends pointerup.
     document.addEventListener('visibilitychange', this.onVisibility);
@@ -60,8 +63,9 @@ export class InputCollector {
 
     cmd.switchWeapon = this.buttons.consumeSwitch() || kb.consumePress('KeyQ');
     cmd.special = this.buttons.consumeSpecial() || kb.consumePress('ShiftLeft') || kb.consumePress('KeyE');
-    cmd.actionPressed = false;
-    cmd.action = false;
+    // F / Enter mirror the chip on desktop.
+    cmd.actionPressed = this.chip.consumePress() || kb.consumePress('KeyF') || kb.consumePress('Enter');
+    cmd.action = this.chip.isHeld || kb.isDown('KeyF') || kb.isDown('Enter');
     return cmd;
   }
 
@@ -69,6 +73,7 @@ export class InputCollector {
     this.joystick.reset();
     this.fireStick.reset();
     this.buttons.reset();
+    this.chip.reset();
     this.keyboard.reset();
   };
 
@@ -76,6 +81,7 @@ export class InputCollector {
     document.removeEventListener('visibilitychange', this.onVisibility);
     window.removeEventListener('blur', this.resetAll);
     this.buttons.destroy();
+    this.chip.destroy();
     this.keyboard.destroy();
     this.root.remove();
   }

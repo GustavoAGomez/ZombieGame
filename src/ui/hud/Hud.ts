@@ -17,6 +17,7 @@ export class Hud {
   private readonly segments: HTMLDivElement[] = [];
   private readonly hpValue: HTMLSpanElement;
   private readonly round: HTMLDivElement;
+  private readonly points: HTMLSpanElement;
   private readonly weaponRow: HTMLDivElement;
   private readonly weaponName: HTMLSpanElement;
   private readonly magazine: HTMLSpanElement;
@@ -47,8 +48,13 @@ export class Hud {
     this.round = el('div', 'hud-round');
     left.append(this.healthRow, this.round);
 
-    // Top-right: weapon row (points and floating texts come later).
+    // Top-right: points row, weapon row (floating texts come in phase 6).
     const right = el('div', 'hud-right');
+    const pointsRow = el('div', 'hud-row hud-points');
+    const pointsLabel = el('span', 'hud-label');
+    pointsLabel.textContent = STRINGS.hud.points;
+    this.points = el('span', 'hud-points__value');
+    pointsRow.append(pointsLabel, this.points);
     this.weaponRow = el('div', 'hud-row hud-weapon');
     this.weaponName = el('span', 'hud-label');
     this.magazine = el('span', 'hud-mag');
@@ -58,7 +64,7 @@ export class Hud {
     reload.appendChild(this.reloadFill);
     this.reserve = el('span', 'hud-reserve');
     this.weaponRow.append(this.weaponName, pixelIcon('bullet', 21), this.magazine, reload, this.reserve);
-    right.appendChild(this.weaponRow);
+    right.append(pointsRow, this.weaponRow);
 
     this.damage = el('div', 'hud-damage');
     this.dead = el('div', 'hud-dead');
@@ -69,6 +75,7 @@ export class Hud {
 
     this.unsubscribers.push(
       events.on('player:health', this.onHealth),
+      events.on('points:changed', this.onPoints),
       events.on('round:changed', this.onRound),
       events.on('weapon:state', this.onWeapon),
       events.on('player:damaged', this.onDamaged),
@@ -87,6 +94,10 @@ export class Hud {
     for (let i = 0; i < this.segments.length; i++) this.segments[i]?.classList.toggle('is-full', i < filled);
     this.hpValue.textContent = String(e.hp);
     this.healthRow.classList.toggle('is-low', e.low);
+  };
+
+  private readonly onPoints = (e: GameEvents['points:changed']): void => {
+    this.points.textContent = String(e.points);
   };
 
   private readonly onRound = (e: GameEvents['round:changed']): void => {

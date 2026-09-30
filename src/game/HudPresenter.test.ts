@@ -28,3 +28,33 @@ describe('HudPresenter', () => {
     expect(player(ctx).weapons[0]?.magazine).toBe(7);
   });
 });
+
+describe('HudPresenter · action chip and points', () => {
+  it('shows the repair chip with +10, then +0 once the round limit is reached', () => {
+    const ctx = createTestContext();
+    const presenter = new HudPresenter(ctx.events);
+    const action = vi.fn();
+    const points = vi.fn();
+    ctx.events.on('action:context', action);
+    ctx.events.on('points:changed', points);
+    presenter.publish(ctx.state);
+    expect(action).toHaveBeenLastCalledWith({ kind: null, amount: 0, enabled: false });
+    expect(points).toHaveBeenLastCalledWith({ points: 500 });
+
+    const w = ctx.map.windows[0]!;
+    const p = player(ctx);
+    p.x = w.interior.x;
+    p.y = w.interior.y;
+    ctx.state.windowPlanks[0] = 1;
+    stepSimulation(ctx, 1 / 60);
+    presenter.publish(ctx.state);
+    expect(action).toHaveBeenLastCalledWith({ kind: 'repair', amount: 10, enabled: true });
+
+    p.repairPoints = 500;
+    presenter.publish(ctx.state);
+    expect(action).toHaveBeenLastCalledWith({ kind: 'repair', amount: 0, enabled: true });
+    const calls = action.mock.calls.length;
+    presenter.publish(ctx.state);
+    expect(action.mock.calls.length).toBe(calls);
+  });
+});

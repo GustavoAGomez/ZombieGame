@@ -1,4 +1,4 @@
-import { BULLETS, LOADOUT, PICKUPS, PLAYER, WEAPONS, ZOMBIES, type PickupKind, type WeaponId, type ZombieKind } from '../config/balance';
+import { BULLETS, LOADOUT, PICKUPS, PLAYER, POINTS, WEAPONS, ZOMBIES, type PickupKind, type WeaponId, type ZombieKind } from '../config/balance';
 import type { MapData } from '../game/map/MapLoader';
 import type { RngState } from './Rng';
 
@@ -13,6 +13,9 @@ export interface WeaponSlotState {
   magazine: number;
   reserve: number;
 }
+
+/** What the contextual action chip would do for a player right now. */
+export type ContextAction = 'none' | 'repair' | 'door';
 
 export interface PlayerState {
   id: number;
@@ -58,6 +61,18 @@ export interface PlayerState {
   dashDirY: number;
   /** Seconds until the dash can be used again. */
   dashCooldown: number;
+
+  points: number;
+  /** Points earned repairing during `repairRound` (capped per round). */
+  repairPoints: number;
+  repairRound: number;
+  /** Seconds the repair has been held towards the next plank. */
+  repairTimer: number;
+  /** True while a plank is being repaired (held chip, in range). */
+  repairing: boolean;
+  contextAction: ContextAction;
+  /** Window or door index the context action applies to, -1 when none. */
+  contextTarget: number;
 }
 
 export interface BulletState {
@@ -186,6 +201,13 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     dashDirX: 0,
     dashDirY: 0,
     dashCooldown: 0,
+    points: POINTS.start,
+    repairPoints: 0,
+    repairRound: 1,
+    repairTimer: 0,
+    repairing: false,
+    contextAction: 'none',
+    contextTarget: -1,
   };
 }
 

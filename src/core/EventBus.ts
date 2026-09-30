@@ -21,6 +21,13 @@ export interface GameEvents {
   };
   'special:cooldown': { remaining: number; total: number };
   'points:changed': { points: number };
+  /** Points added to a player (floating "+N" texts arrive in phase 6). */
+  'points:gained': { playerId: number; amount: number; reason: 'repair' | 'hit' | 'kill' };
+  /**
+   * Contextual action chip. kind null hides it. For 'repair', amount is the
+   * points per plank (0 once the round's repair limit is reached).
+   */
+  'action:context': { kind: 'repair' | 'door' | null; amount: number; enabled: boolean };
   'round:changed': { round: number };
 }
 

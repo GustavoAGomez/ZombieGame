@@ -1,6 +1,7 @@
 import { DASH, PLAYER, type WeaponId } from '../config/balance';
 import type { EventBus } from '../core/EventBus';
 import type { GameState } from '../core/GameState';
+import { repairPointsAvailable } from './systems/BarricadeSystem';
 import { reloadProgress } from './systems/WeaponSystem';
 
 /** Steps used to quantise continuous values so the DOM updates rarely. */
@@ -20,6 +21,10 @@ export class HudPresenter {
   private cooldownStep = -1;
   private hp = -1;
   private round = -1;
+  private points = -1;
+  private actionKind: 'repair' | 'door' | null | undefined = undefined;
+  private actionAmount = -1;
+  private actionEnabled = false;
 
   constructor(private readonly events: EventBus) {}
 
@@ -31,6 +36,21 @@ export class HudPresenter {
     if (hp !== this.hp) {
       this.hp = hp;
       this.events.emit('player:health', { hp, maxHp: p.maxHp, low: hp > 0 && hp < PLAYER.lowHpThreshold });
+    }
+
+    if (p.points !== this.points) {
+      this.points = p.points;
+      this.events.emit('points:changed', { points: p.points });
+    }
+
+    const kind = p.contextAction === 'none' ? null : p.contextAction;
+    const amount = kind === 'repair' ? repairPointsAvailable(p) : 0;
+    const enabled = kind !== null;
+    if (kind !== this.actionKind || amount !== this.actionAmount || enabled !== this.actionEnabled) {
+      this.actionKind = kind;
+      this.actionAmount = amount;
+      this.actionEnabled = enabled;
+      this.events.emit('action:context', { kind, amount, enabled });
     }
 
     if (state.wave.round !== this.round) {

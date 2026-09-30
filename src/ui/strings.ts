@@ -22,4 +22,9 @@ export const STRINGS = {
     health: 'Vida',
     dead: 'HAS MUERTO',
   },
+  actions: {
+    repair: 'REPARAR',
+    openDoor: 'ABRIR PUERTA',
+    missing: 'FALTAN',
+  },
 } as const;

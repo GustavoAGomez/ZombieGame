@@ -172,3 +172,50 @@
 .action-button:focus-visible {
   outline: none;
 }
+
+/* Contextual action chip (spec 01 §2.4): centred at 55 % of the width. */
+.action-chip {
+  position: absolute;
+  left: 55%;
+  bottom: calc(var(--pad-bottom) + 26px);
+  z-index: 20;
+  min-height: 44px;
+  padding: 0 14px;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  transform: translateX(-50%);
+  font-family: var(--font-label);
+  font-size: 11px;
+  color: var(--bone);
+  background: rgba(26, 23, 20, 0.92);
+  box-shadow:
+    0 0 0 2px var(--ink),
+    inset 0 0 0 2px var(--door);
+  pointer-events: auto;
+  touch-action: none;
+  transition: transform 60ms ease-out;
+}
+
+.action-chip.is-visible {
+  display: flex;
+}
+
+.action-chip.is-pressed {
+  transform: translateX(-50%) scale(0.94);
+}
+
+.action-chip__value {
+  font-family: var(--font-display);
+  font-size: 10px;
+  color: var(--amber);
+  text-shadow: 2px 2px 0 var(--ink);
+}
+
+.action-chip__value:empty {
+  display: none;
+}
+
+.action-chip.is-disabled {
+  opacity: 0.55;
+}
