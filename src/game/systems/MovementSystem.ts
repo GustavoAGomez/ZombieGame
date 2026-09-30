@@ -1,6 +1,7 @@
 import { PLAYER } from '../../config/balance';
-import type { SimContext } from './SimContext';
 import { BLOCK_PLAYER, moveCircle } from '../map/CollisionGrid';
+import type { SimContext } from './SimContext';
+import { isDashing } from './SpecialSystem';
 
 /** Moves each player from its command's analog vector, sliding along walls. */
 export function updateMovement(ctx: SimContext, dt: number): void {
@@ -8,7 +9,7 @@ export function updateMovement(ctx: SimContext, dt: number): void {
   for (let i = 0; i < state.players.length; i++) {
     const player = state.players[i];
     const cmd = commands[i];
-    if (!player || !cmd) continue;
+    if (!player || !cmd || isDashing(player)) continue;
 
     let mx = cmd.moveX;
     let my = cmd.moveY;

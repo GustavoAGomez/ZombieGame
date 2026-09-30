@@ -74,6 +74,8 @@ export const ASSET_KEYS = {
   tilesetInterior: 'interior',
   windowPlanks: 'window_planks',
   door: 'door',
+  bullet: 'bullet',
+  aimDot: 'aim_dot',
   mapRoom01: 'room01',
 } as const;
 
@@ -192,8 +194,13 @@ export function characterTextureKey(character: string, animation: string): strin
   return `char:${character}:${animation}`;
 }
 
+const animationKeyCache: Record<string, Record<string, string[]>> = {};
+
+/** Animation key for a character/animation/direction. Cached: no per-frame strings. */
 export function animationKey(character: string, animation: string, dir8: number): string {
-  return `${character}:${animation}:${dir8}`;
+  const byAnim = (animationKeyCache[character] ??= {});
+  const byDir = (byAnim[animation] ??= []);
+  return (byDir[dir8] ??= `${character}:${animation}:${dir8}`);
 }
 
 export function objectTextureKey(object: string): string {

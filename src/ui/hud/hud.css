@@ -1,0 +1,74 @@
+/* HUD "Propuesta A" (spec 01 §5). Hard shadows, no blur. */
+.hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  color: var(--bone);
+  font-family: var(--font-label);
+}
+
+.hud-right {
+  position: absolute;
+  right: var(--pad-x);
+  top: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.hud-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hud-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-shadow: 2px 2px 0 var(--ink);
+}
+
+.hud-mag {
+  font-family: var(--font-display);
+  font-size: 14px;
+  color: var(--amber);
+  text-shadow: 2px 2px 0 var(--ink);
+  min-width: 28px;
+  text-align: right;
+}
+
+.hud-reserve {
+  font-family: var(--font-display);
+  font-size: 10px;
+  color: var(--dim);
+  text-shadow: 2px 2px 0 var(--ink);
+}
+
+.hud-reload {
+  display: none;
+  width: 28px;
+  height: 8px;
+  background: var(--red-dark);
+  box-shadow: 0 0 0 2px var(--ink);
+}
+
+.hud-reload__fill {
+  width: 100%;
+  height: 100%;
+  background: var(--amber);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+}
+
+.hud-weapon.is-reloading .hud-mag {
+  display: none;
+}
+
+.hud-weapon.is-reloading .hud-reload {
+  display: block;
+}
+
+.hud-weapon.is-switching {
+  opacity: 0.55;
+}

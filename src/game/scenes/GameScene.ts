@@ -5,13 +5,21 @@ import { FixedStep } from '../../core/FixedStep';
 import { createGameState, type GameState } from '../../core/GameState';
 import { createInputCommand } from '../../core/InputCommand';
 import { InputCollector } from '../../input/InputCollector';
+import { Hud } from '../../ui/hud/Hud';
 import type { AssetLibrary } from '../assets/AssetLibrary';
 import { ASSET_KEYS } from '../assets/manifest';
+import { AimLine } from '../entities/AimLine';
+import { BulletViewPool } from '../entities/Bullet';
 import { PlayerView } from '../entities/Player';
-import { buildCollisionGrid, type CollisionGrid } from '../map/CollisionGrid';
+import { ZombieViewPool } from '../entities/Zombie';
+import { HudPresenter } from '../HudPresenter';
+import { buildCollisionGrid } from '../map/CollisionGrid';
 import type { MapData } from '../map/MapLoader';
 import { MapView } from '../map/MapView';
 import type { Services } from '../services';
+import { activeBulletCount } from '../systems/BulletSystem';
+import { isZombieAlive } from '../systems/Combat';
+import { spawnTrainingDummies } from '../systems/DummySystem';
 import type { SimContext } from '../systems/SimContext';
 import { stepSimulation } from '../systems/Simulation';
 import { SCENE_KEYS, type GameSceneData } from './BootScene';
@@ -21,11 +29,15 @@ export class GameScene extends Phaser.Scene {
   private assets!: AssetLibrary;
   private map!: MapData;
   private state!: GameState;
-  private grid!: CollisionGrid;
+  private sim!: SimContext;
+  private controls!: InputCollector;
+  private hud!: Hud;
+  private presenter!: HudPresenter;
   private mapView!: MapView;
   private playerView!: PlayerView;
-  private controls!: InputCollector;
-  private sim!: SimContext;
+  private zombieViews!: ZombieViewPool;
+  private bulletViews!: BulletViewPool;
+  private aimLine!: AimLine;
   private readonly fixedStep = new FixedStep(SIM.hz, SIM.maxStepsPerFrame, SIM.maxFrameMs);
 
   constructor() {
@@ -38,23 +50,31 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
+    const { events, hudRoot } = this.services;
     this.map = this.assets.map(ASSET_KEYS.mapRoom01);
     this.state = createGameState(this.map);
-    this.grid = buildCollisionGrid(this.map, this.state.doorsOpen);
     this.sim = {
       state: this.state,
       map: this.map,
-      grid: this.grid,
+      grid: buildCollisionGrid(this.map, this.state.doorsOpen),
       commands: this.state.players.map(() => createInputCommand()),
-      events: this.services.events,
+      events,
     };
-    this.controls = new InputCollector(this.services.hudRoot);
+    spawnTrainingDummies(this.sim);
     this.fixedStep.reset();
 
-    this.mapView = new MapView(this, this.map);
-    const playerDef = this.assets.manifest.characters[ASSET_KEYS.player];
+    this.hud = new Hud(hudRoot, events);
+    this.controls = new InputCollector(hudRoot, events);
+    this.presenter = new HudPresenter(events);
+
+    const { manifest } = this.assets;
+    const playerDef = manifest.characters[ASSET_KEYS.player];
     if (!playerDef) throw new Error('The manifest has no "player" character');
+    this.mapView = new MapView(this, this.map);
+    this.zombieViews = new ZombieViewPool(this, manifest, this.state.zombies.length);
     this.playerView = new PlayerView(this, playerDef);
+    this.bulletViews = new BulletViewPool(this, this.state.bullets.length);
+    this.aimLine = new AimLine(this);
     this.syncViews(0);
 
     const camera = this.cameras.main;
@@ -67,13 +87,15 @@ export class GameScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.scale.off(Phaser.Scale.Events.RESIZE, this.applyZoom);
       this.controls.destroy();
+      this.hud.destroy();
     });
   }
 
-  override update(_time: number, delta: number): void {
+  override update(time: number, delta: number): void {
     this.fixedStep.advance(delta, (dt) => this.step(dt));
-    this.syncViews(this.fixedStep.alpha);
-    this.services.stats.tick = this.state.tick;
+    this.syncViews(this.fixedStep.alpha, time);
+    this.presenter.publish(this.state);
+    this.updateStats();
   }
 
   private step(dt: number): void {
@@ -82,18 +104,27 @@ export class GameScene extends Phaser.Scene {
     stepSimulation(this.sim, dt);
   }
 
-  private syncViews(alpha: number): void {
+  private syncViews(alpha: number, now = 0): void {
     const player = this.state.players[0];
-    if (player) this.playerView.sync(player, alpha, player.moving ? 'walk' : 'idle');
     this.mapView.sync(this.state);
+    this.zombieViews.sync(this.state.zombies, alpha, now);
+    if (player) {
+      this.playerView.sync(player, alpha);
+      this.aimLine.sync(player, alpha);
+    }
+    this.bulletViews.sync(this.state.bullets, alpha);
+  }
+
+  private updateStats(): void {
+    const stats = this.services.stats;
+    let alive = 0;
+    for (const z of this.state.zombies) if (isZombieAlive(z)) alive++;
+    stats.zombies = alive;
+    stats.bullets = activeBulletCount(this.state.bullets);
+    stats.tick = this.state.tick;
   }
 
   private readonly applyZoom = (): void => {
     this.cameras.main.setZoom(computeWorldZoom(this.scale.height));
   };
-
-  /** Exposed for later phases (movement) and debugging. */
-  get collisionGrid(): CollisionGrid {
-    return this.grid;
-  }
 }

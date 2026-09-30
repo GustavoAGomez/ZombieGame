@@ -169,3 +169,18 @@ export const WAVES = {
   spawnIntervalMin: 0.4,
   restTime: 8,
 } as const;
+
+/**
+ * Static targets to try shooting and auto-aim before zombies exist
+ * (phase 3 only; replaced by real zombies in phase 4). Offsets are in
+ * tiles from the player spawn.
+ */
+export const TRAINING_DUMMIES = {
+  hp: 100,
+  respawnTime: 2,
+  offsets: [
+    [-4, -2],
+    [4, -2],
+    [0, 3],
+  ] as const satisfies readonly (readonly [number, number])[],
+} as const;

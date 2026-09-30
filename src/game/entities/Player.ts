@@ -17,14 +17,22 @@ export class PlayerView {
       .setOrigin(def.anchor.x, def.anchor.y);
   }
 
-  sync(player: PlayerState, alpha: number, animation: PlayerAnimation): void {
+  sync(player: PlayerState, alpha: number): void {
     const x = lerp(player.prevX, player.x, alpha);
     const y = lerp(player.prevY, player.y, alpha);
     this.sprite.setPosition(x, y).setDepth(actorDepth(y));
-    const key = animationKey(ASSET_KEYS.player, animation, dir8FromAngle(player.facing));
+    const key = animationKey(ASSET_KEYS.player, pickAnimation(player), dir8FromAngle(player.facing));
     if (key !== this.playing) {
       this.playing = key;
       this.sprite.play(key);
     }
   }
+}
+
+export function pickAnimation(p: PlayerState): PlayerAnimation {
+  if (p.hp <= 0) return 'death';
+  if (p.dashTimer > 0) return 'dash';
+  if (p.moving) return 'walk';
+  if (p.firing) return 'shoot';
+  return 'idle';
 }

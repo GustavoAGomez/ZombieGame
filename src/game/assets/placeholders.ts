@@ -193,7 +193,9 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
   createSheet(scene, objectTextureKey(object), def.frameWidth, def.frameHeight, def.frames, 1, (ctx, col, _row, ox, oy) => {
     if (object === ASSET_KEYS.windowPlanks) drawWindowPlanks(ctx, col, ox, oy, def.frameWidth, def.frameHeight);
     else if (object === ASSET_KEYS.door) drawDoor(ctx, col, ox, oy, def.frameWidth, def.frameHeight);
-    else {
+    else if (object === ASSET_KEYS.bullet || object === ASSET_KEYS.aimDot) {
+      rect(ctx, COLORS.amber, ox, oy, def.frameWidth, def.frameHeight);
+    } else {
       rect(ctx, PLACEHOLDER_COLORS.generic, ox, oy, def.frameWidth, def.frameHeight);
       rect(ctx, COLORS.ink, ox + 1, oy + 1, def.frameWidth - 2, def.frameHeight - 2);
     }
