@@ -255,6 +255,27 @@ function drawHealthPickup(ctx: Ctx, ox: number, oy: number, w: number, h: number
   rect(ctx, COLORS.red, cx - 4, cy - 1, 9, 3);
 }
 
+/** Pixel muzzle flash: frame 0 a plus-shaped burst, frame 1 an x-shaped one. */
+function drawMuzzleFlash(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number): void {
+  const cx = ox + Math.floor(w / 2);
+  const cy = oy + Math.floor(h / 2);
+  const glow = 'rgba(232, 176, 74, 0.55)';
+  if (frame % 2 === 0) {
+    rect(ctx, glow, cx - 3, cy - 3, 6, 6);
+    rect(ctx, COLORS.amber, cx - 5, cy - 1, 10, 2);
+    rect(ctx, COLORS.amber, cx - 1, cy - 5, 2, 10);
+  } else {
+    rect(ctx, glow, cx - 2, cy - 2, 4, 4);
+    for (let i = 1; i <= 4; i++) {
+      rect(ctx, COLORS.amber, cx - 1 - i, cy - 1 - i, 2, 2);
+      rect(ctx, COLORS.amber, cx - 1 + i, cy - 1 - i, 2, 2);
+      rect(ctx, COLORS.amber, cx - 1 - i, cy - 1 + i, 2, 2);
+      rect(ctx, COLORS.amber, cx - 1 + i, cy - 1 + i, 2, 2);
+    }
+  }
+  rect(ctx, '#fff6d8', cx - 1, cy - 1, 2, 2);
+}
+
 export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def: ObjectDef): void {
   createSheet(scene, objectTextureKey(object), def.frameWidth, def.frameHeight, def.frames, 1, (ctx, col, _row, ox, oy) => {
     const { frameWidth: w, frameHeight: h } = def;
@@ -279,6 +300,9 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
         break;
       case ASSET_KEYS.pickupHealth:
         drawHealthPickup(ctx, ox, oy, w, h);
+        break;
+      case ASSET_KEYS.muzzleFlash:
+        drawMuzzleFlash(ctx, col, ox, oy, w, h);
         break;
       default:
         rect(ctx, PLACEHOLDER_COLORS.generic, ox, oy, w, h);

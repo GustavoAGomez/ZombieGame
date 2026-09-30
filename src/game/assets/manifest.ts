@@ -20,6 +20,11 @@ export interface CharacterDef {
   directions: 4 | 8;
   placeholder?: boolean;
   animations: Record<string, AnimationDef>;
+  /**
+   * Where the gun's muzzle is in each direction row, in frame pixels
+   * (sheet row order). Used for muzzle flashes, the aim line and bullets.
+   */
+  muzzle?: [number, number][];
 }
 
 export interface TilesetDef {
@@ -86,6 +91,7 @@ export const ASSET_KEYS = {
   blood: 'blood',
   pickupAmmo: 'pickup_ammo',
   pickupHealth: 'pickup_health',
+  muzzleFlash: 'muzzle_flash',
   mapRoom01: 'room01',
 } as const;
 
@@ -143,6 +149,18 @@ export function parseManifest(json: unknown): Manifest {
         placeholder: a.placeholder === true,
       };
     }
+    let muzzle: [number, number][] | undefined;
+    if (raw.muzzle !== undefined) {
+      if (!Array.isArray(raw.muzzle) || raw.muzzle.length !== directions) {
+        throw new ManifestError(`${where}.muzzle must have one [x, y] per direction (${directions})`);
+      }
+      muzzle = raw.muzzle.map((pt: unknown, i) => {
+        if (!Array.isArray(pt) || pt.length !== 2 || !pt.every((n) => typeof n === 'number')) {
+          throw new ManifestError(`${where}.muzzle[${i}] must be [x, y]`);
+        }
+        return [pt[0] as number, pt[1] as number];
+      });
+    }
     characters[key] = {
       frameWidth: positive(raw.frameWidth, `${where}.frameWidth`),
       frameHeight: positive(raw.frameHeight, `${where}.frameHeight`),
@@ -154,6 +172,7 @@ export function parseManifest(json: unknown): Manifest {
       directions,
       placeholder: raw.placeholder === true,
       animations,
+      ...(muzzle ? { muzzle } : {}),
     };
   }
 

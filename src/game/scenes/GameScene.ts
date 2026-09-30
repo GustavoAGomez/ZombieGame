@@ -11,6 +11,7 @@ import { ASSET_KEYS } from '../assets/manifest';
 import { AimLine } from '../entities/AimLine';
 import { BloodViewPool } from '../entities/Blood';
 import { BulletViewPool } from '../entities/Bullet';
+import { MuzzleFlash } from '../entities/MuzzleFlash';
 import { PickupViewPool } from '../entities/Pickup';
 import { PlayerView } from '../entities/Player';
 import { ZombieViewPool } from '../entities/Zombie';
@@ -41,6 +42,7 @@ export class GameScene extends Phaser.Scene {
   private zombieViews!: ZombieViewPool;
   private bulletViews!: BulletViewPool;
   private aimLine!: AimLine;
+  private muzzleFlash!: MuzzleFlash;
   private bloodViews!: BloodViewPool;
   private pickupViews!: PickupViewPool;
   /** ms since every player died; the scene restarts after a pause (until phase 7). */
@@ -83,8 +85,9 @@ export class GameScene extends Phaser.Scene {
     this.pickupViews = new PickupViewPool(this, this.state.pickups.length);
     this.zombieViews = new ZombieViewPool(this, manifest, this.state.zombies.length);
     this.playerView = new PlayerView(this, playerDef);
-    this.bulletViews = new BulletViewPool(this, this.state.bullets.length);
-    this.aimLine = new AimLine(this);
+    this.bulletViews = new BulletViewPool(this, this.state.bullets.length, playerDef);
+    this.aimLine = new AimLine(this, playerDef);
+    this.muzzleFlash = new MuzzleFlash(this, playerDef);
     this.syncViews(0);
 
     const camera = this.cameras.main;
@@ -131,8 +134,9 @@ export class GameScene extends Phaser.Scene {
     if (player) {
       this.playerView.sync(player, alpha);
       this.aimLine.sync(player, alpha);
+      this.muzzleFlash.sync(player, alpha, this.state.tick);
     }
-    this.bulletViews.sync(this.state.bullets, alpha);
+    this.bulletViews.sync(this.state.bullets, this.state.players, alpha);
   }
 
   private updateStats(): void {

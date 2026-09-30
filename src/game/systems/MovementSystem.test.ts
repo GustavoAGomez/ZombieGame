@@ -84,6 +84,17 @@ describe('MovementSystem', () => {
     expect(p.x).toBeGreaterThan(x0 + 20);
   });
 
+  it('slows down to a walk while shooting and remembers the move direction', () => {
+    const ctx = createTestContext();
+    const p = ctx.state.players[0]!;
+    const x0 = p.x;
+    ctx.commands[0]!.moveX = 1;
+    ctx.commands[0]!.fire = true;
+    runTicks(ctx, 60, stepSimulation);
+    expect(p.x - x0).toBeCloseTo(PLAYER.speed * PLAYER.shootingSpeedFactor, 5);
+    expect([p.moveX, p.moveY]).toEqual([1, 0]);
+  });
+
   it('keeps prevX/prevY one tick behind for interpolation', () => {
     const ctx = createTestContext();
     const p = ctx.state.players[0]!;

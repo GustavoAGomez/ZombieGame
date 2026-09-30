@@ -13,14 +13,15 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSy
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { decodePng, encodePng, parsePaletteHex } from './lib/png';
-import { directionRows, parsePixelLabMetadata, selectAnimations, type ExportAnimation } from './lib/pixellab';
+import { directionRows, parsePixelLabMetadata, selectAnimations, type ExportAnimation, type TakeOverrides } from './lib/pixellab';
 import { binarizeAlpha, buildSheet, croppedPixels, opaqueBounds, quantize, type Frame } from './lib/sheet';
 
 /** Defaults for animations the manifest does not declare yet. */
 const ANIMATION_DEFAULTS: Record<string, { fps: number; loop: boolean }> = {
   idle: { fps: 6, loop: true },
-  walk: { fps: 10, loop: true },
-  shoot: { fps: 12, loop: false },
+  walk: { fps: 12, loop: true },
+  shoot: { fps: 12, loop: true },
+  shoot_walk: { fps: 12, loop: true },
   attack: { fps: 10, loop: false },
   dash: { fps: 20, loop: false },
   death: { fps: 8, loop: false },
@@ -71,6 +72,12 @@ export function applyImport(manifest: Json, asset: string, imported: ImportedAni
   }
 }
 
+/** Stretches (or shrinks) a frame list to `count` frames, keeping its timing even. */
+export function resampleFrames<T>(frames: readonly T[], count: number): T[] {
+  if (frames.length === count || frames.length === 0) return [...frames];
+  return Array.from({ length: count }, (_, i) => frames[Math.min(frames.length - 1, Math.floor((i * frames.length) / count))] as T);
+}
+
 function cutFrame(sheet: Frame, col: number, row: number, w: number, h: number): Frame {
   const pixels = new Uint8Array(w * h * 4);
   for (let y = 0; y < h; y++) {
@@ -99,11 +106,14 @@ function importAnimation(
   const anchorRaw = isRecord(character.anchor) ? character.anchor : {};
   const anchorY = typeof anchorRaw.y === 'number' ? anchorRaw.y : 0.8;
 
-  const { directions, rows } = directionRows(anim.frames);
-  const counts = new Set(rows.map((r) => r.length));
-  if (counts.size > 1) throw new Error(`${anim.sourceName}: las direcciones tienen distinto número de frames (${[...counts].join(', ')})`);
-  const frames = rows[0]?.length ?? 0;
+  for (const note of anim.notes ?? []) log(`  · ${anim.sourceName}: ${note}`);
+  const { directions, rows: sourceRows } = directionRows(anim.frames);
+  const frames = Math.max(...sourceRows.map((r) => r.length));
   if (frames === 0) throw new Error(`${anim.sourceName}: sin frames`);
+  // A sheet needs the same frame count in every row: stretch the shorter directions.
+  const counts = new Set(sourceRows.map((r) => r.length));
+  if (counts.size > 1) log(`  · ${anim.sourceName}: direcciones con ${[...counts].join(' y ')} frames; se remuestrean a ${frames}`);
+  const rows = sourceRows.map((r) => resampleFrames(r, frames));
 
   const decoded = rows.map((row) => row.map((rel) => readFrame(join(sourceDir, rel))));
   const odd = decoded.flat().filter((f) => f.width !== frameWidth || f.height !== frameHeight);
@@ -143,6 +153,24 @@ function importAnimation(
   writeFileSync(out, encodePng(sheet.width, sheet.height, sheet.pixels));
   log(`  ✓ ${anim.sourceName} → ${file} (${frames} frames × ${directions} direcciones, ${sheet.width}×${sheet.height})`);
   return { name: anim.name, frames, directions, file };
+}
+
+/**
+ * Optional art-src/pixellab/<asset>/import.json with artist choices:
+ * { "takes": { "<animation>": { "<direction>": "<take folder>" } } }
+ */
+function readOverrides(assetDir: string, log: (line: string) => void): TakeOverrides {
+  const path = join(assetDir, 'import.json');
+  if (!existsSync(path)) return {};
+  const json: unknown = JSON.parse(readFileSync(path, 'utf8'));
+  const takes = isRecord(json) && isRecord(json.takes) ? json.takes : {};
+  const out: TakeOverrides = {};
+  for (const [anim, dirs] of Object.entries(takes)) {
+    if (!isRecord(dirs)) continue;
+    out[anim] = Object.fromEntries(Object.entries(dirs).filter((e): e is [string, string] => typeof e[1] === 'string'));
+  }
+  log(`  · import.json: elecciones de tomas para ${Object.keys(out).join(', ') || 'nada'}`);
+  return out;
 }
 
 /**
@@ -188,9 +216,10 @@ export function importAssets(root: string, only: readonly string[], log: (line: 
       continue;
     }
     const character = isRecord(characters[asset]) ? characters[asset] : {};
+    const overrides = readOverrides(dir, log);
     const seen = new Map<string, string>();
     for (const exportDir of exports) {
-      const parsed = parsePixelLabMetadata(JSON.parse(readFileSync(join(exportDir, 'metadata.json'), 'utf8')));
+      const parsed = parsePixelLabMetadata(JSON.parse(readFileSync(join(exportDir, 'metadata.json'), 'utf8')), overrides);
       for (const w of parsed.warnings) log(`  ⚠ ${w}`);
       const { selected, skipped } = selectAnimations(parsed.animations);
       for (const line of skipped) log(`  ⚠ ${line}`);

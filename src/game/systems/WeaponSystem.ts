@@ -118,6 +118,7 @@ function shoot(state: GameState, p: PlayerState, slot: WeaponSlotState): void {
   slot.magazine--;
   p.fireCooldown += 1 / stats.fireRate;
   p.lastAttackTick = state.tick;
+  p.lastShotTick = state.tick;
   if (!bullet) return; // pool exhausted: the shot is spent but not simulated
 
   const half = degToRad(stats.spread) / 2;

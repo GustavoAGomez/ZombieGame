@@ -25,6 +25,25 @@ describe('manifest.json', () => {
   });
 });
 
+describe('muzzle points', () => {
+  it('declares one muzzle point per direction for the player', () => {
+    const manifest = parseManifest(raw);
+    const player = manifest.characters.player!;
+    expect(player.muzzle).toHaveLength(8);
+    for (const [x, y] of player.muzzle!) {
+      expect(x).toBeGreaterThanOrEqual(0);
+      expect(x).toBeLessThan(player.frameWidth);
+      expect(y).toBeGreaterThanOrEqual(0);
+      expect(y).toBeLessThan(player.frameHeight);
+    }
+  });
+
+  it('rejects muzzle lists that do not match the directions', () => {
+    const bad = { tileSize: 32, characters: { x: { frameWidth: 48, frameHeight: 48, directions: 8, muzzle: [[1, 2]], animations: {} } } };
+    expect(() => parseManifest(bad)).toThrow(/muzzle/);
+  });
+});
+
 describe('parseManifest validation', () => {
   it('rejects bad values', () => {
     expect(() => parseManifest(null)).toThrow(ManifestError);

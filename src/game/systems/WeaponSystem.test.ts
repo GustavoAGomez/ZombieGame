@@ -26,6 +26,16 @@ describe('WeaponSystem · firing', () => {
     expect(fired).toBeLessThanOrEqual(23);
   });
 
+  it('records the tick of every bullet for the muzzle flash', () => {
+    const ctx = createTestContext();
+    const p = player(ctx);
+    command(ctx).fire = true;
+    stepSimulation(ctx, 1 / 60);
+    expect(p.lastShotTick).toBe(0);
+    runTicks(ctx, 20, stepSimulation);
+    expect(p.lastShotTick).toBe(15); // 4 shots/s at 60 Hz
+  });
+
   it('does not fire without the trigger', () => {
     const ctx = createTestContext();
     runTicks(ctx, 60, stepSimulation);

@@ -22,8 +22,12 @@ export function updateMovement(ctx: SimContext, dt: number): void {
     player.moving = len > 0;
     player.moveFactor = Math.min(1, len);
     if (!player.moving) continue;
+    player.moveX = mx / Math.min(1, len);
+    player.moveY = my / Math.min(1, len);
 
-    moveCircle(grid, player, mx * PLAYER.speed * dt, my * PLAYER.speed * dt, PLAYER.hitboxRadius, BLOCK_PLAYER);
+    // Shooting slows the run down to a walk (the shoot_walk animation).
+    const speed = PLAYER.speed * (cmd.fire ? PLAYER.shootingSpeedFactor : 1);
+    moveCircle(grid, player, mx * speed * dt, my * speed * dt, PLAYER.hitboxRadius, BLOCK_PLAYER);
     blockByZombies(ctx, player);
     player.facing = Math.atan2(my, mx);
   }

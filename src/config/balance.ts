@@ -24,6 +24,11 @@ export const PLAYER = {
   hitKnockback: 6,
   /** Distance from the player's centre to the muzzle, where bullets spawn. */
   muzzleDistance: 9,
+  /**
+   * Speed factor while shooting: the player walks (shoot_walk animation)
+   * instead of running. 1 keeps the running speed.
+   */
+  shootingSpeedFactor: 0.6,
 } as const;
 
 export type WeaponId = 'pistol' | 'smg';

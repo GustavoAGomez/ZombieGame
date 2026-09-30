@@ -15,6 +15,8 @@ import { DIRECTIONS_4, DIRECTIONS_8 } from '../../src/game/assets/manifest';
 export interface ExportAnimation {
   /** Animation name normalised to the manifest vocabulary (idle, walk, …). */
   name: string;
+  /** Messages about duplicate takes that were resolved. */
+  notes?: string[];
   /** Name as written in the export, for messages. */
   sourceName: string;
   width: number;
@@ -33,22 +35,67 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+const FIRING = /shoot|fir(e|ing)|gun/;
+const MOVING = /walk|run|jog|sprint/;
+
 const ALIASES: readonly (readonly [RegExp, string])[] = [
   [/idle|breath|stand|rotation/, 'idle'],
   // `walk` is the movement loop; for the player it is a run.
-  [/walk|run|jog|sprint/, 'walk'],
-  [/shoot|fire|gun/, 'shoot'],
+  [MOVING, 'walk'],
   [/attack|punch|bite|swipe|tear/, 'attack'],
   [/dash|roll|dodge/, 'dash'],
   [/death|die|dying|dead/, 'death'],
   [/climb|vault/, 'climb'],
 ];
 
-/** Maps export names like "Idle" or "Walking 6 frames" to manifest names. */
-export function normaliseAnimationName(name: string): string {
+/**
+ * Maps export names like "Idle" or "Walking 6 frames" to manifest names.
+ * `context` is the state name: PixelLab truncates animation names to 50
+ * characters, so "walking forward …" inside a "standing in a firing" state
+ * is recognised as walking while shooting (`shoot_walk`).
+ */
+export function normaliseAnimationName(name: string, context = ''): string {
   const lower = name.toLowerCase();
+  const firing = FIRING.test(lower) || FIRING.test(context.toLowerCase());
+  if (MOVING.test(lower) && firing) return 'shoot_walk';
+  if (FIRING.test(lower)) return 'shoot';
   for (const [pattern, alias] of ALIASES) if (pattern.test(lower)) return alias;
   return lower.replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'anim';
+}
+
+/** Per manifest animation, which take to use for a direction PixelLab exported twice. */
+export type TakeOverrides = Record<string, Record<string, string>>;
+
+/** "north-36c131c0" → "north": PixelLab suffixes directions that were regenerated. */
+const TAKE_SUFFIX = /-[0-9a-f]{8}$/;
+
+/**
+ * Collapses duplicate takes of a direction ("north-36c131c0", "north-e16e1c8c")
+ * into one: the override if given, else the first declared. Notes describe
+ * what was chosen.
+ */
+export function resolveTakes(
+  frames: Map<string, string[]>,
+  overrides: Record<string, string> = {},
+): { frames: Map<string, string[]>; notes: string[] } {
+  const groups = new Map<string, string[]>();
+  for (const key of frames.keys()) {
+    const base = key.replace(TAKE_SUFFIX, '');
+    groups.set(base, [...(groups.get(base) ?? []), key]);
+  }
+  const resolved = new Map<string, string[]>();
+  const notes: string[] = [];
+  for (const [base, keys] of groups) {
+    const wanted = overrides[base];
+    const chosen = wanted && keys.includes(wanted) ? wanted : keys[0];
+    if (!chosen) continue;
+    if (wanted && !keys.includes(wanted)) notes.push(`la toma "${wanted}" no existe en ${base}; se usa "${chosen}"`);
+    if (keys.length > 1) {
+      notes.push(`${base}: ${keys.length} tomas (${keys.join(', ')}); se usa "${chosen}"${wanted === chosen ? ' (import.json)' : ''}`);
+    }
+    resolved.set(base, frames.get(chosen) ?? []);
+  }
+  return { frames: resolved, notes };
 }
 
 function framesFromDirectionMap(value: unknown): Map<string, string[]> {
@@ -64,8 +111,12 @@ function framesFromDirectionMap(value: unknown): Map<string, string[]> {
   return frames;
 }
 
-/** Parses metadata.json into animations. Rotations become a 1-frame animation named after the state. */
-export function parsePixelLabMetadata(json: unknown): PixelLabExport {
+/**
+ * Parses metadata.json into animations. Rotations become a 1-frame
+ * animation named after the state; duplicate direction takes are resolved
+ * with `overrides` (keyed by manifest animation name).
+ */
+export function parsePixelLabMetadata(json: unknown, overrides: TakeOverrides = {}): PixelLabExport {
   const warnings: string[] = [];
   if (!isRecord(json) || !Array.isArray(json.states)) throw new Error('metadata.json sin "states": formato de PixelLab no reconocido');
   const version = typeof json.export_version === 'string' ? json.export_version : '?';
@@ -83,12 +134,14 @@ export function parsePixelLabMetadata(json: unknown): PixelLabExport {
 
     const anims = isRecord(state.frames.animations) ? state.frames.animations : {};
     for (const [animName, dirs] of Object.entries(anims)) {
-      const frames = framesFromDirectionMap(dirs);
-      if (frames.size === 0) {
+      const raw = framesFromDirectionMap(dirs);
+      if (raw.size === 0) {
         warnings.push(`Animación "${animName}" con una estructura no reconocida: ${JSON.stringify(dirs).slice(0, 120)}`);
         continue;
       }
-      animations.push({ name: normaliseAnimationName(animName), sourceName: animName, width, height, frames });
+      const name = normaliseAnimationName(animName, stateName);
+      const { frames, notes } = resolveTakes(raw, overrides[name]);
+      animations.push({ name, sourceName: animName, width, height, frames, notes });
     }
 
     // The rotations are the character standing still: a 1-frame animation named after the

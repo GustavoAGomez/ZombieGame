@@ -1,0 +1,8 @@
+{
+  "takes": {
+    "shoot_walk": {
+      "north": "north-36c131c0",
+      "south-east": "south-east-805cba59"
+    }
+  }
+}

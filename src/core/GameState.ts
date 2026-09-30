@@ -31,6 +31,9 @@ export interface PlayerState {
   moving: boolean;
   /** Analog speed factor of the last move (0..1); drives the run animation's pace. */
   moveFactor: number;
+  /** Unit direction of the last move (to play shoot_walk backwards when retreating). */
+  moveX: number;
+  moveY: number;
   hp: number;
   maxHp: number;
   /** Simulated time of the last hit taken (regeneration waits after it). */
@@ -54,6 +57,8 @@ export interface PlayerState {
   aimY: number;
   /** Tick of the last shot or melee swing (for animations). */
   lastAttackTick: number;
+  /** Tick of the last bullet fired (muzzle flash). */
+  lastShotTick: number;
 
   /** Seconds left of the current dash. */
   dashTimer: number;
@@ -183,6 +188,8 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     facing: Math.PI / 2,
     moving: false,
     moveFactor: 0,
+    moveX: 0,
+    moveY: 1,
     hp: PLAYER.maxHp,
     maxHp: PLAYER.maxHp,
     lastDamageTime: -Infinity,
@@ -197,6 +204,7 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     aimX: 0,
     aimY: 1,
     lastAttackTick: -1000,
+    lastShotTick: -1000,
     dashTimer: 0,
     dashDirX: 0,
     dashDirY: 0,

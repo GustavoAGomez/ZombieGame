@@ -106,8 +106,294 @@
           }
         }
       }
+    },
+    {
+      "character": {
+        "id": "9f08f855-1726-43de-aeb7-625875168f5f",
+        "name": "standing in a firing",
+        "prompt": "urban zombie-apocalypse survivor, rugged man in his 30s, short dark messy hair and stubble, worn olive-green canvas field jacket with rolled-up sleeves, red bandana tied around the neck, fingerless dark leather gloves, faded dark-blue jeans, scuffed brown work boots, small tactical backpack with a rolled grey blanket strapped on top, holding a compact black handgun with both hands, dirty and weathered look, muted earthy palette of olive, brown and grey with a single red accent, dark 1px outline, light coming from top-left, clear readable silhouette, game sprite, plain transparent background, no text, no logos, no helmet, no armor",
+        "size": {
+          "width": 48,
+          "height": 48
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-09-30T21:40:27.895809+00:00"
+      },
+      "folder": "standing_in_a_firing",
+      "frames": {
+        "rotations": {
+          "south": "standing_in_a_firing/rotations/south.png",
+          "south-east": "standing_in_a_firing/rotations/south-east.png",
+          "east": "standing_in_a_firing/rotations/east.png",
+          "north-east": "standing_in_a_firing/rotations/north-east.png",
+          "north": "standing_in_a_firing/rotations/north.png",
+          "north-west": "standing_in_a_firing/rotations/north-west.png",
+          "west": "standing_in_a_firing/rotations/west.png",
+          "south-west": "standing_in_a_firing/rotations/south-west.png"
+        },
+        "animations": {
+          "firing_a_handgun_in_the_exact_direction_the_charac": {
+            "east": [
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/east/frame_000.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/east/frame_001.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/east/frame_002.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/east/frame_003.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/east/frame_004.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/east/frame_005.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/east/frame_006.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/east/frame_007.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/east/frame_008.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/east/frame_009.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/east/frame_010.png"
+            ],
+            "west": [
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/west/frame_000.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/west/frame_001.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/west/frame_002.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/west/frame_003.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/west/frame_004.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/west/frame_005.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/west/frame_006.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/west/frame_007.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/west/frame_008.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/west/frame_009.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/west/frame_010.png"
+            ],
+            "south-west": [
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south-west/frame_000.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south-west/frame_001.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south-west/frame_002.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south-west/frame_003.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south-west/frame_004.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south-west/frame_005.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south-west/frame_006.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south-west/frame_007.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south-west/frame_008.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south-west/frame_009.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south-west/frame_010.png"
+            ],
+            "north-east": [
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-east/frame_000.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-east/frame_001.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-east/frame_002.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-east/frame_003.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-east/frame_004.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-east/frame_005.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-east/frame_006.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-east/frame_007.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-east/frame_008.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-east/frame_009.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-east/frame_010.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-east/frame_011.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-east/frame_012.png"
+            ],
+            "south": [
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south/frame_000.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south/frame_001.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south/frame_002.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south/frame_003.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south/frame_004.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south/frame_005.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south/frame_006.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south/frame_007.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south/frame_008.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south/frame_009.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south/frame_010.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south/frame_011.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south/frame_012.png"
+            ],
+            "north": [
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north/frame_000.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north/frame_001.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north/frame_002.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north/frame_003.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north/frame_004.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north/frame_005.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north/frame_006.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north/frame_007.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north/frame_008.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north/frame_009.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north/frame_010.png"
+            ],
+            "north-west": [
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-west/frame_000.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-west/frame_001.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-west/frame_002.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-west/frame_003.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-west/frame_004.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-west/frame_005.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-west/frame_006.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-west/frame_007.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-west/frame_008.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-west/frame_009.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-west/frame_010.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-west/frame_011.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/north-west/frame_012.png"
+            ],
+            "south-east": [
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south-east/frame_000.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south-east/frame_001.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south-east/frame_002.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south-east/frame_003.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south-east/frame_004.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south-east/frame_005.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south-east/frame_006.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south-east/frame_007.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south-east/frame_008.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south-east/frame_009.png",
+              "standing_in_a_firing/animations/firing_a_handgun_in_the_exact_direction_the_charac/south-east/frame_010.png"
+            ]
+          },
+          "walking_forward_in_the_exact_direction_the_charact": {
+            "west": [
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/west/frame_000.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/west/frame_001.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/west/frame_002.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/west/frame_003.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/west/frame_004.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/west/frame_005.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/west/frame_006.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/west/frame_007.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/west/frame_008.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/west/frame_009.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/west/frame_010.png"
+            ],
+            "north-36c131c0": [
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-36c131c0/frame_000.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-36c131c0/frame_001.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-36c131c0/frame_002.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-36c131c0/frame_003.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-36c131c0/frame_004.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-36c131c0/frame_005.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-36c131c0/frame_006.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-36c131c0/frame_007.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-36c131c0/frame_008.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-36c131c0/frame_009.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-36c131c0/frame_010.png"
+            ],
+            "south-east-67d1c633": [
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-67d1c633/frame_000.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-67d1c633/frame_001.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-67d1c633/frame_002.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-67d1c633/frame_003.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-67d1c633/frame_004.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-67d1c633/frame_005.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-67d1c633/frame_006.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-67d1c633/frame_007.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-67d1c633/frame_008.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-67d1c633/frame_009.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-67d1c633/frame_010.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-67d1c633/frame_011.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-67d1c633/frame_012.png"
+            ],
+            "north-west": [
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-west/frame_000.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-west/frame_001.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-west/frame_002.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-west/frame_003.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-west/frame_004.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-west/frame_005.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-west/frame_006.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-west/frame_007.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-west/frame_008.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-west/frame_009.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-west/frame_010.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-west/frame_011.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-west/frame_012.png"
+            ],
+            "south-east-805cba59": [
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-805cba59/frame_000.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-805cba59/frame_001.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-805cba59/frame_002.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-805cba59/frame_003.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-805cba59/frame_004.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-805cba59/frame_005.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-805cba59/frame_006.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-805cba59/frame_007.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-805cba59/frame_008.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-805cba59/frame_009.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-805cba59/frame_010.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-805cba59/frame_011.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-east-805cba59/frame_012.png"
+            ],
+            "south": [
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south/frame_000.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south/frame_001.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south/frame_002.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south/frame_003.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south/frame_004.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south/frame_005.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south/frame_006.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south/frame_007.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south/frame_008.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south/frame_009.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south/frame_010.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south/frame_011.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south/frame_012.png"
+            ],
+            "north-east": [
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-east/frame_000.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-east/frame_001.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-east/frame_002.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-east/frame_003.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-east/frame_004.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-east/frame_005.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-east/frame_006.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-east/frame_007.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-east/frame_008.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-east/frame_009.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-east/frame_010.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-east/frame_011.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-east/frame_012.png"
+            ],
+            "south-west": [
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-west/frame_000.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-west/frame_001.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-west/frame_002.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-west/frame_003.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-west/frame_004.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-west/frame_005.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-west/frame_006.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-west/frame_007.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-west/frame_008.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-west/frame_009.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-west/frame_010.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-west/frame_011.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/south-west/frame_012.png"
+            ],
+            "east": [
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/east/frame_000.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/east/frame_001.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/east/frame_002.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/east/frame_003.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/east/frame_004.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/east/frame_005.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/east/frame_006.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/east/frame_007.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/east/frame_008.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/east/frame_009.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/east/frame_010.png"
+            ],
+            "north-e16e1c8c": [
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-e16e1c8c/frame_000.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-e16e1c8c/frame_001.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-e16e1c8c/frame_002.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-e16e1c8c/frame_003.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-e16e1c8c/frame_004.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-e16e1c8c/frame_005.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-e16e1c8c/frame_006.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-e16e1c8c/frame_007.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-e16e1c8c/frame_008.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-e16e1c8c/frame_009.png",
+              "standing_in_a_firing/animations/walking_forward_in_the_exact_direction_the_charact/north-e16e1c8c/frame_010.png"
+            ]
+          }
+        }
+      }
     }
   ],
   "export_version": "3.1",
-  "export_date": "2026-09-30T21:19:56.182151"
+  "export_date": "2026-09-30T22:52:35.539987"
 }

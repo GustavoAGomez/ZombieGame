@@ -28,10 +28,9 @@
         },
         "shoot": {
           "file": "sprites/player/shoot.png",
-          "frames": 3,
+          "frames": 13,
           "fps": 12,
-          "loop": false,
-          "placeholder": true
+          "loop": true
         },
         "dash": {
           "file": "sprites/player/dash.png",
@@ -46,8 +45,48 @@
           "fps": 8,
           "loop": false,
           "placeholder": true
+        },
+        "shoot_walk": {
+          "file": "sprites/player/shoot_walk.png",
+          "frames": 13,
+          "fps": 12,
+          "loop": true
         }
-      }
+      },
+      "muzzle": [
+        [
+          23,
+          33
+        ],
+        [
+          40,
+          29
+        ],
+        [
+          44,
+          19
+        ],
+        [
+          40,
+          9
+        ],
+        [
+          23,
+          1
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          3,
+          19
+        ],
+        [
+          8,
+          30
+        ]
+      ]
     },
     "zombie_walker": {
       "frameWidth": 48,
@@ -237,6 +276,13 @@
       "frameWidth": 16,
       "frameHeight": 16,
       "frames": 1,
+      "placeholder": true
+    },
+    "muzzle_flash": {
+      "file": "sprites/objects/muzzle_flash.png",
+      "frameWidth": 12,
+      "frameHeight": 12,
+      "frames": 2,
       "placeholder": true
     }
   },
