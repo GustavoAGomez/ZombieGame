@@ -128,6 +128,21 @@ function importAnimation(
   return { name: anim.name, frames, directions, file };
 }
 
+/**
+ * Export folders of an asset: the asset folder itself and each direct
+ * subfolder that has a metadata.json (one PixelLab zip per subfolder, so
+ * separate exports never overwrite each other). Sorted for a stable order.
+ */
+export function findExports(assetDir: string): string[] {
+  const found: string[] = [];
+  if (existsSync(join(assetDir, 'metadata.json'))) found.push(assetDir);
+  for (const name of readdirSync(assetDir).sort()) {
+    const sub = join(assetDir, name);
+    if (!name.startsWith('.') && statSync(sub).isDirectory() && existsSync(join(sub, 'metadata.json'))) found.push(sub);
+  }
+  return found;
+}
+
 export function importAssets(root: string, only: readonly string[], log: (line: string) => void): number {
   const source = resolve(root, 'art-src/pixellab');
   const assets = existsSync(source)
@@ -149,19 +164,25 @@ export function importAssets(root: string, only: readonly string[], log: (line: 
   let imported = 0;
   for (const asset of selected) {
     const dir = join(source, asset);
-    const metadataPath = join(dir, 'metadata.json');
     log(`\n${asset}`);
-    if (!existsSync(metadataPath)) {
+    const exports = findExports(dir);
+    if (exports.length === 0) {
       log('  ✖ falta metadata.json (formato de export no soportado, ver docs/ASSETS.md §6)');
       continue;
     }
-    const parsed = parsePixelLabMetadata(JSON.parse(readFileSync(metadataPath, 'utf8')));
-    for (const w of parsed.warnings) log(`  ⚠ ${w}`);
     const character = isRecord(characters[asset]) ? characters[asset] : {};
-    for (const anim of parsed.animations) {
-      const result = importAnimation(root, asset, dir, anim, character, palette, log);
-      applyImport(manifest, asset, result, hasFile);
-      imported++;
+    const seen = new Map<string, string>();
+    for (const exportDir of exports) {
+      const parsed = parsePixelLabMetadata(JSON.parse(readFileSync(join(exportDir, 'metadata.json'), 'utf8')));
+      for (const w of parsed.warnings) log(`  ⚠ ${w}`);
+      for (const anim of parsed.animations) {
+        const previous = seen.get(anim.name);
+        if (previous) log(`  ⚠ "${anim.name}" aparece en ${previous} y en ${exportDir}; se usa el último`);
+        seen.set(anim.name, exportDir);
+        const result = importAnimation(root, asset, exportDir, anim, character, palette, log);
+        applyImport(manifest, asset, result, hasFile);
+        imported++;
+      }
     }
   }
 

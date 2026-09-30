@@ -109,7 +109,7 @@ Los tilesets deben ir **embebidos** en el `.tmj`.
 
 ## 6. Importar desde PixelLab (`npm run assets:import`)
 
-1. Descomprime el export de PixelLab, sin tocarlo, en `art-src/pixellab/<asset>/`, por ejemplo `art-src/pixellab/player/`. El nombre de la carpeta es la clave del personaje en el manifiesto.
+1. Descomprime el export de PixelLab, sin tocarlo, en `art-src/pixellab/<asset>/`, por ejemplo `art-src/pixellab/player/`. El nombre de la carpeta es la clave del personaje en el manifiesto. Si exportas las animaciones por separado, **cada zip va en su propia subcarpeta** (`art-src/pixellab/player/walk/`, `…/shoot/`), porque todos traen un `metadata.json` y se pisarían. El importador lee la carpeta del personaje y todas sus subcarpetas con `metadata.json`.
 2. `scripts/import-pixellab.ts`:
    - **Inspecciona la estructura real del export.** Puede venir en frames sueltos o en sheet, y con nombres de dirección y animación variados. Adáptate al formato que encuentres y documenta en este archivo el formato detectado.
    - **Normaliza** al formato de la sección 3: una fila por dirección en el orden fijado, frames recortados al lienzo declarado y centrados por el ancla.
