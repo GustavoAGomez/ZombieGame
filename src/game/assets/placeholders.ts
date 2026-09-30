@@ -224,6 +224,37 @@ function drawBlood(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h
   rect(ctx, '#3f120e', cx - 1, cy - 1, 2, 2);
 }
 
+/** Olive ammo box with three amber rounds. */
+function drawAmmoPickup(ctx: Ctx, ox: number, oy: number, w: number, h: number): void {
+  const x = ox + 2;
+  const y = oy + 4;
+  const bw = w - 4;
+  const bh = h - 6;
+  rect(ctx, COLORS.ink, x - 1, y - 1, bw + 2, bh + 2);
+  rect(ctx, '#4b5a36', x, y, bw, bh);
+  rect(ctx, '#6a8250', x, y, bw, 1);
+  for (let i = 0; i < 3; i++) {
+    const bx = x + 2 + i * 4;
+    rect(ctx, COLORS.amber, bx, y - 3, 2, 4);
+    rect(ctx, COLORS.amberDark, bx, y + 1, 2, 1);
+  }
+}
+
+/** Bone-coloured kit with a red cross. */
+function drawHealthPickup(ctx: Ctx, ox: number, oy: number, w: number, h: number): void {
+  const x = ox + 2;
+  const y = oy + 3;
+  const bw = w - 4;
+  const bh = h - 5;
+  rect(ctx, COLORS.ink, x - 1, y - 1, bw + 2, bh + 2);
+  rect(ctx, COLORS.bone, x, y, bw, bh);
+  rect(ctx, COLORS.muted, x, y + bh - 2, bw, 2);
+  const cx = x + bw / 2;
+  const cy = y + (bh - 2) / 2;
+  rect(ctx, COLORS.red, cx - 1, cy - 4, 3, 8);
+  rect(ctx, COLORS.red, cx - 4, cy - 1, 9, 3);
+}
+
 export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def: ObjectDef): void {
   createSheet(scene, objectTextureKey(object), def.frameWidth, def.frameHeight, def.frames, 1, (ctx, col, _row, ox, oy) => {
     const { frameWidth: w, frameHeight: h } = def;
@@ -242,6 +273,12 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
         break;
       case ASSET_KEYS.blood:
         drawBlood(ctx, col, ox, oy, w, h);
+        break;
+      case ASSET_KEYS.pickupAmmo:
+        drawAmmoPickup(ctx, ox, oy, w, h);
+        break;
+      case ASSET_KEYS.pickupHealth:
+        drawHealthPickup(ctx, ox, oy, w, h);
         break;
       default:
         rect(ctx, PLACEHOLDER_COLORS.generic, ox, oy, w, h);

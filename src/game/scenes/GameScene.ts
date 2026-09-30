@@ -11,6 +11,7 @@ import { ASSET_KEYS } from '../assets/manifest';
 import { AimLine } from '../entities/AimLine';
 import { BloodViewPool } from '../entities/Blood';
 import { BulletViewPool } from '../entities/Bullet';
+import { PickupViewPool } from '../entities/Pickup';
 import { PlayerView } from '../entities/Player';
 import { ZombieViewPool } from '../entities/Zombie';
 import { HudPresenter } from '../HudPresenter';
@@ -41,6 +42,7 @@ export class GameScene extends Phaser.Scene {
   private bulletViews!: BulletViewPool;
   private aimLine!: AimLine;
   private bloodViews!: BloodViewPool;
+  private pickupViews!: PickupViewPool;
   /** ms since every player died; the scene restarts after a pause (until phase 7). */
   private deadFor = 0;
   private readonly fixedStep = new FixedStep(SIM.hz, SIM.maxStepsPerFrame, SIM.maxFrameMs);
@@ -78,6 +80,7 @@ export class GameScene extends Phaser.Scene {
     if (!playerDef) throw new Error('The manifest has no "player" character');
     this.mapView = new MapView(this, this.map);
     this.bloodViews = new BloodViewPool(this, this.state.blood.length);
+    this.pickupViews = new PickupViewPool(this, this.state.pickups.length);
     this.zombieViews = new ZombieViewPool(this, manifest, this.state.zombies.length);
     this.playerView = new PlayerView(this, playerDef);
     this.bulletViews = new BulletViewPool(this, this.state.bullets.length);
@@ -123,6 +126,7 @@ export class GameScene extends Phaser.Scene {
     const player = this.state.players[0];
     this.mapView.sync(this.state);
     this.bloodViews.sync(this.state.blood);
+    this.pickupViews.sync(this.state.pickups, this.state.time);
     this.zombieViews.sync(this.state.zombies, alpha, now);
     if (player) {
       this.playerView.sync(player, alpha);

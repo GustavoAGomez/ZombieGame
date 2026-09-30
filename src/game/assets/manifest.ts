@@ -84,6 +84,8 @@ export const ASSET_KEYS = {
   bullet: 'bullet',
   aimDot: 'aim_dot',
   blood: 'blood',
+  pickupAmmo: 'pickup_ammo',
+  pickupHealth: 'pickup_health',
   mapRoom01: 'room01',
 } as const;
 

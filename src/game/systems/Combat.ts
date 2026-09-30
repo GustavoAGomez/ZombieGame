@@ -2,6 +2,7 @@ import { ZOMBIES } from '../../config/balance';
 import type { BloodState, ZombieState } from '../../core/GameState';
 import { random } from '../../core/Rng';
 import { BLOCK_SIGHT, segmentClear } from '../map/CollisionGrid';
+import { rollZombieDrop } from './PickupSystem';
 import type { SimContext } from './SimContext';
 
 export function isZombieAlive(z: ZombieState): boolean {
@@ -18,6 +19,7 @@ export function damageZombie(ctx: SimContext, z: ZombieState, amount: number): b
   z.timer = ZOMBIES.corpseTime;
   z.stateTick = ctx.state.tick;
   spawnBlood(ctx, z.x, z.y);
+  rollZombieDrop(ctx, z);
   ctx.events.emit('zombie:killed', { x: z.x, y: z.y, kind: z.kind });
   return true;
 }

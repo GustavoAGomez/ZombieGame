@@ -1,4 +1,4 @@
-import { BULLETS, LOADOUT, PLAYER, WEAPONS, ZOMBIES, type WeaponId, type ZombieKind } from '../config/balance';
+import { BULLETS, LOADOUT, PICKUPS, PLAYER, WEAPONS, ZOMBIES, type PickupKind, type WeaponId, type ZombieKind } from '../config/balance';
 import type { MapData } from '../game/map/MapLoader';
 import type { RngState } from './Rng';
 
@@ -115,6 +115,15 @@ export interface BloodState {
   variant: number;
 }
 
+export interface PickupState {
+  active: boolean;
+  kind: PickupKind;
+  x: number;
+  y: number;
+  /** Seconds since it dropped. */
+  age: number;
+}
+
 export interface WaveState {
   round: number;
   /** Zombies still to spawn this round; -1 = unlimited. */
@@ -132,6 +141,7 @@ export interface GameState extends RngState {
   bullets: BulletState[];
   zombies: ZombieState[];
   blood: BloodState[];
+  pickups: PickupState[];
   wave: WaveState;
   /** Parallel to MapData.doors. */
   doorsOpen: boolean[];
@@ -202,6 +212,10 @@ function createZombie(): ZombieState {
   };
 }
 
+function createPickup(): PickupState {
+  return { active: false, kind: 'ammo', x: 0, y: 0, age: 0 };
+}
+
 function createBlood(): BloodState {
   return { active: false, x: 0, y: 0, age: 0, variant: 0 };
 }
@@ -227,6 +241,7 @@ export function createGameState(map: MapData, options: GameOptions = {}): GameSt
     bullets: Array.from({ length: BULLETS.poolSize }, createBullet),
     zombies: Array.from({ length: ZOMBIES.poolSize }, createZombie),
     blood: Array.from({ length: ZOMBIES.maxBloodDecals }, createBlood),
+    pickups: Array.from({ length: PICKUPS.poolSize }, createPickup),
     wave: { round: Math.max(1, Math.floor(startRound)), toSpawn, spawnTimer: 0 },
     doorsOpen: map.doors.map(() => false),
     windowPlanks: map.windows.map((w) => w.planks),

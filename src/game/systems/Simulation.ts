@@ -2,6 +2,7 @@ import { updateBullets } from './BulletSystem';
 import { updateBlood } from './Combat';
 import { updateHealth } from './HealthSystem';
 import { updateMovement } from './MovementSystem';
+import { updatePickups } from './PickupSystem';
 import type { SimContext } from './SimContext';
 import { updateSpawns } from './SpawnSystem';
 import { updateSpecial } from './SpecialSystem';
@@ -24,6 +25,7 @@ export function stepSimulation(ctx: SimContext, dt: number): void {
   updateBullets(ctx, dt);
   updateSpawns(ctx, dt);
   updateZombies(ctx, dt);
+  updatePickups(ctx, dt);
   updateHealth(ctx, dt);
   updateBlood(ctx, dt);
   state.tick++;

@@ -1,4 +1,4 @@
-import type { WeaponId, ZombieKind } from '../config/balance';
+import type { PickupKind, WeaponId, ZombieKind } from '../config/balance';
 
 /**
  * Game -> HUD events. The HUD only ever sees these payloads; it never
@@ -10,6 +10,7 @@ export interface GameEvents {
   'player:damaged': { playerId: number; hp: number; maxHp: number };
   'player:died': { playerId: number };
   'zombie:killed': { x: number; y: number; kind: ZombieKind };
+  'pickup:collected': { playerId: number; kind: PickupKind };
   'weapon:state': {
     weapon: WeaponId;
     magazine: number;

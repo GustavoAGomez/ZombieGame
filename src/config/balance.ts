@@ -14,7 +14,8 @@ export const SIM = {
 
 export const PLAYER = {
   maxHp: 100,
-  speed: 88,
+  /** Running speed (the basic movement animation is a run). */
+  speed: 120,
   hitboxRadius: 6,
   regenDelay: 3,
   regenPerSecond: 40,
@@ -33,6 +34,8 @@ export interface WeaponStats {
   fireRate: number;
   magazine: number;
   startReserve: number;
+  /** Ammo pickups never raise the reserve above this. */
+  maxReserve: number;
   reloadTime: number;
   /** Total cone angle in degrees; each shot deviates up to ±spread/2. */
   spread: number;
@@ -46,6 +49,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponStats>> = {
     fireRate: 4,
     magazine: 8,
     startReserve: 64,
+    maxReserve: 64,
     reloadTime: 1.6,
     spread: 2,
     range: 260,
@@ -56,6 +60,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponStats>> = {
     fireRate: 11,
     magazine: 30,
     startReserve: 120,
+    maxReserve: 120,
     reloadTime: 2.2,
     spread: 6,
     range: 220,
@@ -196,4 +201,21 @@ export const WAVES = {
   /** Spawn weight = 1 / (1 + distanceToPlayer / falloff): closer spawns are likelier. */
   spawnDistanceFalloff: 256,
   restTime: 8,
+} as const;
+
+export type PickupKind = 'ammo' | 'health';
+
+/** Drops from killed zombies. One roll per kill: ammo, else health, else nothing. */
+export const PICKUPS = {
+  ammoChance: 0.1,
+  healthChance: 0.06,
+  /** Magazines added to the reserve of every weapon, capped at maxReserve. */
+  ammoMagazines: 1,
+  healthAmount: 50,
+  /** Seconds on the floor before disappearing; it blinks during the last ones. */
+  lifetime: 15,
+  blinkTime: 3,
+  /** Collected when the player's hitbox touches this radius. */
+  radius: 6,
+  poolSize: 12,
 } as const;

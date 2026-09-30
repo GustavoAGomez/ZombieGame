@@ -5,6 +5,7 @@ export const DEPTH = {
   walls: 2,
   mapObjects: 3,
   decals: 4,
+  pickups: 5,
   actors: 10,
   bullets: 30,
   aimLine: 31,
