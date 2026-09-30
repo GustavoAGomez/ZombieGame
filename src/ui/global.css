@@ -1,0 +1,88 @@
+/* Global mobile-game CSS (spec 01 §7). Color tokens are injected from theme.ts. */
+:root {
+  --pad-x: max(env(safe-area-inset-left), env(safe-area-inset-right), 24px);
+  --pad-bottom: max(env(safe-area-inset-bottom), 20px);
+  --pad-top: env(safe-area-inset-top);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: fixed;
+  inset: 0;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--font-label);
+  touch-action: none;
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+}
+
+#game {
+  position: fixed;
+  inset: 0;
+}
+
+/* The backing store is in physical pixels; CSS always shows it at viewport size. */
+#game canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  image-rendering: pixelated;
+}
+
+/* The HUD layer lets touches through except on its interactive children. */
+#hud {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.rotate-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  background: var(--ink);
+  text-align: center;
+  pointer-events: auto;
+}
+
+.rotate-overlay__title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--red);
+  text-shadow: 3px 3px 0 var(--red-dark);
+}
+
+.rotate-overlay__hint {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+@media (orientation: portrait) {
+  .rotate-overlay {
+    display: flex;
+  }
+}

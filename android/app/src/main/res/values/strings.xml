@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Zombies</string>
+    <string name="title_activity_main">Zombies</string>
+    <string name="package_name">es.garajedeideas.zombies</string>
+    <string name="custom_url_scheme">es.garajedeideas.zombies</string>
+</resources>

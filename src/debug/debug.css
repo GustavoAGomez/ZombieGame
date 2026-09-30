@@ -1,0 +1,28 @@
+.debug-panel {
+  position: absolute;
+  left: calc(var(--pad-x) + 220px);
+  top: 14px;
+  z-index: 900;
+  padding: 6px 8px;
+  background: rgba(15, 14, 12, 0.8);
+  box-shadow: inset 0 0 0 2px var(--door);
+  pointer-events: auto;
+}
+
+.debug-panel pre {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--bone);
+}
+
+.debug-corner {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 44px;
+  height: 44px;
+  z-index: 950;
+  pointer-events: auto;
+}
