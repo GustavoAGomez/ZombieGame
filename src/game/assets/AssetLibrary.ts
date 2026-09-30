@@ -5,6 +5,7 @@ import {
   animationKey,
   characterTextureKey,
   directionRow,
+  isAnimationPlaceholder,
   mapCacheKey,
   objectTextureKey,
   tilesetTextureKey,
@@ -19,6 +20,8 @@ import { createCharacterPlaceholder, createObjectPlaceholder, createTilesetPlace
 export class AssetLibrary {
   private readonly failed = new Set<string>();
   private readonly maps = new Map<string, MapData>();
+  /** Character texture key → animation whose frames it borrows (e.g. 'idle'). */
+  private readonly fallbacks = new Map<string, string>();
 
   constructor(readonly manifest: Manifest) {}
 
@@ -34,8 +37,8 @@ export class AssetLibrary {
       scene.load.json(mapCacheKey(key), ASSETS_BASE_URL + file);
     }
     for (const [key, def] of Object.entries(manifest.characters)) {
-      if (def.placeholder) continue;
       for (const [anim, a] of Object.entries(def.animations)) {
+        if (isAnimationPlaceholder(def, anim)) continue;
         scene.load.spritesheet(characterTextureKey(key, anim), ASSETS_BASE_URL + a.file, {
           frameWidth: def.frameWidth,
           frameHeight: def.frameHeight,
@@ -66,9 +69,15 @@ export class AssetLibrary {
     }
 
     for (const [key, def] of Object.entries(manifest.characters)) {
+      const hasRealIdle = !isAnimationPlaceholder(def, 'idle') && !this.isMissing(scene, characterTextureKey(key, 'idle'));
       for (const anim of Object.keys(def.animations)) {
         const textureKey = characterTextureKey(key, anim);
-        if (def.placeholder || this.isMissing(scene, textureKey)) createCharacterPlaceholder(scene, key, def, anim);
+        const missing = isAnimationPlaceholder(def, anim) || this.isMissing(scene, textureKey);
+        if (!missing) continue;
+        // While a character is half drawn, its missing animations reuse the real idle
+        // so it never turns into a rectangle mid-game (docs/ASSETS.md §4).
+        if (hasRealIdle) this.fallbacks.set(textureKey, 'idle');
+        else createCharacterPlaceholder(scene, key, def, anim);
       }
     }
 
@@ -101,17 +110,20 @@ export class AssetLibrary {
   private createAnimations(scene: Phaser.Scene): void {
     for (const [key, def] of Object.entries(this.manifest.characters)) {
       for (const [anim, a] of Object.entries(def.animations)) {
-        const textureKey = characterTextureKey(key, anim);
+        const borrowed = this.fallbacks.get(characterTextureKey(key, anim));
+        const source = borrowed ? def.animations[borrowed] : undefined;
+        const textureKey = characterTextureKey(key, borrowed ?? anim);
+        const frames = source ? source.frames : a.frames;
         for (let dir = 0; dir < 8; dir++) {
           const animKey = animationKey(key, anim, dir);
           if (scene.anims.exists(animKey)) scene.anims.remove(animKey);
           const row = directionRow(dir, def.directions);
-          const start = row * a.frames;
+          const start = row * frames;
           scene.anims.create({
             key: animKey,
-            frames: scene.anims.generateFrameNumbers(textureKey, { start, end: start + a.frames - 1 }),
-            frameRate: a.fps,
-            repeat: a.loop ? -1 : 0,
+            frames: scene.anims.generateFrameNumbers(textureKey, { start, end: start + frames - 1 }),
+            frameRate: source ? source.fps : a.fps,
+            repeat: (source ?? a).loop ? -1 : 0,
           });
         }
       }

@@ -1,5 +1,6 @@
 import type Phaser from 'phaser';
 import { AIM, PLAYER } from '../../config/balance';
+import { DISPLAY } from '../../config/display';
 import type { PlayerState } from '../../core/GameState';
 import { lerp } from '../../core/math';
 import { ASSET_KEYS, objectTextureKey } from '../assets/manifest';
@@ -28,7 +29,7 @@ export class AimLine {
   sync(player: PlayerState, alpha: number): void {
     const visible = player.aimManual;
     const x = lerp(player.prevX, player.x, alpha) + player.aimX * PLAYER.muzzleDistance;
-    const y = lerp(player.prevY, player.y, alpha) + player.aimY * PLAYER.muzzleDistance;
+    const y = lerp(player.prevY, player.y, alpha) + player.aimY * PLAYER.muzzleDistance - DISPLAY.shotHeight;
     for (let i = 0; i < this.dots.length; i++) {
       const dot = this.dots[i];
       if (!dot) continue;

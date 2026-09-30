@@ -8,6 +8,12 @@ export const DISPLAY = {
   tileSize: 32,
   /** Camera follow smoothing (Phaser lerp, 0..1). */
   cameraLerp: 0.15,
+  /**
+   * Height above the ground plane (world px) at which bullets and the aim
+   * line are drawn: the gun height of the character art. Render only;
+   * collisions stay on the ground plane.
+   */
+  shotHeight: 12,
 } as const;
 
 export function cappedDevicePixelRatio(dpr: number): number {

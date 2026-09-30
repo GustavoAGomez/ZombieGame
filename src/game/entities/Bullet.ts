@@ -1,4 +1,5 @@
 import type Phaser from 'phaser';
+import { DISPLAY } from '../../config/display';
 import type { BulletState } from '../../core/GameState';
 import { lerp } from '../../core/math';
 import { ASSET_KEYS, objectTextureKey } from '../assets/manifest';
@@ -25,7 +26,7 @@ export class BulletViewPool {
       }
       img
         .setVisible(true)
-        .setPosition(lerp(b.prevX, b.x, alpha), lerp(b.prevY, b.y, alpha))
+        .setPosition(lerp(b.prevX, b.x, alpha), lerp(b.prevY, b.y, alpha) - DISPLAY.shotHeight)
         .setRotation(Math.atan2(b.dirY, b.dirX));
     }
   }

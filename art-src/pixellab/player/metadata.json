@@ -1,0 +1,36 @@
+{
+  "group_id": "583b09d7-4bca-4ce2-96f0-b3fe9d81831c",
+  "states": [
+    {
+      "character": {
+        "id": "385028ba-c0ef-4c78-aca2-623cac63e4f5",
+        "name": "Idle",
+        "prompt": "urban zombie-apocalypse survivor, rugged man in his 30s, short dark messy hair and stubble, worn olive-green canvas field jacket with rolled-up sleeves, red bandana tied around the neck, fingerless dark leather gloves, faded dark-blue jeans, scuffed brown work boots, small tactical backpack with a rolled grey blanket strapped on top, holding a compact black handgun with both hands, dirty and weathered look, muted earthy palette of olive, brown and grey with a single red accent, dark 1px outline, light coming from top-left, clear readable silhouette, game sprite, plain transparent background, no text, no logos, no helmet, no armor",
+        "size": {
+          "width": 48,
+          "height": 48
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-09-30T20:44:29.753042+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {}
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-09-30T20:50:18.975654"
+}

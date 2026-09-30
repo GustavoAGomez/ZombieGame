@@ -8,7 +8,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { PLAYER, ZOMBIES } from '../src/config/balance';
-import { REQUIRED_ANIMATIONS, REQUIRED_OBJECTS, parseManifest, type Manifest } from '../src/game/assets/manifest';
+import { REQUIRED_ANIMATIONS, REQUIRED_OBJECTS, isAnimationPlaceholder, parseManifest, type Manifest } from '../src/game/assets/manifest';
 import { parseMap } from '../src/game/map/MapLoader';
 import { colorsOutsidePalette, decodePng, parsePaletteHex, readPngInfo } from './lib/png';
 
@@ -31,6 +31,17 @@ interface SheetExpectation {
 }
 
 const SNAKE = /^[a-z][a-z0-9_]*$/;
+/** Palette size from the style bible (docs/ASSETS.md §1). */
+const PALETTE_SIZE = 32;
+
+function countOpaqueColors(pixels: Uint8Array): number {
+  const colors = new Set<number>();
+  for (let i = 0; i < pixels.length; i += 4) {
+    if ((pixels[i + 3] ?? 0) === 0) continue;
+    colors.add(((pixels[i] ?? 0) << 16) | ((pixels[i + 1] ?? 0) << 8) | (pixels[i + 2] ?? 0));
+  }
+  return colors.size;
+}
 
 export function checkAssets(root: string): CheckReport {
   const report: CheckReport = { errors: [], warnings: [], info: [] };
@@ -75,7 +86,7 @@ export function checkAssets(root: string): CheckReport {
       sheets.push({
         label: `${key}.${anim}`,
         file: a.file,
-        placeholder: def.placeholder === true,
+        placeholder: isAnimationPlaceholder(def, anim),
         width: def.frameWidth * a.frames,
         height: def.frameHeight * def.directions,
         frameWidth: def.frameWidth,
@@ -138,6 +149,12 @@ export function checkAssets(root: string): CheckReport {
         else {
           const png = decodePng(buf);
           if ((png.pixels[3] ?? 0) !== 0) report.warnings.push(`${sheet.label}: la esquina superior izquierda no es transparente`);
+          if (!palette) {
+            const distinct = countOpaqueColors(png.pixels);
+            if (distinct > PALETTE_SIZE) {
+              report.warnings.push(`${sheet.label}: ${distinct} colores (la biblia de estilo pide una paleta de ${PALETTE_SIZE})`);
+            }
+          }
           if (palette) {
             const outside = colorsOutsidePalette(png, palette);
             if (outside.length > 0) {

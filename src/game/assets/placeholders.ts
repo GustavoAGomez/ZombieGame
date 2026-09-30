@@ -137,9 +137,10 @@ export function createCharacterPlaceholder(
       const [dx, dy] = DIR_OFFSETS[names[row] ?? 'south'] ?? [0, 1];
       const [fx, fy, alpha] = frameOffset(animation, col, dx, dy);
       ctx.globalAlpha = alpha;
-      // The 14×14 body is centred on the anchor, which is the hitbox centre.
+      // The 14×14 body stands on the anchor (the feet / hitbox centre), like
+      // the final 3/4 art, so bullets drawn at gun height cross it.
       const x = ox + anchorX - BODY_SIZE / 2 + fx;
-      const y = oy + anchorY - BODY_SIZE / 2 + fy;
+      const y = oy + anchorY - BODY_SIZE + fy;
       rect(ctx, 'rgba(15,14,12,0.5)', x, y + BODY_SIZE, BODY_SIZE, 1);
       if (look.outline) rect(ctx, look.outline, x - 1, y - 1, BODY_SIZE + 2, BODY_SIZE + 2);
       rect(ctx, look.body, x, y, BODY_SIZE, BODY_SIZE);

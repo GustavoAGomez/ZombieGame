@@ -77,7 +77,9 @@ public/assets/
 }
 ```
 
-- **`"placeholder": true`** (o un archivo inexistente): el juego genera un rectángulo del tamaño declarado.
+- **`"placeholder": true`** (o un archivo inexistente): el juego genera un rectángulo del tamaño declarado. Puede ir en el personaje entero o en una sola animación (`"animations": { "walk": { …, "placeholder": true } }`), para personajes a medio dibujar.
+- **Animaciones que faltan:** si el personaje ya tiene un `idle` con arte real, las animaciones que aún no existen reutilizan los frames de `idle` (así nunca se convierte en un rectángulo en mitad de la partida). Si no hay `idle` real, se genera el placeholder.
+- **`anchor`** es el punto de los pies (centro de la hitbox) en fracción del frame. El del jugador (`0.5, 0.875`) coloca los pies en y = 42 de 48, que es donde apoyan las botas en el export de PixelLab.
 - **`window_planks`:** el frame N representa la ventana con N tablones (del 0 al 5).
 - **`door`:** frame 0 = cerrada, frame 1 = abierta.
 - **Variantes verticales `window_planks_v` y `door_v`:** mismos frames y tamaño, dibujadas para paredes verticales (izquierda y derecha). Las versiones sin sufijo son para paredes horizontales (arriba y abajo). El motor **nunca rota** estos sprites, para que la luz siga viniendo de arriba a la izquierda; elige la variante según la orientación de la pared en el mapa.
@@ -107,10 +109,29 @@ Los tilesets deben ir **embebidos** en el `.tmj`.
 
 ## 6. Importar desde PixelLab (`npm run assets:import`)
 
-1. Deja el export de PixelLab sin tocar en `art-src/pixellab/<asset>/`, por ejemplo `art-src/pixellab/player/`.
+1. Descomprime el export de PixelLab, sin tocarlo, en `art-src/pixellab/<asset>/`, por ejemplo `art-src/pixellab/player/`. El nombre de la carpeta es la clave del personaje en el manifiesto.
 2. `scripts/import-pixellab.ts`:
    - **Inspecciona la estructura real del export.** Puede venir en frames sueltos o en sheet, y con nombres de dirección y animación variados. Adáptate al formato que encuentres y documenta en este archivo el formato detectado.
    - **Normaliza** al formato de la sección 3: una fila por dirección en el orden fijado, frames recortados al lienzo declarado y centrados por el ancla.
    - **Cuantiza** a `art-src/palette.hex`, con un aviso si hay colores fuera de la paleta.
    - **Escribe** los PNG en `public/assets/sprites/<asset>/` y actualiza la entrada en `manifest.json`: número de frames, direcciones y `placeholder: false`.
+   - Uso: `npm run assets:import` importa todo; `npm run assets:import -- player` solo ese personaje.
 3. `npm run assets:check` valida que los tamaños son múltiplos del frame, que existen las animaciones mínimas, que las rutas del manifiesto son correctas, que el fondo es transparente y que el mapa tiene las capas y objetos obligatorios.
+
+### Formato de export detectado (PixelLab, `export_version` 3.1)
+
+Detectado con el primer export (jugador, septiembre de 2026):
+
+```
+<asset>/
+  metadata.json
+  <Estado>/rotations/<dirección>.png            1 frame estático por dirección
+  <Estado>/animations/<animación>/…             (si el estado tiene animaciones)
+```
+
+- `metadata.json` → `states[]`, cada uno con `character.name` (por ejemplo `Idle`), `character.size` (48×48), `character.directions` (8), `folder` y `frames: { rotations: { <dirección>: ruta }, animations: { … } }`.
+- Direcciones con los 8 nombres de PixelLab (`south`, `south-east`, `east`, …), que coinciden con el orden de filas de la §3.
+- PNG RGBA de 8 bits con fondo transparente y alfa 0/255.
+- **Un estado sin animaciones** (solo `rotations`) se importa como una animación de 1 frame con el nombre del estado normalizado: `Idle` → `idle`.
+- **Animaciones:** se aceptan como `{ <dirección>: [rutas] }` o `{ <dirección>: { frames: [rutas] } }`. Los nombres se normalizan al vocabulario del manifiesto (`Walking…`/`Running` → `walk`, `Shoot…` → `shoot`, `Bite`/`Attack` → `attack`, `Dash`/`Roll` → `dash`, `Death`/`Dying` → `death`, `Climb` → `climb`); el resto pasa a `snake_case`. Si un export trae otra estructura, el importador avisa y muestra un extracto.
+- **Qué hace el importador:** construye un sheet por animación (fila por dirección, columna por frame), alinea cada frame por el `anchor` del manifiesto si el lienzo no mide lo declarado, fuerza el alfa a 0/255, cuantiza a `palette.hex` si existe (si no, avisa) y actualiza el manifiesto (`frames`, `directions`, `placeholder`). Conserva `fps` y `loop` si ya estaban declarados.

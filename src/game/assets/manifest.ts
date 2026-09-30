@@ -8,6 +8,8 @@ export interface AnimationDef {
   frames: number;
   fps: number;
   loop: boolean;
+  /** This animation has no art yet (the character may have others). */
+  placeholder?: boolean;
 }
 
 export interface CharacterDef {
@@ -136,6 +138,7 @@ export function parseManifest(json: unknown): Manifest {
         frames: positive(a.frames, `${aw}.frames`),
         fps: positive(a.fps, `${aw}.fps`),
         loop: a.loop === true,
+        placeholder: a.placeholder === true,
       };
     }
     characters[key] = {
@@ -194,6 +197,11 @@ export function directionRow(dir8: number, directions: 4 | 8): number {
   // DIRECTIONS_4 = south, east, north, west
   const map4 = [0, 1, 1, 1, 2, 3, 3, 3] as const;
   return map4[d] ?? 0;
+}
+
+/** True when this animation must be generated (no art for it or its character). */
+export function isAnimationPlaceholder(def: CharacterDef, animation: string): boolean {
+  return def.placeholder === true || def.animations[animation]?.placeholder === true;
 }
 
 export function characterTextureKey(character: string, animation: string): string {

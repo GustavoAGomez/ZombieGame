@@ -3,7 +3,7 @@
  * 8-bit greyscale, RGB, indexed, grey+alpha and RGBA, non-interlaced —
  * what Aseprite and PixelLab export.
  */
-import { inflateSync } from 'node:zlib';
+import { crc32, deflateSync, inflateSync } from 'node:zlib';
 
 export interface PngInfo {
   width: number;
@@ -153,4 +153,33 @@ export function colorsOutsidePalette(png: DecodedPng, palette: ReadonlySet<numbe
     if (!palette.has(rgb)) outside.add(rgb);
   }
   return [...outside];
+}
+
+/** Encodes RGBA pixels as an 8-bit RGBA PNG (filter 0, zlib level 9). */
+export function encodePng(width: number, height: number, rgba: Uint8Array): Buffer {
+  const rows = Buffer.alloc((width * 4 + 1) * height);
+  for (let y = 0; y < height; y++) {
+    rows[y * (width * 4 + 1)] = 0;
+    rows.set(rgba.subarray(y * width * 4, (y + 1) * width * 4), y * (width * 4 + 1) + 1);
+  }
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(width, 0);
+  ihdr.writeUInt32BE(height, 4);
+  ihdr.writeUInt8(8, 8); // bit depth
+  ihdr.writeUInt8(6, 9); // RGBA
+  return Buffer.concat([
+    Buffer.from(SIGNATURE),
+    writeChunk('IHDR', ihdr),
+    writeChunk('IDAT', deflateSync(rows, { level: 9 })),
+    writeChunk('IEND', Buffer.alloc(0)),
+  ]);
+}
+
+function writeChunk(type: string, data: Buffer): Buffer {
+  const length = Buffer.alloc(4);
+  length.writeUInt32BE(data.length);
+  const body = Buffer.concat([Buffer.from(type, 'ascii'), data]);
+  const crc = Buffer.alloc(4);
+  crc.writeUInt32BE(crc32(body) >>> 0);
+  return Buffer.concat([length, body, crc]);
 }
