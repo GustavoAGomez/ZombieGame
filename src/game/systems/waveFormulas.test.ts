@@ -3,14 +3,14 @@ import { WEAPONS } from '../../config/balance';
 import { pickZombieKind, spawnInterval, zombieHp, zombieMix, zombiesInRound } from './waveFormulas';
 
 describe('zombieHp', () => {
-  it('is 3 damage units, one more every 2 rounds survived', () => {
-    expect([1, 2, 3, 4, 5, 6, 9, 10, 20].map(zombieHp)).toEqual([3, 3, 4, 4, 5, 5, 7, 7, 12]);
+  it('is 3 damage units, one more every round survived', () => {
+    expect([1, 2, 3, 4, 5, 10, 20].map(zombieHp)).toEqual([3, 4, 5, 6, 7, 12, 22]);
   });
 
-  it('takes 3 pistol shots or 6 SMG shots in round 1, one pistol shot more from round 3', () => {
+  it('takes 3 pistol shots or 6 SMG shots in round 1, one pistol shot more each round', () => {
     expect(zombieHp(1) / WEAPONS.pistol.damage).toBe(3);
     expect(zombieHp(1) / WEAPONS.smg.damage).toBe(6);
-    expect(zombieHp(3) / WEAPONS.pistol.damage).toBe(4);
+    expect(zombieHp(2) / WEAPONS.pistol.damage).toBe(4);
   });
 
   it('treats invalid rounds as round 1', () => {

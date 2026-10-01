@@ -84,7 +84,7 @@ export const LOADOUT = {
 
 export const MELEE = {
   range: 20,
-  /** Damage units: kills a zombie of rounds 1–2 in one blow, as in BO1. */
+  /** Damage units: kills a zombie of round 1 in one blow, as in BO1. */
   damage: 3,
   cooldown: 0.6,
   /** Half-angle of the cone in front of the player that melee can hit. */
@@ -135,10 +135,10 @@ export const ZOMBIES = {
   hitboxRadius: 6,
   /**
    * HP in damage units (a pistol bullet is 1, an SMG bullet 0.5): 3 in
-   * rounds 1–2, then one more pistol shot every 2 rounds survived.
+   * round 1, then one more pistol shot every round survived.
    */
   hpBase: 3,
-  hpRoundsPerExtraHit: 2,
+  hpRoundsPerExtraHit: 1,
   hpPerExtraHit: 1,
   /**
    * With this much HP left or less a zombie drags itself along: it moves

@@ -2,7 +2,7 @@ import { WAVES, ZOMBIE_MIX, ZOMBIES, type ZombieKind } from '../../config/balanc
 
 /** Pure round formulas from spec 01 §4.4 and §4.8. */
 
-/** HP in damage units: 3, plus 1 every 2 rounds survived (rounds 1–2: 3, 3–4: 4, 5–6: 5…). */
+/** HP in damage units: 3, plus hpPerExtraHit every hpRoundsPerExtraHit rounds survived (now 1 per round: 3, 4, 5…). */
 export function zombieHp(round: number): number {
   const r = Math.max(1, Math.floor(round));
   return ZOMBIES.hpBase + Math.floor((r - 1) / ZOMBIES.hpRoundsPerExtraHit) * ZOMBIES.hpPerExtraHit;

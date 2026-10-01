@@ -339,3 +339,4 @@ Registro de lo que la spec no definía (o definía de forma ambigua) y cómo se 
 - **Arrastre:** con 1 unidad de vida o menos, un zombie se mueve al 45 % de su velocidad (`ZOMBIES.crawlAtHp` y `crawlSpeedFactor`). Su animación de andar se ralentiza igual, para que no patine. Romper tablones, trepar y atacar no cambian. Más adelante se verá como un zombie sin piernas.
 - **Ejemplos en la ronda 1:** con la pistola, el zombie se arrastra tras el segundo disparo y muere con el tercero. Con la metralleta, se arrastra tras la cuarta bala y muere con la sexta.
 - **Puntos:** cada impacto sigue dando 10 puntos. Con la metralleta se hacen más impactos por zombie (6 en vez de 4), así que da algo más de puntos por baja.
+- **Cambio posterior (pedido por el usuario):** la vida sube 1 unidad cada ronda, no cada 2: 3 en la ronda 1, 4 en la 2, 5 en la 3… (22 en la ronda 20). El cuchillo, con 3, mata de un golpe solo en la ronda 1.
