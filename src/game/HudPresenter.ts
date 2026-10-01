@@ -1,4 +1,4 @@
-import { DASH, PLAYER, type WeaponId } from '../config/balance';
+import { BOOSTS, DASH, PLAYER, type WeaponId } from '../config/balance';
 import { merchantDef, type MerchantId } from '../config/merchants';
 import type { EventBus, GameEvents } from '../core/EventBus';
 import type { GameState } from '../core/GameState';
@@ -30,6 +30,8 @@ export class HudPresenter {
   private actionMerchant: MerchantId | undefined;
   /** Last published shop panel, as a comparable string. */
   private shopKey = '';
+  /** Last published boost slot, as a comparable string. */
+  private boostKey = '';
   private actionAmount = -1;
   private actionEnabled = false;
   private actionLocked = false;
@@ -51,7 +53,8 @@ export class HudPresenter {
     if (m) {
       const rows = merchantDef(m.id).items.flatMap((item, index) => {
         const status = shopItemStatus(state, p?.shopMerchant ?? -1, playerIndex, index);
-        return status.kind === 'hidden' ? [] : [{ index, item: item.id, price: item.price, status }];
+        if (status.kind === 'hidden') return [];
+        return [item.id === 'round_boost' ? { index, item: item.id, price: item.price, status, boost: m.boost } : { index, item: item.id, price: item.price, status }];
       });
       shop = { merchant: m.id, rows };
     }
@@ -115,6 +118,15 @@ export class HudPresenter {
     }
 
     this.publishShop(state, playerIndex);
+
+    // The ring empties in COOLDOWN_STEPS steps; the seconds count down whole.
+    const progress = p.boostActive ? Math.ceil((p.boostTimer / BOOSTS.duration) * COOLDOWN_STEPS) / COOLDOWN_STEPS : 0;
+    const seconds = p.boostActive ? Math.ceil(p.boostTimer) : 0;
+    const boostKey = `${p.boostStored}:${p.boostActive}:${progress}:${seconds}`;
+    if (boostKey !== this.boostKey) {
+      this.boostKey = boostKey;
+      this.events.emit('boost:state', { stored: p.boostStored, active: p.boostActive, progress, seconds });
+    }
 
     if (state.wave.round !== this.round) {
       this.round = state.wave.round;

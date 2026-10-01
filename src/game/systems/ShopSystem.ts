@@ -1,7 +1,8 @@
 import { MERCHANT } from '../../config/balance';
 import { merchantDef, type MerchantItem, type MerchantItemId } from '../../config/merchants';
-import type { GameState, PlayerState } from '../../core/GameState';
+import type { GameState, MerchantState, PlayerState } from '../../core/GameState';
 import type { ShopItemStatus, ShopReason } from '../../core/shop';
+import { storeBoost } from './BoostSystem';
 import { isPlayerAlive } from './HealthSystem';
 import type { SimContext } from './SimContext';
 import { isFullyLoaded, magazineSize, maxReserve } from './weaponStats';
@@ -69,7 +70,7 @@ export function buyItem(ctx: SimContext, playerIndex: number, merchantIndex: num
   if (!p || !m || !item) return false;
   p.points -= item.price;
   m.visitPurchases[playerIndex] = (m.visitPurchases[playerIndex] ?? 0) + 1;
-  EFFECTS[item.id]?.apply(p);
+  EFFECTS[item.id]?.apply(p, m);
   ctx.events.emit('points:spent', { playerId: p.id, amount: item.price });
   ctx.events.emit('merchant:purchase', { playerId: p.id, merchant: m.id, item: item.id });
   return true;
@@ -78,7 +79,7 @@ export function buyItem(ctx: SimContext, playerIndex: number, merchantIndex: num
 interface ItemEffect {
   /** Why it would do nothing for this player, or null when it is worth buying. */
   unavailable(p: PlayerState): ShopReason | null;
-  apply(p: PlayerState): void;
+  apply(p: PlayerState, merchant: MerchantState): void;
 }
 
 /** Items with their effect in place; the rest are hidden until their phase. */
@@ -93,5 +94,10 @@ const EFFECTS: Partial<Record<MerchantItemId, ItemEffect>> = {
       // Nothing left to reload.
       p.reloadTimer = 0;
     },
+  },
+  // The boost the merchant drew for this visit, into the player's slot (spec 03 §4–5).
+  round_boost: {
+    unavailable: () => null,
+    apply: (p, m) => storeBoost(p, m.boost),
   },
 };

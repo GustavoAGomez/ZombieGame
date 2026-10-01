@@ -16,6 +16,7 @@ import { BloodViewPool } from '../entities/Blood';
 import { BulletViewPool } from '../entities/Bullet';
 import { MeleeSlash } from '../entities/MeleeSlash';
 import { MerchantViewPool, OffscreenArrows } from '../entities/Merchant';
+import { SpeedTrail } from '../entities/SpeedTrail';
 import { MuzzleFlash } from '../entities/MuzzleFlash';
 import { PickupViewPool } from '../entities/Pickup';
 import { PlayerView } from '../entities/Player';
@@ -56,6 +57,7 @@ export class GameScene extends Phaser.Scene {
   private mapView!: MapView;
   private readonly isDark = (x: number, y: number): boolean => this.mapView.isDark(x, y);
   private playerView!: PlayerView;
+  private speedTrail!: SpeedTrail;
   private zombieViews!: ZombieViewPool;
   private bulletViews!: BulletViewPool;
   private aimLine!: AimLine;
@@ -133,6 +135,7 @@ export class GameScene extends Phaser.Scene {
     this.merchantViews = new MerchantViewPool(this, this.map, this.state.merchants, manifest.objects[ASSET_KEYS.smokePuff]);
     this.offscreenArrows = new OffscreenArrows(this, this.state.merchants);
     this.playerView = new PlayerView(this, playerDef);
+    this.speedTrail = new SpeedTrail(this, this.playerView.sprite);
     this.bulletViews = new BulletViewPool(this, this.state.bullets.length, playerDef);
     this.aimLine = new AimLine(this, playerDef);
     this.muzzleFlash = new MuzzleFlash(this, playerDef);
@@ -253,6 +256,7 @@ export class GameScene extends Phaser.Scene {
     this.syncOffscreenArrows();
     if (player) {
       this.playerView.sync(player, alpha);
+      this.speedTrail.sync(player, now);
       if (player.teleports !== this.shownTeleports) {
         this.shownTeleports = player.teleports;
         this.cameras.main.centerOn(this.playerView.sprite.x, this.playerView.sprite.y);

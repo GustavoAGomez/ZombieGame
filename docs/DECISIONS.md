@@ -456,3 +456,28 @@ Registro de lo que la spec no definía (o definía de forma ambigua) y cómo se 
   - comprobado sin solapes con el joystick, el disparo, recargar, el cuchillo, la barra de armas, el botón de acción y la pausa en 844×390, 800×360 y 640×360, también con dos filas;
   - a 640×360 con dos filas roza el cuchillo por 2 px; se ajustará en M3, cuando haya dos filas de verdad;
   - el panel tapa la parte alta de la zona en la que se puede empezar a mover el joystick (el 40 % izquierdo de la pantalla), pero no el joystick dibujado. Con el panel abierto, el joystick y el disparo siguen funcionando (comprobado con dos dedos simulados).
+
+## Spec 03 · Fase M3 (mejoras temporales)
+
+- **Botón de la mejora:** está en el arco alrededor del disparo, como una habilidad de Wild Rift: arriba a la izquierda del disparo, a (−60, −100), entre el cuchillo y recargar.
+  - La spec lo ponía en el borde derecho, entre el bloque superior derecho y el botón especial. Con el HUD de Wild Rift el especial está en la barra inferior, y en el borde derecho, entre los puntos y el botón de acción, no caben 56 px.
+  - Spec 03 §5 actualizada.
+  - Comprobado sin solapes en 844×390, 800×360 y 640×360, también con el panel de la tienda y el botón de acción a la vista.
+- **Ranura:**
+  - `PlayerState.boostStored` guarda la mejora; al activarla pasa a `boostActive`, con `boostTimer` contando desde 10 s.
+  - La cuenta atrás se descuenta en el paso fijo, así que la pausa (que no avanza ticks) la congela.
+  - Comprar otra mejora la pone en la ranura y termina la que estuviera en marcha.
+  - Se pierden las dos al morir.
+  - Activar es un comando (`InputCommand.boost`); en teclado, la B.
+- **Sorteo:**
+  - el mago sortea su «mejora de la ronda» cada vez que aparece o se teletransporta (`MerchantState.boost`), con el RNG de la partida;
+  - la fila de la tienda muestra cuál toca, con su icono (rayo o «x2») y descripción;
+  - siempre se puede comprar: aunque tengas otra, sustituirla es una decisión del jugador.
+- **Efectos:**
+  - la velocidad multiplica solo la marcha, no el dash;
+  - el doble daño multiplica el daño de cada bala al dispararla y el del cuchillo (`damageFactor`), así que se acumulará con el nivel 3 de M4.
+- **Señales:**
+  - estela de 4 siluetas ámbar (el color del rayo) con el último fotograma del jugador cada 45 ms; solo se ve al moverse;
+  - balas en azul claro (`boostDamage`, `#8ec9ff`), en modo de tinte de relleno: el trazo naranja y blanco multiplicado por azul quedaba turbio;
+  - las balas guardan si se dispararon con el doble daño, así que no cambian de color si la mejora termina con ellas en el aire.
+- **Anillo de la cuenta atrás:** un círculo SVG que se vacía en el sentido de las agujas del reloj desde arriba, con los segundos en el centro. El presentador lo cuantiza en 64 pasos para tocar poco el DOM.

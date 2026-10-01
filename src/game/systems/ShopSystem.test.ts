@@ -115,7 +115,7 @@ describe('ShopSystem · buying', () => {
     expect(bought).toEqual(['blue:max_ammo']);
   });
 
-  it('says what each button shows: missing points, full ammo, and the item not sold yet', () => {
+  it('says what each button shows: missing points, full ammo, and items not sold yet', () => {
     const ctx = atMerchant();
     const p = player(ctx);
     p.points = 500;
@@ -128,8 +128,10 @@ describe('ShopSystem · buying', () => {
       slot.reserve = WEAPONS[slot.id].maxReserve;
     }
     expect(shopItemStatus(ctx.state, 0, 0, MAX_AMMO)).toEqual({ kind: 'unavailable', reason: 'ammoFull' });
-    // The round's boost arrives with phase M3.
-    expect(shopItemStatus(ctx.state, 0, 0, ROUND_BOOST)).toEqual({ kind: 'hidden' });
+    // The round boost is always worth buying; the weapon upgrades (red merchant) arrive with phase M4.
+    p.points = 5000;
+    expect(shopItemStatus(ctx.state, 0, 0, ROUND_BOOST)).toEqual({ kind: 'buy' });
+    expect(shopItemStatus(ctx.state, 1, 0, 0)).toEqual({ kind: 'hidden' });
   });
 
   it('refuses purchases that are not possible: shop closed, short of points or nothing to fill', () => {
@@ -182,10 +184,23 @@ describe('HudPresenter · shop', () => {
     openShop(ctx);
     presenter.publish(ctx.state);
     presenter.publish(ctx.state);
-    expect(shops.at(-1)).toEqual({ merchant: 'blue', rows: [{ index: 0, item: 'max_ammo', price: 750, status: { kind: 'short', missing: 250 } }] });
+    const boost = ctx.state.merchants[0]!.boost;
+    expect(shops.at(-1)).toEqual({
+      merchant: 'blue',
+      rows: [
+        { index: 0, item: 'max_ammo', price: 750, status: { kind: 'short', missing: 250 } },
+        { index: 1, item: 'round_boost', price: 1000, status: { kind: 'short', missing: 500 }, boost },
+      ],
+    });
     p.points = 800;
     presenter.publish(ctx.state);
-    expect(shops.at(-1)).toEqual({ merchant: 'blue', rows: [{ index: 0, item: 'max_ammo', price: 750, status: { kind: 'buy' } }] });
+    expect(shops.at(-1)).toEqual({
+      merchant: 'blue',
+      rows: [
+        { index: 0, item: 'max_ammo', price: 750, status: { kind: 'buy' } },
+        { index: 1, item: 'round_boost', price: 1000, status: { kind: 'short', missing: 200 }, boost },
+      ],
+    });
     expect(shops).toHaveLength(3);
   });
 });

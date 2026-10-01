@@ -1,4 +1,4 @@
-import { BULLETS, LOADOUT, PICKUPS, PLAYER, POINTS, WAVES, WEAPONS, ZOMBIES, type PickupKind, type WeaponId, type ZombieKind } from '../config/balance';
+import { BOOSTS, BULLETS, LOADOUT, PICKUPS, PLAYER, POINTS, WAVES, WEAPONS, ZOMBIES, type BoostKind, type PickupKind, type WeaponId, type ZombieKind } from '../config/balance';
 import { MERCHANTS, type MerchantId } from '../config/merchants';
 import type { MapData } from '../game/map/MapLoader';
 import { zombiesInRound } from '../game/systems/waveFormulas';
@@ -92,6 +92,11 @@ export interface PlayerState {
   contextTarget: number;
   /** Merchant whose shop panel this player has open (spec 03 §3), -1 when closed. */
   shopMerchant: number;
+  /** Boost bought and kept for later (spec 03 §5): one slot, kept between rounds. */
+  boostStored: BoostKind | null;
+  /** Boost running now, for boostTimer more seconds. */
+  boostActive: BoostKind | null;
+  boostTimer: number;
 
   /** Portal end just arrived at: it does not fire again until the player steps off it. -1 = none. */
   portalLock: number;
@@ -111,6 +116,8 @@ export interface BulletState {
   dirY: number;
   speed: number;
   damage: number;
+  /** Fired with double damage running (drawn light blue). */
+  boosted: boolean;
   /** Distance still allowed before the bullet expires. */
   remaining: number;
   /**
@@ -200,6 +207,8 @@ export interface MerchantState {
   moveTick: number;
   /** Purchases per player (indexed like players) since it last moved: maxPurchasesPerVisit. */
   visitPurchases: number[];
+  /** Boost its "round boost" sells this visit, drawn every time it moves (spec 03 §4). */
+  boost: BoostKind;
 }
 
 /**
@@ -294,13 +303,16 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     contextAction: 'none',
     contextTarget: -1,
     shopMerchant: -1,
+    boostStored: null,
+    boostActive: null,
+    boostTimer: 0,
     portalLock: -1,
     teleports: 0,
   };
 }
 
 function createBullet(): BulletState {
-  return { active: false, owner: 0, x: 0, y: 0, prevX: 0, prevY: 0, dirX: 1, dirY: 0, speed: 0, damage: 0, remaining: 0, drawX: 0, drawY: 0 };
+  return { active: false, owner: 0, x: 0, y: 0, prevX: 0, prevY: 0, dirX: 1, dirY: 0, speed: 0, damage: 0, boosted: false, remaining: 0, drawX: 0, drawY: 0 };
 }
 
 function createZombie(): ZombieState {
@@ -332,7 +344,19 @@ function createPickup(): PickupState {
 }
 
 function createMerchant(id: MerchantId, enabled: boolean, players: number): MerchantState {
-  return { id, enabled, active: false, spot: -1, x: 0, y: 0, fromSpot: -1, round: 0, moveTick: -1000, visitPurchases: new Array<number>(players).fill(0) };
+  return {
+    id,
+    enabled,
+    active: false,
+    spot: -1,
+    x: 0,
+    y: 0,
+    fromSpot: -1,
+    round: 0,
+    moveTick: -1000,
+    visitPurchases: new Array<number>(players).fill(0),
+    boost: BOOSTS.kinds[0],
+  };
 }
 
 function createBlood(): BloodState {

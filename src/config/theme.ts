@@ -19,6 +19,8 @@ export const COLORS = {
   wood: '#8a6a3f',
   /** The blue merchant (spec 03 §2); the red and gold ones use red and amber. */
   merchantBlue: '#3a6fd8',
+  /** Double damage: its icon and the bullets fired with it (spec 03 §5). Speed uses amber, like its bolt. */
+  boostDamage: '#8ec9ff',
 } as const;
 
 export type ColorToken = keyof typeof COLORS;

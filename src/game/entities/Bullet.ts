@@ -1,4 +1,5 @@
-import type Phaser from 'phaser';
+import Phaser from 'phaser';
+import { COLORS, hexToInt } from '../../config/theme';
 import type { BulletState, PlayerState } from '../../core/GameState';
 import { lerp } from '../../core/math';
 import { ASSET_KEYS, objectTextureKey, type CharacterDef } from '../assets/manifest';
@@ -6,13 +7,18 @@ import { DEPTH } from '../depth';
 
 interface Slot {
   image: Phaser.GameObjects.Image;
+  /** Drawn light blue (double damage). */
+  tinted: boolean;
 }
+
+const BOOSTED_TINT = hexToInt(COLORS.boostDamage);
 
 /**
  * One preallocated image per pooled bullet; mirrors state.bullets. Each
  * bullet is drawn at its logical position plus the offset the simulation
  * gave it (from the gun's drawn muzzle, along the aim line): the same place
- * where it can hit zombies.
+ * where it can hit zombies. Bullets fired with double damage are drawn in
+ * light blue (spec 03 §5).
  */
 export class BulletViewPool {
   private readonly slots: Slot[];
@@ -20,6 +26,7 @@ export class BulletViewPool {
   constructor(scene: Phaser.Scene, poolSize: number, _def?: CharacterDef) {
     this.slots = Array.from({ length: poolSize }, () => ({
       image: scene.add.image(0, 0, objectTextureKey(ASSET_KEYS.bullet)).setDepth(DEPTH.bullets).setVisible(false),
+      tinted: false,
     }));
   }
 
@@ -32,6 +39,11 @@ export class BulletViewPool {
       if (!b?.active) {
         if (img.visible) img.setVisible(false);
         continue;
+      }
+      if (b.boosted !== slot.tinted) {
+        slot.tinted = b.boosted;
+        if (b.boosted) img.setTint(BOOSTED_TINT).setTintMode(Phaser.TintModes.FILL);
+        else img.clearTint().setTintMode(Phaser.TintModes.MULTIPLY);
       }
       img
         .setVisible(true)

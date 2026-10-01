@@ -149,6 +149,65 @@
   bottom: calc(var(--pad-bottom) + 36px);
 }
 
+/*
+ * Stored boost (spec 03 §5), 56 px with a blue ring, in the arc around the
+ * fire button like a Wild Rift ability: up and to the left, at (-60, -100),
+ * between the knife and reload. Only while a boost is stored or running.
+ */
+.action-button--boost {
+  right: calc(var(--pad-x) + 92px);
+  bottom: calc(var(--pad-bottom) + 136px);
+  width: 56px;
+  height: 56px;
+  display: none;
+  background: rgba(58, 111, 216, 0.18);
+  box-shadow:
+    0 0 0 2px var(--ink),
+    inset 0 0 0 3px var(--merchant-blue);
+}
+
+.action-button--boost.is-visible {
+  display: flex;
+}
+
+/* Countdown: a ring that empties clockwise from the top, with the seconds over the dimmed icon. */
+.boost-ring {
+  position: absolute;
+  inset: 0;
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+
+.boost-ring circle {
+  fill: none;
+  stroke: var(--merchant-blue);
+  stroke-width: 4;
+  display: none;
+}
+
+.action-button--boost.is-running .boost-ring circle {
+  display: inline;
+}
+
+.action-button--boost.is-running {
+  box-shadow:
+    0 0 0 2px var(--ink),
+    inset 0 0 0 3px rgba(58, 111, 216, 0.3);
+}
+
+.action-button--boost.is-running .action-button__icon {
+  opacity: 0.35;
+}
+
+.boost-seconds {
+  position: absolute;
+  font-family: var(--font-display);
+  font-size: 14px;
+  color: var(--bone);
+  text-shadow: 2px 2px 0 var(--ink);
+  pointer-events: none;
+}
+
 /* Nothing to reload (full magazine or no reserve): dimmed, still tappable. */
 .action-button.is-disabled {
   opacity: 0.4;

@@ -1,3 +1,4 @@
+import { updateBoosts } from './BoostSystem';
 import { updateBullets } from './BulletSystem';
 import { updateBlood } from './Combat';
 import { updateHealth } from './HealthSystem';
@@ -25,6 +26,8 @@ export function stepSimulation(ctx: SimContext, dt: number): void {
     p.prevY = p.y;
   }
   updateSpecial(ctx, dt);
+  // Before moving and shooting: a boost tapped this tick already counts.
+  updateBoosts(ctx, dt);
   updateMovement(ctx, dt);
   blockPlayersByMerchants(ctx);
   updatePlayerPortals(ctx);

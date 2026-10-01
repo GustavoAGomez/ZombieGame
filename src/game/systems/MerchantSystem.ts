@@ -4,6 +4,7 @@ import type { GameState, PlayerState } from '../../core/GameState';
 import { random } from '../../core/Rng';
 import { BLOCK_PLAYER, cellBlocks, resolveCircle } from '../map/CollisionGrid';
 import type { MapData } from '../map/MapLoader';
+import { drawRoundBoost } from './BoostSystem';
 import type { SimContext } from './SimContext';
 
 /**
@@ -31,8 +32,9 @@ export function updateMerchants(ctx: SimContext): void {
     m.x = target.x;
     m.y = target.y;
     m.moveTick = state.tick;
-    // A new visit: the purchase limit starts again.
+    // A new visit: the purchase limit starts again and the round's boost is drawn.
     m.visitPurchases.fill(0);
+    m.boost = drawRoundBoost(state);
     ctx.events.emit('merchant:moved', { merchant: m.id, first });
   }
 }

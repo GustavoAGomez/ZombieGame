@@ -46,6 +46,10 @@ export const STRINGS = {
     points: 'PUNTOS',
     retry: 'REINTENTAR',
   },
+  boosts: {
+    names: { speed: 'VELOCIDAD', double_damage: 'DOBLE DAÑO' },
+    activate: (name: string): string => `Activar mejora: ${name}`,
+  },
   merchants: {
     names: { blue: 'MAGO AZUL', red: 'MAGO ROJO', gold: 'MAGO DORADO' },
     moved: (name: string): string => `EL ${name} SE HA MOVIDO`,
@@ -56,6 +60,8 @@ export const STRINGS = {
     reasons: { ammoFull: 'MUNICIÓN COMPLETA', maxLevel: 'NIVEL MÁXIMO', hasSpecial: 'YA TIENE ESPECIAL' },
     comeBack: 'VUELVE EN OTRA RONDA',
     close: 'Cerrar tienda',
+    /** The round boost row says which boost this visit sells. */
+    boosts: { speed: 'Velocidad ×1,5 durante 10 s', double_damage: 'Doble daño durante 10 s' },
     items: {
       max_ammo: { name: 'MUNICIÓN MÁXIMA', description: 'Llena cargadores y reservas' },
       round_boost: { name: 'MEJORA DE LA RONDA', description: 'Una mejora de 10 s, para cuando quieras' },

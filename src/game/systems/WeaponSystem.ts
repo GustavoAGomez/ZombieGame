@@ -4,6 +4,7 @@ import type { InputCommand } from '../../core/InputCommand';
 import { degToRad } from '../../core/math';
 import { randomRange } from '../../core/Rng';
 import { BLOCK_BULLET, segmentClear } from '../map/CollisionGrid';
+import { damageFactor } from './BoostSystem';
 import { damageZombie, findAutoAimTarget, findMeleeTarget, isZombieAlive } from './Combat';
 import { bodyCentre, bodyEntry, muzzleFor, type Vec2 } from './shotGeometry';
 import type { SimContext } from './SimContext';
@@ -179,7 +180,8 @@ function shoot(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
   bullet.dirX = dirX;
   bullet.dirY = dirY;
   bullet.speed = stats.bulletSpeed;
-  bullet.damage = stats.damage;
+  bullet.damage = stats.damage * damageFactor(p);
+  bullet.boosted = p.boostActive === 'double_damage';
   bullet.remaining = stats.range - PLAYER.muzzleDistance;
   // Drawn from the gun's muzzle, along the same direction.
   const muzzle = muzzleFor(ctx.muzzles, Math.atan2(p.aimY, p.aimX));
@@ -241,7 +243,7 @@ function handleMelee(ctx: SimContext, p: PlayerState, turn: boolean): void {
   p.meleeTimer = MELEE.swingTime;
   p.meleeTick = ctx.state.tick;
   p.facing = p.meleeAngle;
-  if (z) damageZombie(ctx, z, MELEE.damage, p.id);
+  if (z) damageZombie(ctx, z, MELEE.damage * damageFactor(p), p.id);
 }
 
 /** 0..1 progress of the current reload, or null when not reloading. */

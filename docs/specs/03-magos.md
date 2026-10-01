@@ -55,7 +55,7 @@
 ## 3. Tienda (panel)
 
 - **Acceso:** a menos de 40 px de un mago, el chip contextual muestra `MAGO AZUL` (o el del color correspondiente). Al tocarlo se abre el **panel de tienda**.
-- **El juego sigue corriendo** con el panel abierto. El panel va centrado en la mitad superior y no tapa el joystick, el botón de disparo ni sus botones. Ambos controles siguen funcionando.
+- **El juego sigue corriendo** con el panel abierto. El panel va centrado en la mitad superior, justo debajo de los bloques superiores del HUD, y no tapa el joystick, el botón de disparo ni sus botones (HUD al estilo Wild Rift, spec 01 §2). Ambos controles siguen funcionando.
 - **Cierre:** con el botón `X` (44×44) o automáticamente si el jugador se aleja más de 64 px.
 - **Contenido:** una fila por artículo con icono provisional del color del mago, nombre, descripción corta, precio y botón `COMPRAR`.
 - **Estados del botón:**
@@ -84,7 +84,7 @@
   - Si ya había otra, guardada o activa, **la anterior desaparece**: la guardada se descarta y la activa termina en el acto.
   - Una mejora guardada se conserva entre rondas hasta que se usa.
 - **Botón en el HUD:**
-  - Cuando hay una mejora guardada, aparece un botón de 56 px en el **lado derecho** de la pantalla: `right: var(--pad-x)`, centrado verticalmente entre el bloque superior derecho del HUD y el botón especial, sin solaparse con ninguno.
+  - Cuando hay una mejora guardada, aparece un botón de 56 px en el **arco de botones alrededor del disparo**, como una habilidad de Wild Rift: arriba a la izquierda del disparo, con el centro en `(-60, -100)` respecto al suyo, entre el cuchillo y recargar. No se solapa con ningún otro control ni con el panel de la tienda en las pantallas de prueba.
   - Lleva el icono provisional de la mejora (rayo para velocidad, `x2` para daño) y el borde azul.
   - Al tocarlo, la mejora se activa **durante 10 s**. El botón muestra la cuenta atrás como un anillo que se vacía, con los segundos en el centro, y desaparece al terminar.
   - El botón se activa con un toque y no interfiere con el arrastre del botón de disparo.

@@ -1,3 +1,4 @@
+import type { BoostKind } from '../config/balance';
 import { merchantDef, type MerchantId, type MerchantItemId } from '../config/merchants';
 import type { EventBus, GameEvents } from '../core/EventBus';
 import type { ShopItemStatus } from '../core/shop';
@@ -14,6 +15,8 @@ const ITEM_ICONS: Record<MerchantItemId, IconName> = {
   weapon_level: 'rifle',
   weapon_special: 'crosshair',
 };
+/** The round boost row shows the boost drawn for this visit. */
+const BOOST_ICONS: Record<BoostKind, IconName> = { speed: 'bolt', double_damage: 'x2' };
 
 interface RowElements {
   index: number;
@@ -96,7 +99,7 @@ export class ShopPanel {
       this.reset();
       return;
     }
-    const key = `${e.merchant}:${e.rows.map((r) => r.index).join(',')}`;
+    const key = `${e.merchant}:${e.rows.map((r) => `${r.index}${r.boost ?? ''}`).join(',')}`;
     if (key !== this.builtFor) this.build(e.merchant, e.rows, key);
     this.el.hidden = false;
     e.rows.forEach((r, i) => {
@@ -115,7 +118,7 @@ export class ShopPanel {
       row.className = 'shop-row';
       const icon = document.createElement('span');
       icon.className = 'shop-row__icon';
-      icon.appendChild(pixelIcon(ITEM_ICONS[r.item], 18, color));
+      icon.appendChild(pixelIcon(r.boost ? BOOST_ICONS[r.boost] : ITEM_ICONS[r.item], 18, color));
       const text = document.createElement('span');
       text.className = 'shop-row__text';
       const name = document.createElement('span');
@@ -123,7 +126,7 @@ export class ShopPanel {
       name.textContent = STRINGS.shop.items[r.item].name;
       const description = document.createElement('span');
       description.className = 'shop-row__description';
-      description.textContent = STRINGS.shop.items[r.item].description;
+      description.textContent = r.boost ? STRINGS.shop.boosts[r.boost] : STRINGS.shop.items[r.item].description;
       text.append(name, description);
       const price = document.createElement('span');
       price.className = 'shop-row__price';

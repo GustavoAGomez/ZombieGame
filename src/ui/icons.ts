@@ -15,7 +15,8 @@ export type IconName =
   | 'hammer'
   | 'door'
   | 'stairs'
-  | 'wizard';
+  | 'wizard'
+  | 'x2';
 
 type Rect = readonly [number, number, number, number, string?];
 
@@ -84,6 +85,14 @@ const ICONS: Record<IconName, IconDef> = {
   wizard: {
     w: 12, h: 12, fill: 'var(--bone)',
     rects: [[6, 0, 2, 2], [5, 2, 3, 2], [4, 4, 5, 2], [3, 6, 6, 2], [2, 8, 8, 1, 'var(--amber)'], [0, 9, 12, 2], [5, 4, 1, 1, 'var(--amber)']],
+  },
+  // Provisional double damage: "x2".
+  x2: {
+    w: 11, h: 7, fill: 'var(--boost-damage)',
+    rects: [
+      [0, 1, 1, 1], [4, 1, 1, 1], [1, 2, 1, 1], [3, 2, 1, 1], [2, 3, 1, 1], [1, 4, 1, 1], [3, 4, 1, 1], [0, 5, 1, 1], [4, 5, 1, 1],
+      [7, 0, 3, 1], [6, 1, 1, 1], [10, 1, 1, 2], [9, 3, 1, 1], [8, 4, 1, 1], [7, 5, 1, 1], [6, 6, 5, 1],
+    ],
   },
   // A ring open at the top right, with the arrow head pointing down into it.
   reload: {

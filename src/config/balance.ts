@@ -284,6 +284,20 @@ export const PICKUPS = {
 } as const;
 
 /** Debug panel (spec 01 §8). */
+/** Temporary boosts sold by the blue merchant (spec 03 §5). */
+export type BoostKind = 'speed' | 'double_damage';
+
+export const BOOSTS = {
+  /** The merchant draws one of these for its "round boost" every time it moves. */
+  kinds: ['speed', 'double_damage'] as const satisfies readonly BoostKind[],
+  /** Seconds a stored boost lasts once activated. */
+  duration: 10,
+  /** speed: the player's walking speed is multiplied by this. */
+  speedFactor: 1.5,
+  /** double_damage: every weapon's and the knife's damage is multiplied by this. */
+  damageFactor: 2,
+} as const;
+
 /** Rules shared by every merchant (spec 03 §2); each one's colour, rounds and catalogue are in merchants.ts. */
 export const MERCHANT = {
   /** Solid circle around its feet that players cannot walk through. Zombies and bullets ignore it. */

@@ -1,4 +1,4 @@
-import type { PickupKind, WeaponId, ZombieKind } from '../config/balance';
+import type { BoostKind, PickupKind, WeaponId, ZombieKind } from '../config/balance';
 import type { MerchantId, MerchantItemId } from '../config/merchants';
 import type { ShopItemStatus } from './shop';
 
@@ -57,7 +57,16 @@ export interface GameEvents {
   /** Something was bought from a merchant (medium haptic). */
   'merchant:purchase': { playerId: number; merchant: MerchantId; item: MerchantItemId };
   /** The local player's shop panel: closed, or open with one row per item still sold. */
-  'shop:state': { merchant: MerchantId | null; rows: { index: number; item: MerchantItemId; price: number; status: ShopItemStatus }[] };
+  'shop:state': {
+    merchant: MerchantId | null;
+    /** `boost`: what the round boost row sells this visit. */
+    rows: { index: number; item: MerchantItemId; price: number; status: ShopItemStatus; boost?: BoostKind }[];
+  };
+  /**
+   * The local player's boost slot (spec 03 §5): a stored boost shows its
+   * button; a running one shows the ring (`progress` 1 → 0) and `seconds` left.
+   */
+  'boost:state': { stored: BoostKind | null; active: BoostKind | null; progress: number; seconds: number };
   /** Every zombie of the round is dead: the rest before the next round begins. */
   'round:cleared': { round: number };
   /** Every player is dead. `round` is the round reached; `score` every point earned. */

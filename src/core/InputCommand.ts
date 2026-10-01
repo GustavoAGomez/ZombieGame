@@ -31,6 +31,8 @@ export interface InputCommand {
   shopBuy: number;
   /** The shop's X was tapped. */
   shopClose: boolean;
+  /** The stored boost's button was tapped (spec 03 §5). */
+  boost: boolean;
 }
 
 export function createInputCommand(): InputCommand {
@@ -51,6 +53,7 @@ export function createInputCommand(): InputCommand {
     action: false,
     shopBuy: -1,
     shopClose: false,
+    boost: false,
   };
 }
 
@@ -70,5 +73,6 @@ export function resetInputCommand(cmd: InputCommand): InputCommand {
   cmd.action = false;
   cmd.shopBuy = -1;
   cmd.shopClose = false;
+  cmd.boost = false;
   return cmd;
 }
