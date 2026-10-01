@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import type { ZombieKind } from '../../config/balance';
+import { ZOMBIES, type ZombieKind } from '../../config/balance';
 import type { ZombieState } from '../../core/GameState';
 import { dir8FromAngle, lerp } from '../../core/math';
 import { ASSET_KEYS, animationKey, characterTextureKey, type Manifest } from '../assets/manifest';
@@ -93,6 +93,10 @@ export class ZombieViewPool {
         slot.action = z.actionTick;
         sprite.play(key);
       }
+      // A crawling zombie (little HP left) walks slower, and so does its animation, so its feet do not slide.
+      const crawling = z.hp > 0 && z.hp <= ZOMBIES.crawlAtHp && (z.ai === 'chasing' || z.ai === 'toWindow');
+      const timeScale = crawling ? ZOMBIES.crawlSpeedFactor : 1;
+      if (sprite.anims.timeScale !== timeScale) sprite.anims.timeScale = timeScale;
 
       if (slot.lastHp > 0 && z.hp < slot.lastHp && z.hp > 0) slot.flashUntil = now + HIT_FLASH_MS;
       slot.lastHp = z.hp;

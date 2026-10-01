@@ -36,6 +36,7 @@ export const PLAYER = {
 export type WeaponId = 'pistol' | 'smg';
 
 export interface WeaponStats {
+  /** Damage per bullet, in damage units (zombie HP is counted in the same units). */
   damage: number;
   /** Shots per second. */
   fireRate: number;
@@ -52,7 +53,7 @@ export interface WeaponStats {
 
 export const WEAPONS: Readonly<Record<WeaponId, WeaponStats>> = {
   pistol: {
-    damage: 20,
+    damage: 1,
     fireRate: 4,
     magazine: 8,
     startReserve: 64,
@@ -63,7 +64,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponStats>> = {
     bulletSpeed: 520,
   },
   smg: {
-    damage: 14,
+    damage: 0.5,
     fireRate: 11,
     magazine: 30,
     startReserve: 120,
@@ -83,7 +84,8 @@ export const LOADOUT = {
 
 export const MELEE = {
   range: 20,
-  damage: 50,
+  /** Damage units: kills a zombie of rounds 1–2 in one blow, as in BO1. */
+  damage: 3,
   cooldown: 0.6,
   /** Half-angle of the cone in front of the player that melee can hit. */
   coneHalfAngle: 60,
@@ -131,11 +133,19 @@ export type ZombieKind = 'walker' | 'runner' | 'sprinter';
 
 export const ZOMBIES = {
   hitboxRadius: 6,
-  /** Rounds 1–9: base + perRound × (r − 1). From round 10: hp(9) × growth^(r − 9). */
-  hpBase: 50,
-  hpPerRound: 25,
-  hpLinearUntilRound: 9,
-  hpGrowth: 1.1,
+  /**
+   * HP in damage units (a pistol bullet is 1, an SMG bullet 0.5): 3 in
+   * rounds 1–2, then one more pistol shot every 2 rounds survived.
+   */
+  hpBase: 3,
+  hpRoundsPerExtraHit: 2,
+  hpPerExtraHit: 1,
+  /**
+   * With this much HP left or less a zombie drags itself along: it moves
+   * at crawlSpeedFactor of its speed (later it will have lost its legs).
+   */
+  crawlAtHp: 1,
+  crawlSpeedFactor: 0.45,
   kinds: {
     walker: { speed: 32, tearTime: 1.4 },
     runner: { speed: 58, tearTime: 1.0 },

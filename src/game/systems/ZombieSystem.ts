@@ -23,6 +23,9 @@ import { isDashing } from './SpecialSystem';
  * field knows a way at least routeSwitchSteps shorter (the player walked
  * out to it, say: spec 02 §3.5).
  *   attacking 0.35 s windup, 40 damage if still in range, 1.1 s cooldown
+ *
+ * With 1 damage unit of HP or less left a zombie crawls: it walks at less
+ * than half its speed (tearing, climbing and attacking are unchanged).
  *   dead      corpse for the death animation, then the slot is freed
  */
 
@@ -106,8 +109,13 @@ function startCrossing(ctx: SimContext, z: ZombieState, index: number): void {
   setState(ctx, z, 'toWindow');
 }
 
+/** A zombie with crawlAtHp or less left drags itself along. */
+export function isCrawling(z: ZombieState): boolean {
+  return z.hp > 0 && z.hp <= ZOMBIES.crawlAtHp;
+}
+
 function speedOf(z: ZombieState): number {
-  return ZOMBIES.kinds[z.kind].speed;
+  return ZOMBIES.kinds[z.kind].speed * (isCrawling(z) ? ZOMBIES.crawlSpeedFactor : 1);
 }
 
 function updateToWindow(ctx: SimContext, z: ZombieState, dt: number): void {

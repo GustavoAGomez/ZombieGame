@@ -331,3 +331,11 @@ Registro de lo que la spec no definía (o definía de forma ambigua) y cómo se 
   - **Persiguiendo:** si el siguiente paso del campo es una ventana, el zombie va a ella, rompe los tablones y trepa. Si el jugador está fuera, lo hace de dentro afuera.
   - **Yendo a su ventana:** el zombie que sale de un spawn sigue con ella aunque la calle o el jardín estén abiertos, salvo que el campo conozca un camino al menos 2 casillas más corto (por ejemplo, el jugador ha salido a por él). Antes pasaba a perseguir en cuanto el campo lo alcanzaba y daba el rodeo largo por las puertas abiertas.
   - **Puertas de pago:** siguen siendo un muro para los zombies.
+
+## Daño por unidades y zombies que se arrastran
+
+- **La vida de los zombies se cuenta en unidades de daño.** Una bala de pistola hace 1 y una de metralleta 0,5. Un zombie aguanta 3 en las rondas 1 y 2, y uno más cada 2 rondas: 4 en las rondas 3–4, 5 en las 5–6… (12 en la ronda 20). Sustituye a la fórmula anterior (50 + 25 por ronda hasta la 9, luego ×1,1), que desde la ronda 10 crecía mucho más deprisa.
+- **Cuchillo (cuando no queda munición):** 3 unidades, para que siga matando de un golpe a los zombies de las rondas 1–2, como antes, que hacía 50 contra 50 de vida.
+- **Arrastre:** con 1 unidad de vida o menos, un zombie se mueve al 45 % de su velocidad (`ZOMBIES.crawlAtHp` y `crawlSpeedFactor`). Su animación de andar se ralentiza igual, para que no patine. Romper tablones, trepar y atacar no cambian. Más adelante se verá como un zombie sin piernas.
+- **Ejemplos en la ronda 1:** con la pistola, el zombie se arrastra tras el segundo disparo y muere con el tercero. Con la metralleta, se arrastra tras la cuarta bala y muere con la sexta.
+- **Puntos:** cada impacto sigue dando 10 puntos. Con la metralleta se hacen más impactos por zombie (6 en vez de 4), así que da algo más de puntos por baja.

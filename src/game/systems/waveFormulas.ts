@@ -2,13 +2,10 @@ import { WAVES, ZOMBIE_MIX, ZOMBIES, type ZombieKind } from '../../config/balanc
 
 /** Pure round formulas from spec 01 §4.4 and §4.8. */
 
-/** Rounds 1–9: 50 + 25 × (r − 1). From round 10: hp(9) × 1.1^(r − 9). */
+/** HP in damage units: 3, plus 1 every 2 rounds survived (rounds 1–2: 3, 3–4: 4, 5–6: 5…). */
 export function zombieHp(round: number): number {
   const r = Math.max(1, Math.floor(round));
-  const linear = (n: number): number => ZOMBIES.hpBase + ZOMBIES.hpPerRound * (n - 1);
-  if (r <= ZOMBIES.hpLinearUntilRound) return linear(r);
-  const base = linear(ZOMBIES.hpLinearUntilRound);
-  return Math.round(base * ZOMBIES.hpGrowth ** (r - ZOMBIES.hpLinearUntilRound));
+  return ZOMBIES.hpBase + Math.floor((r - 1) / ZOMBIES.hpRoundsPerExtraHit) * ZOMBIES.hpPerExtraHit;
 }
 
 export interface ZombieMix {

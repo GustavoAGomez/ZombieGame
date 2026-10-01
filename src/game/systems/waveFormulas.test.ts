@@ -1,19 +1,20 @@
 import { describe, expect, it } from 'vitest';
+import { WEAPONS } from '../../config/balance';
 import { pickZombieKind, spawnInterval, zombieHp, zombieMix, zombiesInRound } from './waveFormulas';
 
 describe('zombieHp', () => {
-  it('is 50 + 25 × (r − 1) for rounds 1–9', () => {
-    expect([1, 2, 5, 9].map(zombieHp)).toEqual([50, 75, 150, 250]);
+  it('is 3 damage units, one more every 2 rounds survived', () => {
+    expect([1, 2, 3, 4, 5, 6, 9, 10, 20].map(zombieHp)).toEqual([3, 3, 4, 4, 5, 5, 7, 7, 12]);
   });
 
-  it('grows ×1.1 per round from round 10', () => {
-    expect(zombieHp(10)).toBe(275);
-    expect(zombieHp(11)).toBe(Math.round(250 * 1.1 ** 2));
-    expect(zombieHp(20)).toBe(Math.round(250 * 1.1 ** 11));
+  it('takes 3 pistol shots or 6 SMG shots in round 1, one pistol shot more from round 3', () => {
+    expect(zombieHp(1) / WEAPONS.pistol.damage).toBe(3);
+    expect(zombieHp(1) / WEAPONS.smg.damage).toBe(6);
+    expect(zombieHp(3) / WEAPONS.pistol.damage).toBe(4);
   });
 
   it('treats invalid rounds as round 1', () => {
-    expect(zombieHp(0)).toBe(50);
+    expect(zombieHp(0)).toBe(3);
   });
 });
 

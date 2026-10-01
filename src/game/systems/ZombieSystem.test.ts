@@ -1,11 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
-import { PLAYER, ZOMBIES } from '../../config/balance';
+import { PLAYER, WEAPONS, ZOMBIES } from '../../config/balance';
 import type { ZombieState } from '../../core/GameState';
 import { createTestContext, placeZombie, player, runTicks } from '../../test/fixtures';
 import { setDoorBlocking } from '../map/CollisionGrid';
 import { damageZombie } from './Combat';
 import { stepSimulation } from './Simulation';
 import { spawnZombie } from './SpawnSystem';
+import { zombieHp } from './waveFormulas';
+import { isCrawling } from './ZombieSystem';
 
 type Ctx = ReturnType<typeof createTestContext>;
 
@@ -126,6 +128,50 @@ describe('ZombieSystem · chasing', () => {
     const z = placeZombie(ctx, 0, d1.center.x, pasillo.y + 40, 1000, 'chasing');
     runTicks(ctx, 300, stepSimulation);
     expect(z.y).toBeGreaterThan(d1.y + d1.height);
+  });
+});
+
+describe('ZombieSystem · crawling', () => {
+  /** Px a walker covers chasing the player for half a second, starting 4 tiles to its left. */
+  function distanceCovered(hp: number): number {
+    const ctx = createTestContext();
+    const p = player(ctx);
+    const z = placeZombie(ctx, 0, p.x - 4 * 32, p.y, hp, 'chasing');
+    z.kind = 'walker';
+    const x0 = z.x;
+    runTicks(ctx, 30, stepSimulation);
+    return z.x - x0;
+  }
+
+  it('drags itself at less than half its speed with 1 damage unit left or less', () => {
+    const walking = distanceCovered(3);
+    expect(walking).toBeCloseTo(ZOMBIES.kinds.walker.speed / 2, 0);
+    expect(distanceCovered(1)).toBeCloseTo(walking * ZOMBIES.crawlSpeedFactor, 0);
+    expect(distanceCovered(0.5)).toBeCloseTo(walking * ZOMBIES.crawlSpeedFactor, 0);
+    expect(distanceCovered(1.5)).toBeCloseTo(walking, 0);
+  });
+
+  it('starts crawling after two pistol shots in round 1 and dies at the third', () => {
+    const ctx = createTestContext();
+    const z = placeZombie(ctx, 0, 100, 100, zombieHp(1), 'chasing');
+    damageZombie(ctx, z, WEAPONS.pistol.damage, 0);
+    expect(isCrawling(z)).toBe(false);
+    damageZombie(ctx, z, WEAPONS.pistol.damage, 0);
+    expect(isCrawling(z)).toBe(true);
+    expect(damageZombie(ctx, z, WEAPONS.pistol.damage, 0)).toBe(true);
+  });
+
+  it('takes 6 SMG bullets in round 1, crawling for the last two', () => {
+    const ctx = createTestContext();
+    const z = placeZombie(ctx, 0, 100, 100, zombieHp(1), 'chasing');
+    const crawling: boolean[] = [];
+    let killed = false;
+    for (let shot = 1; shot <= 6 && !killed; shot++) {
+      killed = damageZombie(ctx, z, WEAPONS.smg.damage, 0);
+      crawling.push(isCrawling(z));
+    }
+    expect(killed).toBe(true);
+    expect(crawling).toEqual([false, false, false, true, true, false]);
   });
 });
 
