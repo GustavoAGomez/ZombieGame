@@ -29,7 +29,7 @@ export const DECALS = {
 } as const;
 
 /** Shadow tiles of map_shadows (light from the top left). */
-export const SHADOW = { top: 0, left: 1, both: 2, corner: 3 } as const;
+export const SHADOW = { top: 0, left: 1, both: 2, corner: 3, wallV: 4 } as const;
 
 /** Share of each zone's floor that should carry a decal or a prop. */
 export const DECOR_DENSITY = { min: 0.15, target: 0.2, max: 0.25 } as const;

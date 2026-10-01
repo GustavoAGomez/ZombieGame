@@ -346,19 +346,22 @@ function importInteriorDecals(p: Paths, log: (l: string) => void): ImportedTiles
 
 /**
  * Soft shadows at the foot of walls and props, light from the top left:
- * 0 = band along the top edge, 1 = along the left edge, 2 = both, 3 = top-left corner.
+ * 0 = band along the top edge, 1 = along the left edge, 2 = both, 3 = top-left corner,
+ * 4 = inside the cell of a vertical wall, along the right side of its strip.
  */
-export const SHADOW = { top: 0, left: 1, both: 2, corner: 3 } as const;
+export const SHADOW = { top: 0, left: 1, both: 2, corner: 3, wallV: 4 } as const;
 const SHADOW_SIZE = 6;
 const SHADOW_ALPHA = 110;
+/** Right edge (px) of the vertical wall pieces of every kit: a 12 px strip at x 10..21 of their cell. */
+const WALL_V_STRIP_RIGHT = 21;
 
 function importShadows(p: Paths, log: (l: string) => void): ImportedTileset {
   const name = 'map_shadows';
-  const out = blank(TILE * 4, TILE);
-  const fade = (d: number): number => (d < SHADOW_SIZE ? SHADOW_ALPHA * (1 - d / SHADOW_SIZE) : 0);
+  const out = blank(TILE * 5, TILE);
+  const fade = (d: number): number => (d >= 0 && d < SHADOW_SIZE ? SHADOW_ALPHA * (1 - d / SHADOW_SIZE) : 0);
   for (let y = 0; y < TILE; y++) {
     for (let x = 0; x < TILE; x++) {
-      const tiles = [fade(y), fade(x), Math.max(fade(y), fade(x)), fade(Math.max(x, y))];
+      const tiles = [fade(y), fade(x), Math.max(fade(y), fade(x)), fade(Math.max(x, y)), fade(x - WALL_V_STRIP_RIGHT - 1)];
       tiles.forEach((a, id) => {
         if (a > 0) plot(out, id * TILE + x, y, [0, 0, 0], a);
       });
@@ -367,6 +370,46 @@ function importShadows(p: Paths, log: (l: string) => void): ImportedTileset {
   writeSheet(p, name, out);
   writeTsj(p, tileset(name, imagePath(p, name), out.width, out.height, TILE, TILE));
   log(`  ✓ ${name}: sombras al pie de paredes y objetos (generadas)`);
+  return { name, tileWidth: TILE, tileHeight: TILE };
+}
+
+/** Floors that can lie on either side of a wall: every interior floor, the plain tiles of each terrain and the special ones. */
+const FLOOR_HALF_SOURCES = ['floors_interior', 'tileset_street', 'tileset_pool', 'tileset_garden', 'map_special'] as const;
+
+/**
+ * The right half of every floor tile, with the left half transparent. A
+ * vertical wall is a thin strip in the middle of its cell: the floor layer
+ * carries the floor on its left and the decor layer this half with the floor
+ * on its right, so each side of the wall shows its own floor. Of the Wang
+ * terrains only the plain tiles (four equal corners) are needed. Each tile
+ * names its source in the properties `tileset` and `tile`.
+ */
+function importFloorHalves(p: Paths, log: (l: string) => void): ImportedTileset {
+  const name = 'floor_halves';
+  const halves: { tileset: string; tile: number; frame: Frame }[] = [];
+  for (const source of FLOOR_HALF_SOURCES) {
+    const tsj = JSON.parse(readFileSync(p.tsj(source), 'utf8')) as Tsj;
+    const sheet = decodePng(readFileSync(p.sheet(source)));
+    const frame: Frame = { width: sheet.width, height: sheet.height, pixels: sheet.pixels };
+    const wang = tsj.wangsets?.[0];
+    const plain = new Set(
+      (wang?.wangtiles ?? []).filter(({ wangid }) => [3, 5, 7].every((i) => wangid[i] === wangid[1])).map((t) => t.tileid),
+    );
+    for (let tile = 0; tile < tsj.tilecount; tile++) {
+      if (wang && !plain.has(tile)) continue;
+      const x = (tile % tsj.columns) * TILE;
+      const y = Math.floor(tile / tsj.columns) * TILE;
+      halves.push({ tileset: source, tile, frame: cut(frame, x + TILE / 2, y, TILE / 2, TILE) });
+    }
+  }
+  const columns = 8;
+  const out = blank(columns * TILE, Math.ceil(halves.length / columns) * TILE);
+  halves.forEach((h, i) => paste(out, h.frame, (i % columns) * TILE + TILE / 2, Math.floor(i / columns) * TILE));
+  writeSheet(p, name, out);
+  const tsj = tileset(name, imagePath(p, name), out.width, out.height, TILE, TILE);
+  tsj.tiles = halves.map((h, i) => ({ id: i, properties: [prop('tileset', h.tileset), prop('tile', h.tile)] }));
+  writeTsj(p, tsj);
+  log(`  ✓ ${name}: ${halves.length} medias baldosas para el suelo bajo las paredes verticales (generadas)`);
   return { name, tileWidth: TILE, tileHeight: TILE };
 }
 
@@ -390,6 +433,7 @@ export function importTiles(root: string, log: (line: string) => void): Imported
   imported.push(importSpecial(p, log));
   imported.push(importInteriorDecals(p, log));
   imported.push(importShadows(p, log));
+  imported.push(importFloorHalves(p, log));
   registerInManifest(root, imported);
   log(`\n${imported.length} tilesets en public/assets/tiles/ y art-src/tiled/tilesets/; manifiesto actualizado.`);
   return imported;

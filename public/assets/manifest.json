@@ -277,6 +277,11 @@
       "file": "tiles/map_shadows.png",
       "tileWidth": 32,
       "tileHeight": 32
+    },
+    "floor_halves": {
+      "file": "tiles/floor_halves.png",
+      "tileWidth": 32,
+      "tileHeight": 32
     }
   },
   "objects": {

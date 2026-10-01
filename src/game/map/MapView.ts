@@ -53,8 +53,8 @@ export class MapView {
 
     const layers: [string, Int32Array, number, boolean][] = [
       ['floor', map.floor, DEPTH.floor, false],
+      ['decor', map.decor, DEPTH.floorDetail, false],
       ['shadows', map.shadows, DEPTH.shadows, false],
-      ['decor', map.decor, DEPTH.decor, false],
       ['walls', map.walls, DEPTH.walls, true],
     ];
     for (const [name, data, depth, ySorted] of layers) {
@@ -252,6 +252,15 @@ export class MapView {
         for (const sprite of this.portalSprites[i] ?? []) sprite.setFrame(open ? 1 : 0);
       }
     }
+  }
+
+  /** Whether the world point lies in the dark (a zone not unlocked yet, or the border of only such zones). */
+  isDark(x: number, y: number): boolean {
+    const { width, height, tileSize: ts } = this.map;
+    const cx = Math.floor(x / ts);
+    const cy = Math.floor(y / ts);
+    if (cx < 0 || cy < 0 || cx >= width || cy >= height) return false;
+    return cellHidden(cy * width + cx, this.owners, this.edgeMasks, this.unlockedMask);
   }
 
   get widthPx(): number {

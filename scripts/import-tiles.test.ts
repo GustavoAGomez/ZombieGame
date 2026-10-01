@@ -21,7 +21,7 @@ describe('importTiles (end to end on a copy of the repo)', () => {
     cpSync(join(repo, 'art-src/pixellab'), join(tmp, 'art-src/pixellab'), { recursive: true });
     const lines: string[] = [];
     const imported = importTiles(tmp, (l) => lines.push(l));
-    expect(imported).toHaveLength(13);
+    expect(imported).toHaveLength(14);
 
     const tsj = (name: string) => JSON.parse(readFileSync(join(tmp, `art-src/tiled/tilesets/${name}.tsj`), 'utf8')) as Tsj;
     const pool = tsj('tileset_pool');
@@ -42,6 +42,18 @@ describe('importTiles (end to end on a copy of the repo)', () => {
     // No transparent pixels left in the floors.
     expect(floors.pixels.some((v, i) => i % 4 === 3 && v === 0)).toBe(false);
     expect(existsSync(join(tmp, 'public/assets/tiles/decals_grass.png'))).toBe(true);
+
+    // Shadows: four bands plus the one right of a vertical wall's strip.
+    expect(tsj('map_shadows').tilecount).toBe(5);
+    // Floor halves: the right half of every floor tile, naming its source.
+    const halves = tsj('floor_halves');
+    const sources = (halves.tiles ?? []).map((t) => Object.fromEntries((t.properties ?? []).map((q) => [q.name, q.value])));
+    expect(sources).toContainEqual({ tileset: 'floors_interior', tile: 15 });
+    expect(sources).toContainEqual({ tileset: 'map_special', tile: 1 });
+    expect(sources.filter((x) => x.tileset === 'tileset_pool').length).toBeGreaterThan(0);
+    const halfSheet = decodePng(readFileSync(join(tmp, 'public/assets/tiles/floor_halves.png')));
+    const alphaAt = (x: number, y: number) => halfSheet.pixels[(y * halfSheet.width + x) * 4 + 3];
+    expect([alphaAt(5, 10), alphaAt(25, 10)]).toEqual([0, 255]);
 
     const manifest = JSON.parse(readFileSync(join(tmp, 'public/assets/manifest.json'), 'utf8')) as { tilesets: Record<string, unknown> };
     expect(manifest.tilesets.kit_fence).toEqual({ file: 'tiles/kit_fence.png', tileWidth: 32, tileHeight: 48 });

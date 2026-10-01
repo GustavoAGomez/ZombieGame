@@ -99,8 +99,8 @@ Los tilesets deben ir **embebidos** en el `.tmj` que carga el juego (`public/ass
 |---|---|---|
 | `floor` | tiles | suelo |
 | `walls` | tiles | paredes; cada tile con la propiedad `collides: true` |
-| `shadows` | tiles | sombras suaves al pie de paredes y muebles, tileset `map_shadows` (opcional; la genera `map:build`) |
-| `decor` | tiles | decoración sin colisión (opcional) |
+| `shadows` | tiles | sombras suaves al pie de paredes y muebles, tileset `map_shadows` (opcional; la genera `map:build`). Una pared vertical solo sombrea su propia casilla, a la derecha de su franja |
+| `decor` | tiles | detalles del suelo sin colisión, dibujados entre el suelo y las sombras (opcional). `map:build` pone aquí, bajo cada pared vertical, la mitad derecha del suelo de la derecha (tileset `floor_halves`) |
 | `decals` | objetos | *tile objects* sin colisión, en cualquier posición y con volteo horizontal o vertical (opcional) |
 | `props` | objetos | atrezo (opcional): rectángulos de tiles enteros con `key` (objeto `prop_*` del manifiesto), `collides` (bool), `flipX`, `flipY`. Con colisión bloquea el paso y las balas, pero no la visión, y se ordena con los personajes; sin colisión va en el suelo (alfombras, escombros) |
 | `objects` | objetos | ver la tabla siguiente |

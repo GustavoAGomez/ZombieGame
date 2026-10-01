@@ -1,0 +1,437 @@
+{
+  "type": "tileset",
+  "version": "1.10",
+  "tiledversion": "1.11.0",
+  "name": "floor_halves",
+  "tilewidth": 32,
+  "tileheight": 32,
+  "tilecount": 32,
+  "columns": 8,
+  "image": "../../../public/assets/tiles/floor_halves.png",
+  "imagewidth": 256,
+  "imageheight": 128,
+  "margin": 0,
+  "spacing": 0,
+  "tiles": [
+    {
+      "id": 0,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "floors_interior"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "floors_interior"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "floors_interior"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 2
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "floors_interior"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 3
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "floors_interior"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 4
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "floors_interior"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 5
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "floors_interior"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 6
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "floors_interior"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 7
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "floors_interior"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 8
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "floors_interior"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 9
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "floors_interior"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 10
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "floors_interior"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 11
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "floors_interior"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 12
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "floors_interior"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 13
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "floors_interior"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 14
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "floors_interior"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 15
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "tileset_street"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 6
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "tileset_street"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 15
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "tileset_street"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 16
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "tileset_pool"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 6
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "tileset_pool"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 15
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "tileset_pool"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 16
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "tileset_garden"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 6
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "tileset_garden"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 15
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "tileset_garden"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 16
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "map_special"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "map_special"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "properties": [
+        {
+          "name": "tileset",
+          "type": "string",
+          "value": "map_special"
+        },
+        {
+          "name": "tile",
+          "type": "int",
+          "value": 2
+        }
+      ]
+    }
+  ]
+}

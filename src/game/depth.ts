@@ -1,6 +1,8 @@
 /** Render order of world layers. Actors are additionally y-sorted. */
 export const DEPTH = {
   floor: 0,
+  /** The decor tile layer: floor details, such as the floor right of a vertical wall. */
+  floorDetail: 0.25,
   shadows: 0.5,
   decor: 1,
   /** Rugs, rubble and other props without collision. */
@@ -12,6 +14,8 @@ export const DEPTH = {
   actors: 10,
   /** Darkness over zones not unlocked yet: above actors and props, under bullets. */
   fog: 29,
+  /** Zombies at a window of the dark outside (tearing, climbing): over the darkness so the player sees them. */
+  actorsOverFog: 29.1,
   bullets: 30,
   aimLine: 31,
   debug: 100,
@@ -20,4 +24,9 @@ export const DEPTH = {
 /** Depth for an actor standing at world y (feet). */
 export function actorDepth(y: number): number {
   return DEPTH.actors + y * 0.001;
+}
+
+/** Depth for an actor over the darkness, still y-sorted and under the bullets (maps up to 8000 px tall). */
+export function overFogDepth(y: number): number {
+  return DEPTH.actorsOverFog + y * 0.0001;
 }

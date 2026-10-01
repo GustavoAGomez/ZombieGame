@@ -49,6 +49,7 @@ export class GameScene extends Phaser.Scene {
   private hud!: Hud;
   private presenter!: HudPresenter;
   private mapView!: MapView;
+  private readonly isDark = (x: number, y: number): boolean => this.mapView.isDark(x, y);
   private playerView!: PlayerView;
   private zombieViews!: ZombieViewPool;
   private bulletViews!: BulletViewPool;
@@ -228,7 +229,7 @@ export class GameScene extends Phaser.Scene {
     this.mapView.sync(this.state);
     this.bloodViews.sync(this.state.blood);
     this.pickupViews.sync(this.state.pickups, this.state.time);
-    this.zombieViews.sync(this.state.zombies, alpha, now);
+    this.zombieViews.sync(this.state.zombies, alpha, now, this.isDark);
     if (player) {
       this.playerView.sync(player, alpha);
       if (player.teleports !== this.shownTeleports) {

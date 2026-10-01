@@ -111,7 +111,7 @@ export function renderMap(mapPath: string): { image: Frame; map: MapData } {
     const sy = Math.floor(local / t.columns) * t.tileHeight;
     blit(image, sheet, sx, sy, t.tileWidth, t.tileHeight, Math.round(x), Math.round(bottom - t.tileHeight), (rawGid & FLIP_H) !== 0, (rawGid & FLIP_V) !== 0);
   };
-  for (const layer of [map.floor, map.shadows, map.decor]) {
+  for (const layer of [map.floor, map.decor, map.shadows]) {
     for (let y = 0; y < map.height; y++) for (let x = 0; x < map.width; x++) drawGid(layer[y * map.width + x] ?? 0, x * ts, (y + 1) * ts);
   }
   const decals = raw.layers.find((l) => l.name === 'decals') as TiledObjectLayer | undefined;

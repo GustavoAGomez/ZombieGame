@@ -17,7 +17,7 @@ import { createHash } from 'node:crypto';
 import { BARRICADES } from '../../src/config/balance';
 import type { PortalKind } from '../../src/game/map/MapLoader';
 import type { TiledObject, TiledProperty, TiledSourceMap, TiledTileLayer } from '../../src/game/map/tiled';
-import { DECALS, floorVariants, placeDecals, shadowTile } from './decorate';
+import { DECALS, SHADOW, floorVariants, placeDecals, shadowTile } from './decorate';
 import type { Tsj } from './tiled-tileset';
 
 const TILE = 32;
@@ -44,6 +44,7 @@ export const TILESET_ORDER = [
   'map_special',
   'decals_interior',
   'map_shadows',
+  'floor_halves',
 ] as const;
 export type TilesetName = (typeof TILESET_ORDER)[number];
 export type Kit = 'kit_interior' | 'kit_exterior' | 'kit_basement' | 'kit_fence';
@@ -613,6 +614,10 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
     }
     return ch === 'H' ? 'kit_exterior' : 'kit_interior';
   };
+  /** Vertical walls and pillars: a thin strip in the middle of their cell, with floor on both sides. */
+  const narrow = new Uint8Array(W * H);
+  /** Plain horizontal walls: their face fills the bottom of the cell and leaves floor showing above it. */
+  const low = new Uint8Array(W * H);
   for (let y = 0; y < H; y++) {
     for (let x = 0; x < W; x++) {
       if (!WALLS.includes(at(x, y))) continue;
@@ -623,16 +628,61 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
       else if (vertical) piece = PIECE.wallV;
       else piece = PIECE.pillar;
       walls[y * W + x] = firstGid[kitOf(x, y)] + piece;
+      if (piece === PIECE.wallV || piece === PIECE.pillar) narrow[y * W + x] = 1;
+      else if (piece === PIECE.wallH) low[y * W + x] = 1;
+    }
+  }
+  const narrowAt = (x: number, y: number): boolean => x >= 0 && y >= 0 && x < W && y < H && narrow[y * W + x] === 1;
+
+  // --- floor around the wall art instead of dark ground. Under a narrow wall each side of the strip
+  //     shows the floor beside it: the floor layer carries the plain floor on the left and the decor
+  //     layer the right half of the one on the right. Above a horizontal face, the floor north of it.
+  const decor = new Array<number>(W * H).fill(0);
+  const tileProp = (t: { properties?: TiledProperty[] }, name: string): TiledProperty['value'] | undefined =>
+    t.properties?.find((q) => q.name === name)?.value;
+  const halves = new Map((tilesets.floor_halves.tiles ?? []).map((t) => [`${String(tileProp(t, 'tileset'))}:${String(tileProp(t, 'tile'))}`, t.id]));
+  const plainFloor = (x: number, y: number): { tileset: TilesetName; tile: number } => {
+    // Under a wall there is never water or void, which would change what the cell is.
+    const ch = g(x, y) === 'w' ? 'e' : g(x, y);
+    const set = wangSet(ch);
+    if (set) return { tileset: set.tileset, tile: lookups.get(set.tileset)?.get(set.inner.includes(ch) ? '0000' : '1111')?.[0] ?? 0 };
+    if (ch in FLOOR_ROW) {
+      const zone = map.zones[groundZone[y * W + x] ?? -1];
+      return { tileset: 'floors_interior', tile: (FLOOR_ROW[ch] ?? 0) * 4 + (zone?.floorVariant ?? 0) };
+    }
+    if (ch === 'd') return { tileset: 'map_special', tile: SPECIAL.dirt };
+    return { tileset: 'map_special', tile: SPECIAL.ground };
+  };
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      if (low[y * W + x] === 1) {
+        const above = plainFloor(x, y - 1);
+        floor[y * W + x] = firstGid[above.tileset] + above.tile;
+      }
+      if (!narrowAt(x, y)) continue;
+      const left = plainFloor(x - 1, y);
+      const right = plainFloor(x + 1, y);
+      floor[y * W + x] = firstGid[left.tileset] + left.tile;
+      if (left.tileset === right.tileset && left.tile === right.tile) continue;
+      const half = halves.get(`${right.tileset}:${right.tile}`);
+      if (half === undefined) problems.push(`floor_halves: falta la mitad de ${right.tileset} ${right.tile} (ejecuta npm run tiles:import)`);
+      else decor[y * W + x] = firstGid.floor_halves + half;
     }
   }
 
-  // --- shadows: soft band at the foot of walls, fences, doors, barricades and furniture
+  // --- shadows: soft band at the foot of walls, fences, doors, barricades and furniture. A narrow wall
+  //     shades only the floor right of its strip, inside its own cell (light from the top left).
   const shadows = new Array<number>(W * H).fill(0);
   const casts = (x: number, y: number): boolean => '#HFDW'.includes(at(x, y)) || propBlocked.has(y * W + x);
+  const castsBand = (x: number, y: number): boolean => casts(x, y) && !narrowAt(x, y);
   for (let y = 0; y < H; y++) {
     for (let x = 0; x < W; x++) {
+      if (narrowAt(x, y)) {
+        shadows[y * W + x] = firstGid.map_shadows + SHADOW.wallV;
+        continue;
+      }
       if (casts(x, y) || at(x, y) === '_' || at(x, y) === 'w') continue;
-      const tile = shadowTile(casts(x, y - 1), casts(x - 1, y), casts(x - 1, y - 1));
+      const tile = shadowTile(castsBand(x, y - 1), castsBand(x - 1, y), castsBand(x - 1, y - 1));
       if (tile >= 0) shadows[y * W + x] = firstGid.map_shadows + tile;
     }
   }
@@ -811,7 +861,7 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
       tileLayer(1, 'floor', floor),
       tileLayer(6, 'shadows', shadows),
       tileLayer(2, 'walls', walls),
-      tileLayer(3, 'decor', new Array<number>(W * H).fill(0)),
+      tileLayer(3, 'decor', decor),
       { id: 4, name: 'decals', type: 'objectgroup', draworder: 'topdown', x: 0, y: 0, opacity: 1, visible: true, objects: decalObjects },
       { id: 7, name: 'props', type: 'objectgroup', draworder: 'topdown', x: 0, y: 0, opacity: 1, visible: true, objects: propObjects },
       { id: 5, name: 'objects', type: 'objectgroup', draworder: 'topdown', x: 0, y: 0, opacity: 1, visible: true, objects },

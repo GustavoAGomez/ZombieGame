@@ -8,6 +8,7 @@ import { parseMap, tilesetForGid } from '../../src/game/map/MapLoader';
 import type { TiledProperty, TiledSourceMap, TiledTileLayer } from '../../src/game/map/tiled';
 import { compileSource, readTilesets } from '../build-map';
 import { AsciiMapError, COMPILED_HASH, compileAsciiMap, computeRegions, contentHash, parseAsciiMap, zoneRects } from './ascii-map';
+import { SHADOW } from './decorate';
 import { embeddedMansion, mansionPlanText } from './mansion-fixture';
 import { validateMap } from './validate-map';
 
@@ -181,10 +182,20 @@ describe('compileAsciiMap', () => {
       expect(kitAt(94, 8)).toBe('kit_basement'); // roof chimney
     });
 
-    it('lays lawn under fences, dark ground under house walls and the room floor under doors', () => {
-      expect(tileProps(30, 2).tileset).toBe('tileset_garden');
-      expect(tileProps(15, 30)).toMatchObject({ tileset: 'map_special', material: 'tierra' });
+    it('lays the floor around the wall art and the room floor under doors', () => {
+      // Above the face of a horizontal wall or fence: the floor north of it.
+      expect(tileProps(30, 2)).toMatchObject({ tileset: 'map_special', material: 'tierra' }); // the neighbour's dirt
+      expect(tileProps(40, 29).tileset).toBe('floors_interior'); // the kitchen, above the hall's wall
       expect(tileProps(34, 41).tileset).toBe('floors_interior'); // D8, the front door
+      // A vertical wall is a strip in the middle of its cell: the salón floor on its left, the hall's on its right.
+      const floorGid = map.floor[31 * map.width + 32] ?? 0;
+      const floors = map.tilesets.find((t) => t.name === 'floors_interior')!;
+      expect(floorGid - floors.firstGid).toBe(3); // wood, the salón's variant
+      const decorGid = map.decor[31 * map.width + 32] ?? 0;
+      const halves = tilesetForGid(map.tilesets, decorGid);
+      expect(halves?.name).toBe('floor_halves');
+      const half = raw.tilesets.find((t) => t.name === 'floor_halves')?.tiles?.find((d) => d.id === decorGid - (halves?.firstGid ?? 0));
+      expect(Object.fromEntries((half?.properties ?? []).map((q) => [q.name, q.value]))).toEqual({ tileset: 'floors_interior', tile: 0 });
     });
 
     it('puts every barricade spawn two tiles outside, where zombies come from', () => {
@@ -255,10 +266,12 @@ describe('decoration and props', () => {
     expect(cellBlocks(grid, 7, 1, BLOCK_PLAYER | BLOCK_BULLET)).toBe(true);
     expect(cellBlocks(grid, 7, 1, BLOCK_SIGHT)).toBe(false);
     expect(cellBlocks(grid, 2, 1, BLOCK_PLAYER)).toBe(false);
-    // Under the top wall and to the right of the left wall there is a soft shadow.
+    // A soft shadow under the top wall; the left wall shades only inside its own cell, right of its strip.
     const shadowAt = (x: number, y: number) => map.shadows[y * map.width + x] ?? 0;
+    const shadows = map.tilesets.find((t) => t.name === 'map_shadows')!;
     expect(shadowAt(2, 1)).toBeGreaterThan(0);
-    expect(shadowAt(1, 3)).toBeGreaterThan(0);
+    expect(shadowAt(0, 3) - shadows.firstGid).toBe(SHADOW.wallV);
+    expect(shadowAt(1, 3)).toBe(0);
     expect(shadowAt(3, 3)).toBe(0);
     expect(shadowAt(7, 3)).toBeGreaterThan(0); // below the table
     expect(map.decals.length).toBeGreaterThan(0);
