@@ -49,6 +49,7 @@ export const STRINGS = {
   boosts: {
     names: { speed: 'VELOCIDAD', double_damage: 'DOBLE DAÑO' },
     activate: (name: string): string => `Activar mejora: ${name}`,
+    activated: (name: string): string => `¡${name}!`,
   },
   merchants: {
     names: { blue: 'MAGO AZUL', red: 'MAGO ROJO', gold: 'MAGO DORADO' },

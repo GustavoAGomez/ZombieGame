@@ -29,7 +29,8 @@ describe('HapticFeedback', () => {
     events.emit('door:opened', { doorId: 'd1', playerId: 0 });
     events.emit('portal:opened', { portalId: 'p1', playerId: 0 });
     events.emit('merchant:purchase', { playerId: 0, merchant: 'blue', item: 'max_ammo' });
-    expect(played).toEqual(['light', 'medium', 'medium', 'medium']);
+    events.emit('boost:activated', { playerId: 0, boost: 'speed' });
+    expect(played).toEqual(['light', 'medium', 'medium', 'medium', 'light']);
   });
 
   it('ignores what happens to other players', () => {

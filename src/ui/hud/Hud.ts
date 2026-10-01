@@ -1,5 +1,9 @@
-import { MERCHANT, PLAYER, POINTS, WAVES } from '../../config/balance';
+import { MERCHANT, PLAYER, POINTS, WAVES, type BoostKind } from '../../config/balance';
 import { merchantDef } from '../../config/merchants';
+import { COLORS } from '../../config/theme';
+
+/** Colour of each boost's notice: amber like the speed bolt, light blue like the double damage bullets. */
+const BOOST_COLORS: Record<BoostKind, string> = { speed: COLORS.amber, double_damage: COLORS.boostDamage };
 import type { EventBus, GameEvents } from '../../core/EventBus';
 import { pixelIcon } from '../icons';
 import { STRINGS } from '../strings';
@@ -32,7 +36,7 @@ export class Hud {
   private readonly damage: HTMLDivElement;
   private readonly dead: HTMLDivElement;
   private readonly banner: HTMLDivElement;
-  /** "EL MAGO AZUL SE HA MOVIDO" under the round banner (spec 03 §2). */
+  /** "EL MAGO AZUL SE HA MOVIDO" or "¡VELOCIDAD!" under the round banner (spec 03 §2, §5). */
   private readonly notice: HTMLDivElement;
   private damageTimer = 0;
   private blinkTimer = 0;
@@ -116,6 +120,7 @@ export class Hud {
       events.on('player:damaged', this.onDamaged),
       events.on('player:died', this.onDied),
       events.on('merchant:moved', this.onMerchantMoved),
+      events.on('boost:activated', this.onBoostActivated),
     );
   }
 
@@ -177,12 +182,21 @@ export class Hud {
   private readonly onMerchantMoved = (e: GameEvents['merchant:moved']): void => {
     // Its first appearance is announced by the smoke alone.
     if (e.first) return;
-    this.notice.textContent = STRINGS.merchants.moved(STRINGS.merchants.names[e.merchant]);
-    this.notice.style.color = merchantDef(e.merchant).color;
+    this.showNotice(STRINGS.merchants.moved(STRINGS.merchants.names[e.merchant]), merchantDef(e.merchant).color);
+  };
+
+  /** A boost started: said out loud, so a tap by mistake does not go unnoticed. */
+  private readonly onBoostActivated = (e: GameEvents['boost:activated']): void => {
+    if (e.playerId === this.localPlayerId) this.showNotice(STRINGS.boosts.activated(STRINGS.boosts.names[e.boost]), BOOST_COLORS[e.boost]);
+  };
+
+  private showNotice(text: string, color: string): void {
+    this.notice.textContent = text;
+    this.notice.style.color = color;
     this.notice.classList.remove('is-showing');
     void this.notice.offsetWidth;
     this.notice.classList.add('is-showing');
-  };
+  }
 
   private readonly onWeapon = (e: GameEvents['weapon:state']): void => {
     this.weaponName.textContent = STRINGS.weapons[e.weapon];

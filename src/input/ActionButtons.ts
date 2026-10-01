@@ -4,11 +4,11 @@ import { STRINGS } from '../ui/strings';
 import { TapButton } from './TapButton';
 
 /**
- * Buttons around the fire button (only two, as in Wild Rift's skill arc):
- * reload right above it and the knife to its left. The special (dash) sits
- * in the bottom bar, after the weapon slots. The reload button shows the
- * reload in progress (dimmed while there is nothing to reload) and the
- * special its cooldown, both received via the EventBus.
+ * Buttons in the arc around the fire button, as in Wild Rift: the knife to
+ * its left, reload above it and the special (dash) to the right of reload
+ * (the boost button joins the arc while a boost is stored). The reload
+ * button shows the reload in progress (dimmed while there is nothing to
+ * reload) and the special its cooldown, both received via the EventBus.
  */
 /**
  * A dark veil for a cooldown or a reload, inside a holder clipped to the
@@ -34,10 +34,10 @@ export class ActionButtons {
   private readonly reloadVeil: HTMLDivElement;
   private readonly unsubscribe: (() => void)[];
 
-  constructor(parent: HTMLElement, bottomBar: HTMLElement, events: EventBus) {
+  constructor(parent: HTMLElement, events: EventBus) {
     this.reloadButton = new TapButton(parent, 'action-button--reload', 'reload', '', STRINGS.controls.reload);
     this.meleeButton = new TapButton(parent, 'action-button--melee', 'knife', '', STRINGS.controls.melee);
-    this.specialButton = new TapButton(bottomBar, 'action-button--special', 'bolt', '', STRINGS.controls.special);
+    this.specialButton = new TapButton(parent, 'action-button--special', 'bolt', '', STRINGS.controls.special);
 
     this.veil = addVeil(this.specialButton.el);
     this.seconds = document.createElement('span');

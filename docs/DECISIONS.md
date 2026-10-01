@@ -481,3 +481,24 @@ Registro de lo que la spec no definía (o definía de forma ambigua) y cómo se 
   - balas en azul claro (`boostDamage`, `#8ec9ff`), en modo de tinte de relleno: el trazo naranja y blanco multiplicado por azul quedaba turbio;
   - las balas guardan si se dispararon con el doble daño, así que no cambian de color si la mejora termina con ellas en el aire.
 - **Anillo de la cuenta atrás:** un círculo SVG que se vacía en el sentido de las agujas del reloj desde arriba, con los segundos en el centro. El presentador lo cuantiza en 64 pasos para tocar poco el DOM.
+
+## HUD: dash junto a recargar, armas en columna y toques con margen
+
+Petición del usuario tras probar M3 en el móvil.
+
+- **Mejora guardada entre rondas:** el usuario vio que la mejora comprada se perdía al cambiar de ronda.
+  - No lo he podido reproducir. El estado la conserva con el flujo real (fin de ronda, descanso y ronda siguiente) y el botón sigue visible. Lo cubre un test nuevo con `wave.auto` activado.
+  - Lo más probable es que se activara con un toque sin querer: estaba en el camino del pulgar, dura 10 s y desaparece.
+  - Al activarla ahora sale un aviso («¡VELOCIDAD!» en ámbar, «¡DOBLE DAÑO!» en azul claro) y una vibración ligera, así que una activación accidental ya no pasa desapercibida.
+- **Arco del disparo** (centros respecto al del disparo): cuchillo (−88, −4), mejora (−64, −60), recargar (−12, −86) y dash (+40, −78).
+  - El dash queda a la derecha de recargar. Su borde derecho entra 4 px en el margen de seguridad, así que sigue a 20 px o más del borde físico.
+  - La barra inferior desaparece.
+- **Armas en columna:** vertical arriba a la derecha, 3 huecos de 44 px con 8 px de separación.
+  - En pantallas de 360 px de alto no caben entre el bloque de puntos y el arco, así que el bloque de puntos y arma (y el botón de acción) se desplazan 56 px a la izquierda.
+  - La columna ocupa la esquina superior derecha.
+- **Botón de acción:** a la izquierda de la columna, encima de recargar.
+- **Toques con margen de error:** un `::before` invisible más grande en cada botón redondo, el disparo, el botón de acción y la pausa, y uno más pequeño en COMPRAR y en la X de la tienda.
+  - Medidas: 10 px por defecto, 14 px el disparo y 6 px entre armas.
+  - Donde dos zonas se tocan gana el botón que está encima (el orden del DOM), así que el disparo no roba toques a los botones del arco.
+- **Tienda en pantallas estrechas** (≤ 700 px de ancho): filas más apretadas (letra de 7–8 px, botón de 80 px) y el panel baja a `pad-top + 96` px. Con dos filas no toca el cuchillo ni el bloque de puntos.
+- **Comprobado** midiendo círculos (botones redondos) y rectángulos (paneles) en 844×390, 800×360 y 640×360, con la tienda abierta, el botón de acción, la mejora guardada y 3 huecos de arma a la vista: sin solapes y con al menos 4 px de hueco entre botones.

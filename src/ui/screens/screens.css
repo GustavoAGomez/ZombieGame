@@ -143,3 +143,11 @@
 .pause-button[hidden] {
   display: none;
 }
+
+/* Forgiving taps: the pause button answers a little outside its circle too. */
+.pause-button::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+}

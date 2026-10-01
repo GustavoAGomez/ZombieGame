@@ -6,12 +6,12 @@
 .shop-panel {
   --merchant: var(--bone);
   position: absolute;
-  top: calc(var(--pad-top) + 92px);
+  top: calc(var(--pad-top) + 96px);
   left: 50%;
   z-index: 25;
   transform: translateX(-50%);
   /* Narrower on small screens, so it stays between the joystick and the fire button. */
-  width: min(380px, calc(100% - 2 * var(--pad-x) - 300px));
+  width: min(380px, calc(100% - 2 * var(--pad-x) - 304px));
   min-width: 280px;
   padding: 0 8px 8px 10px;
   background: rgba(26, 23, 20, 0.94);
@@ -163,4 +163,50 @@
   60% { transform: translateX(-3px); }
   80% { transform: translateX(2px); }
   100% { transform: translateX(0); }
+}
+
+/* Forgiving taps on the panel's buttons too (rows are close: a smaller margin). */
+.shop-row__buy,
+.shop-panel__close {
+  position: relative;
+}
+
+.shop-row__buy::before {
+  content: '';
+  position: absolute;
+  inset: -3px -6px;
+}
+
+.shop-panel__close::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+}
+
+
+/* Narrow screens (640×360): tighter rows, so two of them stay above the knife. */
+@media (max-width: 700px) {
+  .shop-row {
+    gap: 6px;
+    min-height: 44px;
+  }
+
+  .shop-row__icon {
+    width: 26px;
+    height: 26px;
+  }
+
+  .shop-row__name {
+    font-size: 7px;
+  }
+
+  .shop-row__description {
+    font-size: 8px;
+  }
+
+  .shop-row__buy {
+    width: 80px;
+    font-size: 7px;
+  }
 }

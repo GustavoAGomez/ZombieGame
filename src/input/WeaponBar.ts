@@ -11,11 +11,10 @@ export const WEAPON_ICONS: Readonly<Record<WeaponId, IconName>> = {
 };
 
 /**
- * Bottom bar of the HUD (like Wild Rift's summoner spells): one slot per
- * weapon the player carries, at most LOADOUT.maxWeapons, each with its icon
- * and the bullets in its magazine. Tapping a slot picks that weapon; the
- * active one is highlighted. Other buttons (the special) can be appended to
- * `element`. No game logic.
+ * Weapon slots in a column at the top right of the screen: one per weapon
+ * the player carries, at most LOADOUT.maxWeapons, each with its icon and the
+ * bullets in its magazine. Tapping a slot picks that weapon; the active one
+ * is highlighted. No game logic.
  */
 export class WeaponBar {
   readonly element: HTMLDivElement;
@@ -25,13 +24,10 @@ export class WeaponBar {
 
   constructor(parent: HTMLElement, events: EventBus) {
     this.element = document.createElement('div');
-    this.element.className = 'bottom-bar';
-    const weapons = document.createElement('div');
-    weapons.className = 'bottom-bar__weapons';
-    this.element.appendChild(weapons);
+    this.element.className = 'weapon-column';
     parent.appendChild(this.element);
     for (let i = 0; i < LOADOUT.maxWeapons; i++) {
-      const slot = new TapButton(weapons, 'weapon-slot', null, '', STRINGS.controls.weaponSlot(i + 1));
+      const slot = new TapButton(this.element, 'weapon-slot', null, '', STRINGS.controls.weaponSlot(i + 1));
       slot.el.hidden = true;
       this.slots.push(slot);
       this.shown.push(null);

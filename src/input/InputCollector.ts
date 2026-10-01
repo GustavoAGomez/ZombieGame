@@ -36,7 +36,7 @@ export class InputCollector {
     this.joystick = new VirtualJoystick(this.root);
     this.fireStick = new FireStick(this.root);
     this.weaponBar = new WeaponBar(this.root, events);
-    this.buttons = new ActionButtons(this.root, this.weaponBar.element, events);
+    this.buttons = new ActionButtons(this.root, events);
     this.chip = new ContextButton(this.root, events);
     this.shop = new ShopPanel(this.root, events);
     this.boost = new BoostButton(this.root, events);

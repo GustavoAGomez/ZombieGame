@@ -9,7 +9,8 @@
 
 .hud-right {
   position: absolute;
-  right: var(--pad-x);
+  /* Left of the weapon column (controls.css). */
+  right: calc(var(--pad-x) + 56px);
   top: 14px;
   display: flex;
   flex-direction: column;

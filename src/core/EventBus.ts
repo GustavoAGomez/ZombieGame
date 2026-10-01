@@ -67,6 +67,8 @@ export interface GameEvents {
    * button; a running one shows the ring (`progress` 1 → 0) and `seconds` left.
    */
   'boost:state': { stored: BoostKind | null; active: BoostKind | null; progress: number; seconds: number };
+  /** A stored boost was started (HUD notice, light haptic). */
+  'boost:activated': { playerId: number; boost: BoostKind };
   /** Every zombie of the round is dead: the rest before the next round begins. */
   'round:cleared': { round: number };
   /** Every player is dead. `round` is the round reached; `score` every point earned. */

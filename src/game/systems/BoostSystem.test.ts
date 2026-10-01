@@ -70,6 +70,21 @@ describe('BoostSystem · the slot', () => {
     expect([p.boostStored, p.boostActive]).toEqual([null, 'speed']);
   });
 
+  it('keeps a stored boost through the natural end of rounds, the rest and the next ones', () => {
+    const ctx = createTestContext();
+    ctx.state.wave.auto = true;
+    const p = player(ctx);
+    p.godMode = true;
+    storeBoost(p, 'double_damage');
+    // No zombies: each round ends at once and the next comes after the rest.
+    for (let t = 0; t < 30 * 60 && ctx.state.wave.round < 4; t++) {
+      ctx.state.wave.toSpawn = 0;
+      stepSimulation(ctx, 1 / 60);
+    }
+    expect(ctx.state.wave.round).toBe(4);
+    expect([p.boostStored, p.boostActive]).toEqual(['double_damage', null]);
+  });
+
   it('runs for 10 s of simulated time, then ends', () => {
     const ctx = createTestContext();
     const p = player(ctx);

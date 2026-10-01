@@ -23,6 +23,7 @@ export function updateBoosts(ctx: SimContext, dt: number): void {
       p.boostActive = p.boostStored;
       p.boostStored = null;
       p.boostTimer = BOOSTS.duration;
+      ctx.events.emit('boost:activated', { playerId: p.id, boost: p.boostActive });
     }
     if (p.boostActive) {
       p.boostTimer -= dt;

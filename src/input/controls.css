@@ -137,26 +137,27 @@
   display: none;
 }
 
-/* Reload right above the fire button, at (0, -78). */
+/*
+ * The arc around the fire button, like Wild Rift's abilities (centres from
+ * the fire button's centre): knife (-88, -4) on the left, boost (-64, -60)
+ * up and to the left, reload (-12, -86) above, dash (+40, -78) to the right
+ * of reload.
+ */
 .action-button--reload {
-  right: calc(var(--pad-x) + 36px);
-  bottom: calc(var(--pad-bottom) + 118px);
+  right: calc(var(--pad-x) + 48px);
+  bottom: calc(var(--pad-bottom) + 126px);
 }
 
-/* Knife to the left of the fire button, at (-88, -4). */
+/* Knife to the left of the fire button. */
 .action-button--melee {
   right: calc(var(--pad-x) + 124px);
   bottom: calc(var(--pad-bottom) + 36px);
 }
 
-/*
- * Stored boost (spec 03 §5), 56 px with a blue ring, in the arc around the
- * fire button like a Wild Rift ability: up and to the left, at (-60, -100),
- * between the knife and reload. Only while a boost is stored or running.
- */
+/* Stored boost (spec 03 §5), 56 px with a blue ring, between the knife and reload. Only while a boost is stored or running. */
 .action-button--boost {
-  right: calc(var(--pad-x) + 92px);
-  bottom: calc(var(--pad-bottom) + 136px);
+  right: calc(var(--pad-x) + 96px);
+  bottom: calc(var(--pad-bottom) + 96px);
   width: 56px;
   height: 56px;
   display: none;
@@ -213,25 +214,22 @@
   opacity: 0.4;
 }
 
-/* Bottom bar: the weapon slots, then the special. Centred at 55 % of the width, like Wild Rift's spells. */
-.bottom-bar {
+/*
+ * Weapon slots in a column at the top right (one per weapon carried, up to 3).
+ * The HUD's points and weapon block sits to its left (hud.css).
+ */
+.weapon-column {
   position: absolute;
-  left: 55%;
-  bottom: calc(var(--pad-bottom) + 6px);
+  top: calc(var(--pad-top) + 12px);
+  right: var(--pad-x);
   z-index: 20;
   display: flex;
-  align-items: flex-end;
-  gap: 16px;
-  transform: translateX(-50%);
+  flex-direction: column;
+  gap: 8px;
   pointer-events: none;
 }
 
-.bottom-bar__weapons {
-  display: flex;
-  gap: 8px;
-}
-
-.bottom-bar .action-button {
+.weapon-column .action-button {
   position: relative;
   width: 44px;
   height: 44px;
@@ -266,8 +264,10 @@
   opacity: 0.4;
 }
 
-/* Special (dash), last in the bar, amber accents. */
+/* Special (dash) to the right of reload, amber accents. */
 .action-button--special {
+  right: calc(var(--pad-x) - 4px);
+  bottom: calc(var(--pad-bottom) + 118px);
   color: var(--amber);
   background: rgba(232, 176, 74, 0.14);
   box-shadow: inset 0 0 0 2px rgba(232, 176, 74, 0.75);
@@ -328,7 +328,7 @@
  */
 .context-button {
   position: absolute;
-  right: calc(var(--pad-x) + 10px);
+  right: calc(var(--pad-x) + 56px);
   bottom: calc(var(--pad-bottom) + 186px);
   z-index: 20;
   width: 52px;
@@ -419,3 +419,27 @@
       inset 0 0 0 2px var(--amber);
   }
 }
+
+/*
+ * Forgiving taps, as in Wild Rift: every button also answers a little
+ * outside its ring (an invisible, larger hit area). Where two of them meet,
+ * the button drawn on top wins, so the small buttons around the fire button
+ * keep their own edge.
+ */
+.action-button::before,
+.context-button::before,
+.fire-stick::before {
+  content: '';
+  position: absolute;
+  inset: calc(-1 * var(--hit-slop, 10px));
+  border-radius: 50%;
+}
+
+.fire-stick {
+  --hit-slop: 14px;
+}
+
+.weapon-column .action-button {
+  --hit-slop: 6px;
+}
+

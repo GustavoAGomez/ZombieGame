@@ -38,21 +38,25 @@ Cada control usa Pointer Events con `setPointerCapture`. El joystick y el dispar
 - **Mientras se arrastra,** se dibuja en el mundo una **línea de puntos ámbar** desde el arma, de 120 px de mundo, en la dirección de apuntado. Es la que aparece en el mockup A.
 - **Orientación del jugador:** mientras dispara, mira hacia la dirección de apuntado; si no, hacia donde se mueve. Se cuantiza a 8 direcciones para los sprites.
 
-### 2.3 Botones junto al disparo y barra inferior (referencia: Wild Rift)
+### 2.3 Arco del disparo y columna de armas (referencia: Wild Rift)
 
 El HUD sigue la disposición de League of Legends: Wild Rift (decidido después de la Fase 7; ver `docs/DECISIONS.md`). Los botones son pequeños, redondos y solo llevan icono.
 
-- **Junto al disparo**, solo dos botones de 48 px. Sus centros se colocan respecto al centro del botón de disparo (96 px):
-  - **Recargar:** centro en `(0, -78)`, justo encima. Recarga si falta munición en el cargador y queda reserva; si no, se ve atenuado. Muestra el progreso de la recarga como un velo que baja dentro del círculo.
+- **Arco alrededor del disparo,** como las habilidades de Wild Rift. Los botones miden 48 px y sus centros se dan respecto al centro del botón de disparo (96 px):
   - **Cuchillo:** centro en `(-88, -4)`, a la izquierda. Ataque cuerpo a cuerpo en cualquier momento; el jugador se gira hacia el zombie más cercano a su alcance.
-- **Barra inferior**, centrada al 55 % del ancho, como los hechizos de invocador de Wild Rift:
-  - **Huecos de arma:** uno por arma que lleve el jugador, como máximo 3, de 44 px. Cada uno lleva su icono y las balas de su cargador, y el activo se resalta en ámbar. Tocarlo cambia a esa arma (comando `selectWeapon`). No hay botón de cambiar arma.
-  - **Especial (dash):** al final de la barra, en ámbar. Muestra la recarga como un velo que baja dentro del círculo, con los segundos restantes.
+  - **Recargar:** centro en `(-12, -86)`, encima. Recarga si falta munición en el cargador y queda reserva; si no, se ve atenuado. Muestra el progreso de la recarga como un velo que baja dentro del círculo.
+  - **Especial (dash):** centro en `(40, -78)`, a la derecha de recargar, en ámbar. Muestra la recarga como un velo que baja dentro del círculo, con los segundos restantes.
+  - La mejora temporal de la spec 03 (§5) ocupa el hueco de arriba a la izquierda, entre el cuchillo y recargar, mientras hay una guardada.
+- **Columna de armas,** en vertical arriba a la derecha (`right: var(--pad-x)`, `top: calc(var(--pad-top) + 12px)`). El bloque de puntos y arma queda a su izquierda.
+  - Un hueco por arma que lleve el jugador, como máximo 3, de 44 px.
+  - Cada hueco lleva su icono y las balas de su cargador; el activo se resalta en ámbar.
+  - Tocarlo cambia a esa arma (comando `selectWeapon`). No hay botón de cambiar arma.
+- **Toques con margen de error:** como en Wild Rift, cada botón responde también un poco fuera de su aro, con una zona invisible más grande (10 px; 14 px en el disparo y 6 px entre los huecos de arma). Donde se juntan dos zonas gana el botón que está encima, de modo que los botones pequeños del arco conservan su borde.
 
 ### 2.4 Botón de acción contextual
 
 - **Qué es:** un botón redondo de 52 px que solo aparece cuando hay una acción disponible.
-- **Posición:** en el borde derecho, entre el bloque de arriba a la derecha y el botón de recargar (`right: calc(var(--pad-x) + 10px)`, `bottom: calc(var(--pad-bottom) + 186px)`). Cabe sin solaparse desde pantallas de 360 CSS px de alto.
+- **Posición:** a la izquierda de la columna de armas y encima de recargar (`right: calc(var(--pad-x) + 56px)`, `bottom: calc(var(--pad-bottom) + 186px)`). Cabe sin solaparse desde pantallas de 360 CSS px de alto.
 - **Acciones:**
   - **Reparar ventana:** icono de martillo y `+10` en ámbar en una etiqueta debajo. Cada toque repara un tablón; el aro parpadea para indicarlo.
   - **Abrir puerta:** icono de puerta y el coste debajo. Si no hay puntos suficientes, el botón se ve atenuado, la etiqueta muestra lo que falta en rojo (`-X`) y tiembla al tocarlo.
