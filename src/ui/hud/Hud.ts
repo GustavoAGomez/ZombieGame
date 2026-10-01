@@ -25,6 +25,7 @@ export class Hud {
   private readonly hpValue: HTMLSpanElement;
   private readonly round: HTMLDivElement;
   private readonly points: HTMLSpanElement;
+  private readonly total: HTMLSpanElement;
   private readonly weaponRow: HTMLDivElement;
   private readonly weaponName: HTMLSpanElement;
   private readonly magazine: HTMLSpanElement;
@@ -64,16 +65,22 @@ export class Hud {
     this.hpValue = el('span', 'hud-hp');
     this.healthRow.append(heart, bar, this.hpValue);
     this.round = el('div', 'hud-round');
-    // An empty row kept for future stats (spec 01 §5).
-    left.append(this.healthRow, this.round, el('div', 'hud-reserved'));
 
-    // Top-right: points row, weapon row, the floating "+N" beside the points, a reserved row.
+    // Top-right: the points to spend, the total earned, and the floating "+N" beside the points.
+    // The weapon slots hang right under it (controls.css).
     const right = el('div', 'hud-right');
     const pointsRow = el('div', 'hud-row hud-points');
     const pointsLabel = el('span', 'hud-label');
     pointsLabel.textContent = STRINGS.hud.points;
     this.points = el('span', 'hud-points__value');
     pointsRow.append(pointsLabel, this.points);
+    const totalRow = el('div', 'hud-row hud-total');
+    const totalLabel = el('span', 'hud-label');
+    totalLabel.textContent = STRINGS.hud.total;
+    this.total = el('span', 'hud-total__value');
+    totalRow.append(totalLabel, this.total);
+
+    // Top-left, under the round: the weapon in hand and its ammo.
     this.weaponRow = el('div', 'hud-row hud-weapon');
     this.weaponName = el('span', 'hud-label');
     this.magazine = el('span', 'hud-mag');
@@ -92,8 +99,9 @@ export class Hud {
       this.floatPool.push(span);
       this.floats.appendChild(span);
     }
-    // An empty row kept for future perks (spec 01 §5), under the floating texts.
-    right.append(pointsRow, this.weaponRow, this.floats, el('div', 'hud-reserved'));
+    right.append(pointsRow, totalRow, this.floats);
+    // An empty row kept for future stats and perks (spec 01 §5).
+    left.append(this.healthRow, this.round, this.weaponRow, el('div', 'hud-reserved'));
 
     this.damage = el('div', 'hud-damage');
     this.dead = el('div', 'hud-dead');
@@ -140,6 +148,7 @@ export class Hud {
 
   private readonly onPoints = (e: GameEvents['points:changed']): void => {
     this.points.textContent = String(e.points);
+    this.total.textContent = String(e.score);
   };
 
   private readonly onPointsGained = (e: GameEvents['points:gained']): void => {

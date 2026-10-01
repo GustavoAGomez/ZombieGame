@@ -24,6 +24,8 @@ export const STRINGS = {
   },
   hud: {
     points: 'PUNTOS',
+    /** Every point earned this match, spent or not. */
+    total: 'TOTAL',
     round: 'RONDA',
     reloading: 'Recargando',
     health: 'Vida',

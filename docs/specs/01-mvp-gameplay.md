@@ -45,8 +45,8 @@ El HUD sigue la disposición de League of Legends: Wild Rift (decidido después 
 - **Arco alrededor del disparo,** como las habilidades de Wild Rift. Los botones miden 40 px y sus centros se dan respecto al centro del botón de disparo (96 px):
   - **Cuchillo:** centro en `(-80, -4)`, a la izquierda. Ataque cuerpo a cuerpo en cualquier momento; el jugador se gira hacia el zombie más cercano a su alcance.
   - **Recargar:** centro en `(-14, -80)`, encima. Recarga si falta munición en el cargador y queda reserva; si no, se ve atenuado. Muestra el progreso de la recarga como un velo que baja dentro del círculo.
-  - **Especial (dash):** centro en `(34, -72)`, a la derecha de recargar, en ámbar. Muestra la recarga como un velo que baja dentro del círculo, con los segundos restantes.
-- **Columna de armas,** en vertical arriba a la derecha (`right: var(--pad-x)`, `top: calc(var(--pad-top) + 12px)`). El bloque de puntos y arma queda a su izquierda.
+  - **Especial (dash):** centro en `(40, -66)`, a la derecha de recargar, en ámbar. Muestra la recarga como un velo que baja dentro del círculo, con los segundos restantes.
+- **Columna de armas,** en vertical justo debajo de los puntos y el total, pegada al borde derecho (`right: var(--pad-x)`, `top: calc(var(--pad-top) + 60px)`, 4 px entre huecos).
   - Un hueco por arma que lleve el jugador, como máximo 3, de 38 px.
   - Cada hueco lleva su icono y las balas de su cargador; el activo se resalta en ámbar.
   - Tocarlo cambia a esa arma (comando `selectWeapon`). No hay botón de cambiar arma.
@@ -54,7 +54,7 @@ El HUD sigue la disposición de League of Legends: Wild Rift (decidido después 
   - a la izquierda, la mejora temporal guardada (spec 03 §5), de 46 px;
   - a la derecha, más cerca del pulgar derecho, el botón de acción (§2.4).
 - **Pausa:** 38 px.
-- **Toques con margen de error:** como en Wild Rift, cada botón responde también un poco fuera de su aro, con una zona invisible más grande (12 px; 14 px en el disparo y 6 px entre los huecos de arma). Donde se juntan dos zonas gana el botón que está encima, de modo que los botones pequeños del arco conservan su borde.
+- **Toques con margen de error:** como en Wild Rift, cada botón responde también un poco fuera de su aro, con una zona invisible más grande (12 px; 14 px en el disparo y 4 px entre los huecos de arma). Donde se juntan dos zonas gana el botón que está encima, de modo que los botones pequeños del arco conservan su borde.
 
 ### 2.4 Botón de acción contextual
 
@@ -230,11 +230,13 @@ La referencia es un iPhone en horizontal de 844×390 CSS px. Todo se posiciona r
 
 - **Fila 1:** corazón de 21×18, luego la barra de vida de 176×14 px (10 segmentos, 2 px de separación, marco `--wall`) y después el valor en Press Start 2P a 10 px.
 - **Fila 2:** `RONDA N` en Press Start 2P a 20 px, color `--red`.
+- **Fila 3:** nombre del arma (Silkscreen 11 px, `--muted`), icono de bala, cargador (Press Start 2P 14 px, `--amber`) y `/ reserva` (10 px, `--dim`). Durante la recarga, el cargador muestra una barra de progreso.
 
-**Arriba a la derecha** (`right: var(--pad-x)`, `top: 14px`), alineado a la derecha:
+**Arriba a la derecha** (`right: var(--pad-x)`, `top: 14px`), alineado a la derecha, con 5 px de separación:
 
-- **Fila 1:** `PUNTOS` (Silkscreen 11 px, `--muted`) y el marcador (Press Start 2P 20 px).
-- **Fila 2:** nombre del arma (Silkscreen 11 px, `--muted`), icono de bala, cargador (Press Start 2P 14 px, `--amber`) y `/ reserva` (10 px, `--dim`). Durante la recarga, el cargador muestra una barra de progreso.
+- **Fila 1:** `PUNTOS` (Silkscreen 11 px, `--muted`) y el marcador de puntos para gastar (Press Start 2P 20 px).
+- **Fila 2:** `TOTAL` (Silkscreen 9 px) y todos los puntos ganados en la partida, gastados o no (Press Start 2P 10 px, `--muted`).
+- **Debajo,** pegada al borde derecho, la columna de armas (§2.3).
 - **Textos flotantes `+N`:** en una pila a la izquierda de los puntos, fuera de la columna, para que esta no crezca hacia abajo.
 
 **Controles:**
@@ -247,7 +249,7 @@ La referencia es un iPhone en horizontal de 844×390 CSS px. Todo se posiciona r
 
 **Actualización del DOM:** solo cuando cambia un valor, nunca en cada frame.
 
-**Espacio para crecer:** deja una fila vacía reservada bajo el bloque izquierdo y otra bajo el derecho para futuras estadísticas y ventajas.
+**Espacio para crecer:** deja una fila vacía reservada bajo el bloque izquierdo para futuras estadísticas y ventajas. Bajo el derecho va la columna de armas.
 
 ## 6. Placeholders de mundo
 

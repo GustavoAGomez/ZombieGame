@@ -521,3 +521,17 @@ Petición del usuario.
   - posiciones fijas: con un contenedor flexible, la mejora saltaría de sitio cada vez que aparece o desaparece el botón de acción (al acercarse a una ventana, puerta o mago);
   - la etiqueta del botón de acción va encima, porque debajo quedaría pegada al borde.
 - **Comprobado** en 844×390, 800×360 y 640×360 con la tienda abierta, la mejora, el botón de acción y 3 armas a la vista: sin solapes y al menos 6 px entre botones.
+
+## HUD: armas bajo los puntos, total de puntos y arma a la izquierda
+
+Petición del usuario.
+
+- **Arriba a la derecha:**
+  - `PUNTOS`, debajo `TOTAL` con todos los puntos ganados en la partida (`PlayerState.score`, el mismo dato de la pantalla final; `points:changed` lleva ahora también `score`);
+  - justo debajo, pegada al borde derecho, la columna de armas: 38 px por hueco y 4 px entre ellos, que deja hueco al dash en pantallas de 360 px de alto;
+  - el bloque de puntos vuelve al borde.
+- **Arriba a la izquierda,** bajo la ronda: el arma en mano con su cargador, su reserva y la barra de recarga.
+  - La fila reservada para futuras estadísticas queda solo a la izquierda; bajo los puntos ya está la columna de armas.
+- **Dash:** baja a (+40, −66) del centro del disparo, para quedar a 8 px de la tercera arma a 640×360.
+- **Panel de debug:** solo sus botones reciben toques. Su fondo tapaba la zona del joystick en pantallas bajas y no se podía empezar a mover desde ahí.
+- **Comprobado** en 844×390, 800×360 y 640×360 con la tienda abierta, la mejora, el botón de acción y 3 armas: sin solapes, midiendo el contenido de los bloques del HUD y los círculos de los botones.

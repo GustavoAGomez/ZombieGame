@@ -7,7 +7,8 @@
   padding: 6px 8px;
   background: rgba(15, 14, 12, 0.8);
   box-shadow: inset 0 0 0 2px var(--door);
-  pointer-events: auto;
+  /* It lies over the joystick's zone on short screens: only its buttons take touches. */
+  pointer-events: none;
 }
 
 .debug-panel pre {
@@ -36,6 +37,7 @@
 }
 
 .debug-button {
+  pointer-events: auto;
   margin: 0;
   padding: 4px 6px;
   border: 0;

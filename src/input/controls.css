@@ -140,7 +140,9 @@
 /*
  * The arc around the fire button, like Wild Rift's abilities, with 40 px
  * buttons (centres from the fire button's centre): knife (-80, -4) on the
- * left, reload (-14, -80) above, dash (+34, -72) to the right of reload.
+ * left, reload (-14, -80) above, dash (+40, -66) to the right of reload
+ * (low enough to leave room for the weapon column above it on 360 px tall
+ * screens).
  */
 .action-button--reload {
   right: calc(var(--pad-x) + 54px);
@@ -220,17 +222,17 @@
 }
 
 /*
- * Weapon slots in a column at the top right (one per weapon carried, up to 3).
- * The HUD's points and weapon block sits to its left (hud.css).
+ * Weapon slots in a column right under the points and the total (hud.css),
+ * at the right edge: one per weapon carried, up to 3.
  */
 .weapon-column {
   position: absolute;
-  top: calc(var(--pad-top) + 12px);
+  top: calc(var(--pad-top) + 60px);
   right: var(--pad-x);
   z-index: 20;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   pointer-events: none;
 }
 
@@ -271,8 +273,8 @@
 
 /* Special (dash) to the right of reload, amber accents. */
 .action-button--special {
-  right: calc(var(--pad-x) + 6px);
-  bottom: calc(var(--pad-bottom) + 116px);
+  right: var(--pad-x);
+  bottom: calc(var(--pad-bottom) + 110px);
   color: var(--amber);
   background: rgba(232, 176, 74, 0.14);
   box-shadow: inset 0 0 0 2px rgba(232, 176, 74, 0.75);
@@ -446,6 +448,6 @@
 }
 
 .weapon-column .action-button {
-  --hit-slop: 6px;
+  --hit-slop: 4px;
 }
 

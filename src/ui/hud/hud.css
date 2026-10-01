@@ -9,13 +9,12 @@
 
 .hud-right {
   position: absolute;
-  /* Left of the weapon column (controls.css). */
-  right: calc(var(--pad-x) + 50px);
+  right: var(--pad-x);
   top: 14px;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 10px;
+  gap: 5px;
 }
 
 .hud-row {
@@ -180,6 +179,23 @@
   font-family: var(--font-display);
   font-size: 20px;
   text-shadow: 3px 3px 0 var(--ink);
+}
+
+/* Total earned this match, spent or not: smaller, under the points. */
+.hud-total {
+  align-items: baseline;
+  gap: 8px;
+}
+
+.hud-total .hud-label {
+  font-size: 9px;
+}
+
+.hud-total__value {
+  font-family: var(--font-display);
+  font-size: 10px;
+  color: var(--muted);
+  text-shadow: 2px 2px 0 var(--ink);
 }
 
 /* Row 3: floating "+N" texts that rise and fade (spec 01 §4.7). */

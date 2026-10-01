@@ -61,7 +61,7 @@ describe('HudPresenter · action chip and points', () => {
     ctx.events.on('points:changed', points);
     presenter.publish(ctx.state);
     expect(action).toHaveBeenLastCalledWith({ kind: null, amount: 0, enabled: false });
-    expect(points).toHaveBeenLastCalledWith({ points: 500 });
+    expect(points).toHaveBeenLastCalledWith({ points: 500, score: 0 });
 
     const w = ctx.map.windows[0]!;
     const p = player(ctx);

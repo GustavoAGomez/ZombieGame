@@ -26,6 +26,7 @@ export class HudPresenter {
   private hp = -1;
   private round = -1;
   private points = -1;
+  private score = -1;
   private actionKind: GameEvents['action:context']['kind'] | undefined = undefined;
   private actionMerchant: MerchantId | undefined;
   /** Last published shop panel, as a comparable string. */
@@ -74,9 +75,10 @@ export class HudPresenter {
       this.events.emit('player:health', { hp, maxHp: p.maxHp, low: hp > 0 && hp < PLAYER.lowHpThreshold });
     }
 
-    if (p.points !== this.points) {
+    if (p.points !== this.points || p.score !== this.score) {
       this.points = p.points;
-      this.events.emit('points:changed', { points: p.points });
+      this.score = p.score;
+      this.events.emit('points:changed', { points: p.points, score: p.score });
     }
 
     const kind = p.contextAction === 'none' ? null : p.contextAction;

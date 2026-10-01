@@ -28,7 +28,8 @@ export interface GameEvents {
   /** The weapons the player carries (at most LOADOUT.maxWeapons), for the slots at the bottom of the HUD. */
   'weapons:loadout': { slots: { weapon: WeaponId; magazine: number; reserve: number }[]; active: number };
   'special:cooldown': { remaining: number; total: number };
-  'points:changed': { points: number };
+  /** `points` to spend now; `score` every point earned this match, spent or not. */
+  'points:changed': { points: number; score: number };
   /**
    * Points added to a player. With a world position (x, y) the "+N" floats
    * up from there (repaired window); otherwise it floats in the HUD.
