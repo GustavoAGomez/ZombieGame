@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { decodePng } from './png';
 import type { Frame } from './sheet';
-import { E, KIT_TEMPLATE, N, S, SOLID_BASE, SOLID_NORTH_OPEN, SOLID_SOUTH_OPEN, W, kitPieces, maskLabel, solidCells, wallAutotile, wallMask, wallParts } from './wall-autotile';
+import { ARM_BASE, E, FACE_BASE, FACE_SOLID, KIT_TEMPLATE, N, S, SOLID_BASE, SOLID_NORTH_OPEN, SOLID_SOUTH_OPEN, W, hasFace, kitPieces, maskLabel, solidCells, wallAutotile, wallMask, wallParts } from './wall-autotile';
 
 const kit = (name: string): Frame => {
   const png = decodePng(readFileSync(resolve(import.meta.dirname, `../../art-src/pixellab/${name}/${name}.png`)));
@@ -27,8 +27,8 @@ describe('wall autotile', () => {
   // Sample columns: west of the strip, the strip, east of it.
   const xs = [4, 15, 27];
 
-  it('has 16 thin cases and 4 solid ones, all of 32×32', () => {
-    expect(tiles).toHaveLength(20);
+  it('has 16 thin cases, 4 solid ones, 15 arm overlays and 17 face overlays, all of 32×32', () => {
+    expect(tiles).toHaveLength(52);
     for (const t of tiles) expect([t.width, t.height]).toEqual([32, 32]);
   });
 
@@ -72,6 +72,26 @@ describe('wall autotile', () => {
     const front = tiles[SOLID_BASE + SOLID_NORTH_OPEN + SOLID_SOUTH_OPEN]!;
     expect(row(front, 3, xs)).toBe('...');
     expect(row(front, 25, xs)).toBe('###');
+  });
+
+  it('has face overlays with only the face: under the band, without the strip that goes on south', () => {
+    // T junction pointing south: faces west and east of the strip, nothing above the band or on the strip.
+    const t = tiles[FACE_BASE + (E | S | W)]!;
+    expect(row(t, 10, xs)).toBe('...');
+    expect(row(t, 25, xs)).toBe('#.#');
+    expect(row(tiles[FACE_BASE + (E | W)]!, 25, xs)).toBe('###');
+    expect(row(tiles[FACE_SOLID]!, 25, xs)).toBe('###');
+    expect(row(tiles[FACE_SOLID]!, 10, xs)).toBe('...');
+    expect(hasFace(N | S)).toBe(false);
+    expect(hasFace(N)).toBe(true);
+  });
+
+  it('has arm overlays with only those arms', () => {
+    const north = tiles[ARM_BASE + N - 1]!;
+    expect(row(north, 3, xs)).toBe('.#.');
+    expect(row(north, 10, xs)).toBe('...');
+    const east = tiles[ARM_BASE + E - 1]!;
+    expect(row(east, 25, xs)).toBe('..#');
   });
 
   it('finds the cells of thick walls: inside a 2×2 square of walls', () => {

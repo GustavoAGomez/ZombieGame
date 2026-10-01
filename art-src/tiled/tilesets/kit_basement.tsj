@@ -5,11 +5,11 @@
   "name": "kit_basement",
   "tilewidth": 32,
   "tileheight": 32,
-  "tilecount": 20,
+  "tilecount": 52,
   "columns": 4,
   "image": "../../../public/assets/tiles/kit_basement.png",
   "imagewidth": 128,
-  "imageheight": 160,
+  "imageheight": 416,
   "margin": 0,
   "spacing": 0,
   "tiles": [
@@ -390,6 +390,326 @@
           "name": "piece",
           "type": "string",
           "value": "MACIZO NS"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "BRAZOS N---"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "BRAZOS -E--"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "BRAZOS NE--"
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "BRAZOS --S-"
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "BRAZOS N-S-"
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "BRAZOS -ES-"
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "BRAZOS NES-"
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "BRAZOS ---O"
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "BRAZOS N--O"
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "BRAZOS -E-O"
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "BRAZOS NE-O"
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "BRAZOS --SO"
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "BRAZOS N-SO"
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "BRAZOS -ESO"
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "BRAZOS NESO"
+        }
+      ]
+    },
+    {
+      "id": 35,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "CARA ----"
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "CARA N---"
+        }
+      ]
+    },
+    {
+      "id": 37,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "CARA -E--"
+        }
+      ]
+    },
+    {
+      "id": 38,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "CARA NE--"
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "CARA --S-"
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "CARA N-S-"
+        }
+      ]
+    },
+    {
+      "id": 41,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "CARA -ES-"
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "CARA NES-"
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "CARA ---O"
+        }
+      ]
+    },
+    {
+      "id": 44,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "CARA N--O"
+        }
+      ]
+    },
+    {
+      "id": 45,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "CARA -E-O"
+        }
+      ]
+    },
+    {
+      "id": 46,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "CARA NE-O"
+        }
+      ]
+    },
+    {
+      "id": 47,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "CARA --SO"
+        }
+      ]
+    },
+    {
+      "id": 48,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "CARA N-SO"
+        }
+      ]
+    },
+    {
+      "id": 49,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "CARA -ESO"
+        }
+      ]
+    },
+    {
+      "id": 50,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "CARA NESO"
+        }
+      ]
+    },
+    {
+      "id": 51,
+      "properties": [
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "CARA MACIZO"
         }
       ]
     }

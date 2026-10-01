@@ -307,3 +307,13 @@ Registro de lo que la spec no definía (o definía de forma ambigua) y cómo se 
   - la columna `suelo` de la tabla de zonas desaparece;
   - las raras ya no se agrupan con ruido: en las manchas densas caían una sí y otra no, y formaban un tablero.
 - **Volteos de suelo guardados en el tileset** (64 tiles). Cada baldosa va en un volteo al azar para que ninguna marca se repita en cuadrícula. Phaser 4 dibuja en negro los tiles de una capa con `flipX`/`flipY`, así que los volteos se guardan en el tileset y no se hacen en tiempo de ejecución.
+
+## Paredes unidas: un borde superior para toda la casa
+
+- **El problema:** cada pared tenía un solo kit, yeso (`#`) o lamas de fachada (`H`). Donde un tabique tocaba la fachada (el aseo del recibidor, las esquinas de cada habitación), la casilla de unión dibujaba con su kit el tramo hacia el tabique. El tabique cambiaba de material a mitad de franja y parecía que entre las dos paredes quedaba un hueco.
+- **Primer intento descartado:** repintar en cada unión los brazos con el kit de la pared vecina. No bastaba, porque un tramo recto también cambia de material cuando la fachada pasa de mirar afuera a mirar hacia una habitación, y ahí no hay unión.
+- **La solución, en 3/4:**
+  - el borde superior de todas las paredes de la casa es de yeso;
+  - la cara (el lado sur) muestra el material del lado al que mira: lamas si da afuera, yeso si da a una habitación. Va en la capa nueva `wall_faces`, con tiles de solo cara;
+  - por eso las paredes norte de las habitaciones, que son de fachada, ya no enseñan lamas por dentro.
+- **Valla contra la casa:** sus bordes superiores son distintos. Los brazos de la casa hacia la valla se repiten con el kit de la valla en la capa `wall_joins`, y manda el kit de menos rango (valla < yeso < fachada). En la mansión hay 2 uniones así.

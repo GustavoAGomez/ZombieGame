@@ -136,7 +136,7 @@ export function reviewKit(root: string, kit: string): { pieces: number } {
     resolve(out, `${kit}-autotile.png`),
     contactSheet(
       tiles.map((tile, i) => ({ frame: over(background, tile), caption: [i < SOLID_BASE ? `MASCARA ${i}` : `TILE ${i}`, tileLabel(i)] })),
-      { columns: 4, scale: 5, title: `${kit}: 16 casos de pared (N E S O) y 4 de muro grueso` },
+      { columns: 4, scale: 5, title: `${kit}: 16 casos, 4 macizos, brazos y caras` },
     ),
   );
   write(resolve(out, `${kit}-prueba.png`), renderWallTest(tiles, testFloor(root, kit), WALL_TEST_PLAN));

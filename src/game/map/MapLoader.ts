@@ -197,6 +197,10 @@ export interface MapData {
   /** Soft shadows at the foot of walls and furniture (drawn over the floor). */
   shadows: Int32Array;
   walls: Int32Array;
+  /** Front faces in the kit of the side they look onto, drawn over `walls` (0 where the face is the wall's own). */
+  wallFaces: Int32Array;
+  /** Arms of a junction in the kit of the wall they reach, drawn over the faces (0 where walls of one kit meet). */
+  wallJoins: Int32Array;
   decor: Int32Array;
   decals: MapDecal[];
   props: MapProp[];
@@ -392,6 +396,8 @@ export function parseMap(json: unknown): MapData {
   const floor = toGids(tileLayer(map, LAYER_NAMES.floor, true), size);
   const walls = toGids(tileLayer(map, LAYER_NAMES.walls, true), size);
   const decor = toGids(tileLayer(map, LAYER_NAMES.decor, false), size);
+  const wallFaces = toGids(tileLayer(map, LAYER_NAMES.wallFaces, false), size);
+  const wallJoins = toGids(tileLayer(map, LAYER_NAMES.wallJoins, false), size);
   const shadows = toGids(tileLayer(map, LAYER_NAMES.shadows, false), size);
   const decals = parseDecals(map);
   const props = parseProps(map, tileSize);
@@ -567,6 +573,8 @@ export function parseMap(json: unknown): MapData {
     floor,
     shadows,
     walls,
+    wallFaces,
+    wallJoins,
     decor,
     decals,
     props,

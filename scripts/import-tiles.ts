@@ -16,7 +16,7 @@ import { floorCells } from './lib/floor-cells';
 import { decodePng, encodePng } from './lib/png';
 import { blank, cut, paste, type Frame } from './lib/sheet';
 import { prop, tileset, type Tsj } from './lib/tiled-tileset';
-import { SOLID_BASE, STRIP, flipY, kitPieces, mirrorX, tileLabel, wallAutotile, wallParts } from './lib/wall-autotile';
+import { ARM_BASE, SOLID_BASE, STRIP, flipY, kitPieces, mirrorX, tileLabel, wallAutotile, wallParts } from './lib/wall-autotile';
 import { cornerWangId, cornersOf, measureWangSheet, orderTerrains, type TerrainRule } from './lib/wang';
 
 const TILE = 32;
@@ -149,7 +149,8 @@ function importFloors(p: Paths, log: (l: string) => void): ImportedTileset {
  * A Building kit as a wall autotile of 32×32 tiles, composed from the kit's
  * pieces with the 3/4 perspective rules (docs/ASSETS.md §7.2): tiles 0–15
  * by mask of wall neighbours (N=1, E=2, S=4, W=8), 16–19 the solid tiles
- * of thick walls.
+ * of thick walls, 20–34 the arms alone (overlays where two kits meet),
+ * 35–51 the faces alone (overlays in the kit of the side the face looks onto).
  */
 function importKit(p: Paths, name: string, log: (l: string) => void): ImportedTileset {
   const tiles = wallAutotile(wallParts(kitPieces(readFrame(p.source(name)), name)));
@@ -159,10 +160,10 @@ function importKit(p: Paths, name: string, log: (l: string) => void): ImportedTi
   const tsj = tileset(name, imagePath(p, name), out.width, out.height, TILE, TILE);
   tsj.tiles = tiles.map((_, id) => ({
     id,
-    properties: [prop('collides', true), ...(id < SOLID_BASE ? [prop('mask', id)] : []), prop('piece', tileLabel(id))],
+    properties: [...(id < ARM_BASE ? [prop('collides', true)] : []), ...(id < SOLID_BASE ? [prop('mask', id)] : []), prop('piece', tileLabel(id))],
   }));
   writeTsj(p, tsj);
-  log(`  ✓ ${name}: 20 piezas por componentes conexos → autotile de 16 casos + ${tiles.length - SOLID_BASE} de muro grueso, de ${TILE}×${TILE}`);
+  log(`  ✓ ${name}: 20 piezas por componentes conexos → autotile de 16 casos, 4 de muro grueso, 15 de uniones y 17 de caras, de ${TILE}×${TILE}`);
   return { name, tileWidth: TILE, tileHeight: TILE };
 }
 

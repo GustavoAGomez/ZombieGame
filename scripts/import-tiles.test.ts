@@ -32,9 +32,10 @@ describe('importTiles (end to end on a copy of the repo)', () => {
     expect(water).toEqual([1, 3, 4, 5, 6, 7, 8, 9, 11, 13, 14, 15]);
     expect(pool.image).toBe('../../../public/assets/tiles/tileset_pool.png');
 
-    // Kits: a wall autotile of 32×32 tiles, id = mask of neighbours for 0–15, then 4 solid tiles of thick walls.
+    // Kits: a wall autotile of 32×32 tiles: id = mask of neighbours for 0–15, 4 solid tiles of thick walls,
+    // 15 arm overlays and 17 face overlays.
     const kit = tsj('kit_interior');
-    expect([kit.tilewidth, kit.tileheight, kit.tilecount]).toEqual([32, 32, 20]);
+    expect([kit.tilewidth, kit.tileheight, kit.tilecount]).toEqual([32, 32, 52]);
     expect(kit.tiles?.[5]?.properties).toContainEqual({ name: 'collides', type: 'bool', value: true });
     expect(kit.tiles?.[5]?.properties).toContainEqual({ name: 'mask', type: 'int', value: 5 });
     expect(tsj('map_special').tiles?.[0]?.properties).toContainEqual({ name: 'void', type: 'bool', value: true });

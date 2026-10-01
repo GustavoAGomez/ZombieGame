@@ -99,6 +99,8 @@ Los tilesets deben ir **embebidos** en el `.tmj` que carga el juego (`public/ass
 |---|---|---|
 | `floor` | tiles | suelo |
 | `walls` | tiles | paredes; cada tile con la propiedad `collides: true` |
+| `wall_faces` | tiles | la cara frontal de una pared en el kit del lado al que mira, encima de `walls` (opcional; la genera `map:build`) |
+| `wall_joins` | tiles | los brazos de una unión con el kit de la pared a la que llegan, encima de las caras (opcional; la genera `map:build`) |
 | `shadows` | tiles | sombras suaves al pie de paredes y muebles, tileset `map_shadows` (opcional; la genera `map:build`). Una pared vertical solo sombrea su propia casilla, a la derecha de su franja |
 | `decor` | tiles | detalles del suelo sin colisión, dibujados entre el suelo y las sombras (opcional). `map:build` pone aquí, bajo cada pared vertical, la mitad derecha del suelo de la derecha (tileset `floor_halves`) |
 | `decals` | objetos | *tile objects* sin colisión, en cualquier posición y con volteo horizontal o vertical (opcional) |
@@ -159,7 +161,7 @@ Los exports están en `art-src/pixellab/<grupo>/<grupo>.png`, con un `README.md`
 |---|---|---|
 | Tilesets Wang (`tileset_*`, export "Wang") | Lámina de 160×128 = 5×4 celdas de 32×32; 17 tiles (las 16 combinaciones de esquinas + "todo terreno 0" repetido) y 3 celdas vacías | Tal cual, con un wangset de tipo `corner` en un `.tsj` |
 | Tiles sueltos (`floors_interior`) | 4×4 celdas de unos 48 px, irregulares y con contornos oscuros (§7.4) | Una celda por componente conexo, sin contorno, a 32×32; 64 tiles: los 16 y sus volteos |
-| Kits Building (`kit_*`) | 20 piezas sobre fondo transparente, detectadas por componentes conexos; paredes en 3/4 de hasta 32×37 (§7.2) | Autotile de 32×32: 16 casos por máscara de vecinos y 4 de muro grueso |
+| Kits Building (`kit_*`) | 20 piezas sobre fondo transparente, detectadas por componentes conexos; paredes en 3/4 de hasta 32×37 (§7.2) | Autotile de 32×32: 16 casos por máscara de vecinos, 4 de muro grueso, 15 de brazos y 17 de caras |
 | Decals (`decals_*`) | 4×4 celdas de 48×48 con transparencia | Objetos libres en la capa `decals` |
 
 - **Esquinas de los Wang:** las mide el importador en cada ejecución sin suponer el orden de los tiles (§7.3).
@@ -242,6 +244,12 @@ Los casos con brazos horizontales llevan la banda en los brazos y la franja vert
 - **Borde superior:** ancho, de la pieza #11, sin cara (se apila con volteos).
 - **Norte abierto:** el bloque empieza a la altura de la banda, y por encima se ve el suelo del norte.
 - **Sur abierto:** termina con la banda y la cara de un tramo horizontal.
+
+**Borde superior y cara de distinto kit.** En 3/4 la cara de una pared es su lado sur, así que un mismo muro de fachada puede mirar afuera o hacia una habitación. Antes, cada pared tenía un solo kit, y donde se juntaban un tabique de yeso y la fachada de lamas el tabique cambiaba de material a mitad de franja y parecía que no llegaba a tocarla. Ahora:
+
+- **Borde superior:** todas las paredes de la casa (`#` y `H`) usan el de yeso, y se leen como una sola estructura.
+- **Cara:** cada una muestra el lado al que mira, con lamas si da afuera y yeso si da a una habitación. Va en la capa `wall_faces` con los tiles de cara (35–50 por máscara y 51 para un muro grueso).
+- **Valla contra la casa:** sus bordes superiores son distintos. Los brazos de la casa hacia la valla se repiten con el kit de la valla en la capa `wall_joins` (tiles 20–34), y así la valla llega hasta la casa. Manda el kit de menos rango: valla < yeso < fachada.
 
 `map:build` elige el tile por la máscara de vecinos, en los que cuentan las paredes, vallas, puertas y barricadas; un hueco abierto corta la pared. Bajo las partes transparentes pone el suelo de cada lado: la capa `floor` lleva el de la izquierda y la capa `decor`, la mitad derecha del de la derecha (`floor_halves`).
 

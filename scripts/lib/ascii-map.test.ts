@@ -182,9 +182,9 @@ describe('compileAsciiMap', () => {
       expect(cellBlocks(grid, 40, 7, BLOCK_PLAYER)).toBe(false); // pool corner: one water corner
     });
 
-    it('picks the wall kit from the character and the zone', () => {
+    it('picks the wall kit from the character and the zone (the house shares the plaster top edge)', () => {
       expect(kitAt(32, 31)).toBe('kit_interior');
-      expect(kitAt(15, 30)).toBe('kit_exterior');
+      expect(kitAt(15, 30)).toBe('kit_interior');
       expect(kitAt(30, 2)).toBe('kit_fence');
       expect(kitAt(90, 30)).toBe('kit_basement');
       expect(kitAt(94, 8)).toBe('kit_basement'); // roof chimney
@@ -206,6 +206,19 @@ describe('compileAsciiMap', () => {
       expect(Object.fromEntries((half?.properties ?? []).map((q) => [q.name, q.value]))).toEqual({ tileset: 'floors_interior', tile: 6 }); // linoleum, clean
       // Between two rooms of the same floor nothing is added.
       expect(map.decor[31 * map.width + 32]).toBe(0);
+    });
+
+    it('gives every wall of the house the same top edge and each face the side it looks onto', () => {
+      const tilesetAt = (layerData: Int32Array, x: number, y: number) => tilesetForGid(map.tilesets, layerData[y * map.width + x] ?? 0)?.name;
+      // The bathroom's partition and the facade it meets share the plaster top edge…
+      expect(tilesetAt(map.walls, 47, 39)).toBe('kit_interior');
+      expect(tilesetAt(map.walls, 47, 40)).toBe('kit_interior');
+      // …and the facade's face, which looks outside, is siding.
+      expect(tilesetAt(map.wallFaces, 47, 40)).toBe('kit_exterior');
+      // A facade wall whose face looks into the library keeps the plaster face.
+      expect(map.wallFaces[16 * map.width + 23]).toBe(0);
+      // A vertical run only shows its top edge: no face.
+      expect(map.wallFaces[25 * map.width + 15]).toBe(0);
     });
 
     it('puts every barricade spawn two tiles outside, where zombies come from', () => {

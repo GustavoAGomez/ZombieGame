@@ -56,6 +56,9 @@ export class MapView {
       ['decor', map.decor, DEPTH.floorDetail, false],
       ['shadows', map.shadows, DEPTH.shadows, false],
       ['walls', map.walls, DEPTH.walls, true],
+      // Created after the walls, so at the same depth they draw over them: faces, then junction arms.
+      ['wall_faces', map.wallFaces, DEPTH.walls, true],
+      ['wall_joins', map.wallJoins, DEPTH.walls, true],
     ];
     for (const [name, data, depth, ySorted] of layers) {
       const layer = gridTilesets.length > 0 ? tilemap.createBlankLayer(name, gridTilesets, 0, 0) : null;

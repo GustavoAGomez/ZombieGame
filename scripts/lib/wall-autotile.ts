@@ -20,6 +20,17 @@
  * solid tiles after the 16 (SOLID_BASE + 2 if the north is open + 1 if the
  * south is open), a wide top edge that shows its face only to the south.
  *
+ * The top edge and the front face of a wall can come from different kits:
+ * all the walls of the house share one top edge, and only the face shows
+ * the material of the side it looks onto (siding outside, plaster inside).
+ * 17 face tiles (FACE_BASE + mask, FACE_BASE + 16 for a thick wall) are
+ * drawn over the wall in the face's kit.
+ *
+ * Where walls with different top edges meet (a fence against the house),
+ * the arms of the junction take the kit of the wall they reach: 15 arm
+ * tiles (ARM_BASE + mask of arms - 1) are drawn over the junction, so the
+ * fence runs right up to the house instead of changing material half way.
+ *
  * Geometry of every tile (measured on the kits):
  *   - vertical top edge: a 12 px strip at x 10..21 (STRIP);
  *   - horizontal top edge: a 7 px band at y 7..13 (BAND), the front face
@@ -39,6 +50,13 @@ export const FACE = { y: BAND.y + BAND.height, height: TILE - BAND.y - BAND.heig
 export const SOLID_BASE = 16;
 export const SOLID_NORTH_OPEN = 2;
 export const SOLID_SOUTH_OPEN = 1;
+
+/** First of the 15 arm tiles: ARM_BASE + mask of arms - 1, only those arms (overlays at junctions between kits). */
+export const ARM_BASE = SOLID_BASE + 4;
+
+/** First of the 17 face tiles: FACE_BASE + mask (thin walls), FACE_SOLID (thick wall open to the south). */
+export const FACE_BASE = ARM_BASE + 15;
+export const FACE_SOLID = FACE_BASE + 16;
 
 /** Bits of the neighbour mask. */
 export const N = 1;
@@ -298,16 +316,65 @@ export function solidTile(parts: WallParts, northOpen: boolean, southOpen: boole
   return out;
 }
 
-/** The 20 tiles: index = mask for the 16 thin walls, then the 4 solid tiles of thick walls. */
+/**
+ * Only the arms of `armMask`, cut from the cross: north and south the strip
+ * of top edge, east and west the band with the face under it.
+ */
+export function armTile(parts: WallParts, armMask: number): Frame {
+  const cross = wallTile(parts, N | E | S | W);
+  const out = blank(TILE, TILE);
+  const east = STRIP.x + STRIP.width;
+  if (armMask & N) copyRegion(out, cross, STRIP.x, 0, STRIP.width, BAND.y, STRIP.x, 0);
+  if (armMask & S) copyRegion(out, cross, STRIP.x, FACE.y, STRIP.width, TILE - FACE.y, STRIP.x, FACE.y);
+  if (armMask & E) copyRegion(out, cross, east, BAND.y, TILE - east, TILE - BAND.y, east, BAND.y);
+  if (armMask & W) copyRegion(out, cross, 0, BAND.y, STRIP.x, TILE - BAND.y, 0, BAND.y);
+  return out;
+}
+
+/** Whether a thin wall with this mask shows a front face (under a horizontal arm, or at the south end). */
+export function hasFace(mask: number): boolean {
+  return (mask & (E | W)) !== 0 || (mask & S) === 0;
+}
+
+/**
+ * Only the front face of a wall tile: what lies under its band (or under
+ * its cap at the south end), without the strip of top edge that goes on
+ * south. A thick wall's face spans the whole width.
+ */
+export function faceTile(parts: WallParts, mask: number | 'solid'): Frame {
+  const out = blank(TILE, TILE);
+  if (mask === 'solid') {
+    copyRegion(out, solidTile(parts, false, true), 0, FACE.y, TILE, FACE.height, 0, FACE.y);
+    return out;
+  }
+  const full = wallTile(parts, mask);
+  copyRegion(out, full, 0, FACE.y, TILE, FACE.height, 0, FACE.y);
+  if (mask & S) {
+    // The strip that continues south is top edge, not face.
+    for (let y = FACE.y; y < TILE; y++) out.pixels.fill(0, (y * TILE + STRIP.x) * 4, (y * TILE + STRIP.x + STRIP.width) * 4);
+  }
+  return out;
+}
+
+/**
+ * The 52 tiles of a kit: index = mask for the 16 thin walls, then the 4
+ * solid tiles of thick walls, the 15 arm overlays for junctions between
+ * kits and the 17 face overlays.
+ */
 export function wallAutotile(parts: WallParts): Frame[] {
   const thin = Array.from({ length: 16 }, (_, mask) => wallTile(parts, mask));
   const solid = Array.from({ length: 4 }, (_, i) => solidTile(parts, (i & SOLID_NORTH_OPEN) !== 0, (i & SOLID_SOUTH_OPEN) !== 0));
-  return [...thin, ...solid];
+  const arms = Array.from({ length: 15 }, (_, i) => armTile(parts, i + 1));
+  const faces = [...Array.from({ length: 16 }, (_, mask) => faceTile(parts, mask)), faceTile(parts, 'solid')];
+  return [...thin, ...solid, ...arms, ...faces];
 }
 
 /** Caption of a tile of the autotile. */
 export function tileLabel(index: number): string {
   if (index < SOLID_BASE) return maskLabel(index);
+  if (index === FACE_SOLID) return 'CARA MACIZO';
+  if (index >= FACE_BASE) return `CARA ${maskLabel(index - FACE_BASE)}`;
+  if (index >= ARM_BASE) return `BRAZOS ${maskLabel(index - ARM_BASE + 1)}`;
   const i = index - SOLID_BASE;
   return `MACIZO ${i & SOLID_NORTH_OPEN ? 'N' : '-'}${i & SOLID_SOUTH_OPEN ? 'S' : '-'}`;
 }

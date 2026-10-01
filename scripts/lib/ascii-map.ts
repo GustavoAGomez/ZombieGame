@@ -20,7 +20,7 @@ import type { TiledObject, TiledProperty, TiledSourceMap, TiledTileLayer } from 
 import { DECALS, SHADOW, floorVariants, placeDecals, shadowTile } from './decorate';
 import { PLAIN_TERRAIN, terrainTile, terrainVertices } from './terrain';
 import type { Tsj } from './tiled-tileset';
-import { E, SOLID_BASE, SOLID_NORTH_OPEN, SOLID_SOUTH_OPEN, W as WEST, solidCells, wallMask } from './wall-autotile';
+import { ARM_BASE, E, FACE_BASE, FACE_SOLID, N, S, SOLID_BASE, SOLID_NORTH_OPEN, SOLID_SOUTH_OPEN, W as WEST, hasFace, solidCells, wallMask } from './wall-autotile';
 
 const TILE = 32;
 
@@ -432,6 +432,12 @@ export function zoneRects(map: AsciiMap, cellZone: Int32Array, zone: number): { 
 
 // ----------------------------------------------------------------------------- compile
 
+function bitCount(n: number): number {
+  let c = 0;
+  for (let v = n; v; v &= v - 1) c++;
+  return c;
+}
+
 function hash(x: number, y: number): number {
   let h = Math.imul(x, 0x27d4eb2d) ^ Math.imul(y, 0x165667b1);
   h = Math.imul(h ^ (h >>> 15), 0x85ebca6b);
@@ -552,17 +558,30 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
   const walls = new Array<number>(W * H).fill(0);
   const wallish = (x: number, y: number): boolean => '#HFDW'.includes(at(x, y));
   const isWall = (x: number, y: number): boolean => WALLS.includes(at(x, y));
-  const kitOf = (x: number, y: number): Kit => {
-    const ch = at(x, y);
-    if (ch === 'F') return 'kit_fence';
+  /**
+   * Kits of a wall: one for its top edge, one for its front face. All the
+   * walls of the house share the plaster top edge, so a facade and the
+   * partitions that meet it read as one structure; the face shows the side
+   * it looks onto (in 3/4 the face is the south side): siding when a facade
+   * wall faces the outside, plaster when it faces a room.
+   */
+  const zoneKit = (x: number, y: number): Kit | undefined => {
     for (let dy = -1; dy <= 1; dy++) {
       for (let dx = -1; dx <= 1; dx++) {
         const kit = map.zones[cellZone[(y + dy) * W + (x + dx)] ?? -1]?.wallKit;
         if (kit && x + dx >= 0 && x + dx < W && y + dy >= 0 && y + dy < H) return kit;
       }
     }
-    return ch === 'H' ? 'kit_exterior' : 'kit_interior';
+    return undefined;
   };
+  const topKitOf = (x: number, y: number): Kit => (at(x, y) === 'F' ? 'kit_fence' : (zoneKit(x, y) ?? 'kit_interior'));
+  const faceKitOf = (x: number, y: number): Kit => {
+    const top = topKitOf(x, y);
+    if (top !== 'kit_interior' || at(x, y) !== 'H') return top;
+    return g(x, y + 1) in FLOOR_ROW ? 'kit_interior' : 'kit_exterior';
+  };
+  const wallFaces = new Array<number>(W * H).fill(0);
+  const kits: (Kit | undefined)[] = new Array<Kit | undefined>(W * H);
   const masks = new Int8Array(W * H).fill(-1);
   const solid = solidCells(W, H, isWall);
   for (let y = 0; y < H; y++) {
@@ -573,7 +592,37 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
       const tile = solid[y * W + x]
         ? SOLID_BASE + (wallish(x, y - 1) ? 0 : SOLID_NORTH_OPEN) + (wallish(x, y + 1) ? 0 : SOLID_SOUTH_OPEN)
         : mask;
-      walls[y * W + x] = firstGid[kitOf(x, y)] + tile;
+      const kit = topKitOf(x, y);
+      kits[y * W + x] = kit;
+      walls[y * W + x] = firstGid[kit] + tile;
+      const face = faceKitOf(x, y);
+      const faced = solid[y * W + x] ? !wallish(x, y + 1) : hasFace(mask);
+      if (faced && face !== kit) wallFaces[y * W + x] = firstGid[face] + (solid[y * W + x] ? FACE_SOLID : FACE_BASE + mask);
+    }
+  }
+  // Junctions between walls with different top edges (a fence against the house): the lesser kit runs
+  // into the junction of the wall it meets. That junction's arms towards it are drawn again in its kit
+  // (wall_joins layer), so the fence reaches the house instead of changing material half way.
+  const wallJoins = new Array<number>(W * H).fill(0);
+  const KIT_RANK: Record<Kit, number> = { kit_fence: 0, kit_interior: 1, kit_basement: 1, kit_exterior: 2 };
+  const directions = [
+    [N, 0, -1],
+    [E, 1, 0],
+    [S, 0, 1],
+    [WEST, -1, 0],
+  ] as const;
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const own = kits[y * W + x];
+      if (!own || solid[y * W + x]) continue;
+      const arms = new Map<Kit, number>();
+      for (const [bit, dx, dy] of directions) {
+        const other = x + dx >= 0 && y + dy >= 0 && x + dx < W && y + dy < H ? kits[(y + dy) * W + x + dx] : undefined;
+        if (other && KIT_RANK[other] < KIT_RANK[own]) arms.set(other, (arms.get(other) ?? 0) | bit);
+      }
+      // Two other kits around one junction do not happen in the plans; the one with more arms wins.
+      const [kit, armMask] = [...arms].sort((a, b) => bitCount(b[1]) - bitCount(a[1]))[0] ?? [];
+      if (kit && armMask) wallJoins[y * W + x] = firstGid[kit] + ARM_BASE + armMask - 1;
     }
   }
   const maskAt = (x: number, y: number): number => (x >= 0 && y >= 0 && x < W && y < H ? (masks[y * W + x] ?? -1) : -1);
@@ -853,12 +902,14 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
     height: H,
     tilewidth: TILE,
     tileheight: TILE,
-    nextlayerid: 8,
+    nextlayerid: 10,
     nextobjectid: nextId,
     layers: [
       tileLayer(1, 'floor', floor),
       tileLayer(6, 'shadows', shadows),
       tileLayer(2, 'walls', walls),
+      tileLayer(9, 'wall_faces', wallFaces),
+      tileLayer(8, 'wall_joins', wallJoins),
       tileLayer(3, 'decor', decor),
       { id: 4, name: 'decals', type: 'objectgroup', draworder: 'topdown', x: 0, y: 0, opacity: 1, visible: true, objects: decalObjects },
       { id: 7, name: 'props', type: 'objectgroup', draworder: 'topdown', x: 0, y: 0, opacity: 1, visible: true, objects: propObjects },

@@ -108,6 +108,8 @@ export const LAYER_NAMES = {
   floor: 'floor',
   shadows: 'shadows',
   walls: 'walls',
+  wallFaces: 'wall_faces',
+  wallJoins: 'wall_joins',
   decor: 'decor',
   decals: 'decals',
   props: 'props',

@@ -152,7 +152,11 @@ export function renderMap(mapPath: string): { image: Frame; map: MapData } {
 
   // Walls, other tall tiles and furniture with collision, y-sorted like the game does with actors.
   for (let y = 0; y < map.height; y++) {
-    for (let x = 0; x < map.width; x++) drawGid(map.walls[y * map.width + x] ?? 0, x * ts, (y + 1) * ts);
+    for (let x = 0; x < map.width; x++) {
+      drawGid(map.walls[y * map.width + x] ?? 0, x * ts, (y + 1) * ts);
+      drawGid(map.wallFaces[y * map.width + x] ?? 0, x * ts, (y + 1) * ts);
+      drawGid(map.wallJoins[y * map.width + x] ?? 0, x * ts, (y + 1) * ts);
+    }
     for (const prop of map.props) if (prop.collides && prop.y + prop.height === (y + 1) * ts) drawProp(prop);
   }
 
