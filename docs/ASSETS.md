@@ -147,20 +147,20 @@ Detectado con el primer export (jugador, septiembre de 2026):
 
 ## 7. Tiles, kits y decals del mapa definitivo (spec 02)
 
-Formato detectado en las imágenes recibidas el 1 de octubre de 2026 (copias en `art-src/reference/mansion/`). Parecen **vistas previas** de PixelLab, no exports: el importador `tiles:import` se escribirá contra el export real, como pasó con el jugador. Detalle completo en `docs/specs/02-mapa-mansion.md` §1.
+Los exports están en `art-src/pixellab/<grupo>/<grupo>.png`, con un `README.md` que describe cada grupo y el formato medido. Detalle completo en `docs/specs/02-mapa-mansion.md` §1.
 
-| Tipo | Lo recibido | Formato final que necesita el juego |
+| Tipo | Formato medido | Uso en el juego |
 |---|---|---|
-| Tiles sueltos (suelos interiores) | Lámina 4×4 de celdas de **48×48** con 1 px de separación; una fila por material (madera, linóleo, baño, hormigón) | Tiles de **32×32**, en lámina sin separaciones |
-| Wang de 16 esquinas | Lámina 4×4 de celdas de **32×18** con 1 px de separación (suelo aplastado en perspectiva) | 16 tiles de **32×32** |
-| Kits Building | Lámina de 4×5 celdas de 53×48 con 20 piezas de hasta 32×37 (paredes en 3/4); los cuatro kits comparten silueta | Una lámina por kit con celdas de **32×48** y las piezas alineadas abajo |
-| Decals | Lámina 4×4 de celdas de 48×48 con transparencia | Puede quedarse en 48×48: se colocan como objetos libres |
+| Tilesets Wang (`tileset_*`, export "Wang") | Lámina de 160×128 = 5×4 celdas de 32×32; 17 tiles (las 16 combinaciones de esquinas + "todo terreno 0" repetido) y 3 celdas vacías | Tal cual, con un wangset de tipo `corner` en un `.tsj` |
+| Tiles sueltos (`floors_interior`) | 4×4 celdas de 48×48 con 1 px de separación | Reducidos a 32×32 de forma provisional (color dominante) |
+| Kits Building (`kit_*`) | 20 piezas sobre fondo transparente, detectadas por caja delimitadora; paredes en 3/4 de hasta 32×37 | Celdas de 32×48 alineadas abajo, con `piece` y `collides` |
+| Decals (`decals_*`) | 4×4 celdas de 48×48 con transparencia | Objetos libres en la capa `decals` |
 
-- **Orden de las 16 esquinas** (medido en cubierta→agua y acera→asfalto): el tile de índice *i* tiene en sus esquinas los bits de *i* = NO·8 + NE·4 + SO·2 + SE·1. Terreno 0 = el oscuro (agua, asfalto); terreno 1 = el claro (cubierta, acera).
-- **Patio→césped** no es un Wang completo en la imagen recibida: solo 6 combinaciones de esquinas distintas.
-- **Propiedades de tile previstas** (pendientes de implementar): `collides` (ya existe), `water` (bloquea cuerpos, no balas), `void` (vacío no transitable), `material`, `piece` (papel de la pieza de un kit).
-- **Objetos previstos en la capa `objects`** (pendientes de implementar):
-  - `portal`: rectángulo de 1–2 tiles con `id`, `pair`, `cost` y `zone`.
+- **Esquinas de los Wang:** la tabla por celda está en el `README.md` de `art-src/pixellab/` y en la spec 02 §1.1. El importador la vuelve a medir en cada ejecución.
+- **Propiedades de tile:** `collides` (ya existe), `water` (bloquea cuerpos, no balas: tiles de la piscina con 2 o más esquinas de agua), `void` (vacío no transitable), `material`, `piece`.
+- **Objetos nuevos en la capa `objects`:**
+  - `portal`: rectángulo de 1–2 tiles con `id`, `pair`, `cost`, `zone` y `secondary`.
   - `window` con `kind: "fence"` para huecos de valla.
   - `zombie_spawn` sin `window` para spawns abiertos.
   - Zonas con `interior` y `openSpawns`.
+- **Tilesets externos:** se usan para editar en Tiled (`.tsj`); el mapa que carga el juego los lleva embebidos (`npm run map:build`).
