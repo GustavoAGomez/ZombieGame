@@ -1,3 +1,5 @@
+import { BULLETS } from './balance';
+
 /** Resolution, zoom and camera settings (spec 01 §1). */
 export const DISPLAY = {
   /** The canvas backing store is CSS size × devicePixelRatio, capped here. */
@@ -8,12 +10,8 @@ export const DISPLAY = {
   tileSize: 32,
   /** Camera follow smoothing (Phaser lerp, 0..1). */
   cameraLerp: 0.15,
-  /**
-   * Height above the ground plane (world px) at which bullets and the aim
-   * line are drawn: the gun height of the character art. Render only;
-   * collisions stay on the ground plane.
-   */
-  shotHeight: 12,
+  /** Height at which bullets and the aim line are drawn: the bullets' flight height. */
+  shotHeight: BULLETS.flightHeight,
 } as const;
 
 export function cappedDevicePixelRatio(dpr: number): number {

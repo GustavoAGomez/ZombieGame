@@ -67,12 +67,12 @@ describe('collecting pickups', () => {
     expect(onCollected).toHaveBeenCalledWith({ playerId: 0, kind: 'health' });
   });
 
-  it('adds one magazine to each reserve, capped at the maximum', () => {
+  it('adds PICKUPS.ammoMagazines magazines to each reserve, capped at the maximum', () => {
     const p = player(createTestContext());
     p.weapons[0]!.reserve = 10;
     p.weapons[1]!.reserve = WEAPONS.smg.maxReserve - 5;
     expect(applyPickup(p, 'ammo')).toBe(true);
-    expect(p.weapons[0]!.reserve).toBe(10 + WEAPONS.pistol.magazine);
+    expect(p.weapons[0]!.reserve).toBe(10 + WEAPONS.pistol.magazine * PICKUPS.ammoMagazines);
     expect(p.weapons[1]!.reserve).toBe(WEAPONS.smg.maxReserve);
   });
 

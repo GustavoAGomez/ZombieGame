@@ -91,6 +91,12 @@ export const BULLETS = {
   poolSize: 64,
   /** Radius used for bullet vs zombie hits. */
   radius: 1,
+  /**
+   * Height above the ground (world px) at which bullets fly: the gun height
+   * of the character art. They are drawn there and hit whatever body they
+   * cross at that height (see ZOMBIES.hurtbox).
+   */
+  flightHeight: 12,
 } as const;
 
 export const DASH = {
@@ -136,6 +142,13 @@ export const ZOMBIES = {
   } satisfies Record<ZombieKind, { speed: number; tearTime: number }>,
   /** Measured from the zombie centre to the edge of the player's hitbox. */
   attackRange: 16,
+  /**
+   * Body hit by bullets, from the feet up, as drawn (world px). Bullets fly at
+   * BULLETS.flightHeight, so they hit when they visually cross it. With a
+   * height of twice the flight height, the centre of the body at gun height
+   * falls on the zombie's ground position, where auto-aim points.
+   */
+  hurtbox: { width: 16, height: 24 },
   attackWindup: 0.35,
   attackDamage: 40,
   attackCooldown: 1.1,
@@ -228,10 +241,10 @@ export type PickupKind = 'ammo' | 'health';
 
 /** Drops from killed zombies. One roll per kill: ammo, else health, else nothing. */
 export const PICKUPS = {
-  ammoChance: 0.1,
+  ammoChance: 0.22,
   healthChance: 0.06,
   /** Magazines added to the reserve of every weapon, capped at maxReserve. */
-  ammoMagazines: 1,
+  ammoMagazines: 2,
   healthAmount: 50,
   /** Seconds on the floor before disappearing; it blinks during the last ones. */
   lifetime: 15,
