@@ -23,7 +23,7 @@ export function damagePlayer(ctx: SimContext, p: PlayerState, amount: number, fr
   const len = Math.hypot(dx, dy);
   if (len > 0) moveCircle(ctx.grid, p, (dx / len) * PLAYER.hitKnockback, (dy / len) * PLAYER.hitKnockback, PLAYER.hitboxRadius, BLOCK_PLAYER);
 
-  ctx.events.emit('player:damaged', { playerId: p.id, hp: p.hp, maxHp: p.maxHp });
+  ctx.events.emit('player:damaged', { playerId: p.id, hp: p.hp, maxHp: p.maxHp, x: p.x, y: p.y, fromX, fromY });
   if (p.hp === 0) {
     p.firing = false;
     p.aimManual = false;

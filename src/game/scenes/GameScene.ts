@@ -18,6 +18,7 @@ import { BulletViewPool } from '../entities/Bullet';
 import { MeleeSlash } from '../entities/MeleeSlash';
 import { MerchantViewPool, OffscreenArrows } from '../entities/Merchant';
 import { SpeedTrail } from '../entities/SpeedTrail';
+import { PlayerBloodStains } from '../entities/PlayerBlood';
 import { MuzzleFlash } from '../entities/MuzzleFlash';
 import { PickupViewPool } from '../entities/Pickup';
 import { PlayerView } from '../entities/Player';
@@ -59,6 +60,7 @@ export class GameScene extends Phaser.Scene {
   private readonly isDark = (x: number, y: number): boolean => this.mapView.isDark(x, y);
   private playerView!: PlayerView;
   private speedTrail!: SpeedTrail;
+  private playerStains!: PlayerBloodStains;
   private zombieViews!: ZombieViewPool;
   private bulletViews!: BulletViewPool;
   private aimLine!: AimLine;
@@ -139,6 +141,7 @@ export class GameScene extends Phaser.Scene {
     this.offscreenArrows = new OffscreenArrows(this, this.state.merchants);
     this.playerView = new PlayerView(this, playerDef);
     this.speedTrail = new SpeedTrail(this, this.playerView.sprite);
+    this.playerStains = new PlayerBloodStains(this, playerDef, events);
     this.bulletViews = new BulletViewPool(this, this.state.bullets.length, playerDef);
     this.aimLine = new AimLine(this, playerDef);
     this.muzzleFlash = new MuzzleFlash(this, playerDef);
@@ -163,6 +166,7 @@ export class GameScene extends Phaser.Scene {
       this.hud.destroy();
       this.worldTexts.destroy();
       this.bloodSpray.destroy();
+      this.playerStains.destroy();
       this.pauseMenu.destroy();
       this.pauseButton.destroy();
       this.debugDraw.destroy();
@@ -178,7 +182,10 @@ export class GameScene extends Phaser.Scene {
     this.updateLevel();
     this.syncViews(this.fixedStep.alpha, time);
     // The blood of hits freezes with the match (pause, game over).
-    this.bloodSpray.update(this.paused || this.overShown ? 0 : delta / 1000);
+    const effectsDt = this.paused || this.overShown ? 0 : delta / 1000;
+    this.bloodSpray.update(effectsDt);
+    const player = this.state.players[0];
+    if (player) this.playerStains.sync(player, this.playerView.sprite, effectsDt);
     this.debugDraw.draw(this.state, this.sim.nav, this.sim.grid);
     this.presenter.publish(this.state);
     this.updateStats();

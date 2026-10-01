@@ -243,7 +243,8 @@ describe('ZombieSystem · attacks', () => {
     z.timer = 1 / 60;
     stepSimulation(ctx, 1 / 60);
     expect(x0 - p.x).toBeCloseTo(PLAYER.hitKnockback, 3);
-    expect(onDamaged).toHaveBeenCalledWith({ playerId: 0, hp: 60, maxHp: 100 });
+    // With the player's feet (after the knockback) and where the blow came from, for the blood.
+    expect(onDamaged).toHaveBeenCalledWith({ playerId: 0, hp: 60, maxHp: 100, x: p.x, y: p.y, fromX: z.x, fromY: z.y });
   });
 
   it('kills the player at 0 HP and emits player:died once', () => {

@@ -14,6 +14,8 @@ Objetos y tiles que el juego ya usa con un placeholder. Cada entrada lleva el pr
 | `blood` | Charco de sangre podrida que deja un zombi al morir (3 formas de 16×16) | Manchas orgánicas en rojo marrón oscuro con borde casi negro y un brillo marrón | "rotten zombie blood pool, very dark red-brown, thick and glossy, top-down, 3 variants, 16x16" |
 | `blood_drop` | Gota espesa de sangre en vuelo al impactar una bala o el cuchillo (redonda, estirada hacia la derecha —la vista la gira— y pequeña; 7×7) | Gotas de sangre podrida con borde oscuro y brillo | "thick rotten blood droplet, dark red-brown, glossy, 3 frames: round, stretched to the right, small, 7x7" |
 | `blood_splat` | Salpicadura donde cae una gota (3 formas de 10×10; se desvanece en unos 2,6 s) | Salpicaduras pequeñas con alguna gota suelta | "small rotten blood splat on the floor, dark red-brown, top-down, 3 variants, 10x10" |
+| `blood_drop_fresh`, `blood_splat_fresh` | Sangre del jugador al recibir daño: gotas en vuelo y salpicaduras (mismos tamaños y fotogramas que las de sangre podrida) | Las mismas formas en rojo vivo | "fresh red blood droplet / splat, bright red, glossy, top-down", con los mismos tamaños |
+| `blood_stain` | Manchas de sangre sobre el cuerpo del jugador hasta que vuelve a tener la vida al máximo (3 formas de 6×6, una con chorreón) | Manchas pequeñas en rojo vivo | "small fresh blood stain on clothes, bright red, 6x6, 3 variants, one dripping" |
 | `melee_slash` | Tajo provisional delante del jugador mientras no exista la animación `melee` | Arco claro generado, 4 fotogramas de 32×32 dibujados hacia la derecha (la vista lo gira) | Opcional si la animación del personaje ya lleva el tajo: "knife slash swoosh arc, white, 4 frames, 32x32, facing right" |
 
 ## Iconos del HUD

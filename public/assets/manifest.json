@@ -355,6 +355,27 @@
       "frames": 3,
       "placeholder": true
     },
+    "blood_drop_fresh": {
+      "file": "sprites/objects/blood_drop_fresh.png",
+      "frameWidth": 7,
+      "frameHeight": 7,
+      "frames": 3,
+      "placeholder": true
+    },
+    "blood_splat_fresh": {
+      "file": "sprites/objects/blood_splat_fresh.png",
+      "frameWidth": 10,
+      "frameHeight": 10,
+      "frames": 3,
+      "placeholder": true
+    },
+    "blood_stain": {
+      "file": "sprites/objects/blood_stain.png",
+      "frameWidth": 6,
+      "frameHeight": 6,
+      "frames": 3,
+      "placeholder": true
+    },
     "pickup_ammo": {
       "file": "sprites/objects/pickup_ammo.png",
       "frameWidth": 16,

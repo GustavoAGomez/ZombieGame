@@ -9,7 +9,8 @@ import type { ShopItemStatus } from './shop';
 export interface GameEvents {
   'player:health': { hp: number; maxHp: number; low: boolean };
   /** A player took a hit (red border, haptics). */
-  'player:damaged': { playerId: number; hp: number; maxHp: number };
+  /** `x, y`: the player's feet; `fromX, fromY`: where the blow came from (blood sprays away from it). */
+  'player:damaged': { playerId: number; hp: number; maxHp: number; x: number; y: number; fromX: number; fromY: number };
   'player:died': { playerId: number };
   'zombie:killed': { x: number; y: number; kind: ZombieKind };
   /**

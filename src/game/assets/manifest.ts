@@ -105,6 +105,10 @@ export const ASSET_KEYS = {
   /** Drops of a hit's blood spray, in flight and landed (BloodSpray). */
   bloodDrop: 'blood_drop',
   bloodSplat: 'blood_splat',
+  /** The player's blood: fresh red drops and splats, and the stains left on the body until full health. */
+  bloodDropFresh: 'blood_drop_fresh',
+  bloodSplatFresh: 'blood_splat_fresh',
+  bloodStain: 'blood_stain',
   pickupAmmo: 'pickup_ammo',
   pickupHealth: 'pickup_health',
   muzzleFlash: 'muzzle_flash',

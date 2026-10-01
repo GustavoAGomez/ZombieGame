@@ -608,3 +608,18 @@ Petición del usuario: sangre algo viscosa de rojo oscuro, como podrida, en cada
   - en los zombis sobre la oscuridad (en una ventana del exterior) la sangre se dibuja sobre la niebla y no deja salpicadura.
 - **Charcos de muerte** (`blood`): redibujados con formas orgánicas y la paleta podrida. Siguen siendo uno por zombi muerto (40 como máximo).
 - Los charcos de sangre del atrezo y los decals del mapa no cambian: el usuario pidió los que dejan los zombis.
+
+## Sangre del jugador y manchas hasta curarse
+
+Petición del usuario: sangre de color normal al recibir daño, y que el jugador quede manchado en sitios aleatorios hasta tener la vida al máximo.
+
+- **Evento:** `player:damaged` lleva ahora los pies del jugador y de dónde vino el golpe (`x, y, fromX, fromY`).
+- **Salpicadura:** la misma vista de gotas que la de los zombis (`BloodSprayPool`), con la paleta de sangre fresca (rojo vivo `#a3161a`, borde `#5c0c0d`, brillo `#ea6a4e`). Salen 4–6 gotas desde el pecho, en dirección contraria al golpe, más una hacia atrás y dos que gotean.
+- **Manchas** (`PlayerBloodStains`):
+  - cada golpe deja 1 o 2 manchas de 6×6 en sitios al azar del cuerpo, 10 como máximo;
+  - siguen al sprite y se ocultan en la pose de muerte;
+  - al volver a la vida máxima (por regeneración o botiquín) se desvanecen en 0,5 s; un golpe durante ese desvanecido las conserva.
+- **Dónde caen las manchas:** al empezar la partida se leen los fotogramas de idle, walk, shoot y shoot_walk del jugador (también con placeholders). Solo valen los píxeles opacos en al menos el 85 % de los fotogramas y cuyas cuatro vecinas también lo son (`bodySpots`). Así una mancha nunca queda flotando fuera de la silueta, aunque cambien la pose o la dirección.
+  - Con el sprite actual salen 260 sitios, del pecho a las piernas.
+  - Las manchas no siguen a una parte concreta del cuerpo al girar: se quedan en el mismo punto respecto a los pies.
+- Son solo visuales: usan `Math.random`, no el estado de la partida.

@@ -40,6 +40,11 @@ export const PLACEHOLDER_COLORS = {
   blood: '#4a120e',
   bloodMid: '#621a12',
   bloodSheen: '#8c3c24',
+  /** Fresh (the player's) blood: bright red. */
+  freshDark: '#5c0c0d',
+  fresh: '#a3161a',
+  freshMid: '#c42620',
+  freshSheen: '#ea6a4e',
   generic: '#8a3fa0',
 } as const;
 
@@ -250,12 +255,41 @@ function drawPortal(ctx: Ctx, frame: number, ox: number, oy: number, w: number, 
 /** Irregular blood splat; each frame is a different shape. */
 type Blob = readonly [cx: number, cy: number, rx: number, ry: number];
 
+interface GorePalette {
+  dark: string;
+  base: string;
+  mid: string;
+  sheen: string;
+}
+
+const ROTTEN: GorePalette = {
+  dark: PLACEHOLDER_COLORS.bloodDark,
+  base: PLACEHOLDER_COLORS.blood,
+  mid: PLACEHOLDER_COLORS.bloodMid,
+  sheen: PLACEHOLDER_COLORS.bloodSheen,
+};
+const FRESH: GorePalette = {
+  dark: PLACEHOLDER_COLORS.freshDark,
+  base: PLACEHOLDER_COLORS.fresh,
+  mid: PLACEHOLDER_COLORS.freshMid,
+  sheen: PLACEHOLDER_COLORS.freshSheen,
+};
+
 /**
- * Rotten blood drawn from ellipses (offsets from the frame's centre): a dark
- * rim, the dark red body, a lighter patch and a 1–2 px sheen towards the top
- * left, so it reads thick and wet. `dots` are loose drops around it.
+ * Blood drawn from ellipses (offsets from the frame's centre): a dark rim,
+ * the body, a lighter patch and a 1–2 px sheen towards the top left, so it
+ * reads thick and wet. `dots` are loose drops around it.
  */
-function drawGore(ctx: Ctx, ox: number, oy: number, w: number, h: number, blobs: readonly Blob[], dots: readonly (readonly [number, number])[] = []): void {
+function drawGore(
+  ctx: Ctx,
+  ox: number,
+  oy: number,
+  w: number,
+  h: number,
+  blobs: readonly Blob[],
+  dots: readonly (readonly [number, number])[] = [],
+  palette: GorePalette = ROTTEN,
+): void {
   const cx = w / 2;
   const cy = h / 2;
   const inside = (x: number, y: number): boolean =>
@@ -268,18 +302,18 @@ function drawGore(ctx: Ctx, ox: number, oy: number, w: number, h: number, blobs:
       // Position inside the main blob: lighter towards its upper left.
       const u = (x + 0.5 - cx - mx) / mrx;
       const v = (y + 0.5 - cy - my) / mry;
-      let color: string = PLACEHOLDER_COLORS.blood;
-      if (rim) color = PLACEHOLDER_COLORS.bloodDark;
-      else if (u * u + v * v < 0.35 && u + v < -0.2) color = PLACEHOLDER_COLORS.bloodMid;
+      let color = palette.base;
+      if (rim) color = palette.dark;
+      else if (u * u + v * v < 0.35 && u + v < -0.2) color = palette.mid;
       rect(ctx, color, ox + x, oy + y, 1, 1);
     }
   }
   // The sheen: one or two light pixels on the upper left of the main blob.
   const sx = Math.round(cx + mx - mrx * 0.35);
   const sy = Math.round(cy + my - mry * 0.35);
-  if (inside(sx, sy)) rect(ctx, PLACEHOLDER_COLORS.bloodSheen, ox + sx, oy + sy, 1, 1);
-  if (mrx >= 3 && inside(sx + 1, sy)) rect(ctx, PLACEHOLDER_COLORS.bloodSheen, ox + sx + 1, oy + sy, 1, 1);
-  for (const [dx, dy] of dots) rect(ctx, PLACEHOLDER_COLORS.bloodDark, ox + Math.round(cx + dx), oy + Math.round(cy + dy), 1, 1);
+  if (inside(sx, sy)) rect(ctx, palette.sheen, ox + sx, oy + sy, 1, 1);
+  if (mrx >= 3 && inside(sx + 1, sy)) rect(ctx, palette.sheen, ox + sx + 1, oy + sy, 1, 1);
+  for (const [dx, dy] of dots) rect(ctx, palette.dark, ox + Math.round(cx + dx), oy + Math.round(cy + dy), 1, 1);
 }
 
 /** Pool of rotten blood left by a dead zombie (3 shapes). */
@@ -294,20 +328,26 @@ function drawBlood(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h
 }
 
 /** A thick drop of blood in flight: round, stretched (drawn towards +x; the view turns it) and small. */
-function drawBloodDrop(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number): void {
+function drawBloodDrop(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number, palette: GorePalette): void {
   const shapes: readonly Blob[][] = [[[0, 0, 2.3, 2.3]], [[0.5, 0, 2.9, 1.6], [-1.5, 0, 1.4, 1.4]], [[0, 0, 1.5, 1.5]]];
-  drawGore(ctx, ox, oy, w, h, shapes[frame % shapes.length] ?? []);
+  drawGore(ctx, ox, oy, w, h, shapes[frame % shapes.length] ?? [], [], palette);
 }
 
 /** Where a drop lands: a small splat with a loose drop or two (3 shapes). */
-function drawBloodSplat(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number): void {
+function drawBloodSplat(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number, palette: GorePalette): void {
   const shapes: readonly { blobs: Blob[]; dots: [number, number][] }[] = [
     { blobs: [[0, 0, 2.8, 2], [1.8, 0.8, 1.4, 1.2]], dots: [[4, -2]] },
     { blobs: [[0, 0, 2.2, 2.2], [-1.6, 1, 1.3, 1]], dots: [[-4, -1], [3.5, 2.5]] },
     { blobs: [[0, 0, 3, 1.6]], dots: [[3.5, -2], [-3.5, 1.5]] },
   ];
   const shape = shapes[frame % shapes.length];
-  if (shape) drawGore(ctx, ox, oy, w, h, shape.blobs, shape.dots);
+  if (shape) drawGore(ctx, ox, oy, w, h, shape.blobs, shape.dots, palette);
+}
+
+/** A small stain of fresh blood on the player's body, one with a drip (3 shapes). */
+function drawBloodStain(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number): void {
+  const shapes: readonly Blob[][] = [[[0, 0, 2, 1.6]], [[0, -0.5, 1.6, 1.6], [0, 1.5, 0.7, 1.2]], [[-0.5, 0, 2.2, 1.2], [1.2, 0.8, 1, 1]]];
+  drawGore(ctx, ox, oy, w, h, shapes[frame % shapes.length] ?? [], [], FRESH);
 }
 
 /** Olive ammo box with three amber rounds. */
@@ -485,10 +525,15 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
         drawBlood(ctx, col, ox, oy, w, h);
         break;
       case ASSET_KEYS.bloodDrop:
-        drawBloodDrop(ctx, col, ox, oy, w, h);
+      case ASSET_KEYS.bloodDropFresh:
+        drawBloodDrop(ctx, col, ox, oy, w, h, object === ASSET_KEYS.bloodDrop ? ROTTEN : FRESH);
         break;
       case ASSET_KEYS.bloodSplat:
-        drawBloodSplat(ctx, col, ox, oy, w, h);
+      case ASSET_KEYS.bloodSplatFresh:
+        drawBloodSplat(ctx, col, ox, oy, w, h, object === ASSET_KEYS.bloodSplat ? ROTTEN : FRESH);
+        break;
+      case ASSET_KEYS.bloodStain:
+        drawBloodStain(ctx, col, ox, oy, w, h);
         break;
       case ASSET_KEYS.pickupAmmo:
         drawAmmoPickup(ctx, ox, oy, w, h);
