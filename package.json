@@ -16,7 +16,8 @@
     "cap:android": "cap open android",
     "map:gen": "tsx scripts/gen-placeholder-map.ts",
     "assets:import": "tsx scripts/import-pixellab.ts",
-    "assets:check": "tsx scripts/check-assets.ts"
+    "assets:check": "tsx scripts/check-assets.ts",
+    "tiles:import": "tsx scripts/import-tiles.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",

@@ -1,0 +1,177 @@
+{
+  "type": "tileset",
+  "version": "1.10",
+  "tiledversion": "1.11.0",
+  "name": "floors_interior",
+  "tilewidth": 32,
+  "tileheight": 32,
+  "tilecount": 16,
+  "columns": 4,
+  "image": "../../../public/assets/tiles/floors_interior.png",
+  "imagewidth": 128,
+  "imageheight": 128,
+  "margin": 0,
+  "spacing": 0,
+  "tiles": [
+    {
+      "id": 0,
+      "properties": [
+        {
+          "name": "material",
+          "type": "string",
+          "value": "madera"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "properties": [
+        {
+          "name": "material",
+          "type": "string",
+          "value": "madera"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "properties": [
+        {
+          "name": "material",
+          "type": "string",
+          "value": "madera"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "properties": [
+        {
+          "name": "material",
+          "type": "string",
+          "value": "madera"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "properties": [
+        {
+          "name": "material",
+          "type": "string",
+          "value": "linoleo"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "properties": [
+        {
+          "name": "material",
+          "type": "string",
+          "value": "linoleo"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "properties": [
+        {
+          "name": "material",
+          "type": "string",
+          "value": "linoleo"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "properties": [
+        {
+          "name": "material",
+          "type": "string",
+          "value": "linoleo"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "properties": [
+        {
+          "name": "material",
+          "type": "string",
+          "value": "bano"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "properties": [
+        {
+          "name": "material",
+          "type": "string",
+          "value": "bano"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "properties": [
+        {
+          "name": "material",
+          "type": "string",
+          "value": "bano"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "properties": [
+        {
+          "name": "material",
+          "type": "string",
+          "value": "bano"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "properties": [
+        {
+          "name": "material",
+          "type": "string",
+          "value": "hormigon"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "properties": [
+        {
+          "name": "material",
+          "type": "string",
+          "value": "hormigon"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "properties": [
+        {
+          "name": "material",
+          "type": "string",
+          "value": "hormigon"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "properties": [
+        {
+          "name": "material",
+          "type": "string",
+          "value": "hormigon"
+        }
+      ]
+    }
+  ]
+}

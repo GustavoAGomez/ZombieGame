@@ -212,6 +212,61 @@
       "tileWidth": 32,
       "tileHeight": 32,
       "placeholder": true
+    },
+    "tileset_street": {
+      "file": "tiles/tileset_street.png",
+      "tileWidth": 32,
+      "tileHeight": 32
+    },
+    "tileset_pool": {
+      "file": "tiles/tileset_pool.png",
+      "tileWidth": 32,
+      "tileHeight": 32
+    },
+    "tileset_garden": {
+      "file": "tiles/tileset_garden.png",
+      "tileWidth": 32,
+      "tileHeight": 32
+    },
+    "floors_interior": {
+      "file": "tiles/floors_interior.png",
+      "tileWidth": 32,
+      "tileHeight": 32
+    },
+    "kit_interior": {
+      "file": "tiles/kit_interior.png",
+      "tileWidth": 32,
+      "tileHeight": 48
+    },
+    "kit_exterior": {
+      "file": "tiles/kit_exterior.png",
+      "tileWidth": 32,
+      "tileHeight": 48
+    },
+    "kit_basement": {
+      "file": "tiles/kit_basement.png",
+      "tileWidth": 32,
+      "tileHeight": 48
+    },
+    "kit_fence": {
+      "file": "tiles/kit_fence.png",
+      "tileWidth": 32,
+      "tileHeight": 48
+    },
+    "decals_asphalt": {
+      "file": "tiles/decals_asphalt.png",
+      "tileWidth": 48,
+      "tileHeight": 48
+    },
+    "decals_grass": {
+      "file": "tiles/decals_grass.png",
+      "tileWidth": 48,
+      "tileHeight": 48
+    },
+    "map_special": {
+      "file": "tiles/map_special.png",
+      "tileWidth": 32,
+      "tileHeight": 32
     }
   },
   "objects": {

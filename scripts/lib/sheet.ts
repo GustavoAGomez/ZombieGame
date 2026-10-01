@@ -138,3 +138,104 @@ export function opaqueBounds(frame: Frame): { minX: number; minY: number; maxX: 
   }
   return maxX < 0 ? null : { minX, minY, maxX, maxY };
 }
+
+/** Copies a w×h rectangle of `img`. */
+export function cut(img: Frame, x0: number, y0: number, w: number, h: number): Frame {
+  const pixels = new Uint8Array(w * h * 4);
+  for (let y = 0; y < h; y++) {
+    const sy = y0 + y;
+    if (sy < 0 || sy >= img.height) continue;
+    for (let x = 0; x < w; x++) {
+      const sx = x0 + x;
+      if (sx < 0 || sx >= img.width) continue;
+      const s = (sy * img.width + sx) * 4;
+      pixels.set(img.pixels.subarray(s, s + 4), (y * w + x) * 4);
+    }
+  }
+  return { width: w, height: h, pixels };
+}
+
+/** Pastes `src` into `dst` at (x, y), copying only opaque pixels. */
+export function paste(dst: Frame, src: Frame, x0: number, y0: number): void {
+  for (let y = 0; y < src.height; y++) {
+    for (let x = 0; x < src.width; x++) {
+      const dx = x0 + x;
+      const dy = y0 + y;
+      if (dx < 0 || dy < 0 || dx >= dst.width || dy >= dst.height) continue;
+      const s = (y * src.width + x) * 4;
+      if ((src.pixels[s + 3] ?? 0) === 0) continue;
+      dst.pixels.set(src.pixels.subarray(s, s + 4), (dy * dst.width + dx) * 4);
+    }
+  }
+}
+
+export function blank(width: number, height: number): Frame {
+  return { width, height, pixels: new Uint8Array(width * height * 4) };
+}
+
+/**
+ * Pixel-art downscale: each output pixel takes the most frequent colour of
+ * the source block it covers, so no new colours appear.
+ */
+export function downscaleByMode(src: Frame, width: number, height: number): Frame {
+  const out = blank(width, height);
+  const fx = src.width / width;
+  const fy = src.height / height;
+  const counts = new Map<number, number>();
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      counts.clear();
+      for (let sy = Math.floor(y * fy); sy < Math.ceil((y + 1) * fy); sy++) {
+        for (let sx = Math.floor(x * fx); sx < Math.ceil((x + 1) * fx); sx++) {
+          const i = (sy * src.width + sx) * 4;
+          const key = (src.pixels[i + 3] ?? 0) === 0 ? -1 : ((src.pixels[i] ?? 0) << 16) | ((src.pixels[i + 1] ?? 0) << 8) | (src.pixels[i + 2] ?? 0);
+          counts.set(key, (counts.get(key) ?? 0) + 1);
+        }
+      }
+      let best = -1;
+      let bestCount = -1;
+      for (const [key, count] of counts) {
+        // Prefer opaque colours on ties so edges do not erode.
+        if (count > bestCount || (count === bestCount && best === -1)) {
+          best = key;
+          bestCount = count;
+        }
+      }
+      if (best >= 0) out.pixels.set([(best >> 16) & 0xff, (best >> 8) & 0xff, best & 0xff, 255], (y * width + x) * 4);
+    }
+  }
+  return out;
+}
+
+/** Fills transparent pixels with the nearest opaque one in the same row, then column. Returns how many were filled. */
+export function fillTransparent(frame: Frame): number {
+  const { width, height, pixels } = frame;
+  let filled = 0;
+  const copyFrom = (to: number, from: number): void => {
+    pixels.set(pixels.subarray(from * 4, from * 4 + 3), to * 4);
+    pixels[to * 4 + 3] = 255;
+    filled++;
+  };
+  for (let pass = 0; pass < 2; pass++) {
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const i = y * width + x;
+        if ((pixels[i * 4 + 3] ?? 0) !== 0) continue;
+        let source = -1;
+        for (let d = 1; d < Math.max(width, height) && source < 0; d++) {
+          const candidates = pass === 0 ? [[x - d, y], [x + d, y]] : [[x, y - d], [x, y + d]];
+          for (const [cx, cy] of candidates) {
+            if (cx === undefined || cy === undefined || cx < 0 || cy < 0 || cx >= width || cy >= height) continue;
+            const j = cy * width + cx;
+            if ((pixels[j * 4 + 3] ?? 0) !== 0) {
+              source = j;
+              break;
+            }
+          }
+        }
+        if (source >= 0) copyFrom(i, source);
+      }
+    }
+  }
+  return filled;
+}
