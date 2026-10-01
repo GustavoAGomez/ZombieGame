@@ -17,7 +17,7 @@ describe('HudPresenter', () => {
     stepSimulation(ctx, 1 / 60);
     presenter.publish(ctx.state);
     expect(weapon).toHaveBeenCalledTimes(1);
-    expect(weapon).toHaveBeenLastCalledWith({ weapon: 'pistol', magazine: 8, reserve: 64, reloadProgress: null, switching: false });
+    expect(weapon).toHaveBeenLastCalledWith({ weapon: 'pistol', level: 0, special: false, magazine: 8, reserve: 64, reloadProgress: null, switching: false });
     expect(cooldown).toHaveBeenCalledTimes(1);
 
     command(ctx).fire = true;

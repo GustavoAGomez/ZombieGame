@@ -86,7 +86,9 @@ export class InputCollector {
     // F / Enter mirror the chip on desktop.
     cmd.actionPressed = this.chip.consumePress() || kb.consumePress('KeyF') || kb.consumePress('Enter');
     cmd.action = this.chip.isHeld || kb.isDown('KeyF') || kb.isDown('Enter');
-    cmd.shopBuy = this.shop.consumeBuy();
+    const bought = this.shop.consumeBuy();
+    cmd.shopBuy = bought?.item ?? -1;
+    cmd.shopSlot = bought?.slot ?? -1;
     cmd.shopClose = this.shop.consumeClose();
     cmd.boost = this.boost.consume() || kb.consumePress('KeyB');
     return cmd;

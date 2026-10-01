@@ -28,6 +28,7 @@ Iconos en píxeles provisionales en `src/ui/icons.ts` (rectángulos sobre una re
 | `hammer`, `door`, `stairs` | Botón de acción de la derecha: reparar, comprar puerta, abrir escalera o trampilla |
 | `reload`, `knife`, `bolt` | Recargar, cuchillo y especial |
 | `wizard` | Botón de acción junto a un mago (sombrero de su color) |
+| `star` | Nivel de mejora del arma: una estrella por nivel junto a su nombre |
 | `bolt`, `x2` | Mejoras temporales (velocidad, doble daño): botón de la mejora y fila de la tienda |
 | `bullet`, `rifle`, `crosshair` | Iconos de los artículos de la tienda (munición máxima, mejorar arma, mejora especial), en el color del mago |
 

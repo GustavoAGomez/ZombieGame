@@ -5,7 +5,7 @@ import type { ShopItemStatus, ShopReason } from '../../core/shop';
 import { storeBoost } from './BoostSystem';
 import { isPlayerAlive } from './HealthSystem';
 import type { SimContext } from './SimContext';
-import { isFullyLoaded, magazineSize, maxReserve } from './weaponStats';
+import { isFullyLoaded, isMaxLevel, levelUp, magazineSize, maxReserve } from './weaponStats';
 
 /** The nearest active merchant within MERCHANT.interactRange of `p`, or -1. */
 export function nearestMerchant(state: GameState, p: PlayerState): number {
@@ -22,17 +22,25 @@ export function nearestMerchant(state: GameState, p: PlayerState): number {
   return best;
 }
 
-/** Item `itemIndex` of merchant `merchantIndex`'s catalogue, for player `playerIndex`. */
-export function shopItemStatus(state: GameState, merchantIndex: number, playerIndex: number, itemIndex: number): ShopItemStatus {
+/** Sold once per weapon the player carries (a row each in the panel). */
+export function isPerWeapon(item: MerchantItemId): boolean {
+  return EFFECTS[item]?.perWeapon === true;
+}
+
+/**
+ * Item `itemIndex` of merchant `merchantIndex`'s catalogue, for player
+ * `playerIndex` (and weapon slot `slot` for items sold per weapon).
+ */
+export function shopItemStatus(state: GameState, merchantIndex: number, playerIndex: number, itemIndex: number, slot = -1): ShopItemStatus {
   const m = state.merchants[merchantIndex];
   const p = state.players[playerIndex];
   const def = m ? merchantDef(m.id) : undefined;
   const item = def?.items[itemIndex];
   if (!m || !p || !def || !item) return { kind: 'hidden' };
   const effect = EFFECTS[item.id];
-  if (!effect) return { kind: 'hidden' };
+  if (!effect || (effect.perWeapon && !p.weapons[slot])) return { kind: 'hidden' };
   if (def.maxPurchasesPerVisit !== undefined && (m.visitPurchases[playerIndex] ?? 0) >= def.maxPurchasesPerVisit) return { kind: 'limit' };
-  const reason = effect.unavailable(p);
+  const reason = effect.unavailable(p, slot);
   if (reason) return { kind: 'unavailable', reason };
   if (p.points < item.price) return { kind: 'short', missing: item.price - p.points };
   return { kind: 'buy' };
@@ -56,30 +64,32 @@ export function updateShops(ctx: SimContext): void {
       p.shopMerchant = -1;
       continue;
     }
-    if (cmd && cmd.shopBuy >= 0) buyItem(ctx, i, p.shopMerchant, cmd.shopBuy);
+    if (cmd && cmd.shopBuy >= 0) buyItem(ctx, i, p.shopMerchant, cmd.shopBuy, cmd.shopSlot);
   }
 }
 
-/** Buys item `itemIndex` from merchant `merchantIndex` for player `playerIndex`. True when bought. */
-export function buyItem(ctx: SimContext, playerIndex: number, merchantIndex: number, itemIndex: number): boolean {
+/** Buys item `itemIndex` (for weapon slot `slot` if sold per weapon) from merchant `merchantIndex` for player `playerIndex`. True when bought. */
+export function buyItem(ctx: SimContext, playerIndex: number, merchantIndex: number, itemIndex: number, slot = -1): boolean {
   const { state } = ctx;
-  if (shopItemStatus(state, merchantIndex, playerIndex, itemIndex).kind !== 'buy') return false;
+  if (shopItemStatus(state, merchantIndex, playerIndex, itemIndex, slot).kind !== 'buy') return false;
   const p = state.players[playerIndex];
   const m = state.merchants[merchantIndex];
   const item: MerchantItem | undefined = m && merchantDef(m.id).items[itemIndex];
   if (!p || !m || !item) return false;
   p.points -= item.price;
   m.visitPurchases[playerIndex] = (m.visitPurchases[playerIndex] ?? 0) + 1;
-  EFFECTS[item.id]?.apply(p, m);
+  EFFECTS[item.id]?.apply(p, m, slot);
   ctx.events.emit('points:spent', { playerId: p.id, amount: item.price });
   ctx.events.emit('merchant:purchase', { playerId: p.id, merchant: m.id, item: item.id });
   return true;
 }
 
 interface ItemEffect {
+  /** One row per weapon the player carries; `slot` says which (−1 for the other items). */
+  perWeapon?: boolean;
   /** Why it would do nothing for this player, or null when it is worth buying. */
-  unavailable(p: PlayerState): ShopReason | null;
-  apply(p: PlayerState, merchant: MerchantState): void;
+  unavailable(p: PlayerState, slot: number): ShopReason | null;
+  apply(p: PlayerState, merchant: MerchantState, slot: number): void;
 }
 
 /** Items with their effect in place; the rest are hidden until their phase. */
@@ -99,5 +109,25 @@ const EFFECTS: Partial<Record<MerchantItemId, ItemEffect>> = {
   round_boost: {
     unavailable: () => null,
     apply: (p, m) => storeBoost(p, m.boost),
+  },
+  // Red merchant: one level up for the weapon in hand (spec 03 §6).
+  weapon_level: {
+    unavailable: (p) => {
+      const weapon = p.weapons[p.activeSlot];
+      return !weapon || isMaxLevel(weapon) ? 'maxLevel' : null;
+    },
+    apply: (p) => {
+      const weapon = p.weapons[p.activeSlot];
+      if (weapon) levelUp(weapon);
+    },
+  },
+  // Gold merchant: the special of the weapon chosen in the panel.
+  weapon_special: {
+    perWeapon: true,
+    unavailable: (p, slot) => (p.weapons[slot]?.special ? 'hasSpecial' : null),
+    apply: (p, _m, slot) => {
+      const weapon = p.weapons[slot];
+      if (weapon) weapon.special = true;
+    },
   },
 };

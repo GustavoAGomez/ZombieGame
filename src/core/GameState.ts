@@ -1,4 +1,19 @@
-import { BOOSTS, BULLETS, LOADOUT, PICKUPS, PLAYER, POINTS, WAVES, WEAPONS, ZOMBIES, type BoostKind, type PickupKind, type WeaponId, type ZombieKind } from '../config/balance';
+import {
+  BOOSTS,
+  BULLETS,
+  LOADOUT,
+  PICKUPS,
+  PLAYER,
+  POINTS,
+  WAVES,
+  WEAPON_UPGRADES,
+  WEAPONS,
+  ZOMBIES,
+  type BoostKind,
+  type PickupKind,
+  type WeaponId,
+  type ZombieKind,
+} from '../config/balance';
 import { MERCHANTS, type MerchantId } from '../config/merchants';
 import type { MapData } from '../game/map/MapLoader';
 import { zombiesInRound } from '../game/systems/waveFormulas';
@@ -14,7 +29,14 @@ export interface WeaponSlotState {
   id: WeaponId;
   magazine: number;
   reserve: number;
+  /** Upgrade level 0–3 (spec 03 §6): capacity, then fire rate, then damage. */
+  level: number;
+  /** The weapon's special (pistol fan, SMG piercing). */
+  special: boolean;
 }
+
+/** How a bullet is drawn: plain, lighter from level 3, light blue with double damage, gold with the special. */
+export type BulletLook = 'normal' | 'upgraded' | 'boosted' | 'special';
 
 /** What the contextual action chip would do for a player right now. */
 export type ContextAction = 'none' | 'repair' | 'door' | 'portal' | 'merchant';
@@ -114,8 +136,11 @@ export interface BulletState {
   dirY: number;
   speed: number;
   damage: number;
-  /** Fired with double damage running (drawn light blue). */
-  boosted: boolean;
+  look: BulletLook;
+  /** Zombies it can still hit (the SMG's special goes through several). */
+  pierce: number;
+  /** Zombies (indices) it already hit, so going through one never hits it twice; -1 = free. */
+  hits: number[];
   /** Distance still allowed before the bullet expires. */
   remaining: number;
   /**
@@ -256,7 +281,7 @@ export interface GameState extends RngState {
 
 export function createWeaponSlot(id: WeaponId): WeaponSlotState {
   const stats = WEAPONS[id];
-  return { id, magazine: stats.magazine, reserve: stats.startReserve };
+  return { id, magazine: stats.magazine, reserve: stats.startReserve, level: 0, special: false };
 }
 
 export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
@@ -311,7 +336,24 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
 }
 
 function createBullet(): BulletState {
-  return { active: false, owner: 0, x: 0, y: 0, prevX: 0, prevY: 0, dirX: 1, dirY: 0, speed: 0, damage: 0, boosted: false, remaining: 0, drawX: 0, drawY: 0 };
+  return {
+    active: false,
+    owner: 0,
+    x: 0,
+    y: 0,
+    prevX: 0,
+    prevY: 0,
+    dirX: 1,
+    dirY: 0,
+    speed: 0,
+    damage: 0,
+    look: 'normal',
+    pierce: 1,
+    hits: new Array<number>(WEAPON_UPGRADES.pierceHits).fill(-1),
+    remaining: 0,
+    drawX: 0,
+    drawY: 0,
+  };
 }
 
 function createZombie(): ZombieState {

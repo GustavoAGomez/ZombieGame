@@ -29,6 +29,8 @@ export interface InputCommand {
   action: boolean;
   /** Item of the open shop's catalogue bought this tick (its index), -1 for none. */
   shopBuy: number;
+  /** For an item sold per weapon (the gold merchant's special): which weapon slot, -1 otherwise. */
+  shopSlot: number;
   /** The shop's X was tapped. */
   shopClose: boolean;
   /** The stored boost's button was tapped (spec 03 §5). */
@@ -52,6 +54,7 @@ export function createInputCommand(): InputCommand {
     actionPressed: false,
     action: false,
     shopBuy: -1,
+    shopSlot: -1,
     shopClose: false,
     boost: false,
   };
@@ -72,6 +75,7 @@ export function resetInputCommand(cmd: InputCommand): InputCommand {
   cmd.actionPressed = false;
   cmd.action = false;
   cmd.shopBuy = -1;
+  cmd.shopSlot = -1;
   cmd.shopClose = false;
   cmd.boost = false;
   return cmd;

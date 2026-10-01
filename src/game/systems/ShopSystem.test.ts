@@ -128,10 +128,9 @@ describe('ShopSystem · buying', () => {
       slot.reserve = WEAPONS[slot.id].maxReserve;
     }
     expect(shopItemStatus(ctx.state, 0, 0, MAX_AMMO)).toEqual({ kind: 'unavailable', reason: 'ammoFull' });
-    // The round boost is always worth buying; the weapon upgrades (red merchant) arrive with phase M4.
+    // The round boost is always worth buying.
     p.points = 5000;
     expect(shopItemStatus(ctx.state, 0, 0, ROUND_BOOST)).toEqual({ kind: 'buy' });
-    expect(shopItemStatus(ctx.state, 1, 0, 0)).toEqual({ kind: 'hidden' });
   });
 
   it('refuses purchases that are not possible: shop closed, short of points or nothing to fill', () => {

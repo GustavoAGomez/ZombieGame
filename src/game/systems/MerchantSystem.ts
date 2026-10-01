@@ -14,29 +14,41 @@ import type { SimContext } from './SimContext';
  * invulnerable and solid for players only: zombies and bullets ignore them.
  */
 export function updateMerchants(ctx: SimContext): void {
-  const { state, map } = ctx;
+  const { state } = ctx;
   const { wave } = state;
   if (wave.phase === 'over') return;
   for (let i = 0; i < state.merchants.length; i++) {
     const m = state.merchants[i];
     if (!m?.enabled || m.round === wave.round || wave.round < merchantDef(m.id).firstRound) continue;
     m.round = wave.round;
-    const spot = pickMerchantSpot(map, state, i);
-    const target = map.merchantSpots[spot];
-    // No spots on this map, or nowhere else to go: it stays.
-    if (!target || (m.active && spot === m.spot)) continue;
-    const first = !m.active;
-    m.fromSpot = first ? -1 : m.spot;
-    m.spot = spot;
-    m.active = true;
-    m.x = target.x;
-    m.y = target.y;
-    m.moveTick = state.tick;
-    // A new visit: the purchase limit starts again and the round's boost is drawn.
-    m.visitPurchases.fill(0);
-    m.boost = drawRoundBoost(state);
-    ctx.events.emit('merchant:moved', { merchant: m.id, first });
+    moveMerchant(ctx, i);
   }
+}
+
+/**
+ * Merchant `index` appears (first time) or teleports now, as at the start of
+ * a round. Returns false when it has nowhere to go (no spots, or no other
+ * spot): it stays. Also used by the debug panel.
+ */
+export function moveMerchant(ctx: SimContext, index: number): boolean {
+  const { state, map } = ctx;
+  const m = state.merchants[index];
+  if (!m) return false;
+  const spot = pickMerchantSpot(map, state, index);
+  const target = map.merchantSpots[spot];
+  if (!target || (m.active && spot === m.spot)) return false;
+  const first = !m.active;
+  m.fromSpot = first ? -1 : m.spot;
+  m.spot = spot;
+  m.active = true;
+  m.x = target.x;
+  m.y = target.y;
+  m.moveTick = state.tick;
+  // A new visit: the purchase limit starts again and the round's boost is drawn.
+  m.visitPurchases.fill(0);
+  m.boost = drawRoundBoost(state);
+  ctx.events.emit('merchant:moved', { merchant: m.id, first });
+  return true;
 }
 
 /** Zone index of the player's spawn: where merchants first appear. */

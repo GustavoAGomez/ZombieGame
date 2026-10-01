@@ -28,6 +28,9 @@ export class Hud {
   private readonly total: HTMLSpanElement;
   private readonly weaponRow: HTMLDivElement;
   private readonly weaponName: HTMLSpanElement;
+  /** One star per upgrade level, next to the weapon's name (spec 03 §6). */
+  private readonly stars: HTMLSpanElement;
+  private shownLevel = -1;
   private readonly magazine: HTMLSpanElement;
   private readonly reloadFill: HTMLDivElement;
   private readonly reserve: HTMLSpanElement;
@@ -82,14 +85,15 @@ export class Hud {
 
     // Top-left, under the round: the weapon in hand and its ammo.
     this.weaponRow = el('div', 'hud-row hud-weapon');
-    this.weaponName = el('span', 'hud-label');
+    this.weaponName = el('span', 'hud-label hud-weapon__name');
+    this.stars = el('span', 'hud-stars');
     this.magazine = el('span', 'hud-mag');
     const reload = el('div', 'hud-reload');
     reload.setAttribute('aria-label', STRINGS.hud.reloading);
     this.reloadFill = el('div', 'hud-reload__fill');
     reload.appendChild(this.reloadFill);
     this.reserve = el('span', 'hud-reserve');
-    this.weaponRow.append(this.weaponName, pixelIcon('bullet', 21), this.magazine, reload, this.reserve);
+    this.weaponRow.append(this.weaponName, this.stars, pixelIcon('bullet', 21), this.magazine, reload, this.reserve);
     // Floating "+N" texts, pooled (CLAUDE.md rule 7), drawn to the left of the points (hud.css).
     this.floats = el('div', 'hud-floats');
     for (let i = 0; i < FLOAT_POOL_SIZE; i++) {
@@ -209,6 +213,12 @@ export class Hud {
 
   private readonly onWeapon = (e: GameEvents['weapon:state']): void => {
     this.weaponName.textContent = STRINGS.weapons[e.weapon];
+    // With its special the weapon's name turns amber.
+    this.weaponName.classList.toggle('is-special', e.special);
+    if (e.level !== this.shownLevel) {
+      this.shownLevel = e.level;
+      this.stars.replaceChildren(...Array.from({ length: e.level }, () => pixelIcon('star', 7)));
+    }
     this.magazine.textContent = String(e.magazine);
     this.reserve.textContent = `/ ${e.reserve}`;
     const reloading = e.reloadProgress !== null;

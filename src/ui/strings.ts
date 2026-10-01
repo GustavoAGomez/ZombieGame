@@ -9,6 +9,12 @@ export const STRINGS = {
     god: 'DIOS',
     hitboxes: 'HITBOX',
     flowField: 'FLUJO',
+    levelUp: '+NIVEL ARMA',
+    special: 'ESPECIAL ARMA',
+    boost: 'DAR MEJORA',
+    moveMerchants: 'MOVER MAGOS',
+    redGold: 'ROJO/DORADO',
+    bigPoints: '+10000',
   },
   controls: {
     joystick: 'Joystick de movimiento',
@@ -65,6 +71,10 @@ export const STRINGS = {
     close: 'Cerrar tienda',
     /** The round boost row says which boost this visit sells. */
     boosts: { speed: 'Velocidad ×1,5 durante 10 s', double_damage: 'Doble daño durante 10 s' },
+    /** The red merchant's row: the weapon in hand and the level it goes to. */
+    levelUp: (weapon: string, level: number): string => (level >= 3 ? `${weapon}: nivel máximo` : `${weapon}: nivel ${level} → ${level + 1}`),
+    /** The gold merchant's rows, one per weapon. */
+    specials: { pistol: 'Pistola: 3 balas en abanico por disparo', smg: 'SMG: cada bala atraviesa 3 zombis' },
     items: {
       max_ammo: { name: 'MUNICIÓN MÁXIMA', description: 'Llena cargadores y reservas' },
       round_boost: { name: 'MEJORA DE LA RONDA', description: 'Una mejora de 10 s, para cuando quieras' },

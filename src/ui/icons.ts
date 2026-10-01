@@ -16,7 +16,8 @@ export type IconName =
   | 'door'
   | 'stairs'
   | 'wizard'
-  | 'x2';
+  | 'x2'
+  | 'star';
 
 type Rect = readonly [number, number, number, number, string?];
 
@@ -85,6 +86,11 @@ const ICONS: Record<IconName, IconDef> = {
   wizard: {
     w: 12, h: 12, fill: 'var(--bone)',
     rects: [[6, 0, 2, 2], [5, 2, 3, 2], [4, 4, 5, 2], [3, 6, 6, 2], [2, 8, 8, 1, 'var(--amber)'], [0, 9, 12, 2], [5, 4, 1, 1, 'var(--amber)']],
+  },
+  // A weapon's upgrade level, one per level next to its name.
+  star: {
+    w: 7, h: 7, fill: 'var(--amber)',
+    rects: [[3, 0, 1, 2], [0, 2, 7, 1], [1, 3, 5, 1], [2, 4, 3, 1], [1, 5, 2, 1], [4, 5, 2, 1], [0, 6, 2, 1], [5, 6, 2, 1]],
   },
   // Provisional double damage: "x2".
   x2: {

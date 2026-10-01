@@ -631,3 +631,24 @@ Petición del usuario: la vida ya no se recupera con el tiempo, por ahora solo c
 - Se quitan `updateHealth`, `PLAYER.regenDelay` y `PLAYER.regenPerSecond`, y `PlayerState.lastDamageTime`, que solo servía para eso. La spec 01 (§4.1) lo recoge.
 - Los botiquines siguen igual: +50 de vida y un 6 % de probabilidad por zombie muerto (`PICKUPS.healthChance`). Sin regeneración la partida es más dura; si hace falta, se puede subir esa probabilidad o la cantidad que curan.
 - Las manchas de sangre del jugador siguen hasta que vuelve a la vida máxima, ahora solo con botiquines.
+
+## Spec 03 · Fase M4 (mejoras de arma, magos rojo y dorado, debug)
+
+- **Estado:** cada arma lleva `level` (0–3) y `special`. Todas las capacidades salen de `weaponStats.ts` (`magazineSize`, `maxReserve`, `fireRate`, `bulletDamage`), con los factores en `WEAPON_UPGRADES` de `balance.ts`. La especial de cada arma está en `WEAPON_SPECIALS` (pistola `fan`, SMG `pierce`).
+- **Nivel 1:** el arma se rellena solo al llegar a ese nivel, que es cuando cambia la capacidad («al subir de nivel» está en la fila del nivel 1). Los niveles 2 y 3 no rellenan.
+- **Daño:** nivel 3 por doble daño da ×4; se calcula al disparar cada bala.
+- **Abanico de la pistola:** 3 balas (centro y ±12°) a partir del ángulo con la dispersión normal. Gastan una sola bala del cargador y cada una hace el daño completo, también a quemarropa.
+- **SMG que atraviesa:**
+  - cada bala lleva `pierce` (golpes que le quedan) y `hits`, los zombis ya alcanzados, en un array del pool sin crear memoria;
+  - tras atravesar un zombi, la bala sigue desde el punto del golpe en el tick siguiente y nunca vuelve a golpear al mismo;
+  - las paredes la paran igual.
+- **Aspecto de las balas** (`BulletState.look`): con la especial, doradas (ámbar); con el doble daño, azul claro; desde el nivel 3, más claras (`#fff4d0`). Si coinciden, manda ese orden.
+- **Tiendas:**
+  - el rojo («Mejorar arma actual», 3000, una compra por visita) sube un nivel el arma en mano y muestra NIVEL MÁXIMO al llegar a 3. Su fila dice el arma y el paso de nivel («PISTOLA: nivel 1 → 2»);
+  - el dorado («Mejora especial», 10000) muestra una fila por arma, con su icono y lo que hace la especial, y YA TIENE ESPECIAL cuando ya la tiene. La compra lleva el arma en el comando (`InputCommand.shopSlot`).
+- **Rojo y dorado** siguen desactivados en partida normal (`enabled: false`; lo comprueba el test de M1). Un mago necesita un punto libre: con 3 magos y solo la zona inicial abierta (2 puntos), el tercero aparece cuando haya otra zona abierta.
+- **HUD:** una estrella pixelada por nivel junto al nombre del arma (las fuentes no tienen «★»), y el nombre en ámbar con la especial.
+- **Debug (§7):** +NIVEL ARMA, ESPECIAL ARMA (enciende y apaga), DAR MEJORA (velocidad y doble daño por turnos), MOVER MAGOS, ROJO/DORADO (los activa y los coloca al momento, o los retira) y +10000.
+  - El panel pasa a 3 columnas, más compacto.
+  - Al tocar sus estadísticas se pliegan los botones, que a veces tapan la tienda.
+- **Tests:** capacidades, cadencia, daño y su acumulación con el doble daño, abanico de la pistola, SMG que atraviesa hasta 3 zombis y se para en las paredes, y tiendas roja y dorada (límite por visita, nivel máximo, una fila por arma, ya tiene especial).

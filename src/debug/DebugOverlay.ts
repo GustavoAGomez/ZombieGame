@@ -16,16 +16,28 @@ export interface DebugActions {
   toggleGod(): boolean;
   toggleHitboxes(): boolean;
   toggleFlowField(): boolean;
+  /** Spec 03 §7: the weapon in hand one level up; its special on or off. */
+  levelUpWeapon(): void;
+  toggleWeaponSpecial(): boolean;
+  /** A temporary boost in the slot, speed and double damage in turns. */
+  giveBoost(): void;
+  /** Every merchant on the map teleports now. */
+  moveMerchants(): void;
+  /** The red and gold merchants, off in a normal match, on (and on the map) or off again. */
+  toggleRedGold(): boolean;
+  addManyPoints(): void;
 }
 
 const TRIPLE_TAP_WINDOW_MS = 600;
 const REFRESH_MS = 250;
 
 /**
- * Debug panel (spec 01 §8). Enabled with ?debug=1 or a triple tap on the
- * top-left corner. Stats are pulled on a timer, never every frame. Buttons:
- * next round, +1000 points, god mode, and drawing the hitboxes and the flow
- * field (only while a match is running).
+ * Debug panel (spec 01 §8, spec 03 §7). Enabled with ?debug=1 or a triple
+ * tap on the top-left corner. Stats are pulled on a timer, never every
+ * frame. Buttons: next round, +1000 points, god mode, drawing the hitboxes
+ * and the flow field, then weapon level and special, a boost, moving the
+ * merchants, the red and gold merchants and +10000 points (only while a
+ * match is running).
  */
 export class DebugOverlay {
   private readonly panel: HTMLDivElement;
@@ -63,7 +75,17 @@ export class DebugOverlay {
     button(STRINGS.debug.god, (a) => a.toggleGod());
     button(STRINGS.debug.hitboxes, (a) => a.toggleHitboxes());
     button(STRINGS.debug.flowField, (a) => a.toggleFlowField());
+    button(STRINGS.debug.levelUp, (a) => a.levelUpWeapon());
+    button(STRINGS.debug.special, (a) => a.toggleWeaponSpecial());
+    button(STRINGS.debug.boost, (a) => a.giveBoost());
+    button(STRINGS.debug.moveMerchants, (a) => a.moveMerchants());
+    button(STRINGS.debug.redGold, (a) => a.toggleRedGold());
+    button(STRINGS.debug.bigPoints, (a) => a.addManyPoints());
     this.panel.append(this.statsEl, buttons);
+    this.statsEl.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      this.panel.classList.toggle('is-folded');
+    });
     root.appendChild(this.panel);
 
     const corner = document.createElement('div');

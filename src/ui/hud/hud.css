@@ -69,6 +69,21 @@
   display: block;
 }
 
+/* Upgrade stars next to the weapon's name, and the name in amber with the special (spec 03 §6). */
+.hud-stars {
+  display: flex;
+  gap: 1px;
+  margin-left: -4px;
+}
+
+.hud-stars:empty {
+  display: none;
+}
+
+.hud-weapon__name.is-special {
+  color: var(--amber);
+}
+
 .hud-weapon.is-switching {
   opacity: 0.55;
 }

@@ -151,7 +151,7 @@ describe('BoostSystem · effects', () => {
     command(ctx).fire = false;
     const bullet = ctx.state.bullets.find((b) => b.active);
     expect(bullet?.damage).toBe(WEAPONS.pistol.damage * BOOSTS.damageFactor);
-    expect(bullet?.boosted).toBe(true);
+    expect(bullet?.look).toBe('boosted');
 
     const z = placeZombie(ctx, 0, p.x + 18, p.y, 500);
     command(ctx).melee = true;

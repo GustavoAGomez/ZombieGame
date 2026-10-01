@@ -25,6 +25,9 @@ export interface GameEvents {
   'portal:opened': { portalId: string; playerId: number };
   'weapon:state': {
     weapon: WeaponId;
+    /** Upgrade level 0–3 (stars) and whether it has its special (name in amber). */
+    level: number;
+    special: boolean;
     magazine: number;
     reserve: number;
     /** 0..1 while reloading, null otherwise. */
@@ -66,8 +69,21 @@ export interface GameEvents {
   /** The local player's shop panel: closed, or open with one row per item still sold. */
   'shop:state': {
     merchant: MerchantId | null;
-    /** `boost`: what the round boost row sells this visit. */
-    rows: { index: number; item: MerchantItemId; price: number; status: ShopItemStatus; boost?: BoostKind }[];
+    /**
+     * `boost`: what the round boost row sells this visit. `weapon` and
+     * `level`: the weapon a level-up row upgrades; `slot` and `weapon`: the
+     * weapon of a row sold per weapon (the special).
+     */
+    rows: {
+      index: number;
+      item: MerchantItemId;
+      price: number;
+      status: ShopItemStatus;
+      boost?: BoostKind;
+      weapon?: WeaponId;
+      level?: number;
+      slot?: number;
+    }[];
   };
   /**
    * The local player's boost slot (spec 03 §5): a stored boost shows its

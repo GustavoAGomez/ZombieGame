@@ -1,7 +1,7 @@
 import { App } from '@capacitor/app';
 import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
 import Phaser from 'phaser';
-import { DEBUG, SIM } from '../../config/balance';
+import { DEBUG, SIM, type BoostKind } from '../../config/balance';
 import { DISPLAY, computeWorldZoom } from '../../config/display';
 import { FixedStep } from '../../core/FixedStep';
 import { createGameState, type GameState } from '../../core/GameState';
@@ -35,6 +35,9 @@ import { isZombieAlive } from '../systems/Combat';
 import { createNav, type SimContext } from '../systems/SimContext';
 import { stepSimulation } from '../systems/Simulation';
 import { roundsSurvived, startRound } from '../systems/WaveSystem';
+import { moveMerchant } from '../systems/MerchantSystem';
+import { storeBoost } from '../systems/BoostSystem';
+import { levelUp } from '../systems/weaponStats';
 import { DebugDraw } from '../../debug/DebugDraw';
 import type { DebugActions } from '../../debug/DebugOverlay';
 import type { MuzzleTable } from '../systems/shotGeometry';
@@ -88,6 +91,8 @@ export class GameScene extends Phaser.Scene {
   private currentLevel = -1;
   /** Player teleports already shown: a new one snaps the camera instead of panning across the map. */
   private shownTeleports = 0;
+  /** Last boost given from the debug panel (they alternate). */
+  private debugBoost: BoostKind = 'double_damage';
   private readonly fixedStep = new FixedStep(SIM.hz, SIM.maxStepsPerFrame, SIM.maxFrameMs);
 
   constructor() {
@@ -302,6 +307,50 @@ export class GameScene extends Phaser.Scene {
       },
       toggleHitboxes: () => (this.debugDraw.showHitboxes = !this.debugDraw.showHitboxes),
       toggleFlowField: () => (this.debugDraw.showFlowField = !this.debugDraw.showFlowField),
+      levelUpWeapon: () => {
+        const p = this.state.players[0];
+        const weapon = p?.weapons[p.activeSlot];
+        if (weapon) levelUp(weapon);
+      },
+      toggleWeaponSpecial: () => {
+        const p = this.state.players[0];
+        const weapon = p?.weapons[p.activeSlot];
+        if (!weapon) return false;
+        weapon.special = !weapon.special;
+        return weapon.special;
+      },
+      giveBoost: () => {
+        const p = this.state.players[0];
+        if (!p) return;
+        this.debugBoost = this.debugBoost === 'speed' ? 'double_damage' : 'speed';
+        storeBoost(p, this.debugBoost);
+      },
+      moveMerchants: () => {
+        this.state.merchants.forEach((m, i) => {
+          if (!m.enabled) return;
+          m.round = this.state.wave.round;
+          moveMerchant(this.sim, i);
+        });
+      },
+      toggleRedGold: () => {
+        const on = !this.state.merchants.some((m) => m.id !== 'blue' && m.enabled);
+        this.state.merchants.forEach((m, i) => {
+          if (m.id === 'blue') return;
+          m.enabled = on;
+          if (on) {
+            m.round = this.state.wave.round;
+            moveMerchant(this.sim, i);
+          } else {
+            m.active = false;
+            m.spot = -1;
+          }
+        });
+        return on;
+      },
+      addManyPoints: () => {
+        const p = this.state.players[0];
+        if (p) p.points += DEBUG.bigPoints;
+      },
     };
   }
 

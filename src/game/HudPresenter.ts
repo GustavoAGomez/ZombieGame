@@ -5,7 +5,7 @@ import type { GameState } from '../core/GameState';
 import type { MapData } from './map/MapLoader';
 import { repairPointsAvailable } from './systems/BarricadeSystem';
 import { isPortalBuyable } from './systems/PortalSystem';
-import { shopItemStatus } from './systems/ShopSystem';
+import { isPerWeapon, shopItemStatus } from './systems/ShopSystem';
 import { reloadProgress } from './systems/WeaponSystem';
 
 /** Steps used to quantise continuous values so the DOM updates rarely. */
@@ -22,6 +22,8 @@ export class HudPresenter {
   private reserve = -1;
   private reload: number | null = -1;
   private switching = false;
+  private level = -1;
+  private special = false;
   private cooldownStep = -1;
   private hp = -1;
   private round = -1;
@@ -52,10 +54,21 @@ export class HudPresenter {
     const m = p ? state.merchants[p.shopMerchant] : undefined;
     let shop: GameEvents['shop:state'] = { merchant: null, rows: [] };
     if (m) {
-      const rows = merchantDef(m.id).items.flatMap((item, index) => {
-        const status = shopItemStatus(state, p?.shopMerchant ?? -1, playerIndex, index);
+      const merchant = p?.shopMerchant ?? -1;
+      const rows = merchantDef(m.id).items.flatMap((item, index): GameEvents['shop:state']['rows'] => {
+        if (isPerWeapon(item.id)) {
+          return (p?.weapons ?? []).flatMap((weapon, slot) => {
+            const status = shopItemStatus(state, merchant, playerIndex, index, slot);
+            return status.kind === 'hidden' ? [] : [{ index, item: item.id, price: item.price, status, slot, weapon: weapon.id }];
+          });
+        }
+        const status = shopItemStatus(state, merchant, playerIndex, index);
         if (status.kind === 'hidden') return [];
-        return [item.id === 'round_boost' ? { index, item: item.id, price: item.price, status, boost: m.boost } : { index, item: item.id, price: item.price, status }];
+        const row = { index, item: item.id, price: item.price, status };
+        if (item.id === 'round_boost') return [{ ...row, boost: m.boost }];
+        const active = p?.weapons[p.activeSlot];
+        if (item.id === 'weapon_level' && active) return [{ ...row, weapon: active.id, level: active.level }];
+        return [row];
       });
       shop = { merchant: m.id, rows };
     }
@@ -145,15 +158,21 @@ export class HudPresenter {
         slot.magazine !== this.magazine ||
         slot.reserve !== this.reserve ||
         quantised !== this.reload ||
-        switching !== this.switching
+        switching !== this.switching ||
+        slot.level !== this.level ||
+        slot.special !== this.special
       ) {
         this.weapon = slot.id;
+        this.level = slot.level;
+        this.special = slot.special;
         this.magazine = slot.magazine;
         this.reserve = slot.reserve;
         this.reload = quantised;
         this.switching = switching;
         this.events.emit('weapon:state', {
           weapon: slot.id,
+          level: slot.level,
+          special: slot.special,
           magazine: slot.magazine,
           reserve: slot.reserve,
           reloadProgress: quantised,

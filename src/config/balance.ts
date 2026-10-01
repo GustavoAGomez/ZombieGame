@@ -294,6 +294,28 @@ export const PICKUPS = {
 } as const;
 
 /** Debug panel (spec 01 §8). */
+/** Weapon upgrades (spec 03 §6): levels 1–3 add up; a special per weapon, apart from the levels. */
+export const WEAPON_UPGRADES = {
+  maxLevel: 3,
+  /** Level 1: magazine and maximum reserve multiplied by this (and the weapon refilled to the new maximum). */
+  capacityFactor: 2,
+  /** Level 2: fire rate multiplied by this. */
+  fireRateFactor: 1.5,
+  /** Level 3: damage multiplied by this (stacks with double damage: ×4). */
+  damageFactor: 2,
+  /** Pistol special: projectiles per shot, the angle between them (degrees) and one round of ammo for all. */
+  fanProjectiles: 3,
+  fanAngle: 12,
+  /** SMG special: zombies one bullet can hit before it disappears (walls still stop it). */
+  pierceHits: 3,
+} as const;
+
+/** The special each weapon gets (spec 03 §6). */
+export const WEAPON_SPECIALS: Readonly<Record<WeaponId, 'fan' | 'pierce'>> = {
+  pistol: 'fan',
+  smg: 'pierce',
+};
+
 /** Temporary boosts sold by the blue merchant (spec 03 §5). */
 export type BoostKind = 'speed' | 'double_damage';
 
@@ -325,6 +347,8 @@ export const MERCHANT = {
 } as const;
 
 export const DEBUG = {
+  /** The bigger points button of spec 03 §7. */
+  bigPoints: 10000,
   /** Points added by the +1000 button. */
   points: 1000,
 } as const;

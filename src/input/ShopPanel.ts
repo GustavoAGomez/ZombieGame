@@ -1,4 +1,5 @@
 import type { BoostKind } from '../config/balance';
+import { WEAPON_ICONS } from './WeaponBar';
 import { merchantDef, type MerchantId, type MerchantItemId } from '../config/merchants';
 import type { EventBus, GameEvents } from '../core/EventBus';
 import type { ShopItemStatus } from '../core/shop';
@@ -20,6 +21,8 @@ const BOOST_ICONS: Record<BoostKind, IconName> = { speed: 'bolt', double_damage:
 
 interface RowElements {
   index: number;
+  /** Weapon slot of a row sold per weapon, -1 otherwise. */
+  slot: number;
   row: HTMLDivElement;
   button: HTMLButtonElement;
   status: ShopItemStatus;
@@ -44,6 +47,7 @@ export class ShopPanel {
   /** Merchant and items the rows were built for. */
   private builtFor = '';
   private buy = -1;
+  private buySlot = -1;
   private close = false;
 
   constructor(parent: HTMLElement, events: EventBus) {
@@ -68,11 +72,13 @@ export class ShopPanel {
     this.unsubscribe = events.on('shop:state', this.onShop);
   }
 
-  /** Item index bought since the last tick, -1 for none. */
-  consumeBuy(): number {
-    const index = this.buy;
+  /** Item index bought since the last tick (and its weapon slot for items sold per weapon), or null. */
+  consumeBuy(): { item: number; slot: number } | null {
+    if (this.buy < 0) return null;
+    const bought = { item: this.buy, slot: this.buySlot };
     this.buy = -1;
-    return index;
+    this.buySlot = -1;
+    return bought;
   }
 
   /** True once after the X was tapped. */
@@ -84,6 +90,7 @@ export class ShopPanel {
 
   reset(): void {
     this.buy = -1;
+    this.buySlot = -1;
     this.close = false;
   }
 
@@ -99,7 +106,7 @@ export class ShopPanel {
       this.reset();
       return;
     }
-    const key = `${e.merchant}:${e.rows.map((r) => `${r.index}${r.boost ?? ''}`).join(',')}`;
+    const key = `${e.merchant}:${e.rows.map((r) => `${r.index}${r.boost ?? ''}${r.slot ?? ''}${r.weapon ?? ''}${r.level ?? ''}`).join(',')}`;
     if (key !== this.builtFor) this.build(e.merchant, e.rows, key);
     this.el.hidden = false;
     e.rows.forEach((r, i) => {
@@ -118,7 +125,8 @@ export class ShopPanel {
       row.className = 'shop-row';
       const icon = document.createElement('span');
       icon.className = 'shop-row__icon';
-      icon.appendChild(pixelIcon(r.boost ? BOOST_ICONS[r.boost] : ITEM_ICONS[r.item], 18, color));
+      const iconName = r.boost ? BOOST_ICONS[r.boost] : r.weapon ? WEAPON_ICONS[r.weapon] : ITEM_ICONS[r.item];
+      icon.appendChild(pixelIcon(iconName, 18, color));
       const text = document.createElement('span');
       text.className = 'shop-row__text';
       const name = document.createElement('span');
@@ -126,7 +134,7 @@ export class ShopPanel {
       name.textContent = STRINGS.shop.items[r.item].name;
       const description = document.createElement('span');
       description.className = 'shop-row__description';
-      description.textContent = r.boost ? STRINGS.shop.boosts[r.boost] : STRINGS.shop.items[r.item].description;
+      description.textContent = rowDescription(r);
       text.append(name, description);
       const price = document.createElement('span');
       price.className = 'shop-row__price';
@@ -134,7 +142,7 @@ export class ShopPanel {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'shop-row__buy';
-      const elements: RowElements = { index: r.index, row, button, status: r.status };
+      const elements: RowElements = { index: r.index, slot: r.slot ?? -1, row, button, status: r.status };
       onTap(button, () => this.onBuyTap(elements));
       button.addEventListener('animationend', () => button.classList.remove('is-shaking'));
       row.append(icon, text, price, button);
@@ -162,6 +170,7 @@ export class ShopPanel {
   private onBuyTap(row: RowElements): void {
     if (row.status.kind === 'buy') {
       this.buy = row.index;
+      this.buySlot = row.slot;
     } else if (row.status.kind === 'short') {
       // Restart the shake even on repeated taps.
       row.button.classList.remove('is-shaking');
@@ -169,6 +178,14 @@ export class ShopPanel {
       row.button.classList.add('is-shaking');
     }
   }
+}
+
+/** What the row says under its name: the boost drawn, the weapon to level up, the weapon's special. */
+function rowDescription(r: ShopRow): string {
+  if (r.boost) return STRINGS.shop.boosts[r.boost];
+  if (r.item === 'weapon_level' && r.weapon) return STRINGS.shop.levelUp(STRINGS.weapons[r.weapon], r.level ?? 0);
+  if (r.item === 'weapon_special' && r.weapon) return STRINGS.shop.specials[r.weapon];
+  return STRINGS.shop.items[r.item].description;
 }
 
 /**

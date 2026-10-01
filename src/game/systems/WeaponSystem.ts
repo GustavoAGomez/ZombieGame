@@ -1,4 +1,4 @@
-import { LOADOUT, MELEE, PLAYER, WEAPONS } from '../../config/balance';
+import { LOADOUT, MELEE, PLAYER, WEAPON_SPECIALS, WEAPON_UPGRADES, WEAPONS } from '../../config/balance';
 import type { BulletState, GameState, PlayerState, WeaponSlotState } from '../../core/GameState';
 import type { InputCommand } from '../../core/InputCommand';
 import { degToRad } from '../../core/math';
@@ -8,7 +8,8 @@ import { damageFactor } from './BoostSystem';
 import { bodyHitPoint, damageZombie, findAutoAimTarget, findMeleeTarget, isZombieAlive } from './Combat';
 import { bodyCentre, bodyEntry, muzzleFor, type Vec2 } from './shotGeometry';
 import type { SimContext } from './SimContext';
-import { magazineSize } from './weaponStats';
+import { bulletHitsZombie } from './BulletSystem';
+import { bulletDamage, bulletLook, fireRate, magazineSize } from './weaponStats';
 
 const centre: Vec2 = { x: 0, y: 0 };
 /** Closer than this (px from the muzzle to the body centre), auto-aim points from the feet. */
@@ -157,37 +158,49 @@ function handleFire(ctx: SimContext, p: PlayerState): void {
   shoot(ctx, p, slot);
 }
 
+/**
+ * One shot: a round of ammo and the fire cooldown of the weapon's level. The
+ * pistol's special fires a fan of WEAPON_UPGRADES.fanProjectiles bullets
+ * (centre and ±fanAngle) for that one round, each with the full damage.
+ */
 function shoot(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
   const { state } = ctx;
   const stats = WEAPONS[slot.id];
-  const bullet = freeBullet(state);
   slot.magazine--;
-  p.fireCooldown += 1 / stats.fireRate;
+  p.fireCooldown += 1 / fireRate(slot);
   p.lastAttackTick = state.tick;
   p.lastShotTick = state.tick;
-  if (!bullet) return; // pool exhausted: the shot is spent but not simulated
 
+  const aim = Math.atan2(p.aimY, p.aimX);
   const half = degToRad(stats.spread) / 2;
-  const angle = Math.atan2(p.aimY, p.aimX) + randomRange(state, -half, half);
-  const dirX = Math.cos(angle);
-  const dirY = Math.sin(angle);
-  bullet.active = true;
-  bullet.owner = p.id;
-  bullet.x = p.x + p.aimX * PLAYER.muzzleDistance;
-  bullet.y = p.y + p.aimY * PLAYER.muzzleDistance;
-  bullet.prevX = bullet.x;
-  bullet.prevY = bullet.y;
-  bullet.dirX = dirX;
-  bullet.dirY = dirY;
-  bullet.speed = stats.bulletSpeed;
-  bullet.damage = stats.damage * damageFactor(p);
-  bullet.boosted = p.boostActive === 'double_damage';
-  bullet.remaining = stats.range - PLAYER.muzzleDistance;
+  const centre = aim + randomRange(state, -half, half);
+  const special = slot.special ? WEAPON_SPECIALS[slot.id] : null;
+  const count = special === 'fan' ? WEAPON_UPGRADES.fanProjectiles : 1;
+  const between = degToRad(WEAPON_UPGRADES.fanAngle);
   // Drawn from the gun's muzzle, along the same direction.
-  const muzzle = muzzleFor(ctx.muzzles, Math.atan2(p.aimY, p.aimX));
-  bullet.drawX = muzzle.x - p.aimX * PLAYER.muzzleDistance;
-  bullet.drawY = muzzle.y - p.aimY * PLAYER.muzzleDistance;
-  pointBlank(ctx, p, bullet, muzzle);
+  const muzzle = muzzleFor(ctx.muzzles, aim);
+  for (let i = 0; i < count; i++) {
+    const bullet = freeBullet(state);
+    if (!bullet) return; // pool exhausted: the shot is spent but not simulated
+    const angle = centre + (i - (count - 1) / 2) * between;
+    bullet.active = true;
+    bullet.owner = p.id;
+    bullet.x = p.x + p.aimX * PLAYER.muzzleDistance;
+    bullet.y = p.y + p.aimY * PLAYER.muzzleDistance;
+    bullet.prevX = bullet.x;
+    bullet.prevY = bullet.y;
+    bullet.dirX = Math.cos(angle);
+    bullet.dirY = Math.sin(angle);
+    bullet.speed = stats.bulletSpeed;
+    bullet.damage = bulletDamage(slot) * damageFactor(p);
+    bullet.look = bulletLook(slot, p.boostActive === 'double_damage');
+    bullet.pierce = special === 'pierce' ? WEAPON_UPGRADES.pierceHits : 1;
+    bullet.hits.fill(-1);
+    bullet.remaining = stats.range - PLAYER.muzzleDistance;
+    bullet.drawX = muzzle.x - p.aimX * PLAYER.muzzleDistance;
+    bullet.drawY = muzzle.y - p.aimY * PLAYER.muzzleDistance;
+    pointBlank(ctx, p, bullet, muzzle);
+  }
 }
 
 /**
@@ -216,8 +229,7 @@ function pointBlank(ctx: SimContext, p: PlayerState, bullet: BulletState, muzzle
   }
   const z = zombies[hit];
   if (!z) return;
-  bullet.active = false;
-  damageZombie(ctx, z, bullet.damage, p.id, bodyHitPoint(z, bullet.dirX, bullet.dirY));
+  bulletHitsZombie(ctx, bullet, hit, bodyHitPoint(z, bullet.dirX, bullet.dirY));
 }
 
 /**

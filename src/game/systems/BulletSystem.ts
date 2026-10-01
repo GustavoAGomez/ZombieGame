@@ -1,7 +1,7 @@
 import { BULLETS } from '../../config/balance';
 import type { BulletState } from '../../core/GameState';
 import { BLOCK_BULLET, pointBlocksShaped, segmentHitShaped } from '../map/CollisionGrid';
-import { damageZombie, isZombieAlive } from './Combat';
+import { damageZombie, isZombieAlive, type HitPoint } from './Combat';
 import { bodyEntry } from './shotGeometry';
 import type { SimContext } from './SimContext';
 
@@ -18,6 +18,9 @@ import type { SimContext } from './SimContext';
  * it visibly meets the wall's face, and a bullet that visibly passes beside
  * a thin wall or the end of one flies on. Testing the ground point under the
  * shooter's line instead made bullets vanish in mid air above corners.
+ *
+ * A piercing bullet (the SMG's special) goes on through up to `pierce`
+ * zombies, never hitting the same one twice.
  */
 export function updateBullets(ctx: SimContext, dt: number): void {
   const { bullets } = ctx.state;
@@ -65,21 +68,34 @@ function hitZombieAlongSegment(ctx: SimContext, b: BulletState, step: number, wa
   let hitT = Infinity;
   for (let i = 0; i < zombies.length; i++) {
     const z = zombies[i];
-    if (!z || !isZombieAlive(z)) continue;
+    if (!z || !isZombieAlive(z) || b.hits.includes(i)) continue;
     const t = bodyEntry(b.x + b.drawX, b.y + b.drawY, b.dirX, b.dirY, step, z.x, z.y);
     if (t < hitT) {
       hitT = t;
       hitIndex = i;
     }
   }
-  const z = hitIndex >= 0 ? zombies[hitIndex] : undefined;
   // A wall in front of the zombie takes the bullet first.
-  if (!z || hitT >= wallDist) return false;
+  if (hitIndex < 0 || hitT >= wallDist) return false;
   b.x += b.dirX * hitT;
   b.y += b.dirY * hitT;
-  b.active = false;
-  damageZombie(ctx, z, b.damage, b.owner, { x: b.x + b.drawX, y: b.y + b.drawY, dirX: b.dirX, dirY: b.dirY });
+  b.remaining -= hitT;
+  bulletHitsZombie(ctx, b, hitIndex, { x: b.x + b.drawX, y: b.y + b.drawY, dirX: b.dirX, dirY: b.dirY });
   return true;
+}
+
+/**
+ * Bullet `b` hits zombie `index`: damage and blood, and the bullet goes on
+ * if it can still pierce (it carries on from the hit point next tick).
+ */
+export function bulletHitsZombie(ctx: SimContext, b: BulletState, index: number, hit: HitPoint): void {
+  const z = ctx.state.zombies[index];
+  if (!z) return;
+  const free = b.hits.indexOf(-1);
+  if (free >= 0) b.hits[free] = index;
+  b.pierce--;
+  if (b.pierce <= 0 || b.remaining <= 0) b.active = false;
+  damageZombie(ctx, z, b.damage, b.owner, hit);
 }
 
 export function activeBulletCount(bullets: readonly BulletState[]): number {
