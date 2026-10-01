@@ -1,0 +1,186 @@
+import { merchantDef, type MerchantId, type MerchantItemId } from '../config/merchants';
+import type { EventBus, GameEvents } from '../core/EventBus';
+import type { ShopItemStatus } from '../core/shop';
+import { pixelIcon, type IconName } from '../ui/icons';
+import { STRINGS } from '../ui/strings';
+import './shop.css';
+
+type ShopRow = GameEvents['shop:state']['rows'][number];
+
+/** Provisional item icons, drawn in the merchant's colour. */
+const ITEM_ICONS: Record<MerchantItemId, IconName> = {
+  max_ammo: 'bullet',
+  round_boost: 'bolt',
+  weapon_level: 'rifle',
+  weapon_special: 'crosshair',
+};
+
+interface RowElements {
+  index: number;
+  row: HTMLDivElement;
+  button: HTMLButtonElement;
+  status: ShopItemStatus;
+}
+
+/**
+ * A merchant's shop panel (spec 03 §3). It shows what the game publishes
+ * (`shop:state`) and turns taps into commands: COMPRAR buys the item (read
+ * by InputCollector as `shopBuy`), X closes (`shopClose`). The match keeps
+ * running and the panel stays in the upper half, clear of the joystick and
+ * the fire button. With too few points the button shakes and nothing is
+ * sent; items that would do nothing are disabled with the reason. No game
+ * logic.
+ */
+export class ShopPanel {
+  readonly el: HTMLDivElement;
+  private readonly title: HTMLSpanElement;
+  private readonly list: HTMLDivElement;
+  private readonly closeButton: HTMLButtonElement;
+  private readonly unsubscribe: () => void;
+  private rows: RowElements[] = [];
+  /** Merchant and items the rows were built for. */
+  private builtFor = '';
+  private buy = -1;
+  private close = false;
+
+  constructor(parent: HTMLElement, events: EventBus) {
+    this.el = document.createElement('div');
+    this.el.className = 'shop-panel';
+    this.el.hidden = true;
+    const header = document.createElement('div');
+    header.className = 'shop-panel__header';
+    this.title = document.createElement('span');
+    this.title.className = 'shop-panel__title';
+    this.closeButton = document.createElement('button');
+    this.closeButton.type = 'button';
+    this.closeButton.className = 'shop-panel__close';
+    this.closeButton.setAttribute('aria-label', STRINGS.shop.close);
+    this.closeButton.textContent = '×';
+    onTap(this.closeButton, () => (this.close = true));
+    header.append(this.title, this.closeButton);
+    this.list = document.createElement('div');
+    this.list.className = 'shop-panel__rows';
+    this.el.append(header, this.list);
+    parent.appendChild(this.el);
+    this.unsubscribe = events.on('shop:state', this.onShop);
+  }
+
+  /** Item index bought since the last tick, -1 for none. */
+  consumeBuy(): number {
+    const index = this.buy;
+    this.buy = -1;
+    return index;
+  }
+
+  /** True once after the X was tapped. */
+  consumeClose(): boolean {
+    const was = this.close;
+    this.close = false;
+    return was;
+  }
+
+  reset(): void {
+    this.buy = -1;
+    this.close = false;
+  }
+
+  destroy(): void {
+    this.unsubscribe();
+    this.el.remove();
+  }
+
+  private readonly onShop = (e: GameEvents['shop:state']): void => {
+    if (!e.merchant) {
+      this.el.hidden = true;
+      this.builtFor = '';
+      this.reset();
+      return;
+    }
+    const key = `${e.merchant}:${e.rows.map((r) => r.index).join(',')}`;
+    if (key !== this.builtFor) this.build(e.merchant, e.rows, key);
+    this.el.hidden = false;
+    e.rows.forEach((r, i) => {
+      const row = this.rows[i];
+      if (row) this.showStatus(row, r);
+    });
+  };
+
+  private build(merchant: MerchantId, rows: readonly ShopRow[], key: string): void {
+    this.builtFor = key;
+    const color = merchantDef(merchant).color;
+    this.el.style.setProperty('--merchant', color);
+    this.title.textContent = STRINGS.merchants.names[merchant];
+    this.rows = rows.map((r) => {
+      const row = document.createElement('div');
+      row.className = 'shop-row';
+      const icon = document.createElement('span');
+      icon.className = 'shop-row__icon';
+      icon.appendChild(pixelIcon(ITEM_ICONS[r.item], 18, color));
+      const text = document.createElement('span');
+      text.className = 'shop-row__text';
+      const name = document.createElement('span');
+      name.className = 'shop-row__name';
+      name.textContent = STRINGS.shop.items[r.item].name;
+      const description = document.createElement('span');
+      description.className = 'shop-row__description';
+      description.textContent = STRINGS.shop.items[r.item].description;
+      text.append(name, description);
+      const price = document.createElement('span');
+      price.className = 'shop-row__price';
+      price.textContent = String(r.price);
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'shop-row__buy';
+      const elements: RowElements = { index: r.index, row, button, status: r.status };
+      onTap(button, () => this.onBuyTap(elements));
+      button.addEventListener('animationend', () => button.classList.remove('is-shaking'));
+      row.append(icon, text, price, button);
+      return elements;
+    });
+    this.list.replaceChildren(...this.rows.map((r) => r.row));
+  }
+
+  private showStatus(row: RowElements, r: ShopRow): void {
+    row.status = r.status;
+    const s = r.status;
+    const label =
+      s.kind === 'buy' ? STRINGS.shop.buy
+      : s.kind === 'short' ? STRINGS.shop.missing(s.missing)
+      : s.kind === 'unavailable' ? STRINGS.shop.reasons[s.reason]
+      : s.kind === 'limit' ? STRINGS.shop.comeBack
+      : '';
+    if (row.button.textContent !== label) row.button.textContent = label;
+    row.button.dataset.status = s.kind;
+    const disabled = s.kind === 'unavailable' || s.kind === 'limit';
+    row.button.setAttribute('aria-disabled', String(disabled || s.kind === 'short'));
+    row.row.classList.toggle('is-unavailable', disabled);
+  }
+
+  private onBuyTap(row: RowElements): void {
+    if (row.status.kind === 'buy') {
+      this.buy = row.index;
+    } else if (row.status.kind === 'short') {
+      // Restart the shake even on repeated taps.
+      row.button.classList.remove('is-shaking');
+      void row.button.offsetWidth;
+      row.button.classList.add('is-shaking');
+    }
+  }
+}
+
+/**
+ * Acts on pointerdown, like the other touch buttons: a tap counts at once
+ * and is not lost while other fingers hold the joystick or the fire button.
+ */
+function onTap(button: HTMLButtonElement, action: () => void): void {
+  button.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    button.classList.add('is-pressed');
+    action();
+  });
+  const release = (): void => button.classList.remove('is-pressed');
+  button.addEventListener('pointerup', release);
+  button.addEventListener('pointercancel', release);
+  button.addEventListener('pointerleave', release);
+  button.addEventListener('contextmenu', (e) => e.preventDefault());
+}

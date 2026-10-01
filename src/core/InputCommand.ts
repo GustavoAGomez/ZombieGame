@@ -27,6 +27,10 @@ export interface InputCommand {
   actionPressed: boolean;
   /** Held (e.g. hold-to-repair). */
   action: boolean;
+  /** Item of the open shop's catalogue bought this tick (its index), -1 for none. */
+  shopBuy: number;
+  /** The shop's X was tapped. */
+  shopClose: boolean;
 }
 
 export function createInputCommand(): InputCommand {
@@ -45,6 +49,8 @@ export function createInputCommand(): InputCommand {
     special: false,
     actionPressed: false,
     action: false,
+    shopBuy: -1,
+    shopClose: false,
   };
 }
 
@@ -62,5 +68,7 @@ export function resetInputCommand(cmd: InputCommand): InputCommand {
   cmd.special = false;
   cmd.actionPressed = false;
   cmd.action = false;
+  cmd.shopBuy = -1;
+  cmd.shopClose = false;
   return cmd;
 }

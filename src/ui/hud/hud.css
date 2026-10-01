@@ -206,6 +206,10 @@
   text-shadow: 2px 2px 0 var(--ink);
 }
 
+.hud-float--spent {
+  color: var(--red);
+}
+
 .hud-float.is-active {
   display: block;
   animation-name: hud-float-rise;

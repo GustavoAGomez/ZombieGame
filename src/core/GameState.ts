@@ -17,7 +17,7 @@ export interface WeaponSlotState {
 }
 
 /** What the contextual action chip would do for a player right now. */
-export type ContextAction = 'none' | 'repair' | 'door' | 'portal';
+export type ContextAction = 'none' | 'repair' | 'door' | 'portal' | 'merchant';
 
 export interface PlayerState {
   id: number;
@@ -88,8 +88,10 @@ export interface PlayerState {
   /** True right after a plank was repaired (the player faces the window). */
   repairing: boolean;
   contextAction: ContextAction;
-  /** Window, door or portal index the context action applies to, -1 when none. */
+  /** Window, door, portal or merchant index the context action applies to, -1 when none. */
   contextTarget: number;
+  /** Merchant whose shop panel this player has open (spec 03 §3), -1 when closed. */
+  shopMerchant: number;
 
   /** Portal end just arrived at: it does not fire again until the player steps off it. -1 = none. */
   portalLock: number;
@@ -196,6 +198,8 @@ export interface MerchantState {
   round: number;
   /** Tick of its last appearance or teleport (views play the smoke puff). */
   moveTick: number;
+  /** Purchases per player (indexed like players) since it last moved: maxPurchasesPerVisit. */
+  visitPurchases: number[];
 }
 
 /**
@@ -289,6 +293,7 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     repairing: false,
     contextAction: 'none',
     contextTarget: -1,
+    shopMerchant: -1,
     portalLock: -1,
     teleports: 0,
   };
@@ -326,8 +331,8 @@ function createPickup(): PickupState {
   return { active: false, kind: 'ammo', x: 0, y: 0, age: 0 };
 }
 
-function createMerchant(id: MerchantId, enabled: boolean): MerchantState {
-  return { id, enabled, active: false, spot: -1, x: 0, y: 0, fromSpot: -1, round: 0, moveTick: -1000 };
+function createMerchant(id: MerchantId, enabled: boolean, players: number): MerchantState {
+  return { id, enabled, active: false, spot: -1, x: 0, y: 0, fromSpot: -1, round: 0, moveTick: -1000, visitPurchases: new Array<number>(players).fill(0) };
 }
 
 function createBlood(): BloodState {
@@ -350,16 +355,17 @@ export interface GameOptions {
 export function createGameState(map: MapData, options: GameOptions = {}): GameState {
   const round = Math.max(1, Math.floor(options.startRound ?? 1));
   const { seed = 1, toSpawn = zombiesInRound(round), waveFlow = true } = options;
+  const players = [createPlayerState(0, map.playerSpawn.x, map.playerSpawn.y)];
   return {
     tick: 0,
     time: 0,
     rng: seed | 0,
-    players: [createPlayerState(0, map.playerSpawn.x, map.playerSpawn.y)],
+    players,
     bullets: Array.from({ length: BULLETS.poolSize }, createBullet),
     zombies: Array.from({ length: ZOMBIES.poolSize }, createZombie),
     blood: Array.from({ length: ZOMBIES.maxBloodDecals }, createBlood),
     pickups: Array.from({ length: PICKUPS.poolSize }, createPickup),
-    merchants: MERCHANTS.map((m) => createMerchant(m.id, m.enabled)),
+    merchants: MERCHANTS.map((m) => createMerchant(m.id, m.enabled, players.length)),
     wave: { round, phase: 'active', toSpawn, spawnTimer: WAVES.bannerDuration, restTimer: 0, auto: waveFlow },
     doorsOpen: map.doors.map(() => false),
     portalsOpen: Array.from({ length: map.portalLinks }, () => false),

@@ -50,6 +50,19 @@ export const STRINGS = {
     names: { blue: 'MAGO AZUL', red: 'MAGO ROJO', gold: 'MAGO DORADO' },
     moved: (name: string): string => `EL ${name} SE HA MOVIDO`,
   },
+  shop: {
+    buy: 'COMPRAR',
+    missing: (points: number): string => `FALTAN ${points}`,
+    reasons: { ammoFull: 'MUNICIÓN COMPLETA', maxLevel: 'NIVEL MÁXIMO', hasSpecial: 'YA TIENE ESPECIAL' },
+    comeBack: 'VUELVE EN OTRA RONDA',
+    close: 'Cerrar tienda',
+    items: {
+      max_ammo: { name: 'MUNICIÓN MÁXIMA', description: 'Llena cargadores y reservas' },
+      round_boost: { name: 'MEJORA DE LA RONDA', description: 'Una mejora de 10 s, para cuando quieras' },
+      weapon_level: { name: 'MEJORAR ARMA ACTUAL', description: 'Sube un nivel el arma en mano' },
+      weapon_special: { name: 'MEJORA ESPECIAL', description: 'Una mejora única para un arma' },
+    },
+  },
   actions: {
     repair: 'REPARAR',
     openDoor: 'ABRIR PUERTA',

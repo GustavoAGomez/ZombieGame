@@ -288,6 +288,10 @@ export const PICKUPS = {
 export const MERCHANT = {
   /** Solid circle around its feet that players cannot walk through. Zombies and bullets ignore it. */
   radius: 8,
+  /** Closer than this (px, feet to feet) the action button offers the merchant's shop (spec 03 §3). */
+  interactRange: 40,
+  /** The shop panel closes by itself when the player gets farther than this (px). */
+  closeRange: 64,
   /** Smoke puff where it appears and where it left (s). */
   puffTime: 0.3,
   /** "EL MAGO AZUL SE HA MOVIDO" on the HUD (s). */

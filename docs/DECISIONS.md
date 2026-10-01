@@ -435,3 +435,24 @@ Registro de lo que la spec no definía (o definía de forma ambigua) y cómo se 
   - no se muestra si el mago está en otro nivel (sótano o azotea): esos niveles están en otra parte del mapa y la flecha apuntaría a un sitio que no lleva a ellos;
   - se desactiva con `MERCHANT.offscreenIndicator`.
 - **Debug:** los círculos de colisión de los magos se dibujan con HITBOX. Los botones de la spec 03 §7 llegan en M4. Para ver el teletransporte basta con RONDA +1.
+
+## Spec 03 · Fase M2 (tienda y munición máxima)
+
+- **Tienda en el estado:** `PlayerState.shopMerchant` es el mago con la tienda abierta. El botón de acción la abre y la cierra. La compra es un comando (`InputCommand.shopBuy`, con el índice del artículo) y el sistema la valida como lo haría un servidor: tienda abierta, a menos de 64 px, puntos, que el artículo sirva y el límite por visita. La X envía `shopClose`.
+- **Cierre automático:** al alejarse más de 64 px, al morir o si el mago desaparece. Al teletransportarse siempre queda lejos, así que también se cierra.
+- **Estados del botón,** en este orden: `limit` (VUELVE EN OTRA RONDA), `unavailable` (el motivo), `short` (FALTAN X) y `buy`.
+  - Si no hay puntos y además no sirve, se muestra el motivo, que informa más.
+  - Con FALTAN X el botón tiembla y no se envía nada.
+- **Límite por visita:** se cuenta por mago y por jugador (`MerchantState.visitPurchases`) y se reinicia cada vez que el mago se mueve.
+- **Artículos de fases posteriores:** la mejora de la ronda (M3) y las mejoras de arma (M4) están en el catálogo pero no salen en el panel hasta que exista su efecto (estado `hidden`). En M2 el mago azul muestra solo la munición máxima.
+- **Munición máxima:** llena cargador y reserva de todas las armas y cancela una recarga en curso, porque ya no queda nada que recargar.
+  - Las capacidades salen de `weaponStats.ts` (`magazineSize`, `maxReserve`), que también usan la recarga y el botín de munición. Así el nivel 1 de M4 solo tendrá que cambiar ese archivo.
+- **«-750» en rojo** en la misma pila que los «+N», a la izquierda de los puntos (desde la Fase 8 van ahí y no debajo).
+- **Vibración media** al comprar (`merchant:purchase`).
+- **Botón de acción junto al mago:** sombrero de mago provisional en su color, con el nombre («MAGO AZUL») en la etiqueta.
+- **Posición del panel:**
+  - centrado, justo debajo de los bloques superiores del HUD (`--pad-top` + 92 px), sin tapar la vida, la ronda, los puntos ni el arma;
+  - 380 px de ancho como máximo; en pantallas estrechas mide el hueco entre el joystick y el disparo (`100% − 2·pad-x − 300 px`, mínimo 280 px);
+  - comprobado sin solapes con el joystick, el disparo, recargar, el cuchillo, la barra de armas, el botón de acción y la pausa en 844×390, 800×360 y 640×360, también con dos filas;
+  - a 640×360 con dos filas roza el cuchillo por 2 px; se ajustará en M3, cuando haya dos filas de verdad;
+  - el panel tapa la parte alta de la zona en la que se puede empezar a mover el joystick (el 40 % izquierdo de la pantalla), pero no el joystick dibujado. Con el panel abierto, el joystick y el disparo siguen funcionando (comprobado con dos dedos simulados).

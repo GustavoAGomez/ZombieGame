@@ -1,5 +1,6 @@
 import type { PickupKind, WeaponId, ZombieKind } from '../config/balance';
-import type { MerchantId } from '../config/merchants';
+import type { MerchantId, MerchantItemId } from '../config/merchants';
+import type { ShopItemStatus } from './shop';
 
 /**
  * Game -> HUD events. The HUD only ever sees these payloads; it never
@@ -40,15 +41,23 @@ export interface GameEvents {
    * missing. A `locked` portal is a second entrance not yet buyable.
    */
   'action:context': {
-    kind: 'repair' | 'door' | 'portal' | null;
+    kind: 'repair' | 'door' | 'portal' | 'merchant' | null;
     amount: number;
     enabled: boolean;
     portal?: 'stairs' | 'hatch';
     locked?: boolean;
+    /** With kind 'merchant': whose shop the button opens. */
+    merchant?: MerchantId;
   };
   'round:changed': { round: number };
   /** A merchant appeared (`first`) or teleported to another spot at the start of a round (spec 03 §2). */
   'merchant:moved': { merchant: MerchantId; first: boolean };
+  /** Points spent in a shop: "-750" in red under the score (spec 03 §3). */
+  'points:spent': { playerId: number; amount: number };
+  /** Something was bought from a merchant (medium haptic). */
+  'merchant:purchase': { playerId: number; merchant: MerchantId; item: MerchantItemId };
+  /** The local player's shop panel: closed, or open with one row per item still sold. */
+  'shop:state': { merchant: MerchantId | null; rows: { index: number; item: MerchantItemId; price: number; status: ShopItemStatus }[] };
   /** Every zombie of the round is dead: the rest before the next round begins. */
   'round:cleared': { round: number };
   /** Every player is dead. `round` is the round reached; `score` every point earned. */

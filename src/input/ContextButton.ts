@@ -1,3 +1,4 @@
+import { merchantDef, type MerchantId } from '../config/merchants';
 import type { EventBus, GameEvents } from '../core/EventBus';
 import { pixelIcon } from '../ui/icons';
 import { STRINGS } from '../ui/strings';
@@ -7,12 +8,16 @@ import { PointerControl } from './PointerControl';
  * Contextual action button at the right of the screen (spec 01 §2.4, now a
  * round button as in Wild Rift): it only shows up when the game says an
  * action is available (via the EventBus), with a hammer to repair a
- * barricade, a door or stairs to buy one, and a badge with the points per
- * plank or the cost (or what is missing). One tap repairs one plank or buys
- * the door. No game logic.
+ * barricade, a door or stairs to buy one, a wizard hat to open a merchant's
+ * shop, and a badge with the points per plank, the cost (or what is
+ * missing) or the merchant's name. One tap repairs one plank, buys the door
+ * or opens and closes the shop. No game logic.
  */
 export class ContextButton extends PointerControl {
   private readonly icons: Record<'repair' | 'door' | 'portal', SVGSVGElement>;
+  /** The merchant's hat, one per colour. */
+  private readonly hats = new Map<MerchantId, SVGSVGElement>();
+  private readonly face: HTMLSpanElement;
   private readonly value: HTMLSpanElement;
   private readonly unsubscribe: () => void;
   private held = false;
@@ -26,6 +31,7 @@ export class ContextButton extends PointerControl {
 
     const face = document.createElement('span');
     face.className = 'context-button__face';
+    this.face = face;
     this.icons = { repair: pixelIcon('hammer', 26), door: pixelIcon('door', 24), portal: pixelIcon('stairs', 24) };
     face.append(this.icons.repair, this.icons.door, this.icons.portal);
     this.value = document.createElement('span');
@@ -81,7 +87,14 @@ export class ContextButton extends PointerControl {
     // Blinking ring: repairing is done with repeated taps.
     button.classList.toggle('context-button--repair', e.kind === 'repair');
     for (const kind of ['repair', 'door', 'portal'] as const) this.icons[kind].style.display = e.kind === kind ? 'block' : 'none';
-    if (e.kind === 'repair') {
+    for (const [id, hat] of this.hats) hat.style.display = e.kind === 'merchant' && e.merchant === id ? 'block' : 'none';
+    this.value.style.color = '';
+    if (e.kind === 'merchant' && e.merchant) {
+      this.hatFor(e.merchant).style.display = 'block';
+      this.value.textContent = STRINGS.merchants.names[e.merchant];
+      this.value.style.color = merchantDef(e.merchant).color;
+      button.setAttribute('aria-label', STRINGS.merchants.names[e.merchant]);
+    } else if (e.kind === 'repair') {
       this.value.textContent = e.amount > 0 ? `+${e.amount}` : '';
       button.setAttribute('aria-label', STRINGS.actions.repair);
     } else if (e.kind === 'door') {
@@ -95,4 +108,14 @@ export class ContextButton extends PointerControl {
       this.reset();
     }
   };
+
+  private hatFor(id: MerchantId): SVGSVGElement {
+    let hat = this.hats.get(id);
+    if (!hat) {
+      hat = pixelIcon('wizard', 26, merchantDef(id).color);
+      this.hats.set(id, hat);
+      this.face.appendChild(hat);
+    }
+    return hat;
+  }
 }

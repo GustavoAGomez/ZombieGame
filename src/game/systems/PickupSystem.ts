@@ -1,8 +1,9 @@
-import { PICKUPS, PLAYER, WEAPONS, type PickupKind } from '../../config/balance';
+import { PICKUPS, PLAYER, type PickupKind } from '../../config/balance';
 import type { PickupState, PlayerState, ZombieState } from '../../core/GameState';
 import { random } from '../../core/Rng';
 import { isNavWalkable } from '../map/FlowField';
 import type { SimContext } from './SimContext';
+import { magazineSize, maxReserve } from './weaponStats';
 
 /**
  * Ammo and health dropped by killed zombies. They lie on the floor for a
@@ -98,9 +99,9 @@ export function applyPickup(p: PlayerState, kind: PickupKind): boolean {
   }
   let gained = false;
   for (const slot of p.weapons) {
-    const stats = WEAPONS[slot.id];
-    if (slot.reserve >= stats.maxReserve) continue;
-    slot.reserve = Math.min(stats.maxReserve, slot.reserve + stats.magazine * PICKUPS.ammoMagazines);
+    const max = maxReserve(slot);
+    if (slot.reserve >= max) continue;
+    slot.reserve = Math.min(max, slot.reserve + magazineSize(slot) * PICKUPS.ammoMagazines);
     gained = true;
   }
   return gained;

@@ -31,6 +31,8 @@ export function updateMerchants(ctx: SimContext): void {
     m.x = target.x;
     m.y = target.y;
     m.moveTick = state.tick;
+    // A new visit: the purchase limit starts again.
+    m.visitPurchases.fill(0);
     ctx.events.emit('merchant:moved', { merchant: m.id, first });
   }
 }

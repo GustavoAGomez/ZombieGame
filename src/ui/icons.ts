@@ -14,7 +14,8 @@ export type IconName =
   | 'rifle'
   | 'hammer'
   | 'door'
-  | 'stairs';
+  | 'stairs'
+  | 'wizard';
 
 type Rect = readonly [number, number, number, number, string?];
 
@@ -79,6 +80,11 @@ const ICONS: Record<IconName, IconDef> = {
       [4, 7, 2, 2, 'var(--amber-dark)'], [3, 8, 2, 2, 'var(--amber-dark)'], [2, 9, 2, 2, 'var(--amber-dark)'], [1, 10, 2, 2, 'var(--amber-dark)'],
     ],
   },
+  // Provisional merchant: a pointed wizard hat with a band (coloured per merchant).
+  wizard: {
+    w: 12, h: 12, fill: 'var(--bone)',
+    rects: [[6, 0, 2, 2], [5, 2, 3, 2], [4, 4, 5, 2], [3, 6, 6, 2], [2, 8, 8, 1, 'var(--amber)'], [0, 9, 12, 2], [5, 4, 1, 1, 'var(--amber)']],
+  },
   // A ring open at the top right, with the arrow head pointing down into it.
   reload: {
     w: 12, h: 12, fill: 'var(--bone)',
@@ -91,8 +97,8 @@ const ICONS: Record<IconName, IconDef> = {
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
-/** Creates an icon whose longest side measures `size` CSS px. */
-export function pixelIcon(name: IconName, size: number): SVGSVGElement {
+/** Creates an icon whose longest side measures `size` CSS px; `fill` replaces its main colour. */
+export function pixelIcon(name: IconName, size: number, fill?: string): SVGSVGElement {
   const def = ICONS[name];
   const scale = size / Math.max(def.w, def.h);
   const svg = document.createElementNS(SVG_NS, 'svg');
@@ -108,7 +114,7 @@ export function pixelIcon(name: IconName, size: number): SVGSVGElement {
     rect.setAttribute('y', String(y));
     rect.setAttribute('width', String(w));
     rect.setAttribute('height', String(h));
-    rect.setAttribute('fill', color ?? def.fill);
+    rect.setAttribute('fill', color ?? fill ?? def.fill);
     svg.appendChild(rect);
   }
   return svg;

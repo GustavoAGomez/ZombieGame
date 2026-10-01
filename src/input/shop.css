@@ -1,0 +1,166 @@
+/*
+ * Merchant shop panel (spec 03 §3): centred in the upper half, under the
+ * HUD's top blocks (health and round, points and weapon), clear of the
+ * joystick, the fire button and its buttons.
+ */
+.shop-panel {
+  --merchant: var(--bone);
+  position: absolute;
+  top: calc(var(--pad-top) + 92px);
+  left: 50%;
+  z-index: 25;
+  transform: translateX(-50%);
+  /* Narrower on small screens, so it stays between the joystick and the fire button. */
+  width: min(380px, calc(100% - 2 * var(--pad-x) - 300px));
+  min-width: 280px;
+  padding: 0 8px 8px 10px;
+  background: rgba(26, 23, 20, 0.94);
+  box-shadow:
+    inset 0 0 0 2px var(--merchant),
+    3px 3px 0 var(--ink);
+  pointer-events: auto;
+}
+
+.shop-panel[hidden] {
+  display: none;
+}
+
+.shop-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+}
+
+.shop-panel__title {
+  font-family: var(--font-display);
+  font-size: 12px;
+  color: var(--merchant);
+  text-shadow: 2px 2px 0 var(--ink);
+}
+
+/* 44×44 touch target, overflowing the low header; the drawn cross is smaller. */
+.shop-panel__close {
+  width: 44px;
+  height: 44px;
+  margin: -4px -6px -4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--bone);
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.shop-panel__close.is-pressed {
+  transform: scale(0.92);
+}
+
+.shop-panel__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.shop-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 2px 0 2px 2px;
+  border-top: 1px solid rgba(239, 230, 210, 0.12);
+}
+
+.shop-row__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  box-shadow: inset 0 0 0 2px var(--merchant);
+  background: var(--ink);
+}
+
+.shop-row__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.shop-row__name {
+  font-family: var(--font-display);
+  font-size: 8px;
+  color: var(--bone);
+}
+
+.shop-row__description {
+  font-family: var(--font-label);
+  font-size: 9px;
+  color: var(--muted);
+}
+
+.shop-row__price {
+  flex: none;
+  font-family: var(--font-display);
+  font-size: 10px;
+  color: var(--amber);
+}
+
+.shop-row__buy {
+  flex: none;
+  width: 92px;
+  min-height: 44px;
+  padding: 4px;
+  border: 0;
+  background: var(--red-dark);
+  box-shadow:
+    inset 0 0 0 2px var(--red),
+    2px 2px 0 var(--ink);
+  color: var(--bone);
+  font-family: var(--font-display);
+  font-size: 8px;
+  line-height: 1.3;
+  cursor: pointer;
+}
+
+.shop-row__buy.is-pressed {
+  transform: scale(0.94);
+}
+
+/* Not enough points: dimmed, the missing points in red; a tap shakes it. */
+.shop-row__buy[data-status='short'] {
+  opacity: 0.6;
+  color: var(--red-low);
+}
+
+/* Would do nothing, or the visit's purchases are used up: the reason, no button look. */
+.shop-row__buy[data-status='unavailable'],
+.shop-row__buy[data-status='limit'] {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--dim);
+  color: var(--muted);
+  font-size: 7px;
+  cursor: default;
+}
+
+.shop-row.is-unavailable .shop-row__icon,
+.shop-row.is-unavailable .shop-row__price {
+  opacity: 0.45;
+}
+
+.shop-row__buy.is-shaking {
+  animation: shop-shake 280ms steps(1, end);
+}
+
+@keyframes shop-shake {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(2px); }
+  100% { transform: translateX(0); }
+}

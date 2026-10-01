@@ -1,9 +1,11 @@
 import { DASH, PLAYER, type WeaponId } from '../config/balance';
-import type { EventBus } from '../core/EventBus';
+import { merchantDef, type MerchantId } from '../config/merchants';
+import type { EventBus, GameEvents } from '../core/EventBus';
 import type { GameState } from '../core/GameState';
 import type { MapData } from './map/MapLoader';
 import { repairPointsAvailable } from './systems/BarricadeSystem';
 import { isPortalBuyable } from './systems/PortalSystem';
+import { shopItemStatus } from './systems/ShopSystem';
 import { reloadProgress } from './systems/WeaponSystem';
 
 /** Steps used to quantise continuous values so the DOM updates rarely. */
@@ -24,7 +26,10 @@ export class HudPresenter {
   private hp = -1;
   private round = -1;
   private points = -1;
-  private actionKind: 'repair' | 'door' | 'portal' | null | undefined = undefined;
+  private actionKind: GameEvents['action:context']['kind'] | undefined = undefined;
+  private actionMerchant: MerchantId | undefined;
+  /** Last published shop panel, as a comparable string. */
+  private shopKey = '';
   private actionAmount = -1;
   private actionEnabled = false;
   private actionLocked = false;
@@ -37,6 +42,24 @@ export class HudPresenter {
     private readonly events: EventBus,
     private readonly map: MapData,
   ) {}
+
+  /** The shop panel: closed, or one row per item still sold with its button state. */
+  private publishShop(state: GameState, playerIndex: number): void {
+    const p = state.players[playerIndex];
+    const m = p ? state.merchants[p.shopMerchant] : undefined;
+    let shop: GameEvents['shop:state'] = { merchant: null, rows: [] };
+    if (m) {
+      const rows = merchantDef(m.id).items.flatMap((item, index) => {
+        const status = shopItemStatus(state, p?.shopMerchant ?? -1, playerIndex, index);
+        return status.kind === 'hidden' ? [] : [{ index, item: item.id, price: item.price, status }];
+      });
+      shop = { merchant: m.id, rows };
+    }
+    const key = JSON.stringify(shop);
+    if (key === this.shopKey) return;
+    this.shopKey = key;
+    this.events.emit('shop:state', shop);
+  }
 
   publish(state: GameState, playerIndex = 0): void {
     const p = state.players[playerIndex];
@@ -71,8 +94,10 @@ export class HudPresenter {
       enabled = !locked && p.points >= cost;
       amount = locked ? 0 : enabled ? cost : cost - p.points;
     }
+    const merchant = kind === 'merchant' ? state.merchants[p.contextTarget]?.id : undefined;
     if (
       kind !== this.actionKind ||
+      merchant !== this.actionMerchant ||
       amount !== this.actionAmount ||
       enabled !== this.actionEnabled ||
       locked !== this.actionLocked ||
@@ -83,8 +108,13 @@ export class HudPresenter {
       this.actionEnabled = enabled;
       this.actionLocked = locked;
       this.actionPortal = portalKind;
-      this.events.emit('action:context', kind === 'portal' ? { kind, amount, enabled, portal: portalKind, locked } : { kind, amount, enabled });
+      this.actionMerchant = merchant;
+      if (kind === 'portal') this.events.emit('action:context', { kind, amount, enabled, portal: portalKind, locked });
+      else if (merchant) this.events.emit('action:context', { kind, amount, enabled, merchant });
+      else this.events.emit('action:context', { kind, amount, enabled });
     }
+
+    this.publishShop(state, playerIndex);
 
     if (state.wave.round !== this.round) {
       this.round = state.wave.round;

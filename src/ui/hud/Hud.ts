@@ -110,6 +110,7 @@ export class Hud {
       events.on('player:health', this.onHealth),
       events.on('points:changed', this.onPoints),
       events.on('points:gained', this.onPointsGained),
+      events.on('points:spent', this.onPointsSpent),
       events.on('round:changed', this.onRound),
       events.on('weapon:state', this.onWeapon),
       events.on('player:damaged', this.onDamaged),
@@ -139,16 +140,26 @@ export class Hud {
   private readonly onPointsGained = (e: GameEvents['points:gained']): void => {
     // Gains with a world position (repaired windows) float in the world instead.
     if (e.playerId !== this.localPlayerId || e.x !== undefined) return;
+    this.float(`+${e.amount}`, false);
+  };
+
+  /** "-750" in red when something is bought from a merchant (spec 03 §3). */
+  private readonly onPointsSpent = (e: GameEvents['points:spent']): void => {
+    if (e.playerId === this.localPlayerId) this.float(`-${e.amount}`, true);
+  };
+
+  private float(text: string, spent: boolean): void {
     const span = this.floatPool[this.nextFloat];
     if (!span) return;
     this.nextFloat = (this.nextFloat + 1) % this.floatPool.length;
-    span.textContent = `+${e.amount}`;
+    span.textContent = text;
+    span.classList.toggle('hud-float--spent', spent);
     // Newest at the bottom of the stack; restart its rise-and-fade animation.
     this.floats.appendChild(span);
     span.classList.remove('is-active');
     void span.offsetWidth;
     span.classList.add('is-active');
-  };
+  }
 
   private readonly onRound = (e: GameEvents['round:changed']): void => {
     const text = `${STRINGS.hud.round} ${e.round}`;

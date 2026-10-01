@@ -7,6 +7,7 @@ import { BLOCK_BULLET, segmentClear } from '../map/CollisionGrid';
 import { damageZombie, findAutoAimTarget, findMeleeTarget, isZombieAlive } from './Combat';
 import { bodyCentre, bodyEntry, muzzleFor, type Vec2 } from './shotGeometry';
 import type { SimContext } from './SimContext';
+import { magazineSize } from './weaponStats';
 
 const centre: Vec2 = { x: 0, y: 0 };
 /** Closer than this (px from the muzzle to the body centre), auto-aim points from the feet. */
@@ -61,7 +62,7 @@ function handleReload(p: PlayerState, cmd: InputCommand, dt: number): void {
   const slot = p.weapons[p.activeSlot];
   if (!slot) return;
   // Manual reload: only with room in the magazine and bullets in reserve.
-  if (cmd.reload && p.reloadTimer <= 0 && p.switchTimer <= 0 && slot.magazine < WEAPONS[slot.id].magazine && slot.reserve > 0) {
+  if (cmd.reload && p.reloadTimer <= 0 && p.switchTimer <= 0 && slot.magazine < magazineSize(slot) && slot.reserve > 0) {
     p.reloadTimer = WEAPONS[slot.id].reloadTime;
     return;
   }
@@ -69,7 +70,7 @@ function handleReload(p: PlayerState, cmd: InputCommand, dt: number): void {
     p.reloadTimer -= dt;
     if (p.reloadTimer <= 0) {
       p.reloadTimer = 0;
-      const needed = WEAPONS[slot.id].magazine - slot.magazine;
+      const needed = magazineSize(slot) - slot.magazine;
       const taken = Math.min(needed, slot.reserve);
       slot.magazine += taken;
       slot.reserve -= taken;
