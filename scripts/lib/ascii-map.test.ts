@@ -70,6 +70,22 @@ describe('parseAsciiMap', () => {
       'P3a:hatch:true', 'P3b:hatch:true', 'P4a:ladder:true', 'P4b:ladder:true',
     ]);
     expect(plan.openSpawns).toHaveLength(5);
+    expect(plan.merchantSpots).toHaveLength(20);
+    for (const zone of plan.zones) expect(plan.merchantSpots.filter((m) => m.zone === zone.id).length, zone.id).toBe(2);
+  });
+
+  it('writes merchant spots as points with their zone and rejects them on walls, under furniture or outside their zone', () => {
+    const withSpots = (rows: string): string =>
+      TINY.replace('## Jugador (P)', `## Magos\n| id | casilla | zona |\n|---|---|---|\n${rows}\n## Jugador (P)`);
+    const source = compileAsciiMap(parseAsciiMap(withSpots('| M1 | 1,1 | a |\n| M2 | 10,4 | b |')), tilesets, 'tiny.txt');
+    const objects = (source.layers.find((l) => l.name === 'objects') as { objects: { type?: string; x: number; y: number; properties?: TiledProperty[] }[] }).objects;
+    expect(objects.filter((o) => o.type === 'merchant_spot').map((o) => [o.x, o.y, o.properties?.[0]?.value])).toEqual([
+      [1.5 * 32, 1.5 * 32, 'a'],
+      [10.5 * 32, 4.5 * 32, 'b'],
+    ]);
+    expect(() => parseAsciiMap(withSpots('| M1 | 0,1 | a |'))).toThrow(/mago M1: la casilla 0,1 es "H"/);
+    expect(() => compileAsciiMap(parseAsciiMap(withSpots('| M1 | 7,2 | a |')), tilesets, 'tiny.txt')).toThrow(/mago M1: no cae en la zona a/);
+    expect(() => compileAsciiMap(parseAsciiMap(withSpots('| M1 | 1,1 | atico |')), tilesets, 'tiny.txt')).toThrow(/mago M1: la zona "atico" no existe/);
   });
 
   it('reports markers without a table entry, entries on the wrong cell and unknown characters', () => {

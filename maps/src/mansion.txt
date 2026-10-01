@@ -138,6 +138,30 @@ ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
 | O4 | 99,4 | azotea |
 | O5 | 105,12 | azotea |
 
+## Magos (puntos de aparición de los magos vendedores, spec 03 §1: pegados a una pared o en un rincón, a más de 3 tiles de barricadas, puertas, portales y spawns; la casilla conserva su suelo)
+| id | casilla | zona | nota |
+|---|---|---|---|
+| M1 | 33,32 | recibidor | rincón del pasillo, junto al salón |
+| M2 | 41,36 | recibidor | detrás de la escalera hundida |
+| M3 | 31,30 | salon | rincón noreste |
+| M4 | 24,41 | salon | brazo bajo de la L, junto al piano |
+| M5 | 48,39 | comedor | rincón suroeste |
+| M6 | 55,30 | comedor | pared norte |
+| M7 | 22,19 | biblioteca | rincón del estudio |
+| M8 | 27,28 | biblioteca | pared sur |
+| M9 | 55,28 | cocina | rincón del office |
+| M10 | 42,28 | cocina | pared sur |
+| M11 | 60,34 | garaje | rincón noroeste |
+| M12 | 70,43 | garaje | junto a los neumáticos |
+| M13 | 12,3 | jardin | rincón noroeste, junto al árbol |
+| M14 | 70,6 | jardin | contra el cobertizo |
+| M15 | 22,43 | calle | jardín delantero, contra la fachada |
+| M16 | 78,45 | calle | contra la valla este |
+| M17 | 91,26 | sotano | rincón noroeste |
+| M18 | 106,36 | sotano | pared este, antes de la bodega |
+| M19 | 96,8 | azotea | junto a la chimenea pequeña |
+| M20 | 100,12 | azotea | junto a la chimenea grande |
+
 ## Jugador (P)
 | casilla |
 |---|

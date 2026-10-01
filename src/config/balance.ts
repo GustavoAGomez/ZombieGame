@@ -284,6 +284,18 @@ export const PICKUPS = {
 } as const;
 
 /** Debug panel (spec 01 §8). */
+/** Rules shared by every merchant (spec 03 §2); each one's colour, rounds and catalogue are in merchants.ts. */
+export const MERCHANT = {
+  /** Solid circle around its feet that players cannot walk through. Zombies and bullets ignore it. */
+  radius: 8,
+  /** Smoke puff where it appears and where it left (s). */
+  puffTime: 0.3,
+  /** "EL MAGO AZUL SE HA MOVIDO" on the HUD (s). */
+  movedNoticeTime: 2,
+  /** Small arrow at the screen edge pointing to a merchant out of view. */
+  offscreenIndicator: true,
+} as const;
+
 export const DEBUG = {
   /** Points added by the +1000 button. */
   points: 1000,

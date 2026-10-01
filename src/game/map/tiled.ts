@@ -101,7 +101,7 @@ export interface TiledMap {
 export type TiledSourceMap = Omit<TiledMap, 'tilesets'> & { tilesets: (TiledTileset | TiledTilesetRef)[] };
 
 /** Object kinds in the `objects` layer (docs/ASSETS.md §5). */
-export const OBJECT_TYPES = ['zone', 'player_spawn', 'window', 'zombie_spawn', 'door', 'portal'] as const;
+export const OBJECT_TYPES = ['zone', 'player_spawn', 'window', 'zombie_spawn', 'door', 'portal', 'merchant_spot'] as const;
 export type ObjectType = (typeof OBJECT_TYPES)[number];
 
 export const LAYER_NAMES = {

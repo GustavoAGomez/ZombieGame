@@ -408,3 +408,30 @@ Registro de lo que la spec no definía (o definía de forma ambigua) y cómo se 
   2. `npm run cap:sync`;
   3. `npm run cap:android`;
   4. Run sobre un dispositivo conectado.
+
+## Spec 03 · Fase M1 (magos: puntos, aparición y teletransporte)
+
+- **Puntos de aparición (`merchant_spot`):**
+  - en la mansión van en una tabla `## Magos` del plano, sin carácter propio: la casilla conserva su suelo, como el atrezo. Hay 2 por zona (20 en total), revisados en las vistas previas;
+  - room01 tiene 5, en rincones;
+  - el validador comprueba todas las reglas de la spec. La distancia de más de 3 tiles se mide en línea recta entre centros, también al spawn del jugador, para que el mago nunca aparezca encima de él al empezar. «Pegado a una pared» quiere decir una casilla vecina de la capa `walls`; las chimeneas de la azotea cuentan.
+- **Configuración en `src/config/merchants.ts`** (color, `enabled`, `firstRound`, catálogo con precios y `maxPurchasesPerVisit`), con las reglas comunes en `MERCHANT` de `balance.ts`.
+  - El rojo y el dorado no tienen todavía regla de aparición: `firstRound: 2` es provisional y solo importará cuando el debug los active (M4).
+  - El azul nuevo es el token `merchantBlue` de `theme.ts`.
+- **Elección del sitio:** con varias opciones, se sortea entre todos los puntos candidatos con el RNG de la partida (las zonas con 2 puntos pesan el doble). Orden de preferencia:
+  1. la primera vez, un punto de la zona del spawn del jugador;
+  2. otra zona desbloqueada sin otro mago;
+  3. otro punto de su propia zona;
+  4. otra zona aunque haya otro mago;
+  5. quedarse donde está. En este caso no hay humo ni aviso.
+
+  Así «dos magos nunca comparten zona si hay alternativa» tiene prioridad sobre cambiar de zona.
+- **Cuándo se mueve:** en el mismo tick en que empieza la ronda (`WaveSystem` y después `updateMerchants`), así que se mueve con el cartel de ronda. Con `?round=N` aparece desde el principio en la zona inicial.
+- **Primera aparición:** solo humo, sin aviso. El aviso «EL MAGO AZUL SE HA MOVIDO» sale en los teletransportes, bajo el cartel de ronda, que se ve a la vez, y en el color del mago.
+- **Cuerpo:** sólido para los jugadores, incluso con el dash, que sí atraviesa zombies. Si aparece encima del jugador, lo empuja hacia un lado libre. Los zombies lo atraviesan: ni lo atacan ni lo esquivan, y no cambia el flow field.
+- **Humo:** en el punto de llegada y en el de salida, durante 300 ms. Se mide en ticks del estado, así que se congela con la pausa.
+- **Flecha fuera de pantalla** (dibujada en Phaser, en coordenadas del mundo):
+  - va en el borde visible menos las safe areas del HUD (`--pad-x`, `--pad-top`, `--pad-bottom`, medidas en CSS px) más 6 px;
+  - no se muestra si el mago está en otro nivel (sótano o azotea): esos niveles están en otra parte del mapa y la flecha apuntaría a un sitio que no lleva a ellos;
+  - se desactiva con `MERCHANT.offscreenIndicator`.
+- **Debug:** los círculos de colisión de los magos se dibujan con HITBOX. Los botones de la spec 03 §7 llegan en M4. Para ver el teletransporte basta con RONDA +1.

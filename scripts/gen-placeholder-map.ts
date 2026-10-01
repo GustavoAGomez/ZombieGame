@@ -7,6 +7,7 @@
  *   inicio   14×9 at (4,4)   unlocked, windows W1 (top), W2 (left), W3 (right)
  *   pasillo  16×5 at (4,14)  below inicio, W4 (bottom), W5 (right), door D1 (750)
  *   almacen   8×8 at (21,17) right of pasillo, W6 (right), door D2 (1000)
+ * Merchant spots (spec 03 §1) in corners: two in inicio, two in pasillo, one in almacen.
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -68,6 +69,15 @@ const WINDOWS: WindowDef[] = [
 const DOORS: DoorDef[] = [
   { id: 'D1', cost: 750, fromZone: 'inicio', toZone: 'pasillo', tiles: [[10, 13], [11, 13]] },
   { id: 'D2', cost: 1000, fromZone: 'pasillo', toZone: 'almacen', tiles: [[20, 17], [20, 18]] },
+];
+
+/** Merchant spots: tile and zone. */
+const MERCHANT_SPOTS: [number, number, string][] = [
+  [4, 4, 'inicio'],
+  [17, 12, 'inicio'],
+  [4, 14, 'pasillo'],
+  [15, 18, 'pasillo'],
+  [21, 24, 'almacen'],
 ];
 
 const WINDOW_PLANKS = 5;
@@ -175,6 +185,19 @@ export function buildRoom01Map(): TiledMap {
       ],
     });
   }
+
+  MERCHANT_SPOTS.forEach(([tx, ty, zone], i) => {
+    add({
+      name: `M${i + 1}`,
+      type: 'merchant_spot',
+      point: true,
+      x: (tx + 0.5) * TILE,
+      y: (ty + 0.5) * TILE,
+      width: 0,
+      height: 0,
+      properties: [p('zone', 'string', zone)],
+    });
+  });
 
   const tileLayer = (id: number, name: string, data: number[]) =>
     ({ id, name, type: 'tilelayer', width: WIDTH, height: HEIGHT, x: 0, y: 0, opacity: 1, visible: true, data }) as const;

@@ -1,8 +1,8 @@
 /**
  * ASCII map sources (skill level-design): maps/src/<map>.txt holds the plan,
  * one character per tile, followed by Markdown tables with the ids and
- * properties of the zones, doors, barricades, portals, open spawns and the
- * player. compileAsciiMap turns it into a Tiled map (.tmj) with external
+ * properties of the zones, doors, barricades, portals, open spawns, merchant
+ * spots and the player. compileAsciiMap turns it into a Tiled map (.tmj) with external
  * tilesets, ready for `map:build` to embed and validate.
  *
  * Legend (skill §6):
@@ -117,6 +117,13 @@ export interface AsciiOpenSpawn {
   zone: string;
 }
 
+/** Where a merchant can stand (table "Magos", spec 03 §1). Only in the table: the cell keeps its floor. */
+export interface AsciiMerchantSpot {
+  id: string;
+  cell: Cell;
+  zone: string;
+}
+
 /** A piece of furniture or clutter (table "Atrezo"): a manifest object over whole tiles. */
 export interface AsciiProp {
   id: string;
@@ -136,6 +143,7 @@ export interface AsciiMap {
   windows: AsciiWindow[];
   portals: AsciiPortal[];
   openSpawns: AsciiOpenSpawn[];
+  merchantSpots: AsciiMerchantSpot[];
   props: AsciiProp[];
   player: Cell;
 }
@@ -182,7 +190,7 @@ function readTables(text: string): Map<string, Row[]> {
     }
     const row: Row = {};
     header.forEach((h, i) => (row[h] = cells[i] ?? ''));
-    const key = ['zonas', 'puertas', 'barricadas', 'portales', 'spawns', 'jugador', 'atrezo'].find((k) => section.startsWith(k)) ?? section;
+    const key = ['zonas', 'puertas', 'barricadas', 'portales', 'spawns', 'magos', 'jugador', 'atrezo'].find((k) => section.startsWith(k)) ?? section;
     tables.set(key, [...(tables.get(key) ?? []), row]);
   }
   return tables;
@@ -276,6 +284,11 @@ export function parseAsciiMap(text: string): AsciiMap {
     cell: parseCells(r.casilla ?? '', problems, `spawn ${r.id}`)[0] ?? { x: -1, y: -1 },
     zone: r.zona ?? '',
   }));
+  const merchantSpots: AsciiMerchantSpot[] = rows('magos').map((r) => ({
+    id: r.id ?? '',
+    cell: parseCells(r.casilla ?? '', problems, `mago ${r.id}`)[0] ?? { x: -1, y: -1 },
+    zone: r.zona ?? '',
+  }));
   const player = parseCells(rows('jugador')[0]?.casilla ?? '', problems, 'jugador')[0] ?? { x: -1, y: -1 };
   const props: AsciiProp[] = rows('atrezo').map((r) => {
     const flip = normalize(r.volteo ?? '');
@@ -289,9 +302,10 @@ export function parseAsciiMap(text: string): AsciiMap {
     };
   });
 
-  const map: AsciiMap = { grid, width, height, zones, doors, windows, portals, openSpawns, props, player };
+  const map: AsciiMap = { grid, width, height, zones, doors, windows, portals, openSpawns, merchantSpots, props, player };
   checkMarkers(map, problems);
   checkProps(map, problems);
+  checkMerchantSpots(map, problems);
   if (problems.length > 0) throw new AsciiMapError(problems);
   return map;
 }
@@ -342,6 +356,24 @@ function checkProps(map: AsciiMap, problems: string[]): void {
       if (taken.has(key)) problems.push(`atrezo ${prop.id}: la casilla ${key} ya es de ${taken.get(key)}`);
       taken.set(key, prop.id);
     }
+  }
+}
+
+/**
+ * Merchant spots stand on plain floor: not on walls, markers, water or void,
+ * and not under furniture with collision. The design rules (against a wall,
+ * clear of passages) are checked on the built map (validate-map.ts).
+ */
+function checkMerchantSpots(map: AsciiMap, problems: string[]): void {
+  const solid = new Set(map.props.filter((p) => p.collides).flatMap((p) => p.cells.map((c) => `${c.x},${c.y}`)));
+  const ids = new Set<string>();
+  for (const spot of map.merchantSpots) {
+    const who = `mago ${spot.id}`;
+    if (ids.has(spot.id)) problems.push(`${who}: id repetido`);
+    ids.add(spot.id);
+    const ch = map.grid[spot.cell.y]?.[spot.cell.x] ?? '_';
+    if ('#HFWDo<PZ_w'.includes(ch)) problems.push(`${who}: la casilla ${spot.cell.x},${spot.cell.y} es "${ch}"; el mago va sobre suelo`);
+    if (solid.has(`${spot.cell.x},${spot.cell.y}`)) problems.push(`${who}: la casilla ${spot.cell.x},${spot.cell.y} está bajo atrezo con colisión`);
   }
 }
 
@@ -803,6 +835,11 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
     knownZone(s.zone, `spawn ${s.id}`);
     if (cellZone[s.cell.y * W + s.cell.x] !== zoneIndex.get(s.zone)) problems.push(`spawn ${s.id}: no cae en la zona ${s.zone}`);
     add({ name: s.id, type: 'zombie_spawn', ...point(s.cell) });
+  }
+  for (const m of map.merchantSpots) {
+    knownZone(m.zone, `mago ${m.id}`);
+    if (zoneIndex.has(m.zone) && cellZone[m.cell.y * W + m.cell.x] !== zoneIndex.get(m.zone)) problems.push(`mago ${m.id}: no cae en la zona ${m.zone}`);
+    add({ name: m.id, type: 'merchant_spot', ...point(m.cell), properties: [p('zone', 'string', m.zone)] });
   }
   for (const d of map.doors) {
     knownZone(d.from, `puerta ${d.id}`);

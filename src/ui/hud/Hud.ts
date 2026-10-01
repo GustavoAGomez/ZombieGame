@@ -1,4 +1,5 @@
-import { PLAYER, POINTS, WAVES } from '../../config/balance';
+import { MERCHANT, PLAYER, POINTS, WAVES } from '../../config/balance';
+import { merchantDef } from '../../config/merchants';
 import type { EventBus, GameEvents } from '../../core/EventBus';
 import { pixelIcon } from '../icons';
 import { STRINGS } from '../strings';
@@ -31,6 +32,8 @@ export class Hud {
   private readonly damage: HTMLDivElement;
   private readonly dead: HTMLDivElement;
   private readonly banner: HTMLDivElement;
+  /** "EL MAGO AZUL SE HA MOVIDO" under the round banner (spec 03 §2). */
+  private readonly notice: HTMLDivElement;
   private damageTimer = 0;
   private blinkTimer = 0;
   private readonly unsubscribers: (() => void)[] = [];
@@ -96,7 +99,11 @@ export class Hud {
     this.banner.style.animationDuration = `${WAVES.bannerDuration}s`;
     this.banner.addEventListener('animationend', () => this.banner.classList.remove('is-showing'));
 
-    this.root.append(this.damage, left, right, this.banner, this.dead);
+    this.notice = el('div', 'hud-notice');
+    this.notice.style.animationDuration = `${MERCHANT.movedNoticeTime}s`;
+    this.notice.addEventListener('animationend', () => this.notice.classList.remove('is-showing'));
+
+    this.root.append(this.damage, left, right, this.banner, this.notice, this.dead);
     parent.appendChild(this.root);
 
     this.unsubscribers.push(
@@ -107,6 +114,7 @@ export class Hud {
       events.on('weapon:state', this.onWeapon),
       events.on('player:damaged', this.onDamaged),
       events.on('player:died', this.onDied),
+      events.on('merchant:moved', this.onMerchantMoved),
     );
   }
 
@@ -153,6 +161,16 @@ export class Hud {
     this.round.classList.add('is-blinking');
     window.clearTimeout(this.blinkTimer);
     this.blinkTimer = window.setTimeout(() => this.round.classList.remove('is-blinking'), WAVES.bannerDuration * 1000);
+  };
+
+  private readonly onMerchantMoved = (e: GameEvents['merchant:moved']): void => {
+    // Its first appearance is announced by the smoke alone.
+    if (e.first) return;
+    this.notice.textContent = STRINGS.merchants.moved(STRINGS.merchants.names[e.merchant]);
+    this.notice.style.color = merchantDef(e.merchant).color;
+    this.notice.classList.remove('is-showing');
+    void this.notice.offsetWidth;
+    this.notice.classList.add('is-showing');
   };
 
   private readonly onWeapon = (e: GameEvents['weapon:state']): void => {

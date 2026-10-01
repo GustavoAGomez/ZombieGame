@@ -1,4 +1,5 @@
 import { BULLETS, LOADOUT, PICKUPS, PLAYER, POINTS, WAVES, WEAPONS, ZOMBIES, type PickupKind, type WeaponId, type ZombieKind } from '../config/balance';
+import { MERCHANTS, type MerchantId } from '../config/merchants';
 import type { MapData } from '../game/map/MapLoader';
 import { zombiesInRound } from '../game/systems/waveFormulas';
 import type { RngState } from './Rng';
@@ -175,6 +176,29 @@ export interface PickupState {
 }
 
 /**
+ * A merchant (spec 03 §2). It stands on a merchant spot from its first
+ * round on and teleports to another zone at the start of every round.
+ */
+export interface MerchantState {
+  id: MerchantId;
+  /** It can appear (merchants.ts; the debug panel will switch red and gold on). */
+  enabled: boolean;
+  /** On the map. */
+  active: boolean;
+  /** Index into MapData.merchantSpots, -1 while not on the map. */
+  spot: number;
+  /** Feet, in world px (the spot's point). */
+  x: number;
+  y: number;
+  /** Spot it left at the last teleport (departure puff), -1 on its first appearance. */
+  fromSpot: number;
+  /** Round of its last appearance or teleport. */
+  round: number;
+  /** Tick of its last appearance or teleport (views play the smoke puff). */
+  moveTick: number;
+}
+
+/**
  * Round flow (spec 01 §4.8): `active` while the round's zombies spawn and
  * are fought, `rest` for the pause between rounds, `over` once every player
  * is dead.
@@ -204,6 +228,8 @@ export interface GameState extends RngState {
   zombies: ZombieState[];
   blood: BloodState[];
   pickups: PickupState[];
+  /** One per merchant in merchants.ts, enabled or not. */
+  merchants: MerchantState[];
   wave: WaveState;
   /** Parallel to MapData.doors. */
   doorsOpen: boolean[];
@@ -300,6 +326,10 @@ function createPickup(): PickupState {
   return { active: false, kind: 'ammo', x: 0, y: 0, age: 0 };
 }
 
+function createMerchant(id: MerchantId, enabled: boolean): MerchantState {
+  return { id, enabled, active: false, spot: -1, x: 0, y: 0, fromSpot: -1, round: 0, moveTick: -1000 };
+}
+
 function createBlood(): BloodState {
   return { active: false, x: 0, y: 0, age: 0, variant: 0 };
 }
@@ -329,6 +359,7 @@ export function createGameState(map: MapData, options: GameOptions = {}): GameSt
     zombies: Array.from({ length: ZOMBIES.poolSize }, createZombie),
     blood: Array.from({ length: ZOMBIES.maxBloodDecals }, createBlood),
     pickups: Array.from({ length: PICKUPS.poolSize }, createPickup),
+    merchants: MERCHANTS.map((m) => createMerchant(m.id, m.enabled)),
     wave: { round, phase: 'active', toSpawn, spawnTimer: WAVES.bannerDuration, restTimer: 0, auto: waveFlow },
     doorsOpen: map.doors.map(() => false),
     portalsOpen: Array.from({ length: map.portalLinks }, () => false),

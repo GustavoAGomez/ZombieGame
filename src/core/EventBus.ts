@@ -1,4 +1,5 @@
 import type { PickupKind, WeaponId, ZombieKind } from '../config/balance';
+import type { MerchantId } from '../config/merchants';
 
 /**
  * Game -> HUD events. The HUD only ever sees these payloads; it never
@@ -46,6 +47,8 @@ export interface GameEvents {
     locked?: boolean;
   };
   'round:changed': { round: number };
+  /** A merchant appeared (`first`) or teleported to another spot at the start of a round (spec 03 §2). */
+  'merchant:moved': { merchant: MerchantId; first: boolean };
   /** Every zombie of the round is dead: the rest before the next round begins. */
   'round:cleared': { round: number };
   /** Every player is dead. `round` is the round reached; `score` every point earned. */

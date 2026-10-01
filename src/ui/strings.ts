@@ -46,6 +46,10 @@ export const STRINGS = {
     points: 'PUNTOS',
     retry: 'REINTENTAR',
   },
+  merchants: {
+    names: { blue: 'MAGO AZUL', red: 'MAGO ROJO', gold: 'MAGO DORADO' },
+    moved: (name: string): string => `EL ${name} SE HA MOVIDO`,
+  },
   actions: {
     repair: 'REPARAR',
     openDoor: 'ABRIR PUERTA',

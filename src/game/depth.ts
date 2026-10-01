@@ -18,6 +18,8 @@ export const DEPTH = {
   actorsOverFog: 29.1,
   bullets: 30,
   aimLine: 31,
+  /** Arrows at the screen edge towards merchants out of view. */
+  indicators: 32,
   debug: 100,
 } as const;
 

@@ -1,5 +1,6 @@
 import type Phaser from 'phaser';
 import { ZOMBIES } from '../../config/balance';
+import { MERCHANTS } from '../../config/merchants';
 import { COLORS } from '../../config/theme';
 import { propColor, shade } from './propColors';
 import { TILE_COLLIDES, TILE_VOID, TILE_WATER, type MapTileset } from '../map/MapLoader';
@@ -358,6 +359,53 @@ function drawMeleeSlash(ctx: Ctx, frame: number, frames: number, ox: number, oy:
   }
 }
 
+/** Merchant placeholder (spec 03 §2): a rectangle of its colour with a 1 px darker outline. */
+function drawMerchant(ctx: Ctx, color: string, ox: number, oy: number, w: number, h: number): void {
+  rect(ctx, `rgb(${shade(color, 0.55).join(',')})`, ox, oy, w, h);
+  rect(ctx, color, ox + 1, oy + 1, w - 2, h - 2);
+}
+
+/** A diamond in white, tinted with the merchant's colour at runtime. */
+function drawGem(ctx: Ctx, ox: number, oy: number, w: number, h: number): void {
+  for (let y = 0; y < h; y++) {
+    const half = Math.ceil(Math.min(y + 1, h - y) * (w / h));
+    rect(ctx, '#ffffff', ox + Math.floor(w / 2) - half, oy + y, half * 2, 1);
+  }
+}
+
+/** Smoke puff in light greys (tinted at runtime): blobs that spread out and thin away over the frames. */
+function drawSmokePuff(ctx: Ctx, frame: number, frames: number, ox: number, oy: number, w: number, h: number): void {
+  const t = (frame + 1) / Math.max(1, frames);
+  const cx = ox + w / 2;
+  const cy = oy + h / 2;
+  const spread = 2 + t * (w / 2 - 6);
+  const radius = Math.max(1, 5 - t * 2.5);
+  const alpha = 0.95 - t * 0.6;
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * Math.PI * 2 + frame * 0.4;
+    const bx = cx + Math.cos(a) * spread;
+    const by = cy + Math.sin(a) * spread * 0.8;
+    for (let y = -radius; y <= radius; y++) {
+      for (let x = -radius; x <= radius; x++) {
+        if (x * x + y * y > radius * radius) continue;
+        const grey = y < 0 ? 255 : 215;
+        rect(ctx, `rgba(${grey}, ${grey}, ${grey}, ${alpha.toFixed(2)})`, Math.round(bx + x), Math.round(by + y), 1, 1);
+      }
+    }
+  }
+}
+
+/** Off-screen pointer: a white triangle towards +x with a dark outline, tinted at runtime. */
+function drawOffscreenArrow(ctx: Ctx, ox: number, oy: number, w: number, h: number): void {
+  for (let x = 0; x < w; x++) {
+    const half = ((w - x) / w) * (h / 2);
+    const y0 = Math.round(h / 2 - half);
+    const y1 = Math.round(h / 2 + half);
+    rect(ctx, COLORS.ink, ox + x, oy + y0, 1, Math.max(1, y1 - y0));
+    if (x > 0 && x < w - 1 && y1 - y0 > 2) rect(ctx, '#ffffff', ox + x, oy + y0 + 1, 1, y1 - y0 - 2);
+  }
+}
+
 export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def: ObjectDef): void {
   createSheet(scene, objectTextureKey(object), def.frameWidth, def.frameHeight, def.frames, 1, (ctx, col, _row, ox, oy) => {
     const { frameWidth: w, frameHeight: h } = def;
@@ -394,13 +442,28 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
       case ASSET_KEYS.meleeSlash:
         drawMeleeSlash(ctx, col, def.frames, ox, oy, w, h);
         break;
-      default:
+      case ASSET_KEYS.merchantGem:
+        drawGem(ctx, ox, oy, w, h);
+        break;
+      case ASSET_KEYS.smokePuff:
+        drawSmokePuff(ctx, col, def.frames, ox, oy, w, h);
+        break;
+      case ASSET_KEYS.offscreenArrow:
+        drawOffscreenArrow(ctx, ox, oy, w, h);
+        break;
+      default: {
+        const merchant = MERCHANTS.find((m) => object === `merchant_${m.id}`);
+        if (merchant) {
+          drawMerchant(ctx, merchant.color, ox, oy, w, h);
+          break;
+        }
         if (object.startsWith('prop_')) {
           drawProp(ctx, object, ox, oy, w, h);
           break;
         }
         rect(ctx, PLACEHOLDER_COLORS.generic, ox, oy, w, h);
         rect(ctx, COLORS.ink, ox + 1, oy + 1, w - 2, h - 2);
+      }
     }
   });
 }

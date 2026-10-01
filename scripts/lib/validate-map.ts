@@ -1,5 +1,6 @@
 /**
- * Design rules of a full game map (docs/specs/02-mapa-mansion.md §4). Used by
+ * Design rules of a full game map (docs/specs/02-mapa-mansion.md §4, and the
+ * merchant spots of docs/specs/03-magos.md §1). Used by
  * `map:build`, `assets:check` and the tests. Returns readable errors in
  * Spanish; an empty list means the map is valid.
  */
@@ -19,6 +20,10 @@ export const MAP_RULES = {
   /** Furniture with collision keeps farther than this (tiles, Chebyshev) from barricades, doors and portals. */
   minPropClearanceTiles: 2,
   minExitsPerZone: 2,
+  minMerchantSpotsPerZone: 1,
+  maxMerchantSpotsPerZone: 2,
+  /** Merchant spots keep strictly farther than this (tiles) from barricades, doors, portals and spawns. */
+  minMerchantClearanceTiles: 3,
   maxWidth: 120,
   maxHeight: 70,
 } as const;
@@ -201,5 +206,78 @@ export function validateMap(raw: TiledSourceMap | TiledMap): MapValidation {
     if (narrow.size > 0) errors.push(`el atrezo ${prop.id} (${prop.key}) deja un paso de menos de 2 tiles en ${[...narrow].join(' ')}`);
   }
 
+  validateMerchantSpots(map, free, inOpenSquare, errors);
   return { errors, map };
+}
+
+const SIDES = [
+  [1, 0],
+  [-1, 0],
+  [0, 1],
+  [0, -1],
+] as const;
+
+/**
+ * Merchant spots (spec 03 §1): 1 or 2 per zone, each against a wall or in a
+ * corner, farther than 3 tiles from barricades, doors, portals and spawns,
+ * and never narrowing a pass under 2 tiles (the merchant is solid).
+ */
+function validateMerchantSpots(
+  map: MapData,
+  free: (x: number, y: number) => boolean,
+  inOpenSquare: (x: number, y: number) => boolean,
+  errors: string[],
+): void {
+  const R = MAP_RULES;
+  const ts = map.tileSize;
+  map.zones.forEach((zone, i) => {
+    const count = map.zoneMerchantSpots[i]?.length ?? 0;
+    if (count < R.minMerchantSpotsPerZone || count > R.maxMerchantSpotsPerZone) {
+      errors.push(`la zona ${zone.id} tiene ${count} puntos de mago; deben ser de ${R.minMerchantSpotsPerZone} a ${R.maxMerchantSpotsPerZone}`);
+    }
+  });
+  const centre = (t: { x: number; y: number }) => ({ x: (t.x + 0.5) * ts, y: (t.y + 0.5) * ts });
+  const keepAway: { what: string; points: { x: number; y: number }[] }[] = [
+    ...map.windows.map((w) => ({ what: `la barricada ${w.id}`, points: [w.center] })),
+    ...map.doors.map((d) => ({ what: `la puerta ${d.id}`, points: d.tiles.map(centre) })),
+    ...map.portals.map((p) => ({ what: `el portal ${p.id}`, points: p.tiles.map(centre) })),
+    ...map.zombieSpawns.map((s) => ({ what: `el spawn de ${s.window}`, points: [s] })),
+    ...map.openSpawns.map((s, i) => ({ what: `el spawn abierto ${i + 1}`, points: [s] })),
+    { what: 'el spawn del jugador', points: [map.playerSpawn] },
+  ];
+  map.merchantSpots.forEach((spot, i) => {
+    const who = `el punto de mago ${i + 1} (${spot.zone})`;
+    const tx = Math.floor(spot.x / ts);
+    const ty = Math.floor(spot.y / ts);
+    if ((map.cellZone[ty * map.width + tx] ?? -1) !== spot.zoneIndex) errors.push(`${who} no cae en su zona`);
+    if (!free(tx, ty)) {
+      errors.push(`${who} está en una casilla bloqueada (${tx},${ty})`);
+      return;
+    }
+    const wall = (x: number, y: number): boolean => x >= 0 && y >= 0 && x < map.width && y < map.height && (map.walls[y * map.width + x] ?? 0) !== 0;
+    if (!SIDES.some(([dx, dy]) => wall(tx + dx, ty + dy))) errors.push(`${who} no está pegado a una pared (${tx},${ty})`);
+    for (const k of keepAway) {
+      const d = Math.min(...k.points.map((p) => Math.hypot(p.x - spot.x, p.y - spot.y))) / ts;
+      if (d <= R.minMerchantClearanceTiles) errors.push(`${who} está a ${d.toFixed(1)} tiles de ${k.what}; debe estar a más de ${R.minMerchantClearanceTiles}`);
+    }
+    // With the merchant standing there, every free cell next to it must still be part of an open 2×2 square.
+    const freeWithMerchant = (x: number, y: number): boolean => free(x, y) && !(x === tx && y === ty);
+    const narrow = SIDES.map(([dx, dy]) => [tx + dx, ty + dy] as const).filter(
+      ([x, y]) =>
+        freeWithMerchant(x, y) &&
+        !inOpenSquareWith(x, y, freeWithMerchant) &&
+        // Already narrow without the merchant: that is the map, not the spot.
+        inOpenSquare(x, y),
+    );
+    if (narrow.length > 0) errors.push(`${who} deja un paso de menos de 2 tiles en ${narrow.map(([x, y]) => `${x},${y}`).join(' ')}`);
+  });
+}
+
+function inOpenSquareWith(x: number, y: number, free: (x: number, y: number) => boolean): boolean {
+  return [
+    [0, 0],
+    [-1, 0],
+    [0, -1],
+    [-1, -1],
+  ].some(([dx = 0, dy = 0]) => free(x + dx, y + dy) && free(x + dx + 1, y + dy) && free(x + dx, y + dy + 1) && free(x + dx + 1, y + dy + 1));
 }

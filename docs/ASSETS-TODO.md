@@ -7,6 +7,10 @@ Objetos y tiles que el juego ya usa con un placeholder. Cada entrada lleva el pr
 | Clave | Uso | Placeholder actual | Prompt sugerido |
 |---|---|---|---|
 | `player`, animación `melee` | Cuchillada del jugador (botón CUCHILLO): 8 direcciones, unos 0,25 s, sin bucle | Ninguna: el cuerpo no cambia y se dibuja el tajo `melee_slash` | El mismo personaje de PixelLab, animación "knife stab / slash attack" (el importador la normaliza a `melee`) |
+| `merchant_blue`, `merchant_red`, `merchant_gold` | Magos vendedores con gabardina (spec 03), quietos en su sitio; el pie a 4 px del borde inferior | Rectángulo de 14×20 de su color (azul `#3a6fd8`, rojo `#c93a2b`, dorado `#e8b04a`) con contorno 1 px más oscuro | "wizard merchant in a long trench coat and hood, standing, idle, <colour> accents, top-down high angle, 14x20" (puede crecer a 16×24 o a personaje con animación `idle` si se prefiere) |
+| `merchant_gem` | Rombo flotante sobre el mago (se tiñe con su color y oscila 2 px cada 1,2 s) | Rombo blanco de 6×6 | Desaparece si el sprite del mago ya lleva su distintivo |
+| `smoke_puff` | Humo al aparecer y al teletransportarse un mago (300 ms, se tiñe con su color) | Nube clara que se abre en 4 fotogramas de 24×24 | "magic smoke puff, white, 4 frames, 24x24, top-down" |
+| `offscreen_arrow` | Flecha en el borde de la pantalla hacia un mago fuera de la vista (se tiñe con su color) | Triángulo blanco de 8×8 hacia la derecha con contorno oscuro | "small pixel arrow pointer, white with dark outline, facing right, 8x8" |
 | `melee_slash` | Tajo provisional delante del jugador mientras no exista la animación `melee` | Arco claro generado, 4 fotogramas de 32×32 dibujados hacia la derecha (la vista lo gira) | Opcional si la animación del personaje ya lleva el tajo: "knife slash swoosh arc, white, 4 frames, 32x32, facing right" |
 
 ## Iconos del HUD

@@ -17,6 +17,8 @@ export const COLORS = {
   amberDark: '#b07a2a',
   door: '#3f5866',
   wood: '#8a6a3f',
+  /** The blue merchant (spec 03 §2); the red and gold ones use red and amber. */
+  merchantBlue: '#3a6fd8',
 } as const;
 
 export type ColorToken = keyof typeof COLORS;

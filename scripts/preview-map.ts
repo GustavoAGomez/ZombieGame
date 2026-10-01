@@ -172,6 +172,17 @@ export function renderMap(mapPath: string): { image: Frame; map: MapData } {
     rect(image, Math.round(s.x) - 9, Math.round(s.y) - 9, 18, 2, [255, 60, 60]);
     rect(image, Math.round(s.x) - 9, Math.round(s.y) + 7, 18, 2, [255, 60, 60]);
   }
+  // Merchant spots: a blue diamond with a dark outline (spec 03 §1).
+  for (const m of map.merchantSpots) {
+    for (let i = -7; i <= 7; i++) {
+      const half = 7 - Math.abs(i);
+      rect(image, Math.round(m.x) - half - 1, Math.round(m.y) + i, half * 2 + 3, 1, [20, 30, 60]);
+    }
+    for (let i = -5; i <= 5; i++) {
+      const half = 5 - Math.abs(i);
+      rect(image, Math.round(m.x) - half, Math.round(m.y) + i, half * 2 + 1, 1, [58, 111, 216]);
+    }
+  }
   for (let i = 0; i <= 8; i++) rect(image, Math.round(map.playerSpawn.x) - i, Math.round(map.playerSpawn.y) - 8 + i, i * 2 + 1, 1, [255, 230, 40]);
   for (let i = 0; i < 8; i++) rect(image, Math.round(map.playerSpawn.x) - 7 + i, Math.round(map.playerSpawn.y) + 1 + i, 15 - i * 2, 1, [255, 230, 40]);
   return { image, map };

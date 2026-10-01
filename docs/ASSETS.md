@@ -117,6 +117,7 @@ Los tilesets deben ir **embebidos** en el `.tmj` que carga el juego (`public/ass
 | `zombie_spawn` | punto | `window` (id de la ventana a la que va); sin `window` es un spawn abierto y debe caer en una zona con `openSpawns` |
 | `door` | rectángulo (1–2 tiles) | `id`, `cost` (int), `fromZone`, `toZone` |
 | `portal` | rectángulo (1–2 tiles) | `id`, `pair` (id del otro extremo), `cost`, `zone`, `secondary` (bool), `kind` (`stairs`, `ladder` o `hatch`) |
+| `merchant_spot` | punto | `zone` (string): dónde puede estar un mago vendedor (spec 03 §1). Entre 1 y 2 por zona, incluidas las islas; en el centro de una casilla de suelo pegada a una pared o en un rincón, a más de 3 tiles de barricadas, puertas, portales, spawns de zombies y el del jugador, y sin dejar un paso de menos de 2 tiles (el mago es sólido). El validador comprueba todas estas reglas |
 
 ## 6. Importar desde PixelLab (`npm run assets:import`)
 
@@ -326,8 +327,9 @@ npm run map:preview     maps/preview/: el mapa completo a 1:4, cada zona a 1:1 y
   - suelos interiores con la variante limpia de cada material al 70 % y las manchadas repartidas, nunca dos iguales juntas (§7.4), cada baldosa en uno de sus 4 volteos;
   - decals agrupados: escombros, astillas, sangre y un rastro hacia dentro en cada barricada; suciedad y pisadas en puertas y huecos; polvo en las esquinas; y racimos de ruido hasta cubrir el 20 % de cada zona (contando el atrezo);
   - sombras al pie de paredes, vallas, puertas, barricadas y muebles con colisión.
+- **Magos:** tabla `## Magos` del plano (`id`, `casilla`, `zona`, `nota`). La casilla conserva su suelo en el plano; `map:build` escribe un `merchant_spot` en su centro y `map:preview` lo marca con un rombo azul.
 - **Atrezo:** tabla `## Atrezo` del plano (`id`, `objeto`, `casillas` como una casilla o dos esquinas, `colisión`, `volteo`). Cada clave tiene un solo tamaño; `map:build` registra en el manifiesto los objetos que falten como placeholder del tamaño de su huella, y el arte pendiente se apunta en `docs/ASSETS-TODO.md`.
-- `map:build` no escribe el mapa del juego si el validador falla, y lista los errores (zonas, barricadas, costes, salidas, alcanzabilidad, portales, atrezo a menos de 2 tiles de barricadas, puertas o portales de su zona, pasos de menos de 2 tiles junto a un mueble, casillas aisladas…).
+- `map:build` no escribe el mapa del juego si el validador falla, y lista los errores (zonas, barricadas, costes, salidas, alcanzabilidad, portales, atrezo a menos de 2 tiles de barricadas, puertas o portales de su zona, pasos de menos de 2 tiles junto a un mueble, casillas aisladas, puntos de mago mal colocados…).
 - `map:preview` imprime la densidad de decoración de cada zona (objetivo de la skill: 15–25 %).
 - `assets:check` (y por tanto `npm run build`) pasa el mismo validador a los mapas que tienen fuente en `art-src/tiled/` y avisa si el plano o la fuente son más recientes que el mapa del juego.
 - La mansión es el mapa por defecto; `?map=room01` carga el mapa de prueba.

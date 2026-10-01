@@ -2,6 +2,7 @@ import { updateBullets } from './BulletSystem';
 import { updateBlood } from './Combat';
 import { updateHealth } from './HealthSystem';
 import { updateInteractions } from './InteractionSystem';
+import { blockPlayersByMerchants, updateMerchants } from './MerchantSystem';
 import { updateMovement } from './MovementSystem';
 import { updatePickups } from './PickupSystem';
 import { updatePlayerPortals, updateZombiePortals } from './PortalSystem';
@@ -24,6 +25,7 @@ export function stepSimulation(ctx: SimContext, dt: number): void {
   }
   updateSpecial(ctx, dt);
   updateMovement(ctx, dt);
+  blockPlayersByMerchants(ctx);
   updatePlayerPortals(ctx);
   updateWeapons(ctx, dt);
   updateInteractions(ctx, dt);
@@ -35,6 +37,8 @@ export function stepSimulation(ctx: SimContext, dt: number): void {
   updateHealth(ctx, dt);
   updateBlood(ctx, dt);
   updateWaves(ctx, dt);
+  // After the waves: a merchant moves on the very tick its round starts.
+  updateMerchants(ctx);
   state.tick++;
   state.time += dt;
 }

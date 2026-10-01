@@ -260,6 +260,39 @@
   }
 }
 
+/* Merchant notice under the round banner, which shows at the same time (spec 03 §2). */
+.hud-notice {
+  position: absolute;
+  left: 50%;
+  top: calc(36% + 30px);
+  transform: translateX(-50%);
+  font-family: var(--font-label);
+  font-size: 12px;
+  text-shadow: 2px 2px 0 var(--ink);
+  opacity: 0;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.hud-notice.is-showing {
+  animation-name: hud-notice;
+  animation-timing-function: steps(8, end);
+  animation-fill-mode: both;
+}
+
+@keyframes hud-notice {
+  0% {
+    opacity: 0;
+  }
+  10%,
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 /* The round figure blinks while the banner shows. */
 .hud-round.is-blinking {
   animation: hud-blink 0.5s steps(1, end) infinite;

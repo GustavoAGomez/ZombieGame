@@ -10,7 +10,7 @@
  "tilewidth": 32,
  "tileheight": 32,
  "nextlayerid": 5,
- "nextobjectid": 19,
+ "nextobjectid": 24,
  "layers": [
   {
    "id": 1,
@@ -3272,6 +3272,101 @@
       },
       {
        "name": "toZone",
+       "type": "string",
+       "value": "almacen"
+      }
+     ]
+    },
+    {
+     "id": 19,
+     "rotation": 0,
+     "visible": true,
+     "name": "M1",
+     "type": "merchant_spot",
+     "point": true,
+     "x": 144,
+     "y": 144,
+     "width": 0,
+     "height": 0,
+     "properties": [
+      {
+       "name": "zone",
+       "type": "string",
+       "value": "inicio"
+      }
+     ]
+    },
+    {
+     "id": 20,
+     "rotation": 0,
+     "visible": true,
+     "name": "M2",
+     "type": "merchant_spot",
+     "point": true,
+     "x": 560,
+     "y": 400,
+     "width": 0,
+     "height": 0,
+     "properties": [
+      {
+       "name": "zone",
+       "type": "string",
+       "value": "inicio"
+      }
+     ]
+    },
+    {
+     "id": 21,
+     "rotation": 0,
+     "visible": true,
+     "name": "M3",
+     "type": "merchant_spot",
+     "point": true,
+     "x": 144,
+     "y": 464,
+     "width": 0,
+     "height": 0,
+     "properties": [
+      {
+       "name": "zone",
+       "type": "string",
+       "value": "pasillo"
+      }
+     ]
+    },
+    {
+     "id": 22,
+     "rotation": 0,
+     "visible": true,
+     "name": "M4",
+     "type": "merchant_spot",
+     "point": true,
+     "x": 496,
+     "y": 592,
+     "width": 0,
+     "height": 0,
+     "properties": [
+      {
+       "name": "zone",
+       "type": "string",
+       "value": "pasillo"
+      }
+     ]
+    },
+    {
+     "id": 23,
+     "rotation": 0,
+     "visible": true,
+     "name": "M5",
+     "type": "merchant_spot",
+     "point": true,
+     "x": 688,
+     "y": 784,
+     "width": 0,
+     "height": 0,
+     "properties": [
+      {
+       "name": "zone",
        "type": "string",
        "value": "almacen"
       }

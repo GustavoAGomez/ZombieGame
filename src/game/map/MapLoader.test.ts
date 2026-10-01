@@ -64,6 +64,24 @@ describe('parseMap (room01 placeholder)', () => {
     ]);
   });
 
+  it('reads the merchant spots and groups them by zone', () => {
+    expect(map.merchantSpots.map((s) => [s.x / 32 - 0.5, s.y / 32 - 0.5, s.zone])).toEqual([
+      [4, 4, 'inicio'],
+      [17, 12, 'inicio'],
+      [4, 14, 'pasillo'],
+      [15, 18, 'pasillo'],
+      [21, 24, 'almacen'],
+    ]);
+    expect(map.zoneMerchantSpots).toEqual([[0, 1], [2, 3], [4]]);
+  });
+
+  it('rejects merchant spots in unknown zones', () => {
+    const json = clone();
+    const spot = (json.layers.find((l) => l.name === 'objects') as TiledObjectLayer).objects.find((o) => o.type === 'merchant_spot');
+    spot!.properties = [{ name: 'zone', type: 'string', value: 'atico' }];
+    expect(() => parseMap(json)).toThrow(/merchant_spot .* unknown zone "atico"/);
+  });
+
   it('puts the player spawn inside the starting zone', () => {
     const tx = Math.floor(map.playerSpawn.x / 32);
     const ty = Math.floor(map.playerSpawn.y / 32);

@@ -15,6 +15,7 @@ import { AimLine } from '../entities/AimLine';
 import { BloodViewPool } from '../entities/Blood';
 import { BulletViewPool } from '../entities/Bullet';
 import { MeleeSlash } from '../entities/MeleeSlash';
+import { MerchantViewPool, OffscreenArrows } from '../entities/Merchant';
 import { MuzzleFlash } from '../entities/MuzzleFlash';
 import { PickupViewPool } from '../entities/Pickup';
 import { PlayerView } from '../entities/Player';
@@ -36,6 +37,7 @@ import type { DebugActions } from '../../debug/DebugOverlay';
 import type { MuzzleTable } from '../systems/shotGeometry';
 import { angleFromDir8 } from '../../core/math';
 import { muzzleOffset } from '../entities/muzzle';
+import { measureSafePadding, type SafePadding } from '../../ui/safeArea';
 import { SCENE_KEYS, type GameSceneData } from './BootScene';
 import type { GameOverData } from './GameOverScene';
 
@@ -63,6 +65,10 @@ export class GameScene extends Phaser.Scene {
   private debugDraw!: DebugDraw;
   private bloodViews!: BloodViewPool;
   private pickupViews!: PickupViewPool;
+  private merchantViews!: MerchantViewPool;
+  private offscreenArrows!: OffscreenArrows;
+  /** The HUD's safe-area margins, for the off-screen arrows (measured on resize). */
+  private safePadding: SafePadding = { x: 0, top: 0, bottom: 0 };
   private pauseButton!: PauseButton;
   private pauseMenu!: PauseMenu;
   /** The match is frozen behind the pause menu. */
@@ -124,6 +130,8 @@ export class GameScene extends Phaser.Scene {
     this.bloodViews = new BloodViewPool(this, this.state.blood.length);
     this.pickupViews = new PickupViewPool(this, this.state.pickups.length);
     this.zombieViews = new ZombieViewPool(this, manifest, this.state.zombies.length);
+    this.merchantViews = new MerchantViewPool(this, this.map, this.state.merchants, manifest.objects[ASSET_KEYS.smokePuff]);
+    this.offscreenArrows = new OffscreenArrows(this, this.state.merchants);
     this.playerView = new PlayerView(this, playerDef);
     this.bulletViews = new BulletViewPool(this, this.state.bullets.length, playerDef);
     this.aimLine = new AimLine(this, playerDef);
@@ -241,6 +249,8 @@ export class GameScene extends Phaser.Scene {
     this.bloodViews.sync(this.state.blood);
     this.pickupViews.sync(this.state.pickups, this.state.time);
     this.zombieViews.sync(this.state.zombies, alpha, now, this.isDark);
+    this.merchantViews.sync(this.state.merchants, this.state.tick, this.state.time);
+    this.syncOffscreenArrows();
     if (player) {
       this.playerView.sync(player, alpha);
       if (player.teleports !== this.shownTeleports) {
@@ -291,7 +301,34 @@ export class GameScene extends Phaser.Scene {
   private readonly applyZoom = (): void => {
     this.cameras.main.setZoom(computeWorldZoom(this.scale.height));
     this.applyCameraBounds();
+    this.safePadding = measureSafePadding();
   };
+
+  /** Arrows at the screen edge towards merchants out of view, on the level the camera shows. */
+  private syncOffscreenArrows(): void {
+    const camera = this.cameras.main;
+    const view = camera.worldView;
+    const cssWidth = this.game.canvas.clientWidth || this.scale.width;
+    const worldPerCssPx = this.scale.width / cssWidth / camera.zoom;
+    const pad = this.safePadding;
+    this.offscreenArrows.sync(
+      this.state.merchants,
+      {
+        x: view.x,
+        y: view.y,
+        width: view.width,
+        height: view.height,
+        insetX: pad.x * worldPerCssPx,
+        insetTop: pad.top * worldPerCssPx,
+        insetBottom: pad.bottom * worldPerCssPx,
+      },
+      worldPerCssPx,
+      (spot) => {
+        const zone = this.map.merchantSpots[spot]?.zoneIndex ?? -1;
+        return zone >= 0 && this.levels?.zoneLevel[zone] === this.currentLevel;
+      },
+    );
+  }
 
   /** Follows the player into another level (through a portal) and fits the camera to it. */
   private updateLevel(): void {

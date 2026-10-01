@@ -73,7 +73,19 @@ export const REQUIRED_ANIMATIONS: Readonly<Record<string, readonly string[]>> = 
 };
 
 /** Map objects that must exist, one per wall orientation (docs/ASSETS.md §4). */
-export const REQUIRED_OBJECTS: readonly string[] = ['window_planks', 'window_planks_v', 'door', 'door_v', 'portal'];
+export const REQUIRED_OBJECTS: readonly string[] = [
+  'window_planks',
+  'window_planks_v',
+  'door',
+  'door_v',
+  'portal',
+  'merchant_blue',
+  'merchant_red',
+  'merchant_gold',
+  'merchant_gem',
+  'smoke_puff',
+  'offscreen_arrow',
+];
 
 /** Asset keys the game code uses. */
 export const ASSET_KEYS = {
@@ -94,6 +106,10 @@ export const ASSET_KEYS = {
   pickupHealth: 'pickup_health',
   muzzleFlash: 'muzzle_flash',
   meleeSlash: 'melee_slash',
+  /** Merchant bodies are `merchant_<id>` (merchantTextureKey). */
+  merchantGem: 'merchant_gem',
+  smokePuff: 'smoke_puff',
+  offscreenArrow: 'offscreen_arrow',
   mapRoom01: 'room01',
   mapMansion: 'mansion',
 } as const;

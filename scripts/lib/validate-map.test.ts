@@ -131,4 +131,29 @@ describe('validateMap', () => {
       expect(errorsOf(withProp(prop('Q5', 39, 31)))).toMatch(/Q5 tapa el spawn del jugador/);
     });
   });
+
+  describe('merchant spots', () => {
+    const moveSpot = (name: string, tx: number, ty: number) =>
+      variant((o) => Object.assign(byName(o, name), { x: (tx + 0.5) * 32, y: (ty + 0.5) * 32 }));
+
+    it('needs one or two per zone', () => {
+      const none = variant((o) => {
+        for (const name of ['M17', 'M18']) o.splice(o.indexOf(byName(o, name)), 1);
+      });
+      expect(errorsOf(none)).toMatch(/la zona sotano tiene 0 puntos de mago/);
+      const three = variant((o) => o.push({ ...byName(o, 'M1'), id: 9999, name: 'M99', x: 35.5 * 32, y: 30.5 * 32 }));
+      expect(errorsOf(three)).toMatch(/la zona recibidor tiene 3 puntos de mago/);
+    });
+
+    it('keeps them against a wall, inside their zone and clear of barricades', () => {
+      expect(errorsOf(moveSpot('M3', 25, 37))).toMatch(/punto de mago 3 \(salon\) no está pegado a una pared/);
+      expect(errorsOf(moveSpot('M6', 53, 41))).toMatch(/punto de mago 6 \(comedor\) está a 1\.0 tiles de la barricada W6/);
+      expect(errorsOf(moveSpot('M6', 25, 37))).toMatch(/punto de mago 6 \(comedor\) no cae en su zona/);
+    });
+
+    it('does not let a merchant narrow a pass under 2 tiles', () => {
+      // In the 2-tile gap between the library and its reading corner.
+      expect(errorsOf(moveSpot('M7', 21, 21))).toMatch(/punto de mago 7 \(biblioteca\) deja un paso de menos de 2 tiles en 21,22/);
+    });
+  });
 });

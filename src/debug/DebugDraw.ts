@@ -1,13 +1,13 @@
 import type Phaser from 'phaser';
-import { BULLETS, PLAYER, ZOMBIES } from '../config/balance';
+import { BULLETS, MERCHANT, PLAYER, ZOMBIES } from '../config/balance';
 import type { GameState } from '../core/GameState';
 import { DEPTH } from '../game/depth';
 import { UNREACHABLE, flowNextCell, type FlowField } from '../game/map/FlowField';
 import { isZombieAlive } from '../game/systems/Combat';
 
 /**
- * Debug drawing over the world (spec 01 §8): hitboxes (player and zombie
- * circles, the zombies' drawn bodies that bullets hit, bullets) and the flow
+ * Debug drawing over the world (spec 01 §8): hitboxes (player, zombie and
+ * merchant circles, the zombies' drawn bodies that bullets hit, bullets) and the flow
  * field (an arrow per visible cell towards its next cell, windows the way
  * goes through in amber). Redrawn every frame only while enabled.
  */
@@ -27,6 +27,9 @@ export class DebugDraw {
     if (!this.showHitboxes) return;
     g.lineStyle(1, 0x5fd0ff, 1);
     for (const p of state.players) if (p.hp > 0) g.strokeCircle(p.x, p.y, PLAYER.hitboxRadius);
+    g.lineStyle(1, 0x3a6fd8, 1);
+    for (const m of state.merchants) if (m.active) g.strokeCircle(m.x, m.y, MERCHANT.radius);
+    g.lineStyle(1, 0x5fd0ff, 1);
     for (const z of state.zombies) {
       if (!isZombieAlive(z)) continue;
       g.lineStyle(1, 0xff4040, 1);

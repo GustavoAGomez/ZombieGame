@@ -181,6 +181,15 @@ export interface MapPortal {
   arrival: Vec2;
 }
 
+/** Where a merchant can stand (spec 03 §1): against a wall, clear of passages. */
+export interface MapMerchantSpot {
+  /** Point in world px: the merchant's feet. */
+  x: number;
+  y: number;
+  zone: string;
+  zoneIndex: number;
+}
+
 export interface MapData {
   /** Size in tiles. */
   width: number;
@@ -210,6 +219,9 @@ export interface MapData {
   zombieSpawns: MapZombieSpawn[];
   openSpawns: MapOpenSpawn[];
   portals: MapPortal[];
+  merchantSpots: MapMerchantSpot[];
+  /** Indices into merchantSpots per zone (parallel to zones). */
+  zoneMerchantSpots: number[][];
   /** Number of portal pairs (length of GameState.portalsOpen). */
   portalLinks: number;
   /** Portal end per cell (row-major), -1 where there is none. */
@@ -412,6 +424,7 @@ export function parseMap(json: unknown): MapData {
   const zombieSpawns: MapZombieSpawn[] = [];
   const rawOpenSpawns: TiledObject[] = [];
   const rawPortals: TiledObject[] = [];
+  const rawMerchantSpots: TiledObject[] = [];
   let playerSpawn: Vec2 | undefined;
 
   for (const obj of objects) {
@@ -436,6 +449,9 @@ export function parseMap(json: unknown): MapData {
         break;
       case 'portal':
         rawPortals.push(obj);
+        break;
+      case 'merchant_spot':
+        rawMerchantSpots.push(obj);
         break;
       default:
         // Unknown objects are ignored so designers can annotate maps freely.
@@ -554,6 +570,14 @@ export function parseMap(json: unknown): MapData {
     return { x: obj.x, y: obj.y, zoneIndex };
   });
 
+  const merchantSpots: MapMerchantSpot[] = rawMerchantSpots.map((obj) => {
+    const zone = stringProp(obj, 'zone');
+    const zoneIndex = zones.findIndex((z) => z.id === zone);
+    if (zoneIndex < 0) fail(`merchant_spot ${obj.id} references unknown zone "${zone}"`);
+    return { x: obj.x, y: obj.y, zone, zoneIndex };
+  });
+  const zoneMerchantSpots = zones.map((_, zi) => merchantSpots.flatMap((s, i) => (s.zoneIndex === zi ? [i] : [])));
+
   const portals = parsePortals(rawPortals, zones, tileSize);
   const cellPortal = new Int16Array(size).fill(-1);
   portals.forEach((portal, i) => {
@@ -584,6 +608,8 @@ export function parseMap(json: unknown): MapData {
     zombieSpawns,
     openSpawns,
     portals,
+    merchantSpots,
+    zoneMerchantSpots,
     portalLinks: portals.reduce((n, p) => Math.max(n, p.link + 1), 0),
     cellPortal,
     playerSpawn,
