@@ -502,3 +502,22 @@ Petición del usuario tras probar M3 en el móvil.
   - Donde dos zonas se tocan gana el botón que está encima (el orden del DOM), así que el disparo no roba toques a los botones del arco.
 - **Tienda en pantallas estrechas** (≤ 700 px de ancho): filas más apretadas (letra de 7–8 px, botón de 80 px) y el panel baja a `pad-top + 96` px. Con dos filas no toca el cuchillo ni el bloque de puntos.
 - **Comprobado** midiendo círculos (botones redondos) y rectángulos (paneles) en 844×390, 800×360 y 640×360, con la tienda abierta, el botón de acción, la mejora guardada y 3 huecos de arma a la vista: sin solapes y con al menos 4 px de hueco entre botones.
+
+## HUD: botones más pequeños y fila inferior
+
+Petición del usuario.
+
+- **Más pequeños,** todos menos el joystick (sin cambios) y el disparo (96 px):
+  - recargar, cuchillo y dash: 40 px (antes 48);
+  - armas: 38 (antes 44);
+  - botón de acción: 44 (antes 52);
+  - mejora: 46 (antes 56);
+  - pausa: 38 (antes 44);
+  - los iconos bajan en proporción;
+  - el margen de toque pasa de 10 a 12 px para compensar.
+- **Arco del disparo** (centros respecto al del disparo): cuchillo (−80, −4), recargar (−14, −80) y dash (+34, −72). Más compacto, y el dash ya no entra en el margen de seguridad.
+- **Fila inferior,** centrada al 55 % del ancho, donde estaba la barra de armas:
+  - la mejora a la izquierda y el botón de acción a la derecha, más cerca del pulgar derecho;
+  - posiciones fijas: con un contenedor flexible, la mejora saltaría de sitio cada vez que aparece o desaparece el botón de acción (al acercarse a una ventana, puerta o mago);
+  - la etiqueta del botón de acción va encima, porque debajo quedaría pegada al borde.
+- **Comprobado** en 844×390, 800×360 y 640×360 con la tienda abierta, la mejora, el botón de acción y 3 armas a la vista: sin solapes y al menos 6 px entre botones.

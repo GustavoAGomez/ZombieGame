@@ -5,16 +5,16 @@ import { STRINGS } from '../ui/strings';
 import { TapButton } from './TapButton';
 
 const ICONS: Record<BoostKind, IconName> = { speed: 'bolt', double_damage: 'x2' };
-/** Radius of the countdown ring inside the 56 px button (SVG units = CSS px). */
-const RING_RADIUS = 25;
+/** Size of the button and radius of the countdown ring inside it (SVG units = CSS px). */
+const SIZE = 46;
+const RING_RADIUS = 20.5;
 const RING_LENGTH = 2 * Math.PI * RING_RADIUS;
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 /**
- * The stored boost's button (spec 03 §5), in the arc of buttons around the
- * fire button like a Wild Rift ability, up and to the left between the knife
- * and reload. It shows up when a boost is stored; one tap starts it, and
+ * The stored boost's button (spec 03 §5), in the bottom row like a Wild
+ * Rift summoner spell. It shows up when a boost is stored; one tap starts it, and
  * while it runs a ring empties with the seconds left in the middle. It
  * disappears when the boost ends. A tap only latches a press for the next
  * tick (`boost` in the InputCommand); it does not touch the fire stick.
@@ -28,14 +28,14 @@ export class BoostButton {
   private stored = false;
 
   constructor(parent: HTMLElement, events: EventBus) {
-    this.button = new TapButton(parent, 'action-button--boost', null, '', '', 24);
+    this.button = new TapButton(parent, 'action-button--boost', null, '', '', 20);
     const svg = document.createElementNS(SVG_NS, 'svg');
     svg.setAttribute('class', 'boost-ring');
-    svg.setAttribute('viewBox', '0 0 56 56');
+    svg.setAttribute('viewBox', `0 0 ${SIZE} ${SIZE}`);
     svg.setAttribute('aria-hidden', 'true');
     this.ring = document.createElementNS(SVG_NS, 'circle');
-    this.ring.setAttribute('cx', '28');
-    this.ring.setAttribute('cy', '28');
+    this.ring.setAttribute('cx', String(SIZE / 2));
+    this.ring.setAttribute('cy', String(SIZE / 2));
     this.ring.setAttribute('r', String(RING_RADIUS));
     this.ring.setAttribute('stroke-dasharray', String(RING_LENGTH));
     svg.appendChild(this.ring);
@@ -69,7 +69,7 @@ export class BoostButton {
     if (!kind) return;
     if (kind !== this.shownIcon) {
       this.shownIcon = kind;
-      this.button.setIcon(ICONS[kind], 24);
+      this.button.setIcon(ICONS[kind], 20);
       el.setAttribute('aria-label', STRINGS.boosts.activate(STRINGS.boosts.names[kind]));
     }
     this.ring.setAttribute('stroke-dashoffset', String(RING_LENGTH * (1 - e.progress)));

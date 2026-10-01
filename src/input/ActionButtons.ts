@@ -5,8 +5,8 @@ import { TapButton } from './TapButton';
 
 /**
  * Buttons in the arc around the fire button, as in Wild Rift: the knife to
- * its left, reload above it and the special (dash) to the right of reload
- * (the boost button joins the arc while a boost is stored). The reload
+ * its left, reload above it and the special (dash) to the right of reload.
+ * The reload
  * button shows the reload in progress (dimmed while there is nothing to
  * reload) and the special its cooldown, both received via the EventBus.
  */

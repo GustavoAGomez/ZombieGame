@@ -84,7 +84,7 @@
   - Si ya había otra, guardada o activa, **la anterior desaparece**: la guardada se descarta y la activa termina en el acto.
   - Una mejora guardada se conserva entre rondas hasta que se usa.
 - **Botón en el HUD:**
-  - Cuando hay una mejora guardada, aparece un botón de 56 px en el **arco de botones alrededor del disparo**, como una habilidad de Wild Rift: arriba a la izquierda del disparo, con el centro en `(-64, -60)` respecto al suyo, entre el cuchillo y recargar. No se solapa con ningún otro control ni con el panel de la tienda en las pantallas de prueba.
+  - Cuando hay una mejora guardada, aparece un botón de 46 px en la **fila inferior** del HUD, como un hechizo de invocador de Wild Rift: a la izquierda del botón de acción, centrados los dos al 55 % del ancho (spec 01 §2.3). No se solapa con ningún otro control ni con el panel de la tienda en las pantallas de prueba.
   - Lleva el icono provisional de la mejora (rayo para velocidad, `x2` para daño) y el borde azul.
   - Al tocarlo, la mejora se activa **durante 10 s**. El botón muestra la cuenta atrás como un anillo que se vacía, con los segundos en el centro, y desaparece al terminar.
   - El botón se activa con un toque y no interfiere con el arrastre del botón de disparo.

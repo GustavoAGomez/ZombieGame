@@ -5,7 +5,7 @@ import { STRINGS } from '../ui/strings';
 import { PointerControl } from './PointerControl';
 
 /**
- * Contextual action button at the right of the screen (spec 01 §2.4, now a
+ * Contextual action button in the bottom row of the screen (spec 01 §2.4, a
  * round button as in Wild Rift): it only shows up when the game says an
  * action is available (via the EventBus), with a hammer to repair a
  * barricade, a door or stairs to buy one, a wizard hat to open a merchant's
@@ -32,7 +32,7 @@ export class ContextButton extends PointerControl {
     const face = document.createElement('span');
     face.className = 'context-button__face';
     this.face = face;
-    this.icons = { repair: pixelIcon('hammer', 26), door: pixelIcon('door', 24), portal: pixelIcon('stairs', 24) };
+    this.icons = { repair: pixelIcon('hammer', 22), door: pixelIcon('door', 20), portal: pixelIcon('stairs', 20) };
     face.append(this.icons.repair, this.icons.door, this.icons.portal);
     this.value = document.createElement('span');
     this.value.className = 'context-button__value';
@@ -112,7 +112,7 @@ export class ContextButton extends PointerControl {
   private hatFor(id: MerchantId): SVGSVGElement {
     let hat = this.hats.get(id);
     if (!hat) {
-      hat = pixelIcon('wizard', 26, merchantDef(id).color);
+      hat = pixelIcon('wizard', 22, merchantDef(id).color);
       this.hats.set(id, hat);
       this.face.appendChild(hat);
     }
