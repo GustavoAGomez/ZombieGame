@@ -214,11 +214,20 @@
   box-shadow: inset 0 0 0 2px rgba(232, 176, 74, 0.75);
 }
 
+/* Clips the veil to the circle inside the 2 px ring (clip-path too: WebKit does not always clip scaled children with overflow alone). */
+.action-button__clip {
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  overflow: hidden;
+  clip-path: circle(50% at 50% 50%);
+  pointer-events: none;
+}
+
 .action-button__veil {
   position: absolute;
   inset: 0;
   display: none;
-  border-radius: 50%;
   background: rgba(15, 14, 12, 0.72);
   transform-origin: 50% 100%;
   pointer-events: none;

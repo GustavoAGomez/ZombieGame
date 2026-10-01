@@ -64,7 +64,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponStats>> = {
     bulletSpeed: 520,
   },
   smg: {
-    damage: 0.5,
+    damage: 1,
     fireRate: 11,
     magazine: 30,
     startReserve: 120,
@@ -143,7 +143,7 @@ export type ZombieKind = 'walker' | 'runner' | 'sprinter';
 export const ZOMBIES = {
   hitboxRadius: 6,
   /**
-   * HP in damage units (a pistol bullet is 1, an SMG bullet 0.5): 3 in
+   * HP in damage units (a bullet of the pistol or the rifle is 1): 3 in
    * round 1, then one more pistol shot every round survived.
    */
   hpBase: 3,

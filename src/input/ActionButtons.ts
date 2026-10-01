@@ -10,6 +10,21 @@ import { TapButton } from './TapButton';
  * reload in progress (dimmed while there is nothing to reload) and the
  * special its cooldown, both received via the EventBus.
  */
+/**
+ * A dark veil for a cooldown or a reload, inside a holder clipped to the
+ * circle within the button's ring: scaled from the bottom it reads as a
+ * level going down inside the icon, never as a squashed disc.
+ */
+function addVeil(button: HTMLElement): HTMLDivElement {
+  const clip = document.createElement('div');
+  clip.className = 'action-button__clip';
+  const veil = document.createElement('div');
+  veil.className = 'action-button__veil';
+  clip.appendChild(veil);
+  button.appendChild(clip);
+  return veil;
+}
+
 export class ActionButtons {
   private readonly specialButton: TapButton;
   private readonly reloadButton: TapButton;
@@ -24,14 +39,11 @@ export class ActionButtons {
     this.meleeButton = new TapButton(parent, 'action-button--melee', 'knife', '', STRINGS.controls.melee);
     this.specialButton = new TapButton(bottomBar, 'action-button--special', 'bolt', '', STRINGS.controls.special);
 
-    this.veil = document.createElement('div');
-    this.veil.className = 'action-button__veil';
+    this.veil = addVeil(this.specialButton.el);
     this.seconds = document.createElement('span');
     this.seconds.className = 'action-button__seconds';
-    this.specialButton.el.append(this.veil, this.seconds);
-    this.reloadVeil = document.createElement('div');
-    this.reloadVeil.className = 'action-button__veil';
-    this.reloadButton.el.append(this.reloadVeil);
+    this.specialButton.el.append(this.seconds);
+    this.reloadVeil = addVeil(this.reloadButton.el);
 
     this.unsubscribe = [
       events.on('special:cooldown', ({ remaining, total }) => {

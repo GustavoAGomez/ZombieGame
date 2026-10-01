@@ -7,9 +7,9 @@ describe('zombieHp', () => {
     expect([1, 2, 3, 4, 5, 10, 20].map(zombieHp)).toEqual([3, 4, 5, 6, 7, 12, 22]);
   });
 
-  it('takes 3 pistol shots or 6 SMG shots in round 1, one pistol shot more each round', () => {
+  it('takes 3 bullets of the pistol or the rifle in round 1, one more each round', () => {
     expect(zombieHp(1) / WEAPONS.pistol.damage).toBe(3);
-    expect(zombieHp(1) / WEAPONS.smg.damage).toBe(6);
+    expect(zombieHp(1) / WEAPONS.smg.damage).toBe(3);
     expect(zombieHp(2) / WEAPONS.pistol.damage).toBe(4);
   });
 

@@ -161,17 +161,17 @@ describe('ZombieSystem · crawling', () => {
     expect(damageZombie(ctx, z, WEAPONS.pistol.damage, 0)).toBe(true);
   });
 
-  it('takes 6 SMG bullets in round 1, crawling for the last two', () => {
+  it('takes 3 rifle bullets in round 1, crawling after the second', () => {
     const ctx = createTestContext();
     const z = placeZombie(ctx, 0, 100, 100, zombieHp(1), 'chasing');
     const crawling: boolean[] = [];
     let killed = false;
-    for (let shot = 1; shot <= 6 && !killed; shot++) {
+    for (let shot = 1; shot <= 3 && !killed; shot++) {
       killed = damageZombie(ctx, z, WEAPONS.smg.damage, 0);
       crawling.push(isCrawling(z));
     }
     expect(killed).toBe(true);
-    expect(crawling).toEqual([false, false, false, true, true, false]);
+    expect(crawling).toEqual([false, true, false]);
   });
 });
 
