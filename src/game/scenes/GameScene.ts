@@ -173,7 +173,7 @@ export class GameScene extends Phaser.Scene {
     // Before the views: a teleport snaps the camera, which must already be inside the new level.
     this.updateLevel();
     this.syncViews(this.fixedStep.alpha, time);
-    this.debugDraw.draw(this.state, this.sim.nav);
+    this.debugDraw.draw(this.state, this.sim.nav, this.sim.grid);
     this.presenter.publish(this.state);
     this.updateStats();
     this.checkGameOver(delta);

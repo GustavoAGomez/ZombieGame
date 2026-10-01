@@ -34,7 +34,7 @@ function asciiMap(rows: string[]): { map: MapData; grid: CollisionGrid } {
     portals: [],
     windows,
   } as unknown as MapData;
-  return { map, grid: { width, height, tileSize: 10, cells } };
+  return { map, grid: { width, height, tileSize: 10, cells, shapes: new Uint8Array(width * height) } };
 }
 
 const center = (x: number, y: number) => [(x + 0.5) * 10, (y + 0.5) * 10] as const;

@@ -2,12 +2,14 @@ import type Phaser from 'phaser';
 import { BULLETS, MERCHANT, PLAYER, ZOMBIES } from '../config/balance';
 import type { GameState } from '../core/GameState';
 import { DEPTH } from '../game/depth';
+import { BLOCK_BULLET, cellBlocks, cellShapeRects, type CollisionGrid } from '../game/map/CollisionGrid';
 import { UNREACHABLE, flowNextCell, type FlowField } from '../game/map/FlowField';
 import { isZombieAlive } from '../game/systems/Combat';
 
 /**
  * Debug drawing over the world (spec 01 §8): hitboxes (player, zombie and
- * merchant circles, the zombies' drawn bodies that bullets hit, bullets) and the flow
+ * merchant circles, the zombies' drawn bodies that bullets hit, bullets, and
+ * what stops bullets: walls by their drawn shape, doors and furniture) and the flow
  * field (an arrow per visible cell towards its next cell, windows the way
  * goes through in amber). Redrawn every frame only while enabled.
  */
@@ -20,11 +22,12 @@ export class DebugDraw {
     this.g = scene.add.graphics().setDepth(DEPTH.debug);
   }
 
-  draw(state: GameState, nav: FlowField): void {
+  draw(state: GameState, nav: FlowField, grid: CollisionGrid): void {
     const g = this.g;
     g.clear();
     if (this.showFlowField) this.drawFlowField(nav);
     if (!this.showHitboxes) return;
+    this.drawBulletBlockers(grid);
     g.lineStyle(1, 0x5fd0ff, 1);
     for (const p of state.players) if (p.hp > 0) g.strokeCircle(p.x, p.y, PLAYER.hitboxRadius);
     g.lineStyle(1, 0x3a6fd8, 1);
@@ -39,6 +42,24 @@ export class DebugDraw {
     }
     g.fillStyle(0xffffff, 1);
     for (const b of state.bullets) if (b.active) g.fillCircle(b.x + b.drawX, b.y + b.drawY, Math.max(1, BULLETS.radius));
+  }
+
+  /** What stops bullets in view, in green: thin walls show their strip, band and face only. */
+  private drawBulletBlockers(grid: CollisionGrid): void {
+    const g = this.g;
+    const ts = grid.tileSize;
+    const view = this.scene.cameras.main.worldView;
+    const x0 = Math.max(0, Math.floor(view.x / ts));
+    const y0 = Math.max(0, Math.floor(view.y / ts));
+    const x1 = Math.min(grid.width - 1, Math.ceil((view.x + view.width) / ts));
+    const y1 = Math.min(grid.height - 1, Math.ceil((view.y + view.height) / ts));
+    g.lineStyle(1, 0x60e070, 0.8);
+    for (let y = y0; y <= y1; y++) {
+      for (let x = x0; x <= x1; x++) {
+        if (!cellBlocks(grid, x, y, BLOCK_BULLET)) continue;
+        for (const [rx0, ry0, rx1, ry1] of cellShapeRects(grid, x, y)) g.strokeRect(rx0 + 0.5, ry0 + 0.5, rx1 - rx0 - 1, ry1 - ry0 - 1);
+      }
+    }
   }
 
   private drawFlowField(nav: FlowField): void {

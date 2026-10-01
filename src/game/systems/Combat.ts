@@ -1,7 +1,7 @@
 import { POINTS, ZOMBIES } from '../../config/balance';
 import type { BloodState, ZombieState } from '../../core/GameState';
 import { random } from '../../core/Rng';
-import { BLOCK_SIGHT, segmentClear } from '../map/CollisionGrid';
+import { BLOCK_SIGHT, segmentClearShaped } from '../map/CollisionGrid';
 import { rollZombieDrop } from './PickupSystem';
 import { awardPoints } from './PointsSystem';
 import type { SimContext } from './SimContext';
@@ -80,7 +80,8 @@ export function findAutoAimTarget(ctx: SimContext, x: number, y: number, range: 
     const dy = z.y - y;
     const distSq = dx * dx + dy * dy;
     // Line of sight is only checked for candidates that would win.
-    if (distSq <= bestDistSq && segmentClear(ctx.grid, x, y, z.x, z.y, BLOCK_SIGHT)) {
+    // Walls by their drawn shape, as bullets see them: a zombie past a wall's end can be aimed at.
+    if (distSq <= bestDistSq && segmentClearShaped(ctx.grid, x, y, z.x, z.y, BLOCK_SIGHT)) {
       best = i;
       bestDistSq = distSq;
     }

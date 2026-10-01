@@ -24,7 +24,8 @@ export function createMansionContext(seed = 1, toSpawn = 0): SimContext {
   return contextFor(mansion, seed, toSpawn);
 }
 
-function contextFor(map: MapData, seed: number, toSpawn: number): SimContext {
+/** Same as createTestContext, on any parsed map. */
+export function contextFor(map: MapData, seed = 1, toSpawn = 0): SimContext {
   // Rounds stay put and the first spawn is not delayed by the banner, unless a test asks for it.
   const state = createGameState(map, { seed, toSpawn, waveFlow: false });
   state.wave.spawnTimer = 0;

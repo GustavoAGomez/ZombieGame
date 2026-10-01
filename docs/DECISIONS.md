@@ -545,3 +545,17 @@ Petición del usuario: todo menos el joystick y el disparo, que siguen igual.
 - **Arco recolocado** para los 34 px: cuchillo (−76, −4), recargar (−14, −76) y dash (+38, −66).
 - **Comprobado** en las tres pantallas con todo a la vista: sin solapes. Un toque 12 px fuera del cuchillo sigue cayendo en el cuchillo.
 - **Limitación:** por debajo de unos 30 px de diámetro, los iconos de 12×12 píxeles ya no se pueden reducir sin perder la rejilla de píxeles (habría que dibujarlos a 8×8).
+
+## Balas y paredes: colisión con la forma dibujada
+
+Bug del usuario: al disparar rozando la esquina de una pared, la bala desaparecía sin tocarla.
+
+- **Causa:** cada casilla de pared paraba las balas entera (32×32), pero las paredes finas del kit en 3/4 solo dibujan una franja de 12 px (verticales) o la banda y la cara desde y = 7 (horizontales). En los extremos y las esquinas, las balas chocaban con el suelo vacío de la casilla.
+- **Solución:** las balas y la línea de visión del autoapuntado usan la silueta que dibuja el autotile (`CollisionGrid.shapes`, leída de la propiedad `mask` de los tiles del kit):
+  - pared fina: franja central (x 10–21) desde arriba si la pared sigue al norte, si no desde la banda (y 7), hasta abajo, más los brazos este y oeste desde la banda;
+  - muro grueso: la casilla entera, desde la banda si el norte está abierto;
+  - puertas, muebles, las paredes sin kit (room01) y el exterior del mapa siguen siendo casillas completas.
+- **Recorrido por segmento:** las balas recorren el segmento de cada tick con un rayo por casillas y un test de rectángulos, y paran en el punto exacto de la pared. Ya no se comprueba solo el extremo del tick, que con franjas de 12 px podía saltarse una pared fina a 520 px/s.
+- **El zombi y la pared:** si en el mismo tick la bala alcanza un zombi y una pared, gana lo que esté más cerca.
+- **Cuerpos sin cambios:** jugador y zombis siguen chocando con casillas completas; el flow field y el movimiento no cambian.
+- **Debug:** el modo HITBOX dibuja en verde lo que para las balas en pantalla.

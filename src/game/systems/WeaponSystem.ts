@@ -3,7 +3,7 @@ import type { BulletState, GameState, PlayerState, WeaponSlotState } from '../..
 import type { InputCommand } from '../../core/InputCommand';
 import { degToRad } from '../../core/math';
 import { randomRange } from '../../core/Rng';
-import { BLOCK_BULLET, segmentClear } from '../map/CollisionGrid';
+import { BLOCK_BULLET, segmentClearShaped } from '../map/CollisionGrid';
 import { damageFactor } from './BoostSystem';
 import { damageZombie, findAutoAimTarget, findMeleeTarget, isZombieAlive } from './Combat';
 import { bodyCentre, bodyEntry, muzzleFor, type Vec2 } from './shotGeometry';
@@ -209,7 +209,7 @@ function pointBlank(ctx: SimContext, p: PlayerState, bullet: BulletState, muzzle
     const z = zombies[i];
     if (!z || !isZombieAlive(z)) continue;
     const t = bodyEntry(x0, y0, dx / len, dy / len, len, z.x, z.y);
-    if (t < best && segmentClear(ctx.grid, p.x, p.y, z.x, z.y, BLOCK_BULLET)) {
+    if (t < best && segmentClearShaped(ctx.grid, p.x, p.y, z.x, z.y, BLOCK_BULLET)) {
       best = t;
       hit = i;
     }

@@ -20,7 +20,7 @@ import { parseMap } from './MapLoader';
 function smallGrid(): CollisionGrid {
   const cells = new Uint8Array(25);
   cells[12] = BLOCK_ALL;
-  return { width: 5, height: 5, tileSize: 10, cells };
+  return { width: 5, height: 5, tileSize: 10, cells, shapes: new Uint8Array(25) };
 }
 
 describe('CollisionGrid from room01', () => {

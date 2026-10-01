@@ -1,4 +1,13 @@
-import { TILE_COLLIDES, TILE_VOID, TILE_WATER, type MapData, type MapDoor } from './MapLoader';
+import {
+  TILE_COLLIDES,
+  TILE_VOID,
+  TILE_WATER,
+  WALL_SHAPE_FULL,
+  WALL_SHAPE_SOLID_NORTH_OPEN,
+  WALL_SHAPE_THIN,
+  type MapData,
+  type MapDoor,
+} from './MapLoader';
 
 /**
  * Per-tile blocking flags. Pure data + geometry so the same collision code
@@ -20,14 +29,24 @@ export interface CollisionGrid {
   height: number;
   tileSize: number;
   cells: Uint8Array;
+  /**
+   * Wall shape per cell (WALL_SHAPE_*), for bullets and line of sight: they
+   * stop where the wall is drawn, not on the empty floor around a thin wall.
+   * Bodies always stop at whole tiles.
+   */
+  shapes: Uint8Array;
 }
 
 export function buildCollisionGrid(map: MapData, doorsOpen: readonly boolean[]): CollisionGrid {
   const cells = new Uint8Array(map.width * map.height);
+  const shapes = new Uint8Array(cells.length);
   const flagsOf = (gid: number): number => (gid > 0 ? (map.gidFlags[gid] ?? 0) : 0);
   for (let i = 0; i < cells.length; i++) {
     const tileFlags = flagsOf(map.walls[i] ?? 0) | flagsOf(map.floor[i] ?? 0) | flagsOf(map.decor[i] ?? 0);
-    if ((flagsOf(map.walls[i] ?? 0) & TILE_COLLIDES) !== 0) cells[i] = BLOCK_ALL;
+    if ((flagsOf(map.walls[i] ?? 0) & TILE_COLLIDES) !== 0) {
+      cells[i] = BLOCK_ALL;
+      shapes[i] = map.gidShapes[map.walls[i] ?? 0] ?? WALL_SHAPE_FULL;
+    }
     else if ((tileFlags & (TILE_WATER | TILE_VOID)) !== 0) cells[i] = BLOCK_BODIES;
     // Safety net: the player can never step where there is no floor.
     else if ((map.floor[i] ?? 0) === 0) cells[i] = BLOCK_PLAYER;
@@ -41,7 +60,7 @@ export function buildCollisionGrid(map: MapData, doorsOpen: readonly boolean[]):
       if (t.x >= 0 && t.y >= 0 && t.x < map.width && t.y < map.height) cells[i] = (cells[i] ?? 0) | BLOCK_PROP;
     }
   }
-  const grid: CollisionGrid = { width: map.width, height: map.height, tileSize: map.tileSize, cells };
+  const grid: CollisionGrid = { width: map.width, height: map.height, tileSize: map.tileSize, cells, shapes };
   map.doors.forEach((door, i) => setDoorBlocking(grid, door, !doorsOpen[i]));
   return grid;
 }
@@ -50,7 +69,134 @@ export function setDoorBlocking(grid: CollisionGrid, door: MapDoor, closed: bool
   for (const t of door.tiles) {
     if (t.x < 0 || t.y < 0 || t.x >= grid.width || t.y >= grid.height) continue;
     grid.cells[t.y * grid.width + t.x] = closed ? BLOCK_ALL : 0;
+    grid.shapes[t.y * grid.width + t.x] = WALL_SHAPE_FULL;
   }
+}
+
+/** Kit geometry on a 32 px tile (scripts/lib/wall-autotile.ts): the strip of a vertical wall and the top band. */
+const KIT_TILE = 32;
+const STRIP_X0 = 10;
+const STRIP_X1 = 22;
+const BAND_Y = 7;
+
+type Rect = readonly [x0: number, y0: number, x1: number, y1: number];
+
+/**
+ * Rectangles a wall shape covers inside its tile, in units of a 32 px tile.
+ * A thin wall (WALL_SHAPE_THIN + mask): the central strip, from the top of
+ * the tile if the wall goes on north (from the band otherwise) down to the
+ * bottom (its face, or the strip going on south); east and west arms are
+ * the band and the face under it, from the band down. These are the pixels
+ * the kit draws, so a bullet that visibly misses the wall flies on.
+ */
+function shapeRects(shape: number): readonly Rect[] {
+  if (shape === WALL_SHAPE_SOLID_NORTH_OPEN) return [[0, BAND_Y, KIT_TILE, KIT_TILE]];
+  if (shape < WALL_SHAPE_THIN || shape >= WALL_SHAPE_THIN + 16) return [[0, 0, KIT_TILE, KIT_TILE]];
+  const mask = shape - WALL_SHAPE_THIN;
+  const rects: Rect[] = [[STRIP_X0, mask & 1 ? 0 : BAND_Y, STRIP_X1, KIT_TILE]];
+  if (mask & 8) rects.push([0, BAND_Y, STRIP_X0, KIT_TILE]);
+  if (mask & 2) rects.push([STRIP_X1, BAND_Y, KIT_TILE, KIT_TILE]);
+  return rects;
+}
+
+const SHAPE_RECTS: readonly (readonly Rect[])[] = Array.from({ length: 18 }, (_, shape) => shapeRects(shape));
+const FULL_TILE: readonly Rect[] = [[0, 0, KIT_TILE, KIT_TILE]];
+
+function rectsOf(grid: CollisionGrid, index: number): readonly Rect[] {
+  return SHAPE_RECTS[grid.shapes[index] ?? WALL_SHAPE_FULL] ?? FULL_TILE;
+}
+
+/** World-px rectangles [x0, y0, x1, y1] a blocking cell covers for bullets and sight (debug drawing). */
+export function cellShapeRects(grid: CollisionGrid, tx: number, ty: number): Rect[] {
+  const ts = grid.tileSize;
+  const k = KIT_TILE / ts;
+  return rectsOf(grid, ty * grid.width + tx).map(([x0, y0, x1, y1]) => [tx * ts + x0 / k, ty * ts + y0 / k, tx * ts + x1 / k, ty * ts + y1 / k] as const);
+}
+
+/** Like pointBlocks, but inside a wall tile only where the wall is drawn. */
+export function pointBlocksShaped(grid: CollisionGrid, x: number, y: number, mask: number): boolean {
+  const ts = grid.tileSize;
+  const tx = Math.floor(x / ts);
+  const ty = Math.floor(y / ts);
+  if (!cellBlocks(grid, tx, ty, mask)) return false;
+  if (tx < 0 || ty < 0 || tx >= grid.width || ty >= grid.height) return true;
+  const k = KIT_TILE / ts;
+  const lx = (x - tx * ts) * k;
+  const ly = (y - ty * ts) * k;
+  return rectsOf(grid, ty * grid.width + tx).some(([x0, y0, x1, y1]) => lx >= x0 && lx < x1 && ly >= y0 && ly < y1);
+}
+
+/**
+ * Where the segment from (x0, y0) to (x1, y1) first touches something
+ * matching `mask`, as a fraction of its length (0..1), or Infinity when it
+ * gets through. Walls count only where they are drawn (shapes); doors,
+ * furniture and the outside of the map, as whole tiles.
+ */
+export function segmentHitShaped(grid: CollisionGrid, x0: number, y0: number, x1: number, y1: number, mask: number): number {
+  const ts = grid.tileSize;
+  const k = KIT_TILE / ts;
+  const dx = x1 - x0;
+  const dy = y1 - y0;
+  let tx = Math.floor(x0 / ts);
+  let ty = Math.floor(y0 / ts);
+  const endTx = Math.floor(x1 / ts);
+  const endTy = Math.floor(y1 / ts);
+  const stepX = dx > 0 ? 1 : dx < 0 ? -1 : 0;
+  const stepY = dy > 0 ? 1 : dy < 0 ? -1 : 0;
+  const tDeltaX = stepX !== 0 ? Math.abs(ts / dx) : Infinity;
+  const tDeltaY = stepY !== 0 ? Math.abs(ts / dy) : Infinity;
+  let tMaxX = stepX > 0 ? ((tx + 1) * ts - x0) / dx : stepX < 0 ? (tx * ts - x0) / dx : Infinity;
+  let tMaxY = stepY > 0 ? ((ty + 1) * ts - y0) / dy : stepY < 0 ? (ty * ts - y0) / dy : Infinity;
+  const maxIterations = Math.abs(endTx - tx) + Math.abs(endTy - ty) + 1;
+  for (let i = 0; i <= maxIterations; i++) {
+    if (cellBlocks(grid, tx, ty, mask)) {
+      // Cells are visited in order along the segment: the first hit found is the nearest.
+      const inside = tx >= 0 && ty >= 0 && tx < grid.width && ty < grid.height;
+      const rects = inside ? rectsOf(grid, ty * grid.width + tx) : FULL_TILE;
+      let best = Infinity;
+      for (const [rx0, ry0, rx1, ry1] of rects) {
+        const t = segmentRectEntry(x0, y0, dx, dy, tx * ts + rx0 / k, ty * ts + ry0 / k, tx * ts + rx1 / k, ty * ts + ry1 / k);
+        if (t < best) best = t;
+      }
+      if (best <= 1) return best;
+    }
+    if (tx === endTx && ty === endTy) return Infinity;
+    if (tMaxX < tMaxY) {
+      tMaxX += tDeltaX;
+      tx += stepX;
+    } else {
+      tMaxY += tDeltaY;
+      ty += stepY;
+    }
+  }
+  return Infinity;
+}
+
+/** True when nothing matching `mask` lies on the segment (walls by their drawn shape). */
+export function segmentClearShaped(grid: CollisionGrid, x0: number, y0: number, x1: number, y1: number, mask: number): boolean {
+  return segmentHitShaped(grid, x0, y0, x1, y1, mask) === Infinity;
+}
+
+/** Slab test: fraction of (dx, dy) where the segment from (x0, y0) enters the rectangle, Infinity if it never does. */
+function segmentRectEntry(x0: number, y0: number, dx: number, dy: number, rx0: number, ry0: number, rx1: number, ry1: number): number {
+  let tEnter = 0;
+  let tExit = 1;
+  for (const [origin, d, min, max] of [
+    [x0, dx, rx0, rx1],
+    [y0, dy, ry0, ry1],
+  ] as const) {
+    if (Math.abs(d) < 1e-9) {
+      if (origin < min || origin >= max) return Infinity;
+      continue;
+    }
+    let t0 = (min - origin) / d;
+    let t1 = (max - origin) / d;
+    if (t0 > t1) [t0, t1] = [t1, t0];
+    tEnter = Math.max(tEnter, t0);
+    tExit = Math.min(tExit, t1);
+    if (tEnter > tExit) return Infinity;
+  }
+  return tEnter;
 }
 
 /** Outside the map counts as solid for everything. */

@@ -25,6 +25,21 @@ export const TILE_COLLIDES = 1;
 export const TILE_WATER = 2;
 export const TILE_VOID = 4;
 
+/**
+ * What a wall tile looks like, for bullets and line of sight (the bodies
+ * still stop at whole tiles). 0 is the whole tile; WALL_SHAPE_THIN + mask is
+ * a thin wall of the kit autotile with that neighbour mask (docs/ASSETS.md
+ * §7.2: tiles 0–15 carry a `mask` property); WALL_SHAPE_SOLID_NORTH_OPEN is
+ * a thick wall with nothing north, which starts at the top band.
+ */
+export const WALL_SHAPE_FULL = 0;
+export const WALL_SHAPE_THIN = 1;
+export const WALL_SHAPE_SOLID_NORTH_OPEN = 17;
+/** Kit layout (scripts/lib/wall-autotile.ts): tiles 16–19 are thick walls, +2 when the north is open. */
+const KIT_SOLID_BASE = 16;
+const KIT_SOLID_COUNT = 4;
+const KIT_SOLID_NORTH_OPEN = 2;
+
 export interface MapTileset {
   name: string;
   /** Global id of this tileset's tile 0. */
@@ -38,6 +53,8 @@ export interface MapTileset {
   imageHeight: number;
   /** Flags (TILE_*) of each local tile id. */
   flags: Uint8Array;
+  /** Wall shape per local tile id (WALL_SHAPE_*). */
+  shapes: Uint8Array;
 }
 
 /** A tile object of the `decals` layer: drawn from its bottom-left corner, maybe mirrored. */
@@ -201,6 +218,8 @@ export interface MapData {
   tilesets: MapTileset[];
   /** Flags (TILE_*) per global tile id. */
   gidFlags: Uint8Array;
+  /** Wall shape (WALL_SHAPE_*) per global tile id. */
+  gidShapes: Uint8Array;
   /** Global tile id per cell (row-major), 0 when empty. */
   floor: Int32Array;
   /** Soft shadows at the foot of walls and furniture (drawn over the floor). */
@@ -293,13 +312,25 @@ function parseTilesets(map: TiledMap): MapTileset[] {
   const tilesets = map.tilesets.map((t: TiledTileset): MapTileset => {
     if (t.source) fail(`Tileset "${t.source}" is external: run npm run map:build to embed it in the .tmj`);
     const flags = new Uint8Array(Math.max(0, t.tilecount));
+    const shapes = new Uint8Array(flags.length);
+    let isKit = false;
     for (const tile of t.tiles ?? []) {
       if (tile.id < 0 || tile.id >= flags.length) continue;
       for (const p of tile.properties ?? []) {
+        if (p.name === 'mask' && typeof p.value === 'number') {
+          shapes[tile.id] = WALL_SHAPE_THIN + (p.value & 15);
+          isKit = true;
+        }
         if (p.value !== true) continue;
         if (p.name === 'collides') flags[tile.id]! |= TILE_COLLIDES;
         else if (p.name === 'water') flags[tile.id]! |= TILE_WATER;
         else if (p.name === 'void') flags[tile.id]! |= TILE_VOID;
+      }
+    }
+    // A kit's thick walls open to the north start at the band, like their art.
+    if (isKit) {
+      for (let i = 0; i < KIT_SOLID_COUNT; i++) {
+        if (i & KIT_SOLID_NORTH_OPEN) shapes[KIT_SOLID_BASE + i] = WALL_SHAPE_SOLID_NORTH_OPEN;
       }
     }
     return {
@@ -313,16 +344,17 @@ function parseTilesets(map: TiledMap): MapTileset[] {
       imageWidth: t.imagewidth,
       imageHeight: t.imageheight,
       flags,
+      shapes,
     };
   });
   return tilesets.sort((a, b) => a.firstGid - b.firstGid);
 }
 
-function buildGidFlags(tilesets: readonly MapTileset[]): Uint8Array {
+function buildGidTable(tilesets: readonly MapTileset[], pick: (t: MapTileset) => Uint8Array): Uint8Array {
   const maxGid = tilesets.reduce((m, t) => Math.max(m, t.firstGid + t.tileCount), 1);
-  const flags = new Uint8Array(maxGid);
-  for (const t of tilesets) flags.set(t.flags, t.firstGid);
-  return flags;
+  const table = new Uint8Array(maxGid);
+  for (const t of tilesets) table.set(pick(t), t.firstGid);
+  return table;
 }
 
 /** The tileset a global id belongs to (tilesets sorted by firstGid). */
@@ -404,7 +436,8 @@ export function parseMap(json: unknown): MapData {
   const tileSize = map.tilewidth;
   const size = width * height;
   const tilesets = parseTilesets(map);
-  const gidFlags = buildGidFlags(tilesets);
+  const gidFlags = buildGidTable(tilesets, (t) => t.flags);
+  const gidShapes = buildGidTable(tilesets, (t) => t.shapes);
   const floor = toGids(tileLayer(map, LAYER_NAMES.floor, true), size);
   const walls = toGids(tileLayer(map, LAYER_NAMES.walls, true), size);
   const decor = toGids(tileLayer(map, LAYER_NAMES.decor, false), size);
@@ -594,6 +627,7 @@ export function parseMap(json: unknown): MapData {
     heightPx: height * tileSize,
     tilesets,
     gidFlags,
+    gidShapes,
     floor,
     shadows,
     walls,
