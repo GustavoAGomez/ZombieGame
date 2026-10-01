@@ -42,7 +42,7 @@ export function createFlowField(width: number, height: number, tileSize: number,
 
 /** Walkable for zombie navigation: floor, not blocked, in an unlocked zone (or an open door). */
 export function isNavWalkable(map: MapData, grid: CollisionGrid, zonesUnlocked: readonly boolean[], cell: number): boolean {
-  if ((map.floor[cell] ?? -1) < 0) return false;
+  if ((map.floor[cell] ?? 0) === 0) return false;
   if (((grid.cells[cell] ?? 0) & BLOCK_ZOMBIE) !== 0) return false;
   const zone = map.cellZone[cell] ?? -1;
   return zone < 0 || zonesUnlocked[zone] === true;

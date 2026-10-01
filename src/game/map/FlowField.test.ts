@@ -10,11 +10,11 @@ import { parseMap, type MapData } from './MapLoader';
 function asciiMap(rows: string[]): { map: MapData; grid: CollisionGrid } {
   const height = rows.length;
   const width = rows[0]?.length ?? 0;
-  const floor = new Int16Array(width * height).fill(-1);
+  const floor = new Int32Array(width * height); // global tile ids: 0 = no floor
   const cells = new Uint8Array(width * height);
   rows.forEach((row, y) =>
     [...row].forEach((ch, x) => {
-      if (ch === '.') floor[y * width + x] = 0;
+      if (ch === '.') floor[y * width + x] = 1;
       else cells[y * width + x] = BLOCK_ALL;
     }),
   );

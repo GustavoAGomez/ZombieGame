@@ -10,4 +10,6 @@ export interface Services {
   stats: DebugStats;
   /** Round to start at (?round=N), for testing until the wave flow exists. */
   startRound: number;
+  /** Map key from ?map=…, or null for the default map. */
+  mapKey: string | null;
 }

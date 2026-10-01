@@ -20,8 +20,15 @@ export interface Vec2 {
   y: number;
 }
 
+/** Per-tile flags from the tileset properties, indexed by global tile id. */
+export const TILE_COLLIDES = 1;
+export const TILE_WATER = 2;
+export const TILE_VOID = 4;
+
 export interface MapTileset {
   name: string;
+  /** Global id of this tileset's tile 0. */
+  firstGid: number;
   image: string;
   tileWidth: number;
   tileHeight: number;
@@ -29,8 +36,15 @@ export interface MapTileset {
   tileCount: number;
   imageWidth: number;
   imageHeight: number;
-  /** Local tile ids (0-based) whose `collides` property is true. */
-  collides: ReadonlySet<number>;
+  /** Flags (TILE_*) of each local tile id. */
+  flags: Uint8Array;
+}
+
+/** A tile object of the `decals` layer: drawn from its bottom-left corner. */
+export interface MapDecal {
+  gid: number;
+  x: number;
+  y: number;
 }
 
 export interface MapZone {
@@ -100,11 +114,14 @@ export interface MapData {
   /** Size in world px. */
   widthPx: number;
   heightPx: number;
-  tileset: MapTileset;
-  /** Local tile id per cell (row-major), -1 when empty. */
-  floor: Int16Array;
-  walls: Int16Array;
-  decor: Int16Array;
+  tilesets: MapTileset[];
+  /** Flags (TILE_*) per global tile id. */
+  gidFlags: Uint8Array;
+  /** Global tile id per cell (row-major), 0 when empty. */
+  floor: Int32Array;
+  walls: Int32Array;
+  decor: Int32Array;
+  decals: MapDecal[];
   zones: MapZone[];
   windows: MapWindow[];
   doors: MapDoor[];
@@ -167,23 +184,65 @@ function tileLayer(map: TiledMap, name: string, required: boolean): TiledTileLay
   return layer;
 }
 
-function parseTileset(map: TiledMap): TiledTileset {
-  const tileset = map.tilesets[0];
-  if (!tileset) return fail('The map needs one embedded tileset');
-  if (map.tilesets.length > 1) fail('Only one tileset per map is supported');
-  if (tileset.source) fail(`Tileset "${tileset.source}" must be embedded in the .tmj`);
-  return tileset;
+const GID_MASK = 0x1fffffff; // strips Tiled's flip flags
+
+function parseTilesets(map: TiledMap): MapTileset[] {
+  if (map.tilesets.length === 0) fail('The map needs at least one embedded tileset');
+  const tilesets = map.tilesets.map((t: TiledTileset): MapTileset => {
+    if (t.source) fail(`Tileset "${t.source}" is external: run npm run map:build to embed it in the .tmj`);
+    const flags = new Uint8Array(Math.max(0, t.tilecount));
+    for (const tile of t.tiles ?? []) {
+      if (tile.id < 0 || tile.id >= flags.length) continue;
+      for (const p of tile.properties ?? []) {
+        if (p.value !== true) continue;
+        if (p.name === 'collides') flags[tile.id]! |= TILE_COLLIDES;
+        else if (p.name === 'water') flags[tile.id]! |= TILE_WATER;
+        else if (p.name === 'void') flags[tile.id]! |= TILE_VOID;
+      }
+    }
+    return {
+      name: t.name,
+      firstGid: t.firstgid,
+      image: t.image,
+      tileWidth: t.tilewidth,
+      tileHeight: t.tileheight,
+      columns: t.columns,
+      tileCount: t.tilecount,
+      imageWidth: t.imagewidth,
+      imageHeight: t.imageheight,
+      flags,
+    };
+  });
+  return tilesets.sort((a, b) => a.firstGid - b.firstGid);
 }
 
-function toLocalIds(layer: TiledTileLayer | undefined, size: number, firstGid: number): Int16Array {
-  const out = new Int16Array(size).fill(-1);
+function buildGidFlags(tilesets: readonly MapTileset[]): Uint8Array {
+  const maxGid = tilesets.reduce((m, t) => Math.max(m, t.firstGid + t.tileCount), 1);
+  const flags = new Uint8Array(maxGid);
+  for (const t of tilesets) flags.set(t.flags, t.firstGid);
+  return flags;
+}
+
+/** The tileset a global id belongs to (tilesets sorted by firstGid). */
+export function tilesetForGid(tilesets: readonly MapTileset[], gid: number): MapTileset | undefined {
+  let found: MapTileset | undefined;
+  for (const t of tilesets) if (gid >= t.firstGid) found = t;
+  return found && gid < found.firstGid + found.tileCount ? found : undefined;
+}
+
+function toGids(layer: TiledTileLayer | undefined, size: number): Int32Array {
+  const out = new Int32Array(size);
   if (!layer) return out;
-  for (let i = 0; i < size; i++) {
-    // Strip Tiled's flip flags from the top three bits.
-    const gid = (layer.data[i] ?? 0) & 0x1fffffff;
-    out[i] = gid === 0 ? -1 : gid - firstGid;
-  }
+  for (let i = 0; i < size; i++) out[i] = (layer.data[i] ?? 0) & GID_MASK;
   return out;
+}
+
+function parseDecals(map: TiledMap): MapDecal[] {
+  const layer = findLayer(map, LAYER_NAMES.decals);
+  if (!layer || layer.type !== 'objectgroup') return [];
+  return layer.objects
+    .filter((o) => typeof o.gid === 'number' && o.gid > 0)
+    .map((o) => ({ gid: (o.gid ?? 0) & GID_MASK, x: o.x, y: o.y }));
 }
 
 function axisOf(outward: Vec2): WallAxis {
@@ -200,28 +259,12 @@ export function parseMap(json: unknown): MapData {
   const { width, height } = map;
   const tileSize = map.tilewidth;
   const size = width * height;
-  const rawTileset = parseTileset(map);
-
-  const collides = new Set<number>();
-  for (const tile of rawTileset.tiles ?? []) {
-    if (tile.properties?.some((p) => p.name === 'collides' && p.value === true)) collides.add(tile.id);
-  }
-
-  const tileset: MapTileset = {
-    name: rawTileset.name,
-    image: rawTileset.image,
-    tileWidth: rawTileset.tilewidth,
-    tileHeight: rawTileset.tileheight,
-    columns: rawTileset.columns,
-    tileCount: rawTileset.tilecount,
-    imageWidth: rawTileset.imagewidth,
-    imageHeight: rawTileset.imageheight,
-    collides,
-  };
-
-  const floor = toLocalIds(tileLayer(map, LAYER_NAMES.floor, true), size, rawTileset.firstgid);
-  const walls = toLocalIds(tileLayer(map, LAYER_NAMES.walls, true), size, rawTileset.firstgid);
-  const decor = toLocalIds(tileLayer(map, LAYER_NAMES.decor, false), size, rawTileset.firstgid);
+  const tilesets = parseTilesets(map);
+  const gidFlags = buildGidFlags(tilesets);
+  const floor = toGids(tileLayer(map, LAYER_NAMES.floor, true), size);
+  const walls = toGids(tileLayer(map, LAYER_NAMES.walls, true), size);
+  const decor = toGids(tileLayer(map, LAYER_NAMES.decor, false), size);
+  const decals = parseDecals(map);
 
   const objectsLayer = findLayer(map, LAYER_NAMES.objects);
   if (!objectsLayer || objectsLayer.type !== 'objectgroup') fail('Missing object layer "objects"');
@@ -281,7 +324,7 @@ export function parseMap(json: unknown): MapData {
   });
 
   const isFloor = (tx: number, ty: number): boolean =>
-    tx >= 0 && ty >= 0 && tx < width && ty < height && (floor[ty * width + tx] ?? -1) >= 0;
+    tx >= 0 && ty >= 0 && tx < width && ty < height && (floor[ty * width + tx] ?? 0) !== 0;
 
   const windows: MapWindow[] = rawWindows.map((obj) => {
     const id = stringProp(obj, 'id');
@@ -369,10 +412,12 @@ export function parseMap(json: unknown): MapData {
     tileSize,
     widthPx: width * tileSize,
     heightPx: height * tileSize,
-    tileset,
+    tilesets,
+    gidFlags,
     floor,
     walls,
     decor,
+    decals,
     zones,
     windows,
     doors,

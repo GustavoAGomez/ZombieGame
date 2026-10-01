@@ -19,6 +19,8 @@ export interface TiledObject {
   rotation: number;
   visible: boolean;
   point?: boolean;
+  /** Tile objects (e.g. decals) reference a tile by global id; (x, y) is their bottom-left. */
+  gid?: number;
   properties?: TiledProperty[];
 }
 
@@ -69,6 +71,7 @@ export interface TiledTileset {
   tiles?: TiledTileDef[];
   /** External tilesets reference a .tsj instead of embedding the data. */
   source?: string;
+  objectalignment?: string;
 }
 
 export interface TiledMap {
@@ -92,4 +95,4 @@ export interface TiledMap {
 export const OBJECT_TYPES = ['zone', 'player_spawn', 'window', 'zombie_spawn', 'door'] as const;
 export type ObjectType = (typeof OBJECT_TYPES)[number];
 
-export const LAYER_NAMES = { floor: 'floor', walls: 'walls', decor: 'decor', objects: 'objects' } as const;
+export const LAYER_NAMES = { floor: 'floor', walls: 'walls', decor: 'decor', decals: 'decals', objects: 'objects' } as const;

@@ -178,8 +178,8 @@ export function checkAssets(root: string): CheckReport {
     }
     try {
       const map = parseMap(JSON.parse(readFileSync(path, 'utf8')));
-      if (!manifest.tilesets[map.tileset.name]) {
-        report.errors.push(`maps.${key}: usa el tileset "${map.tileset.name}", que no está en el manifiesto`);
+      for (const t of map.tilesets) {
+        if (!manifest.tilesets[t.name]) report.errors.push(`maps.${key}: usa el tileset "${t.name}", que no está en el manifiesto`);
       }
       if (map.tileSize !== manifest.tileSize) report.errors.push(`maps.${key}: tile de ${map.tileSize} px ≠ tileSize ${manifest.tileSize}`);
       if (map.windows.length === 0) report.errors.push(`maps.${key}: no tiene ventanas`);

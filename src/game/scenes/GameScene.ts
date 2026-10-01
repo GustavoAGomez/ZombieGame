@@ -62,7 +62,7 @@ export class GameScene extends Phaser.Scene {
 
   create(): void {
     const { events, hudRoot } = this.services;
-    this.map = this.assets.map(ASSET_KEYS.mapRoom01);
+    this.map = this.assets.mapOrDefault(this.services.mapKey);
     this.state = createGameState(this.map, { seed: Date.now() | 0, startRound: this.services.startRound });
     this.sim = {
       state: this.state,

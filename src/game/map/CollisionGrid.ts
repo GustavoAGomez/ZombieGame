@@ -1,4 +1,4 @@
-import type { MapData, MapDoor } from './MapLoader';
+import { TILE_COLLIDES, TILE_VOID, TILE_WATER, type MapData, type MapDoor } from './MapLoader';
 
 /**
  * Per-tile blocking flags. Pure data + geometry so the same collision code
@@ -10,8 +10,9 @@ export const BLOCK_ZOMBIE = 2;
 export const BLOCK_BULLET = 4;
 export const BLOCK_SIGHT = 8;
 export const BLOCK_ALL = BLOCK_PLAYER | BLOCK_ZOMBIE | BLOCK_BULLET | BLOCK_SIGHT;
-/** Windows stop bodies but let bullets and line of sight through. */
-export const BLOCK_WINDOW = BLOCK_PLAYER | BLOCK_ZOMBIE;
+/** Windows, water and void stop bodies but let bullets and line of sight through. */
+export const BLOCK_BODIES = BLOCK_PLAYER | BLOCK_ZOMBIE;
+export const BLOCK_WINDOW = BLOCK_BODIES;
 
 export interface CollisionGrid {
   width: number;
@@ -22,9 +23,13 @@ export interface CollisionGrid {
 
 export function buildCollisionGrid(map: MapData, doorsOpen: readonly boolean[]): CollisionGrid {
   const cells = new Uint8Array(map.width * map.height);
+  const flagsOf = (gid: number): number => (gid > 0 ? (map.gidFlags[gid] ?? 0) : 0);
   for (let i = 0; i < cells.length; i++) {
-    const wall = map.walls[i] ?? -1;
-    if (wall >= 0 && map.tileset.collides.has(wall)) cells[i] = BLOCK_ALL;
+    const tileFlags = flagsOf(map.walls[i] ?? 0) | flagsOf(map.floor[i] ?? 0) | flagsOf(map.decor[i] ?? 0);
+    if ((flagsOf(map.walls[i] ?? 0) & TILE_COLLIDES) !== 0) cells[i] = BLOCK_ALL;
+    else if ((tileFlags & (TILE_WATER | TILE_VOID)) !== 0) cells[i] = BLOCK_BODIES;
+    // Safety net: the player can never step where there is no floor.
+    else if ((map.floor[i] ?? 0) === 0) cells[i] = BLOCK_PLAYER;
   }
   for (const w of map.windows) cells[w.tileY * map.width + w.tileX] = BLOCK_WINDOW;
   const grid: CollisionGrid = { width: map.width, height: map.height, tileSize: map.tileSize, cells };

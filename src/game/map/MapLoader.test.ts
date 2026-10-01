@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildRoom01Map } from '../../../scripts/gen-placeholder-map';
-import { MapParseError, parseMap } from './MapLoader';
+import { MapParseError, TILE_COLLIDES, parseMap } from './MapLoader';
 import type { TiledMap, TiledObjectLayer } from './tiled';
 
 const clone = (): TiledMap => structuredClone(buildRoom01Map());
@@ -11,9 +11,10 @@ describe('parseMap (room01 placeholder)', () => {
   it('reads size and tileset', () => {
     expect(map.tileSize).toBe(32);
     expect(map.widthPx).toBe(map.width * 32);
-    expect(map.tileset.name).toBe('interior');
-    expect(map.tileset.collides.has(1)).toBe(true);
-    expect(map.tileset.collides.has(0)).toBe(false);
+    expect(map.tilesets.map((t) => t.name)).toEqual(['interior']);
+    const t = map.tilesets[0]!;
+    expect(map.gidFlags[t.firstGid + 1]! & TILE_COLLIDES).toBeTruthy(); // wall
+    expect(map.gidFlags[t.firstGid]! & TILE_COLLIDES).toBeFalsy(); // floor
   });
 
   it('builds the three zones from spec 01 §3', () => {
@@ -47,7 +48,7 @@ describe('parseMap (room01 placeholder)', () => {
       // Interior point lies on floor inside the window's zone.
       const tx = Math.floor(w.interior.x / 32);
       const ty = Math.floor(w.interior.y / 32);
-      expect(map.floor[ty * map.width + tx]).toBeGreaterThanOrEqual(0);
+      expect(map.floor[ty * map.width + tx]).toBeGreaterThan(0);
       const zone = map.zones[map.cellZone[ty * map.width + tx] ?? -1];
       expect(zone?.id).toBe(w.zone);
       // Exterior point lies between the window and the spawn.
@@ -91,7 +92,7 @@ describe('parseMap validation', () => {
     const raw = clone();
     const tileset = raw.tilesets[0];
     if (tileset) tileset.source = 'interior.tsj';
-    expect(() => parseMap(raw)).toThrow(/embedded/);
+    expect(() => parseMap(raw)).toThrow(/map:build/);
   });
 
   it('rejects spawns pointing to unknown windows', () => {

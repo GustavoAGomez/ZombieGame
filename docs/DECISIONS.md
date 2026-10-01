@@ -151,3 +151,10 @@ Registro de lo que la spec no definía (o definía de forma ambigua) y cómo se 
 - **Suelos con celdas más pequeñas que la rejilla** (11 de 16 tienen márgenes transparentes): se recorta cada celda a su contenido antes de reducirla de 48 a 32. Rellenar el margen estiraba el borde oscuro del arte y salían franjas negras.
 - **`map_special`** (vacío y exterior oscuro) lo genera el importador, porque no hay arte para ello.
 - **Rutas de imagen en los `.tsj`:** relativas a `public/assets/tiles/`, para que Tiled las encuentre; `map:build` (Fase M3) las reescribe para el juego.
+
+## Spec 02 · Fase M2 (varios tilesets)
+
+- **Las capas guardan GIDs** (identificadores globales de Tiled, 0 = vacío) en vez de índices locales del único tileset. Los flags por tile (`collides`, `water`, `void`) se precalculan en una tabla indexada por GID, así la rejilla de colisión no necesita saber de qué tileset viene cada tile. Los bits de volteo de Tiled se descartan: no se usan.
+- **Agua y vacío** bloquean a jugador y zombies pero dejan pasar balas y visión, igual que una ventana (`BLOCK_BODIES`). Una casilla sin suelo bloquea al jugador como red de seguridad.
+- **Paredes y tiles que no miden 32×32** (paredes 3/4 de 32×48, por ejemplo) se pintan como imágenes ancladas abajo a la izquierda de su casilla, con la profundidad de un actor situado en el borde inferior de la casilla. Así el jugador queda detrás de la pared cuando está encima de ella y delante cuando está debajo. Los tiles de 32×32 de suelo y decoración siguen en capas de tilemap.
+- **`?map=<clave>`** elige el mapa del manifiesto. Si la clave no existe se avisa por consola y se usa `room01`.

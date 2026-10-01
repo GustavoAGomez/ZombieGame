@@ -79,3 +79,9 @@ export function requestedStartRound(search: string = window.location.search): nu
   const n = Number.parseInt(new URLSearchParams(search).get('round') ?? '', 10);
   return Number.isFinite(n) && n >= 1 ? Math.min(n, 99) : 1;
 }
+
+/** ?map=<key> chooses the map from the manifest (default: the first one). */
+export function requestedMap(search: string = window.location.search): string | null {
+  const key = new URLSearchParams(search).get('map');
+  return key && /^[a-z0-9_]+$/.test(key) ? key : null;
+}

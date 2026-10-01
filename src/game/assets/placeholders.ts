@@ -1,6 +1,6 @@
 import type Phaser from 'phaser';
 import { COLORS } from '../../config/theme';
-import type { MapTileset } from '../map/MapLoader';
+import { TILE_COLLIDES, TILE_VOID, TILE_WATER, type MapTileset } from '../map/MapLoader';
 import {
   ASSET_KEYS,
   DIRECTIONS_4,
@@ -325,18 +325,24 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
   });
 }
 
-/** Tiles that collide are painted as walls, everything else as floor. */
+/** Tiles are painted from their properties: walls, water, void, or floor for the rest. */
 export function createTilesetPlaceholder(scene: Phaser.Scene, tilesetKey: string, tileset: MapTileset): void {
   const columns = Math.max(1, tileset.columns);
   const rows = Math.max(1, Math.ceil(tileset.tileCount / columns));
   const tw = tileset.tileWidth;
   const th = tileset.tileHeight;
   createSheet(scene, tilesetTextureKey(tilesetKey), tw, th, columns, rows, (ctx, col, row, ox, oy) => {
-    const id = row * columns + col;
-    if (tileset.collides.has(id)) {
+    const flags = tileset.flags[row * columns + col] ?? 0;
+    if (flags & TILE_COLLIDES) {
       rect(ctx, COLORS.wall, ox, oy, tw, th);
       rect(ctx, PLACEHOLDER_COLORS.wallTop, ox, oy, tw, 2);
       rect(ctx, '#4a3a2c', ox, oy + th - 1, tw, 1);
+    } else if (flags & TILE_WATER) {
+      rect(ctx, '#2b4530', ox, oy, tw, th);
+      rect(ctx, '#3c5c40', ox + 6, oy + 9, 8, 1);
+      rect(ctx, '#3c5c40', ox + 18, oy + 21, 7, 1);
+    } else if (flags & TILE_VOID) {
+      rect(ctx, '#090807', ox, oy, tw, th);
     } else {
       rect(ctx, COLORS.floor, ox, oy, tw, th);
       rect(ctx, PLACEHOLDER_COLORS.floorGrid, ox, oy, tw, 1);

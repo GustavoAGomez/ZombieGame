@@ -1,6 +1,7 @@
 import type Phaser from 'phaser';
 import { parseMap, type MapData } from '../map/MapLoader';
 import {
+  ASSET_KEYS,
   ASSETS_BASE_URL,
   animationKey,
   characterTextureKey,
@@ -88,13 +89,24 @@ export class AssetLibrary {
 
     for (const [key, def] of Object.entries(manifest.tilesets)) {
       const textureKey = tilesetTextureKey(key);
-      if (!def.placeholder && !this.isMissing(scene, textureKey)) continue;
-      // The tile layout comes from the first map that embeds this tileset.
-      const tileset = [...this.maps.values()].map((m) => m.tileset).find((t) => t.name === key);
+      if (!def.placeholder && !this.isMissing(scene, textureKey)) {
+        addGridFrames(scene, textureKey, def.tileWidth, def.tileHeight);
+        continue;
+      }
+      // The tile layout and properties come from the first map that embeds this tileset.
+      const tileset = [...this.maps.values()].flatMap((m) => m.tilesets).find((t) => t.name === key);
       if (tileset) createTilesetPlaceholder(scene, key, tileset);
     }
 
     this.createAnimations(scene);
+  }
+
+  /** The map `key` if it exists, otherwise the default map (room01, the first one declared). */
+  mapOrDefault(key: string | null): MapData {
+    if (key && this.maps.has(key)) return this.map(key);
+    if (key) console.warn(`[assets] No existe el mapa "${key}", se usa el de por defecto`);
+    const fallback = this.maps.has(ASSET_KEYS.mapRoom01) ? ASSET_KEYS.mapRoom01 : [...this.maps.keys()][0];
+    return this.map(fallback ?? '');
   }
 
   map(key: string): MapData {
@@ -127,6 +139,20 @@ export class AssetLibrary {
           });
         }
       }
+    }
+  }
+}
+
+/** Numbered frames (0, 1, …) for every tile of a tileset image, so tiles can be drawn as images. */
+function addGridFrames(scene: Phaser.Scene, textureKey: string, tileWidth: number, tileHeight: number): void {
+  const texture = scene.textures.get(textureKey);
+  const source = texture.getSourceImage();
+  const columns = Math.floor(source.width / tileWidth);
+  const rows = Math.floor(source.height / tileHeight);
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < columns; col++) {
+      const frame = row * columns + col;
+      if (!texture.has(String(frame))) texture.add(frame, 0, col * tileWidth, row * tileHeight, tileWidth, tileHeight);
     }
   }
 }
