@@ -350,3 +350,21 @@ Registro de lo que la spec no definía (o definía de forma ambigua) y cómo se 
   - Una pulsación durante la pausa de 0,6 s entre golpes se ignora.
 - **Animación provisional:** durante 0,25 s (`MELEE.swingTime`) se dibuja delante del jugador un tajo en arco, girado hacia el golpe (`melee_slash`, placeholder generado de 4 fotogramas). Mientras dura, el jugador sigue mirando hacia el tajo aunque se mueva.
 - **Animación final:** cuando llegue, entra como animación `melee` del jugador en el manifiesto. El importador normaliza «Knife», «Stab», «Slash» o «Melee» a `melee`. Si existe, el personaje la reproduce en cada cuchillada, desde el principio, y el tajo provisional deja de dibujarse sin tocar el código.
+
+## HUD al estilo Wild Rift y sin zoom
+
+- **Zoom bloqueado.** La meta del viewport (`user-scalable=no`) y el `touch-action: none` de la página no bastan en Safari de iOS, que seguía ampliando al pellizcar y al tocar muy rápido (machacar el botón del cuchillo ampliaba la vista sin poder volver). `src/ui/noZoom.ts` cancela:
+  - los gestos de pellizco de Safari;
+  - los movimientos táctiles con dos dedos;
+  - el segundo toque en menos de 350 ms;
+  - el doble clic.
+  Los controles leen eventos de puntero, que llegan antes que esos eventos táctiles, así que no les afecta.
+- **Botones más pequeños**, como en Wild Rift:
+  - el de disparo pasa de 112 a 96 px;
+  - los botones de acción, de 64 a 48 px y solo con icono;
+  - el recorrido del pomo de apuntar baja a 28 px.
+- **Junto al disparo**, solo recargar (justo encima) y cuchillo (a su izquierda).
+- **Cambio de arma:** desaparece el botón. Las armas se eligen en una barra inferior, centrada al 55 % del ancho como los hechizos de invocador de Wild Rift, con un botón por arma (como máximo `LOADOUT.maxWeapons`, 3). Cada uno lleva su icono y las balas de su cargador, y se resalta el activo. Tocarlo envía el comando `selectWeapon` con el índice del hueco, y el cambio tarda lo de siempre. En el ordenador valen 1, 2 y 3, y Q sigue pasando a la siguiente.
+- **Especial (esquivar):** como al lado del disparo solo caben recargar y cuchillo, va al final de esa barra inferior, como el Destello de Wild Rift, con su cuenta atrás.
+- **Acción contextual:** el chip de abajo («REPARAR +10», «ABRIR PUERTA 750») pasa a ser un botón redondo en el borde derecho, encima de recargar. Lleva un martillo para reparar, y una puerta o una escalera para comprar. Debajo, en una etiqueta, los puntos por tablón, el coste o lo que falta (en rojo, con «−»). Sigue parpadeando al reparar y temblando si no se puede.
+- **Iconos provisionales en píxeles:** pistola, fusil automático (para la SMG), martillo, puerta, escalera, recarga y cuchillo (`src/ui/icons.ts`). Los finales llegarán más adelante.

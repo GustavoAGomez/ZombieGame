@@ -3,6 +3,7 @@ import '@fontsource/press-start-2p/latin-400.css';
 import '@fontsource/silkscreen/latin-400.css';
 import './ui/global.css';
 import { COLORS, applyThemeTokens } from './config/theme';
+import { blockZoom } from './ui/noZoom';
 import { EventBus } from './core/EventBus';
 import { DebugOverlay, isDebugRequested, requestedMap, requestedStartRound } from './debug/DebugOverlay';
 import { BootScene } from './game/scenes/BootScene';
@@ -20,6 +21,8 @@ function requireElement(id: string): HTMLElement {
 }
 
 applyThemeTokens();
+// No zoom of any kind: iOS Safari ignores the viewport meta (src/ui/noZoom.ts).
+blockZoom();
 
 const gameRoot = requireElement('game');
 const hudRoot = requireElement('hud');

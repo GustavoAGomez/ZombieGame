@@ -233,7 +233,7 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     hp: PLAYER.maxHp,
     maxHp: PLAYER.maxHp,
     lastDamageTime: -Infinity,
-    weapons: LOADOUT.startingWeapons.map(createWeaponSlot),
+    weapons: LOADOUT.startingWeapons.slice(0, LOADOUT.maxWeapons).map(createWeaponSlot),
     activeSlot: 0,
     switchTimer: 0,
     reloadTimer: 0,

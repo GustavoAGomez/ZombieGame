@@ -1,11 +1,15 @@
 import type { EventBus } from '../core/EventBus';
 import type { InputCommand } from '../core/InputCommand';
 import { ActionButtons } from './ActionButtons';
-import { ActionChip } from './ActionChip';
+import { ContextButton } from './ContextButton';
 import { FireStick } from './FireStick';
 import { KeyboardInput } from './KeyboardInput';
 import { VirtualJoystick } from './VirtualJoystick';
+import { WeaponBar } from './WeaponBar';
 import './controls.css';
+
+/** Keyboard keys for the weapon slots. */
+const WEAPON_KEYS = ['Digit1', 'Digit2', 'Digit3'] as const;
 
 /**
  * Owns the touch controls and turns their state into one InputCommand per
@@ -16,7 +20,8 @@ export class InputCollector {
   private readonly joystick: VirtualJoystick;
   private readonly fireStick: FireStick;
   private readonly buttons: ActionButtons;
-  private readonly chip: ActionChip;
+  private readonly weaponBar: WeaponBar;
+  private readonly chip: ContextButton;
   private readonly keyboard = new KeyboardInput();
   private readonly axis = { x: 0, y: 0 };
 
@@ -26,8 +31,9 @@ export class InputCollector {
     hudRoot.appendChild(this.root);
     this.joystick = new VirtualJoystick(this.root);
     this.fireStick = new FireStick(this.root);
-    this.buttons = new ActionButtons(this.root, events);
-    this.chip = new ActionChip(this.root, events);
+    this.weaponBar = new WeaponBar(this.root, events);
+    this.buttons = new ActionButtons(this.root, this.weaponBar.element, events);
+    this.chip = new ContextButton(this.root, events);
 
     // A finger lifted while the app was hidden never sends pointerup.
     document.addEventListener('visibilitychange', this.onVisibility);
@@ -64,7 +70,10 @@ export class InputCollector {
       cmd.aimY = this.fireStick.aimY;
     }
 
-    cmd.switchWeapon = this.buttons.consumeSwitch() || kb.consumePress('KeyQ');
+    cmd.switchWeapon = kb.consumePress('KeyQ');
+    // The HUD slots, or 1 / 2 / 3 on the keyboard.
+    cmd.selectWeapon = this.weaponBar.consumeSelect();
+    for (let i = 0; i < WEAPON_KEYS.length; i++) if (kb.consumePress(WEAPON_KEYS[i] ?? '')) cmd.selectWeapon = i;
     cmd.reload = this.buttons.consumeReload() || kb.consumePress('KeyR');
     cmd.melee = this.buttons.consumeMelee() || kb.consumePress('KeyV');
     cmd.special = this.buttons.consumeSpecial() || kb.consumePress('ShiftLeft') || kb.consumePress('KeyE');
@@ -78,6 +87,7 @@ export class InputCollector {
     this.joystick.reset();
     this.fireStick.reset();
     this.buttons.reset();
+    this.weaponBar.reset();
     this.chip.reset();
     this.keyboard.reset();
   };
@@ -88,6 +98,7 @@ export class InputCollector {
     this.joystick.dispose();
     this.fireStick.dispose();
     this.buttons.destroy();
+    this.weaponBar.destroy();
     this.chip.destroy();
     this.keyboard.destroy();
     this.root.remove();

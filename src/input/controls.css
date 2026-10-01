@@ -51,14 +51,23 @@
   transition-duration: 0ms !important;
 }
 
+/*
+ * HUD layout inspired by Wild Rift: a big fire button with only two small
+ * buttons beside it (reload above, knife to the left), the weapon slots and
+ * the special in a bar at the bottom, and the contextual action (hammer,
+ * door, stairs) at the right edge. Positions of the side buttons are their
+ * centres relative to the fire button's centre (right pad-x + 60, bottom
+ * pad-bottom + 64).
+ */
+
 /* Fire button with drag-to-aim (spec 01 §2.2). */
 .fire-stick {
   position: absolute;
-  right: calc(var(--pad-x) + 4px);
-  bottom: calc(var(--pad-bottom) + 12px);
+  right: calc(var(--pad-x) + 12px);
+  bottom: calc(var(--pad-bottom) + 16px);
   z-index: 20;
-  width: 112px;
-  height: 112px;
+  width: 96px;
+  height: 96px;
   border-radius: 50%;
   background: rgba(201, 58, 43, 0.28);
   box-shadow: inset 0 0 0 3px var(--red);
@@ -69,10 +78,10 @@
 
 .fire-stick__knob {
   position: absolute;
-  left: 34px;
-  top: 34px;
-  width: 44px;
-  height: 44px;
+  left: 28px;
+  top: 28px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -87,12 +96,12 @@
   box-shadow: inset 0 0 0 3px var(--amber);
 }
 
-/* Arc buttons: centres relative to the fire button centre (spec 01 §2.3). */
+/* Small round buttons: icon only. */
 .action-button {
   position: absolute;
   z-index: 20;
-  width: 64px;
-  height: 64px;
+  width: 48px;
+  height: 48px;
   margin: 0;
   padding: 0;
   border: 0;
@@ -101,13 +110,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  overflow: hidden;
   color: var(--bone);
   font-family: var(--font-label);
   font-size: 8px;
-  background: rgba(239, 230, 210, 0.08);
-  box-shadow: inset 0 0 0 3px rgba(239, 230, 210, 0.45);
+  background: rgba(15, 14, 12, 0.45);
+  box-shadow: inset 0 0 0 2px rgba(239, 230, 210, 0.45);
   pointer-events: auto;
   touch-action: none;
   transition: transform 60ms ease-out;
@@ -115,30 +122,30 @@
   appearance: none;
 }
 
-/* Fire centre: right pad-x + 60, bottom pad-bottom + 68. Switch at (-108, -36). */
-.action-button--switch {
-  right: calc(var(--pad-x) + 136px);
-  bottom: calc(var(--pad-bottom) + 72px);
+/* A hidden button (a weapon slot with no weapon) stays hidden despite the display above. */
+.action-button[hidden] {
+  display: none;
 }
 
-/* Special at (-84, -106) from the fire centre, amber accents. */
-.action-button--special {
-  right: calc(var(--pad-x) + 112px);
-  bottom: calc(var(--pad-bottom) + 142px);
-  color: var(--amber);
-  background: rgba(232, 176, 74, 0.14);
-  box-shadow: inset 0 0 0 3px rgba(232, 176, 74, 0.75);
+.action-button__icon {
+  position: relative;
+  display: flex;
+  line-height: 0;
 }
 
-/* Reload right above the fire button, at (0, -124). */
+.action-button__label:empty {
+  display: none;
+}
+
+/* Reload right above the fire button, at (0, -82). */
 .action-button--reload {
-  right: calc(var(--pad-x) + 28px);
-  bottom: calc(var(--pad-bottom) + 160px);
+  right: calc(var(--pad-x) + 36px);
+  bottom: calc(var(--pad-bottom) + 122px);
 }
 
-/* Knife left of the switch, at (-176, 0) from the fire centre. */
+/* Knife to the left of the fire button, at (-88, -4). */
 .action-button--melee {
-  right: calc(var(--pad-x) + 204px);
+  right: calc(var(--pad-x) + 124px);
   bottom: calc(var(--pad-bottom) + 36px);
 }
 
@@ -147,16 +154,71 @@
   opacity: 0.4;
 }
 
-.action-button__label {
-  position: relative;
-  line-height: 1;
+/* Bottom bar: the weapon slots, then the special. Centred at 55 % of the width, like Wild Rift's spells. */
+.bottom-bar {
+  position: absolute;
+  left: 55%;
+  bottom: calc(var(--pad-bottom) + 6px);
+  z-index: 20;
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  transform: translateX(-50%);
+  pointer-events: none;
 }
 
-/* Cooldown veil: covers the button and its top edge moves down as it recharges. */
+.bottom-bar__weapons {
+  display: flex;
+  gap: 8px;
+}
+
+.bottom-bar .action-button {
+  position: relative;
+  width: 44px;
+  height: 44px;
+}
+
+/* A weapon slot: its icon, and the bullets in its magazine on a badge below. */
+.weapon-slot .action-button__label {
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1px 3px;
+  font-family: var(--font-display);
+  font-size: 7px;
+  color: var(--bone);
+  background: var(--ink);
+  border-radius: 2px;
+}
+
+.weapon-slot.is-active {
+  background: rgba(232, 176, 74, 0.22);
+  box-shadow:
+    inset 0 0 0 2px var(--amber),
+    0 0 0 2px rgba(15, 14, 12, 0.6);
+}
+
+.weapon-slot.is-active .action-button__label {
+  color: var(--amber);
+}
+
+.weapon-slot.is-empty {
+  opacity: 0.4;
+}
+
+/* Special (dash), last in the bar, amber accents. */
+.action-button--special {
+  color: var(--amber);
+  background: rgba(232, 176, 74, 0.14);
+  box-shadow: inset 0 0 0 2px rgba(232, 176, 74, 0.75);
+}
+
 .action-button__veil {
   position: absolute;
   inset: 0;
   display: none;
+  border-radius: 50%;
   background: rgba(15, 14, 12, 0.72);
   transform-origin: 50% 100%;
   pointer-events: none;
@@ -170,7 +232,7 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-display);
-  font-size: 14px;
+  font-size: 12px;
   color: var(--bone);
   text-shadow: 2px 2px 0 var(--ink);
   pointer-events: none;
@@ -182,7 +244,7 @@
 
 .fire-stick.is-pressed,
 .action-button.is-pressed {
-  transform: scale(0.94);
+  transform: scale(0.92);
 }
 
 .action-button:focus,
@@ -190,22 +252,22 @@
   outline: none;
 }
 
-/* Contextual action chip (spec 01 §2.4): centred at 55 % of the width. */
-.action-chip {
+/*
+ * Contextual action at the right edge (spec 01 §2.4): a hammer to repair,
+ * a door or stairs to buy, with the points or the cost on a badge below.
+ */
+.context-button {
   position: absolute;
-  left: 55%;
-  bottom: calc(var(--pad-bottom) + 26px);
+  right: calc(var(--pad-x) + 8px);
+  bottom: calc(var(--pad-bottom) + 196px);
   z-index: 20;
-  min-height: 44px;
-  padding: 0 14px;
+  width: 56px;
+  height: 56px;
   display: none;
   align-items: center;
-  gap: 10px;
-  transform: translateX(-50%);
-  font-family: var(--font-label);
-  font-size: 11px;
-  color: var(--bone);
-  background: rgba(26, 23, 20, 0.92);
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(26, 23, 20, 0.85);
   box-shadow:
     0 0 0 2px var(--ink),
     inset 0 0 0 2px var(--door);
@@ -214,56 +276,68 @@
   transition: transform 60ms ease-out;
 }
 
-.action-chip.is-visible {
+.context-button.is-visible {
   display: flex;
 }
 
-.action-chip.is-pressed {
-  transform: translateX(-50%) scale(0.94);
+.context-button__face {
+  display: flex;
+  line-height: 0;
 }
 
-.action-chip__value {
+.context-button__value {
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 4px;
   font-family: var(--font-display);
-  font-size: 10px;
+  font-size: 8px;
+  white-space: nowrap;
   color: var(--amber);
-  text-shadow: 2px 2px 0 var(--ink);
+  background: var(--ink);
+  border-radius: 2px;
 }
 
-.action-chip__value:empty {
+.context-button__value:empty {
   display: none;
 }
 
-.action-chip.is-disabled {
+.context-button.is-pressed {
+  transform: scale(0.92);
+}
+
+.context-button.is-disabled {
   opacity: 0.55;
 }
 
-.action-chip--door .action-chip__label {
-  color: var(--bone);
+.context-button.is-disabled .context-button__value {
+  color: var(--red);
 }
 
-.action-chip.is-shaking {
-  animation: action-chip-shake 280ms steps(1, end);
+.context-button.is-shaking {
+  animation: context-button-shake 280ms steps(1, end);
 }
 
-@keyframes action-chip-shake {
-  0% { transform: translateX(-50%) translateX(0); }
-  20% { transform: translateX(-50%) translateX(-4px); }
-  40% { transform: translateX(-50%) translateX(4px); }
-  60% { transform: translateX(-50%) translateX(-3px); }
-  80% { transform: translateX(-50%) translateX(2px); }
-  100% { transform: translateX(-50%) translateX(0); }
+@keyframes context-button-shake {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(2px); }
+  100% { transform: translateX(0); }
 }
 
-/* Repair = repeated taps: the border blinks between the door blue and amber. */
-.action-chip--repair {
-  animation: action-chip-tap-hint 0.5s steps(1, end) infinite;
+/* Repair = repeated taps: the ring blinks between the door blue and amber. */
+.context-button--repair {
+  animation: context-button-tap-hint 0.5s steps(1, end) infinite;
 }
 
-.action-chip--repair.is-shaking {
-  animation: action-chip-shake 280ms steps(1, end);
+.context-button--repair.is-shaking {
+  animation: context-button-shake 280ms steps(1, end);
 }
 
-@keyframes action-chip-tap-hint {
+@keyframes context-button-tap-hint {
   0% {
     box-shadow:
       0 0 0 2px var(--ink),

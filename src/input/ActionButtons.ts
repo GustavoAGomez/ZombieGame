@@ -1,75 +1,16 @@
 import { WEAPONS } from '../config/balance';
 import type { EventBus } from '../core/EventBus';
-import { pixelIcon, type IconName } from '../ui/icons';
 import { STRINGS } from '../ui/strings';
+import { TapButton } from './TapButton';
 
 /**
- * Tap buttons in an arc above the fire button (spec 01 §2.3): weapon switch,
- * special (dash), reload, right above the fire button, and the knife, left
- * of the switch. Presses are
- * latched until the next tick reads them. The special button shows its
- * cooldown and the reload button the reload in progress (dimmed while there
- * is nothing to reload), both received via the EventBus.
+ * Buttons around the fire button (only two, as in Wild Rift's skill arc):
+ * reload right above it and the knife to its left. The special (dash) sits
+ * in the bottom bar, after the weapon slots. The reload button shows the
+ * reload in progress (dimmed while there is nothing to reload) and the
+ * special its cooldown, both received via the EventBus.
  */
-class TapButton {
-  readonly el: HTMLButtonElement;
-  private pressed = false;
-  private pointerId: number | null = null;
-
-  constructor(parent: HTMLElement, className: string, icon: IconName, label: string, ariaLabel: string) {
-    this.el = document.createElement('button');
-    this.el.type = 'button';
-    this.el.className = `action-button ${className}`;
-    this.el.setAttribute('aria-label', ariaLabel);
-    const text = document.createElement('span');
-    text.className = 'action-button__label';
-    text.textContent = label;
-    this.el.append(pixelIcon(icon, 24), text);
-    parent.appendChild(this.el);
-
-    // Every press counts, even if a previous release was never delivered,
-    // so a missed pointerup can never leave the button unresponsive.
-    this.el.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      this.pointerId = e.pointerId;
-      this.pressed = true;
-      this.el.classList.add('is-pressed');
-    });
-    this.el.addEventListener('pointerup', this.release);
-    this.el.addEventListener('pointercancel', this.release);
-    this.el.addEventListener('pointerleave', this.release);
-    this.el.addEventListener('contextmenu', (e) => e.preventDefault());
-    window.addEventListener('pointerup', this.release, true);
-    window.addEventListener('pointercancel', this.release, true);
-  }
-
-  private readonly release = (e: PointerEvent): void => {
-    if (e.pointerId !== this.pointerId) return;
-    this.pointerId = null;
-    this.el.classList.remove('is-pressed');
-  };
-
-  dispose(): void {
-    window.removeEventListener('pointerup', this.release, true);
-    window.removeEventListener('pointercancel', this.release, true);
-  }
-
-  /** True once per press. */
-  consume(): boolean {
-    const was = this.pressed;
-    this.pressed = false;
-    return was;
-  }
-
-  reset(): void {
-    this.pressed = false;
-    this.pointerId = null;
-    this.el.classList.remove('is-pressed');
-  }
-}
-
 export class ActionButtons {
-  private readonly switchButton: TapButton;
   private readonly specialButton: TapButton;
   private readonly reloadButton: TapButton;
   private readonly meleeButton: TapButton;
@@ -78,11 +19,10 @@ export class ActionButtons {
   private readonly reloadVeil: HTMLDivElement;
   private readonly unsubscribe: (() => void)[];
 
-  constructor(parent: HTMLElement, events: EventBus) {
-    this.switchButton = new TapButton(parent, 'action-button--switch', 'swap', STRINGS.controls.weaponShort, STRINGS.controls.switchWeapon);
-    this.specialButton = new TapButton(parent, 'action-button--special', 'bolt', STRINGS.controls.specialShort, STRINGS.controls.special);
-    this.reloadButton = new TapButton(parent, 'action-button--reload', 'reload', STRINGS.controls.reloadShort, STRINGS.controls.reload);
-    this.meleeButton = new TapButton(parent, 'action-button--melee', 'knife', STRINGS.controls.meleeShort, STRINGS.controls.melee);
+  constructor(parent: HTMLElement, bottomBar: HTMLElement, events: EventBus) {
+    this.reloadButton = new TapButton(parent, 'action-button--reload', 'reload', '', STRINGS.controls.reload);
+    this.meleeButton = new TapButton(parent, 'action-button--melee', 'knife', '', STRINGS.controls.melee);
+    this.specialButton = new TapButton(bottomBar, 'action-button--special', 'bolt', '', STRINGS.controls.special);
 
     this.veil = document.createElement('div');
     this.veil.className = 'action-button__veil';
@@ -113,10 +53,6 @@ export class ActionButtons {
     ];
   }
 
-  consumeSwitch(): boolean {
-    return this.switchButton.consume();
-  }
-
   consumeSpecial(): boolean {
     return this.specialButton.consume();
   }
@@ -130,7 +66,6 @@ export class ActionButtons {
   }
 
   reset(): void {
-    this.switchButton.reset();
     this.specialButton.reset();
     this.reloadButton.reset();
     this.meleeButton.reset();
@@ -138,7 +73,6 @@ export class ActionButtons {
 
   destroy(): void {
     for (const off of this.unsubscribe) off();
-    this.switchButton.dispose();
     this.specialButton.dispose();
     this.reloadButton.dispose();
     this.meleeButton.dispose();

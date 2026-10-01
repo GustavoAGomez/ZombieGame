@@ -45,9 +45,13 @@ function tickTimers(p: PlayerState, cmd: InputCommand, dt: number): void {
   p.fireCooldown = Math.max(p.fireCooldown - dt, cmd.fire ? -dt : 0);
 }
 
+/** Picks the weapon of a HUD slot (or the next one with the keyboard), taking the switch time. */
 function handleSwitch(p: PlayerState, cmd: InputCommand): void {
-  if (!cmd.switchWeapon || p.weapons.length < 2) return;
-  p.activeSlot = (p.activeSlot + 1) % p.weapons.length;
+  let slot = -1;
+  if (cmd.selectWeapon >= 0 && cmd.selectWeapon < p.weapons.length) slot = cmd.selectWeapon;
+  else if (cmd.switchWeapon && p.weapons.length > 1) slot = (p.activeSlot + 1) % p.weapons.length;
+  if (slot < 0 || slot === p.activeSlot) return;
+  p.activeSlot = slot;
   p.switchTimer = LOADOUT.switchTime;
   p.reloadTimer = 0; // switching cancels a reload in progress
   p.fireCooldown = Math.max(p.fireCooldown, 0);

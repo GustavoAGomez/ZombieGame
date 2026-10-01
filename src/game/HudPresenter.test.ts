@@ -27,6 +27,28 @@ describe('HudPresenter', () => {
     expect(weapon).toHaveBeenLastCalledWith(expect.objectContaining({ magazine: 7 }));
     expect(player(ctx).weapons[0]?.magazine).toBe(7);
   });
+
+  it('publishes the weapon slots for the bottom bar, then only when a weapon, the active one or its ammo changes', () => {
+    const ctx = createTestContext();
+    const presenter = new HudPresenter(ctx.events, ctx.map);
+    const loadout = vi.fn();
+    ctx.events.on('weapons:loadout', loadout);
+    presenter.publish(ctx.state);
+    presenter.publish(ctx.state);
+    expect(loadout).toHaveBeenCalledTimes(1);
+    expect(loadout).toHaveBeenLastCalledWith({
+      slots: [
+        { weapon: 'pistol', magazine: 8, reserve: 64 },
+        { weapon: 'smg', magazine: 30, reserve: 120 },
+      ],
+      active: 0,
+    });
+    command(ctx).selectWeapon = 1;
+    stepSimulation(ctx, 1 / 60);
+    presenter.publish(ctx.state);
+    expect(loadout).toHaveBeenCalledTimes(2);
+    expect(loadout).toHaveBeenLastCalledWith(expect.objectContaining({ active: 1 }));
+  });
 });
 
 describe('HudPresenter · action chip and points', () => {

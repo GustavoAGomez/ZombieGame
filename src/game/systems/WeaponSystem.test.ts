@@ -162,6 +162,32 @@ describe('WeaponSystem · reload and switch', () => {
     expect(p.weapons[1]!.magazine).toBeLessThan(WEAPONS.smg.magazine);
   });
 
+  it('picks the weapon of the HUD slot tapped, with the switch time; the same or a missing slot does nothing', () => {
+    const ctx = createTestContext();
+    const p = player(ctx);
+    const cmd = command(ctx);
+    cmd.selectWeapon = 1;
+    stepSimulation(ctx, 1 / 60);
+    cmd.selectWeapon = -1;
+    expect(p.activeSlot).toBe(1);
+    expect(p.switchTimer).toBeCloseTo(LOADOUT.switchTime);
+    runTicks(ctx, 60, stepSimulation);
+    // The slot already in hand, or one beyond the weapons carried: nothing happens.
+    for (const slot of [1, 2, 5]) {
+      cmd.selectWeapon = slot;
+      stepSimulation(ctx, 1 / 60);
+      expect(p.activeSlot).toBe(1);
+      expect(p.switchTimer).toBe(0);
+    }
+    cmd.selectWeapon = 0;
+    stepSimulation(ctx, 1 / 60);
+    expect(p.activeSlot).toBe(0);
+  });
+
+  it('never carries more than LOADOUT.maxWeapons weapons', () => {
+    expect(player(createTestContext()).weapons.length).toBeLessThanOrEqual(LOADOUT.maxWeapons);
+  });
+
   it('toggles back to the first slot', () => {
     const ctx = createTestContext();
     const p = player(ctx);

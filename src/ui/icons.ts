@@ -2,7 +2,19 @@
  * Pixel icons as inline SVG with crisp edges (HUD "Propuesta A"). Each icon
  * is a list of [x, y, w, h, color?] rects on a small grid.
  */
-export type IconName = 'heart' | 'bullet' | 'crosshair' | 'swap' | 'bolt' | 'pause' | 'reload' | 'knife';
+export type IconName =
+  | 'heart'
+  | 'bullet'
+  | 'crosshair'
+  | 'bolt'
+  | 'pause'
+  | 'reload'
+  | 'knife'
+  | 'pistol'
+  | 'rifle'
+  | 'hammer'
+  | 'door'
+  | 'stairs';
 
 type Rect = readonly [number, number, number, number, string?];
 
@@ -26,10 +38,6 @@ const ICONS: Record<IconName, IconDef> = {
     w: 12, h: 12, fill: 'var(--bone)',
     rects: [[5, 0, 2, 4], [5, 8, 2, 4], [0, 5, 4, 2], [8, 5, 4, 2], [5, 5, 2, 2, 'var(--red)']],
   },
-  swap: {
-    w: 12, h: 12, fill: 'var(--bone)',
-    rects: [[1, 3, 7, 2], [8, 2, 1, 4], [9, 3, 1, 2], [4, 8, 7, 2], [3, 7, 1, 4], [2, 8, 1, 2]],
-  },
   bolt: {
     w: 12, h: 12, fill: 'var(--amber)',
     rects: [[6, 0, 3, 2], [5, 2, 3, 2], [4, 4, 3, 1], [3, 5, 6, 2], [5, 7, 3, 1], [4, 8, 3, 2], [3, 10, 3, 2]],
@@ -37,6 +45,30 @@ const ICONS: Record<IconName, IconDef> = {
   pause: {
     w: 8, h: 8, fill: 'var(--bone)',
     rects: [[1, 1, 2, 6], [5, 1, 2, 6]],
+  },
+  // Provisional weapon and action icons (final art later): side views pointing right.
+  pistol: {
+    w: 12, h: 9, fill: 'var(--bone)',
+    rects: [[1, 1, 10, 3], [9, 0, 1, 1], [1, 4, 4, 1, 'var(--amber-dark)'], [1, 5, 3, 4, 'var(--amber-dark)'], [5, 4, 3, 1], [7, 5, 1, 1]],
+  },
+  rifle: {
+    w: 16, h: 8, fill: 'var(--bone)',
+    rects: [
+      [0, 2, 3, 3, 'var(--amber-dark)'], [3, 2, 8, 2], [11, 2, 5, 1], [6, 1, 3, 1],
+      [4, 4, 2, 3, 'var(--amber-dark)'], [7, 4, 2, 4], [15, 1, 1, 1],
+    ],
+  },
+  hammer: {
+    w: 12, h: 12, fill: 'var(--bone)',
+    rects: [[1, 1, 9, 3], [10, 2, 1, 1], [0, 2, 1, 2], [5, 4, 2, 8, 'var(--amber-dark)']],
+  },
+  door: {
+    w: 10, h: 12, fill: 'var(--door)',
+    rects: [[1, 0, 8, 12], [2, 1, 6, 10, 'var(--ink)'], [3, 2, 4, 9], [6, 6, 1, 1, 'var(--amber)']],
+  },
+  stairs: {
+    w: 12, h: 12, fill: 'var(--bone)',
+    rects: [[8, 0, 4, 3], [5, 3, 7, 3], [2, 6, 10, 3], [0, 9, 12, 3]],
   },
   // A knife on the diagonal: blade up to the right, guard, handle down to the left.
   knife: {

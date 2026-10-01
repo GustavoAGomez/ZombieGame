@@ -6,14 +6,10 @@ export const STRINGS = {
   controls: {
     joystick: 'Joystick de movimiento',
     fire: 'Disparar: arrastra para apuntar',
-    switchWeapon: 'Cambiar de arma',
-    weaponShort: 'ARMA',
+    weaponSlot: (n: number) => `Arma ${n}`,
     special: 'Movimiento especial',
-    specialShort: 'ESPECIAL',
     reload: 'Recargar',
-    reloadShort: 'RECARGAR',
     melee: 'Cuchillo',
-    meleeShort: 'CUCHILLO',
   },
   weapons: {
     pistol: 'PISTOLA',

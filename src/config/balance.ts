@@ -79,6 +79,8 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponStats>> = {
 export const LOADOUT = {
   /** Both weapons from the start so switching can be tested (spec 01 §4.2). */
   startingWeapons: ['pistol', 'smg'] as const satisfies readonly WeaponId[],
+  /** A player carries at most this many weapons (one icon each at the bottom of the HUD). */
+  maxWeapons: 3,
   switchTime: 0.4,
 } as const;
 
@@ -133,7 +135,7 @@ export const CONTROLS = {
   joystickReturnMs: 80,
   /** Fire-stick drag beyond this switches from auto-aim to manual aim. */
   fireAimThreshold: 12,
-  fireKnobMaxTravel: 34,
+  fireKnobMaxTravel: 28,
 } as const;
 
 export type ZombieKind = 'walker' | 'runner' | 'sprinter';

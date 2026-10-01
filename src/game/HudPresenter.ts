@@ -29,6 +29,9 @@ export class HudPresenter {
   private actionEnabled = false;
   private actionLocked = false;
   private actionPortal: 'stairs' | 'hatch' | undefined;
+  /** Last published weapon slots: active slot, then weapon / magazine / reserve per slot. */
+  private loadoutActive = -1;
+  private readonly loadout: (WeaponId | number)[] = [];
 
   constructor(
     private readonly events: EventBus,
@@ -113,6 +116,22 @@ export class HudPresenter {
           switching,
         });
       }
+    }
+
+    // Weapon slots: published when a weapon, the active one or any ammo count changes.
+    let loadoutChanged = p.activeSlot !== this.loadoutActive || this.loadout.length !== p.weapons.length * 3;
+    for (let i = 0; i < p.weapons.length && !loadoutChanged; i++) {
+      const w = p.weapons[i];
+      loadoutChanged = !w || this.loadout[i * 3] !== w.id || this.loadout[i * 3 + 1] !== w.magazine || this.loadout[i * 3 + 2] !== w.reserve;
+    }
+    if (loadoutChanged) {
+      this.loadoutActive = p.activeSlot;
+      this.loadout.length = 0;
+      for (const w of p.weapons) this.loadout.push(w.id, w.magazine, w.reserve);
+      this.events.emit('weapons:loadout', {
+        slots: p.weapons.map((w) => ({ weapon: w.id, magazine: w.magazine, reserve: w.reserve })),
+        active: p.activeSlot,
+      });
     }
 
     const step = Math.ceil((p.dashCooldown / DASH.cooldown) * COOLDOWN_STEPS);

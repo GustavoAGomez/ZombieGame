@@ -23,6 +23,8 @@ export interface GameEvents {
     reloadProgress: number | null;
     switching: boolean;
   };
+  /** The weapons the player carries (at most LOADOUT.maxWeapons), for the slots at the bottom of the HUD. */
+  'weapons:loadout': { slots: { weapon: WeaponId; magazine: number; reserve: number }[]; active: number };
   'special:cooldown': { remaining: number; total: number };
   'points:changed': { points: number };
   /**

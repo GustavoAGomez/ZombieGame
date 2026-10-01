@@ -16,8 +16,10 @@ export interface InputCommand {
   /** Unit aim vector, only meaningful when aimManual is true. */
   aimX: number;
   aimY: number;
-  /** Edge-triggered: pressed since the previous tick. */
+  /** Edge-triggered: pressed since the previous tick. Next weapon (keyboard Q). */
   switchWeapon: boolean;
+  /** Weapon slot picked on the HUD this tick, -1 for none. */
+  selectWeapon: number;
   reload: boolean;
   /** Knife button. */
   melee: boolean;
@@ -37,6 +39,7 @@ export function createInputCommand(): InputCommand {
     aimX: 0,
     aimY: 0,
     switchWeapon: false,
+    selectWeapon: -1,
     reload: false,
     melee: false,
     special: false,
@@ -53,6 +56,7 @@ export function resetInputCommand(cmd: InputCommand): InputCommand {
   cmd.aimX = 0;
   cmd.aimY = 0;
   cmd.switchWeapon = false;
+  cmd.selectWeapon = -1;
   cmd.reload = false;
   cmd.melee = false;
   cmd.special = false;
