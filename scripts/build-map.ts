@@ -63,7 +63,7 @@ export function buildMap(root: string, sourcePath: string): BuildResult {
   if (errors.length === 0) {
     mkdirSync(dirname(out), { recursive: true });
     writeFileSync(out, `${JSON.stringify(embedded)}\n`);
-    registerInManifest(root, name);
+    registerInManifest(root, name, propSizes(embedded));
   }
   return { name, out, errors };
 }
@@ -102,12 +102,42 @@ export function compileSource(root: string, name: string, force: boolean): Compi
   return 'written';
 }
 
-function registerInManifest(root: string, name: string): void {
+/** Footprint size in px of each prop key the map uses (the first one found). */
+function propSizes(map: TiledMap): Map<string, { width: number; height: number }> {
+  const sizes = new Map<string, { width: number; height: number }>();
+  const layer = map.layers.find((l) => l.name === 'props');
+  if (layer?.type !== 'objectgroup') return sizes;
+  for (const o of layer.objects) {
+    const key = o.properties?.find((q) => q.name === 'key')?.value;
+    if (typeof key === 'string' && !sizes.has(key)) sizes.set(key, { width: o.width, height: o.height });
+  }
+  return sizes;
+}
+
+/**
+ * Registers the map, and every prop it uses that the manifest lacks, as a
+ * placeholder the size of its footprint (CLAUDE.md rule 5). The art goes to
+ * docs/ASSETS-TODO.md.
+ */
+function registerInManifest(root: string, name: string, props: Map<string, { width: number; height: number }>): void {
   const path = resolve(root, 'public/assets/manifest.json');
-  const manifest = JSON.parse(readFileSync(path, 'utf8')) as { maps: Record<string, string> };
-  if (manifest.maps[name] === `maps/${name}.tmj`) return;
-  manifest.maps[name] = `maps/${name}.tmj`;
-  writeFileSync(path, `${JSON.stringify(manifest, null, 2)}\n`);
+  const manifest = JSON.parse(readFileSync(path, 'utf8')) as {
+    maps: Record<string, string>;
+    objects: Record<string, { file: string; frameWidth: number; frameHeight: number; frames: number; placeholder?: boolean }>;
+  };
+  let changed = false;
+  if (manifest.maps[name] !== `maps/${name}.tmj`) {
+    manifest.maps[name] = `maps/${name}.tmj`;
+    changed = true;
+  }
+  for (const [key, size] of props) {
+    const current = manifest.objects[key];
+    // Real art keeps its own size; a placeholder follows the footprint.
+    if (current && (!current.placeholder || (current.frameWidth === size.width && current.frameHeight === size.height))) continue;
+    manifest.objects[key] = { file: `sprites/props/${key}.png`, frameWidth: size.width, frameHeight: size.height, frames: 1, placeholder: true };
+    changed = true;
+  }
+  if (changed) writeFileSync(path, `${JSON.stringify(manifest, null, 2)}\n`);
 }
 
 function main(): void {

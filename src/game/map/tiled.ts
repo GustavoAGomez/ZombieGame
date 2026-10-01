@@ -104,4 +104,12 @@ export type TiledSourceMap = Omit<TiledMap, 'tilesets'> & { tilesets: (TiledTile
 export const OBJECT_TYPES = ['zone', 'player_spawn', 'window', 'zombie_spawn', 'door', 'portal'] as const;
 export type ObjectType = (typeof OBJECT_TYPES)[number];
 
-export const LAYER_NAMES = { floor: 'floor', walls: 'walls', decor: 'decor', decals: 'decals', objects: 'objects' } as const;
+export const LAYER_NAMES = {
+  floor: 'floor',
+  shadows: 'shadows',
+  walls: 'walls',
+  decor: 'decor',
+  decals: 'decals',
+  props: 'props',
+  objects: 'objects',
+} as const;

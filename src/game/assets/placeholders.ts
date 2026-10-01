@@ -1,5 +1,6 @@
 import type Phaser from 'phaser';
 import { COLORS } from '../../config/theme';
+import { propColor, shade } from './propColors';
 import { TILE_COLLIDES, TILE_VOID, TILE_WATER, type MapTileset } from '../map/MapLoader';
 import {
   ASSET_KEYS,
@@ -313,6 +314,20 @@ function drawMuzzleFlash(ctx: Ctx, frame: number, ox: number, oy: number, w: num
   rect(ctx, '#fff6d8', cx - 1, cy - 1, 2, 2);
 }
 
+/**
+ * Furniture and clutter: a block in the colour of its material, lit from the
+ * top left (light top edge, dark bottom edge), with a darker inner panel.
+ */
+function drawProp(ctx: Ctx, key: string, ox: number, oy: number, w: number, h: number): void {
+  const base = propColor(key);
+  const css = (rgb: [number, number, number]): string => `rgb(${rgb.join(',')})`;
+  rect(ctx, css(shade(base, 0.55)), ox, oy, w, h);
+  rect(ctx, base, ox + 1, oy + 1, w - 2, h - 2);
+  rect(ctx, css(shade(base, 1.3)), ox + 1, oy + 1, w - 2, 2);
+  rect(ctx, css(shade(base, 0.75)), ox + 1, oy + h - 3, w - 2, 2);
+  if (w >= 12 && h >= 12) rect(ctx, css(shade(base, 0.85)), ox + 4, oy + 5, w - 8, h - 10);
+}
+
 export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def: ObjectDef): void {
   createSheet(scene, objectTextureKey(object), def.frameWidth, def.frameHeight, def.frames, 1, (ctx, col, _row, ox, oy) => {
     const { frameWidth: w, frameHeight: h } = def;
@@ -347,6 +362,10 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
         drawMuzzleFlash(ctx, col, ox, oy, w, h);
         break;
       default:
+        if (object.startsWith('prop_')) {
+          drawProp(ctx, object, ox, oy, w, h);
+          break;
+        }
         rect(ctx, PLACEHOLDER_COLORS.generic, ox, oy, w, h);
         rect(ctx, COLORS.ink, ox + 1, oy + 1, w - 2, h - 2);
     }

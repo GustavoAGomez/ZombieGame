@@ -267,6 +267,16 @@
       "file": "tiles/map_special.png",
       "tileWidth": 32,
       "tileHeight": 32
+    },
+    "decals_interior": {
+      "file": "tiles/decals_interior.png",
+      "tileWidth": 32,
+      "tileHeight": 32
+    },
+    "map_shadows": {
+      "file": "tiles/map_shadows.png",
+      "tileWidth": 32,
+      "tileHeight": 32
     }
   },
   "objects": {
@@ -345,6 +355,433 @@
       "frameWidth": 12,
       "frameHeight": 12,
       "frames": 2,
+      "placeholder": true
+    },
+    "prop_escalera_derrumbada": {
+      "file": "sprites/props/prop_escalera_derrumbada.png",
+      "frameWidth": 96,
+      "frameHeight": 64,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_escombros": {
+      "file": "sprites/props/prop_escombros.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_consola_volcada": {
+      "file": "sprites/props/prop_consola_volcada.png",
+      "frameWidth": 64,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_alfombra": {
+      "file": "sprites/props/prop_alfombra.png",
+      "frameWidth": 96,
+      "frameHeight": 64,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_cajas": {
+      "file": "sprites/props/prop_cajas.png",
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_inodoro": {
+      "file": "sprites/props/prop_inodoro.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_banco": {
+      "file": "sprites/props/prop_banco.png",
+      "frameWidth": 64,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_cuadro_caido": {
+      "file": "sprites/props/prop_cuadro_caido.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_sofa": {
+      "file": "sprites/props/prop_sofa.png",
+      "frameWidth": 32,
+      "frameHeight": 96,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_sillon": {
+      "file": "sprites/props/prop_sillon.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_piano": {
+      "file": "sprites/props/prop_piano.png",
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_barricada_muebles": {
+      "file": "sprites/props/prop_barricada_muebles.png",
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_libros_suelo": {
+      "file": "sprites/props/prop_libros_suelo.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_mesa_comedor": {
+      "file": "sprites/props/prop_mesa_comedor.png",
+      "frameWidth": 160,
+      "frameHeight": 64,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_sillas_volcadas": {
+      "file": "sprites/props/prop_sillas_volcadas.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_vajilla_rota": {
+      "file": "sprites/props/prop_vajilla_rota.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_aparador": {
+      "file": "sprites/props/prop_aparador.png",
+      "frameWidth": 32,
+      "frameHeight": 96,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_charco_sangre": {
+      "file": "sprites/props/prop_charco_sangre.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_mesa_lectura": {
+      "file": "sprites/props/prop_mesa_lectura.png",
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_estanteria_caida": {
+      "file": "sprites/props/prop_estanteria_caida.png",
+      "frameWidth": 96,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_escritorio": {
+      "file": "sprites/props/prop_escritorio.png",
+      "frameWidth": 64,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_caja_fuerte": {
+      "file": "sprites/props/prop_caja_fuerte.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_encimera": {
+      "file": "sprites/props/prop_encimera.png",
+      "frameWidth": 96,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_isla_cocina": {
+      "file": "sprites/props/prop_isla_cocina.png",
+      "frameWidth": 128,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_nevera": {
+      "file": "sprites/props/prop_nevera.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_horno": {
+      "file": "sprites/props/prop_horno.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_mesa": {
+      "file": "sprites/props/prop_mesa.png",
+      "frameWidth": 64,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_lavadora": {
+      "file": "sprites/props/prop_lavadora.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_latas_suelo": {
+      "file": "sprites/props/prop_latas_suelo.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_coche_puerta_abierta": {
+      "file": "sprites/props/prop_coche_puerta_abierta.png",
+      "frameWidth": 96,
+      "frameHeight": 160,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_neumaticos": {
+      "file": "sprites/props/prop_neumaticos.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_banco_trabajo": {
+      "file": "sprites/props/prop_banco_trabajo.png",
+      "frameWidth": 32,
+      "frameHeight": 96,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_estanteria_metal": {
+      "file": "sprites/props/prop_estanteria_metal.png",
+      "frameWidth": 32,
+      "frameHeight": 128,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_herramientas_suelo": {
+      "file": "sprites/props/prop_herramientas_suelo.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_mancha_aceite": {
+      "file": "sprites/props/prop_mancha_aceite.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_arbol": {
+      "file": "sprites/props/prop_arbol.png",
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_seto": {
+      "file": "sprites/props/prop_seto.png",
+      "frameWidth": 128,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_mesa_jardin": {
+      "file": "sprites/props/prop_mesa_jardin.png",
+      "frameWidth": 64,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_barbacoa_volcada": {
+      "file": "sprites/props/prop_barbacoa_volcada.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_tumbona": {
+      "file": "sprites/props/prop_tumbona.png",
+      "frameWidth": 32,
+      "frameHeight": 64,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_flotador": {
+      "file": "sprites/props/prop_flotador.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_bidon": {
+      "file": "sprites/props/prop_bidon.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_coche_accidentado": {
+      "file": "sprites/props/prop_coche_accidentado.png",
+      "frameWidth": 128,
+      "frameHeight": 64,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_farola_caida": {
+      "file": "sprites/props/prop_farola_caida.png",
+      "frameWidth": 64,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_coche": {
+      "file": "sprites/props/prop_coche.png",
+      "frameWidth": 128,
+      "frameHeight": 64,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_buzon": {
+      "file": "sprites/props/prop_buzon.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_cubo_basura": {
+      "file": "sprites/props/prop_cubo_basura.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_farola": {
+      "file": "sprites/props/prop_farola.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_caldera": {
+      "file": "sprites/props/prop_caldera.png",
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_botellero": {
+      "file": "sprites/props/prop_botellero.png",
+      "frameWidth": 32,
+      "frameHeight": 128,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_colchon": {
+      "file": "sprites/props/prop_colchon.png",
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_aire_acondicionado": {
+      "file": "sprites/props/prop_aire_acondicionado.png",
+      "frameWidth": 64,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_deposito_agua": {
+      "file": "sprites/props/prop_deposito_agua.png",
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_saco_dormir": {
+      "file": "sprites/props/prop_saco_dormir.png",
+      "frameWidth": 64,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_alfombra_hogar": {
+      "file": "sprites/props/prop_alfombra_hogar.png",
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_mueble_bajo": {
+      "file": "sprites/props/prop_mueble_bajo.png",
+      "frameWidth": 96,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_estanteria_larga": {
+      "file": "sprites/props/prop_estanteria_larga.png",
+      "frameWidth": 160,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_estanteria_metal_corta": {
+      "file": "sprites/props/prop_estanteria_metal_corta.png",
+      "frameWidth": 32,
+      "frameHeight": 64,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_seto_lateral": {
+      "file": "sprites/props/prop_seto_lateral.png",
+      "frameWidth": 32,
+      "frameHeight": 128,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_botellero_bajo": {
+      "file": "sprites/props/prop_botellero_bajo.png",
+      "frameWidth": 96,
+      "frameHeight": 32,
+      "frames": 1,
+      "placeholder": true
+    },
+    "prop_cajas_provisiones": {
+      "file": "sprites/props/prop_cajas_provisiones.png",
+      "frameWidth": 64,
+      "frameHeight": 32,
+      "frames": 1,
       "placeholder": true
     }
   },

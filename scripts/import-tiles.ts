@@ -254,6 +254,122 @@ function importSpecial(p: Paths, log: (l: string) => void): ImportedTileset {
   return { name, tileWidth: TILE, tileHeight: TILE };
 }
 
+/** Writes one RGBA pixel if it is inside the frame. */
+function plot(f: Frame, x: number, y: number, rgb: readonly number[], alpha: number): void {
+  if (x < 0 || y < 0 || x >= f.width || y >= f.height) return;
+  f.pixels.set([rgb[0] ?? 0, rgb[1] ?? 0, rgb[2] ?? 0, Math.round(alpha)], (y * f.width + x) * 4);
+}
+
+/** Irregular blob: a noisy disc, denser in the middle. */
+function splat(f: Frame, ox: number, oy: number, cx: number, cy: number, r: number, rgb: readonly number[], alpha: number, seed: number): void {
+  for (let y = -r - 2; y <= r + 2; y++) {
+    for (let x = -r - 2; x <= r + 2; x++) {
+      const d = Math.hypot(x, y) / r;
+      const n = hashNoise(Math.floor((x + seed * 7) / 2), Math.floor((y + seed * 13) / 2));
+      if (d < 0.75 + n * 0.5) plot(f, ox + cx + x, oy + cy + y, rgb, alpha * (d < 0.6 ? 1 : 0.8));
+    }
+  }
+}
+
+/**
+ * Indoor decals, generated until PixelLab art exists (docs/ASSETS-TODO.md):
+ * 0–2 blood splats, 3–4 drag marks, 5–7 dust, 8–9 plaster debris,
+ * 10–11 splinters, 12–13 cracks, 14 footprints, 15 paper scraps.
+ */
+function importInteriorDecals(p: Paths, log: (l: string) => void): ImportedTileset {
+  const name = 'decals_interior';
+  const S = TILE;
+  const out = blank(S * 4, S * 4);
+  const blood = [96, 18, 16];
+  const bloodDark = [64, 10, 10];
+  for (let id = 0; id < 16; id++) {
+    const ox = (id % 4) * S;
+    const oy = Math.floor(id / 4) * S;
+    const rnd = (k: number): number => hashNoise(id * 31 + k, id * 17 + k * 3);
+    if (id <= 2) {
+      splat(out, ox, oy, 16, 16, 6 + id, blood, 235, id);
+      splat(out, ox, oy, 15, 15, 3 + id, bloodDark, 235, id + 5);
+      for (let k = 0; k < 7; k++) plot(out, ox + 3 + Math.floor(rnd(k) * 26), oy + 3 + Math.floor(rnd(k + 9) * 26), blood, 235);
+    } else if (id <= 4) {
+      for (let x = 2; x < 30; x++) {
+        const w = 2 + Math.round(rnd(x) * 2) - (x > 22 ? 1 : 0);
+        const cy = 16 + Math.round(Math.sin(x / 6 + id) * 2);
+        for (let y = cy - w; y <= cy + w; y++) plot(out, ox + x, oy + y, x % 5 === 0 ? bloodDark : blood, 200 - x * 3);
+      }
+    } else if (id <= 7) {
+      // Pale plaster dust: reads on dark wood as well as on light floors.
+      splat(out, ox, oy, 16, 16, 9 + (id - 5) * 2, [176, 166, 146], 80, id);
+      for (let k = 0; k < 14; k++) plot(out, ox + 4 + Math.floor(rnd(k) * 24), oy + 4 + Math.floor(rnd(k + 20) * 24), [120, 110, 96], 150);
+    } else if (id <= 9) {
+      for (let k = 0; k < 12; k++) {
+        const x = 5 + Math.floor(rnd(k) * 22);
+        const y = 5 + Math.floor(rnd(k + 30) * 22);
+        const size = 1 + Math.floor(rnd(k + 60) * 3);
+        for (let yy = 0; yy < size; yy++) for (let xx = 0; xx < size + 1; xx++) plot(out, ox + x + xx, oy + y + yy, yy === 0 ? [200, 196, 186] : [150, 146, 138], 255);
+      }
+    } else if (id <= 11) {
+      for (let k = 0; k < 6; k++) {
+        const x = 4 + Math.floor(rnd(k) * 20);
+        const y = 6 + Math.floor(rnd(k + 40) * 20);
+        const len = 4 + Math.floor(rnd(k + 80) * 6);
+        const diag = rnd(k + 90) > 0.5 ? 1 : -1;
+        for (let i = 0; i < len; i++) plot(out, ox + x + i, oy + y + Math.round((i * diag) / 2), i === 0 ? [180, 140, 90] : [120, 84, 48], 255);
+      }
+    } else if (id <= 13) {
+      let x = 3;
+      let y = 8 + Math.floor(rnd(1) * 16);
+      while (x < 29) {
+        plot(out, ox + x, oy + y, [24, 20, 18], 170);
+        if (rnd(x + 50) > 0.6) y += rnd(x + 70) > 0.5 ? 1 : -1;
+        if (rnd(x + 99) > 0.85) plot(out, ox + x, oy + y + 1, [24, 20, 18], 120);
+        x++;
+      }
+    } else if (id === 14) {
+      for (let k = 0; k < 4; k++) {
+        const x = 6 + k * 6;
+        const y = k % 2 ? 9 : 19;
+        for (let yy = 0; yy < 4; yy++) for (let xx = 0; xx < 3; xx++) plot(out, ox + x + xx, oy + y + yy, [40, 34, 30], 110);
+      }
+    } else {
+      for (let k = 0; k < 4; k++) {
+        const x = 3 + Math.floor(rnd(k) * 22);
+        const y = 3 + Math.floor(rnd(k + 10) * 22);
+        for (let yy = 0; yy < 4; yy++) for (let xx = 0; xx < 5; xx++) plot(out, ox + x + xx, oy + y + yy, yy === 0 ? [214, 206, 180] : [190, 182, 158], 255);
+      }
+    }
+  }
+  writeSheet(p, name, out);
+  writeTsj(p, tileset(name, imagePath(p, name), out.width, out.height, S, S));
+  log(`  ✓ ${name}: 16 decals de interior (generados, provisionales)`);
+  return { name, tileWidth: S, tileHeight: S };
+}
+
+/**
+ * Soft shadows at the foot of walls and props, light from the top left:
+ * 0 = band along the top edge, 1 = along the left edge, 2 = both, 3 = top-left corner.
+ */
+export const SHADOW = { top: 0, left: 1, both: 2, corner: 3 } as const;
+const SHADOW_SIZE = 6;
+const SHADOW_ALPHA = 110;
+
+function importShadows(p: Paths, log: (l: string) => void): ImportedTileset {
+  const name = 'map_shadows';
+  const out = blank(TILE * 4, TILE);
+  const fade = (d: number): number => (d < SHADOW_SIZE ? SHADOW_ALPHA * (1 - d / SHADOW_SIZE) : 0);
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      const tiles = [fade(y), fade(x), Math.max(fade(y), fade(x)), fade(Math.max(x, y))];
+      tiles.forEach((a, id) => {
+        if (a > 0) plot(out, id * TILE + x, y, [0, 0, 0], a);
+      });
+    }
+  }
+  writeSheet(p, name, out);
+  writeTsj(p, tileset(name, imagePath(p, name), out.width, out.height, TILE, TILE));
+  log(`  ✓ ${name}: sombras al pie de paredes y objetos (generadas)`);
+  return { name, tileWidth: TILE, tileHeight: TILE };
+}
+
 function registerInManifest(root: string, imported: readonly ImportedTileset[]): void {
   const path = resolve(root, 'public/assets/manifest.json');
   const manifest = JSON.parse(readFileSync(path, 'utf8')) as { tilesets: Record<string, unknown> };
@@ -272,6 +388,8 @@ export function importTiles(root: string, log: (line: string) => void): Imported
   for (const kit of KITS) imported.push(importKit(p, kit, log));
   for (const decals of DECALS) imported.push(importDecals(p, decals, log));
   imported.push(importSpecial(p, log));
+  imported.push(importInteriorDecals(p, log));
+  imported.push(importShadows(p, log));
   registerInManifest(root, imported);
   log(`\n${imported.length} tilesets en public/assets/tiles/ y art-src/tiled/tilesets/; manifiesto actualizado.`);
   return imported;

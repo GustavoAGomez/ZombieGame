@@ -88,4 +88,47 @@ describe('validateMap', () => {
   it('reports parse errors instead of throwing', () => {
     expect(errorsOf(variant((o) => setProp(byName(o, 'P1a'), 'pair', 'P9')))).toMatch(/unknown pair "P9"/);
   });
+
+  describe('furniture', () => {
+    const propsOf = (map: TiledMap): TiledObject[] => (map.layers.find((l) => l.name === 'props') as TiledObjectLayer).objects;
+    const prop = (id: string, x: number, y: number, w = 1, h = 1): TiledObject => ({
+      id: 9000 + x * 100 + y,
+      name: id,
+      type: 'prop',
+      x: x * 32,
+      y: y * 32,
+      width: w * 32,
+      height: h * 32,
+      rotation: 0,
+      visible: true,
+      properties: [
+        { name: 'key', type: 'string', value: 'prop_test' },
+        { name: 'collides', type: 'bool', value: true },
+      ],
+    });
+    const withProp = (p: TiledObject): TiledMap => {
+      const map = structuredClone(base);
+      propsOf(map).push(p);
+      return map;
+    };
+
+    it('keeps furniture away from barricades and doors in the same zone', () => {
+      expect(errorsOf(withProp(prop('Q1', 39, 39)))).toMatch(/Q1 \(prop_test\) está a 2 tiles o menos de la barricada W1/);
+      expect(errorsOf(withProp(prop('Q2', 33, 38)))).toMatch(/Q2 \(prop_test\) está a 2 tiles o menos de la puerta D1/);
+    });
+
+    it('does not let furniture leave a pass under 2 tiles', () => {
+      // One tile from the corridor wall, in the middle of the corridor (3 tiles tall).
+      expect(errorsOf(withProp(prop('Q3', 38, 31)))).toMatch(/Q3 \(prop_test\) deja un paso de menos de 2 tiles/);
+    });
+
+    it('does not let furniture cut a zone in two', () => {
+      // A column of furniture right inside the guest toilet's doorway shuts the toilet off.
+      expect(errorsOf(withProp(prop('Q4', 43, 37, 1, 3)))).toMatch(/recibidor tiene \d+ casillas a las que no se puede llegar/);
+    });
+
+    it('does not let furniture cover the player spawn', () => {
+      expect(errorsOf(withProp(prop('Q5', 39, 31)))).toMatch(/Q5 tapa el spawn del jugador/);
+    });
+  });
 });

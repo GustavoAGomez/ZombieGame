@@ -16,6 +16,8 @@ export const MAP_RULES = {
   minPassageTiles: 2,
   /** The player must start strictly farther than this from every barricade. */
   minPlayerBarricadeTiles: 6,
+  /** Furniture with collision keeps farther than this (tiles, Chebyshev) from barricades, doors and portals. */
+  minPropClearanceTiles: 2,
   minExitsPerZone: 2,
   maxWidth: 100,
   maxHeight: 70,
@@ -145,12 +147,59 @@ export function validateMap(raw: TiledSourceMap | TiledMap): MapValidation {
     for (const t of other?.tiles ?? []) visit(t.y * map.width + t.x);
   }
   const reached = new Set<number>();
+  const isolated = new Map<number, number>();
   seen.forEach((v, cell) => {
     if (v) reached.add(map.cellZone[cell] ?? -1);
+    else if ((map.cellZone[cell] ?? -1) >= 0 && ((grid.cells[cell] ?? 0) & BLOCK_PLAYER) === 0) {
+      const z = map.cellZone[cell] ?? -1;
+      isolated.set(z, (isolated.get(z) ?? 0) + 1);
+    }
   });
   map.zones.forEach((zone, i) => {
     if (!reached.has(i)) errors.push(`la zona ${zone.id} no es alcanzable desde la inicial con todo abierto`);
+    else if (isolated.has(i)) errors.push(`la zona ${zone.id} tiene ${isolated.get(i)} casillas a las que no se puede llegar (¿atrezo cerrando un paso?)`);
   });
+
+  // Furniture: keeps clear of barricades, doors, portals and the player, and never leaves a pass under 2 tiles.
+  // Only furniture on the same side counts: a wall in between already keeps the way clear.
+  const keepClear: { what: string; tiles: { x: number; y: number }[]; zones: number[] }[] = [
+    ...map.windows.map((w) => ({ what: `la barricada ${w.id}`, tiles: [{ x: w.tileX, y: w.tileY }], zones: [w.zoneIndex] })),
+    ...map.doors.map((d) => ({ what: `la puerta ${d.id}`, tiles: d.tiles, zones: [d.fromZoneIndex, d.toZoneIndex] })),
+    ...map.portals.map((p) => ({ what: `el portal ${p.id}`, tiles: p.tiles, zones: [p.zoneIndex] })),
+  ];
+  const free = (x: number, y: number): boolean =>
+    x >= 0 && y >= 0 && x < map.width && y < map.height && ((grid.cells[y * map.width + x] ?? 0) & BLOCK_PLAYER) === 0;
+  const inOpenSquare = (x: number, y: number): boolean =>
+    [
+      [0, 0],
+      [-1, 0],
+      [0, -1],
+      [-1, -1],
+    ].some(([dx = 0, dy = 0]) => free(x + dx, y + dy) && free(x + dx + 1, y + dy) && free(x + dx, y + dy + 1) && free(x + dx + 1, y + dy + 1));
+  for (const prop of map.props) {
+    if (!prop.collides) continue;
+    const propZone = map.cellZone[(prop.tiles[0]?.y ?? 0) * map.width + (prop.tiles[0]?.x ?? 0)] ?? -1;
+    for (const k of keepClear) {
+      if (!k.zones.includes(propZone)) continue;
+      const near = prop.tiles.some((t) => k.tiles.some((u) => Math.max(Math.abs(t.x - u.x), Math.abs(t.y - u.y)) <= R.minPropClearanceTiles));
+      if (near) errors.push(`el atrezo ${prop.id} (${prop.key}) está a ${R.minPropClearanceTiles} tiles o menos de ${k.what}`);
+    }
+    if (prop.tiles.some((t) => t.y * map.width + t.x === playerCell)) errors.push(`el atrezo ${prop.id} tapa el spawn del jugador`);
+    const narrow = new Set<string>();
+    for (const t of prop.tiles) {
+      for (const [dx, dy] of [
+        [1, 0],
+        [-1, 0],
+        [0, 1],
+        [0, -1],
+      ] as const) {
+        const x = t.x + dx;
+        const y = t.y + dy;
+        if (free(x, y) && !inOpenSquare(x, y)) narrow.add(`${x},${y}`);
+      }
+    }
+    if (narrow.size > 0) errors.push(`el atrezo ${prop.id} (${prop.key}) deja un paso de menos de 2 tiles en ${[...narrow].join(' ')}`);
+  }
 
   return { errors, map };
 }

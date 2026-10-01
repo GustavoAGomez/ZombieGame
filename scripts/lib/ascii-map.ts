@@ -17,6 +17,7 @@ import { createHash } from 'node:crypto';
 import { BARRICADES } from '../../src/config/balance';
 import type { PortalKind } from '../../src/game/map/MapLoader';
 import type { TiledObject, TiledProperty, TiledSourceMap, TiledTileLayer } from '../../src/game/map/tiled';
+import { DECALS, floorVariants, placeDecals, shadowTile } from './decorate';
 import type { Tsj } from './tiled-tileset';
 
 const TILE = 32;
@@ -41,6 +42,8 @@ export const TILESET_ORDER = [
   'decals_asphalt',
   'decals_grass',
   'map_special',
+  'decals_interior',
+  'map_shadows',
 ] as const;
 export type TilesetName = (typeof TILESET_ORDER)[number];
 export type Kit = 'kit_interior' | 'kit_exterior' | 'kit_basement' | 'kit_fence';
@@ -76,8 +79,10 @@ export interface AsciiZone {
   interior: boolean;
   openSpawns: boolean;
   seed: Cell;
-  /** Column of floors_interior used by the zone's indoor floors. */
+  /** Column of floors_interior used for about 70 % of the zone's indoor floor… */
   floorVariant: number;
+  /** …and the variants sprinkled over the rest ("0+2" in the table). */
+  floorRares: number[];
   /** Wall kit for the zone's walls instead of interior / exterior. */
   wallKit?: Kit;
 }
@@ -113,6 +118,16 @@ export interface AsciiOpenSpawn {
   zone: string;
 }
 
+/** A piece of furniture or clutter (table "Atrezo"): a manifest object over whole tiles. */
+export interface AsciiProp {
+  id: string;
+  key: string;
+  cells: Cell[];
+  collides: boolean;
+  flipX: boolean;
+  flipY: boolean;
+}
+
 export interface AsciiMap {
   grid: string[];
   width: number;
@@ -122,6 +137,7 @@ export interface AsciiMap {
   windows: AsciiWindow[];
   portals: AsciiPortal[];
   openSpawns: AsciiOpenSpawn[];
+  props: AsciiProp[];
   player: Cell;
 }
 
@@ -167,7 +183,7 @@ function readTables(text: string): Map<string, Row[]> {
     }
     const row: Row = {};
     header.forEach((h, i) => (row[h] = cells[i] ?? ''));
-    const key = ['zonas', 'puertas', 'barricadas', 'portales', 'spawns', 'jugador'].find((k) => section.startsWith(k)) ?? section;
+    const key = ['zonas', 'puertas', 'barricadas', 'portales', 'spawns', 'jugador', 'atrezo'].find((k) => section.startsWith(k)) ?? section;
     tables.set(key, [...(tables.get(key) ?? []), row]);
   }
   return tables;
@@ -179,6 +195,28 @@ function parseCells(text: string, problems: string[], what: string): Cell[] {
     const m = /^(\d+),(\d+)$/.exec(token);
     if (m) cells.push({ x: Number(m[1]), y: Number(m[2]) });
     else problems.push(`${what}: casilla "${token}" no válida (formato x,y)`);
+  }
+  return cells;
+}
+
+/** "0+2+3" → main variant 0, rare variants 2 and 3; "—" or empty → 0. */
+function parseFloorVariants(text: string): { floorVariant: number; floorRares: number[] } {
+  const parts = text
+    .split('+')
+    .map((t) => Number.parseInt(t.trim(), 10))
+    .filter((n) => Number.isInteger(n) && n >= 0 && n < 4);
+  return { floorVariant: parts[0] ?? 0, floorRares: parts.slice(1) };
+}
+
+/** "x0,y0 x1,y1" is a rectangle (corners included); a single "x,y" is one tile. */
+function parseArea(text: string, problems: string[], what: string): Cell[] {
+  const corners = parseCells(text, problems, what);
+  const [a, b] = corners;
+  if (!a) return [];
+  if (!b) return [a];
+  const cells: Cell[] = [];
+  for (let y = Math.min(a.y, b.y); y <= Math.max(a.y, b.y); y++) {
+    for (let x = Math.min(a.x, b.x); x <= Math.max(a.x, b.x); x++) cells.push({ x, y });
   }
   return cells;
 }
@@ -213,7 +251,7 @@ export function parseAsciiMap(text: string): AsciiMap {
       interior: yes(r.interior),
       openSpawns: yes(r['spawns abiertos']),
       seed,
-      floorVariant: Number.parseInt(r.suelo ?? '0', 10) || 0,
+      ...parseFloorVariants(r.suelo ?? ''),
       ...(kit ? { wallKit: kit } : {}),
     };
   });
@@ -249,9 +287,21 @@ export function parseAsciiMap(text: string): AsciiMap {
     zone: r.zona ?? '',
   }));
   const player = parseCells(rows('jugador')[0]?.casilla ?? '', problems, 'jugador')[0] ?? { x: -1, y: -1 };
+  const props: AsciiProp[] = rows('atrezo').map((r) => {
+    const flip = normalize(r.volteo ?? '');
+    return {
+      id: r.id ?? '',
+      key: r.objeto ?? '',
+      cells: parseArea(r.casillas ?? '', problems, `atrezo ${r.id}`),
+      collides: yes(r.colision),
+      flipX: flip.includes('h'),
+      flipY: flip.includes('v'),
+    };
+  });
 
-  const map: AsciiMap = { grid, width, height, zones, doors, windows, portals, openSpawns, player };
+  const map: AsciiMap = { grid, width, height, zones, doors, windows, portals, openSpawns, props, player };
   checkMarkers(map, problems);
+  checkProps(map, problems);
   if (problems.length > 0) throw new AsciiMapError(problems);
   return map;
 }
@@ -276,6 +326,33 @@ function checkMarkers(map: AsciiMap, problems: string[]): void {
       if ('DW<ZP'.includes(ch) && !listed.has(`${x},${y}`)) problems.push(`"${ch}" en ${x},${y} no está en ninguna tabla`);
     }),
   );
+}
+
+/**
+ * Props stand on floor, never on walls, gameplay markers, water or void, and
+ * never on each other. A key always has the same footprint: it names one
+ * sprite (a 3-tile hedge and a 4-tile hedge are different art).
+ */
+function checkProps(map: AsciiMap, problems: string[]): void {
+  const taken = new Map<string, string>();
+  const sizes = new Map<string, string>();
+  for (const prop of map.props) {
+    const xs = prop.cells.map((c) => c.x);
+    const ys = prop.cells.map((c) => c.y);
+    const size = `${Math.max(...xs) - Math.min(...xs) + 1}×${Math.max(...ys) - Math.min(...ys) + 1}`;
+    const known = sizes.get(prop.key);
+    if (known && known !== size) problems.push(`atrezo ${prop.id}: ${prop.key} mide ${size} y en otro sitio ${known}; usa otra clave para cada tamaño`);
+    sizes.set(prop.key, known ?? size);
+    if (!/^prop_[a-z0-9_]+$/.test(prop.key)) problems.push(`atrezo ${prop.id}: el objeto "${prop.key}" debe llamarse prop_<nombre> (snake_case)`);
+    if (prop.cells.length === 0) problems.push(`atrezo ${prop.id}: sin casillas`);
+    for (const c of prop.cells) {
+      const ch = map.grid[c.y]?.[c.x] ?? '_';
+      if ('#HFWD<PZ_w'.includes(ch)) problems.push(`atrezo ${prop.id}: la casilla ${c.x},${c.y} es "${ch}"; el atrezo va sobre suelo`);
+      const key = `${c.x},${c.y}`;
+      if (taken.has(key)) problems.push(`atrezo ${prop.id}: la casilla ${key} ya es de ${taken.get(key)}`);
+      taken.set(key, prop.id);
+    }
+  }
 }
 
 // ----------------------------------------------------------------------------- zones
@@ -469,8 +546,27 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
   }
   const g = (x: number, y: number): string => (x >= 0 && y >= 0 && x < W && y < H ? (ground[y]?.[x] ?? '_') : '_');
 
+  // --- props: footprints, and the ones that block movement
+  const propCells = new Set<number>();
+  const propBlocked = new Set<number>();
+  for (const prop of map.props) {
+    for (const c of prop.cells) {
+      propCells.add(c.y * W + c.x);
+      if (prop.collides) propBlocked.add(c.y * W + c.x);
+    }
+  }
+
   // --- floor layer
   const floor = new Array<number>(W * H).fill(0);
+  const variants = floorVariants(
+    W,
+    H,
+    (x, y) => g(x, y) in FLOOR_ROW,
+    (x, y) => {
+      const zone = map.zones[groundZone[y * W + x] ?? -1];
+      return { main: zone?.floorVariant ?? 0, rares: zone?.floorRares ?? [] };
+    },
+  );
   const wangSet = (ch: string) => WANG.find((s) => s.chars.includes(ch));
   const lookups = new Map(WANG.map((s) => [s.tileset, wangLookup(tilesets[s.tileset])]));
   for (let y = 0; y < H; y++) {
@@ -496,8 +592,7 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
         if (!ids?.length) problems.push(`${set.tileset}: no hay tile con esquinas ${key} (${x},${y})`);
         else floor[i] = firstGid[set.tileset] + (ids[hash(x, y) % ids.length] ?? 0);
       } else if (ch in FLOOR_ROW) {
-        const zone = map.zones[groundZone[i] ?? -1];
-        floor[i] = firstGid.floors_interior + (FLOOR_ROW[ch] ?? 0) * 4 + (zone?.floorVariant ?? 0);
+        floor[i] = firstGid.floors_interior + (FLOOR_ROW[ch] ?? 0) * 4 + Math.max(0, variants[i] ?? 0);
       } else if (ch === 'd') floor[i] = firstGid.map_special + SPECIAL.dirt;
       else if (ch === 'wall') floor[i] = firstGid.map_special + SPECIAL.ground;
       else if (ch === '_') floor[i] = firstGid.map_special + SPECIAL.void;
@@ -528,6 +623,17 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
       else if (vertical) piece = PIECE.wallV;
       else piece = PIECE.pillar;
       walls[y * W + x] = firstGid[kitOf(x, y)] + piece;
+    }
+  }
+
+  // --- shadows: soft band at the foot of walls, fences, doors, barricades and furniture
+  const shadows = new Array<number>(W * H).fill(0);
+  const casts = (x: number, y: number): boolean => '#HFDW'.includes(at(x, y)) || propBlocked.has(y * W + x);
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      if (casts(x, y) || at(x, y) === '_' || at(x, y) === 'w') continue;
+      const tile = shadowTile(casts(x, y - 1), casts(x - 1, y), casts(x - 1, y - 1));
+      if (tile >= 0) shadows[y * W + x] = firstGid.map_shadows + tile;
     }
   }
 
@@ -629,6 +735,53 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
   }
   if (problems.length > 0) throw new AsciiMapError(problems);
 
+  // --- decals (clusters where people pass) and props
+  const inwardOf = (c: Cell, zone: string): Cell => {
+    const zi = zoneIndex.get(zone) ?? -2;
+    for (const [dx, dy] of [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+    ] as const) {
+      if (cellZone[(c.y + dy) * W + (c.x + dx)] === zi) return { x: dx, y: dy };
+    }
+    return { x: 0, y: 1 };
+  };
+  const passages: Cell[] = [];
+  grid.forEach((row, y) => [...row].forEach((ch, x) => ch === 'D' || ch === 'o' ? passages.push({ x, y }) : undefined));
+  const decalsPlaced = placeDecals({
+    width: W,
+    height: H,
+    tileSize: TILE,
+    ground: g,
+    zoneAt: (x, y) => (x >= 0 && y >= 0 && x < W && y < H ? (cellZone[y * W + x] ?? -1) : -1),
+    zoneCount: map.zones.length,
+    blocked: (x, y) => {
+      const ch = at(x, y);
+      return '#HFDW_w'.includes(ch) || propBlocked.has(y * W + x) || ch === '<';
+    },
+    windows: map.windows.map((w) => ({ cell: w.cell, inward: inwardOf(w.cell, w.zone), outdoor: w.kind === 'fence' })),
+    passages,
+    propCells,
+    seed: hash(W, H),
+  });
+  const sizeOf = (tileset: string): number => Object.values(DECALS).find((d) => d.tileset === tileset)?.size ?? TILE;
+  const decalObjects: TiledObject[] = decalsPlaced.map((d) => {
+    const size = sizeOf(d.tileset);
+    const gid = firstGid[d.tileset as TilesetName] + d.local + (d.flipX ? 0x80000000 : 0) + (d.flipY ? 0x40000000 : 0);
+    return { id: nextId++, name: '', gid, x: d.cx - size / 2, y: d.cy + size / 2, width: size, height: size, rotation: 0, visible: true };
+  });
+  const propObjects: TiledObject[] = map.props.map((prop) => ({
+    id: nextId++,
+    name: prop.id,
+    type: 'prop',
+    ...cellsRect(prop.cells),
+    rotation: 0,
+    visible: true,
+    properties: [p('key', 'string', prop.key), p('collides', 'bool', prop.collides), p('flipX', 'bool', prop.flipX), p('flipY', 'bool', prop.flipY)],
+  }));
+
   const tileLayer = (id: number, name: string, data: number[]): TiledTileLayer => ({
     id,
     name,
@@ -652,13 +805,15 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
     height: H,
     tilewidth: TILE,
     tileheight: TILE,
-    nextlayerid: 6,
+    nextlayerid: 8,
     nextobjectid: nextId,
     layers: [
       tileLayer(1, 'floor', floor),
+      tileLayer(6, 'shadows', shadows),
       tileLayer(2, 'walls', walls),
       tileLayer(3, 'decor', new Array<number>(W * H).fill(0)),
-      { id: 4, name: 'decals', type: 'objectgroup', draworder: 'topdown', x: 0, y: 0, opacity: 1, visible: true, objects: [] },
+      { id: 4, name: 'decals', type: 'objectgroup', draworder: 'topdown', x: 0, y: 0, opacity: 1, visible: true, objects: decalObjects },
+      { id: 7, name: 'props', type: 'objectgroup', draworder: 'topdown', x: 0, y: 0, opacity: 1, visible: true, objects: propObjects },
       { id: 5, name: 'objects', type: 'objectgroup', draworder: 'topdown', x: 0, y: 0, opacity: 1, visible: true, objects },
     ],
     tilesets: TILESET_ORDER.map((name) => ({ firstgid: firstGid[name], source: `tilesets/${name}.tsj` })),

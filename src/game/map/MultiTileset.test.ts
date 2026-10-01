@@ -53,7 +53,14 @@ describe('maps with several tilesets', () => {
     expect(map.gidFlags[pool.firstGid + 4]).toBe(TILE_COLLIDES);
     expect(tilesetForGid(map.tilesets, pool.firstGid + 4)?.name).toBe('kit');
     expect(tilesetForGid(map.tilesets, 999)).toBeUndefined();
-    expect(map.decals).toEqual([{ gid: pool.firstGid, x: 200, y: 232 }]);
+    expect(map.decals).toEqual([{ gid: pool.firstGid, x: 200, y: 232, flipX: false, flipY: false }]);
+  });
+
+  it('keeps the flip flags of decals', () => {
+    const flipped = multiMap();
+    const layer = flipped.layers.find((l) => l.name === 'decals') as { objects: { gid?: number }[] };
+    layer.objects[0]!.gid = pool.firstGid + 0x80000000 + 0x40000000;
+    expect(parseMap(flipped).decals[0]).toEqual({ gid: pool.firstGid, x: 200, y: 232, flipX: true, flipY: true });
   });
 
   it('water and void stop bodies but not bullets or sight', () => {

@@ -21,7 +21,7 @@ describe('importTiles (end to end on a copy of the repo)', () => {
     cpSync(join(repo, 'art-src/pixellab'), join(tmp, 'art-src/pixellab'), { recursive: true });
     const lines: string[] = [];
     const imported = importTiles(tmp, (l) => lines.push(l));
-    expect(imported).toHaveLength(11);
+    expect(imported).toHaveLength(13);
 
     const tsj = (name: string) => JSON.parse(readFileSync(join(tmp, `art-src/tiled/tilesets/${name}.tsj`), 'utf8')) as Tsj;
     const pool = tsj('tileset_pool');

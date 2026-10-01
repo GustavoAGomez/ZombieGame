@@ -142,7 +142,7 @@ describe('spawn distance on the big map (Fase M7)', () => {
   it('measures windows by walking distance, not through walls', () => {
     const ctx = createMansionContext();
     for (const id of ['D1', 'D2', 'D3', 'D4', 'D5']) openDoor(ctx, ctx.map.doors.findIndex((d) => d.id === id));
-    movePlayer(ctx, 37, 35);
+    movePlayer(ctx, 38, 38);
     withField(ctx);
     // W9 (biblioteca, north wall) is ~18 tiles away in a straight line but much farther on foot.
     const w9 = spawnOf(ctx, 'W9');
@@ -163,7 +163,7 @@ describe('spawn distance on the big map (Fase M7)', () => {
   it('skips far spawns while closer ones exist', () => {
     const ctx = createMansionContext();
     for (const door of ctx.map.doors) openDoor(ctx, ctx.map.doors.indexOf(door));
-    movePlayer(ctx, 37, 35);
+    movePlayer(ctx, 38, 38);
     withField(ctx);
     for (let i = 0; i < 500; i++) expect(spawnPathTiles(ctx, pickSpawn(ctx))).toBeLessThanOrEqual(WAVES.spawnMaxPathTiles);
   });

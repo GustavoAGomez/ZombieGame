@@ -13,6 +13,7 @@ export const BLOCK_ALL = BLOCK_PLAYER | BLOCK_ZOMBIE | BLOCK_BULLET | BLOCK_SIGH
 /** Windows, water and void stop bodies but let bullets and line of sight through. */
 export const BLOCK_BODIES = BLOCK_PLAYER | BLOCK_ZOMBIE;
 export const BLOCK_WINDOW = BLOCK_BODIES;
+export const BLOCK_PROP = BLOCK_BODIES | BLOCK_BULLET;
 
 export interface CollisionGrid {
   width: number;
@@ -32,6 +33,14 @@ export function buildCollisionGrid(map: MapData, doorsOpen: readonly boolean[]):
     else if ((map.floor[i] ?? 0) === 0) cells[i] = BLOCK_PLAYER;
   }
   for (const w of map.windows) cells[w.tileY * map.width + w.tileX] = BLOCK_WINDOW;
+  // Furniture with collision stops bodies and bullets but not the line of sight.
+  for (const prop of map.props) {
+    if (!prop.collides) continue;
+    for (const t of prop.tiles) {
+      const i = t.y * map.width + t.x;
+      if (t.x >= 0 && t.y >= 0 && t.x < map.width && t.y < map.height) cells[i] = (cells[i] ?? 0) | BLOCK_PROP;
+    }
+  }
   const grid: CollisionGrid = { width: map.width, height: map.height, tileSize: map.tileSize, cells };
   map.doors.forEach((door, i) => setDoorBlocking(grid, door, !doorsOpen[i]));
   return grid;

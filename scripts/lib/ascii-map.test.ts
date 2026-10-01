@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { BLOCK_BULLET, BLOCK_PLAYER, buildCollisionGrid, cellBlocks } from '../../src/game/map/CollisionGrid';
+import { BLOCK_BULLET, BLOCK_PLAYER, BLOCK_SIGHT, buildCollisionGrid, cellBlocks } from '../../src/game/map/CollisionGrid';
 import { parseMap, tilesetForGid } from '../../src/game/map/MapLoader';
 import type { TiledProperty, TiledSourceMap, TiledTileLayer } from '../../src/game/map/tiled';
 import { compileSource, readTilesets } from '../build-map';
@@ -218,3 +218,71 @@ describe('compileSource', () => {
     expect(compileSource(dir, 'm', true)).toBe('written');
   });
 });
+
+describe('decoration and props', () => {
+  const WITH_PROPS = `${TINY}
+## Atrezo
+| id | objeto | casillas | colisión | volteo | nota |
+|---|---|---|---|---|---|
+| A1 | prop_mesa | 7,1 8,2 | sí | h | mesa |
+| A2 | prop_alfombra | 2,1 | no | — | alfombra |
+`;
+
+  it('reads props as rectangles with flips and collision', () => {
+    const plan = parseAsciiMap(WITH_PROPS);
+    expect(plan.props).toEqual([
+      { id: 'A1', key: 'prop_mesa', cells: [{ x: 7, y: 1 }, { x: 8, y: 1 }, { x: 7, y: 2 }, { x: 8, y: 2 }], collides: true, flipX: true, flipY: false },
+      { id: 'A2', key: 'prop_alfombra', cells: [{ x: 2, y: 1 }], collides: false, flipX: false, flipY: false },
+    ]);
+  });
+
+  it('rejects props on walls, on other props or with a bad key', () => {
+    expect(() => parseAsciiMap(WITH_PROPS.replace('| 7,1 8,2 |', '| 0,1 1,1 |'))).toThrow(/la casilla 0,1 es "H"/);
+    expect(() => parseAsciiMap(WITH_PROPS.replace('| 2,1 |', '| 8,2 |'))).toThrow(/ya es de A1/);
+    expect(() => parseAsciiMap(WITH_PROPS.replace('prop_alfombra', 'Alfombra'))).toThrow(/prop_<nombre>/);
+    const twoSizes = WITH_PROPS.replace('| A2 | prop_alfombra | 2,1 |', '| A2 | prop_mesa | 2,1 |');
+    expect(() => parseAsciiMap(twoSizes)).toThrow(/prop_mesa mide 1×1 y en otro sitio 2×2; usa otra clave/);
+  });
+
+  it('writes props, shadows and flipped decals; props block bodies and bullets but not sight', () => {
+    const compiled = compileAsciiMap(parseAsciiMap(WITH_PROPS), tilesets, 't');
+    const map = parseMap(embed(compiled));
+    expect(map.props.map((p) => [p.id, p.key, p.collides, p.flipX])).toEqual([
+      ['A1', 'prop_mesa', true, true],
+      ['A2', 'prop_alfombra', false, false],
+    ]);
+    const grid = buildCollisionGrid(map, map.doors.map(() => false));
+    expect(cellBlocks(grid, 7, 1, BLOCK_PLAYER | BLOCK_BULLET)).toBe(true);
+    expect(cellBlocks(grid, 7, 1, BLOCK_SIGHT)).toBe(false);
+    expect(cellBlocks(grid, 2, 1, BLOCK_PLAYER)).toBe(false);
+    // Under the top wall and to the right of the left wall there is a soft shadow.
+    const shadowAt = (x: number, y: number) => map.shadows[y * map.width + x] ?? 0;
+    expect(shadowAt(2, 1)).toBeGreaterThan(0);
+    expect(shadowAt(1, 3)).toBeGreaterThan(0);
+    expect(shadowAt(3, 3)).toBe(0);
+    expect(shadowAt(7, 3)).toBeGreaterThan(0); // below the table
+    expect(map.decals.length).toBeGreaterThan(0);
+    expect(map.decals.some((d) => d.flipX || d.flipY)).toBe(true);
+  });
+
+  it('mixes a rare floor variant with "main+rare"', () => {
+    const compiled = compileAsciiMap(parseAsciiMap(WITH_PROPS.replace('| a | A | sí | sí | no | 1,1 | 0 |', '| a | A | sí | sí | no | 1,1 | 0+2 |')), tilesets, 't');
+    const floor = layer(compiled, 'floor').data;
+    const firstFloors = compiled.tilesets.find((t) => 'source' in t && t.source === 'tilesets/floors_interior.tsj')!.firstgid;
+    const inA = [1, 2, 3, 4].flatMap((y) => [1, 2, 3, 4].map((x) => (floor[y * 12 + x] ?? 0) - firstFloors));
+    expect(new Set(inA).size).toBeGreaterThan(1);
+    expect(inA.every((v) => v === 0 || v === 2)).toBe(true);
+  });
+});
+
+/** Embeds the tilesets of a compiled test map so parseMap can read it. */
+function embed(compiled: TiledSourceMap) {
+  return {
+    ...compiled,
+    tilesets: compiled.tilesets.map((t) => {
+      if (!('source' in t) || !t.source) return t;
+      const tsj = JSON.parse(readFileSync(resolve(root, 'art-src/tiled', t.source), 'utf8')) as Record<string, unknown>;
+      return { firstgid: t.firstgid, ...tsj };
+    }),
+  } as never;
+}

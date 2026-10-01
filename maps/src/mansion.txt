@@ -70,16 +70,16 @@ ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
 ## Zonas (cada zona es la región que se rellena desde su semilla; las paredes, vallas, D y W la cierran. "suelo" es la variante de floors_interior; "paredes" cambia el kit)
 | id | nombre | inicial | interior | spawns abiertos | semilla | suelo | paredes | contiene |
 |---|---|---|---|---|---|---|---|---|
-| recibidor | Recibidor | sí | sí | no | 37,31 | 0 | — | hall, pasillo, guardarropa, aseo |
+| recibidor | Recibidor | sí | sí | no | 37,31 | 0+2 | — | hall, pasillo, guardarropa, aseo |
 | salon | Salón | no | sí | no | 23,37 | 3 | — | salón en L con chimenea y columna |
 | comedor | Comedor | no | sí | no | 53,35 | 1 | — | comedor con mirador |
-| biblioteca | Biblioteca | no | sí | no | 26,23 | 2 | — | biblioteca, mirador, estudio, rincón de lectura |
-| cocina | Cocina | no | sí | no | 39,24 | 1 | — | cocina en L, office, despensa, lavadero |
-| garaje | Garaje | no | sí | no | 65,38 | 1 | — | garaje doble y taller (L) |
+| biblioteca | Biblioteca | no | sí | no | 26,23 | 2+0 | — | biblioteca, mirador, estudio, rincón de lectura |
+| cocina | Cocina | no | sí | no | 39,24 | 1+3 | — | cocina en L, office, despensa, lavadero |
+| garaje | Garaje | no | sí | no | 65,38 | 1+3 | — | garaje doble y taller (L) |
 | jardin | Jardín trasero | no | no | no | 29,6 | — | — | patios, piscina, cobertizo, pasillos laterales |
 | calle | Calle delantera | no | no | sí | 40,57 | — | — | porche, jardín delantero, entrada de coches, las dos calles |
-| sotano | Sótano | no | sí | no | 86,30 | 3 | sótano | sala en L, calderas, trastero, bodega |
-| azotea | Azotea | no | no | sí | 88,6 | 0 | sótano | azotea en L con chimeneas |
+| sotano | Sótano | no | sí | no | 86,30 | 3+1 | sótano | sala en L, calderas, trastero, bodega |
+| azotea | Azotea | no | no | sí | 88,6 | 0+2 | sótano | azotea en L con chimeneas |
 
 ## Puertas de pago (D)
 | id | casillas | de | a | coste |
@@ -142,3 +142,95 @@ ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
 | casilla |
 |---|
 | 39,31 |
+
+## Atrezo (muebles y objetos; "casillas" es una casilla o dos esquinas de un rectángulo; con colisión bloquea el paso y las balas)
+| id | objeto | casillas | colisión | volteo | nota |
+|---|---|---|---|---|---|
+| R1 | prop_escalera_derrumbada | 37,34 39,35 | sí | — | Recibidor. La escalera principal se ha hundido: por eso no se sube a la planta alta |
+| R2 | prop_escombros | 36,35 | no | — | Recibidor. Cascotes de la escalera |
+| R4 | prop_consola_volcada | 33,34 34,34 | sí | — | Recibidor. Consola del hall volcada |
+| R5 | prop_alfombra | 35,37 37,38 | no | — | Recibidor. Alfombra del hall, arrugada |
+| R6 | prop_cajas | 45,34 46,35 | sí | — | Recibidor. Cajas apiladas en el guardarropa |
+| R7 | prop_inodoro | 46,37 | sí | — | Recibidor. Aseo |
+| R8 | prop_banco | 43,30 44,30 | sí | — | Recibidor. Banco del pasillo |
+| R9 | prop_cuadro_caido | 35,31 | no | — | Recibidor. Retrato caído en el pasillo |
+| S1 | prop_sofa | 20,32 20,34 | sí | — | Salón. Sofá de cara a la chimenea |
+| S2 | prop_alfombra_hogar | 17,33 18,34 | no | — | Salón. Alfombra delante del hogar |
+| S3 | prop_sillon | 19,35 | sí | — | Salón. Sillón |
+| S4 | prop_piano | 20,40 21,41 | sí | — | Salón. Piano de pared en el rincón del brazo bajo |
+| S5 | prop_barricada_muebles | 28,33 29,34 | sí | — | Salón. Barricada antigua: mesas y sillas volcadas apiladas |
+| S6 | prop_mueble_bajo | 26,30 28,30 | sí | — | Salón. Mueble bajo contra la pared |
+| S7 | prop_libros_suelo | 25,31 | no | — | Salón. Libros tirados del mueble |
+| C1 | prop_mesa_comedor | 51,34 55,35 | sí | — | Comedor. Mesa larga, aún puesta |
+| C2 | prop_sillas_volcadas | 50,33 | no | — | Comedor. Sillas volcadas |
+| C3 | prop_sillas_volcadas | 56,36 | no | h | Comedor. Sillas volcadas |
+| C4 | prop_vajilla_rota | 53,36 | no | — | Comedor. Vajilla rota y comida por el suelo |
+| C5 | prop_aparador | 58,32 58,34 | sí | — | Comedor. Aparador contra la pared |
+| C6 | prop_charco_sangre | 52,33 | no | — | Comedor. Charco de sangre junto a la mesa: la última cena |
+| B1 | prop_estanteria_larga | 24,21 28,21 | sí | — | Biblioteca. Hilera de estanterías |
+| B2 | prop_estanteria_larga | 24,24 28,24 | sí | — | Biblioteca. Hilera de estanterías |
+| B3 | prop_mesa_lectura | 25,25 26,26 | sí | — | Biblioteca. Mesa de lectura |
+| B4 | prop_estanteria_caida | 29,22 31,22 | sí | — | Biblioteca. Estantería caída: alguien la tumbó para frenar la puerta |
+| B5 | prop_libros_suelo | 29,23 | no | — | Biblioteca. Libros esparcidos |
+| B6 | prop_libros_suelo | 31,23 | no | v | Biblioteca. Libros esparcidos |
+| B7 | prop_libros_suelo | 23,22 | no | h | Biblioteca. Libros esparcidos |
+| B8 | prop_escritorio | 19,19 20,19 | sí | — | Biblioteca. Escritorio del estudio |
+| B9 | prop_caja_fuerte | 20,23 | sí | — | Biblioteca. Caja fuerte abierta y vacía |
+| B10 | prop_sillon | 16,25 | sí | — | Biblioteca. Sillón del rincón de lectura |
+| K1 | prop_encimera | 33,20 35,20 | sí | — | Cocina. Encimera con fregadero |
+| K2 | prop_isla_cocina | 37,22 40,22 | sí | — | Cocina. Isla que separa la cocina del office |
+| K3 | prop_nevera | 45,23 | sí | — | Cocina. Nevera abierta |
+| K4 | prop_horno | 36,28 | sí | — | Cocina. Horno |
+| K5 | prop_mesa | 36,17 37,17 | sí | — | Cocina. Mesa del desayuno en el office |
+| K6 | prop_lavadora | 58,23 | sí | — | Cocina. Lavadora del lavadero |
+| K7 | prop_latas_suelo | 55,21 | no | — | Cocina. Latas por el suelo: alguien saqueó la despensa |
+| K8 | prop_latas_suelo | 44,24 | no | h | Cocina. Latas junto a la nevera |
+| K9 | prop_vajilla_rota | 39,24 | no | v | Cocina. Platos rotos |
+| G1 | prop_coche_puerta_abierta | 66,36 68,40 | sí | — | Garaje. Coche con la puerta del conductor abierta y las llaves puestas: no llegó a salir |
+| G2 | prop_neumaticos | 71,43 | sí | — | Garaje. Neumáticos apilados |
+| G3 | prop_banco_trabajo | 65,26 65,28 | sí | — | Garaje. Banco de trabajo del taller |
+| G4 | prop_estanteria_metal_corta | 60,23 60,24 | sí | — | Garaje. Estantería metálica |
+| G5 | prop_herramientas_suelo | 64,29 | no | — | Garaje. Herramientas tiradas junto al banco |
+| G6 | prop_mancha_aceite | 64,41 | no | — | Garaje. Mancha de aceite |
+| J1 | prop_arbol | 16,3 17,4 | sí | — | Jardín. Árbol junto a la valla |
+| J2 | prop_arbol | 60,12 61,13 | sí | h | Jardín. Árbol |
+| J3 | prop_arbol | 75,14 76,15 | sí | — | Jardín. Árbol del rincón este |
+| J4 | prop_seto | 31,3 34,3 | sí | — | Jardín. Seto contra la valla norte |
+| J5 | prop_seto | 48,3 51,3 | sí | — | Jardín. Seto contra la valla norte |
+| J6 | prop_mesa_jardin | 26,12 27,12 | sí | — | Jardín. Mesa del patio de la biblioteca |
+| J7 | prop_sillas_volcadas | 25,13 | no | — | Jardín. Sillas de exterior volcadas |
+| J8 | prop_barbacoa_volcada | 48,14 | sí | — | Jardín. Barbacoa volcada y sangre: la fiesta acabó mal |
+| J9 | prop_charco_sangre | 47,15 | no | — | Jardín. Sangre junto a la barbacoa |
+| J10 | prop_tumbona | 43,12 43,13 | sí | — | Jardín. Tumbona |
+| J11 | prop_tumbona | 46,12 46,13 | sí | — | Jardín. Tumbona |
+| J12 | prop_flotador | 52,6 | no | — | Jardín. Flotador olvidado en la cubierta |
+| J13 | prop_bidon | 70,9 | sí | — | Jardín. Bidón junto al cobertizo |
+| T1 | prop_coche_accidentado | 2,47 5,48 | sí | — | Calle. Coche atravesado en la calle lateral tras chocar con la farola |
+| T2 | prop_farola_caida | 6,46 7,46 | no | — | Calle. Farola derribada por el coche |
+| T3 | prop_coche | 20,58 23,59 | sí | — | Calle. Coche aparcado |
+| T4 | prop_coche | 46,55 49,56 | sí | h | Calle. Coche aparcado |
+| T5 | prop_buzon | 34,50 | sí | — | Calle. Buzón junto al sendero |
+| T6 | prop_cubo_basura | 60,50 | sí | — | Calle. Cubos de basura junto a la entrada de coches |
+| T7 | prop_farola | 25,53 | sí | — | Calle. Farola |
+| T8 | prop_farola | 52,53 | sí | — | Calle. Farola |
+| T9 | prop_farola | 38,61 | sí | — | Calle. Farola de la acera de enfrente |
+| T10 | prop_farola | 8,28 | sí | — | Calle. Farola de la calle lateral |
+| T11 | prop_arbol | 22,46 23,47 | sí | — | Calle. Árbol del jardín delantero |
+| T12 | prop_arbol | 44,47 45,48 | sí | h | Calle. Árbol del jardín delantero |
+| T13 | prop_seto | 12,50 15,50 | sí | — | Calle. Seto en la linde, con huecos |
+| T14 | prop_seto | 38,50 41,50 | sí | — | Calle. Seto en la linde, con huecos |
+| T15 | prop_seto | 70,50 73,50 | sí | — | Calle. Seto en la linde, con huecos |
+| T16 | prop_seto_lateral | 12,42 12,45 | sí | — | Calle. Seto hacia la calle lateral |
+| X1 | prop_caldera | 94,29 95,30 | sí | — | Sótano. Caldera en el cuarto de calderas |
+| X2 | prop_botellero | 98,40 98,43 | sí | — | Sótano. Botellero de la bodega |
+| X3 | prop_botellero_bajo | 92,38 94,38 | sí | — | Sótano. Botellero de la bodega |
+| X4 | prop_estanteria_metal | 90,28 90,31 | sí | — | Sótano. Estanterías del trastero |
+| X5 | prop_cajas | 83,30 84,31 | sí | — | Sótano. Cajas de la mudanza |
+| X6 | prop_colchon | 85,34 86,35 | no | — | Sótano. Refugio improvisado: colchón en el suelo… |
+| X7 | prop_latas_suelo | 87,34 | no | — | Sótano. …latas vacías… |
+| X8 | prop_charco_sangre | 85,36 | no | — | Sótano. …y sangre: el refugio no aguantó |
+| Y1 | prop_aire_acondicionado | 89,5 90,5 | sí | — | Azotea. Aparato de aire acondicionado |
+| Y2 | prop_deposito_agua | 95,11 96,12 | sí | — | Azotea. Depósito de agua |
+| Y3 | prop_cajas_provisiones | 83,12 84,12 | sí | — | Azotea. Campamento de supervivientes: cajas de provisiones… |
+| Y4 | prop_saco_dormir | 86,13 87,13 | no | — | Azotea. …y sacos de dormir junto a la chimenea |
+| Y5 | prop_aire_acondicionado | 91,16 92,16 | sí | — | Azotea. Aparato de aire acondicionado |

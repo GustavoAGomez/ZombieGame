@@ -67,3 +67,22 @@ Las 10 zonas con sus propiedades, las 10 puertas con sus costes y zonas, las 18 
 - **Spawns abiertos de la calle:** O1 en la calzada de la calle lateral, a la altura del jardín delantero, y O2 en la acera de enfrente de la calle horizontal. Están más cerca de la casa que en el mapa actual, así entran dentro del corte de distancia de la Fase M7.
 - **Calle lateral:** ocupa las 11 primeras columnas. Para que quepa en los 100 tiles de ancho, la parcela se desplaza 9 tiles a la derecha y las islas pasan de 21 a 16 tiles de ancho.
 - **Pendiente de arte:** la tierra (`d`) no tiene tileset; mientras tanto se pinta con un suelo provisional y se apunta en `docs/ASSETS-TODO.md`. La azotea (`r`) usa hormigón.
+
+## Decoración
+
+Zona por zona, con su vista previa en `maps/preview/`. El atrezo está en la tabla `## Atrezo` de `mansion.txt`; los decals, las variantes de suelo y las sombras las pone `map:build` con las reglas de la skill. Densidad de cada zona: 20–21 %.
+
+| Zona | Atrezo principal | Detalle narrativo |
+|---|---|---|
+| Recibidor | Consola volcada, alfombra, cajas en el guardarropa, inodoro, banco, retrato caído | La escalera principal hundida, con cascotes: por eso no se sube a la planta alta. Rastro de sangre desde W1 |
+| Salón | Sofá frente a la chimenea, alfombra, sillón, piano, mueble bajo, libros por el suelo | Barricada antigua de mesas y sillas volcadas junto a la columna |
+| Comedor | Mesa larga aún puesta, sillas volcadas, vajilla rota, aparador | Charco de sangre junto a la mesa: la última cena |
+| Biblioteca | Dos hileras de estanterías, mesa de lectura, escritorio, caja fuerte abierta, sillón | Estantería tumbada con los libros esparcidos |
+| Cocina | Encimera, isla, nevera abierta, horno, mesa del office, lavadora | Despensa saqueada: latas por el suelo |
+| Garaje | Banco de trabajo, estanterías, neumáticos, herramientas, mancha de aceite | Coche con la puerta abierta y las llaves puestas: no llegó a salir |
+| Jardín | Árboles, setos contra la valla, mesa de exterior, tumbonas, flotador, bidón | Barbacoa volcada con sangre: la fiesta acabó mal |
+| Calle | Coches aparcados, farolas, buzón, cubos, árboles y setos en la linde | Coche atravesado en la calle lateral tras derribar una farola |
+| Sótano | Caldera, botelleros, estanterías, cajas | Refugio improvisado (colchón, latas, sangre) que no aguantó |
+| Azotea | Aires acondicionados, depósito de agua | Campamento de supervivientes junto a la chimenea |
+
+Todo el atrezo es provisional (rectángulos del color de su material) hasta que llegue el arte: la lista con tamaños y prompts está en `docs/ASSETS-TODO.md`.

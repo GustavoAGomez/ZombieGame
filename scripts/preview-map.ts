@@ -13,8 +13,11 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { parseMap, tilesetForGid, type MapData, type MapTileset } from '../src/game/map/MapLoader';
+import { propColor, shade } from '../src/game/assets/propColors';
+import { BLOCK_PLAYER, buildCollisionGrid } from '../src/game/map/CollisionGrid';
+import { parseMap, tilesetForGid, type MapData, type MapProp, type MapTileset } from '../src/game/map/MapLoader';
 import type { TiledMap, TiledObjectLayer } from '../src/game/map/tiled';
+import { decorDensity, DECOR_DENSITY, type PlacedDecal } from './lib/decorate';
 import { decodePng, encodePng } from './lib/png';
 import { blank, type Frame } from './lib/sheet';
 
@@ -108,11 +111,21 @@ export function renderMap(mapPath: string): { image: Frame; map: MapData } {
     const sy = Math.floor(local / t.columns) * t.tileHeight;
     blit(image, sheet, sx, sy, t.tileWidth, t.tileHeight, Math.round(x), Math.round(bottom - t.tileHeight), (rawGid & FLIP_H) !== 0, (rawGid & FLIP_V) !== 0);
   };
-  for (const layer of [map.floor, map.decor]) {
+  for (const layer of [map.floor, map.shadows, map.decor]) {
     for (let y = 0; y < map.height; y++) for (let x = 0; x < map.width; x++) drawGid(layer[y * map.width + x] ?? 0, x * ts, (y + 1) * ts);
   }
   const decals = raw.layers.find((l) => l.name === 'decals') as TiledObjectLayer | undefined;
   for (const d of decals?.objects ?? []) if (d.gid) drawGid(d.gid, d.x, d.y);
+  const drawProp = (prop: MapProp): void => {
+    const base = propColor(prop.key);
+    const { x, y, width: w, height: h } = prop;
+    rect(image, x, y, w, h, shade(base, 0.55));
+    rect(image, x + 1, y + 1, w - 2, h - 2, shade(base, 1));
+    rect(image, x + 1, y + 1, w - 2, 2, shade(base, 1.3));
+    rect(image, x + 1, y + h - 3, w - 2, 2, shade(base, 0.75));
+    if (w >= 12 && h >= 12) rect(image, x + 4, y + 5, w - 8, h - 10, shade(base, 0.85));
+  };
+  for (const prop of map.props) if (!prop.collides) drawProp(prop);
 
   // Gameplay objects drawn by the game at runtime: simple marks.
   for (const portal of map.portals) {
@@ -137,8 +150,11 @@ export function renderMap(mapPath: string): { image: Frame; map: MapData } {
     }
   }
 
-  // Walls and other tall tiles, y-sorted like the game does with actors.
-  for (let y = 0; y < map.height; y++) for (let x = 0; x < map.width; x++) drawGid(map.walls[y * map.width + x] ?? 0, x * ts, (y + 1) * ts);
+  // Walls, other tall tiles and furniture with collision, y-sorted like the game does with actors.
+  for (let y = 0; y < map.height; y++) {
+    for (let x = 0; x < map.width; x++) drawGid(map.walls[y * map.width + x] ?? 0, x * ts, (y + 1) * ts);
+    for (const prop of map.props) if (prop.collides && prop.y + prop.height === (y + 1) * ts) drawProp(prop);
+  }
 
   const cross = (cx: number, cy: number, color: RGB): void => {
     for (let i = -5; i <= 5; i++) {
@@ -178,6 +194,28 @@ export function renderPlan(text: string): Frame {
     }),
   );
   return image;
+}
+
+/** Share of each zone's floor with a decal or a prop (skill §4.7: 15–25 %). */
+export function zoneDensities(map: MapData): { zone: string; density: number }[] {
+  const grid = buildCollisionGrid(map, map.doors.map(() => true));
+  const ts = map.tileSize;
+  const propCells = new Set<number>();
+  for (const prop of map.props) for (const t of prop.tiles) propCells.add(t.y * map.width + t.x);
+  const decals: PlacedDecal[] = map.decals.map((d) => {
+    const size = tilesetForGid(map.tilesets, d.gid)?.tileWidth ?? ts;
+    return { tileset: '', local: 0, cx: d.x + size / 2, cy: d.y - size / 2, flipX: d.flipX, flipY: d.flipY };
+  });
+  const density = decorDensity(decals, {
+    width: map.width,
+    height: map.height,
+    tileSize: ts,
+    zoneAt: (x, y) => (x >= 0 && y >= 0 && x < map.width && y < map.height ? (map.cellZone[y * map.width + x] ?? -1) : -1),
+    zoneCount: map.zones.length,
+    blocked: (x, y) => ((grid.cells[y * map.width + x] ?? 0) & BLOCK_PLAYER) !== 0,
+    propCells,
+  });
+  return map.zones.map((z, i) => ({ zone: z.id, density: density[i] ?? 0 }));
 }
 
 function writePng(path: string, frame: Frame): void {
@@ -261,6 +299,13 @@ function main(): void {
     try {
       const files = previewMap(root, name);
       console.info(`✓ ${name}: ${files.length} imágenes en maps/preview/ (${files.join(', ')})`);
+      const map = parseMap(JSON.parse(readFileSync(resolve(root, 'public/assets/maps', `${name}.tmj`), 'utf8')));
+      const line = zoneDensities(map).map(({ zone, density }) => {
+        const pct = Math.round(density * 100);
+        const ok = density >= DECOR_DENSITY.min && density <= DECOR_DENSITY.max + 0.005;
+        return `${zone} ${pct} %${ok ? '' : ' ⚠'}`;
+      });
+      console.info(`  densidad de decoración (objetivo 15–25 %): ${line.join(' · ')}`);
     } catch (err) {
       console.error(`✖ ${name}: ${(err as Error).message}`);
       process.exitCode = 1;

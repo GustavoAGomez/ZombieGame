@@ -99,8 +99,10 @@ Los tilesets deben ir **embebidos** en el `.tmj` que carga el juego (`public/ass
 |---|---|---|
 | `floor` | tiles | suelo |
 | `walls` | tiles | paredes; cada tile con la propiedad `collides: true` |
+| `shadows` | tiles | sombras suaves al pie de paredes y muebles, tileset `map_shadows` (opcional; la genera `map:build`) |
 | `decor` | tiles | decoración sin colisión (opcional) |
-| `decals` | objetos | *tile objects* sin colisión, en cualquier posición (opcional) |
+| `decals` | objetos | *tile objects* sin colisión, en cualquier posición y con volteo horizontal o vertical (opcional) |
+| `props` | objetos | atrezo (opcional): rectángulos de tiles enteros con `key` (objeto `prop_*` del manifiesto), `collides` (bool), `flipX`, `flipY`. Con colisión bloquea el paso y las balas, pero no la visión, y se ordena con los personajes; sin colisión va en el suelo (alfombras, escombros) |
 | `objects` | objetos | ver la tabla siguiente |
 
 **Objetos de la capa `objects`** (campo `type`/`class` y sus propiedades):
@@ -182,6 +184,12 @@ npm run map:preview     maps/preview/: el mapa completo a 1:4, cada zona a 1:1 y
 - El `.tmj` compilado guarda en sus propiedades un hash de su contenido (`compiledHash`). Si al recompilar el contenido ya no coincide, alguien lo ha retocado en Tiled: `map:build` lo conserva, avisa y construye con los retoques.
 - Las zonas se calculan desde el plano: cada zona es la región que se rellena desde su semilla, cerrada por paredes, vallas, puertas de pago, barricadas y vacío. Se guardan como varios objetos `zone` con el mismo `id` (las zonas en L necesitan varios rectángulos) y el `MapLoader` los une.
 - Cada barricada pone su `zombie_spawn` 2 tiles hacia fuera, en el lado contrario a su zona.
-- `map:build` no escribe el mapa del juego si el validador falla, y lista los errores (zonas, barricadas, costes, salidas, alcanzabilidad, portales…).
+- **Decoración** (skill level-design §4, `scripts/lib/decorate.ts`), determinista:
+  - suelos interiores con una variante principal al 70 % y variantes raras parecidas (`suelo: 0+2` en la tabla de zonas), agrupadas y nunca dos iguales juntas;
+  - decals agrupados: escombros, astillas, sangre y un rastro hacia dentro en cada barricada; suciedad y pisadas en puertas y huecos; polvo en las esquinas; y racimos de ruido hasta cubrir el 20 % de cada zona (contando el atrezo);
+  - sombras al pie de paredes, vallas, puertas, barricadas y muebles con colisión.
+- **Atrezo:** tabla `## Atrezo` del plano (`id`, `objeto`, `casillas` como una casilla o dos esquinas, `colisión`, `volteo`). Cada clave tiene un solo tamaño; `map:build` registra en el manifiesto los objetos que falten como placeholder del tamaño de su huella, y el arte pendiente se apunta en `docs/ASSETS-TODO.md`.
+- `map:build` no escribe el mapa del juego si el validador falla, y lista los errores (zonas, barricadas, costes, salidas, alcanzabilidad, portales, atrezo a menos de 2 tiles de barricadas, puertas o portales de su zona, pasos de menos de 2 tiles junto a un mueble, casillas aisladas…).
+- `map:preview` imprime la densidad de decoración de cada zona (objetivo de la skill: 15–25 %).
 - `assets:check` (y por tanto `npm run build`) pasa el mismo validador a los mapas que tienen fuente en `art-src/tiled/` y avisa si el plano o la fuente son más recientes que el mapa del juego.
 - La mansión es el mapa por defecto; `?map=room01` carga el mapa de prueba.

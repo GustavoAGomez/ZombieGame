@@ -40,11 +40,30 @@ export interface MapTileset {
   flags: Uint8Array;
 }
 
-/** A tile object of the `decals` layer: drawn from its bottom-left corner. */
+/** A tile object of the `decals` layer: drawn from its bottom-left corner, maybe mirrored. */
 export interface MapDecal {
   gid: number;
   x: number;
   y: number;
+  flipX: boolean;
+  flipY: boolean;
+}
+
+/** Furniture or clutter (`props` layer): a manifest object over whole tiles. */
+export interface MapProp {
+  id: string;
+  /** Manifest object key (prop_*). */
+  key: string;
+  /** Footprint in world px. */
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  tiles: Vec2[];
+  /** Blocks players, zombies and bullets; otherwise it lies on the floor (rugs, rubble). */
+  collides: boolean;
+  flipX: boolean;
+  flipY: boolean;
 }
 
 export interface Rect {
@@ -175,9 +194,12 @@ export interface MapData {
   gidFlags: Uint8Array;
   /** Global tile id per cell (row-major), 0 when empty. */
   floor: Int32Array;
+  /** Soft shadows at the foot of walls and furniture (drawn over the floor). */
+  shadows: Int32Array;
   walls: Int32Array;
   decor: Int32Array;
   decals: MapDecal[];
+  props: MapProp[];
   zones: MapZone[];
   windows: MapWindow[];
   doors: MapDoor[];
@@ -247,6 +269,8 @@ function tileLayer(map: TiledMap, name: string, required: boolean): TiledTileLay
 }
 
 const GID_MASK = 0x1fffffff; // strips Tiled's flip flags
+const FLIP_H = 0x80000000;
+const FLIP_V = 0x40000000;
 
 function parseTilesets(map: TiledMap): MapTileset[] {
   if (map.tilesets.length === 0) fail('The map needs at least one embedded tileset');
@@ -304,7 +328,30 @@ function parseDecals(map: TiledMap): MapDecal[] {
   if (!layer || layer.type !== 'objectgroup') return [];
   return layer.objects
     .filter((o) => typeof o.gid === 'number' && o.gid > 0)
-    .map((o) => ({ gid: (o.gid ?? 0) & GID_MASK, x: o.x, y: o.y }));
+    .map((o) => {
+      const raw = o.gid ?? 0;
+      return { gid: raw & GID_MASK, x: o.x, y: o.y, flipX: (raw & FLIP_H) !== 0, flipY: (raw & FLIP_V) !== 0 };
+    });
+}
+
+function parseProps(map: TiledMap, tileSize: number): MapProp[] {
+  const layer = findLayer(map, LAYER_NAMES.props);
+  if (!layer || layer.type !== 'objectgroup') return [];
+  return layer.objects.map((obj) => {
+    const { x0, y0, x1, y1, tiles } = rectTiles(obj, tileSize);
+    return {
+      id: obj.name,
+      key: stringProp(obj, 'key'),
+      x: x0 * tileSize,
+      y: y0 * tileSize,
+      width: (x1 - x0) * tileSize,
+      height: (y1 - y0) * tileSize,
+      tiles,
+      collides: boolProp(obj, 'collides', false),
+      flipX: boolProp(obj, 'flipX', false),
+      flipY: boolProp(obj, 'flipY', false),
+    };
+  });
 }
 
 function axisOf(outward: Vec2): WallAxis {
@@ -345,7 +392,9 @@ export function parseMap(json: unknown): MapData {
   const floor = toGids(tileLayer(map, LAYER_NAMES.floor, true), size);
   const walls = toGids(tileLayer(map, LAYER_NAMES.walls, true), size);
   const decor = toGids(tileLayer(map, LAYER_NAMES.decor, false), size);
+  const shadows = toGids(tileLayer(map, LAYER_NAMES.shadows, false), size);
   const decals = parseDecals(map);
+  const props = parseProps(map, tileSize);
 
   const objectsLayer = findLayer(map, LAYER_NAMES.objects);
   if (!objectsLayer || objectsLayer.type !== 'objectgroup') fail('Missing object layer "objects"');
@@ -516,9 +565,11 @@ export function parseMap(json: unknown): MapData {
     tilesets,
     gidFlags,
     floor,
+    shadows,
     walls,
     decor,
     decals,
+    props,
     zones,
     windows,
     doors,

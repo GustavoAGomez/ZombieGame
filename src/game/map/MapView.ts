@@ -32,6 +32,7 @@ export class MapView {
 
     const layers: [string, Int32Array, number, boolean][] = [
       ['floor', map.floor, DEPTH.floor, false],
+      ['shadows', map.shadows, DEPTH.shadows, false],
       ['decor', map.decor, DEPTH.decor, false],
       ['walls', map.walls, DEPTH.walls, true],
     ];
@@ -53,7 +54,17 @@ export class MapView {
 
     for (const decal of map.decals) {
       const tileset = tilesetForGid(map.tilesets, decal.gid);
-      if (tileset) this.addTileSprite(scene, tileset, decal.gid, decal.x, decal.y, DEPTH.decor);
+      if (tileset) this.addTileSprite(scene, tileset, decal.gid, decal.x, decal.y, DEPTH.decor).setFlip(decal.flipX, decal.flipY);
+    }
+
+    // Furniture: anchored at the bottom of its footprint (taller art grows upwards); with collision it is y-sorted.
+    for (const prop of map.props) {
+      const bottom = prop.y + prop.height;
+      scene.add
+        .image(prop.x, bottom, objectTextureKey(prop.key))
+        .setOrigin(0, 1)
+        .setFlip(prop.flipX, prop.flipY)
+        .setDepth(prop.collides ? actorDepth(bottom) : DEPTH.floorProps);
     }
 
     for (const w of map.windows) {
@@ -83,8 +94,8 @@ export class MapView {
   }
 
   /** A tile drawn as an image from its bottom-left corner (Tiled's convention for tall tiles). */
-  private addTileSprite(scene: Phaser.Scene, tileset: MapTileset, gid: number, x: number, bottom: number, depth: number): void {
-    scene.add
+  private addTileSprite(scene: Phaser.Scene, tileset: MapTileset, gid: number, x: number, bottom: number, depth: number): Phaser.GameObjects.Image {
+    return scene.add
       .image(x, bottom, tilesetTextureKey(tileset.name), gid - tileset.firstGid)
       .setOrigin(0, 1)
       .setDepth(depth);
