@@ -69,6 +69,8 @@ export interface PlayerState {
 
   /** Seconds left of the current dash. */
   dashTimer: number;
+  /** Debug god mode (spec 01 §8): zombies cannot hurt this player. */
+  godMode: boolean;
   dashDirX: number;
   dashDirY: number;
   /** Seconds until the dash can be used again. */
@@ -240,6 +242,7 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     fireCooldown: 0,
     meleeCooldown: 0,
     meleeTimer: 0,
+    godMode: false,
     meleeAngle: 0,
     meleeTick: -1000,
     firing: false,

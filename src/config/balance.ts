@@ -282,3 +282,9 @@ export const PICKUPS = {
   radius: 6,
   poolSize: 12,
 } as const;
+
+/** Debug panel (spec 01 §8). */
+export const DEBUG = {
+  /** Points added by the +1000 button. */
+  points: 1000,
+} as const;

@@ -221,6 +221,17 @@ describe('ZombieSystem · attacks', () => {
     expect(p.hp).toBe(PLAYER.maxHp);
   });
 
+  it('does not hurt a player in debug god mode', () => {
+    const ctx = createTestContext();
+    const p = player(ctx);
+    const z = zombieNextToPlayer(ctx);
+    z.ai = 'attacking';
+    z.timer = 1 / 60;
+    p.godMode = true;
+    stepSimulation(ctx, 1 / 60);
+    expect(p.hp).toBe(PLAYER.maxHp);
+  });
+
   it('knocks the player back 6 px and emits player:damaged', () => {
     const ctx = createTestContext();
     const p = player(ctx);

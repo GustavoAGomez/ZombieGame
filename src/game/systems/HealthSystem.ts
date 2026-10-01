@@ -14,7 +14,7 @@ export function isPlayerAlive(p: PlayerState): boolean {
  * Returns true if damage was dealt.
  */
 export function damagePlayer(ctx: SimContext, p: PlayerState, amount: number, fromX: number, fromY: number): boolean {
-  if (!isPlayerAlive(p) || p.dashTimer > 0) return false;
+  if (!isPlayerAlive(p) || p.dashTimer > 0 || p.godMode) return false;
   p.hp = Math.max(0, p.hp - amount);
   p.lastDamageTime = ctx.state.time;
 

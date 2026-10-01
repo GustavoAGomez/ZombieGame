@@ -182,11 +182,19 @@
 }
 
 /* Row 3: floating "+N" texts that rise and fade (spec 01 §4.7). */
+/*
+ * The "+N" stack floats to the left of the points, out of the column's flow,
+ * so the column stays short and never reaches the action button below it.
+ */
 .hud-floats {
+  position: absolute;
+  top: 4px;
+  right: calc(100% + 10px);
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 2px;
+  pointer-events: none;
 }
 
 .hud-float {
@@ -261,4 +269,9 @@
   50% {
     opacity: 0.2;
   }
+}
+
+/* Rows kept free for future stats and perks (spec 01 §5). */
+.hud-reserved {
+  min-height: 16px;
 }

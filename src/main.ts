@@ -35,6 +35,7 @@ const services: Services = {
   stats: { fps: 0 },
   startRound: requestedStartRound(),
   mapKey: requestedMap(),
+  debugActions: null,
 };
 
 const size = measureViewport(gameRoot);
@@ -64,6 +65,7 @@ new DebugOverlay(
     return services.stats;
   },
   services.debug,
+  () => services.debugActions,
 );
 
 if (services.debug) {

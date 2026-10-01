@@ -1,3 +1,4 @@
+import { STRINGS } from '../ui/strings';
 import './debug.css';
 
 export interface DebugStats {
@@ -5,12 +6,26 @@ export interface DebugStats {
   [label: string]: number | string;
 }
 
+/**
+ * What the debug buttons can do, provided by the running game scene. The
+ * toggles return their new state so the button shows it.
+ */
+export interface DebugActions {
+  nextRound(): void;
+  addPoints(): void;
+  toggleGod(): boolean;
+  toggleHitboxes(): boolean;
+  toggleFlowField(): boolean;
+}
+
 const TRIPLE_TAP_WINDOW_MS = 600;
 const REFRESH_MS = 250;
 
 /**
  * Debug panel (spec 01 §8). Enabled with ?debug=1 or a triple tap on the
- * top-left corner. Stats are pulled on a timer, never every frame.
+ * top-left corner. Stats are pulled on a timer, never every frame. Buttons:
+ * next round, +1000 points, god mode, and drawing the hitboxes and the flow
+ * field (only while a match is running).
  */
 export class DebugOverlay {
   private readonly panel: HTMLDivElement;
@@ -22,11 +37,33 @@ export class DebugOverlay {
     root: HTMLElement,
     private readonly readStats: () => DebugStats,
     enabled: boolean,
+    actions: () => DebugActions | null = () => null,
   ) {
     this.panel = document.createElement('div');
     this.panel.className = 'debug-panel';
     this.statsEl = document.createElement('pre');
-    this.panel.appendChild(this.statsEl);
+    const buttons = document.createElement('div');
+    buttons.className = 'debug-buttons';
+    const button = (label: string, run: (a: DebugActions) => boolean | void): void => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'debug-button';
+      b.textContent = label;
+      b.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        const a = actions();
+        if (!a) return;
+        const on = run(a);
+        if (typeof on === 'boolean') b.classList.toggle('is-on', on);
+      });
+      buttons.appendChild(b);
+    };
+    button(STRINGS.debug.nextRound, (a) => a.nextRound());
+    button(STRINGS.debug.points, (a) => a.addPoints());
+    button(STRINGS.debug.god, (a) => a.toggleGod());
+    button(STRINGS.debug.hitboxes, (a) => a.toggleHitboxes());
+    button(STRINGS.debug.flowField, (a) => a.toggleFlowField());
+    this.panel.append(this.statsEl, buttons);
     root.appendChild(this.panel);
 
     const corner = document.createElement('div');

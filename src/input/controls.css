@@ -137,10 +137,10 @@
   display: none;
 }
 
-/* Reload right above the fire button, at (0, -82). */
+/* Reload right above the fire button, at (0, -78). */
 .action-button--reload {
   right: calc(var(--pad-x) + 36px);
-  bottom: calc(var(--pad-bottom) + 122px);
+  bottom: calc(var(--pad-bottom) + 118px);
 }
 
 /* Knife to the left of the fire button, at (-88, -4). */
@@ -264,14 +264,16 @@
 /*
  * Contextual action at the right edge (spec 01 §2.4): a hammer to repair,
  * a door or stairs to buy, with the points or the cost on a badge below.
+ * Sized and placed to fit between the top-right HUD and the reload button
+ * on the shortest screens of the spec (360 CSS px high).
  */
 .context-button {
   position: absolute;
-  right: calc(var(--pad-x) + 8px);
-  bottom: calc(var(--pad-bottom) + 196px);
+  right: calc(var(--pad-x) + 10px);
+  bottom: calc(var(--pad-bottom) + 186px);
   z-index: 20;
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
   display: none;
   align-items: center;
   justify-content: center;

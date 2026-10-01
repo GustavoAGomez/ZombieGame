@@ -57,9 +57,10 @@ export class Hud {
     this.hpValue = el('span', 'hud-hp');
     this.healthRow.append(heart, bar, this.hpValue);
     this.round = el('div', 'hud-round');
-    left.append(this.healthRow, this.round);
+    // An empty row kept for future stats (spec 01 §5).
+    left.append(this.healthRow, this.round, el('div', 'hud-reserved'));
 
-    // Top-right: points row, weapon row (floating texts come in phase 6).
+    // Top-right: points row, weapon row, the floating "+N" beside the points, a reserved row.
     const right = el('div', 'hud-right');
     const pointsRow = el('div', 'hud-row hud-points');
     const pointsLabel = el('span', 'hud-label');
@@ -75,7 +76,7 @@ export class Hud {
     reload.appendChild(this.reloadFill);
     this.reserve = el('span', 'hud-reserve');
     this.weaponRow.append(this.weaponName, pixelIcon('bullet', 21), this.magazine, reload, this.reserve);
-    // Row 3: stack of floating "+N" texts, pooled (CLAUDE.md rule 7).
+    // Floating "+N" texts, pooled (CLAUDE.md rule 7), drawn to the left of the points (hud.css).
     this.floats = el('div', 'hud-floats');
     for (let i = 0; i < FLOAT_POOL_SIZE; i++) {
       const span = el('span', 'hud-float');
@@ -84,7 +85,8 @@ export class Hud {
       this.floatPool.push(span);
       this.floats.appendChild(span);
     }
-    right.append(pointsRow, this.weaponRow, this.floats);
+    // An empty row kept for future perks (spec 01 §5), under the floating texts.
+    right.append(pointsRow, this.weaponRow, this.floats, el('div', 'hud-reserved'));
 
     this.damage = el('div', 'hud-damage');
     this.dead = el('div', 'hud-dead');

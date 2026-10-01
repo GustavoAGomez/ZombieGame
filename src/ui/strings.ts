@@ -3,6 +3,13 @@ export const STRINGS = {
   gameTitle: 'ZOMBIES',
   rotateDevice: 'GIRA EL MÓVIL',
   rotateDeviceHint: 'Este juego se juega en horizontal',
+  debug: {
+    nextRound: 'RONDA +1',
+    points: '+1000',
+    god: 'DIOS',
+    hitboxes: 'HITBOX',
+    flowField: 'FLUJO',
+  },
   controls: {
     joystick: 'Joystick de movimiento',
     fire: 'Disparar: arrastra para apuntar',

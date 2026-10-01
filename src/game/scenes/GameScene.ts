@@ -1,7 +1,7 @@
 import { App } from '@capacitor/app';
 import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
 import Phaser from 'phaser';
-import { SIM } from '../../config/balance';
+import { DEBUG, SIM } from '../../config/balance';
 import { DISPLAY, computeWorldZoom } from '../../config/display';
 import { FixedStep } from '../../core/FixedStep';
 import { createGameState, type GameState } from '../../core/GameState';
@@ -30,7 +30,9 @@ import { activeBulletCount } from '../systems/BulletSystem';
 import { isZombieAlive } from '../systems/Combat';
 import { createNav, type SimContext } from '../systems/SimContext';
 import { stepSimulation } from '../systems/Simulation';
-import { roundsSurvived } from '../systems/WaveSystem';
+import { roundsSurvived, startRound } from '../systems/WaveSystem';
+import { DebugDraw } from '../../debug/DebugDraw';
+import type { DebugActions } from '../../debug/DebugOverlay';
 import type { MuzzleTable } from '../systems/shotGeometry';
 import { angleFromDir8 } from '../../core/math';
 import { muzzleOffset } from '../entities/muzzle';
@@ -58,6 +60,7 @@ export class GameScene extends Phaser.Scene {
   private muzzleFlash!: MuzzleFlash;
   private meleeSlash!: MeleeSlash;
   private worldTexts!: WorldTextPool;
+  private debugDraw!: DebugDraw;
   private bloodViews!: BloodViewPool;
   private pickupViews!: PickupViewPool;
   private pauseButton!: PauseButton;
@@ -127,6 +130,8 @@ export class GameScene extends Phaser.Scene {
     this.muzzleFlash = new MuzzleFlash(this, playerDef);
     this.meleeSlash = new MeleeSlash(this, playerDef, manifest.objects[ASSET_KEYS.meleeSlash]);
     this.worldTexts = new WorldTextPool(this, events);
+    this.debugDraw = new DebugDraw(this);
+    this.services.debugActions = this.createDebugActions();
     this.syncViews(0);
 
     const camera = this.cameras.main;
@@ -145,6 +150,8 @@ export class GameScene extends Phaser.Scene {
       this.worldTexts.destroy();
       this.pauseMenu.destroy();
       this.pauseButton.destroy();
+      this.debugDraw.destroy();
+      this.services.debugActions = null;
       this.stopListeningToApp();
       this.anims.resumeAll();
     });
@@ -155,6 +162,7 @@ export class GameScene extends Phaser.Scene {
     // Before the views: a teleport snaps the camera, which must already be inside the new level.
     this.updateLevel();
     this.syncViews(this.fixedStep.alpha, time);
+    this.debugDraw.draw(this.state, this.sim.nav);
     this.presenter.publish(this.state);
     this.updateStats();
     this.checkGameOver(delta);
@@ -245,6 +253,29 @@ export class GameScene extends Phaser.Scene {
     }
     this.bulletViews.sync(this.state.bullets, this.state.players, alpha);
     this.worldTexts.sync(now);
+  }
+
+  /** Debug panel buttons (spec 01 §8). They change the state directly: they are tools, not gameplay. */
+  private createDebugActions(): DebugActions {
+    return {
+      nextRound: () => {
+        // Clears the zombies on the map and starts the next round at once.
+        for (const z of this.state.zombies) z.active = false;
+        startRound(this.state, this.state.wave.round + 1);
+      },
+      addPoints: () => {
+        const p = this.state.players[0];
+        if (p) p.points += DEBUG.points;
+      },
+      toggleGod: () => {
+        const p = this.state.players[0];
+        if (!p) return false;
+        p.godMode = !p.godMode;
+        return p.godMode;
+      },
+      toggleHitboxes: () => (this.debugDraw.showHitboxes = !this.debugDraw.showHitboxes),
+      toggleFlowField: () => (this.debugDraw.showFlowField = !this.debugDraw.showFlowField),
+    };
   }
 
   private updateStats(): void {

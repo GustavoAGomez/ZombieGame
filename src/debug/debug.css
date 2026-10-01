@@ -1,7 +1,8 @@
 .debug-panel {
   position: absolute;
-  left: calc(var(--pad-x) + 268px);
-  top: 14px;
+  /* Under the top-left HUD block, clear of the pause button and the controls. */
+  left: var(--pad-x);
+  top: 112px;
   z-index: 900;
   padding: 6px 8px;
   background: rgba(15, 14, 12, 0.8);
@@ -25,4 +26,30 @@
   height: 44px;
   z-index: 950;
   pointer-events: auto;
+}
+
+.debug-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.debug-button {
+  margin: 0;
+  padding: 4px 6px;
+  border: 0;
+  font-family: var(--font-label);
+  font-size: 9px;
+  color: var(--bone);
+  background: var(--panel);
+  box-shadow: inset 0 0 0 1px var(--door);
+  touch-action: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.debug-button.is-on {
+  color: var(--ink);
+  background: var(--amber);
 }

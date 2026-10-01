@@ -1,5 +1,5 @@
 import type { EventBus } from '../core/EventBus';
-import type { DebugStats } from '../debug/DebugOverlay';
+import type { DebugActions, DebugStats } from '../debug/DebugOverlay';
 
 /** Objects shared between Phaser scenes and the DOM layer. */
 export interface Services {
@@ -12,4 +12,6 @@ export interface Services {
   startRound: number;
   /** Map key from ?map=…, or null for the default map. */
   mapKey: string | null;
+  /** Set by the running game scene for the debug panel's buttons; null outside a match. */
+  debugActions: DebugActions | null;
 }

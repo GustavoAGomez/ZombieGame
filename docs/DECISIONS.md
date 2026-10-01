@@ -370,3 +370,17 @@ Registro de lo que la spec no definía (o definía de forma ambigua) y cómo se 
 - **Iconos provisionales en píxeles:** pistola, fusil automático (para la SMG), martillo, puerta, escalera, recarga y cuchillo (`src/ui/icons.ts`). Los finales llegarán más adelante.
 - **Cambio posterior:** el fusil automático (la SMG) también hace 1 unidad por bala, como la pistola: 3 balas para un zombie de la ronda 1. Se diferencian en la cadencia y el cargador.
 - **Velo de los botones redondos** (cuenta atrás del especial, progreso de la recarga): era un círculo que se aplastaba hacia abajo y dejaba ver el truco, porque al rehacer el CSS los botones perdieron el recorte. Ahora el velo es un rectángulo dentro de un contenedor recortado al círculo interior del aro (`overflow: hidden` y además `clip-path`, porque WebKit no siempre recorta a los hijos escalados). Baja como un nivel dentro del icono y el aro queda siempre visible.
+
+## Fase 8 · HUD completo (al estilo Wild Rift)
+
+- **La referencia del HUD pasa a ser Wild Rift**, por decisión del usuario. La spec 01 (§2.3, §2.4, §5 y el criterio de la Fase 8) ya describe esa disposición, en lugar del mockup A.
+- **Debug completo** (§8):
+  - además de FPS, zombies, balas, ronda y tick, el panel tiene botones para pasar a la ronda siguiente (vacía el mapa y empieza la siguiente al momento), sumar +1000 puntos y activar el modo dios (`PlayerState.godMode`: los zombies no le hacen daño);
+  - interruptores para dibujar las hitboxes (círculos del jugador y de los zombies, el cuerpo dibujado que reciben las balas, las balas) y el flow field (una flecha por casilla visible hacia su siguiente paso, y en ámbar las ventanas por las que pasa el camino);
+  - las acciones actúan directamente sobre el estado: son herramientas, no jugabilidad;
+  - el panel se mueve bajo el bloque de arriba a la izquierda para no tapar el botón de pausa.
+- **Filas reservadas:** una fila vacía bajo cada bloque superior, para estadísticas y ventajas futuras.
+- **Sin solapes en las tres pantallas de la spec**, comprobado midiendo los rectángulos del HUD en 844×390 (iPhone con Dynamic Island), 800×360 (Android 20:9) y 640×360 (Android 16:9 a 720p), con el botón de acción visible y tres textos «+N»:
+  - los «+N» pasan a la izquierda de los puntos, porque bajo el arma alargaban la columna derecha hasta el botón de acción;
+  - el botón de acción baja a 52 px y se coloca para caber entre esa columna y el botón de recargar desde 360 px de alto;
+  - recargar queda a (0, −78) del disparo.

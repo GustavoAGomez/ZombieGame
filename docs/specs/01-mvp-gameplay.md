@@ -38,20 +38,25 @@ Cada control usa Pointer Events con `setPointerCapture`. El joystick y el dispar
 - **Mientras se arrastra,** se dibuja en el mundo una **línea de puntos ámbar** desde el arma, de 120 px de mundo, en la dirección de apuntado. Es la que aparece en el mockup A.
 - **Orientación del jugador:** mientras dispara, mira hacia la dirección de apuntado; si no, hacia donde se mueve. Se cuantiza a 8 direcciones para los sprites.
 
-### 2.3 Botones encima del disparo (disposición en arco tipo Wild Rift)
+### 2.3 Botones junto al disparo y barra inferior (referencia: Wild Rift)
 
-Ambos botones miden 64 px. Sus centros se colocan de forma relativa al centro del botón de disparo.
+El HUD sigue la disposición de League of Legends: Wild Rift (decidido después de la Fase 7; ver `docs/DECISIONS.md`). Los botones son pequeños, redondos y solo llevan icono.
 
-- **Cambiar arma:** centro en `(-108, -36)`. Alterna entre los dos huecos de arma.
-- **Especial (dash):** centro en `(-32, -126)`. Muestra la recarga como un velo oscuro que baja de arriba abajo, con los segundos restantes.
+- **Junto al disparo**, solo dos botones de 48 px. Sus centros se colocan respecto al centro del botón de disparo (96 px):
+  - **Recargar:** centro en `(0, -78)`, justo encima. Recarga si falta munición en el cargador y queda reserva; si no, se ve atenuado. Muestra el progreso de la recarga como un velo que baja dentro del círculo.
+  - **Cuchillo:** centro en `(-88, -4)`, a la izquierda. Ataque cuerpo a cuerpo en cualquier momento; el jugador se gira hacia el zombie más cercano a su alcance.
+- **Barra inferior**, centrada al 55 % del ancho, como los hechizos de invocador de Wild Rift:
+  - **Huecos de arma:** uno por arma que lleve el jugador, como máximo 3, de 44 px. Cada uno lleva su icono y las balas de su cargador, y el activo se resalta en ámbar. Tocarlo cambia a esa arma (comando `selectWeapon`). No hay botón de cambiar arma.
+  - **Especial (dash):** al final de la barra, en ámbar. Muestra la recarga como un velo que baja dentro del círculo, con los segundos restantes.
 
 ### 2.4 Botón de acción contextual
 
-- **Qué es:** un chip del HUD que solo aparece cuando hay una acción disponible.
-- **Posición y tamaño:** centrado en el 55 % del ancho, con `bottom: calc(var(--pad-bottom) + 26px)`. Mide 44 px de alto como mínimo.
+- **Qué es:** un botón redondo de 52 px que solo aparece cuando hay una acción disponible.
+- **Posición:** en el borde derecho, entre el bloque de arriba a la derecha y el botón de recargar (`right: calc(var(--pad-x) + 10px)`, `bottom: calc(var(--pad-bottom) + 186px)`). Cabe sin solaparse desde pantallas de 360 CSS px de alto.
 - **Acciones:**
-  - **Reparar ventana:** mantener pulsado. El texto es `REPARAR` y a la derecha aparece `+10` en ámbar.
-  - **Abrir puerta:** un toque. El texto es `ABRIR PUERTA` con el coste en ámbar. Si no hay puntos suficientes, el chip se ve atenuado, pone `FALTAN X` y tiembla al tocarlo.
+  - **Reparar ventana:** icono de martillo y `+10` en ámbar en una etiqueta debajo. Cada toque repara un tablón; el aro parpadea para indicarlo.
+  - **Abrir puerta:** icono de puerta y el coste debajo. Si no hay puntos suficientes, el botón se ve atenuado, la etiqueta muestra lo que falta en rojo (`-X`) y tiembla al tocarlo.
+  - **Escalera o trampilla:** icono de escalera y el coste, con el mismo comportamiento que la puerta.
 
 ### 2.5 Botón de pausa
 
@@ -212,7 +217,7 @@ La referencia es un iPhone en horizontal de 844×390 CSS px. Todo se posiciona r
 - **Números y títulos:** Press Start 2P, en tamaños múltiplos de 2.
 - **Etiquetas:** Silkscreen.
 - **Sombras:** duras, `2–3px 2–3px 0 var(--ink)`, sin desenfoque.
-- **Iconos:** SVG pixel con `shape-rendering: crispEdges` (corazón, bala, cruceta, flechas de cambio de arma, rayo del especial).
+- **Iconos:** SVG pixel con `shape-rendering: crispEdges` (corazón, bala, cruceta, rayo del especial, recarga, cuchillo, pistola, fusil, martillo, puerta y escalera). Los de los botones son provisionales hasta tener los finales.
 
 **Arriba a la izquierda** (`left: var(--pad-x)`, `top: 14px`), en columna con 10 px de separación:
 
@@ -223,14 +228,15 @@ La referencia es un iPhone en horizontal de 844×390 CSS px. Todo se posiciona r
 
 - **Fila 1:** `PUNTOS` (Silkscreen 11 px, `--muted`) y el marcador (Press Start 2P 20 px).
 - **Fila 2:** nombre del arma (Silkscreen 11 px, `--muted`), icono de bala, cargador (Press Start 2P 14 px, `--amber`) y `/ reserva` (10 px, `--dim`). Durante la recarga, el cargador muestra una barra de progreso.
-- **Fila 3:** pila de textos flotantes `+N`.
+- **Textos flotantes `+N`:** en una pila a la izquierda de los puntos, fuera de la columna, para que esta no crezca hacia abajo.
 
 **Controles:**
 
-- Circulares y translúcidos, con fondo `rgba(bone, .07–.14)`, borde interior de 3 px y los tamaños de la sección 2.
+- Circulares, pequeños y translúcidos (referencia Wild Rift), con borde interior de 2 px (3 px el de disparo) y los tamaños de la sección 2.
 - **Disparo:** fondo `rgba(red, .28)` y borde `--red`. El knob se vuelve ámbar al arrastrar.
-- **Especial:** acentos en ámbar.
-- **Pulsación:** cada botón se escala a 0,94 durante 60 ms.
+- **Especial y arma activa:** acentos en ámbar.
+- **Pulsación:** cada botón se escala a 0,92 durante 60 ms.
+- **Velos de recarga:** recortados al círculo interior del aro, como un nivel que baja dentro del icono.
 
 **Actualización del DOM:** solo cuando cambia un valor, nunca en cada frame.
 
@@ -310,5 +316,5 @@ Implementa en orden. Al acabar cada fase, sigue el cierre de fase de `CLAUDE.md`
 | **5 · Barricadas** | Tablones, arrancado y reparación con el chip contextual, trepar la ventana. | Las ventanas se vacían y se reparan. El límite de puntos por reparación funciona. |
 | **6 · Puntos y puertas** | `PointsSystem`, textos flotantes, compra de puertas y desbloqueo de zonas y spawns. | Al comprar D1 se abre el pasillo y empiezan a salir zombies por W4 y W5. |
 | **7 · Rondas y flujo** | `WaveSystem` con las fórmulas y tests, cartel de ronda, descanso, título, game over, pausa (incluida la automática). | Se puede jugar de la ronda 1 a la 10. Las fórmulas tienen tests. |
-| **8 · HUD A completo** | Todo el HUD de la sección 5, respuesta de los botones al pulsarlos, estado de vida baja, overlay de debug. | El HUD coincide con el mockup A en las tres pantallas de prueba. |
+| **8 · HUD completo** | Todo el HUD de las secciones 2 y 5 con la disposición de Wild Rift, respuesta de los botones al pulsarlos, estado de vida baja, overlay de debug completo (sección 8). | El HUD sigue la sección 5 y la disposición de Wild Rift, y nada se solapa en las tres pantallas de prueba de la sección 7. |
 | **9 · Pulido nativo** | Ajustes de iOS y Android de la sección 7, vibración, pantalla siempre encendida, pantalla completa inmersiva. | Builds ejecutándose en un iPhone y un Android reales sin gestos del sistema que molesten. |
