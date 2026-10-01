@@ -25,6 +25,9 @@ Juego móvil (iOS + Android) top-down shooter pixel art de supervivencia por ole
 | `npm run cap:ios` / `npm run cap:android` | Abren el proyecto nativo (Xcode / Android Studio) |
 | `npm run assets:import` | Importa exports crudos de PixelLab (ver `docs/ASSETS.md`) |
 | `npm run assets:check` | Valida tamaños, nombres, manifiesto y paleta |
+| `npm run tiles:import` | Importa los tilesets, kits y decals de PixelLab (spec 02) |
+| `npm run map:mansion` | Genera una vez `art-src/tiled/mansion.tmj` (`--force` para regenerar) |
+| `npm run map:build` | Embebe los tilesets de `art-src/tiled/*.tmj` en `public/assets/maps/` y valida |
 
 ## Reglas de arquitectura
 

@@ -74,6 +74,12 @@ export interface TiledTileset {
   objectalignment?: string;
 }
 
+/** Reference to an external tileset (.tsj), as Tiled writes it while editing. */
+export interface TiledTilesetRef {
+  firstgid: number;
+  source: string;
+}
+
 export interface TiledMap {
   type: 'map';
   version: string;
@@ -91,8 +97,11 @@ export interface TiledMap {
   tilesets: TiledTileset[];
 }
 
+/** A map as edited in Tiled: tilesets may still be external (map:build embeds them). */
+export type TiledSourceMap = Omit<TiledMap, 'tilesets'> & { tilesets: (TiledTileset | TiledTilesetRef)[] };
+
 /** Object kinds in the `objects` layer (docs/ASSETS.md §5). */
-export const OBJECT_TYPES = ['zone', 'player_spawn', 'window', 'zombie_spawn', 'door'] as const;
+export const OBJECT_TYPES = ['zone', 'player_spawn', 'window', 'zombie_spawn', 'door', 'portal'] as const;
 export type ObjectType = (typeof OBJECT_TYPES)[number];
 
 export const LAYER_NAMES = { floor: 'floor', walls: 'walls', decor: 'decor', decals: 'decals', objects: 'objects' } as const;

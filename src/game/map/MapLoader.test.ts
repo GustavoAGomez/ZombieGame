@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { buildRoom01Map } from '../../../scripts/gen-placeholder-map';
 import { MapParseError, TILE_COLLIDES, parseMap } from './MapLoader';
-import type { TiledMap, TiledObjectLayer } from './tiled';
+import type { TiledMap, TiledObjectLayer, TiledProperty } from './tiled';
 
 const clone = (): TiledMap => structuredClone(buildRoom01Map());
 
@@ -106,5 +106,92 @@ describe('parseMap validation', () => {
 
   it('rejects non-map JSON', () => {
     expect(() => parseMap({ foo: 1 })).toThrow(MapParseError);
+  });
+});
+
+describe('parseMap: zones flags, fences, open spawns and portals (spec 02)', () => {
+  const objectsOf = (raw: TiledMap): TiledObjectLayer['objects'] =>
+    (raw.layers.find((l) => l.name === 'objects') as TiledObjectLayer).objects;
+  const prop = (name: string, value: string | number | boolean): TiledProperty => ({
+    name,
+    type: typeof value === 'boolean' ? 'bool' : typeof value === 'number' ? 'int' : 'string',
+    value,
+  });
+  const portal = (id: string, pair: string, zone: string, x: number, y: number, extra: TiledProperty[] = []) => ({
+    id: 900 + x,
+    name: id,
+    type: 'portal',
+    x: x * 32,
+    y: y * 32,
+    width: 64,
+    height: 32,
+    rotation: 0,
+    visible: true,
+    properties: [prop('id', id), prop('pair', pair), prop('cost', 1000), prop('zone', zone), ...extra],
+  });
+
+  it('defaults the new properties for older maps', () => {
+    const map = parseMap(buildRoom01Map());
+    expect(map.zones.every((z) => !z.interior && !z.openSpawns)).toBe(true);
+    expect(map.windows.every((w) => w.kind === 'window')).toBe(true);
+    expect(map.openSpawns).toEqual([]);
+    expect(map.portals).toEqual([]);
+    expect(map.portalLinks).toBe(0);
+  });
+
+  it('reads interior, openSpawns and fence windows', () => {
+    const raw = clone();
+    const objects = objectsOf(raw);
+    objects.find((o) => o.name === 'inicio')?.properties?.push(prop('interior', true), prop('openSpawns', true));
+    objects.find((o) => o.name === 'W1')?.properties?.push(prop('kind', 'fence'));
+    const map = parseMap(raw);
+    expect(map.zones[0]).toMatchObject({ interior: true, openSpawns: true });
+    expect(map.windows[0]?.kind).toBe('fence');
+  });
+
+  it('rejects unknown window kinds', () => {
+    const raw = clone();
+    objectsOf(raw).find((o) => o.name === 'W1')?.properties?.push(prop('kind', 'door'));
+    expect(() => parseMap(raw)).toThrow(/unknown kind "door"/);
+  });
+
+  it('turns a zombie_spawn without window into an open spawn of its zone', () => {
+    const raw = clone();
+    const objects = objectsOf(raw);
+    objects.find((o) => o.name === 'pasillo')?.properties?.push(prop('openSpawns', true));
+    const open = { id: 800, name: 'O1', type: 'zombie_spawn', point: true, x: 8 * 32, y: 16 * 32, width: 0, height: 0, rotation: 0, visible: true };
+    objects.push(open);
+    expect(parseMap(raw).openSpawns).toEqual([{ x: 8 * 32, y: 16 * 32, zoneIndex: 1 }]);
+    open.x = 8 * 32;
+    open.y = 6 * 32; // inicio has no openSpawns
+    expect(() => parseMap(raw)).toThrow(/openSpawns/);
+  });
+
+  it('pairs portal ends, shares the link and arrives at the other centre', () => {
+    const raw = clone();
+    objectsOf(raw).push(
+      portal('Aa', 'Ab', 'inicio', 5, 5, [prop('kind', 'hatch'), prop('secondary', true)]),
+      portal('Ab', 'Aa', 'almacen', 22, 20),
+    );
+    const map = parseMap(raw);
+    const [a, b] = map.portals;
+    expect(map.portalLinks).toBe(1);
+    expect(a).toMatchObject({ id: 'Aa', other: 1, link: 0, zone: 'inicio', kind: 'hatch', secondary: true, cost: 1000 });
+    expect(b).toMatchObject({ id: 'Ab', other: 0, link: 0, kind: 'stairs', secondary: false });
+    expect(a?.tiles).toEqual([
+      { x: 5, y: 5 },
+      { x: 6, y: 5 },
+    ]);
+    expect(a?.arrival).toEqual(b?.center);
+    expect(b?.arrival).toEqual({ x: 6 * 32, y: 5.5 * 32 });
+  });
+
+  it('rejects portals without a reciprocal pair', () => {
+    const raw = clone();
+    objectsOf(raw).push(portal('Aa', 'Ab', 'inicio', 5, 5), portal('Ab', 'Ac', 'almacen', 22, 20), portal('Ac', 'Ab', 'pasillo', 6, 15));
+    expect(() => parseMap(raw)).toThrow(/must reference each other/);
+    const lonely = clone();
+    objectsOf(lonely).push(portal('Aa', 'Zz', 'inicio', 5, 5));
+    expect(() => parseMap(lonely)).toThrow(/unknown pair "Zz"/);
   });
 });

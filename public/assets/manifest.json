@@ -342,6 +342,7 @@
     }
   },
   "maps": {
-    "room01": "maps/room01.tmj"
+    "room01": "maps/room01.tmj",
+    "mansion": "maps/mansion.tmj"
   }
 }

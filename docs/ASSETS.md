@@ -89,7 +89,7 @@ public/assets/
 
 ## 5. Mapas (Tiled JSON, `.tmj`)
 
-Los tilesets deben ir **embebidos** en el `.tmj`.
+Los tilesets deben ir **embebidos** en el `.tmj` que carga el juego (`public/assets/maps/`). Los mapas que se editan en Tiled viven en `art-src/tiled/` con tilesets externos y `npm run map:build` los embebe (ver §7).
 
 **Capas, con estos nombres exactos:**
 
@@ -98,17 +98,19 @@ Los tilesets deben ir **embebidos** en el `.tmj`.
 | `floor` | tiles | suelo |
 | `walls` | tiles | paredes; cada tile con la propiedad `collides: true` |
 | `decor` | tiles | decoración sin colisión (opcional) |
+| `decals` | objetos | *tile objects* sin colisión, en cualquier posición (opcional) |
 | `objects` | objetos | ver la tabla siguiente |
 
 **Objetos de la capa `objects`** (campo `type`/`class` y sus propiedades):
 
 | Tipo | Forma | Propiedades |
 |---|---|---|
-| `zone` | rectángulo | `id` (string), `name`, `startsUnlocked` (bool) |
+| `zone` | rectángulo | `id` (string), `name`, `startsUnlocked` (bool), `interior` (bool), `openSpawns` (bool) |
 | `player_spawn` | punto | — |
-| `window` | rectángulo de 1 tile | `id`, `zone`, `planks` (int, 5 por defecto) |
-| `zombie_spawn` | punto | `window` (id de la ventana a la que va) |
+| `window` | rectángulo de 1 tile | `id`, `zone`, `planks` (int, 5 por defecto), `kind` (`window` o `fence`) |
+| `zombie_spawn` | punto | `window` (id de la ventana a la que va); sin `window` es un spawn abierto y debe caer en una zona con `openSpawns` |
 | `door` | rectángulo (1–2 tiles) | `id`, `cost` (int), `fromZone`, `toZone` |
+| `portal` | rectángulo (1–2 tiles) | `id`, `pair` (id del otro extremo), `cost`, `zone`, `secondary` (bool), `kind` (`stairs`, `ladder` o `hatch`) |
 
 ## 6. Importar desde PixelLab (`npm run assets:import`)
 
@@ -164,3 +166,16 @@ Los exports están en `art-src/pixellab/<grupo>/<grupo>.png`, con un `README.md`
   - `zombie_spawn` sin `window` para spawns abiertos.
   - Zonas con `interior` y `openSpawns`.
 - **Tilesets externos:** se usan para editar en Tiled (`.tsj`); el mapa que carga el juego los lleva embebidos (`npm run map:build`).
+
+### Flujo del mapa de la mansión
+
+```
+npm run tiles:import    art-src/pixellab/ → public/assets/tiles/*.png + art-src/tiled/tilesets/*.tsj
+npm run map:mansion     genera art-src/tiled/mansion.tmj UNA vez (no sobrescribe; --force para regenerar y perder retoques)
+(Tiled)                 se retoca art-src/tiled/mansion.tmj
+npm run map:build       embebe los tilesets → public/assets/maps/mansion.tmj, pasa el validador y lo registra en el manifiesto
+```
+
+- `map:build` no escribe el mapa del juego si el validador falla, y lista los errores (zonas, barricadas, costes, salidas, alcanzabilidad, portales…).
+- `assets:check` (y por tanto `npm run build`) pasa el mismo validador a los mapas que tienen fuente en `art-src/tiled/` y avisa si la fuente es más reciente que el mapa del juego.
+- En el juego, `?map=mansion` carga la mansión (`room01` sigue siendo el mapa por defecto hasta la Fase M7).

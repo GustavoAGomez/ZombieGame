@@ -158,3 +158,23 @@ Registro de lo que la spec no definía (o definía de forma ambigua) y cómo se 
 - **Agua y vacío** bloquean a jugador y zombies pero dejan pasar balas y visión, igual que una ventana (`BLOCK_BODIES`). Una casilla sin suelo bloquea al jugador como red de seguridad.
 - **Paredes y tiles que no miden 32×32** (paredes 3/4 de 32×48, por ejemplo) se pintan como imágenes ancladas abajo a la izquierda de su casilla, con la profundidad de un actor situado en el borde inferior de la casilla. Así el jugador queda detrás de la pared cuando está encima de ella y delante cuando está debajo. Los tiles de 32×32 de suelo y decoración siguen en capas de tilemap.
 - **`?map=<clave>`** elige el mapa del manifiesto. Si la clave no existe se avisa por consola y se usa `room01`.
+
+## Spec 02 · Fase M3 (generador, build y validador)
+
+- **Paredes por vecinas:** cada casilla de pared elige pieza según sus vecinas (las puertas y ventanas cuentan como pared para no cortar el trazo):
+  - con vecina a izquierda o derecha, cara horizontal (pieza 1);
+  - si además baja una barra desde arriba, la cara alta (pieza 12), para que la barra empalme sin hueco;
+  - solo vecinas arriba o abajo, barra vertical centrada (pieza 17);
+  - sin vecinas, pilar (pieza 6).
+- **Las piezas 7, 8, 18 y 19 no son esquinas, son marcos de puerta:** al verlas colocadas, el dintel con su jamba forma un hueco de unos 46 px entre dos piezas. No se usan todavía; quedan para dibujar los marcos de las puertas en Tiled.
+- **Suelo oscuro bajo las paredes** (`map_special`, id 1): la colisión ocupa la casilla entera y las barras verticales solo miden 12 px. Con el suelo de la habitación debajo, el jugador se paraba a 10 px de la barra sin entender por qué; con la franja oscura se lee toda la casilla como pared.
+- **Una variante de suelo por habitación:** las cuatro variantes de cada material de `floors_interior` son muy distintas (madera oscura, clara, manchada y rojiza) y mezcladas al azar formaban un damero. Cada habitación usa una sola (columna fija en el generador). Se pueden repintar en Tiled.
+- **Exterior sin suelo:** fuera de la casa, de la calle y de las islas no hay tiles. El jugador no puede salir de las zonas (sin suelo bloquea al jugador) y los zombies de ventana caminan hacia su ventana sin consultar la rejilla, como en `room01`. No se usa el "exterior oscuro" de `map_special` como suelo, porque es transitable y abriría paso alrededor de la casa.
+- **Terrenos Wang a partir de los vértices:** el generador decide el terreno de cada vértice de la rejilla y busca el tile con esas 4 esquinas en el wangset del `.tsj`, así que pinta las mismas transiciones que la brocha de terrenos de Tiled. Agua en los vértices x 25–39, y 8–10: los tiles con 2 o más esquinas de agua quedan en 24–39 × 7–10 salvo las 4 esquinas, que se pisan.
+- **Patio:** franja de 2 filas junto a la fachada trasera (filas 13–14) con la transición en la fila 12; el resto del jardín es césped.
+- **Coche, estanterías, pilares y chimeneas** se dibujan con piezas de pared de su kit hasta que tengan arte propio.
+- **Decals:** 14 en el asfalto y 18 en el césped (fuera de la piscina), en posiciones pseudoaleatorias con semilla fija; el generador es determinista.
+- **Ids de portal:** cada extremo es `P1a`/`P1b`… y `pair` apunta al otro. Propiedad nueva `kind` (`stairs`, `ladder`, `hatch`) para el texto del chip.
+- **El validador comprueba la alcanzabilidad casilla a casilla** (rejilla de colisión con todas las puertas abiertas y saltos entre los extremos de cada portal), no solo el grafo de zonas: detecta una puerta mal colocada que no conecta. También comprueba que cada puerta toca sus dos zonas y que los portales quedan dentro de la suya.
+- **`npm run build` ejecuta antes `assets:check`** (`prebuild`), así un mapa con tilesets externos o que no pasa el validador no llega al build.
+- **`room01` no pasa por el validador** (tiene 3 zonas): solo se validan los mapas con fuente en `art-src/tiled/`.

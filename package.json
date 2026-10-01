@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
+    "prebuild": "npm run assets:check",
     "build": "vite build",
     "preview": "vite preview --host",
     "typecheck": "tsc --noEmit",
@@ -17,7 +18,9 @@
     "map:gen": "tsx scripts/gen-placeholder-map.ts",
     "assets:import": "tsx scripts/import-pixellab.ts",
     "assets:check": "tsx scripts/check-assets.ts",
-    "tiles:import": "tsx scripts/import-tiles.ts"
+    "tiles:import": "tsx scripts/import-tiles.ts",
+    "map:mansion": "tsx scripts/gen-mansion-map.ts",
+    "map:build": "tsx scripts/build-map.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",

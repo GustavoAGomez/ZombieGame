@@ -51,6 +51,10 @@ export interface MapZone {
   id: string;
   name: string;
   startsUnlocked: boolean;
+  /** Indoor room: needs at least two barricades (map validator). */
+  interior: boolean;
+  /** Zombies may also appear at open spawns inside this zone (street, roof). */
+  openSpawns: boolean;
   /** Rectangle in world px. */
   x: number;
   y: number;
@@ -61,8 +65,12 @@ export interface MapZone {
 /** A wall runs horizontally (top/bottom wall) or vertically (left/right). */
 export type WallAxis = 'horizontal' | 'vertical';
 
+/** A barricade in a house wall or a gap in the garden fence: same mechanics, different art. */
+export type WindowKind = 'window' | 'fence';
+
 export interface MapWindow {
   id: string;
+  kind: WindowKind;
   zone: string;
   /** Index into MapData.zones. */
   zoneIndex: number;
@@ -106,6 +114,42 @@ export interface MapZombieSpawn {
   windowIndex: number;
 }
 
+/** A zombie_spawn without a window: zombies appear right there (spec 02 §3.4). */
+export interface MapOpenSpawn {
+  x: number;
+  y: number;
+  zoneIndex: number;
+}
+
+/** Stairs and ladders show "ABRIR ESCALERA"; the hatch shows "ABRIR TRAMPILLA". */
+export type PortalKind = 'stairs' | 'ladder' | 'hatch';
+export const PORTAL_KINDS: readonly PortalKind[] = ['stairs', 'ladder', 'hatch'];
+
+/** One end of a portal: stepping in takes you to the other end (spec 02 §3.6). */
+export interface MapPortal {
+  id: string;
+  pairId: string;
+  /** Index of the other end in MapData.portals. */
+  other: number;
+  /** Shared by both ends: index into GameState.portalsOpen. */
+  link: number;
+  cost: number;
+  zone: string;
+  zoneIndex: number;
+  /** Second entrance to an island: only buyable once the island is unlocked. */
+  secondary: boolean;
+  kind: PortalKind;
+  /** Rectangle in world px. */
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  center: Vec2;
+  tiles: Vec2[];
+  /** Where travellers appear: the centre of the other end. */
+  arrival: Vec2;
+}
+
 export interface MapData {
   /** Size in tiles. */
   width: number;
@@ -126,6 +170,10 @@ export interface MapData {
   windows: MapWindow[];
   doors: MapDoor[];
   zombieSpawns: MapZombieSpawn[];
+  openSpawns: MapOpenSpawn[];
+  portals: MapPortal[];
+  /** Number of portal pairs (length of GameState.portalsOpen). */
+  portalLinks: number;
   playerSpawn: Vec2;
   /** Zone index per cell (row-major), -1 outside every zone. */
   cellZone: Int16Array;
@@ -249,6 +297,25 @@ function axisOf(outward: Vec2): WallAxis {
   return outward.y !== 0 ? 'horizontal' : 'vertical';
 }
 
+interface TileRect {
+  x0: number;
+  y0: number;
+  x1: number;
+  y1: number;
+  tiles: Vec2[];
+}
+
+/** Tiles covered by a rectangle object (at least one). */
+function rectTiles(obj: TiledObject, tileSize: number): TileRect {
+  const x0 = Math.round(obj.x / tileSize);
+  const y0 = Math.round(obj.y / tileSize);
+  const x1 = Math.max(x0 + 1, Math.round((obj.x + obj.width) / tileSize));
+  const y1 = Math.max(y0 + 1, Math.round((obj.y + obj.height) / tileSize));
+  const tiles: Vec2[] = [];
+  for (let ty = y0; ty < y1; ty++) for (let tx = x0; tx < x1; tx++) tiles.push({ x: tx, y: ty });
+  return { x0, y0, x1, y1, tiles };
+}
+
 export function parseMap(json: unknown): MapData {
   if (!isRecord(json) || json.type !== 'map') fail('Not a Tiled map (.tmj)');
   const map = json as unknown as TiledMap;
@@ -274,6 +341,8 @@ export function parseMap(json: unknown): MapData {
   const rawWindows: TiledObject[] = [];
   const rawDoors: TiledObject[] = [];
   const zombieSpawns: MapZombieSpawn[] = [];
+  const rawOpenSpawns: TiledObject[] = [];
+  const rawPortals: TiledObject[] = [];
   let playerSpawn: Vec2 | undefined;
 
   for (const obj of objects) {
@@ -283,6 +352,8 @@ export function parseMap(json: unknown): MapData {
           id: stringProp(obj, 'id'),
           name: stringProp(obj, 'name', false) || obj.name,
           startsUnlocked: boolProp(obj, 'startsUnlocked', false),
+          interior: boolProp(obj, 'interior', false),
+          openSpawns: boolProp(obj, 'openSpawns', false),
           x: obj.x,
           y: obj.y,
           width: obj.width,
@@ -295,11 +366,17 @@ export function parseMap(json: unknown): MapData {
       case 'window':
         rawWindows.push(obj);
         break;
-      case 'zombie_spawn':
-        zombieSpawns.push({ x: obj.x, y: obj.y, window: stringProp(obj, 'window'), windowIndex: -1 });
+      case 'zombie_spawn': {
+        const window = stringProp(obj, 'window', false);
+        if (window) zombieSpawns.push({ x: obj.x, y: obj.y, window, windowIndex: -1 });
+        else rawOpenSpawns.push(obj);
         break;
+      }
       case 'door':
         rawDoors.push(obj);
+        break;
+      case 'portal':
+        rawPortals.push(obj);
         break;
       default:
         // Unknown objects are ignored so designers can annotate maps freely.
@@ -330,6 +407,8 @@ export function parseMap(json: unknown): MapData {
     const id = stringProp(obj, 'id');
     const zone = stringProp(obj, 'zone');
     if (!zoneIds.has(zone)) fail(`Window ${id} references unknown zone "${zone}"`);
+    const kind = stringProp(obj, 'kind', false) || 'window';
+    if (kind !== 'window' && kind !== 'fence') fail(`Window ${id} has unknown kind "${kind}" (window | fence)`);
     const tileX = Math.floor((obj.x + obj.width / 2) / tileSize);
     const tileY = Math.floor((obj.y + obj.height / 2) / tileSize);
     const center = { x: (tileX + 0.5) * tileSize, y: (tileY + 0.5) * tileSize };
@@ -351,6 +430,7 @@ export function parseMap(json: unknown): MapData {
 
     return {
       id,
+      kind,
       zone,
       zoneIndex: zones.findIndex((z) => z.id === zone),
       planks: numberProp(obj, 'planks', BARRICADES.planksPerWindow),
@@ -377,12 +457,7 @@ export function parseMap(json: unknown): MapData {
     const toZone = stringProp(obj, 'toZone');
     if (!zoneIds.has(fromZone)) fail(`Door ${id} references unknown zone "${fromZone}"`);
     if (!zoneIds.has(toZone)) fail(`Door ${id} references unknown zone "${toZone}"`);
-    const tiles: Vec2[] = [];
-    const x0 = Math.round(obj.x / tileSize);
-    const y0 = Math.round(obj.y / tileSize);
-    const x1 = Math.max(x0 + 1, Math.round((obj.x + obj.width) / tileSize));
-    const y1 = Math.max(y0 + 1, Math.round((obj.y + obj.height) / tileSize));
-    for (let ty = y0; ty < y1; ty++) for (let tx = x0; tx < x1; tx++) tiles.push({ x: tx, y: ty });
+    const { x0, y0, x1, y1, tiles } = rectTiles(obj, tileSize);
     const first = tiles[0] ?? { x: x0, y: y0 };
     let axis: WallAxis;
     if (x1 - x0 !== y1 - y0) axis = x1 - x0 > y1 - y0 ? 'horizontal' : 'vertical';
@@ -406,6 +481,20 @@ export function parseMap(json: unknown): MapData {
 
   if (new Set(doors.map((d) => d.id)).size !== doors.length) fail('Door ids must be unique');
 
+  const zoneAt = (x: number, y: number): number => {
+    const tx = Math.floor(x / tileSize);
+    const ty = Math.floor(y / tileSize);
+    return tx >= 0 && ty >= 0 && tx < width && ty < height ? (cellZone[ty * width + tx] ?? -1) : -1;
+  };
+  const openSpawns: MapOpenSpawn[] = rawOpenSpawns.map((obj) => {
+    const zoneIndex = zoneAt(obj.x, obj.y);
+    const zone = zones[zoneIndex];
+    if (!zone?.openSpawns) fail(`Open zombie_spawn ${obj.id} must lie in a zone with openSpawns = true`);
+    return { x: obj.x, y: obj.y, zoneIndex };
+  });
+
+  const portals = parsePortals(rawPortals, zones, tileSize);
+
   return {
     width,
     height,
@@ -422,7 +511,56 @@ export function parseMap(json: unknown): MapData {
     windows,
     doors,
     zombieSpawns,
+    openSpawns,
+    portals,
+    portalLinks: portals.reduce((n, p) => Math.max(n, p.link + 1), 0),
     playerSpawn,
     cellZone,
   };
+}
+
+function parsePortals(raw: readonly TiledObject[], zones: readonly MapZone[], tileSize: number): MapPortal[] {
+  const portals: MapPortal[] = raw.map((obj) => {
+    const id = stringProp(obj, 'id');
+    const zone = stringProp(obj, 'zone');
+    const zoneIndex = zones.findIndex((z) => z.id === zone);
+    if (zoneIndex < 0) fail(`Portal ${id} references unknown zone "${zone}"`);
+    const kind = stringProp(obj, 'kind', false) || 'stairs';
+    if (!PORTAL_KINDS.includes(kind as PortalKind)) fail(`Portal ${id} has unknown kind "${kind}" (${PORTAL_KINDS.join(' | ')})`);
+    const { x0, y0, x1, y1, tiles } = rectTiles(obj, tileSize);
+    const center = { x: ((x0 + x1) / 2) * tileSize, y: ((y0 + y1) / 2) * tileSize };
+    return {
+      id,
+      pairId: stringProp(obj, 'pair'),
+      other: -1,
+      link: -1,
+      cost: numberProp(obj, 'cost'),
+      zone,
+      zoneIndex,
+      secondary: boolProp(obj, 'secondary', false),
+      kind: kind as PortalKind,
+      x: x0 * tileSize,
+      y: y0 * tileSize,
+      width: (x1 - x0) * tileSize,
+      height: (y1 - y0) * tileSize,
+      center,
+      tiles,
+      arrival: center,
+    };
+  });
+  if (new Set(portals.map((p) => p.id)).size !== portals.length) fail('Portal ids must be unique');
+  let links = 0;
+  portals.forEach((portal, i) => {
+    const other = portals.findIndex((p) => p.id === portal.pairId);
+    if (other < 0 || other === i) fail(`Portal ${portal.id} references unknown pair "${portal.pairId}"`);
+    const back = portals[other];
+    if (back?.pairId !== portal.id) fail(`Portals ${portal.id} and ${portal.pairId} must reference each other`);
+    portal.other = other;
+    portal.arrival = back.center;
+    if (portal.link < 0) {
+      portal.link = links;
+      back.link = links++;
+    }
+  });
+  return portals;
 }

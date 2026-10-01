@@ -2,15 +2,17 @@
  * npm run assets:check — validates public/assets against docs/ASSETS.md:
  * manifest shape, file paths and names, sheet sizes (multiples of the
  * frame), minimum animations, transparent background, palette, and that
- * every map has the required layers and objects.
+ * every map has the required layers and objects. Maps edited in Tiled
+ * (art-src/tiled/<map>.tmj) also go through the map validator.
  */
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { PLAYER, ZOMBIES } from '../src/config/balance';
 import { REQUIRED_ANIMATIONS, REQUIRED_OBJECTS, isAnimationPlaceholder, parseManifest, type Manifest } from '../src/game/assets/manifest';
 import { parseMap } from '../src/game/map/MapLoader';
 import { colorsOutsidePalette, decodePng, parsePaletteHex, readPngInfo } from './lib/png';
+import { validateMap } from './lib/validate-map';
 
 export interface CheckReport {
   errors: string[];
@@ -176,8 +178,17 @@ export function checkAssets(root: string): CheckReport {
       report.errors.push(`maps.${key}: no existe ${file}`);
       continue;
     }
+    const source = resolve(root, 'art-src/tiled', `${key}.tmj`);
+    if (existsSync(source) && statSync(source).mtimeMs > statSync(path).mtimeMs) {
+      report.warnings.push(`maps.${key}: art-src/tiled/${key}.tmj es más reciente que ${file}; ejecuta npm run map:build`);
+    }
     try {
-      const map = parseMap(JSON.parse(readFileSync(path, 'utf8')));
+      const raw: unknown = JSON.parse(readFileSync(path, 'utf8'));
+      const map = parseMap(raw);
+      // Full game maps (they have a Tiled source) must pass the design rules; room01 is a test map.
+      if (existsSync(source)) {
+        for (const e of validateMap(raw as Parameters<typeof validateMap>[0]).errors) report.errors.push(`maps.${key}: ${e}`);
+      }
       for (const t of map.tilesets) {
         if (!manifest.tilesets[t.name]) report.errors.push(`maps.${key}: usa el tileset "${t.name}", que no está en el manifiesto`);
       }
@@ -187,7 +198,8 @@ export function checkAssets(root: string): CheckReport {
         if (!map.zombieSpawns.some((s) => s.window === w.id)) report.errors.push(`maps.${key}: la ventana ${w.id} no tiene zombie_spawn`);
       }
       report.info.push(
-        `maps.${key}: ${map.width}×${map.height} tiles, ${map.zones.length} zonas, ${map.windows.length} ventanas, ${map.doors.length} puertas.`,
+        `maps.${key}: ${map.width}×${map.height} tiles, ${map.zones.length} zonas, ${map.windows.length} ventanas, ` +
+          `${map.doors.length} puertas, ${map.portals.length / 2} portales, ${map.openSpawns.length} spawns abiertos.`,
       );
     } catch (err) {
       report.errors.push(`maps.${key}: ${(err as Error).message}`);
