@@ -144,3 +144,23 @@ Detectado con el primer export (jugador, septiembre de 2026):
 - **Animaciones incompletas:** una animación a la que le faltan direcciones (por ejemplo, `Walking` solo con `south`) se omite con un aviso.
 - **Animaciones:** se aceptan como `{ <dirección>: [rutas] }` o `{ <dirección>: { frames: [rutas] } }`. Los nombres se normalizan al vocabulario del manifiesto (`Running`/`Walking` → `walk`, que es el bucle de movimiento; si llegan las dos completas, gana `Running` porque el jugador corre; `Shoot…` → `shoot`, `Bite`/`Attack` → `attack`, `Dash`/`Roll` → `dash`, `Death`/`Dying` → `death`, `Climb` → `climb`); el resto pasa a `snake_case`. Si un export trae otra estructura, el importador avisa y muestra un extracto.
 - **Qué hace el importador:** construye un sheet por animación (fila por dirección, columna por frame), alinea cada frame por el `anchor` del manifiesto si el lienzo no mide lo declarado, fuerza el alfa a 0/255, cuantiza a `palette.hex` si existe (si no, avisa) y actualiza el manifiesto (`frames`, `directions`, `placeholder`). Conserva `fps` y `loop` si ya estaban declarados.
+
+## 7. Tiles, kits y decals del mapa definitivo (spec 02)
+
+Formato detectado en las imágenes recibidas el 1 de octubre de 2026 (copias en `art-src/reference/mansion/`). Parecen **vistas previas** de PixelLab, no exports: el importador `tiles:import` se escribirá contra el export real, como pasó con el jugador. Detalle completo en `docs/specs/02-mapa-mansion.md` §1.
+
+| Tipo | Lo recibido | Formato final que necesita el juego |
+|---|---|---|
+| Tiles sueltos (suelos interiores) | Lámina 4×4 de celdas de **48×48** con 1 px de separación; una fila por material (madera, linóleo, baño, hormigón) | Tiles de **32×32**, en lámina sin separaciones |
+| Wang de 16 esquinas | Lámina 4×4 de celdas de **32×18** con 1 px de separación (suelo aplastado en perspectiva) | 16 tiles de **32×32** |
+| Kits Building | Lámina de 4×5 celdas de 53×48 con 20 piezas de hasta 32×37 (paredes en 3/4); los cuatro kits comparten silueta | Una lámina por kit con celdas de **32×48** y las piezas alineadas abajo |
+| Decals | Lámina 4×4 de celdas de 48×48 con transparencia | Puede quedarse en 48×48: se colocan como objetos libres |
+
+- **Orden de las 16 esquinas** (medido en cubierta→agua y acera→asfalto): el tile de índice *i* tiene en sus esquinas los bits de *i* = NO·8 + NE·4 + SO·2 + SE·1. Terreno 0 = el oscuro (agua, asfalto); terreno 1 = el claro (cubierta, acera).
+- **Patio→césped** no es un Wang completo en la imagen recibida: solo 6 combinaciones de esquinas distintas.
+- **Propiedades de tile previstas** (pendientes de implementar): `collides` (ya existe), `water` (bloquea cuerpos, no balas), `void` (vacío no transitable), `material`, `piece` (papel de la pieza de un kit).
+- **Objetos previstos en la capa `objects`** (pendientes de implementar):
+  - `portal`: rectángulo de 1–2 tiles con `id`, `pair`, `cost` y `zone`.
+  - `window` con `kind: "fence"` para huecos de valla.
+  - `zombie_spawn` sin `window` para spawns abiertos.
+  - Zonas con `interior` y `openSpawns`.
