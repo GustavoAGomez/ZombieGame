@@ -1,4 +1,5 @@
 import type Phaser from 'phaser';
+import { ZOMBIES } from '../../config/balance';
 import { COLORS } from '../../config/theme';
 import { propColor, shade } from './propColors';
 import { TILE_COLLIDES, TILE_VOID, TILE_WATER, type MapTileset } from '../map/MapLoader';
@@ -140,16 +141,20 @@ export function createCharacterPlaceholder(
       const [dx, dy] = DIR_OFFSETS[names[row] ?? 'south'] ?? [0, 1];
       const [fx, fy, alpha] = frameOffset(animation, col, dx, dy);
       ctx.globalAlpha = alpha;
-      // The 14×14 body stands on the anchor (the feet / hitbox centre), like
-      // the final 3/4 art, so bullets drawn at gun height cross it.
-      const x = ox + anchorX - BODY_SIZE / 2 + fx;
-      const y = oy + anchorY - BODY_SIZE + fy;
-      rect(ctx, 'rgba(15,14,12,0.5)', x, y + BODY_SIZE, BODY_SIZE, 1);
-      if (look.outline) rect(ctx, look.outline, x - 1, y - 1, BODY_SIZE + 2, BODY_SIZE + 2);
-      rect(ctx, look.body, x, y, BODY_SIZE, BODY_SIZE);
-      rect(ctx, look.shade, x, y + BODY_SIZE - 3, BODY_SIZE, 3);
-      const cx = x + BODY_SIZE / 2;
-      const cy = y + BODY_SIZE / 2;
+      // The body stands on the anchor (the feet), like the final 3/4 art. A
+      // zombie is drawn exactly as big as the body bullets hit (ZOMBIES.hurtbox,
+      // outline included); the player keeps the small square.
+      const bodyW = look.mark === 'eyes' ? ZOMBIES.hurtbox.width - 2 : BODY_SIZE;
+      const bodyH = look.mark === 'eyes' ? ZOMBIES.hurtbox.height - 2 : BODY_SIZE;
+      const x = ox + anchorX - bodyW / 2 + fx;
+      const y = oy + anchorY - bodyH - 1 + fy;
+      rect(ctx, 'rgba(15,14,12,0.5)', x, y + bodyH + 1, bodyW, 1);
+      if (look.outline) rect(ctx, look.outline, x - 1, y - 1, bodyW + 2, bodyH + 2);
+      rect(ctx, look.body, x, y, bodyW, bodyH);
+      rect(ctx, look.shade, x, y + bodyH - 3, bodyW, 3);
+      const cx = x + bodyW / 2;
+      // Eyes go on the head: the top of a tall body.
+      const cy = look.mark === 'eyes' ? y + 6 : y + bodyH / 2;
       if (look.mark === 'notch') {
         // Notch on the edge (or corner) the character faces.
         rect(ctx, PLACEHOLDER_COLORS.playerNotch, cx + dx * 5 - 2, cy + dy * 5 - 2, 4, 4);

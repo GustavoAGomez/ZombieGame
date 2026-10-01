@@ -1,7 +1,9 @@
 import type Phaser from 'phaser';
+import { COLORS } from '../../config/theme';
 import type { GameState } from '../../core/GameState';
 import { ASSET_KEYS, objectTextureKey, tilesetTextureKey } from '../assets/manifest';
 import { DEPTH, actorDepth } from '../depth';
+import { fogEdges, fogOwners } from './fog';
 import { tilesetForGid, type MapData, type MapTileset } from './MapLoader';
 
 /**
@@ -19,8 +21,18 @@ export class MapView {
   private readonly shownPlanks: number[] = [];
   private readonly shownDoorsOpen: boolean[] = [];
   private readonly shownPortalsOpen: boolean[] = [];
+  /** Darkness over each zone until it is unlocked (what lies behind a closed door stays unknown). */
+  private readonly fog: Phaser.GameObjects.Graphics[] = [];
+  private readonly fogShown: boolean[] = [];
+  /** Darkness over the borders (walls, doors, fences, land outside) of zones that are all locked. */
+  private edgeFog!: Phaser.GameObjects.Graphics;
+  private edgeMasks!: Int32Array;
+  private unlockedMask = -1;
 
-  constructor(scene: Phaser.Scene, private readonly map: MapData) {
+  constructor(
+    private readonly scene: Phaser.Scene,
+    private readonly map: MapData,
+  ) {
     const ts = map.tileSize;
     const tilemap = scene.make.tilemap({ width: map.width, height: map.height, tileWidth: ts, tileHeight: ts });
     const gridTilesets: Phaser.Tilemaps.Tileset[] = [];
@@ -91,6 +103,42 @@ export class MapView {
       this.portalSprites.push(sprites);
       this.shownPortalsOpen.push(false);
     }
+
+    this.buildFog();
+  }
+
+  /**
+   * One dark layer per zone, the colour of the void: its floor plus the walls
+   * and obstacles inside it (partitions, pillars), so the layout of a locked
+   * room cannot be guessed. Walls on its border, doors and windows stay
+   * visible.
+   */
+  private buildFog(): void {
+    const { width, height, tileSize: ts } = this.map;
+    const owner = fogOwners(this.map);
+    this.edgeMasks = fogEdges(this.map, owner);
+    this.edgeFog = this.scene.add.graphics().setDepth(DEPTH.fog);
+    const ink = Number.parseInt(COLORS.ink.slice(1), 16);
+    this.map.zones.forEach((_, zi) => {
+      const g = this.scene.add.graphics().setDepth(DEPTH.fog);
+      g.fillStyle(ink, 1);
+      for (let y = 0; y < height; y++) {
+        // Runs of cells on the row, one rectangle each.
+        let x = 0;
+        while (x < width) {
+          if (owner[y * width + x] !== zi) {
+            x++;
+            continue;
+          }
+          const start = x;
+          while (x < width && owner[y * width + x] === zi) x++;
+          // The 3/4 faces of walls below poke into these cells and get covered too.
+          g.fillRect(start * ts, y * ts, (x - start) * ts, ts);
+        }
+      }
+      this.fog.push(g);
+      this.fogShown.push(true);
+    });
   }
 
   /** A tile drawn as an image from its bottom-left corner (Tiled's convention for tall tiles). */
@@ -101,8 +149,40 @@ export class MapView {
       .setDepth(depth);
   }
 
+  /** Redraws the border darkness for the zones unlocked now (only when that changes). */
+  private drawEdgeFog(unlockedMask: number): void {
+    const { width, height, tileSize: ts } = this.map;
+    const g = this.edgeFog;
+    g.clear();
+    g.fillStyle(Number.parseInt(COLORS.ink.slice(1), 16), 1);
+    const hidden = (i: number): boolean => {
+      const mask = this.edgeMasks[i] ?? 0;
+      return mask !== 0 && (mask & unlockedMask) === 0;
+    };
+    for (let y = 0; y < height; y++) {
+      let x = 0;
+      while (x < width) {
+        if (!hidden(y * width + x)) {
+          x++;
+          continue;
+        }
+        const start = x;
+        while (x < width && hidden(y * width + x)) x++;
+        g.fillRect(start * ts, y * ts, (x - start) * ts, ts);
+      }
+    }
+  }
+
   /** Updates sprite frames only when the underlying value changed. */
   sync(state: GameState): void {
+    let unlockedMask = 0;
+    state.zonesUnlocked.forEach((u, i) => {
+      if (u && i < 31) unlockedMask |= 1 << i;
+    });
+    if (unlockedMask !== this.unlockedMask) {
+      this.unlockedMask = unlockedMask;
+      this.drawEdgeFog(unlockedMask);
+    }
     for (let i = 0; i < this.windowSprites.length; i++) {
       const planks = state.windowPlanks[i] ?? 0;
       if (planks !== this.shownPlanks[i]) {
@@ -116,6 +196,16 @@ export class MapView {
         this.shownDoorsOpen[i] = open;
         for (const sprite of this.doorSprites[i] ?? []) sprite.setFrame(open ? 1 : 0);
       }
+    }
+    for (let i = 0; i < this.fog.length; i++) {
+      const locked = state.zonesUnlocked[i] !== true;
+      if (locked === this.fogShown[i]) continue;
+      this.fogShown[i] = locked;
+      const g = this.fog[i];
+      if (!g) continue;
+      this.scene.tweens.killTweensOf(g);
+      if (locked) g.setVisible(true).setAlpha(1);
+      else this.scene.tweens.add({ targets: g, alpha: 0, duration: 600, onComplete: () => g.setVisible(false) });
     }
     for (let i = 0; i < this.portalSprites.length; i++) {
       const open = state.portalsOpen[this.map.portals[i]?.link ?? -1] ?? false;

@@ -3,8 +3,14 @@ import type { BulletState, GameState, PlayerState, WeaponSlotState } from '../..
 import type { InputCommand } from '../../core/InputCommand';
 import { degToRad } from '../../core/math';
 import { randomRange } from '../../core/Rng';
-import { damageZombie, findAutoAimTarget, findMeleeTarget } from './Combat';
+import { BLOCK_BULLET, segmentClear } from '../map/CollisionGrid';
+import { damageZombie, findAutoAimTarget, findMeleeTarget, isZombieAlive } from './Combat';
+import { bodyCentre, bodyEntry, muzzleFor, type Vec2 } from './shotGeometry';
 import type { SimContext } from './SimContext';
+
+const centre: Vec2 = { x: 0, y: 0 };
+/** Closer than this (px from the muzzle to the body centre), auto-aim points from the feet. */
+const AUTO_AIM_MIN_REACH = 20;
 
 /**
  * Weapons (spec 01 §4.2): switching, automatic reload, aiming (manual drag
@@ -75,14 +81,37 @@ function updateAim(ctx: SimContext, p: PlayerState, cmd: InputCommand): void {
     const range = slot ? WEAPONS[slot.id].range : MELEE.range;
     const target = findAutoAimTarget(ctx, p.x, p.y, range);
     const z = target >= 0 ? ctx.state.zombies[target] : undefined;
-    const dx = z ? z.x - p.x : Math.cos(p.facing);
-    const dy = z ? z.y - p.y : Math.sin(p.facing);
-    const len = Math.hypot(dx, dy) || 1;
-    p.aimX = dx / len;
-    p.aimY = dy / len;
+    if (z) aimAtBody(ctx, p, z.x, z.y);
+    else {
+      p.aimX = Math.cos(p.facing);
+      p.aimY = Math.sin(p.facing);
+    }
   }
   // While shooting the player faces the aim, not the movement.
   p.facing = Math.atan2(p.aimY, p.aimX);
+}
+
+/**
+ * Aims so the bullet, drawn from the gun's muzzle, crosses the middle of the
+ * zombie's drawn body. The muzzle depends on the direction, which depends on
+ * the aim, so the direction is settled in two passes.
+ */
+export function aimAtBody(ctx: SimContext, p: PlayerState, zx: number, zy: number): void {
+  bodyCentre(zx, zy, centre);
+  let ax = centre.x - p.x;
+  let ay = centre.y - p.y;
+  for (let pass = 0; pass < 2; pass++) {
+    const m = muzzleFor(ctx.muzzles, Math.atan2(ay, ax));
+    const mx = centre.x - (p.x + m.x);
+    const my = centre.y - (p.y + m.y);
+    // Too close (or the muzzle already past the body): aim from the feet.
+    if (Math.hypot(mx, my) < AUTO_AIM_MIN_REACH || mx * ax + my * ay <= 0) break;
+    ax = mx;
+    ay = my;
+  }
+  const len = Math.hypot(ax, ay) || 1;
+  p.aimX = ax / len;
+  p.aimY = ay / len;
 }
 
 export function hasAnyAmmo(p: PlayerState): boolean {
@@ -109,10 +138,11 @@ function handleFire(ctx: SimContext, p: PlayerState): void {
   }
   const slot = p.weapons[p.activeSlot];
   if (!slot || p.reloadTimer > 0 || slot.magazine <= 0 || p.fireCooldown > 0) return;
-  shoot(ctx.state, p, slot);
+  shoot(ctx, p, slot);
 }
 
-function shoot(state: GameState, p: PlayerState, slot: WeaponSlotState): void {
+function shoot(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
+  const { state } = ctx;
   const stats = WEAPONS[slot.id];
   const bullet = freeBullet(state);
   slot.magazine--;
@@ -136,6 +166,41 @@ function shoot(state: GameState, p: PlayerState, slot: WeaponSlotState): void {
   bullet.speed = stats.bulletSpeed;
   bullet.damage = stats.damage;
   bullet.remaining = stats.range - PLAYER.muzzleDistance;
+  // Drawn from the gun's muzzle, along the same direction.
+  const muzzle = muzzleFor(ctx.muzzles, Math.atan2(p.aimY, p.aimX));
+  bullet.drawX = muzzle.x - p.aimX * PLAYER.muzzleDistance;
+  bullet.drawY = muzzle.y - p.aimY * PLAYER.muzzleDistance;
+  pointBlank(ctx, p, bullet, muzzle);
+}
+
+/**
+ * A zombie right against the player can stand between the chest and the
+ * drawn muzzle (facing north the gun is drawn above its head): the bullet
+ * hits it as it leaves the gun, if no wall is in between.
+ */
+function pointBlank(ctx: SimContext, p: PlayerState, bullet: BulletState, muzzle: Vec2): void {
+  const x0 = p.x;
+  const y0 = p.y - PLAYER.chestHeight;
+  const dx = p.x + muzzle.x - x0;
+  const dy = p.y + muzzle.y - y0;
+  const len = Math.hypot(dx, dy);
+  if (len < 1e-6) return;
+  let best = Infinity;
+  let hit = -1;
+  const { zombies } = ctx.state;
+  for (let i = 0; i < zombies.length; i++) {
+    const z = zombies[i];
+    if (!z || !isZombieAlive(z)) continue;
+    const t = bodyEntry(x0, y0, dx / len, dy / len, len, z.x, z.y);
+    if (t < best && segmentClear(ctx.grid, p.x, p.y, z.x, z.y, BLOCK_BULLET)) {
+      best = t;
+      hit = i;
+    }
+  }
+  const z = zombies[hit];
+  if (!z) return;
+  bullet.active = false;
+  damageZombie(ctx, z, bullet.damage, p.id);
 }
 
 function handleMelee(ctx: SimContext, p: PlayerState): void {

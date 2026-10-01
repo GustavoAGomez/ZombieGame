@@ -59,7 +59,7 @@ describe('open spawns', () => {
     for (let i = ctx.map.zombieSpawns.length; i < spawnCount(ctx); i++) expect(spawnWeight(ctx, i)).toBe(0);
     unlock(ctx, 'calle');
     expect(spawnWeight(ctx, openSpawnAt(ctx, 3, 40))).toBeGreaterThan(0);
-    expect(spawnWeight(ctx, openSpawnAt(ctx, 85, 4))).toBe(0); // the roof is still locked
+    expect(spawnWeight(ctx, openSpawnAt(ctx, 93, 4))).toBe(0); // the roof is still locked
   });
 
   it('never spawn closer than 8 tiles to a live player', () => {
@@ -123,7 +123,7 @@ describe('roof void', () => {
   it('stops the player at the edge of the roof', () => {
     const ctx = createMansionContext();
     unlock(ctx, 'azotea');
-    movePlayer(ctx, 90, 17);
+    movePlayer(ctx, 98, 17);
     const cmd = command(ctx);
     cmd.moveY = 1;
     runTicks(ctx, 120, stepSimulation);

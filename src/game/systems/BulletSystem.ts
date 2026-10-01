@@ -1,7 +1,7 @@
-import { BULLETS, ZOMBIES } from '../../config/balance';
 import type { BulletState } from '../../core/GameState';
 import { BLOCK_BULLET, pointBlocks } from '../map/CollisionGrid';
 import { damageZombie, isZombieAlive } from './Combat';
+import { bodyEntry } from './shotGeometry';
 import type { SimContext } from './SimContext';
 
 /**
@@ -10,10 +10,10 @@ import type { SimContext } from './SimContext';
  * tested along the whole segment of the tick so fast bullets cannot skip
  * over a zombie.
  *
- * A bullet flies at BULLETS.flightHeight and is drawn there, so it hits a
- * zombie when it crosses its body as drawn (ZOMBIES.hurtbox, from the feet
- * up), not just a small circle at its feet: diagonal shots that visibly go
- * through a zombie used to miss it.
+ * Walls stop a bullet on the ground plane, but zombies are hit where it is
+ * drawn (from the gun's muzzle, drawX/drawY): if it visibly touches a
+ * zombie's body (ZOMBIES.hurtbox), it hits. Shots that looked like hits used
+ * to miss because the drawing and the collision used different heights.
  */
 export function updateBullets(ctx: SimContext, dt: number): void {
   const { bullets } = ctx.state;
@@ -40,36 +40,6 @@ export function updateBullets(ctx: SimContext, dt: number): void {
   }
 }
 
-/**
- * Where along the bullet's path (0..step) it enters zombie (zx, zy)'s body,
- * or Infinity. The body, seen at the bullet's flight height, is a box on
- * the ground plane centred flightHeight − height/2 below the feet.
- */
-export function bulletEntry(bx: number, by: number, dirX: number, dirY: number, step: number, zx: number, zy: number): number {
-  const halfW = ZOMBIES.hurtbox.width / 2 + BULLETS.radius;
-  const halfH = ZOMBIES.hurtbox.height / 2 + BULLETS.radius;
-  const cy = zy + BULLETS.flightHeight - ZOMBIES.hurtbox.height / 2;
-  // Slab test of the segment against the box.
-  let tEnter = 0;
-  let tExit = step;
-  for (const [origin, dir, min, max] of [
-    [bx, dirX, zx - halfW, zx + halfW],
-    [by, dirY, cy - halfH, cy + halfH],
-  ] as const) {
-    if (Math.abs(dir) < 1e-9) {
-      if (origin < min || origin > max) return Infinity;
-      continue;
-    }
-    let t0 = (min - origin) / dir;
-    let t1 = (max - origin) / dir;
-    if (t0 > t1) [t0, t1] = [t1, t0];
-    tEnter = Math.max(tEnter, t0);
-    tExit = Math.min(tExit, t1);
-    if (tEnter > tExit) return Infinity;
-  }
-  return tEnter;
-}
-
 /** Returns true (and deactivates the bullet) if it hit a zombie this tick. */
 function hitZombieAlongSegment(ctx: SimContext, b: BulletState, step: number): boolean {
   const { zombies } = ctx.state;
@@ -78,7 +48,7 @@ function hitZombieAlongSegment(ctx: SimContext, b: BulletState, step: number): b
   for (let i = 0; i < zombies.length; i++) {
     const z = zombies[i];
     if (!z || !isZombieAlive(z)) continue;
-    const t = bulletEntry(b.x, b.y, b.dirX, b.dirY, step, z.x, z.y);
+    const t = bodyEntry(b.x + b.drawX, b.y + b.drawY, b.dirX, b.dirY, step, z.x, z.y);
     if (t < hitT) {
       hitT = t;
       hitIndex = i;

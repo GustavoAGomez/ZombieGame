@@ -23,12 +23,16 @@ import { HudPresenter } from '../HudPresenter';
 import { buildCollisionGrid } from '../map/CollisionGrid';
 import type { MapData } from '../map/MapLoader';
 import { MapView } from '../map/MapView';
+import { cameraBounds, computeLevels, type MapLevels } from '../map/levels';
 import type { Services } from '../services';
 import { activeBulletCount } from '../systems/BulletSystem';
 import { isZombieAlive } from '../systems/Combat';
 import { createNav, type SimContext } from '../systems/SimContext';
 import { stepSimulation } from '../systems/Simulation';
 import { roundsSurvived } from '../systems/WaveSystem';
+import type { MuzzleTable } from '../systems/shotGeometry';
+import { angleFromDir8 } from '../../core/math';
+import { muzzleOffset } from '../entities/muzzle';
 import { SCENE_KEYS, type GameSceneData } from './BootScene';
 import type { GameOverData } from './GameOverScene';
 
@@ -61,6 +65,9 @@ export class GameScene extends Phaser.Scene {
   private overFor = 0;
   private overShown = false;
   private appListeners: Promise<PluginListenerHandle>[] = [];
+  /** Ground floor, basement, roof…: the camera stays inside the player's level. */
+  private levels!: MapLevels;
+  private currentLevel = -1;
   /** Player teleports already shown: a new one snaps the camera instead of panning across the map. */
   private shownTeleports = 0;
   private readonly fixedStep = new FixedStep(SIM.hz, SIM.maxStepsPerFrame, SIM.maxFrameMs);
@@ -78,6 +85,10 @@ export class GameScene extends Phaser.Scene {
     const { events, hudRoot } = this.services;
     this.map = this.assets.mapOrDefault(this.services.mapKey);
     this.state = createGameState(this.map, { seed: Date.now() | 0, startRound: this.services.startRound });
+    // The gun's drawn muzzle per direction, from the player art: bullets are drawn and hit from there.
+    const muzzles: MuzzleTable = Array.from({ length: 8 }, (_, dir) =>
+      muzzleOffset(this.assets.manifest.characters[ASSET_KEYS.player], angleFromDir8(dir), { x: 0, y: 0 }),
+    );
     this.sim = {
       state: this.state,
       map: this.map,
@@ -85,6 +96,7 @@ export class GameScene extends Phaser.Scene {
       nav: createNav(this.map),
       commands: this.state.players.map(() => createInputCommand()),
       events,
+      muzzles,
     };
     this.fixedStep.reset();
     this.paused = false;
@@ -114,7 +126,9 @@ export class GameScene extends Phaser.Scene {
     this.syncViews(0);
 
     const camera = this.cameras.main;
-    camera.setBounds(0, 0, this.map.widthPx, this.map.heightPx);
+    this.levels = computeLevels(this.map);
+    this.currentLevel = -1;
+    this.updateLevel();
     camera.setRoundPixels(true);
     camera.startFollow(this.playerView.sprite, true, DISPLAY.cameraLerp, DISPLAY.cameraLerp);
     this.applyZoom();
@@ -134,6 +148,8 @@ export class GameScene extends Phaser.Scene {
 
   override update(time: number, delta: number): void {
     if (!this.paused && !this.overShown) this.fixedStep.advance(delta, (dt) => this.step(dt));
+    // Before the views: a teleport snaps the camera, which must already be inside the new level.
+    this.updateLevel();
     this.syncViews(this.fixedStep.alpha, time);
     this.presenter.publish(this.state);
     this.updateStats();
@@ -238,5 +254,31 @@ export class GameScene extends Phaser.Scene {
 
   private readonly applyZoom = (): void => {
     this.cameras.main.setZoom(computeWorldZoom(this.scale.height));
+    this.applyCameraBounds();
   };
+
+  /** Follows the player into another level (through a portal) and fits the camera to it. */
+  private updateLevel(): void {
+    const p = this.state.players[0];
+    if (!p) return;
+    const tx = Math.floor(p.x / this.map.tileSize);
+    const ty = Math.floor(p.y / this.map.tileSize);
+    const zone = tx >= 0 && ty >= 0 && tx < this.map.width && ty < this.map.height ? (this.map.cellZone[ty * this.map.width + tx] ?? -1) : -1;
+    // On a door or a barricade (no zone) the level does not change.
+    const level = zone >= 0 ? (this.levels.zoneLevel[zone] ?? -1) : this.currentLevel;
+    if (level < 0 || level === this.currentLevel) return;
+    this.currentLevel = level;
+    this.applyCameraBounds();
+  }
+
+  private applyCameraBounds(): void {
+    const camera = this.cameras.main;
+    const level = this.levels?.levels[this.currentLevel];
+    if (!level) {
+      camera.setBounds(0, 0, this.map.widthPx, this.map.heightPx);
+      return;
+    }
+    const b = cameraBounds(level.bounds, camera.width / camera.zoom, camera.height / camera.zoom);
+    camera.setBounds(b.x, b.y, b.width, b.height);
+  }
 }

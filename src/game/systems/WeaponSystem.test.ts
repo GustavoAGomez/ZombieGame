@@ -215,3 +215,68 @@ describe('WeaponSystem · melee', () => {
     expect(z.hp).toBe(500);
   });
 });
+
+describe('shots from the drawn muzzle', () => {
+  /** The player art's muzzle points (DIRECTIONS_8 order), as measured in the manifest. */
+  const ART_MUZZLES = [
+    { x: -1, y: -9 },
+    { x: 16, y: -13 },
+    { x: 20, y: -23 },
+    { x: 16, y: -33 },
+    { x: -1, y: -41 },
+    { x: -17, y: -33 },
+    { x: -21, y: -23 },
+    { x: -16, y: -12 },
+  ];
+
+  function autoFireAt(dx: number, dy: number): number {
+    const ctx = createTestContext();
+    ctx.muzzles = ART_MUZZLES;
+    const p = player(ctx);
+    const z = placeZombie(ctx, 0, p.x + dx, p.y + dy, 1000);
+    const cmd = command(ctx);
+    cmd.fire = true;
+    cmd.aimManual = false;
+    runTicks(ctx, 40, stepSimulation);
+    return z.hp;
+  }
+
+  it('auto-aim hits in all 8 directions', () => {
+    for (const [dx, dy] of [
+      [120, 0],
+      [-120, 0],
+      [0, 110],
+      [0, -110],
+      [85, 85],
+      [-85, 85],
+      [85, -85],
+      [-85, -85],
+    ] as const) {
+      expect(autoFireAt(dx, dy), `${dx},${dy}`).toBeLessThan(1000);
+    }
+  });
+
+  it('hits a zombie right in front even when the gun is drawn beyond it (point-blank)', () => {
+    const ctx = createTestContext();
+    ctx.muzzles = ART_MUZZLES;
+    const p = player(ctx);
+    // Facing north the muzzle is drawn 41 px up, above this zombie's head.
+    const z = placeZombie(ctx, 0, p.x, p.y - 10, 1000);
+    const cmd = command(ctx);
+    Object.assign(cmd, { fire: true, aimManual: true, aimX: 0, aimY: -1 });
+    stepSimulation(ctx, 1 / 60);
+    expect(z.hp).toBe(1000 - WEAPONS.pistol.damage);
+  });
+
+  it('draws each bullet from the muzzle of its direction', () => {
+    const ctx = createTestContext();
+    ctx.muzzles = ART_MUZZLES;
+    const p = player(ctx);
+    const cmd = command(ctx);
+    Object.assign(cmd, { fire: true, aimManual: true, aimX: 1, aimY: 0 });
+    stepSimulation(ctx, 1 / 60);
+    const b = ctx.state.bullets.find((x) => x.active)!;
+    expect(b.prevX + b.drawX).toBeCloseTo(p.x + 20);
+    expect(b.prevY + b.drawY).toBeCloseTo(p.y - 23);
+  });
+});

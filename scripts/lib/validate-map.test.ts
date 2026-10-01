@@ -38,7 +38,7 @@ describe('validateMap', () => {
   });
 
   it('limits the map size', () => {
-    expect(errorsOf({ ...structuredClone(base), width: 120 })).toMatch(/máximo es 100×70/);
+    expect(errorsOf({ ...structuredClone(base), width: 130 })).toMatch(/máximo es 120×70/);
   });
 
   it('needs exactly one initial zone, containing the player', () => {

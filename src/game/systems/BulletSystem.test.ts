@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { BULLETS, WEAPONS, ZOMBIES } from '../../config/balance';
 import { command, createTestContext, placeZombie, player, runTicks } from '../../test/fixtures';
-import { bulletEntry, updateBullets } from './BulletSystem';
+import { updateBullets } from './BulletSystem';
+import { bodyEntry } from './shotGeometry';
 import { stepSimulation } from './Simulation';
 
 function fireOnce(ctx: ReturnType<typeof createTestContext>, aimX: number, aimY: number): void {
@@ -81,49 +82,53 @@ describe('BulletSystem', () => {
   });
 });
 
-describe('bullets hit the body as drawn (ZOMBIES.hurtbox at BULLETS.flightHeight)', () => {
-  /** Fires one bullet whose drawn path (flightHeight above its ground path) goes through (drawnX, drawnY). */
-  function shootThrough(drawnX: number, drawnY: number, dirX: number, dirY: number) {
+describe('bullets hit what they visibly touch (drawn path vs the zombie rectangle)', () => {
+  const ZX = 352;
+  const ZY = 256;
+  const half = ZOMBIES.hurtbox.width / 2;
+  const top = ZY - ZOMBIES.hurtbox.height;
+
+  /**
+   * Fires one bullet whose drawn path goes through (drawnX, drawnY), drawn at
+   * (drawX, drawY) from its logical position (the real east offset of the
+   * player art by default).
+   */
+  function shootThrough(drawnX: number, drawnY: number, dirX: number, dirY: number, drawX = 11, drawY = -23) {
     const ctx = createTestContext();
-    const z = placeZombie(ctx, 0, 352, 256, 100);
+    const z = placeZombie(ctx, 0, ZX, ZY, 100);
     const len = Math.hypot(dirX, dirY);
     const dx = dirX / len;
     const dy = dirY / len;
-    const groundX = drawnX;
-    const groundY = drawnY + BULLETS.flightHeight;
     const b = ctx.state.bullets[0]!;
-    Object.assign(b, { active: true, owner: 0, x: groundX - dx * 80, y: groundY - dy * 80, dirX: dx, dirY: dy, speed: 520, damage: 20, remaining: 200 });
-    b.prevX = b.x;
-    b.prevY = b.y;
+    const lx = drawnX - drawX - dx * 80;
+    const ly = drawnY - drawY - dy * 80;
+    Object.assign(b, { active: true, owner: 0, x: lx, y: ly, prevX: lx, prevY: ly, dirX: dx, dirY: dy, speed: 520, damage: 20, remaining: 200, drawX, drawY });
     runTicks(ctx, 30, updateBullets);
     return z.hp < 100;
   }
-  const top = 256 - ZOMBIES.hurtbox.height;
-  const half = ZOMBIES.hurtbox.width / 2;
 
-  it('hits a diagonal shot that crosses the side of the body (it used to go through)', () => {
-    expect(shootThrough(352 + half - 2, 256 - 7, 1, -1)).toBe(true);
-    expect(shootThrough(352 - half + 2, 256 - 7, -1, -1)).toBe(true);
-    expect(shootThrough(352 + half - 2, 256 - 7, 1, 1)).toBe(true);
+  it('hits a horizontal shot aimed slightly down that crosses the zombie (it used to go through)', () => {
+    expect(shootThrough(ZX, ZY - 4, 1, 0.15)).toBe(true);
+    expect(shootThrough(ZX, ZY - 2, 1, 0.25)).toBe(true);
+    expect(shootThrough(ZX, ZY - 4, -1, 0.15, -12, -23)).toBe(true);
   });
 
-  it('misses a shot that visibly passes beside the body', () => {
-    // 45° paths that clear the drawn body (16×24) without touching a corner.
-    expect(shootThrough(352 + half + 20, 256 - 12, 1, -1)).toBe(false);
-    expect(shootThrough(352 - half - 20, 256 - 12, -1, -1)).toBe(false);
+  it('hits anywhere on the rectangle and nowhere outside it', () => {
+    expect(shootThrough(ZX, ZY - 1, 1, 0)).toBe(true); // feet
+    expect(shootThrough(ZX, top + 1, 1, 0)).toBe(true); // head
+    expect(shootThrough(ZX, ZY + 4, 1, 0)).toBe(false); // below the feet
+    expect(shootThrough(ZX, top - 4, 1, 0)).toBe(false); // above the head
   });
 
-  it('hits a horizontal shot anywhere from the feet to the head, and nowhere else', () => {
-    expect(shootThrough(352, 256 - 1, 1, 0)).toBe(true); // at the feet
-    expect(shootThrough(352, top + 1, 1, 0)).toBe(true); // at the head
-    expect(shootThrough(352, 256 + 4, 1, 0)).toBe(false); // below the feet
-    expect(shootThrough(352, top - 4, 1, 0)).toBe(false); // above the head
+  it('hits diagonal shots that cross the side of the body and misses the ones that clear it', () => {
+    expect(shootThrough(ZX + half - 2, ZY - 14, 1, -1, 10, -27)).toBe(true);
+    expect(shootThrough(ZX - half + 2, ZY - 14, -1, -1, -11, -27)).toBe(true);
+    expect(shootThrough(ZX + half + 20, ZY - 14, 1, -1, 10, -27)).toBe(false);
   });
 
-  it('still hits where auto-aim points: the zombie position', () => {
-    // Aiming at the ground position means the drawn bullet crosses the middle of the body.
-    expect(bulletEntry(352 - 50, 256, 1, 0, 100, 352, 256)).toBeCloseTo(50 - half - BULLETS.radius);
-    expect(bulletEntry(352, 256, 1, 0, 10, 352, 256)).toBe(0); // starting inside
-    expect(bulletEntry(352 - 50, 256, 1, 0, 20, 352, 256)).toBe(Infinity); // not there yet
+  it('measures the entry along the drawn path', () => {
+    expect(bodyEntry(ZX - 50, ZY - 10, 1, 0, 100, ZX, ZY)).toBeCloseTo(50 - half - BULLETS.radius);
+    expect(bodyEntry(ZX, ZY - 10, 1, 0, 10, ZX, ZY)).toBe(0);
+    expect(bodyEntry(ZX - 50, ZY - 10, 1, 0, 20, ZX, ZY)).toBe(Infinity);
   });
 });

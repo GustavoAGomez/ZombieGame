@@ -5,6 +5,7 @@ import { createGameState, type ZombieState } from '../core/GameState';
 import { createInputCommand } from '../core/InputCommand';
 import { buildCollisionGrid } from '../game/map/CollisionGrid';
 import { parseMap, type MapData } from '../game/map/MapLoader';
+import { defaultMuzzles } from '../game/systems/shotGeometry';
 import { createNav, type SimContext } from '../game/systems/SimContext';
 
 /**
@@ -34,6 +35,7 @@ function contextFor(map: MapData, seed: number, toSpawn: number): SimContext {
     nav: createNav(map),
     commands: state.players.map(() => createInputCommand()),
     events: new EventBus(),
+    muzzles: defaultMuzzles(),
   };
 }
 

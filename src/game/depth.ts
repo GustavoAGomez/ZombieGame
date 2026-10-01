@@ -10,6 +10,8 @@ export const DEPTH = {
   decals: 4,
   pickups: 5,
   actors: 10,
+  /** Darkness over zones not unlocked yet: above actors and props, under bullets. */
+  fog: 29,
   bullets: 30,
   aimLine: 31,
   debug: 100,

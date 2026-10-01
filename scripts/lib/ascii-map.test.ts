@@ -54,7 +54,7 @@ const layer = (map: TiledSourceMap, name: string) => map.layers.find((l) => l.na
 describe('parseAsciiMap', () => {
   it('reads the plan and every table of the mansion', () => {
     const plan = parseAsciiMap(mansionPlanText());
-    expect([plan.width, plan.height]).toEqual([100, 68]);
+    expect([plan.width, plan.height]).toEqual([108, 68]);
     expect(plan.zones.map((z) => z.id)).toEqual(['recibidor', 'salon', 'comedor', 'biblioteca', 'cocina', 'garaje', 'jardin', 'calle', 'sotano', 'azotea']);
     expect(plan.zones.filter((z) => z.startsUnlocked).map((z) => z.id)).toEqual(['recibidor']);
     expect(plan.zones.find((z) => z.id === 'sotano')?.wallKit).toBe('kit_basement');
@@ -177,8 +177,8 @@ describe('compileAsciiMap', () => {
       expect(kitAt(32, 31)).toBe('kit_interior');
       expect(kitAt(15, 30)).toBe('kit_exterior');
       expect(kitAt(30, 2)).toBe('kit_fence');
-      expect(kitAt(82, 30)).toBe('kit_basement');
-      expect(kitAt(86, 8)).toBe('kit_basement'); // roof chimney
+      expect(kitAt(90, 30)).toBe('kit_basement');
+      expect(kitAt(94, 8)).toBe('kit_basement'); // roof chimney
     });
 
     it('lays lawn under fences, dark ground under house walls and the room floor under doors', () => {

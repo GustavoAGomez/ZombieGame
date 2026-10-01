@@ -24,6 +24,8 @@ export const PLAYER = {
   hitKnockback: 6,
   /** Distance from the player's centre to the muzzle, where bullets spawn. */
   muzzleDistance: 9,
+  /** Height of the player's drawn chest: point-blank shots are tested from there to the muzzle. */
+  chestHeight: 14,
   /**
    * Speed factor while shooting: the player walks (shoot_walk animation)
    * instead of running. 1 keeps the running speed.
@@ -92,9 +94,8 @@ export const BULLETS = {
   /** Radius used for bullet vs zombie hits. */
   radius: 1,
   /**
-   * Height above the ground (world px) at which bullets fly: the gun height
-   * of the character art. They are drawn there and hit whatever body they
-   * cross at that height (see ZOMBIES.hurtbox).
+   * Gun height (world px) used when a character has no muzzle points in its
+   * art; with art, bullets leave the drawn muzzle of each direction.
    */
   flightHeight: 12,
 } as const;
@@ -143,12 +144,11 @@ export const ZOMBIES = {
   /** Measured from the zombie centre to the edge of the player's hitbox. */
   attackRange: 16,
   /**
-   * Body hit by bullets, from the feet up, as drawn (world px). Bullets fly at
-   * BULLETS.flightHeight, so they hit when they visually cross it. With a
-   * height of twice the flight height, the centre of the body at gun height
-   * falls on the zombie's ground position, where auto-aim points.
+   * The zombie's whole drawn body, from the feet up (world px): a bullet hits
+   * when its drawn path touches it. The placeholder is drawn exactly this
+   * size (body plus a 1 px outline); final art should keep roughly this size.
    */
-  hurtbox: { width: 16, height: 24 },
+  hurtbox: { width: 16, height: 28 },
   attackWindup: 0.35,
   attackDamage: 40,
   attackCooldown: 1.1,

@@ -19,7 +19,7 @@ export const MAP_RULES = {
   /** Furniture with collision keeps farther than this (tiles, Chebyshev) from barricades, doors and portals. */
   minPropClearanceTiles: 2,
   minExitsPerZone: 2,
-  maxWidth: 100,
+  maxWidth: 120,
   maxHeight: 70,
 } as const;
 

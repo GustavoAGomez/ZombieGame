@@ -102,6 +102,13 @@ export interface BulletState {
   damage: number;
   /** Distance still allowed before the bullet expires. */
   remaining: number;
+  /**
+   * Where it is drawn relative to (x, y): from the gun's drawn muzzle along
+   * the same direction. Walls stop it on the ground (x, y); zombies are hit
+   * where it is drawn, so what visibly touches a zombie hits it.
+   */
+  drawX: number;
+  drawY: number;
 }
 
 /**
@@ -248,7 +255,7 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
 }
 
 function createBullet(): BulletState {
-  return { active: false, owner: 0, x: 0, y: 0, prevX: 0, prevY: 0, dirX: 1, dirY: 0, speed: 0, damage: 0, remaining: 0 };
+  return { active: false, owner: 0, x: 0, y: 0, prevX: 0, prevY: 0, dirX: 1, dirY: 0, speed: 0, damage: 0, remaining: 0, drawX: 0, drawY: 0 };
 }
 
 function createZombie(): ZombieState {

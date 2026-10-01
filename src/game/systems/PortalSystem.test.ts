@@ -167,7 +167,7 @@ describe('zombies and portals', () => {
   it('links both ends in the flow field', () => {
     const ctx = createMansionContext();
     unlockZones(ctx, 'cocina', 'sotano');
-    movePlayerToTile(ctx, 88, 30);
+    movePlayerToTile(ctx, 96, 30);
     const p = player(ctx);
     const source = [Math.floor(p.y / 32) * ctx.map.width + Math.floor(p.x / 32)];
     const kitchen = tileCenter(ctx, 40, 24);
@@ -181,7 +181,7 @@ describe('zombies and portals', () => {
   it('follow you down the kitchen stairs', () => {
     const ctx = createMansionContext();
     openPortal(ctx, portalIndex(ctx, 'P1a'));
-    movePlayerToTile(ctx, 90, 33);
+    movePlayerToTile(ctx, 98, 33);
     const start = tileCenter(ctx, 44, 24);
     placeZombie(ctx, 0, start.x, start.y, 100, 'chasing');
     const exit = followUntil(ctx, 'sotano', 1200);
@@ -193,7 +193,7 @@ describe('zombies and portals', () => {
     unlockZones(ctx, 'jardin');
     openPortal(ctx, portalIndex(ctx, 'P1a'));
     openPortal(ctx, portalIndex(ctx, 'P3a'));
-    movePlayerToTile(ctx, 96, 29);
+    movePlayerToTile(ctx, 104, 29);
     const start = tileCenter(ctx, 20, 9);
     placeZombie(ctx, 0, start.x, start.y, 100, 'chasing');
     const exit = followUntil(ctx, 'sotano', 1200);

@@ -4,6 +4,7 @@ import type { InputCommand } from '../../core/InputCommand';
 import type { CollisionGrid } from '../map/CollisionGrid';
 import { createFlowField, type FlowField } from '../map/FlowField';
 import type { MapData } from '../map/MapLoader';
+import type { MuzzleTable } from './shotGeometry';
 
 /** Everything a system may touch during one tick. No Phaser in here. */
 export interface SimContext {
@@ -15,6 +16,8 @@ export interface SimContext {
   /** One command per player, indexed like state.players. */
   commands: InputCommand[];
   events: EventBus;
+  /** Drawn muzzle of the players' gun per direction (character art data). */
+  muzzles: MuzzleTable;
 }
 
 export function createNav(map: MapData): FlowField {

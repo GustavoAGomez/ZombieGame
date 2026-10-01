@@ -11,7 +11,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 describe('map preview', () => {
   it('paints the ASCII plan at 8 px per tile', () => {
     const image = renderPlan(mansionPlanText());
-    expect([image.width, image.height]).toEqual([800, 544]);
+    expect([image.width, image.height]).toEqual([108 * 8, 68 * 8]);
   });
 
   it('renders the built mansion at 1:1 with its layers', () => {

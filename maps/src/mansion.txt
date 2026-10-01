@@ -1,71 +1,71 @@
-ssaaaaasgssFddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd___________________
-ssaaaaasgssFddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd___________________
-ssaaaaasgssFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFFg___________________
-ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggFg__rrrrrrrrrr_______
-ssaaaaasgssFgggggggggggggggggggggggggggggeeeeeeeeggggggggggggggggggggggggggggggFg__rrZrrrrrZr_______
-ssaaaaasgssFgggggggggggggggggggggggggggeeeeeeeeeeeeeeggggggggggggggggggHHHHHgggFg__rrrrrrrrrr_______
-ssaaaaasgssFgdggggggggggggggggggggggeeeeeeeeeeeeeeeeeegggggggggggggggggHHHHHgggFg__rrrrrrrrrr_______
-ssaaaaasgssFgddgggggggggggggggggggggeeeewwwwwwwwwwweeegggggggggggggggggHHHHHgggFg__rrrrrrrrrr_______
-ssaaaaasgssFgdggggggggggggggggggggggeeeewwwwwwwwwwweeegggdddddgggggggggHHHHHgggFg__rrrHHrrrrr_______
-ssaaaaasgssFgddgggggggggggggggggggggeeeewwwwwwwwwwweeedddgdggdddddddddddgggggggFg__rrrHHrrrrrrrrrrr_
-ssaaaaasgssWgddggggggggggggggggggggggeeeeeeeeeeeeeeeeedddggggggdgggdgdddgggggggFg__rrrrrrrrrrrrrrrr_
-ssaaaaasgssFgddggggggggppppppppgggddggeeeeeeeeeeeeeeeggggggggggggggggggggggggggFg__rrrrrrHHHrrrrrrr_
-ssaaaaasgssFgddggggppppppppppppgdddgggggggeeeeeeeegggggggggggggggggggggggggggggFg__rrrrrrHHHrrrrrZr_
-ssaaaaasgssFgdgggggppppppppppppddgdggggggggpppppgggggggggggggggggggggggggggggggFg__rrrrrrrrrrrrrrrr_
-ssaaaaasgssFgddgggggdppppppppppggggggggggppppppppppggggggggggggggggggggggggggggFg__rrrrrrrrrrHHrrrr_
-ssaaaaasgssFddggggddddpppppppggggggggggggppppppppppggggggggggggggggggggggggggggFg__rrrrrrrrrrHHrrrr_
-ssaaaaasgssFdggggggdggHHDDHHHggggggHHHHHWHHppppppppgdddggggggggggggggggggggggggFg__rrrrrrrrrrrrrrrr_
-ssaaaaasgssFdgggg<<gggH.....HggggggHkkkkkkHppppppgggdgdddddggggggggggggggggggggFg__rrrrrrrrrrrrrrrr_
-ssaaaaasgssFdggHHHHHHHH.....HHWHHggHkkkkkkHgggggggggggHHHHHHdddggggggggggggggggFg__rrrrrrrrrrrrrrrr_
-ssaaaaasgssFddgH.....#..........HHHHkkkkkkHDDHHgggggggHkk<<HgddddggggggggggggggFg__r<<rrrrrrrrrr<<r_
-ssaaaaasgssFdggH.....#..........#kkkkkkkkkkkkkHgggggggHkkkkHggdgddgggggggggggggFg___________________
-ssaaaaasgssFdggW.....o..........#kkkkkkkkkkkkkHgggggggHkkkkHgggggddggggggggggggFg___________________
-ssaaaaasgssFdddH.....o..........#kkkkkkkkkkkkkHHHHHWHHHoo##HHHHWHHHdgggggggggggFg___________________
-ssaaaaasgssFgddH.....#..........#kkkkkkkkkkkkkkkkkkkkk#kkkk#ccccccHdddgggggggggFg___________________
-ssaaaaasgssFgddH##oo##..........#kkkkkkkkkkkkkkkkkkkkk#kkkk#ccccccHgdggggggggggFg___________________
-ssaaaaasgssFgddH.....#..........Dkkkkkkkkkkkkkkkkkkkkkokkkk#ccccccHgdggggggggggFg_HHHHHWHHHHHHHHHHHH
-ssaaaaasgssFgddH.....o..........Dkkkkkkkkkkkkkkkkkkkkkokkkk#ccccccH<gggggggggggFg_Hcccccccccc#cc<<c#
-ssaaaaasgssFgdgH.....o..........#kkkkkkkkkkkkkkkkkkkkk#kkkkDccccccH<gggggggggggFg_Hccccccccccoccccc#
-ssaaaaasgssFgddH.....#..........#kkkkkkkkkkkkkkkkkkkkk#kkkkDccccccHggggggggggggFg_Hccccccccccoccccc#
-ssaaaaasgssFgdgH#DD##############################DD#########ccccccHggggggggggggFg_Hcccccccccc#ccccc#
-ssaaaaasgssFgddH................#..............D...........#ccccccHggggggggggggFg_Hcccccccccc#ccccc#
-ssaaaaasgssFgggW................#......P.......D...........#ccccccHggggggggggggFg_Hcccccccccc###oo##
-ssaaaaasgssFggHH................#..............#...........#ccccccHggggggggggggFg_Hcccccccccc#ccccc#
-ssaaaaasgssFggHH#.......##......###oo###oo######...........##oo###HHHHHHHFFFFFFFg_Hccccccccccoccccc#
-ssaaaaasgssFggHH#.......##......#.........o....#...........#ccccccccccccHggggggFg_Hccccccccccoccccc#
-ssaaaaasgssFggHH................#.........o....#...........#ccccccccccccHggggggFg_Hcccccccccc#ccccc#
-ssaaaaasgssFgggW................#.........######...........#ccccccccccccHggggggFg_Hcccccc#####ccccc#
-ssaaaaasgssFgggH................#.........obbbb#...........#ccccccccccccHggggggFg_Hcccccc######oo###
-ssaaaaasgssFFFFHHHHH............D.........obbbb#...........#ccccccccccccWggggggFg_Hcccccc#ccccccccc#
-ssaaaaasgssgggggg<<H............D.........#bbbb#...........#ccccccccccccHggggggFg_Hccccccoccccccccc#
-ssaZaaasgssggggggggH............#.........HHWHHHHHH.....HWHHccccccccccccHggggggFg_Hccccccoccccccccc#
-ssaaaaasgssggggggggH............HHDDHHHWHHHgggdddgH.....HggHccccccccccccHggggggFg_Hcccccc#ccccccccc#
-ssaaaaasgssggggggggHHHHHHHHHWHHHppppppppppgggdddddHHHWHHHggHccccccccccccHggggggFg_Hcccccc#ccccccccc#
-ssaaaaasgssggggggggdddddddddddggHpppppppppHgggddddgggggggggHccccccccccccHggggggFg_Hc<<ccc#ccccccccc#
-ssaaaaasgssggggggggggdddddddggggggpppggggggggggggggggggggggHHHDDHHHHHHHHHggggggFg_HHHHHHHHHHHHHWHHHH
-ssaaaaasgssgggggggggggggggggggggggpppggggggggggggggggggggggggppppppgdddgddgggggFg___________________
-ssaaaaasgssggggggggggggggggggggggpppgggggggggggggggggggggggggppppppdddddddddgggFg___________________
-ssaaaaasgssgggggggggggggggggggggpppggggggggggggggggggggggggggppppppgddddggdddggFgggggggggggggggggggg
-ssaaaaasgssgggggggggggggggggggggpppggggggggggggggggggggggggggppppppgggggggggddgFgggggggggggggggggggg
-ssaaaaasgssggggggggggggggggggggpppgggggggggggggggggggggggggggppppppggggggggggdgFgggggggggggggggggggg
-ssaaaaasgssggggggggggggggggggggpppgggggggggggggggggggggggggggppppppggggggggggggFFFFFFFFFFFFFFFFFFFFF
-ssaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-ssaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-ssaaaaassssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
-ssaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-ssaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-ssaaaaassssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
-ssaaaaassssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssZssssssssssssssssssssssssssssss
-ssaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-ssaaaaasgssFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
-ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
-ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+ssaaaaasgssFddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd___________________________
+ssaaaaasgssFddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd___________________________
+ssaaaaasgssFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFFg___________________________
+ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggFg__________rrrrrrrrrr_______
+ssaaaaasgssFgggggggggggggggggggggggggggggeeeeeeeeggggggggggggggggggggggggggggggFg__________rrZrrrrrZr_______
+ssaaaaasgssFgggggggggggggggggggggggggggeeeeeeeeeeeeeeggggggggggggggggggHHHHHgggFg__________rrrrrrrrrr_______
+ssaaaaasgssFgdggggggggggggggggggggggeeeeeeeeeeeeeeeeeegggggggggggggggggHHHHHgggFg__________rrrrrrrrrr_______
+ssaaaaasgssFgddgggggggggggggggggggggeeeewwwwwwwwwwweeegggggggggggggggggHHHHHgggFg__________rrrrrrrrrr_______
+ssaaaaasgssFgdggggggggggggggggggggggeeeewwwwwwwwwwweeegggdddddgggggggggHHHHHgggFg__________rrrHHrrrrr_______
+ssaaaaasgssFgddgggggggggggggggggggggeeeewwwwwwwwwwweeedddgdggdddddddddddgggggggFg__________rrrHHrrrrrrrrrrr_
+ssaaaaasgssWgddggggggggggggggggggggggeeeeeeeeeeeeeeeeedddggggggdgggdgdddgggggggFg__________rrrrrrrrrrrrrrrr_
+ssaaaaasgssFgddggggggggppppppppgggddggeeeeeeeeeeeeeeeggggggggggggggggggggggggggFg__________rrrrrrHHHrrrrrrr_
+ssaaaaasgssFgddggggppppppppppppgdddgggggggeeeeeeeegggggggggggggggggggggggggggggFg__________rrrrrrHHHrrrrrZr_
+ssaaaaasgssFgdgggggppppppppppppddgdggggggggpppppgggggggggggggggggggggggggggggggFg__________rrrrrrrrrrrrrrrr_
+ssaaaaasgssFgddgggggdppppppppppggggggggggppppppppppggggggggggggggggggggggggggggFg__________rrrrrrrrrrHHrrrr_
+ssaaaaasgssFddggggddddpppppppggggggggggggppppppppppggggggggggggggggggggggggggggFg__________rrrrrrrrrrHHrrrr_
+ssaaaaasgssFdggggggdggHHDDHHHggggggHHHHHWHHppppppppgdddggggggggggggggggggggggggFg__________rrrrrrrrrrrrrrrr_
+ssaaaaasgssFdgggg<<gggH.....HggggggHkkkkkkHppppppgggdgdddddggggggggggggggggggggFg__________rrrrrrrrrrrrrrrr_
+ssaaaaasgssFdggHHHHHHHH.....HHWHHggHkkkkkkHgggggggggggHHHHHHdddggggggggggggggggFg__________rrrrrrrrrrrrrrrr_
+ssaaaaasgssFddgH.....#..........HHHHkkkkkkHDDHHgggggggHkk<<HgddddggggggggggggggFg__________r<<rrrrrrrrrr<<r_
+ssaaaaasgssFdggH.....#..........#kkkkkkkkkkkkkHgggggggHkkkkHggdgddgggggggggggggFg___________________________
+ssaaaaasgssFdggW.....o..........#kkkkkkkkkkkkkHgggggggHkkkkHgggggddggggggggggggFg___________________________
+ssaaaaasgssFdddH.....o..........#kkkkkkkkkkkkkHHHHHWHHHoo##HHHHWHHHdgggggggggggFg___________________________
+ssaaaaasgssFgddH.....#..........#kkkkkkkkkkkkkkkkkkkkk#kkkk#ccccccHdddgggggggggFg___________________________
+ssaaaaasgssFgddH##oo##..........#kkkkkkkkkkkkkkkkkkkkk#kkkk#ccccccHgdggggggggggFg___________________________
+ssaaaaasgssFgddH.....#..........Dkkkkkkkkkkkkkkkkkkkkkokkkk#ccccccHgdggggggggggFg_________HHHHHWHHHHHHHHHHHH
+ssaaaaasgssFgddH.....o..........Dkkkkkkkkkkkkkkkkkkkkkokkkk#ccccccH<gggggggggggFg_________Hcccccccccc#cc<<c#
+ssaaaaasgssFgdgH.....o..........#kkkkkkkkkkkkkkkkkkkkk#kkkkDccccccH<gggggggggggFg_________Hccccccccccoccccc#
+ssaaaaasgssFgddH.....#..........#kkkkkkkkkkkkkkkkkkkkk#kkkkDccccccHggggggggggggFg_________Hccccccccccoccccc#
+ssaaaaasgssFgdgH#DD##############################DD#########ccccccHggggggggggggFg_________Hcccccccccc#ccccc#
+ssaaaaasgssFgddH................#..............D...........#ccccccHggggggggggggFg_________Hcccccccccc#ccccc#
+ssaaaaasgssFgggW................#......P.......D...........#ccccccHggggggggggggFg_________Hcccccccccc###oo##
+ssaaaaasgssFggHH................#..............#...........#ccccccHggggggggggggFg_________Hcccccccccc#ccccc#
+ssaaaaasgssFggHH#.......##......###oo###oo######...........##oo###HHHHHHHFFFFFFFg_________Hccccccccccoccccc#
+ssaaaaasgssFggHH#.......##......#.........o....#...........#ccccccccccccHggggggFg_________Hccccccccccoccccc#
+ssaaaaasgssFggHH................#.........o....#...........#ccccccccccccHggggggFg_________Hcccccccccc#ccccc#
+ssaaaaasgssFgggW................#.........######...........#ccccccccccccHggggggFg_________Hcccccc#####ccccc#
+ssaaaaasgssFgggH................#.........obbbb#...........#ccccccccccccHggggggFg_________Hcccccc######oo###
+ssaaaaasgssFFFFHHHHH............D.........obbbb#...........#ccccccccccccWggggggFg_________Hcccccc#ccccccccc#
+ssaaaaasgssgggggg<<H............D.........#bbbb#...........#ccccccccccccHggggggFg_________Hccccccoccccccccc#
+ssaZaaasgssggggggggH............#.........HHWHHHHHH.....HWHHccccccccccccHggggggFg_________Hccccccoccccccccc#
+ssaaaaasgssggggggggH............HHDDHHHWHHHgggdddgH.....HggHccccccccccccHggggggFg_________Hcccccc#ccccccccc#
+ssaaaaasgssggggggggHHHHHHHHHWHHHppppppppppgggdddddHHHWHHHggHccccccccccccHggggggFg_________Hcccccc#ccccccccc#
+ssaaaaasgssggggggggdddddddddddggHpppppppppHgggddddgggggggggHccccccccccccHggggggFg_________Hc<<ccc#ccccccccc#
+ssaaaaasgssggggggggggdddddddggggggpppggggggggggggggggggggggHHHDDHHHHHHHHHggggggFg_________HHHHHHHHHHHHHWHHHH
+ssaaaaasgssgggggggggggggggggggggggpppggggggggggggggggggggggggppppppgdddgddgggggFg___________________________
+ssaaaaasgssggggggggggggggggggggggpppgggggggggggggggggggggggggppppppdddddddddgggFg___________________________
+ssaaaaasgssgggggggggggggggggggggpppggggggggggggggggggggggggggppppppgddddggdddggFgg__________________________
+ssaaaaasgssgggggggggggggggggggggpppggggggggggggggggggggggggggppppppgggggggggddgFgg__________________________
+ssaaaaasgssggggggggggggggggggggpppgggggggggggggggggggggggggggppppppggggggggggdgFgg__________________________
+ssaaaaasgssggggggggggggggggggggpppgggggggggggggggggggggggggggppppppggggggggggggFFF__________________________
+ssaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss__________________________
+ssaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss__________________________
+ssaaaaassssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg__________________________
+ssaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss__________________________
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa__________________________
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa__________________________
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa__________________________
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa__________________________
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa__________________________
+ssaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss__________________________
+ssaaaaassssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg__________________________
+ssaaaaassssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssZssssssssssss__________________________
+ssaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss__________________________
+ssaaaaasgssFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF__________________________
+ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg__________________________
+ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg__________________________
+ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg__________________________
 
 ## Zonas (cada zona es la región que se rellena desde su semilla; las paredes, vallas, D y W la cierran. "suelo" es la variante de floors_interior; "paredes" cambia el kit)
 | id | nombre | inicial | interior | spawns abiertos | semilla | suelo | paredes | contiene |
@@ -78,8 +78,8 @@ ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
 | garaje | Garaje | no | sí | no | 65,38 | 1+3 | — | garaje doble y taller (L) |
 | jardin | Jardín trasero | no | no | no | 29,6 | — | — | patios, piscina, cobertizo, pasillos laterales |
 | calle | Calle delantera | no | no | sí | 40,57 | — | — | porche, jardín delantero, entrada de coches, las dos calles |
-| sotano | Sótano | no | sí | no | 86,30 | 3+1 | sótano | sala en L, calderas, trastero, bodega |
-| azotea | Azotea | no | no | sí | 88,6 | 0+2 | sótano | azotea en L con chimeneas |
+| sotano | Sótano | no | sí | no | 94,30 | 3+1 | sótano | sala en L, calderas, trastero, bodega |
+| azotea | Azotea | no | no | sí | 96,6 | 0+2 | sótano | azotea en L con chimeneas |
 
 ## Puertas de pago (D)
 | id | casillas | de | a | coste |
@@ -114,29 +114,29 @@ ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
 | F1 | 23,2 | jardin | valla |
 | F2 | 61,2 | jardin | valla |
 | F3 | 11,10 | jardin | valla |
-| S1 | 87,25 | sotano | ventana |
-| S2 | 95,44 | sotano | ventana |
+| S1 | 95,25 | sotano | ventana |
+| S2 | 103,44 | sotano | ventana |
 
 ## Portales (<)
 | id | casillas | zona | par | coste | secundario | tipo |
 |---|---|---|---|---|---|---|
 | P1a | 57,19 58,19 | cocina | P1b | 1750 | no | escalera |
-| P1b | 84,43 85,43 | sotano | P1a | 1750 | no | escalera |
+| P1b | 92,43 93,43 | sotano | P1a | 1750 | no | escalera |
 | P2a | 67,26 67,27 | jardin | P2b | 2000 | no | escalera de mano |
-| P2b | 84,19 85,19 | azotea | P2a | 2000 | no | escalera de mano |
+| P2b | 92,19 93,19 | azotea | P2a | 2000 | no | escalera de mano |
 | P3a | 17,17 18,17 | jardin | P3b | 1000 | sí | trampilla |
-| P3b | 96,26 97,26 | sotano | P3a | 1000 | sí | trampilla |
+| P3b | 104,26 105,26 | sotano | P3a | 1000 | sí | trampilla |
 | P4a | 17,39 18,39 | calle | P4b | 1250 | sí | escalera de mano |
-| P4b | 96,19 97,19 | azotea | P4a | 1250 | sí | escalera de mano |
+| P4b | 104,19 105,19 | azotea | P4a | 1250 | sí | escalera de mano |
 
 ## Spawns abiertos (Z)
 | id | casilla | zona |
 |---|---|---|
 | O1 | 3,40 | calle |
 | O2 | 69,62 | calle |
-| O3 | 85,4 | azotea |
-| O4 | 91,4 | azotea |
-| O5 | 97,12 | azotea |
+| O3 | 93,4 | azotea |
+| O4 | 99,4 | azotea |
+| O5 | 105,12 | azotea |
 
 ## Jugador (P)
 | casilla |
@@ -221,16 +221,16 @@ ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
 | T14 | prop_seto | 38,50 41,50 | sí | — | Calle. Seto en la linde, con huecos |
 | T15 | prop_seto | 70,50 73,50 | sí | — | Calle. Seto en la linde, con huecos |
 | T16 | prop_seto_lateral | 12,42 12,45 | sí | — | Calle. Seto hacia la calle lateral |
-| X1 | prop_caldera | 94,29 95,30 | sí | — | Sótano. Caldera en el cuarto de calderas |
-| X2 | prop_botellero | 98,40 98,43 | sí | — | Sótano. Botellero de la bodega |
-| X3 | prop_botellero_bajo | 92,38 94,38 | sí | — | Sótano. Botellero de la bodega |
-| X4 | prop_estanteria_metal | 90,28 90,31 | sí | — | Sótano. Estanterías del trastero |
-| X5 | prop_cajas | 83,30 84,31 | sí | — | Sótano. Cajas de la mudanza |
-| X6 | prop_colchon | 85,34 86,35 | no | — | Sótano. Refugio improvisado: colchón en el suelo… |
-| X7 | prop_latas_suelo | 87,34 | no | — | Sótano. …latas vacías… |
-| X8 | prop_charco_sangre | 85,36 | no | — | Sótano. …y sangre: el refugio no aguantó |
-| Y1 | prop_aire_acondicionado | 89,5 90,5 | sí | — | Azotea. Aparato de aire acondicionado |
-| Y2 | prop_deposito_agua | 95,11 96,12 | sí | — | Azotea. Depósito de agua |
-| Y3 | prop_cajas_provisiones | 83,12 84,12 | sí | — | Azotea. Campamento de supervivientes: cajas de provisiones… |
-| Y4 | prop_saco_dormir | 86,13 87,13 | no | — | Azotea. …y sacos de dormir junto a la chimenea |
-| Y5 | prop_aire_acondicionado | 91,16 92,16 | sí | — | Azotea. Aparato de aire acondicionado |
+| X1 | prop_caldera | 102,29 103,30 | sí | — | Sótano. Caldera en el cuarto de calderas |
+| X2 | prop_botellero | 106,40 106,43 | sí | — | Sótano. Botellero de la bodega |
+| X3 | prop_botellero_bajo | 100,38 102,38 | sí | — | Sótano. Botellero de la bodega |
+| X4 | prop_estanteria_metal | 98,28 98,31 | sí | — | Sótano. Estanterías del trastero |
+| X5 | prop_cajas | 91,30 92,31 | sí | — | Sótano. Cajas de la mudanza |
+| X6 | prop_colchon | 93,34 94,35 | no | — | Sótano. Refugio improvisado: colchón en el suelo… |
+| X7 | prop_latas_suelo | 95,34 | no | — | Sótano. …latas vacías… |
+| X8 | prop_charco_sangre | 93,36 | no | — | Sótano. …y sangre: el refugio no aguantó |
+| Y1 | prop_aire_acondicionado | 97,5 98,5 | sí | — | Azotea. Aparato de aire acondicionado |
+| Y2 | prop_deposito_agua | 103,11 104,12 | sí | — | Azotea. Depósito de agua |
+| Y3 | prop_cajas_provisiones | 91,12 92,12 | sí | — | Azotea. Campamento de supervivientes: cajas de provisiones… |
+| Y4 | prop_saco_dormir | 94,13 95,13 | no | — | Azotea. …y sacos de dormir junto a la chimenea |
+| Y5 | prop_aire_acondicionado | 99,16 100,16 | sí | — | Azotea. Aparato de aire acondicionado |
