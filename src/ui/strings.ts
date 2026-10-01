@@ -38,6 +38,7 @@ export const STRINGS = {
     title: 'PAUSA',
     resume: 'CONTINUAR',
     restart: 'REINICIAR',
+    vibration: (on: boolean): string => (on ? 'VIBRACIÓN: SÍ' : 'VIBRACIÓN: NO'),
   },
   gameOver: {
     title: 'FIN DE LA PARTIDA',

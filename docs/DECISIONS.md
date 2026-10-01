@@ -384,3 +384,27 @@ Registro de lo que la spec no definía (o definía de forma ambigua) y cómo se 
   - los «+N» pasan a la izquierda de los puntos, porque bajo el arma alargaban la columna derecha hasta el botón de acción;
   - el botón de acción baja a 52 px y se coloca para caber entre esa columna y el botón de recargar desde 360 px de alto;
   - recargar queda a (0, −78) del disparo.
+
+## Fase 9 · Pulido nativo
+
+- **Sin `@capacitor/status-bar`.** Capacitor 8 trae `SystemBars` en el núcleo: con `SystemBars: { hidden: true }` en `capacitor.config.ts` oculta desde el arranque la barra de estado y el indicador de inicio en iOS, y las barras del sistema en Android. Se ahorra una dependencia (regla 8).
+  - El indicador de inicio no se puede ocultar desde nuestro `ViewController`: Capacitor ya sobrescribe `prefersHomeIndicatorAutoHidden` en una extensión pública (no `open`) de `CAPBridgeViewController`, y lo controla con `SystemBars`.
+- **iOS:**
+  - `Info.plist`: `UIRequiresFullScreen`, `UIStatusBarHidden` a `true` y `UIViewControllerBasedStatusBarAppearance` a `false`, como pide la spec.
+  - `ViewController.swift` (subclase de `CAPBridgeViewController`, registrada en `Main.storyboard`): gestos del sistema diferidos en todos los bordes y `isIdleTimerDisabled`.
+- **Android, en `MainActivity`:**
+  - `FLAG_KEEP_SCREEN_ON`;
+  - recortes en `shortEdges`;
+  - modo inmersivo con `WindowInsetsControllerCompat` y barras transitorias al deslizar, aplicado otra vez al recuperar el foco (diálogos, teclado, multitarea).
+- **Pantalla encendida durante toda la app, no solo la partida.** Es un juego que se usa en primer plano, y así no hace falta un plugin keep-awake ni avisar de cada cambio de escena. El sistema la deja apagarse al ir a segundo plano.
+- **Vibración** (`src/native/haptics.ts`):
+  - escucha el EventBus como el HUD: ligera al recibir daño y media al comprar una puerta o un portal (spec 01 §4.2 y §4.7), solo para el jugador local;
+  - la muerte no vibra aparte: ya vibra el golpe que la causa;
+  - en el navegador usa `navigator.vibrate` donde existe (Chrome en Android); en Safari y en escritorio no hace nada.
+- **Preferencias** (`src/native/preferences.ts`): `localStorage` dentro de try/catch. Si falla, se usan los valores por defecto (vibración activada) y el cambio dura solo esa sesión. El interruptor está en el menú de pausa (`VIBRACIÓN: SÍ/NO`).
+- **Foco de los menús:** el botón principal solo se enfoca solo cuando hay ratón (`hover: hover` y `pointer: fine`). En iOS, el foco automático dibujaba el aro azul de WebKit alrededor de JUGAR. Con teclado, el foco se ve con un contorno ámbar.
+- **Comprobado** en el simulador del iPhone 17 Pro (iOS 26.5): horizontal, sin barra de estado, indicador de inicio oculto y HUD dentro de las safe areas (la Dynamic Island queda fuera del margen). **Falta Android:** este Mac no tiene Java ni el SDK de Android. Para compilarlo:
+  1. instalar Android Studio;
+  2. `npm run cap:sync`;
+  3. `npm run cap:android`;
+  4. Run sobre un dispositivo conectado.

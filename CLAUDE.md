@@ -67,6 +67,7 @@ src/
     FireStick.ts          botón de disparo con arrastre (derecha)
     ActionButtons.ts      cambiar arma, especial, acción contextual
     InputCollector.ts     une todo en un InputCommand por tick
+  native/                 preferencias del dispositivo y vibración (haptics)
   ui/
     hud/                  Hud.ts, hud.css, componentes
     strings.ts            todos los textos de UI en español

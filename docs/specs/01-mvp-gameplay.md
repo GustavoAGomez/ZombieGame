@@ -271,6 +271,7 @@ Dibujados en runtime a partir del manifiesto, con los mismos tamaños que tendr�
 - **ViewController propio** (subclase de `CAPBridgeViewController`):
   - `prefersHomeIndicatorAutoHidden` a `true`.
   - `preferredScreenEdgesDeferringSystemGestures` a `.all`, para que los gestos del sistema no roben toques en los bordes.
+  - `isIdleTimerDisabled` a `true`, para que la pantalla no se apague.
 
 **Android:**
 
@@ -279,7 +280,7 @@ Dibujados en runtime a partir del manifiesto, con los mismos tamaños que tendr�
 - **Pantalla siempre encendida:** `FLAG_KEEP_SCREEN_ON` durante la partida (en iOS, el equivalente con `isIdleTimerDisabled`, o un plugin keep-awake).
 - **Recortes de pantalla:** soporte para punch-hole y notch con `layoutInDisplayCutoutMode` en `shortEdges`.
 
-**Plugins:** `@capacitor/app`, `@capacitor/haptics` (con opción para desactivar la vibración) y `@capacitor/status-bar`.
+**Plugins:** `@capacitor/app` y `@capacitor/haptics` (la vibración se desactiva desde el menú de pausa). Las barras del sistema se ocultan con `SystemBars`, que viene en el núcleo de Capacitor 8 (`hidden: true` en `capacitor.config.ts`), en lugar de `@capacitor/status-bar`.
 
 **Pantallas que hay que comprobar:**
 

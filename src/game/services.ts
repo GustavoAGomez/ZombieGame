@@ -1,5 +1,6 @@
 import type { EventBus } from '../core/EventBus';
 import type { DebugActions, DebugStats } from '../debug/DebugOverlay';
+import type { Preferences } from '../native/preferences';
 
 /** Objects shared between Phaser scenes and the DOM layer. */
 export interface Services {
@@ -14,4 +15,6 @@ export interface Services {
   mapKey: string | null;
   /** Set by the running game scene for the debug panel's buttons; null outside a match. */
   debugActions: DebugActions | null;
+  /** Player preferences kept on the device (vibration). */
+  preferences: Preferences;
 }

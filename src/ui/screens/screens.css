@@ -89,8 +89,24 @@
     3px 3px 0 var(--ink);
 }
 
+.screen-button:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+}
+
 .screen-button:active {
   transform: scale(0.94);
+}
+
+.screen-button--toggle {
+  min-height: 36px;
+  padding: 8px 16px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.screen-button--toggle[aria-pressed='true'] {
+  color: var(--bone);
 }
 
 .screen-button--big {

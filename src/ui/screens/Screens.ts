@@ -21,6 +21,14 @@ function button(label: string, onClick: () => void, extra = ''): HTMLButtonEleme
   return b;
 }
 
+/**
+ * Focuses the main button so Enter works with a keyboard. Only where there
+ * is a mouse: on a touch screen the focus ring would show around it.
+ */
+function focusForKeyboard(b: HTMLButtonElement): void {
+  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) b.focus();
+}
+
 /** Title screen: JUGAR over the whole screen. That tap is also where audio will be unlocked. */
 export class TitleScreen {
   private readonly root: HTMLDivElement;
@@ -30,7 +38,7 @@ export class TitleScreen {
     const play = button(STRINGS.title.play, onPlay, 'screen-button--primary screen-button--big');
     this.root.append(el('h1', 'screen-title', STRINGS.gameTitle), el('p', 'screen-subtitle', STRINGS.title.subtitle), play);
     parent.appendChild(this.root);
-    play.focus();
+    focusForKeyboard(play);
   }
 
   destroy(): void {
@@ -59,7 +67,7 @@ export class GameOverScreen {
       retry,
     );
     parent.appendChild(this.root);
-    retry.focus();
+    focusForKeyboard(retry);
   }
 
   destroy(): void {
@@ -67,18 +75,32 @@ export class GameOverScreen {
   }
 }
 
-/** Pause menu with CONTINUAR and REINICIAR; hidden until shown. */
+/** Preferences the pause menu switches; the caller keeps them (src/native/preferences.ts). */
+export interface PauseSettings {
+  vibration: boolean;
+}
+
+/** Pause menu with CONTINUAR, REINICIAR and the vibration switch; hidden until shown. */
 export class PauseMenu {
   private readonly root: HTMLDivElement;
   private readonly resume: HTMLButtonElement;
 
-  constructor(parent: HTMLElement, onResume: () => void, onRestart: () => void) {
+  constructor(parent: HTMLElement, onResume: () => void, onRestart: () => void, settings: PauseSettings) {
     this.root = el('div', 'screen screen--pause');
     this.root.hidden = true;
     this.resume = button(STRINGS.pause.resume, onResume, 'screen-button--primary');
     const buttons = el('div', 'screen-buttons');
     buttons.append(this.resume, button(STRINGS.pause.restart, onRestart));
-    this.root.append(el('h1', 'screen-title', STRINGS.pause.title), buttons);
+    const vibrate = button('', () => {
+      settings.vibration = !settings.vibration;
+      showVibration();
+    }, 'screen-button--toggle');
+    const showVibration = (): void => {
+      vibrate.textContent = STRINGS.pause.vibration(settings.vibration);
+      vibrate.setAttribute('aria-pressed', String(settings.vibration));
+    };
+    showVibration();
+    this.root.append(el('h1', 'screen-title', STRINGS.pause.title), buttons, vibrate);
     parent.appendChild(this.root);
   }
 
@@ -88,7 +110,7 @@ export class PauseMenu {
 
   show(): void {
     this.root.hidden = false;
-    this.resume.focus();
+    focusForKeyboard(this.resume);
   }
 
   hide(): void {

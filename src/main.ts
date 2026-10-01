@@ -12,6 +12,8 @@ import { GameScene } from './game/scenes/GameScene';
 import { TitleScene } from './game/scenes/TitleScene';
 import type { Services } from './game/services';
 import { measureViewport, watchViewport } from './game/viewport';
+import { HapticFeedback } from './native/haptics';
+import { Preferences } from './native/preferences';
 import { mountRotateOverlay } from './ui/RotateOverlay';
 
 function requireElement(id: string): HTMLElement {
@@ -36,7 +38,10 @@ const services: Services = {
   startRound: requestedStartRound(),
   mapKey: requestedMap(),
   debugActions: null,
+  preferences: new Preferences(),
 };
+
+new HapticFeedback(services.events, services.preferences);
 
 const size = measureViewport(gameRoot);
 
