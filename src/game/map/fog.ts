@@ -32,35 +32,47 @@ export function fogOwners(map: MapData): Int16Array {
   return owner;
 }
 
-/** How far (tiles) around a zone its border is hidden while it is locked: walls, doors, fences, the land beyond. */
+/** How far (tiles) a cell that touches no zone (land beyond a fence, the middle of a thick wall) looks for one. */
 export const FOG_EDGE_TILES = 3;
 
 /**
  * For cells outside every zone and not covered by fogOwners (walls on a
  * border, doors, windows, fences, land outside the lot): a bitmask of the
- * zones within FOG_EDGE_TILES. Such a cell stays dark while none of those
- * zones is unlocked, so the outline of the house is not given away either.
+ * zones the cell touches (its 8 neighbours). Such a cell stays dark while
+ * none of those zones is unlocked, so a room shows its own walls, doors and
+ * windows and nothing of the rooms around it, not even their walls. A cell
+ * that touches no zone takes the zones within FOG_EDGE_TILES instead.
  */
 export function fogEdges(map: MapData, owners: Int16Array): Int32Array {
   const { width, height, cellZone } = map;
   const masks = new Int32Array(width * height);
-  const r = FOG_EDGE_TILES;
+  const zonesAround = (x: number, y: number, r: number): number => {
+    let mask = 0;
+    for (let dy = -r; dy <= r; dy++) {
+      for (let dx = -r; dx <= r; dx++) {
+        const nx = x + dx;
+        const ny = y + dy;
+        if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+        const z = cellZone[ny * width + nx] ?? -1;
+        if (z >= 0 && z < 31) mask |= 1 << z;
+      }
+    }
+    return mask;
+  };
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const i = y * width + x;
       if ((owners[i] ?? -1) >= 0) continue;
-      let mask = 0;
-      for (let dy = -r; dy <= r; dy++) {
-        for (let dx = -r; dx <= r; dx++) {
-          const nx = x + dx;
-          const ny = y + dy;
-          if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
-          const z = cellZone[ny * width + nx] ?? -1;
-          if (z >= 0 && z < 31) mask |= 1 << z;
-        }
-      }
-      masks[i] = mask;
+      masks[i] = zonesAround(x, y, 1) || zonesAround(x, y, FOG_EDGE_TILES);
     }
   }
   return masks;
+}
+
+/** Whether a cell is dark with the zones of `unlockedMask` (bit per zone) unlocked. */
+export function cellHidden(cell: number, owners: Int16Array, edges: Int32Array, unlockedMask: number): boolean {
+  const owner = owners[cell] ?? -1;
+  if (owner >= 0) return ((unlockedMask >> owner) & 1) === 0;
+  const mask = edges[cell] ?? 0;
+  return mask !== 0 && (mask & unlockedMask) === 0;
 }

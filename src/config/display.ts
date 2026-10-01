@@ -12,6 +12,8 @@ export const DISPLAY = {
   cameraLerp: 0.15,
   /** Height at which bullets and the aim line are drawn: the bullets' flight height. */
   shotHeight: BULLETS.flightHeight,
+  /** How long the darkness over a zone takes to clear once it is unlocked (ms). */
+  fogFadeMs: 600,
 } as const;
 
 export function cappedDevicePixelRatio(dpr: number): number {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createMansionContext } from '../../test/fixtures';
-import { fogEdges, fogOwners } from './fog';
+import { cellHidden, fogEdges, fogOwners } from './fog';
 import { cameraBounds, computeLevels } from './levels';
 
 describe('levels', () => {
@@ -52,16 +52,34 @@ describe('fog of locked zones', () => {
     expect(at(32, 38)).toBe(-1); // door D1
   });
 
-  it('keeps the border of a zone dark until a zone near it is unlocked', () => {
+  it('keeps the border of a zone dark until a zone it touches is unlocked', () => {
     const edges = fogEdges(map, owners);
     const mask = (x: number, y: number) => edges[y * map.width + x] ?? 0;
     const bit = (id: string) => 1 << zone(id);
     // Door D1 shows once the hall or the salón is open.
     expect(mask(32, 38) & bit('salon')).not.toBe(0);
+    expect(mask(32, 38) & bit('recibidor')).not.toBe(0);
     expect(mask(32, 38) & bit('azotea')).toBe(0);
+    // The hall's north-west corner is its own; the walls right past it belong to the rooms around.
+    expect(mask(32, 29) & bit('recibidor')).not.toBe(0);
+    expect(mask(31, 29)).toBe(bit('biblioteca') | bit('salon'));
+    expect(mask(32, 28)).toBe(bit('biblioteca') | bit('cocina'));
     // Cells inside a zone are left to that zone's own darkness.
     expect(mask(26, 23)).toBe(0);
     // Void farther than FOG_EDGE_TILES (3) from every zone never needs it.
     expect(mask(86, 60)).toBe(0);
+  });
+
+  it('shows from the hall only the hall and its own border', () => {
+    const edges = fogEdges(map, owners);
+    const hall = 1 << zone('recibidor');
+    const hidden = (x: number, y: number) => cellHidden(y * map.width + x, owners, edges, hall);
+    expect(hidden(37, 31)).toBe(false); // hall floor
+    expect(hidden(32, 29)).toBe(false); // its corner
+    expect(hidden(32, 38)).toBe(false); // door D1
+    expect(hidden(31, 29)).toBe(true); // the library's wall, right past the corner
+    expect(hidden(32, 28)).toBe(true);
+    expect(hidden(26, 23)).toBe(true); // the library
+    expect(hidden(86, 60)).toBe(false); // void far from everything
   });
 });
