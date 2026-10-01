@@ -22,6 +22,22 @@ export const STRINGS = {
     health: 'Vida',
     dead: 'HAS MUERTO',
   },
+  title: {
+    subtitle: 'SOBREVIVE TODAS LAS RONDAS QUE PUEDAS',
+    play: 'JUGAR',
+  },
+  pause: {
+    button: 'Pausa',
+    title: 'PAUSA',
+    resume: 'CONTINUAR',
+    restart: 'REINICIAR',
+  },
+  gameOver: {
+    title: 'FIN DE LA PARTIDA',
+    survived: (rounds: number): string => (rounds === 1 ? 'HAS SOBREVIVIDO 1 RONDA' : `HAS SOBREVIVIDO ${rounds} RONDAS`),
+    points: 'PUNTOS',
+    retry: 'REINTENTAR',
+  },
   actions: {
     repair: 'REPARAR',
     openDoor: 'ABRIR PUERTA',

@@ -8,6 +8,7 @@ import { updatePlayerPortals, updateZombiePortals } from './PortalSystem';
 import type { SimContext } from './SimContext';
 import { updateSpawns } from './SpawnSystem';
 import { updateSpecial } from './SpecialSystem';
+import { updateWaves } from './WaveSystem';
 import { updateWeapons } from './WeaponSystem';
 import { updateZombies } from './ZombieSystem';
 
@@ -33,6 +34,7 @@ export function stepSimulation(ctx: SimContext, dt: number): void {
   updatePickups(ctx, dt);
   updateHealth(ctx, dt);
   updateBlood(ctx, dt);
+  updateWaves(ctx, dt);
   state.tick++;
   state.time += dt;
 }

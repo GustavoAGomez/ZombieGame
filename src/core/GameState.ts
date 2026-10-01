@@ -1,5 +1,6 @@
-import { BULLETS, LOADOUT, PICKUPS, PLAYER, POINTS, WEAPONS, ZOMBIES, type PickupKind, type WeaponId, type ZombieKind } from '../config/balance';
+import { BULLETS, LOADOUT, PICKUPS, PLAYER, POINTS, WAVES, WEAPONS, ZOMBIES, type PickupKind, type WeaponId, type ZombieKind } from '../config/balance';
 import type { MapData } from '../game/map/MapLoader';
+import { zombiesInRound } from '../game/systems/waveFormulas';
 import type { RngState } from './Rng';
 
 /**
@@ -68,6 +69,8 @@ export interface PlayerState {
   dashCooldown: number;
 
   points: number;
+  /** Every point earned this match, spent or not (game over screen). */
+  score: number;
   /** Points earned repairing during `repairRound` (capped per round). */
   repairPoints: number;
   repairRound: number;
@@ -154,12 +157,24 @@ export interface PickupState {
   age: number;
 }
 
+/**
+ * Round flow (spec 01 §4.8): `active` while the round's zombies spawn and
+ * are fought, `rest` for the pause between rounds, `over` once every player
+ * is dead.
+ */
+export type WavePhase = 'active' | 'rest' | 'over';
+
 export interface WaveState {
   round: number;
+  phase: WavePhase;
   /** Zombies still to spawn this round; -1 = unlimited. */
   toSpawn: number;
-  /** Seconds until the next spawn attempt. */
+  /** Seconds until the next spawn attempt (the first one waits for the round banner). */
   spawnTimer: number;
+  /** Seconds left of the rest between rounds. */
+  restTimer: number;
+  /** False freezes the flow on the current round (system tests). */
+  auto: boolean;
 }
 
 export interface GameState extends RngState {
@@ -220,6 +235,7 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     dashDirY: 0,
     dashCooldown: 0,
     points: POINTS.start,
+    score: 0,
     repairPoints: 0,
     repairRound: 1,
     repairCooldown: 0,
@@ -273,12 +289,15 @@ export function activeWeapon(player: PlayerState): WeaponSlotState | undefined {
 export interface GameOptions {
   seed?: number;
   startRound?: number;
-  /** Zombies to spawn; -1 = unlimited (until the wave system exists). */
+  /** Zombies to spawn in the first round; by default the round's count, -1 = unlimited. */
   toSpawn?: number;
+  /** Rounds follow one another (default). Off keeps the first round going (system tests). */
+  waveFlow?: boolean;
 }
 
 export function createGameState(map: MapData, options: GameOptions = {}): GameState {
-  const { seed = 1, startRound = 1, toSpawn = -1 } = options;
+  const round = Math.max(1, Math.floor(options.startRound ?? 1));
+  const { seed = 1, toSpawn = zombiesInRound(round), waveFlow = true } = options;
   return {
     tick: 0,
     time: 0,
@@ -288,7 +307,7 @@ export function createGameState(map: MapData, options: GameOptions = {}): GameSt
     zombies: Array.from({ length: ZOMBIES.poolSize }, createZombie),
     blood: Array.from({ length: ZOMBIES.maxBloodDecals }, createBlood),
     pickups: Array.from({ length: PICKUPS.poolSize }, createPickup),
-    wave: { round: Math.max(1, Math.floor(startRound)), toSpawn, spawnTimer: 0 },
+    wave: { round, phase: 'active', toSpawn, spawnTimer: WAVES.bannerDuration, restTimer: 0, auto: waveFlow },
     doorsOpen: map.doors.map(() => false),
     portalsOpen: Array.from({ length: map.portalLinks }, () => false),
     windowPlanks: map.windows.map((w) => w.planks),

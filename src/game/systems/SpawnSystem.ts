@@ -21,7 +21,7 @@ import { pickZombieKind, spawnInterval, zombieHp } from './waveFormulas';
  */
 export function updateSpawns(ctx: SimContext, dt: number): void {
   const { wave } = ctx.state;
-  if (wave.toSpawn === 0) return;
+  if (wave.phase !== 'active' || wave.toSpawn === 0) return;
   wave.spawnTimer -= dt;
   if (wave.spawnTimer > 0) return;
   if (countAlive(ctx) >= WAVES.maxAlive) return; // retry next tick

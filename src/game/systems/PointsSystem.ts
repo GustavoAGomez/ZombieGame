@@ -20,6 +20,7 @@ export function awardPoints(
   const p = playerById(ctx, playerId);
   if (!p) return;
   p.points += amount;
+  p.score += amount;
   ctx.events.emit('points:gained', x !== undefined && y !== undefined ? { playerId, amount, reason, x, y } : { playerId, amount, reason });
 }
 

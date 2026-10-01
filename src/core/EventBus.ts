@@ -44,6 +44,10 @@ export interface GameEvents {
     locked?: boolean;
   };
   'round:changed': { round: number };
+  /** Every zombie of the round is dead: the rest before the next round begins. */
+  'round:cleared': { round: number };
+  /** Every player is dead. `round` is the round reached; `score` every point earned. */
+  'game:over': { round: number; score: number };
 }
 
 type Handler<P> = (payload: P) => void;

@@ -8,7 +8,7 @@ export interface Services {
   debug: boolean;
   /** Filled in by the running scene; read by the debug overlay on a timer. */
   stats: DebugStats;
-  /** Round to start at (?round=N), for testing until the wave flow exists. */
+  /** Round to start at (?round=N), to test later rounds. */
   startRound: number;
   /** Map key from ?map=…, or null for the default map. */
   mapKey: string | null;

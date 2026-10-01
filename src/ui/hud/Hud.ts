@@ -1,4 +1,4 @@
-import { PLAYER, POINTS } from '../../config/balance';
+import { PLAYER, POINTS, WAVES } from '../../config/balance';
 import type { EventBus, GameEvents } from '../../core/EventBus';
 import { pixelIcon } from '../icons';
 import { STRINGS } from '../strings';
@@ -30,7 +30,9 @@ export class Hud {
   private nextFloat = 0;
   private readonly damage: HTMLDivElement;
   private readonly dead: HTMLDivElement;
+  private readonly banner: HTMLDivElement;
   private damageTimer = 0;
+  private blinkTimer = 0;
   private readonly unsubscribers: (() => void)[] = [];
 
   constructor(
@@ -87,8 +89,12 @@ export class Hud {
     this.damage = el('div', 'hud-damage');
     this.dead = el('div', 'hud-dead');
     this.dead.textContent = STRINGS.hud.dead;
+    // "RONDA N" in the middle for a moment at the start of each round (spec 01 §4.8).
+    this.banner = el('div', 'hud-banner');
+    this.banner.style.animationDuration = `${WAVES.bannerDuration}s`;
+    this.banner.addEventListener('animationend', () => this.banner.classList.remove('is-showing'));
 
-    this.root.append(this.damage, left, right, this.dead);
+    this.root.append(this.damage, left, right, this.banner, this.dead);
     parent.appendChild(this.root);
 
     this.unsubscribers.push(
@@ -105,6 +111,7 @@ export class Hud {
   destroy(): void {
     for (const off of this.unsubscribers) off();
     window.clearTimeout(this.damageTimer);
+    window.clearTimeout(this.blinkTimer);
     this.root.remove();
   }
 
@@ -134,7 +141,16 @@ export class Hud {
   };
 
   private readonly onRound = (e: GameEvents['round:changed']): void => {
-    this.round.textContent = `${STRINGS.hud.round} ${e.round}`;
+    const text = `${STRINGS.hud.round} ${e.round}`;
+    this.round.textContent = text;
+    this.banner.textContent = text;
+    // Restart the banner and make the HUD figure blink for as long as it shows.
+    this.banner.classList.remove('is-showing');
+    void this.banner.offsetWidth;
+    this.banner.classList.add('is-showing');
+    this.round.classList.add('is-blinking');
+    window.clearTimeout(this.blinkTimer);
+    this.blinkTimer = window.setTimeout(() => this.round.classList.remove('is-blinking'), WAVES.bannerDuration * 1000);
   };
 
   private readonly onWeapon = (e: GameEvents['weapon:state']): void => {

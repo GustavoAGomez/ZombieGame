@@ -6,7 +6,9 @@ import { COLORS, applyThemeTokens } from './config/theme';
 import { EventBus } from './core/EventBus';
 import { DebugOverlay, isDebugRequested, requestedMap, requestedStartRound } from './debug/DebugOverlay';
 import { BootScene } from './game/scenes/BootScene';
+import { GameOverScene } from './game/scenes/GameOverScene';
 import { GameScene } from './game/scenes/GameScene';
+import { TitleScene } from './game/scenes/TitleScene';
 import type { Services } from './game/services';
 import { measureViewport, watchViewport } from './game/viewport';
 import { mountRotateOverlay } from './ui/RotateOverlay';
@@ -47,7 +49,7 @@ const game = new Phaser.Game({
   input: { keyboard: false, mouse: false, touch: false, gamepad: false },
   audio: { noAudio: true },
   banner: false,
-  scene: [new BootScene(services), new GameScene()],
+  scene: [new BootScene(services), new TitleScene(), new GameScene(), new GameOverScene()],
 });
 
 watchViewport(game, gameRoot);

@@ -1,3 +1,5 @@
+import { App } from '@capacitor/app';
+import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
 import Phaser from 'phaser';
 import { SIM } from '../../config/balance';
 import { DISPLAY, computeWorldZoom } from '../../config/display';
@@ -6,6 +8,7 @@ import { createGameState, type GameState } from '../../core/GameState';
 import { createInputCommand } from '../../core/InputCommand';
 import { InputCollector } from '../../input/InputCollector';
 import { Hud } from '../../ui/hud/Hud';
+import { PauseButton, PauseMenu } from '../../ui/screens/Screens';
 import type { AssetLibrary } from '../assets/AssetLibrary';
 import { ASSET_KEYS } from '../assets/manifest';
 import { AimLine } from '../entities/AimLine';
@@ -25,9 +28,12 @@ import { activeBulletCount } from '../systems/BulletSystem';
 import { isZombieAlive } from '../systems/Combat';
 import { createNav, type SimContext } from '../systems/SimContext';
 import { stepSimulation } from '../systems/Simulation';
+import { roundsSurvived } from '../systems/WaveSystem';
 import { SCENE_KEYS, type GameSceneData } from './BootScene';
+import type { GameOverData } from './GameOverScene';
 
-const RESTART_AFTER_DEATH_MS = 2500;
+/** Time to watch the death ("HAS MUERTO") before the game over screen. */
+const GAME_OVER_DELAY_MS = 2000;
 
 export class GameScene extends Phaser.Scene {
   private services!: Services;
@@ -47,8 +53,14 @@ export class GameScene extends Phaser.Scene {
   private worldTexts!: WorldTextPool;
   private bloodViews!: BloodViewPool;
   private pickupViews!: PickupViewPool;
-  /** ms since every player died; the scene restarts after a pause (until phase 7). */
-  private deadFor = 0;
+  private pauseButton!: PauseButton;
+  private pauseMenu!: PauseMenu;
+  /** The match is frozen behind the pause menu. */
+  private paused = false;
+  /** ms since the match ended; the game over screen shows after GAME_OVER_DELAY_MS. */
+  private overFor = 0;
+  private overShown = false;
+  private appListeners: Promise<PluginListenerHandle>[] = [];
   /** Player teleports already shown: a new one snaps the camera instead of panning across the map. */
   private shownTeleports = 0;
   private readonly fixedStep = new FixedStep(SIM.hz, SIM.maxStepsPerFrame, SIM.maxFrameMs);
@@ -75,12 +87,17 @@ export class GameScene extends Phaser.Scene {
       events,
     };
     this.fixedStep.reset();
-    this.deadFor = 0;
+    this.paused = false;
+    this.overFor = 0;
+    this.overShown = false;
     this.shownTeleports = 0;
 
     this.hud = new Hud(hudRoot, events);
     this.controls = new InputCollector(hudRoot, events);
     this.presenter = new HudPresenter(events, this.map);
+    this.pauseMenu = new PauseMenu(hudRoot, () => this.setPaused(false), () => this.scene.restart());
+    this.pauseButton = new PauseButton(hudRoot, () => this.setPaused(true));
+    this.listenToApp();
 
     const { manifest } = this.assets;
     const playerDef = manifest.characters[ASSET_KEYS.player];
@@ -108,23 +125,81 @@ export class GameScene extends Phaser.Scene {
       this.controls.destroy();
       this.hud.destroy();
       this.worldTexts.destroy();
+      this.pauseMenu.destroy();
+      this.pauseButton.destroy();
+      this.stopListeningToApp();
+      this.anims.resumeAll();
     });
   }
 
   override update(time: number, delta: number): void {
-    this.fixedStep.advance(delta, (dt) => this.step(dt));
+    if (!this.paused && !this.overShown) this.fixedStep.advance(delta, (dt) => this.step(dt));
     this.syncViews(this.fixedStep.alpha, time);
     this.presenter.publish(this.state);
     this.updateStats();
-    this.checkAllDead(delta);
+    this.checkGameOver(delta);
   }
 
-  /** Temporary until the game-over screen (phase 7): restart after dying. */
-  private checkAllDead(delta: number): void {
-    for (const p of this.state.players) if (p.hp > 0) return;
-    this.deadFor += delta;
-    if (this.deadFor >= RESTART_AFTER_DEATH_MS) this.scene.restart();
+  /** Freezes or resumes the match behind the pause menu (spec 01 §2.5). */
+  private setPaused(paused: boolean): void {
+    if (this.overShown || paused === this.paused) return;
+    this.paused = paused;
+    this.pauseMenu[paused ? 'show' : 'hide']();
+    this.pauseButton.visible = !paused;
+    if (paused) {
+      // A finger held on a control would otherwise stay pressed after resuming.
+      this.controls.resetAll();
+      this.anims.pauseAll();
+    } else {
+      // No catching up on the time spent paused.
+      this.fixedStep.reset();
+      this.anims.resumeAll();
+    }
   }
+
+  /** Every player is dead: a moment to see it, then the game over screen. */
+  private checkGameOver(delta: number): void {
+    if (this.overShown || this.state.wave.phase !== 'over') return;
+    this.overFor += delta;
+    if (this.overFor < GAME_OVER_DELAY_MS) return;
+    this.overShown = true;
+    this.pauseMenu.hide();
+    this.pauseButton.visible = false;
+    this.controls.resetAll();
+    const data: GameOverData = {
+      services: this.services,
+      assets: this.assets,
+      rounds: roundsSurvived(this.state),
+      score: this.state.players[0]?.score ?? 0,
+    };
+    this.scene.launch(SCENE_KEYS.gameOver, data);
+  }
+
+  /**
+   * Automatic pause when the app goes to the background (visibilitychange on
+   * the web, appStateChange on iOS and Android), and the Android back button
+   * opens or closes the pause menu (spec 01 §2.5, §4.9).
+   */
+  private listenToApp(): void {
+    document.addEventListener('visibilitychange', this.onVisibility);
+    if (!Capacitor.isNativePlatform()) return;
+    this.appListeners = [
+      App.addListener('appStateChange', ({ isActive }) => {
+        if (!isActive) this.setPaused(true);
+      }),
+      App.addListener('backButton', () => this.setPaused(!this.paused)),
+    ];
+  }
+
+  private stopListeningToApp(): void {
+    document.removeEventListener('visibilitychange', this.onVisibility);
+    for (const handle of this.appListeners) void handle.then((h) => h.remove());
+    this.appListeners = [];
+  }
+
+  private readonly onVisibility = (): void => {
+    if (document.visibilityState === 'hidden') this.setPaused(true);
+  };
 
   private step(dt: number): void {
     const localCommand = this.sim.commands[0];

@@ -215,3 +215,50 @@
     transform: translateY(-8px);
   }
 }
+
+/* Round banner: "RONDA N" in the middle at the start of each round (spec 01 §4.8). */
+.hud-banner {
+  position: absolute;
+  left: 50%;
+  top: 36%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-display);
+  font-size: 32px;
+  color: var(--red);
+  text-shadow: 3px 3px 0 var(--ink);
+  opacity: 0;
+  white-space: nowrap;
+}
+
+.hud-banner.is-showing {
+  animation-name: hud-banner;
+  animation-timing-function: steps(10, end);
+  animation-fill-mode: both;
+}
+
+@keyframes hud-banner {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  12%,
+  80% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* The round figure blinks while the banner shows. */
+.hud-round.is-blinking {
+  animation: hud-blink 0.5s steps(1, end) infinite;
+}
+
+@keyframes hud-blink {
+  50% {
+    opacity: 0.2;
+  }
+}

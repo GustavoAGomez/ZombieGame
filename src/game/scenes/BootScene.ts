@@ -6,7 +6,9 @@ import type { Services } from '../services';
 
 export const SCENE_KEYS = {
   boot: 'boot',
+  title: 'title',
   game: 'game',
+  gameOver: 'gameOver',
 } as const;
 
 const MANIFEST_KEY = 'manifest';
@@ -22,7 +24,7 @@ export interface GameSceneData {
   assets: AssetLibrary;
 }
 
-/** Loads the manifest, then every asset it declares, then starts the game. */
+/** Loads the manifest, then every asset it declares, then shows the title screen. */
 export class BootScene extends Phaser.Scene {
   constructor(private readonly services: Services) {
     super(SCENE_KEYS.boot);
@@ -39,7 +41,7 @@ export class BootScene extends Phaser.Scene {
       assets.finalize(this);
       const data: GameSceneData = { services: this.services, assets };
       // World texts use the pixel font: make sure it is ready before drawing them.
-      void loadFonts().then(() => this.scene.start(SCENE_KEYS.game, data));
+      void loadFonts().then(() => this.scene.start(SCENE_KEYS.title, data));
     });
     this.load.start();
   }
