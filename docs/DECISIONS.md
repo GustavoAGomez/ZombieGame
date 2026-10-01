@@ -201,3 +201,29 @@ Registro de lo que la spec no definía (o definía de forma ambigua) y cómo se 
 ## Mansión por defecto (adelantado de la Fase M7)
 
 - A petición, la mansión pasa a ser el mapa por defecto antes del balance de M7. `?map=room01` sigue cargando el mapa de prueba. Si el manifiesto no tuviera la mansión, se usa `room01`.
+
+## Spec 02 · Fase M7 (balance de la mansión y rendimiento)
+
+- **Costes sin cambios.** Con 10 puntos por impacto y 50 por baja, gastándolo todo en puertas se abre el anillo de habitaciones (4750) hacia la ronda 3–4 y el mapa entero (17 750: puertas 11 750 + portales 6000) hacia la ronda 6–7 con pistola. Es una progresión parecida a la de los mapas de Black Ops 1 y respeta el rango 750–2000 de la spec. Cuando haya otras formas de gastar (armas), se revisará.
+- **Pesos de spawn por distancia a pie:** medido con partidas simuladas sin cabeza (jugador quieto e inmortal, ventanas sin tablones, 4 minutos por caso), el peso `1 / (1 + distancia en línea recta / 256)` hacía que, con el mapa abierto, los zombies tardasen de media 25–37 s en llegar (p90 hasta 68 s), porque la cola de spawns lejanos pesa mucho con 23 puntos. Ahora:
+  - la distancia es la del flow field (a pie, atravesando puertas y portales), no la línea recta: una ventana al otro lado de una pared ya no cuenta como cercana;
+  - un spawn de ventana que está en una zona exterior abierta cuenta desde donde aparece, porque ese zombie persigue directamente (M4);
+  - peso `1 / (1 + tiles / 8)` (`WAVES.spawnFalloffTiles`);
+  - se descartan los spawns a más de 28 tiles a pie mientras haya alguno más cerca (`WAVES.spawnMaxPathTiles`); si todos están lejos, se usan todos.
+- **Resultado** (media de llegada, ronda 1 / ronda 5, y spawns distintos usados):
+
+  | Etapa | Antes | Ahora | Spawns |
+  |---|---|---|---|
+  | Solo recibidor | 7,8 / 6,4 s | 7,8 / 6,4 s | 2 |
+  | Anillo de la casa | 19,7 / 16,7 s | 12,9 / 11,0 s | 5 |
+  | Casa + exterior (en la cocina) | 30,6 / 25,1 s | 16,7 / 13,5 s | 3 |
+  | Todo abierto, en el jardín | 32,0 / 26,2 s | 9,1 / 7,3 s | 3 |
+  | Todo abierto, en la azotea | 37,4 / 30,1 s | 12,4 / 9,9 s | 5 |
+
+  Con un corte de 24 tiles llegaban antes, pero la cocina se quedaba con solo 2 ventanas; con 32 había más variedad, pero el p90 pasaba de 25 s.
+- **Consecuencia en la calle:** los spawns abiertos están en los extremos (x 1 y x 70). Con el jugador en el centro de la calle quedan fuera del corte y los zombies llegan por las ventanas de la fachada, cuyos spawns están en la acera. Si se quieren zombies saliendo del asfalto en el centro, hay que añadir spawns abiertos en Tiled.
+- **Ritmo de rondas:** las fórmulas de la spec 01 (número de zombies, intervalo, mezcla) no cambian. Con llegadas de 10–17 s, el intervalo de 2 s de la ronda 1 da rondas de unos 25–30 s. El descanso entre rondas y el cartel llegan con la Fase 7 de la spec 01 y se volverán a medir allí.
+- **Rendimiento** (MacBook, Chrome; no se ha podido medir en un iPhone 12):
+  - simulación sola, con todo abierto, 20 zombies y 30 balas: 0,03 ms por tick de media y 0,3 ms en el peor (incluye el BFS de 5400 casillas, 0,14 ms cada 250 ms);
+  - frame completo (simulación + render) con un viewport de móvil en apaisado (canvas de 1688×780) y 711 objetos en escena: 0,1–0,2 ms de CPU de mediana y 2,4–3 ms en el p99 (máximo 3,8 ms);
+  - aunque el iPhone fuera 3 veces más lento en CPU, quedaría por debajo de 12 ms en el p99, frente a los 16,7 ms de presupuesto. No hace falta optimizar (ni agrupar las ~520 paredes en una capa). La confirmación final es jugar en el iPhone con `?debug=1` (contador de FPS).

@@ -212,8 +212,13 @@ export const WAVES = {
   spawnIntervalBase: 2.0,
   spawnIntervalPerRound: 0.1,
   spawnIntervalMin: 0.4,
-  /** Spawn weight = 1 / (1 + distanceToPlayer / falloff): closer spawns are likelier. */
-  spawnDistanceFalloff: 256,
+  /**
+   * Spawn weight = 1 / (1 + pathTiles / falloff): closer spawns are likelier.
+   * pathTiles is the walking distance to the nearest player (flow field).
+   */
+  spawnFalloffTiles: 8,
+  /** Spawns farther than this (walking, in tiles) are skipped while any spawn is closer. */
+  spawnMaxPathTiles: 28,
   /** Open spawns (street, roof) stay off while a live player is closer than this (spec 02 §3.4). */
   openSpawnMinDistanceTiles: 8,
   restTime: 8,

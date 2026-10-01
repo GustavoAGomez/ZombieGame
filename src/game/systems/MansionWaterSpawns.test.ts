@@ -14,7 +14,8 @@ import { UNREACHABLE, computeFlowField, distanceAt } from '../map/FlowField';
 import { isZombieAlive } from './Combat';
 import { openDoor } from './DoorSystem';
 import type { SimContext } from './SimContext';
-import { openSpawnIndex, pickSpawn, spawnCount, spawnWeight, spawnZombie } from './SpawnSystem';
+import { openPortal } from './PortalSystem';
+import { openSpawnIndex, pickSpawn, spawnCount, spawnPathTiles, spawnWeight, spawnZombie } from './SpawnSystem';
 import { stepSimulation } from './Simulation';
 import { updateZombies } from './ZombieSystem';
 
@@ -67,6 +68,8 @@ describe('open spawns', () => {
     movePlayer(ctx, 4, 46);
     expect(spawnWeight(ctx, openSpawnAt(ctx, 1, 46))).toBe(0);
     expect(spawnWeight(ctx, openSpawnAt(ctx, 70, 46))).toBeGreaterThan(0);
+    // 11 tiles from the west open spawn: close enough to be picked, never closer than 8.
+    movePlayer(ctx, 12, 46);
     const p = player(ctx);
     let open = 0;
     for (let i = 0; i < 400; i++) {
@@ -127,3 +130,55 @@ describe('roof void', () => {
     expect(player(ctx).y).toBeLessThan(18 * 32);
   });
 });
+
+describe('spawn distance on the big map (Fase M7)', () => {
+  const spawnOf = (ctx: SimContext, window: string): number => ctx.map.zombieSpawns.findIndex((s) => s.window === window);
+
+  function withField(ctx: SimContext): void {
+    const p = player(ctx);
+    computeFlowField(ctx.nav, ctx.map, ctx.grid, ctx.state.zonesUnlocked, [Math.floor(p.y / 32) * ctx.map.width + Math.floor(p.x / 32)], ctx.state.portalsOpen);
+  }
+
+  it('measures windows by walking distance, not through walls', () => {
+    const ctx = createMansionContext();
+    for (const id of ['D1', 'D2', 'D3', 'D4', 'D5']) openDoor(ctx, ctx.map.doors.findIndex((d) => d.id === id));
+    movePlayer(ctx, 28, 34);
+    withField(ctx);
+    // W9 (biblioteca, north wall) is ~22 tiles away in a straight line but much farther on foot.
+    const w9 = spawnOf(ctx, 'W9');
+    const straight = Math.hypot(ctx.map.zombieSpawns[w9]!.x - player(ctx).x, ctx.map.zombieSpawns[w9]!.y - player(ctx).y) / 32;
+    expect(spawnPathTiles(ctx, w9)).toBeGreaterThan(straight + 8);
+    expect(spawnWeight(ctx, w9)).toBeLessThan(spawnWeight(ctx, spawnOf(ctx, 'W1')));
+  });
+
+  it('counts a window spawn on an open exterior from where it appears', () => {
+    const ctx = createMansionContext();
+    unlock(ctx, 'jardin');
+    movePlayer(ctx, 45, 9);
+    withField(ctx);
+    // W11's zombies appear in the garden at (45, 13): 4 tiles from the player, who can walk there.
+    expect(spawnPathTiles(ctx, spawnOf(ctx, 'W11'))).toBe(4);
+  });
+
+  it('skips far spawns while closer ones exist', () => {
+    const ctx = createMansionContext();
+    for (const door of ctx.map.doors) openDoor(ctx, ctx.map.doors.indexOf(door));
+    movePlayer(ctx, 28, 34);
+    withField(ctx);
+    for (let i = 0; i < 500; i++) expect(spawnPathTiles(ctx, pickSpawn(ctx))).toBeLessThanOrEqual(WAVES.spawnMaxPathTiles);
+  });
+
+  it('still spawns when every spawn is far', () => {
+    const ctx = createMansionContext();
+    openPortal(ctx, ctx.map.portals.findIndex((p) => p.id === 'P1a'));
+    movePlayer(ctx, 40, 20); // kitchen: only the basement is open besides it, and its grates are far away
+    ctx.state.zonesUnlocked[zoneIndexOf(ctx, 'cocina')] = false;
+    ctx.state.zonesUnlocked[zoneIndexOf(ctx, 'recibidor')] = false;
+    withField(ctx);
+    const s = pickSpawn(ctx);
+    expect(s).toBeGreaterThanOrEqual(0);
+    expect(spawnPathTiles(ctx, s)).toBeGreaterThan(WAVES.spawnMaxPathTiles);
+  });
+});
+
+const zoneIndexOf = (ctx: SimContext, id: string): number => ctx.map.zones.findIndex((z) => z.id === id);
