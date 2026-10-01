@@ -180,4 +180,4 @@ npm run map:build       embebe los tilesets → public/assets/maps/mansion.tmj, 
 
 - `map:build` no escribe el mapa del juego si el validador falla, y lista los errores (zonas, barricadas, costes, salidas, alcanzabilidad, portales…).
 - `assets:check` (y por tanto `npm run build`) pasa el mismo validador a los mapas que tienen fuente en `art-src/tiled/` y avisa si la fuente es más reciente que el mapa del juego.
-- En el juego, `?map=mansion` carga la mansión (`room01` sigue siendo el mapa por defecto hasta la Fase M7).
+- La mansión es el mapa por defecto; `?map=room01` carga el mapa de prueba.

@@ -94,6 +94,7 @@ export const ASSET_KEYS = {
   pickupHealth: 'pickup_health',
   muzzleFlash: 'muzzle_flash',
   mapRoom01: 'room01',
+  mapMansion: 'mansion',
 } as const;
 
 export const MANIFEST_URL = 'assets/manifest.json';

@@ -197,3 +197,7 @@ Registro de lo que la spec no definía (o definía de forma ambigua) y cómo se 
 - **Chip:** el evento `action:context` lleva `kind: 'portal'`, `portal: 'stairs' | 'hatch'` (escalera y escalera de mano dicen `ABRIR ESCALERA`, la trampilla `ABRIR TRAMPILLA`) y `locked`. Los campos nuevos solo se envían para portales.
 - **Evento `portal:opened`** para la vibración de la Fase 9, como `door:opened`.
 - **Alcance del chip:** `PORTALS.interactRange` = 48 px, igual que las puertas.
+
+## Mansión por defecto (adelantado de la Fase M7)
+
+- A petición, la mansión pasa a ser el mapa por defecto antes del balance de M7. `?map=room01` sigue cargando el mapa de prueba. Si el manifiesto no tuviera la mansión, se usa `room01`.

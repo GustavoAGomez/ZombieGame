@@ -101,11 +101,11 @@ export class AssetLibrary {
     this.createAnimations(scene);
   }
 
-  /** The map `key` if it exists, otherwise the default map (room01, the first one declared). */
+  /** The map `key` if it exists, otherwise the default map: the mansion, else room01, else the first one declared. */
   mapOrDefault(key: string | null): MapData {
     if (key && this.maps.has(key)) return this.map(key);
     if (key) console.warn(`[assets] No existe el mapa "${key}", se usa el de por defecto`);
-    const fallback = this.maps.has(ASSET_KEYS.mapRoom01) ? ASSET_KEYS.mapRoom01 : [...this.maps.keys()][0];
+    const fallback = [ASSET_KEYS.mapMansion, ASSET_KEYS.mapRoom01].find((k) => this.maps.has(k)) ?? [...this.maps.keys()][0];
     return this.map(fallback ?? '');
   }
 
