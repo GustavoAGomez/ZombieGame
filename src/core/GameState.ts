@@ -164,6 +164,8 @@ export interface ZombieState {
   actionTick: number;
   /** Portal end just arrived at, as for players. -1 = none. */
   portalLock: number;
+  /** Seconds spent chasing off the flow field (NAVIGATION.lostRespawnTime). */
+  lostTimer: number;
 }
 
 export interface BloodState {
@@ -336,6 +338,7 @@ function createZombie(): ZombieState {
     stateTick: 0,
     actionTick: -1,
     portalLock: -1,
+    lostTimer: 0,
   };
 }
 

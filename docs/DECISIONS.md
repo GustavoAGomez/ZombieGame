@@ -575,3 +575,17 @@ El usuario siguió viendo balas que desaparecían al disparar en diagonal junto 
 - **Muros gruesos del kit:** `WALL_SHAPE_SOLID` (casilla entera) y `WALL_SHAPE_SOLID_NORTH_OPEN` (desde la base).
 - **Comprobado** con un barrido en tres esquinas de la mansión (1.707 disparos desde 8 posiciones × 3 alturas × 29 ángulos): ninguna bala se para sin tocar visiblemente una pared o un mueble dibujados.
 - El modo HITBOX dibuja estas zonas a la altura de las balas.
+
+## Zombis atascados en las rejillas del sótano
+
+Bug del usuario: en la rejilla sur del sótano (S2), los zombis se quedaron fuera sin poder entrar y la ronda no terminaba.
+
+- **Causa:** las rejillas del sótano (S1 y S2) dan al vacío, y el spawn de sus zombis está dos casillas fuera, dentro del vacío.
+  - Ir a la ventana y arrancar tablones se hace en línea recta, sin chocar con el mapa, a propósito.
+  - Pero cada tick la separación entre zombis los «sacaba» de las casillas bloqueadas, y en el vacío eso los lanzaba casilla a casilla: el zombi no llegaba nunca a menos de 12 px del punto exterior de la ventana.
+  - También podía pasar que la separación empujara a un zombi del interior contra la rejilla y lo expulsara al otro lado. Ahí, fuera del flow field, se quedaba empujando la pared para siempre.
+- **Arreglo:**
+  - los zombis que van a una ventana o arrancan tablones ya no se empujan fuera de las casillas bloqueadas (sí se separan entre ellos);
+  - un zombi que persigue fuera del flow field vuelve a entrar por la ventana más cercana a 3 casillas o menos (`NAVIGATION.lostWindowRange`);
+  - sin ventana cerca, a los 6 s (`NAVIGATION.lostRespawnTime`) sale del mapa y vuelve a aparecer desde un spawn (`toSpawn + 1`), para que un atasco nunca bloquee el final de una ronda.
+- **Tests:** seis zombis entrando por S1 y por S2 con el jugador justo dentro; un zombi expulsado al vacío que vuelve a entrar; y uno perdido sin ventana cerca que reaparece.

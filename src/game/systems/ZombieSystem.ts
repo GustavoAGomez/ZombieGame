@@ -27,6 +27,13 @@ import { isDashing } from './SpecialSystem';
  * With 1 damage unit of HP or less left a zombie crawls: it walks at less
  * than half its speed (tearing, climbing and attacking are unchanged).
  *   dead      corpse for the death animation, then the slot is freed
+ *
+ * Going to a window and tearing it happen off the map's collision on
+ * purpose (the way in from a spawn can cross the void outside a grating):
+ * those zombies are never pushed out of blocked tiles. A chasing zombie that
+ * ends up off the flow field (shoved out through a window by the crowd)
+ * goes back in through the nearest window; with none near, after
+ * NAVIGATION.lostRespawnTime it leaves the map and spawns again.
  */
 
 const sourceCells: number[] = [];
@@ -201,6 +208,11 @@ function reachTo(z: ZombieState, p: PlayerState): number {
 function updateChasing(ctx: SimContext, z: ZombieState, dt: number): void {
   const target = nearestAlivePlayer(ctx, z.x, z.y);
   if (!target) return;
+  if (distanceAt(ctx.nav, z.x, z.y) === UNREACHABLE) {
+    if (recoverLostZombie(ctx, z, dt)) return;
+  } else {
+    z.lostTimer = 0;
+  }
   const dx = target.x - z.x;
   const dy = target.y - z.y;
   const dist = Math.hypot(dx, dy);
@@ -280,6 +292,38 @@ function blockedAhead(
   return undefined;
 }
 
+/**
+ * A chasing zombie off the flow field: back in through the nearest window
+ * within NAVIGATION.lostWindowRange, or, after NAVIGATION.lostRespawnTime,
+ * off the map to spawn again (the round's count is kept). Returns true when
+ * it was handled this tick.
+ */
+function recoverLostZombie(ctx: SimContext, z: ZombieState, dt: number): boolean {
+  const { map, state } = ctx;
+  let best = -1;
+  let bestSq = (NAVIGATION.lostWindowRange * map.tileSize) ** 2;
+  map.windows.forEach((w, i) => {
+    // Only windows that lead somewhere the field reaches.
+    if ((ctx.nav.dist[w.tileY * map.width + w.tileX] ?? UNREACHABLE) === UNREACHABLE) return;
+    const d = (w.center.x - z.x) ** 2 + (w.center.y - z.y) ** 2;
+    if (d < bestSq) {
+      bestSq = d;
+      best = i;
+    }
+  });
+  if (best >= 0) {
+    z.lostTimer = 0;
+    startCrossing(ctx, z, best);
+    return true;
+  }
+  z.lostTimer += dt;
+  if (z.lostTimer < NAVIGATION.lostRespawnTime) return false;
+  z.active = false;
+  z.lostTimer = 0;
+  if (state.wave.toSpawn >= 0) state.wave.toSpawn++;
+  return true;
+}
+
 function updateAttacking(ctx: SimContext, z: ZombieState, dt: number): void {
   const target = nearestAlivePlayer(ctx, z.x, z.y);
   if (target) z.facing = Math.atan2(target.y - z.y, target.x - z.x);
@@ -307,6 +351,15 @@ function refreshFlowField(ctx: SimContext, dt: number): void {
 
 export function pushable(z: ZombieState): boolean {
   return isZombieAlive(z) && z.ai !== 'climbing';
+}
+
+/**
+ * Going to a window and tearing it ignore the map (the way from a spawn can
+ * cross the void outside a grating): pushing those zombies out of blocked
+ * tiles threw them a tile away every tick, and they never reached the window.
+ */
+function followsMap(z: ZombieState): boolean {
+  return z.ai !== 'toWindow' && z.ai !== 'tearing';
 }
 
 /** Zombies push each other softly so they never stack on one spot. */
@@ -343,7 +396,7 @@ function separateZombies(ctx: SimContext): void {
   }
   for (let i = 0; i < zombies.length; i++) {
     const z = zombies[i];
-    if (z && pushable(z)) resolveCircle(ctx.grid, z, ZOMBIES.hitboxRadius, BLOCK_ZOMBIE);
+    if (z && pushable(z) && followsMap(z)) resolveCircle(ctx.grid, z, ZOMBIES.hitboxRadius, BLOCK_ZOMBIE);
   }
 }
 
@@ -366,7 +419,7 @@ function pushZombiesOutOfPlayers(ctx: SimContext): void {
       const dist = Math.sqrt(distSq);
       z.x += (dx / dist) * (minDist - dist);
       z.y += (dy / dist) * (minDist - dist);
-      resolveCircle(ctx.grid, z, ZOMBIES.hitboxRadius, BLOCK_ZOMBIE);
+      if (followsMap(z)) resolveCircle(ctx.grid, z, ZOMBIES.hitboxRadius, BLOCK_ZOMBIE);
     }
   }
 }

@@ -217,6 +217,17 @@ export const NAVIGATION = {
   barricadeClimbSteps: 1,
   /** A zombie heading for a window gives it up only for a way at least this many tiles shorter. */
   routeSwitchSteps: 2,
+  /**
+   * A chasing zombie off the flow field (pushed out through a window, say)
+   * heads back for the nearest window this close (tiles), to come in again.
+   */
+  lostWindowRange: 3,
+  /**
+   * A chasing zombie off the flow field with no window near is taken off
+   * the map after this long (s) and comes back from a spawn, so a stuck
+   * zombie never blocks the end of a round.
+   */
+  lostRespawnTime: 6,
 } as const;
 
 export const BARRICADES = {
