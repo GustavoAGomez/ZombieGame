@@ -61,7 +61,7 @@ export class WeaponBar {
       if (!slot) return;
       if (this.shown[i] !== slot.weapon) {
         this.shown[i] = slot.weapon;
-        button.setIcon(WEAPON_ICONS[slot.weapon], 20);
+        button.setIcon(WEAPON_ICONS[slot.weapon], 17);
         button.el.setAttribute('aria-label', `${STRINGS.controls.weaponSlot(i + 1)}: ${STRINGS.weapons[slot.weapon]}`);
       }
       button.setLabel(String(slot.magazine));

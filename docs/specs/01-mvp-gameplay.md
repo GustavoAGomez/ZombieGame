@@ -42,24 +42,24 @@ Cada control usa Pointer Events con `setPointerCapture`. El joystick y el dispar
 
 El HUD sigue la disposición de League of Legends: Wild Rift (decidido después de la Fase 7; ver `docs/DECISIONS.md`). Los botones son pequeños, redondos y solo llevan icono; solo el joystick y el disparo son grandes.
 
-- **Arco alrededor del disparo,** como las habilidades de Wild Rift. Los botones miden 40 px y sus centros se dan respecto al centro del botón de disparo (96 px):
-  - **Cuchillo:** centro en `(-80, -4)`, a la izquierda. Ataque cuerpo a cuerpo en cualquier momento; el jugador se gira hacia el zombie más cercano a su alcance.
-  - **Recargar:** centro en `(-14, -80)`, encima. Recarga si falta munición en el cargador y queda reserva; si no, se ve atenuado. Muestra el progreso de la recarga como un velo que baja dentro del círculo.
-  - **Especial (dash):** centro en `(40, -66)`, a la derecha de recargar, en ámbar. Muestra la recarga como un velo que baja dentro del círculo, con los segundos restantes.
+- **Arco alrededor del disparo,** como las habilidades de Wild Rift. Los botones miden 34 px y sus centros se dan respecto al centro del botón de disparo (96 px):
+  - **Cuchillo:** centro en `(-76, -4)`, a la izquierda. Ataque cuerpo a cuerpo en cualquier momento; el jugador se gira hacia el zombie más cercano a su alcance.
+  - **Recargar:** centro en `(-14, -76)`, encima. Recarga si falta munición en el cargador y queda reserva; si no, se ve atenuado. Muestra el progreso de la recarga como un velo que baja dentro del círculo.
+  - **Especial (dash):** centro en `(38, -66)`, a la derecha de recargar, en ámbar. Muestra la recarga como un velo que baja dentro del círculo, con los segundos restantes.
 - **Columna de armas,** en vertical justo debajo de los puntos y el total, pegada al borde derecho (`right: var(--pad-x)`, `top: calc(var(--pad-top) + 60px)`, 4 px entre huecos).
-  - Un hueco por arma que lleve el jugador, como máximo 3, de 38 px.
+  - Un hueco por arma que lleve el jugador, como máximo 3, de 32 px.
   - Cada hueco lleva su icono y las balas de su cargador; el activo se resalta en ámbar.
   - Tocarlo cambia a esa arma (comando `selectWeapon`). No hay botón de cambiar arma.
 - **Fila inferior,** centrada al 55 % del ancho, como los hechizos de invocador de Wild Rift. Cada botón tiene un sitio fijo, así que ninguno se mueve cuando el otro aparece o desaparece:
-  - a la izquierda, la mejora temporal guardada (spec 03 §5), de 46 px;
+  - a la izquierda, la mejora temporal guardada (spec 03 §5), de 40 px;
   - a la derecha, más cerca del pulgar derecho, el botón de acción (§2.4).
-- **Pausa:** 38 px.
-- **Toques con margen de error:** como en Wild Rift, cada botón responde también un poco fuera de su aro, con una zona invisible más grande (12 px; 14 px en el disparo y 4 px entre los huecos de arma). Donde se juntan dos zonas gana el botón que está encima, de modo que los botones pequeños del arco conservan su borde.
+- **Pausa:** 32 px.
+- **Toques con margen de error:** como en Wild Rift, cada botón responde también un poco fuera de su aro, con una zona invisible más grande (14 px; 4 px entre los huecos de arma). Donde se juntan dos zonas gana el botón que está encima, de modo que los botones pequeños del arco conservan su borde.
 
 ### 2.4 Botón de acción contextual
 
-- **Qué es:** un botón redondo de 44 px que solo aparece cuando hay una acción disponible.
-- **Posición:** en la fila inferior, a la derecha de la mejora temporal (`left: calc(55% + 10px)`, `bottom: calc(var(--pad-bottom) + 15px)`). Su etiqueta (`+10`, el coste, el nombre del mago) va encima del botón.
+- **Qué es:** un botón redondo de 38 px que solo aparece cuando hay una acción disponible.
+- **Posición:** en la fila inferior, a la derecha de la mejora temporal (`left: calc(55% + 11px)`, `bottom: calc(var(--pad-bottom) + 15px)`). Su etiqueta (`+10`, el coste, el nombre del mago) va encima del botón.
 - **Acciones:**
   - **Reparar ventana:** icono de martillo y `+10` en ámbar en una etiqueta debajo. Cada toque repara un tablón; el aro parpadea para indicarlo.
   - **Abrir puerta:** icono de puerta y el coste debajo. Si no hay puntos suficientes, el botón se ve atenuado, la etiqueta muestra lo que falta en rojo (`-X`) y tiembla al tocarlo.

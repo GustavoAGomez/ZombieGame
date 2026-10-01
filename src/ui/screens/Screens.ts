@@ -122,7 +122,7 @@ export class PauseMenu {
   }
 }
 
-/** The 44×44 pause button at the top centre. */
+/** The 32×32 pause button at the top centre (its tap area is larger, screens.css). */
 export class PauseButton {
   private readonly root: HTMLButtonElement;
 
@@ -130,7 +130,7 @@ export class PauseButton {
     this.root = el('button', 'pause-button');
     this.root.type = 'button';
     this.root.setAttribute('aria-label', STRINGS.pause.button);
-    this.root.appendChild(pixelIcon('pause', 18));
+    this.root.appendChild(pixelIcon('pause', 14));
     this.root.addEventListener('click', onPause);
     parent.appendChild(this.root);
   }

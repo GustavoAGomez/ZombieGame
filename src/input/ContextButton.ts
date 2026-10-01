@@ -32,7 +32,7 @@ export class ContextButton extends PointerControl {
     const face = document.createElement('span');
     face.className = 'context-button__face';
     this.face = face;
-    this.icons = { repair: pixelIcon('hammer', 22), door: pixelIcon('door', 20), portal: pixelIcon('stairs', 20) };
+    this.icons = { repair: pixelIcon('hammer', 19), door: pixelIcon('door', 17), portal: pixelIcon('stairs', 17) };
     face.append(this.icons.repair, this.icons.door, this.icons.portal);
     this.value = document.createElement('span');
     this.value.className = 'context-button__value';
@@ -112,7 +112,7 @@ export class ContextButton extends PointerControl {
   private hatFor(id: MerchantId): SVGSVGElement {
     let hat = this.hats.get(id);
     if (!hat) {
-      hat = pixelIcon('wizard', 22, merchantDef(id).color);
+      hat = pixelIcon('wizard', 19, merchantDef(id).color);
       this.hats.set(id, hat);
       this.face.appendChild(hat);
     }

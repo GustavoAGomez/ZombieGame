@@ -535,3 +535,13 @@ Petición del usuario.
 - **Dash:** baja a (+40, −66) del centro del disparo, para quedar a 8 px de la tercera arma a 640×360.
 - **Panel de debug:** solo sus botones reciben toques. Su fondo tapaba la zona del joystick en pantallas bajas y no se podía empezar a mover desde ahí.
 - **Comprobado** en 844×390, 800×360 y 640×360 con la tienda abierta, la mejora, el botón de acción y 3 armas: sin solapes, midiendo el contenido de los bloques del HUD y los círculos de los botones.
+
+## HUD: botones aún más pequeños
+
+Petición del usuario: todo menos el joystick y el disparo, que siguen igual.
+
+- **Tamaños:** recargar, cuchillo y dash 34 px; armas 32; botón de acción 38; mejora 40; pausa 32. Los iconos bajan en proporción (16–19 px).
+- **Margen de toque:** 14 px por defecto (también en la pausa) y 4 px entre armas, para que la zona que responde siga cerca de 60 px aunque el botón dibujado sea pequeño.
+- **Arco recolocado** para los 34 px: cuchillo (−76, −4), recargar (−14, −76) y dash (+38, −66).
+- **Comprobado** en las tres pantallas con todo a la vista: sin solapes. Un toque 12 px fuera del cuchillo sigue cayendo en el cuchillo.
+- **Limitación:** por debajo de unos 30 px de diámetro, los iconos de 12×12 píxeles ya no se pueden reducir sin perder la rejilla de píxeles (habría que dibujarlos a 8×8).

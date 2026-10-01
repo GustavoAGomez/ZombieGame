@@ -6,8 +6,8 @@ import { TapButton } from './TapButton';
 
 const ICONS: Record<BoostKind, IconName> = { speed: 'bolt', double_damage: 'x2' };
 /** Size of the button and radius of the countdown ring inside it (SVG units = CSS px). */
-const SIZE = 46;
-const RING_RADIUS = 20.5;
+const SIZE = 40;
+const RING_RADIUS = 17.5;
 const RING_LENGTH = 2 * Math.PI * RING_RADIUS;
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -28,7 +28,7 @@ export class BoostButton {
   private stored = false;
 
   constructor(parent: HTMLElement, events: EventBus) {
-    this.button = new TapButton(parent, 'action-button--boost', null, '', '', 20);
+    this.button = new TapButton(parent, 'action-button--boost', null, '', '', 17);
     const svg = document.createElementNS(SVG_NS, 'svg');
     svg.setAttribute('class', 'boost-ring');
     svg.setAttribute('viewBox', `0 0 ${SIZE} ${SIZE}`);
@@ -69,7 +69,7 @@ export class BoostButton {
     if (!kind) return;
     if (kind !== this.shownIcon) {
       this.shownIcon = kind;
-      this.button.setIcon(ICONS[kind], 20);
+      this.button.setIcon(ICONS[kind], 17);
       el.setAttribute('aria-label', STRINGS.boosts.activate(STRINGS.boosts.names[kind]));
     }
     this.ring.setAttribute('stroke-dashoffset', String(RING_LENGTH * (1 - e.progress)));

@@ -25,6 +25,9 @@ function addVeil(button: HTMLElement): HTMLDivElement {
   return veil;
 }
 
+/** Icons of the 34 px buttons of the arc. */
+const ICON_SIZE = 16;
+
 export class ActionButtons {
   private readonly specialButton: TapButton;
   private readonly reloadButton: TapButton;
@@ -35,9 +38,9 @@ export class ActionButtons {
   private readonly unsubscribe: (() => void)[];
 
   constructor(parent: HTMLElement, events: EventBus) {
-    this.reloadButton = new TapButton(parent, 'action-button--reload', 'reload', '', STRINGS.controls.reload);
-    this.meleeButton = new TapButton(parent, 'action-button--melee', 'knife', '', STRINGS.controls.melee);
-    this.specialButton = new TapButton(parent, 'action-button--special', 'bolt', '', STRINGS.controls.special);
+    this.reloadButton = new TapButton(parent, 'action-button--reload', 'reload', '', STRINGS.controls.reload, ICON_SIZE);
+    this.meleeButton = new TapButton(parent, 'action-button--melee', 'knife', '', STRINGS.controls.melee, ICON_SIZE);
+    this.specialButton = new TapButton(parent, 'action-button--special', 'bolt', '', STRINGS.controls.special, ICON_SIZE);
 
     this.veil = addVeil(this.specialButton.el);
     this.seconds = document.createElement('span');

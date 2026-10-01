@@ -100,8 +100,8 @@
 .action-button {
   position: absolute;
   z-index: 20;
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   margin: 0;
   padding: 0;
   border: 0;
@@ -138,21 +138,19 @@
 }
 
 /*
- * The arc around the fire button, like Wild Rift's abilities, with 40 px
- * buttons (centres from the fire button's centre): knife (-80, -4) on the
- * left, reload (-14, -80) above, dash (+40, -66) to the right of reload
- * (low enough to leave room for the weapon column above it on 360 px tall
- * screens).
+ * The arc around the fire button, like Wild Rift's abilities, with 34 px
+ * buttons (centres from the fire button's centre): knife (-76, -4) on the
+ * left, reload (-14, -76) above, dash (+38, -66) to the right of reload.
  */
 .action-button--reload {
-  right: calc(var(--pad-x) + 54px);
-  bottom: calc(var(--pad-bottom) + 124px);
+  right: calc(var(--pad-x) + 57px);
+  bottom: calc(var(--pad-bottom) + 123px);
 }
 
 /* Knife to the left of the fire button. */
 .action-button--melee {
-  right: calc(var(--pad-x) + 120px);
-  bottom: calc(var(--pad-bottom) + 48px);
+  right: calc(var(--pad-x) + 119px);
+  bottom: calc(var(--pad-bottom) + 51px);
 }
 
 /*
@@ -161,12 +159,12 @@
  * (closer to the right thumb). Fixed places, so neither moves when the
  * other shows up or goes away.
  */
-/* Stored boost (spec 03 §5), 46 px with a blue ring. Only while a boost is stored or running. */
+/* Stored boost (spec 03 §5), 40 px with a blue ring. Only while a boost is stored or running. */
 .action-button--boost {
-  left: calc(55% - 55px);
+  left: calc(55% - 50px);
   bottom: calc(var(--pad-bottom) + 14px);
-  width: 46px;
-  height: 46px;
+  width: 40px;
+  height: 40px;
   display: none;
   background: rgba(58, 111, 216, 0.18);
   box-shadow:
@@ -189,7 +187,7 @@
 .boost-ring circle {
   fill: none;
   stroke: var(--merchant-blue);
-  stroke-width: 3.5;
+  stroke-width: 3;
   display: none;
 }
 
@@ -210,7 +208,7 @@
 .boost-seconds {
   position: absolute;
   font-family: var(--font-display);
-  font-size: 12px;
+  font-size: 10px;
   color: var(--bone);
   text-shadow: 2px 2px 0 var(--ink);
   pointer-events: none;
@@ -238,8 +236,8 @@
 
 .weapon-column .action-button {
   position: relative;
-  width: 38px;
-  height: 38px;
+  width: 32px;
+  height: 32px;
 }
 
 /* A weapon slot: its icon, and the bullets in its magazine on a badge below. */
@@ -273,8 +271,8 @@
 
 /* Special (dash) to the right of reload, amber accents. */
 .action-button--special {
-  right: var(--pad-x);
-  bottom: calc(var(--pad-bottom) + 110px);
+  right: calc(var(--pad-x) + 5px);
+  bottom: calc(var(--pad-bottom) + 113px);
   color: var(--amber);
   background: rgba(232, 176, 74, 0.14);
   box-shadow: inset 0 0 0 2px rgba(232, 176, 74, 0.75);
@@ -307,7 +305,7 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-display);
-  font-size: 12px;
+  font-size: 10px;
   color: var(--bone);
   text-shadow: 2px 2px 0 var(--ink);
   pointer-events: none;
@@ -335,11 +333,11 @@
  */
 .context-button {
   position: absolute;
-  left: calc(55% + 10px);
+  left: calc(55% + 11px);
   bottom: calc(var(--pad-bottom) + 15px);
   z-index: 20;
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
   display: none;
   align-items: center;
   justify-content: center;
@@ -365,7 +363,7 @@
 /* Above the button: it sits at the bottom of the screen. */
 .context-button__value {
   position: absolute;
-  top: -13px;
+  top: -12px;
   left: 50%;
   transform: translateX(-50%);
   padding: 2px 4px;
@@ -439,7 +437,7 @@
 .fire-stick::before {
   content: '';
   position: absolute;
-  inset: calc(-1 * var(--hit-slop, 12px));
+  inset: calc(-1 * var(--hit-slop, 14px));
   border-radius: 50%;
 }
 

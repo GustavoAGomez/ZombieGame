@@ -115,14 +115,14 @@
   padding: 16px 28px;
 }
 
-/* Pause button: 44×44 at the top centre (spec 01 §2.5). */
+/* Pause button: 32×32 at the top centre (spec 01 §2.5), tappable 14 px around it. */
 .pause-button {
   position: absolute;
   left: 50%;
   top: calc(var(--pad-top) + 10px);
-  width: 38px;
-  height: 38px;
-  margin-left: -19px;
+  width: 32px;
+  height: 32px;
+  margin-left: -16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -148,6 +148,6 @@
 .pause-button::before {
   content: '';
   position: absolute;
-  inset: -12px;
+  inset: -14px;
   border-radius: 50%;
 }
