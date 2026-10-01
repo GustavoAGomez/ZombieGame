@@ -57,7 +57,6 @@ describe('collecting pickups', () => {
     const ctx = createTestContext();
     const p = player(ctx);
     p.hp = 30;
-    p.lastDamageTime = ctx.state.time; // no regeneration during the test
     const onCollected = vi.fn();
     ctx.events.on('pickup:collected', onCollected);
     spawnPickup(ctx, 'health', p.x + PLAYER.hitboxRadius + PICKUPS.radius - 1, p.y);
@@ -89,7 +88,6 @@ describe('collecting pickups', () => {
     const ctx = createTestContext();
     const p = player(ctx);
     p.hp = 10;
-    p.lastDamageTime = ctx.state.time;
     spawnPickup(ctx, 'health', p.x + PLAYER.hitboxRadius + PICKUPS.radius + 2, p.y);
     stepSimulation(ctx, 1 / 60);
     expect(p.hp).toBe(10);

@@ -97,7 +97,7 @@ Todos los valores de esta sección van a `balance.ts`. Los números son el punto
 | Vida | 100 |
 | Velocidad | 88 px/s |
 | Hitbox | círculo de radio 6 en los pies |
-| Regeneración | tras 3 s sin recibir daño, +40 PV/s hasta el máximo |
+| Regeneración | ninguna: la vida solo se recupera con botiquines (los suelta a veces un zombie al morir) |
 
 - **Al recibir daño:** borde de pantalla rojo pixelado durante 200 ms, empuje de 6 px y vibración ligera (háptica). Por debajo de 30 PV, el corazón del HUD late y la barra cambia a `--red-low`.
 

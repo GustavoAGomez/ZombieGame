@@ -618,8 +618,16 @@ Petición del usuario: sangre de color normal al recibir daño, y que el jugador
 - **Manchas** (`PlayerBloodStains`):
   - cada golpe deja 1 o 2 manchas de 6×6 en sitios al azar del cuerpo, 10 como máximo;
   - siguen al sprite y se ocultan en la pose de muerte;
-  - al volver a la vida máxima (por regeneración o botiquín) se desvanecen en 0,5 s; un golpe durante ese desvanecido las conserva.
+  - al volver a la vida máxima (con un botiquín) se desvanecen en 0,5 s; un golpe durante ese desvanecido las conserva.
 - **Dónde caen las manchas:** al empezar la partida se leen los fotogramas de idle, walk, shoot y shoot_walk del jugador (también con placeholders). Solo valen los píxeles opacos en al menos el 85 % de los fotogramas y cuyas cuatro vecinas también lo son (`bodySpots`). Así una mancha nunca queda flotando fuera de la silueta, aunque cambien la pose o la dirección.
   - Con el sprite actual salen 260 sitios, del pecho a las piernas.
   - Las manchas no siguen a una parte concreta del cuerpo al girar: se quedan en el mismo punto respecto a los pies.
 - Son solo visuales: usan `Math.random`, no el estado de la partida.
+
+## Sin regeneración de vida
+
+Petición del usuario: la vida ya no se recupera con el tiempo, por ahora solo con botiquines.
+
+- Se quitan `updateHealth`, `PLAYER.regenDelay` y `PLAYER.regenPerSecond`, y `PlayerState.lastDamageTime`, que solo servía para eso. La spec 01 (§4.1) lo recoge.
+- Los botiquines siguen igual: +50 de vida y un 6 % de probabilidad por zombie muerto (`PICKUPS.healthChance`). Sin regeneración la partida es más dura; si hace falta, se puede subir esa probabilidad o la cantidad que curan.
+- Las manchas de sangre del jugador siguen hasta que vuelve a la vida máxima, ahora solo con botiquines.

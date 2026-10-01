@@ -17,8 +17,7 @@ export const PLAYER = {
   /** Running speed (the basic movement animation is a run). */
   speed: 140,
   hitboxRadius: 6,
-  regenDelay: 3,
-  regenPerSecond: 40,
+  /** No regeneration: health only comes back with health pickups (PICKUPS.healthAmount). */
   lowHpThreshold: 30,
   hitFlashDuration: 0.2,
   hitKnockback: 6,

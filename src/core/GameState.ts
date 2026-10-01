@@ -38,8 +38,6 @@ export interface PlayerState {
   moveY: number;
   hp: number;
   maxHp: number;
-  /** Simulated time of the last hit taken (regeneration waits after it). */
-  lastDamageTime: number;
 
   weapons: WeaponSlotState[];
   activeSlot: number;
@@ -275,7 +273,6 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     moveY: 1,
     hp: PLAYER.maxHp,
     maxHp: PLAYER.maxHp,
-    lastDamageTime: -Infinity,
     weapons: LOADOUT.startingWeapons.slice(0, LOADOUT.maxWeapons).map(createWeaponSlot),
     activeSlot: 0,
     switchTimer: 0,
