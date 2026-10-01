@@ -341,6 +341,20 @@
       "frames": 3,
       "placeholder": true
     },
+    "blood_drop": {
+      "file": "sprites/objects/blood_drop.png",
+      "frameWidth": 7,
+      "frameHeight": 7,
+      "frames": 3,
+      "placeholder": true
+    },
+    "blood_splat": {
+      "file": "sprites/objects/blood_splat.png",
+      "frameWidth": 10,
+      "frameHeight": 10,
+      "frames": 3,
+      "placeholder": true
+    },
     "pickup_ammo": {
       "file": "sprites/objects/pickup_ammo.png",
       "frameWidth": 16,

@@ -589,3 +589,22 @@ Bug del usuario: en la rejilla sur del sótano (S2), los zombis se quedaron fuer
   - un zombi que persigue fuera del flow field vuelve a entrar por la ventana más cercana a 3 casillas o menos (`NAVIGATION.lostWindowRange`);
   - sin ventana cerca, a los 6 s (`NAVIGATION.lostRespawnTime`) sale del mapa y vuelve a aparecer desde un spawn (`toSpawn + 1`), para que un atasco nunca bloquee el final de una ronda.
 - **Tests:** seis zombis entrando por S1 y por S2 con el jugador justo dentro; un zombi expulsado al vacío que vuelve a entrar; y uno perdido sin ventana cerca que reaparece.
+
+## Sangre podrida al impactar
+
+Petición del usuario: sangre algo viscosa de rojo oscuro, como podrida, en cada impacto de bala, y los charcos de los zombis en el mismo tono.
+
+- **Paleta** (`PLACEHOLDER_COLORS`): borde casi negro `#2a0a08`, cuerpo rojo marrón `#4a120e`, zona más clara `#621a12` y brillo marrón `#8c3c24`. El brillo y el borde oscuro le dan aspecto espeso y húmedo.
+- **Impacto:** `damageZombie` acepta el punto del golpe y su dirección y emite `zombie:hit` con el punto dibujado, la dirección y los pies del zombi.
+  - La bala da el punto donde se la ve tocar el cuerpo.
+  - El disparo a quemarropa y el cuchillo usan el centro del cuerpo dibujado.
+  - El cuchillo también salpica, porque usa la misma función de daño.
+- **Vista `BloodSprayPool`** (pool de 180 gotas; si se agota, se reutiliza la más antigua):
+  - por impacto, 5–8 gotas hacia donde iba el disparo (±34°), una hacia atrás y dos que caen de la herida; al matar, 5 más;
+  - vuelan despacio, con mucho frenado y algo de altura, se estiran cuando van rápidas y caen a la línea de los pies del zombi;
+  - al caer dejan una salpicadura pequeña bajo los personajes que se desvanece en unos 2,6 s;
+  - es solo visual: usa `Math.random`, no el RNG de la partida;
+  - se congela con la pausa;
+  - en los zombis sobre la oscuridad (en una ventana del exterior) la sangre se dibuja sobre la niebla y no deja salpicadura.
+- **Charcos de muerte** (`blood`): redibujados con formas orgánicas y la paleta podrida. Siguen siendo uno por zombi muerto (40 como máximo).
+- Los charcos de sangre del atrezo y los decals del mapa no cambian: el usuario pidió los que dejan los zombis.

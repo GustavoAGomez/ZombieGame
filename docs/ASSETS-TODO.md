@@ -11,6 +11,9 @@ Objetos y tiles que el juego ya usa con un placeholder. Cada entrada lleva el pr
 | `merchant_gem` | Rombo flotante sobre el mago (se tiñe con su color y oscila 2 px cada 1,2 s) | Rombo blanco de 6×6 | Desaparece si el sprite del mago ya lleva su distintivo |
 | `smoke_puff` | Humo al aparecer y al teletransportarse un mago (300 ms, se tiñe con su color) | Nube clara que se abre en 4 fotogramas de 24×24 | "magic smoke puff, white, 4 frames, 24x24, top-down" |
 | `offscreen_arrow` | Flecha en el borde de la pantalla hacia un mago fuera de la vista (se tiñe con su color) | Triángulo blanco de 8×8 hacia la derecha con contorno oscuro | "small pixel arrow pointer, white with dark outline, facing right, 8x8" |
+| `blood` | Charco de sangre podrida que deja un zombi al morir (3 formas de 16×16) | Manchas orgánicas en rojo marrón oscuro con borde casi negro y un brillo marrón | "rotten zombie blood pool, very dark red-brown, thick and glossy, top-down, 3 variants, 16x16" |
+| `blood_drop` | Gota espesa de sangre en vuelo al impactar una bala o el cuchillo (redonda, estirada hacia la derecha —la vista la gira— y pequeña; 7×7) | Gotas de sangre podrida con borde oscuro y brillo | "thick rotten blood droplet, dark red-brown, glossy, 3 frames: round, stretched to the right, small, 7x7" |
+| `blood_splat` | Salpicadura donde cae una gota (3 formas de 10×10; se desvanece en unos 2,6 s) | Salpicaduras pequeñas con alguna gota suelta | "small rotten blood splat on the floor, dark red-brown, top-down, 3 variants, 10x10" |
 | `melee_slash` | Tajo provisional delante del jugador mientras no exista la animación `melee` | Arco claro generado, 4 fotogramas de 32×32 dibujados hacia la derecha (la vista lo gira) | Opcional si la animación del personaje ya lleva el tajo: "knife slash swoosh arc, white, 4 frames, 32x32, facing right" |
 
 ## Iconos del HUD

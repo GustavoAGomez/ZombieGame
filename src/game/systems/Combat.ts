@@ -10,15 +10,25 @@ export function isZombieAlive(z: ZombieState): boolean {
   return z.active && z.hp > 0 && z.ai !== 'dead';
 }
 
+/** Where a hit landed, as drawn, and the direction it came from (blood spray). */
+export interface HitPoint {
+  x: number;
+  y: number;
+  dirX: number;
+  dirY: number;
+}
+
 /**
  * Applies damage; returns true if this hit killed the zombie. The attacker
  * (a player id, or -1 for none) gets +10 for the hit and +50 for the kill,
- * so the killing blow is worth 60 like in BO1.
+ * so the killing blow is worth 60 like in BO1. With `hit`, blood sprays
+ * from there (zombie:hit).
  */
-export function damageZombie(ctx: SimContext, z: ZombieState, amount: number, attacker = -1): boolean {
+export function damageZombie(ctx: SimContext, z: ZombieState, amount: number, attacker = -1, hit?: HitPoint): boolean {
   if (!isZombieAlive(z)) return false;
   z.hp -= amount;
   if (attacker >= 0) awardPoints(ctx, attacker, POINTS.hit, 'hit');
+  if (hit) ctx.events.emit('zombie:hit', { x: hit.x, y: hit.y, groundY: z.y, dirX: hit.dirX, dirY: hit.dirY, killed: z.hp <= 0 });
   if (z.hp > 0) return false;
   if (attacker >= 0) awardPoints(ctx, attacker, POINTS.kill, 'kill');
   z.hp = 0;
@@ -29,6 +39,11 @@ export function damageZombie(ctx: SimContext, z: ZombieState, amount: number, at
   rollZombieDrop(ctx, z);
   ctx.events.emit('zombie:killed', { x: z.x, y: z.y, kind: z.kind });
   return true;
+}
+
+/** The middle of a zombie's drawn body (its hurtbox): where a hit without a drawn point sprays from. */
+export function bodyHitPoint(z: ZombieState, dirX: number, dirY: number): HitPoint {
+  return { x: z.x, y: z.y - ZOMBIES.hurtbox.height / 2, dirX, dirY };
 }
 
 /** Leaves a blood decal; when all 40 are in use, the oldest is reused. */

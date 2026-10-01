@@ -5,7 +5,7 @@ import { degToRad } from '../../core/math';
 import { randomRange } from '../../core/Rng';
 import { BLOCK_BULLET, segmentClearShaped } from '../map/CollisionGrid';
 import { damageFactor } from './BoostSystem';
-import { damageZombie, findAutoAimTarget, findMeleeTarget, isZombieAlive } from './Combat';
+import { bodyHitPoint, damageZombie, findAutoAimTarget, findMeleeTarget, isZombieAlive } from './Combat';
 import { bodyCentre, bodyEntry, muzzleFor, type Vec2 } from './shotGeometry';
 import type { SimContext } from './SimContext';
 import { magazineSize } from './weaponStats';
@@ -217,7 +217,7 @@ function pointBlank(ctx: SimContext, p: PlayerState, bullet: BulletState, muzzle
   const z = zombies[hit];
   if (!z) return;
   bullet.active = false;
-  damageZombie(ctx, z, bullet.damage, p.id);
+  damageZombie(ctx, z, bullet.damage, p.id, bodyHitPoint(z, bullet.dirX, bullet.dirY));
 }
 
 /**
@@ -243,7 +243,7 @@ function handleMelee(ctx: SimContext, p: PlayerState, turn: boolean): void {
   p.meleeTimer = MELEE.swingTime;
   p.meleeTick = ctx.state.tick;
   p.facing = p.meleeAngle;
-  if (z) damageZombie(ctx, z, MELEE.damage * damageFactor(p), p.id);
+  if (z) damageZombie(ctx, z, MELEE.damage * damageFactor(p), p.id, bodyHitPoint(z, dirX, dirY));
 }
 
 /** 0..1 progress of the current reload, or null when not reloading. */

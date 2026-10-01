@@ -13,6 +13,7 @@ import type { AssetLibrary } from '../assets/AssetLibrary';
 import { ASSET_KEYS } from '../assets/manifest';
 import { AimLine } from '../entities/AimLine';
 import { BloodViewPool } from '../entities/Blood';
+import { BloodSprayPool } from '../entities/BloodSpray';
 import { BulletViewPool } from '../entities/Bullet';
 import { MeleeSlash } from '../entities/MeleeSlash';
 import { MerchantViewPool, OffscreenArrows } from '../entities/Merchant';
@@ -66,6 +67,7 @@ export class GameScene extends Phaser.Scene {
   private worldTexts!: WorldTextPool;
   private debugDraw!: DebugDraw;
   private bloodViews!: BloodViewPool;
+  private bloodSpray!: BloodSprayPool;
   private pickupViews!: PickupViewPool;
   private merchantViews!: MerchantViewPool;
   private offscreenArrows!: OffscreenArrows;
@@ -130,6 +132,7 @@ export class GameScene extends Phaser.Scene {
     if (!playerDef) throw new Error('The manifest has no "player" character');
     this.mapView = new MapView(this, this.map);
     this.bloodViews = new BloodViewPool(this, this.state.blood.length);
+    this.bloodSpray = new BloodSprayPool(this, events, this.isDark);
     this.pickupViews = new PickupViewPool(this, this.state.pickups.length);
     this.zombieViews = new ZombieViewPool(this, manifest, this.state.zombies.length);
     this.merchantViews = new MerchantViewPool(this, this.map, this.state.merchants, manifest.objects[ASSET_KEYS.smokePuff]);
@@ -159,6 +162,7 @@ export class GameScene extends Phaser.Scene {
       this.controls.destroy();
       this.hud.destroy();
       this.worldTexts.destroy();
+      this.bloodSpray.destroy();
       this.pauseMenu.destroy();
       this.pauseButton.destroy();
       this.debugDraw.destroy();
@@ -173,6 +177,8 @@ export class GameScene extends Phaser.Scene {
     // Before the views: a teleport snaps the camera, which must already be inside the new level.
     this.updateLevel();
     this.syncViews(this.fixedStep.alpha, time);
+    // The blood of hits freezes with the match (pause, game over).
+    this.bloodSpray.update(this.paused || this.overShown ? 0 : delta / 1000);
     this.debugDraw.draw(this.state, this.sim.nav, this.sim.grid);
     this.presenter.publish(this.state);
     this.updateStats();

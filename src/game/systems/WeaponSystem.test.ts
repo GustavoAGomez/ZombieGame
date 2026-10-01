@@ -271,6 +271,21 @@ describe('WeaponSystem · melee', () => {
     expect(p.meleeTimer).toBeGreaterThan(0);
   });
 
+  it('sprays blood from the knifed zombie\'s body, away from the player', () => {
+    const ctx = createTestContext();
+    const p = player(ctx);
+    const z = placeZombie(ctx, 0, p.x + 18, p.y, 500);
+    const hits: { x: number; y: number; dirX: number; groundY: number }[] = [];
+    ctx.events.on('zombie:hit', (e) => hits.push(e));
+    command(ctx).melee = true;
+    stepSimulation(ctx, 1 / 60);
+    expect(hits).toHaveLength(1);
+    expect(hits[0]?.x).toBe(z.x);
+    expect(hits[0]?.y).toBeLessThan(z.y);
+    expect(hits[0]?.groundY).toBe(z.y);
+    expect(hits[0]?.dirX).toBeCloseTo(1);
+  });
+
   it('waits its cooldown between slashes and swings even when nothing is in reach', () => {
     const ctx = createTestContext();
     const p = player(ctx);

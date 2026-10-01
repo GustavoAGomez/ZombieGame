@@ -35,7 +35,11 @@ export const PLACEHOLDER_COLORS = {
   zombieEye: '#c93a2b',
   runnerOutline: '#b5d67a',
   sprinterOutline: '#c93a2b',
-  blood: '#5e1c16',
+  /** Rotten zombie blood: almost black at the rim, dark red-brown body, a brownish sheen (viscous). */
+  bloodDark: '#2a0a08',
+  blood: '#4a120e',
+  bloodMid: '#621a12',
+  bloodSheen: '#8c3c24',
   generic: '#8a3fa0',
 } as const;
 
@@ -244,16 +248,66 @@ function drawPortal(ctx: Ctx, frame: number, ox: number, oy: number, w: number, 
 }
 
 /** Irregular blood splat; each frame is a different shape. */
+type Blob = readonly [cx: number, cy: number, rx: number, ry: number];
+
+/**
+ * Rotten blood drawn from ellipses (offsets from the frame's centre): a dark
+ * rim, the dark red body, a lighter patch and a 1–2 px sheen towards the top
+ * left, so it reads thick and wet. `dots` are loose drops around it.
+ */
+function drawGore(ctx: Ctx, ox: number, oy: number, w: number, h: number, blobs: readonly Blob[], dots: readonly (readonly [number, number])[] = []): void {
+  const cx = w / 2;
+  const cy = h / 2;
+  const inside = (x: number, y: number): boolean =>
+    blobs.some(([bx, by, rx, ry]) => ((x + 0.5 - cx - bx) / rx) ** 2 + ((y + 0.5 - cy - by) / ry) ** 2 <= 1);
+  const [mx = 0, my = 0, mrx = 1, mry = 1] = blobs[0] ?? [];
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      if (!inside(x, y)) continue;
+      const rim = !inside(x - 1, y) || !inside(x + 1, y) || !inside(x, y - 1) || !inside(x, y + 1);
+      // Position inside the main blob: lighter towards its upper left.
+      const u = (x + 0.5 - cx - mx) / mrx;
+      const v = (y + 0.5 - cy - my) / mry;
+      let color: string = PLACEHOLDER_COLORS.blood;
+      if (rim) color = PLACEHOLDER_COLORS.bloodDark;
+      else if (u * u + v * v < 0.35 && u + v < -0.2) color = PLACEHOLDER_COLORS.bloodMid;
+      rect(ctx, color, ox + x, oy + y, 1, 1);
+    }
+  }
+  // The sheen: one or two light pixels on the upper left of the main blob.
+  const sx = Math.round(cx + mx - mrx * 0.35);
+  const sy = Math.round(cy + my - mry * 0.35);
+  if (inside(sx, sy)) rect(ctx, PLACEHOLDER_COLORS.bloodSheen, ox + sx, oy + sy, 1, 1);
+  if (mrx >= 3 && inside(sx + 1, sy)) rect(ctx, PLACEHOLDER_COLORS.bloodSheen, ox + sx + 1, oy + sy, 1, 1);
+  for (const [dx, dy] of dots) rect(ctx, PLACEHOLDER_COLORS.bloodDark, ox + Math.round(cx + dx), oy + Math.round(cy + dy), 1, 1);
+}
+
+/** Pool of rotten blood left by a dead zombie (3 shapes). */
 function drawBlood(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number): void {
-  const cx = ox + w / 2;
-  const cy = oy + h / 2;
-  const shapes: readonly (readonly [number, number, number, number])[][] = [
-    [[-4, -2, 8, 4], [-2, -4, 4, 8], [3, 2, 3, 2], [-6, 1, 2, 2]],
-    [[-5, -1, 9, 3], [-3, -3, 5, 6], [4, -4, 2, 2], [-2, 3, 3, 2]],
-    [[-3, -3, 6, 6], [-5, 0, 3, 2], [2, 2, 4, 3], [0, -5, 2, 2]],
+  const shapes: readonly { blobs: Blob[]; dots: [number, number][] }[] = [
+    { blobs: [[0, 0, 5.5, 3.6], [3.5, 1.5, 2.5, 2], [-4, -1.5, 2, 1.6]], dots: [[6.5, -2], [-6.5, 3]] },
+    { blobs: [[-0.5, 0.5, 4.8, 3.2], [-3, -2, 2.6, 2], [3.5, 2.5, 2, 1.5]], dots: [[5.5, -3], [-6, 2.5], [1, 5]] },
+    { blobs: [[0.5, -0.5, 4.2, 3.8], [-3.5, 2, 2.4, 1.8], [4, -2.5, 1.6, 1.4]], dots: [[-5.5, -3.5], [6, 3]] },
   ];
-  for (const [x, y, rw, rh] of shapes[frame % shapes.length] ?? []) rect(ctx, PLACEHOLDER_COLORS.blood, cx + x, cy + y, rw, rh);
-  rect(ctx, '#3f120e', cx - 1, cy - 1, 2, 2);
+  const shape = shapes[frame % shapes.length];
+  if (shape) drawGore(ctx, ox, oy, w, h, shape.blobs, shape.dots);
+}
+
+/** A thick drop of blood in flight: round, stretched (drawn towards +x; the view turns it) and small. */
+function drawBloodDrop(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number): void {
+  const shapes: readonly Blob[][] = [[[0, 0, 2.3, 2.3]], [[0.5, 0, 2.9, 1.6], [-1.5, 0, 1.4, 1.4]], [[0, 0, 1.5, 1.5]]];
+  drawGore(ctx, ox, oy, w, h, shapes[frame % shapes.length] ?? []);
+}
+
+/** Where a drop lands: a small splat with a loose drop or two (3 shapes). */
+function drawBloodSplat(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number): void {
+  const shapes: readonly { blobs: Blob[]; dots: [number, number][] }[] = [
+    { blobs: [[0, 0, 2.8, 2], [1.8, 0.8, 1.4, 1.2]], dots: [[4, -2]] },
+    { blobs: [[0, 0, 2.2, 2.2], [-1.6, 1, 1.3, 1]], dots: [[-4, -1], [3.5, 2.5]] },
+    { blobs: [[0, 0, 3, 1.6]], dots: [[3.5, -2], [-3.5, 1.5]] },
+  ];
+  const shape = shapes[frame % shapes.length];
+  if (shape) drawGore(ctx, ox, oy, w, h, shape.blobs, shape.dots);
 }
 
 /** Olive ammo box with three amber rounds. */
@@ -429,6 +483,12 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
         break;
       case ASSET_KEYS.blood:
         drawBlood(ctx, col, ox, oy, w, h);
+        break;
+      case ASSET_KEYS.bloodDrop:
+        drawBloodDrop(ctx, col, ox, oy, w, h);
+        break;
+      case ASSET_KEYS.bloodSplat:
+        drawBloodSplat(ctx, col, ox, oy, w, h);
         break;
       case ASSET_KEYS.pickupAmmo:
         drawAmmoPickup(ctx, ox, oy, w, h);

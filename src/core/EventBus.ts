@@ -12,6 +12,11 @@ export interface GameEvents {
   'player:damaged': { playerId: number; hp: number; maxHp: number };
   'player:died': { playerId: number };
   'zombie:killed': { x: number; y: number; kind: ZombieKind };
+  /**
+   * A bullet or the knife hit a zombie: blood sprays from (x, y), where the
+   * hit is drawn, along (dirX, dirY); it falls to the zombie's feet (groundY).
+   */
+  'zombie:hit': { x: number; y: number; groundY: number; dirX: number; dirY: number; killed: boolean };
   'pickup:collected': { playerId: number; kind: PickupKind };
   /** A door was bought (medium haptic in phase 9). */
   'door:opened': { doorId: string; playerId: number };

@@ -102,6 +102,9 @@ export const ASSET_KEYS = {
   bullet: 'bullet',
   aimDot: 'aim_dot',
   blood: 'blood',
+  /** Drops of a hit's blood spray, in flight and landed (BloodSpray). */
+  bloodDrop: 'blood_drop',
+  bloodSplat: 'blood_splat',
   pickupAmmo: 'pickup_ammo',
   pickupHealth: 'pickup_health',
   muzzleFlash: 'muzzle_flash',

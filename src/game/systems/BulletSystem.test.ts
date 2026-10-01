@@ -28,6 +28,28 @@ describe('BulletSystem', () => {
     expect(ctx.state.bullets.some((b) => b.active)).toBe(false);
   });
 
+  it('sprays blood where the bullet visibly touches the zombie, along the shot, to the zombie\'s feet', () => {
+    const ctx = createTestContext();
+    const p = player(ctx);
+    const z = placeZombie(ctx, 0, p.x + 60, p.y, 2);
+    const hits: { x: number; y: number; groundY: number; dirX: number; dirY: number; killed: boolean }[] = [];
+    ctx.events.on('zombie:hit', (e) => hits.push(e));
+    fireOnce(ctx, 1, 0);
+    runTicks(ctx, 30, stepSimulation);
+    fireOnce(ctx, 1, 0);
+    runTicks(ctx, 30, stepSimulation);
+    expect(hits.map((h) => h.killed)).toEqual([false, true]);
+    const [first] = hits;
+    // On the zombie's drawn body, at the bullet's height above its feet.
+    expect(first?.x).toBeGreaterThanOrEqual(z.x - ZOMBIES.hurtbox.width / 2 - 1);
+    expect(first?.x).toBeLessThanOrEqual(z.x + ZOMBIES.hurtbox.width / 2 + 1);
+    expect(first?.y).toBeLessThan(z.y);
+    expect(first?.y).toBeGreaterThan(z.y - ZOMBIES.hurtbox.height);
+    expect(first?.groundY).toBe(z.y);
+    // Along the shot (the pistol's spread is a few degrees).
+    expect(first?.dirX).toBeGreaterThan(0.99);
+  });
+
   it('does not skip a zombie thinner than one tick of travel', () => {
     const ctx = createTestContext();
     const p = player(ctx);
