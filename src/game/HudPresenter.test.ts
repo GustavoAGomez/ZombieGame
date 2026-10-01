@@ -61,7 +61,8 @@ describe('HudPresenter · action chip and points', () => {
     ctx.events.on('points:changed', points);
     presenter.publish(ctx.state);
     expect(action).toHaveBeenLastCalledWith({ kind: null, amount: 0, enabled: false });
-    expect(points).toHaveBeenLastCalledWith({ points: 500, score: 0 });
+    // Points start at 0 and money at 500 $.
+    expect(points).toHaveBeenLastCalledWith({ points: 0, money: 500 });
 
     const w = ctx.map.windows[0]!;
     const p = player(ctx);
@@ -94,7 +95,7 @@ describe('HudPresenter · door chip', () => {
     stepSimulation(ctx, 1 / 60);
     presenter.publish(ctx.state);
     expect(action).toHaveBeenLastCalledWith({ kind: 'door', amount: 250, enabled: false });
-    p.points = 900;
+    p.money = 900;
     presenter.publish(ctx.state);
     expect(action).toHaveBeenLastCalledWith({ kind: 'door', amount: 750, enabled: true });
   });

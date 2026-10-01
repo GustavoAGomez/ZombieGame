@@ -44,15 +44,15 @@ describe('BoostSystem · the round boost', () => {
     const p = player(ctx);
     p.x = p.prevX = m.x + 20;
     p.y = p.prevY = m.y;
-    p.points = 900;
+    p.money = 900;
     expect(shopItemStatus(ctx.state, 0, 0, ROUND_BOOST)).toEqual({ kind: 'short', missing: 100 });
-    p.points = 1000;
+    p.money = 1000;
     expect(shopItemStatus(ctx.state, 0, 0, ROUND_BOOST)).toEqual({ kind: 'buy' });
     p.shopMerchant = 0;
     command(ctx).shopBuy = ROUND_BOOST;
     stepSimulation(ctx, 1 / 60);
     command(ctx).shopBuy = -1;
-    expect(p.points).toBe(0);
+    expect(p.money).toBe(0);
     expect(p.boostStored).toBe(m.boost);
   });
 });

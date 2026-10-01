@@ -25,7 +25,7 @@ export class Hud {
   private readonly hpValue: HTMLSpanElement;
   private readonly round: HTMLDivElement;
   private readonly points: HTMLSpanElement;
-  private readonly total: HTMLSpanElement;
+  private readonly money: HTMLSpanElement;
   private readonly weaponRow: HTMLDivElement;
   private readonly weaponName: HTMLSpanElement;
   /** One star per upgrade level, next to the weapon's name (spec 03 §6). */
@@ -53,7 +53,7 @@ export class Hud {
   ) {
     this.root = el('div', 'hud');
 
-    // Top-left: health row, round, and (later) a reserved row for stats.
+    // Top-left: health row, round, the weapon in hand, and a reserved row for stats.
     const left = el('div', 'hud-left');
     this.healthRow = el('div', 'hud-row hud-health');
     this.healthRow.setAttribute('aria-label', STRINGS.hud.health);
@@ -68,22 +68,6 @@ export class Hud {
     this.hpValue = el('span', 'hud-hp');
     this.healthRow.append(heart, bar, this.hpValue);
     this.round = el('div', 'hud-round');
-
-    // Top-right: the points to spend, the total earned, and the floating "+N" beside the points.
-    // The weapon slots hang right under it (controls.css).
-    const right = el('div', 'hud-right');
-    const pointsRow = el('div', 'hud-row hud-points');
-    const pointsLabel = el('span', 'hud-label');
-    pointsLabel.textContent = STRINGS.hud.points;
-    this.points = el('span', 'hud-points__value');
-    pointsRow.append(pointsLabel, this.points);
-    const totalRow = el('div', 'hud-row hud-total');
-    const totalLabel = el('span', 'hud-label');
-    totalLabel.textContent = STRINGS.hud.total;
-    this.total = el('span', 'hud-total__value');
-    totalRow.append(totalLabel, this.total);
-
-    // Top-left, under the round: the weapon in hand and its ammo.
     this.weaponRow = el('div', 'hud-row hud-weapon');
     this.weaponName = el('span', 'hud-label hud-weapon__name');
     this.stars = el('span', 'hud-stars');
@@ -94,7 +78,19 @@ export class Hud {
     reload.appendChild(this.reloadFill);
     this.reserve = el('span', 'hud-reserve');
     this.weaponRow.append(this.weaponName, this.stars, pixelIcon('bullet', 21), this.magazine, reload, this.reserve);
-    // Floating "+N" texts, pooled (CLAUDE.md rule 7), drawn to the left of the points (hud.css).
+    // An empty row kept for future stats and perks (spec 01 §5).
+    left.append(this.healthRow, this.round, this.weaponRow, el('div', 'hud-reserved'));
+
+    // Top-right: the points (everything earned), the money to spend in green, and the floating "+N$"
+    // beside the points. The weapon slots hang right under it (controls.css).
+    const right = el('div', 'hud-right');
+    const pointsRow = el('div', 'hud-row hud-points');
+    const pointsLabel = el('span', 'hud-label');
+    pointsLabel.textContent = STRINGS.hud.points;
+    this.points = el('span', 'hud-points__value');
+    pointsRow.append(pointsLabel, this.points);
+    this.money = el('span', 'hud-money');
+    // Floating "+N$" texts, pooled (CLAUDE.md rule 7), drawn to the left of the points (hud.css).
     this.floats = el('div', 'hud-floats');
     for (let i = 0; i < FLOAT_POOL_SIZE; i++) {
       const span = el('span', 'hud-float');
@@ -103,9 +99,7 @@ export class Hud {
       this.floatPool.push(span);
       this.floats.appendChild(span);
     }
-    right.append(pointsRow, totalRow, this.floats);
-    // An empty row kept for future stats and perks (spec 01 §5).
-    left.append(this.healthRow, this.round, this.weaponRow, el('div', 'hud-reserved'));
+    right.append(pointsRow, this.money, this.floats);
 
     this.damage = el('div', 'hud-damage');
     this.dead = el('div', 'hud-dead');
@@ -126,7 +120,7 @@ export class Hud {
       events.on('player:health', this.onHealth),
       events.on('points:changed', this.onPoints),
       events.on('points:gained', this.onPointsGained),
-      events.on('points:spent', this.onPointsSpent),
+      events.on('money:spent', this.onMoneySpent),
       events.on('round:changed', this.onRound),
       events.on('weapon:state', this.onWeapon),
       events.on('player:damaged', this.onDamaged),
@@ -152,18 +146,18 @@ export class Hud {
 
   private readonly onPoints = (e: GameEvents['points:changed']): void => {
     this.points.textContent = String(e.points);
-    this.total.textContent = String(e.score);
+    this.money.textContent = STRINGS.hud.money(e.money);
   };
 
   private readonly onPointsGained = (e: GameEvents['points:gained']): void => {
     // Gains with a world position (repaired windows) float in the world instead.
     if (e.playerId !== this.localPlayerId || e.x !== undefined) return;
-    this.float(`+${e.amount}`, false);
+    this.float(STRINGS.hud.moneyGained(e.amount), false);
   };
 
-  /** "-750" in red when something is bought from a merchant (spec 03 §3). */
-  private readonly onPointsSpent = (e: GameEvents['points:spent']): void => {
-    if (e.playerId === this.localPlayerId) this.float(`-${e.amount}`, true);
+  /** "-750$" in red when something is bought from a merchant (spec 03 §3). */
+  private readonly onMoneySpent = (e: GameEvents['money:spent']): void => {
+    if (e.playerId === this.localPlayerId) this.float(STRINGS.hud.moneySpent(e.amount), true);
   };
 
   private float(text: string, spent: boolean): void {

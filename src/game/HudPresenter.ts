@@ -27,7 +27,7 @@ export class HudPresenter {
   private cooldownStep = -1;
   private hp = -1;
   private round = -1;
-  private points = -1;
+  private money = -1;
   private score = -1;
   private actionKind: GameEvents['action:context']['kind'] | undefined = undefined;
   private actionMerchant: MerchantId | undefined;
@@ -88,10 +88,10 @@ export class HudPresenter {
       this.events.emit('player:health', { hp, maxHp: p.maxHp, low: hp > 0 && hp < PLAYER.lowHpThreshold });
     }
 
-    if (p.points !== this.points || p.score !== this.score) {
-      this.points = p.points;
+    if (p.money !== this.money || p.score !== this.score) {
+      this.money = p.money;
       this.score = p.score;
-      this.events.emit('points:changed', { points: p.points, score: p.score });
+      this.events.emit('points:changed', { points: p.score, money: p.money });
     }
 
     const kind = p.contextAction === 'none' ? null : p.contextAction;
@@ -109,8 +109,8 @@ export class HudPresenter {
         portalKind = portal.kind === 'hatch' ? 'hatch' : 'stairs';
         locked = !isPortalBuyable(this.map, state, p.contextTarget);
       }
-      enabled = !locked && p.points >= cost;
-      amount = locked ? 0 : enabled ? cost : cost - p.points;
+      enabled = !locked && p.money >= cost;
+      amount = locked ? 0 : enabled ? cost : cost - p.money;
     }
     const merchant = kind === 'merchant' ? state.merchants[p.contextTarget]?.id : undefined;
     if (

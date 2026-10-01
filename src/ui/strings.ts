@@ -29,9 +29,12 @@ export const STRINGS = {
     smg: 'SMG',
   },
   hud: {
+    /** Points: everything earned this match (the score). */
     points: 'PUNTOS',
-    /** Every point earned this match, spent or not. */
-    total: 'TOTAL',
+    /** Money to spend, and the floating gains and expenses. */
+    money: (amount: number): string => `${amount}$`,
+    moneyGained: (amount: number): string => `+${amount}$`,
+    moneySpent: (amount: number): string => `-${amount}$`,
     round: 'RONDA',
     reloading: 'Recargando',
     health: 'Vida',
@@ -65,7 +68,7 @@ export const STRINGS = {
   },
   shop: {
     buy: 'COMPRAR',
-    missing: (points: number): string => `FALTAN ${points}`,
+    missing: (money: number): string => `FALTAN ${money}$`,
     reasons: { ammoFull: 'MUNICIÓN COMPLETA', maxLevel: 'NIVEL MÁXIMO', hasSpecial: 'YA TIENE ESPECIAL' },
     comeBack: 'VUELVE EN OTRA RONDA',
     close: 'Cerrar tienda',

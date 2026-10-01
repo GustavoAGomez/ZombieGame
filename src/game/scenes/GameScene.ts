@@ -297,7 +297,7 @@ export class GameScene extends Phaser.Scene {
       },
       addPoints: () => {
         const p = this.state.players[0];
-        if (p) p.points += DEBUG.points;
+        if (p) p.money += DEBUG.points;
       },
       toggleGod: () => {
         const p = this.state.players[0];
@@ -349,7 +349,7 @@ export class GameScene extends Phaser.Scene {
       },
       addManyPoints: () => {
         const p = this.state.players[0];
-        if (p) p.points += DEBUG.bigPoints;
+        if (p) p.money += DEBUG.bigPoints;
       },
     };
   }

@@ -4,9 +4,10 @@ import type { SimContext } from './SimContext';
 export type PointsReason = 'repair' | 'hit' | 'kill';
 
 /**
- * Points (spec 01 §4.7): start with 500; +10 per hit, +50 per kill, +10 per
- * repaired plank. Every gain is announced for a floating "+N": in the HUD,
- * or from a spot in the world when `x`/`y` are given (repaired window).
+ * Points and money (spec 01 §4.7): +10 per hit, +50 per kill, +10 per
+ * repaired plank, the same to the points (score) and to the money (starts
+ * at 500 $). Every gain is announced for a floating "+N$": in the HUD, or
+ * from a spot in the world when `x`/`y` are given (repaired window).
  */
 export function awardPoints(
   ctx: SimContext,
@@ -19,15 +20,15 @@ export function awardPoints(
   if (amount <= 0) return;
   const p = playerById(ctx, playerId);
   if (!p) return;
-  p.points += amount;
+  p.money += amount;
   p.score += amount;
   ctx.events.emit('points:gained', x !== undefined && y !== undefined ? { playerId, amount, reason, x, y } : { playerId, amount, reason });
 }
 
-/** Spends points if the player can afford them. Returns false (and spends nothing) otherwise. */
-export function spendPoints(p: PlayerState, amount: number): boolean {
-  if (p.points < amount) return false;
-  p.points -= amount;
+/** Spends money if the player can afford it. Returns false (and spends nothing) otherwise. */
+export function spendMoney(p: PlayerState, amount: number): boolean {
+  if (p.money < amount) return false;
+  p.money -= amount;
   return true;
 }
 

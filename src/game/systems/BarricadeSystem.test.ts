@@ -74,13 +74,13 @@ describe('BarricadeSystem · repairing with taps', () => {
     ctx.events.on('points:gained', onPoints);
     tap(ctx);
     expect(ctx.state.windowPlanks[0]).toBe(1);
-    expect(p.points).toBe(POINTS.start + BARRICADES.pointsPerPlank);
+    expect(p.money).toBe(POINTS.startMoney + BARRICADES.pointsPerPlank);
     expect(onPoints).toHaveBeenCalledWith({ playerId: 0, amount: 10, reason: 'repair', x: w.center.x, y: w.center.y });
     expect(p.repairing).toBe(true);
 
     tapTimes(ctx, 7);
     expect(ctx.state.windowPlanks[0]).toBe(5); // never above the window's planks
-    expect(p.points).toBe(POINTS.start + 5 * BARRICADES.pointsPerPlank);
+    expect(p.money).toBe(POINTS.startMoney + 5 * BARRICADES.pointsPerPlank);
   });
 
   it('ignores taps faster than the cooldown', () => {
@@ -114,10 +114,10 @@ describe('BarricadeSystem · repairing with taps', () => {
     const ctx = createTestContext();
     const { p } = atWindow(ctx, 0, 0);
     p.repairPoints = BARRICADES.maxRepairPointsPerRound - 10;
-    const start = p.points;
+    const start = p.money;
     tapTimes(ctx, 3);
     expect(ctx.state.windowPlanks[0]).toBe(3);
-    expect(p.points).toBe(start + 10);
+    expect(p.money).toBe(start + 10);
     expect(p.repairPoints).toBe(BARRICADES.maxRepairPointsPerRound);
   });
 
@@ -126,9 +126,9 @@ describe('BarricadeSystem · repairing with taps', () => {
     const { p } = atWindow(ctx, 0, 0);
     p.repairPoints = BARRICADES.maxRepairPointsPerRound;
     ctx.state.wave.round = 2;
-    const start = p.points;
+    const start = p.money;
     tap(ctx);
-    expect(p.points).toBe(start + 10);
+    expect(p.money).toBe(start + 10);
     expect(p.repairRound).toBe(2);
   });
 

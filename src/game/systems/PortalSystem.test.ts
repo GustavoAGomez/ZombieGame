@@ -57,7 +57,7 @@ describe('buying portals', () => {
   it('opens the basement with P1 and only then lets you buy the hatch (P3)', () => {
     const ctx = createMansionContext();
     const p = player(ctx);
-    p.points = 10_000;
+    p.money = 10_000;
     unlockZones(ctx, 'jardin');
     const events = new HudPresenter(ctx.events, ctx.map);
     const chip = vi.fn();
@@ -72,7 +72,7 @@ describe('buying portals', () => {
     expect(chip).toHaveBeenLastCalledWith({ kind: 'portal', amount: 0, enabled: false, portal: 'hatch', locked: true });
     pressAction(ctx);
     expect(isPortalOpen(ctx, portalIndex(ctx, 'P3a'))).toBe(false);
-    expect(p.points).toBe(10_000);
+    expect(p.money).toBe(10_000);
 
     // Kitchen stairs: buying P1 opens both ends and unlocks the basement.
     standNextTo(ctx, 'P1a');
@@ -83,14 +83,14 @@ describe('buying portals', () => {
     expect(isPortalOpen(ctx, portalIndex(ctx, 'P1a'))).toBe(true);
     expect(isPortalOpen(ctx, portalIndex(ctx, 'P1b'))).toBe(true);
     expect(ctx.state.zonesUnlocked[zoneIndex(ctx, 'sotano')]).toBe(true);
-    expect(p.points).toBe(10_000 - 1750);
+    expect(p.money).toBe(10_000 - 1750);
 
     // Now the hatch can be bought, and it is cheaper.
     expect(isPortalBuyable(ctx.map, ctx.state, portalIndex(ctx, 'P3a'))).toBe(true);
     standNextTo(ctx, 'P3a');
     pressAction(ctx);
     expect(isPortalOpen(ctx, portalIndex(ctx, 'P3b'))).toBe(true);
-    expect(p.points).toBe(10_000 - 1750 - 1000);
+    expect(p.money).toBe(10_000 - 1750 - 1000);
   });
 
   it('shows the missing points when the portal is not affordable', () => {
@@ -98,7 +98,7 @@ describe('buying portals', () => {
     const presenter = new HudPresenter(ctx.events, ctx.map);
     const chip = vi.fn();
     ctx.events.on('action:context', chip);
-    player(ctx).points = 500;
+    player(ctx).money = 500;
     standNextTo(ctx, 'P1a');
     updateInteractions(ctx, 1 / 60);
     presenter.publish(ctx.state);

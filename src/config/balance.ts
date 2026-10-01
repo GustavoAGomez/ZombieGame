@@ -238,8 +238,13 @@ export const BARRICADES = {
   maxRepairPointsPerRound: 500,
 } as const;
 
+/**
+ * Points and money: every gain adds the same to both. Money ($) is what the
+ * player spends (doors, portals, merchants); points only add up (the score).
+ */
 export const POINTS = {
-  start: 500,
+  /** Money at the start of a match; points start at 0. */
+  startMoney: 500,
   hit: 10,
   kill: 50,
   floatingTextMs: 600,

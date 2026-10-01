@@ -1,7 +1,7 @@
 import { DOORS } from '../../config/balance';
 import type { PlayerState } from '../../core/GameState';
 import { setDoorBlocking } from '../map/CollisionGrid';
-import { spendPoints } from './PointsSystem';
+import { spendMoney } from './PointsSystem';
 import type { SimContext } from './SimContext';
 
 /**
@@ -46,7 +46,7 @@ export function nearestClosedDoor(ctx: SimContext, p: PlayerState): Readonly<Doo
 export function tryBuyDoor(ctx: SimContext, p: PlayerState, index: number): boolean {
   const door = ctx.map.doors[index];
   if (!door || ctx.state.doorsOpen[index]) return false;
-  if (!spendPoints(p, door.cost)) return false;
+  if (!spendMoney(p, door.cost)) return false;
   openDoor(ctx, index);
   ctx.events.emit('door:opened', { doorId: door.id, playerId: p.id });
   return true;

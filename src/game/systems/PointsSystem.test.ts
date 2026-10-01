@@ -2,12 +2,12 @@ import { describe, expect, it, vi } from 'vitest';
 import { MELEE, POINTS, WEAPONS } from '../../config/balance';
 import { command, createTestContext, placeZombie, player, runTicks } from '../../test/fixtures';
 import { damageZombie } from './Combat';
-import { spendPoints } from './PointsSystem';
+import { spendMoney } from './PointsSystem';
 import { stepSimulation } from './Simulation';
 
 describe('PointsSystem', () => {
   it('starts every player with 500 points', () => {
-    expect(player(createTestContext()).points).toBe(POINTS.start);
+    expect(player(createTestContext()).money).toBe(POINTS.startMoney);
   });
 
   it('gives +10 per bullet hit to the shooter', () => {
@@ -21,7 +21,7 @@ describe('PointsSystem', () => {
     stepSimulation(ctx, 1 / 60);
     cmd.fire = false;
     runTicks(ctx, 20, stepSimulation);
-    expect(p.points).toBe(POINTS.start + POINTS.hit);
+    expect(p.money).toBe(POINTS.startMoney + POINTS.hit);
     expect(gained).toHaveBeenCalledWith({ playerId: 0, amount: 10, reason: 'hit' });
   });
 
@@ -35,7 +35,7 @@ describe('PointsSystem', () => {
     cmd.fire = false;
     runTicks(ctx, 20, stepSimulation);
     expect(z.ai).toBe('dead');
-    expect(p.points).toBe(POINTS.start + POINTS.hit + POINTS.kill);
+    expect(p.money).toBe(POINTS.startMoney + POINTS.hit + POINTS.kill);
   });
 
   it('counts melee hits and kills too', () => {
@@ -48,21 +48,21 @@ describe('PointsSystem', () => {
     placeZombie(ctx, 0, p.x + 18, p.y, MELEE.damage);
     command(ctx).fire = true;
     stepSimulation(ctx, 1 / 60);
-    expect(p.points).toBe(POINTS.start + POINTS.hit + POINTS.kill);
+    expect(p.money).toBe(POINTS.startMoney + POINTS.hit + POINTS.kill);
   });
 
   it('gives nothing for damage without an attacker', () => {
     const ctx = createTestContext();
     const z = placeZombie(ctx, 0, 300, 300, 10);
     damageZombie(ctx, z, 50);
-    expect(player(ctx).points).toBe(POINTS.start);
+    expect(player(ctx).money).toBe(POINTS.startMoney);
   });
 
   it('spends points only when affordable', () => {
     const p = player(createTestContext());
-    expect(spendPoints(p, 600)).toBe(false);
-    expect(p.points).toBe(500);
-    expect(spendPoints(p, 500)).toBe(true);
-    expect(p.points).toBe(0);
+    expect(spendMoney(p, 600)).toBe(false);
+    expect(p.money).toBe(500);
+    expect(spendMoney(p, 500)).toBe(true);
+    expect(p.money).toBe(0);
   });
 });

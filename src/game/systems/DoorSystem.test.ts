@@ -52,13 +52,13 @@ describe('DoorSystem · buying', () => {
     const { p } = atD1(ctx);
     tap(ctx);
     expect(ctx.state.doorsOpen[0]).toBe(false);
-    expect(p.points).toBe(POINTS.start);
+    expect(p.money).toBe(POINTS.startMoney);
   });
 
   it('opens D1 for 750: floor, corridor unlocked, spawns W4 and W5 active', () => {
     const ctx = createTestContext();
     const { d1, p } = atD1(ctx);
-    p.points = 1000;
+    p.money = 1000;
     const opened = vi.fn();
     ctx.events.on('door:opened', opened);
     const w4 = ctx.map.zombieSpawns.findIndex((s) => s.window === 'W4');
@@ -67,7 +67,7 @@ describe('DoorSystem · buying', () => {
 
     tap(ctx);
     expect(ctx.state.doorsOpen[0]).toBe(true);
-    expect(p.points).toBe(250);
+    expect(p.money).toBe(250);
     expect(ctx.state.zonesUnlocked).toEqual([true, true, false]);
     for (const t of d1.tiles) expect(cellBlocks(ctx.grid, t.x, t.y, BLOCK_PLAYER)).toBe(false);
     expect(opened).toHaveBeenCalledWith({ doorId: 'D1', playerId: 0 });
@@ -84,7 +84,7 @@ describe('DoorSystem · buying', () => {
   it('lets the player walk through and zombies path through it right away', () => {
     const ctx = createTestContext();
     const { d1, p } = atD1(ctx);
-    p.points = 1000;
+    p.money = 1000;
     tap(ctx);
     const pasillo = ctx.map.zones[1]!;
     expect(distanceAt(ctx.nav, pasillo.x + 40, pasillo.y + 40)).not.toBe(UNREACHABLE);
@@ -96,20 +96,20 @@ describe('DoorSystem · buying', () => {
   it('cannot be bought twice', () => {
     const ctx = createTestContext();
     const { p } = atD1(ctx);
-    p.points = 2000;
+    p.money = 2000;
     tap(ctx);
     tap(ctx);
-    expect(p.points).toBe(1250);
+    expect(p.money).toBe(1250);
   });
 
   it('holding the chip buys once (tap = press edge only)', () => {
     const ctx = createTestContext();
     const { p } = atD1(ctx);
-    p.points = 2000;
+    p.money = 2000;
     command(ctx).action = true;
     runTicks(ctx, 60, stepSimulation);
     expect(ctx.state.doorsOpen[0]).toBe(false);
-    expect(p.points).toBe(2000);
+    expect(p.money).toBe(2000);
   });
 });
 

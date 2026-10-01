@@ -21,6 +21,8 @@ export const COLORS = {
   merchantBlue: '#3a6fd8',
   /** Double damage: its icon and the bullets fired with it (spec 03 §5). Speed uses amber, like its bolt. */
   boostDamage: '#8ec9ff',
+  /** Money ($): the HUD's money and every "+N$". */
+  money: '#62d26f',
 } as const;
 
 export type ColorToken = keyof typeof COLORS;

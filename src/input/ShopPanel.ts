@@ -138,7 +138,7 @@ export class ShopPanel {
       text.append(name, description);
       const price = document.createElement('span');
       price.className = 'shop-row__price';
-      price.textContent = String(r.price);
+      price.textContent = STRINGS.hud.money(r.price);
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'shop-row__buy';

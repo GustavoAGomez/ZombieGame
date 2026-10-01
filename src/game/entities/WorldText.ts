@@ -3,6 +3,7 @@ import { POINTS } from '../../config/balance';
 import { COLORS, FONTS } from '../../config/theme';
 import type { EventBus, GameEvents } from '../../core/EventBus';
 import { DEPTH } from '../depth';
+import { STRINGS } from '../../ui/strings';
 
 const POOL_SIZE = 8;
 /** How far a text rises while it fades, in world px. */
@@ -39,7 +40,7 @@ export class WorldTextPool {
         .text(0, 0, '', {
           fontFamily: FONTS.display,
           fontSize: '8px',
-          color: COLORS.amber,
+          color: COLORS.money,
           shadow: { offsetX: 1, offsetY: 1, color: COLORS.ink, fill: true, blur: 0 },
         })
         .setOrigin(0.5, 1)
@@ -90,6 +91,6 @@ export class WorldTextPool {
       slot.y = y;
     }
     slot.bornAt = this.now;
-    slot.text.setText(`+${slot.amount}`).setAlpha(1).setVisible(true).setPosition(Math.round(x), Math.round(y));
+    slot.text.setText(STRINGS.hud.moneyGained(slot.amount)).setAlpha(1).setVisible(true).setPosition(Math.round(x), Math.round(y));
   };
 }

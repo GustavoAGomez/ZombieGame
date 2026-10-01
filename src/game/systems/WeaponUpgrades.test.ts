@@ -137,7 +137,7 @@ describe('red and gold merchants', () => {
     const p = player(ctx);
     p.x = p.prevX = m.x + 20;
     p.y = p.prevY = m.y;
-    p.points = 50000;
+    p.money = 50000;
     p.shopMerchant = index;
     return ctx;
   }
@@ -156,7 +156,7 @@ describe('red and gold merchants', () => {
     const pistol = p.weapons[PISTOL]!;
     expect(shopItemStatus(ctx.state, 1, 0, 0)).toEqual({ kind: 'buy' });
     buy(ctx, 0);
-    expect([pistol.level, p.points]).toEqual([1, 47000]);
+    expect([pistol.level, p.money]).toEqual([1, 47000]);
     expect(shopItemStatus(ctx.state, 1, 0, 0)).toEqual({ kind: 'limit' });
     buy(ctx, 0);
     expect(pistol.level).toBe(1);
@@ -178,7 +178,7 @@ describe('red and gold merchants', () => {
       [SMG, 'smg', 'buy'],
     ]);
     buy(ctx, 0, SMG);
-    expect([p.weapons[PISTOL]!.special, p.weapons[SMG]!.special, p.points]).toEqual([false, true, 40000]);
+    expect([p.weapons[PISTOL]!.special, p.weapons[SMG]!.special, p.money]).toEqual([false, true, 40000]);
     expect(shopItemStatus(ctx.state, 2, 0, 0, SMG)).toEqual({ kind: 'unavailable', reason: 'hasSpecial' });
     // Without a weapon slot the special is not sold.
     expect(shopItemStatus(ctx.state, 2, 0, 0)).toEqual({ kind: 'hidden' });

@@ -99,16 +99,16 @@ describe('ShopSystem · buying', () => {
   it('max ammo fills magazine and reserve of every weapon, costs 750 and cancels a reload', () => {
     const ctx = atMerchant();
     const p = player(ctx);
-    p.points = 1000;
+    p.money = 1000;
     spendAmmo(ctx);
     p.reloadTimer = 0.5;
     const spent: number[] = [];
     const bought: string[] = [];
-    ctx.events.on('points:spent', (e) => spent.push(e.amount));
+    ctx.events.on('money:spent', (e) => spent.push(e.amount));
     ctx.events.on('merchant:purchase', (e) => bought.push(`${e.merchant}:${e.item}`));
     openShop(ctx);
     tick(ctx, (c) => (c.shopBuy = MAX_AMMO));
-    expect(p.points).toBe(250);
+    expect(p.money).toBe(250);
     expect(p.weapons.map((w) => [w.magazine, w.reserve])).toEqual(p.weapons.map((w) => [WEAPONS[w.id].magazine, WEAPONS[w.id].maxReserve]));
     expect(p.reloadTimer).toBe(0);
     expect(spent).toEqual([750]);
@@ -118,10 +118,10 @@ describe('ShopSystem · buying', () => {
   it('says what each button shows: missing points, full ammo, and items not sold yet', () => {
     const ctx = atMerchant();
     const p = player(ctx);
-    p.points = 500;
+    p.money = 500;
     spendAmmo(ctx);
     expect(shopItemStatus(ctx.state, 0, 0, MAX_AMMO)).toEqual({ kind: 'short', missing: 250 });
-    p.points = 750;
+    p.money = 750;
     expect(shopItemStatus(ctx.state, 0, 0, MAX_AMMO)).toEqual({ kind: 'buy' });
     for (const slot of p.weapons) {
       slot.magazine = WEAPONS[slot.id].magazine;
@@ -129,32 +129,32 @@ describe('ShopSystem · buying', () => {
     }
     expect(shopItemStatus(ctx.state, 0, 0, MAX_AMMO)).toEqual({ kind: 'unavailable', reason: 'ammoFull' });
     // The round boost is always worth buying.
-    p.points = 5000;
+    p.money = 5000;
     expect(shopItemStatus(ctx.state, 0, 0, ROUND_BOOST)).toEqual({ kind: 'buy' });
   });
 
   it('refuses purchases that are not possible: shop closed, short of points or nothing to fill', () => {
     const ctx = atMerchant();
     const p = player(ctx);
-    p.points = 5000;
+    p.money = 5000;
     spendAmmo(ctx);
     tick(ctx, (c) => (c.shopBuy = MAX_AMMO));
-    expect(p.points).toBe(5000);
+    expect(p.money).toBe(5000);
     openShop(ctx);
-    p.points = 100;
+    p.money = 100;
     tick(ctx, (c) => (c.shopBuy = MAX_AMMO));
-    expect(p.points).toBe(100);
-    p.points = 5000;
+    expect(p.money).toBe(100);
+    p.money = 5000;
     tick(ctx, (c) => (c.shopBuy = MAX_AMMO));
     tick(ctx, (c) => (c.shopBuy = MAX_AMMO));
-    expect(p.points).toBe(4250);
+    expect(p.money).toBe(4250);
   });
 
   it('stops at maxPurchasesPerVisit until the merchant moves', () => {
     (merchantDef('blue') as { maxPurchasesPerVisit?: number }).maxPurchasesPerVisit = 1;
     const ctx = atMerchant();
     const p = player(ctx);
-    p.points = 5000;
+    p.money = 5000;
     spendAmmo(ctx);
     openShop(ctx);
     tick(ctx, (c) => (c.shopBuy = MAX_AMMO));
@@ -175,7 +175,7 @@ describe('HudPresenter · shop', () => {
     ctx.events.on('shop:state', (e) => shops.push(e));
     ctx.events.on('action:context', (e) => contexts.push(e));
     const p = player(ctx);
-    p.points = 500;
+    p.money = 500;
     spendAmmo(ctx);
     tick(ctx);
     presenter.publish(ctx.state);
@@ -191,7 +191,7 @@ describe('HudPresenter · shop', () => {
         { index: 1, item: 'round_boost', price: 1000, status: { kind: 'short', missing: 500 }, boost },
       ],
     });
-    p.points = 800;
+    p.money = 800;
     presenter.publish(ctx.state);
     expect(shops.at(-1)).toEqual({
       merchant: 'blue',

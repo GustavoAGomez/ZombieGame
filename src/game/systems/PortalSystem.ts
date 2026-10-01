@@ -4,7 +4,7 @@ import { UNREACHABLE, distanceAt } from '../map/FlowField';
 import type { MapData, MapPortal } from '../map/MapLoader';
 import { isZombieAlive } from './Combat';
 import { isPlayerAlive } from './HealthSystem';
-import { spendPoints } from './PointsSystem';
+import { spendMoney } from './PointsSystem';
 import type { SimContext } from './SimContext';
 
 /**
@@ -68,7 +68,7 @@ export function nearestClosedPortal(ctx: SimContext, p: PlayerState): Readonly<P
 export function tryBuyPortal(ctx: SimContext, p: PlayerState, index: number): boolean {
   const portal = ctx.map.portals[index];
   if (!portal || isPortalOpen(ctx, index) || !isPortalBuyable(ctx.map, ctx.state, index)) return false;
-  if (!spendPoints(p, portal.cost)) return false;
+  if (!spendMoney(p, portal.cost)) return false;
   openPortal(ctx, index);
   ctx.events.emit('portal:opened', { portalId: portal.id, playerId: p.id });
   return true;

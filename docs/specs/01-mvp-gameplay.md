@@ -181,8 +181,8 @@ Se empieza con las dos para poder probar el cambio de arma. Más adelante habrá
 
 ### 4.7 Puntos y puertas
 
-- **Puntos:** se empieza con 500. Impacto +10, baja +50, tablón reparado +10.
-- **Texto flotante:** cada suma aparece como `+N` en ámbar bajo el marcador del HUD. Sube, se desvanece en 600 ms y los textos se apilan.
+- **Puntos y dinero:** se empieza con 0 puntos y 500 $. Impacto +10, baja +50, tablón reparado +10, lo mismo a los puntos y al dinero. Las compras (puertas, portales, magos) solo gastan dinero; los puntos solo suben y son la puntuación de la partida.
+- **Texto flotante:** cada suma aparece como `+N$` en verde dinero (`--money`) junto al marcador del HUD, y cada compra a un mago como `-N$` en rojo. Sube, se desvanece en 600 ms y los textos se apilan. Los costes del botón de acción y de la tienda también llevan `$`.
 - **Puertas:**
   - La acción contextual aparece cuando el jugador está a menos de 48 px de una puerta cerrada.
   - Al comprarla, sus tiles pasan a ser suelo, la zona destino se desbloquea y sus spawns empiezan a funcionar.
@@ -229,13 +229,13 @@ La referencia es un iPhone en horizontal de 844×390 CSS px. Todo se posiciona r
 **Arriba a la izquierda** (`left: var(--pad-x)`, `top: 14px`), en columna con 10 px de separación:
 
 - **Fila 1:** corazón de 21×18, luego la barra de vida de 176×14 px (10 segmentos, 2 px de separación, marco `--wall`) y después el valor en Press Start 2P a 10 px.
-- **Fila 2:** `RONDA N` en Press Start 2P a 20 px, color `--red`.
+- **Fila 2:** `RONDA N` en Press Start 2P a 16 px, color `--red`.
 - **Fila 3:** nombre del arma (Silkscreen 11 px, `--muted`), icono de bala, cargador (Press Start 2P 14 px, `--amber`) y `/ reserva` (10 px, `--dim`). Durante la recarga, el cargador muestra una barra de progreso.
 
 **Arriba a la derecha** (`right: var(--pad-x)`, `top: 14px`), alineado a la derecha, con 5 px de separación:
 
-- **Fila 1:** `PUNTOS` (Silkscreen 11 px, `--muted`) y el marcador de puntos para gastar (Press Start 2P 20 px).
-- **Fila 2:** `TOTAL` (Silkscreen 9 px) y todos los puntos ganados en la partida, gastados o no (Press Start 2P 10 px, `--muted`).
+- **Fila 1:** `PUNTOS` (Silkscreen 11 px, `--muted`) y los puntos ganados en la partida (Press Start 2P 14 px).
+- **Fila 2:** el dinero para gastar, sin etiqueta, como `560$` (Press Start 2P 12 px, `--money`, verde).
 - **Debajo,** pegada al borde derecho, la columna de armas (§2.3).
 - **Textos flotantes `+N`:** en una pila a la izquierda de los puntos, fuera de la columna, para que esta no crezca hacia abajo.
 

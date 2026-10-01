@@ -95,14 +95,14 @@ export class ContextButton extends PointerControl {
       this.value.style.color = merchantDef(e.merchant).color;
       button.setAttribute('aria-label', STRINGS.merchants.names[e.merchant]);
     } else if (e.kind === 'repair') {
-      this.value.textContent = e.amount > 0 ? `+${e.amount}` : '';
+      this.value.textContent = e.amount > 0 ? STRINGS.hud.moneyGained(e.amount) : '';
       button.setAttribute('aria-label', STRINGS.actions.repair);
     } else if (e.kind === 'door') {
-      this.value.textContent = e.enabled ? String(e.amount) : `-${e.amount}`;
+      this.value.textContent = e.enabled ? STRINGS.hud.money(e.amount) : STRINGS.hud.moneySpent(e.amount);
       button.setAttribute('aria-label', e.enabled ? STRINGS.actions.openDoor : STRINGS.actions.missing);
     } else if (e.kind === 'portal') {
       const open = e.portal === 'hatch' ? STRINGS.actions.openHatch : STRINGS.actions.openStairs;
-      this.value.textContent = e.locked ? '' : e.enabled ? String(e.amount) : `-${e.amount}`;
+      this.value.textContent = e.locked ? '' : e.enabled ? STRINGS.hud.money(e.amount) : STRINGS.hud.moneySpent(e.amount);
       button.setAttribute('aria-label', e.locked ? STRINGS.actions.locked : e.enabled ? open : STRINGS.actions.missing);
     } else if (this.active) {
       this.reset();

@@ -97,8 +97,9 @@ export interface PlayerState {
   /** Seconds until the dash can be used again. */
   dashCooldown: number;
 
-  points: number;
-  /** Every point earned this match, spent or not (game over screen). */
+  /** Money ($) to spend on doors, portals and merchants. */
+  money: number;
+  /** Points: everything earned this match, money spent or not (HUD and game over screen). */
   score: number;
   /** Points earned repairing during `repairRound` (capped per round). */
   repairPoints: number;
@@ -318,7 +319,7 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     dashDirX: 0,
     dashDirY: 0,
     dashCooldown: 0,
-    points: POINTS.start,
+    money: POINTS.startMoney,
     score: 0,
     repairPoints: 0,
     repairRound: 1,

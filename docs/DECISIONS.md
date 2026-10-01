@@ -652,3 +652,18 @@ Petición del usuario: la vida ya no se recupera con el tiempo, por ahora solo c
   - El panel pasa a 3 columnas, más compacto.
   - Al tocar sus estadísticas se pliegan los botones, que a veces tapan la tienda.
 - **Tests:** capacidades, cadencia, daño y su acumulación con el doble daño, abanico de la pistola, SMG que atraviesa hasta 3 zombis y se para en las paredes, y tiendas roja y dorada (límite por visita, nivel máximo, una fila por arma, ya tiene especial).
+
+## Puntos y dinero separados
+
+Petición del usuario: diferenciar los puntos del dinero para comprar.
+
+- **Estado:** `PlayerState.money` (dinero para gastar, empieza en 500 $) y `PlayerState.score` (puntos, empiezan en 0). Cada ganancia suma lo mismo a los dos (`awardPoints`). Puertas, portales y magos solo gastan dinero (`spendMoney`).
+  - El campo `points` pasa a llamarse `money` para que el código no confunda dinero y puntos.
+  - El evento de gasto pasa a `money:spent`.
+- **HUD** (la disposición no cambia):
+  - arriba a la derecha, `PUNTOS` con los puntos (más pequeños, 14 px) y debajo el dinero en verde sin etiqueta (`560$`); la columna de armas sigue justo debajo;
+  - la ronda baja a 16 px.
+- **Verde dinero:** `COLORS.money`, `#62d26f`. Lo usan el dinero del HUD, los `+N$` del HUD y los de las ventanas reparadas.
+- **Cantidades con `$`:** los costes del botón de acción (puertas y escaleras, y lo que falta), el `+10$` de reparar y los precios y el FALTAN de la tienda. Así no se confunden con los puntos.
+- **Botones de debug:** +1000 y +10000 dan dinero.
+- **Pantalla final:** muestra los puntos (la puntuación), como antes.

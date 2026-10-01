@@ -42,7 +42,7 @@ export function shopItemStatus(state: GameState, merchantIndex: number, playerIn
   if (def.maxPurchasesPerVisit !== undefined && (m.visitPurchases[playerIndex] ?? 0) >= def.maxPurchasesPerVisit) return { kind: 'limit' };
   const reason = effect.unavailable(p, slot);
   if (reason) return { kind: 'unavailable', reason };
-  if (p.points < item.price) return { kind: 'short', missing: item.price - p.points };
+  if (p.money < item.price) return { kind: 'short', missing: item.price - p.money };
   return { kind: 'buy' };
 }
 
@@ -76,10 +76,10 @@ export function buyItem(ctx: SimContext, playerIndex: number, merchantIndex: num
   const m = state.merchants[merchantIndex];
   const item: MerchantItem | undefined = m && merchantDef(m.id).items[itemIndex];
   if (!p || !m || !item) return false;
-  p.points -= item.price;
+  p.money -= item.price;
   m.visitPurchases[playerIndex] = (m.visitPurchases[playerIndex] ?? 0) + 1;
   EFFECTS[item.id]?.apply(p, m, slot);
-  ctx.events.emit('points:spent', { playerId: p.id, amount: item.price });
+  ctx.events.emit('money:spent', { playerId: p.id, amount: item.price });
   ctx.events.emit('merchant:purchase', { playerId: p.id, merchant: m.id, item: item.id });
   return true;
 }

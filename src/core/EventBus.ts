@@ -37,8 +37,8 @@ export interface GameEvents {
   /** The weapons the player carries (at most LOADOUT.maxWeapons), for the slots at the bottom of the HUD. */
   'weapons:loadout': { slots: { weapon: WeaponId; magazine: number; reserve: number }[]; active: number };
   'special:cooldown': { remaining: number; total: number };
-  /** `points` to spend now; `score` every point earned this match, spent or not. */
-  'points:changed': { points: number; score: number };
+  /** `points`: everything earned this match (the score); `money`: what is left to spend ($). */
+  'points:changed': { points: number; money: number };
   /**
    * Points added to a player. With a world position (x, y) the "+N" floats
    * up from there (repaired window); otherwise it floats in the HUD.
@@ -62,8 +62,8 @@ export interface GameEvents {
   'round:changed': { round: number };
   /** A merchant appeared (`first`) or teleported to another spot at the start of a round (spec 03 §2). */
   'merchant:moved': { merchant: MerchantId; first: boolean };
-  /** Points spent in a shop: "-750" in red under the score (spec 03 §3). */
-  'points:spent': { playerId: number; amount: number };
+  /** Money spent in a shop: "-750$" in red next to the money (spec 03 §3). */
+  'money:spent': { playerId: number; amount: number };
   /** Something was bought from a merchant (medium haptic). */
   'merchant:purchase': { playerId: number; merchant: MerchantId; item: MerchantItemId };
   /** The local player's shop panel: closed, or open with one row per item still sold. */
