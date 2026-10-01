@@ -188,6 +188,16 @@ export const ZOMBIE_MIX = {
 
 export const NAVIGATION = {
   flowFieldInterval: 0.25,
+  /**
+   * A barricaded window is a way in for the zombies' flow field, at a cost
+   * in tiles of walking: per plank left, plus the climb. Zombies break
+   * through instead of walking around unless the open way is shorter than
+   * that (a full window, 5 planks, costs 1 + 3 + 1 = 5 tiles).
+   */
+  barricadeStepsPerPlank: 0.5,
+  barricadeClimbSteps: 1,
+  /** A zombie heading for a window gives it up only for a way at least this many tiles shorter. */
+  routeSwitchSteps: 2,
 } as const;
 
 export const BARRICADES = {

@@ -84,6 +84,51 @@ describe('WeaponSystem · reload and switch', () => {
     expect(reloadProgress(p)).toBeNull();
   });
 
+  it('keeps its rate after a reload with the trigger held: no burst of the shots missed while reloading', () => {
+    const ctx = createTestContext();
+    const p = player(ctx);
+    p.activeSlot = 1; // SMG, the fastest
+    const slot = p.weapons[1]!;
+    slot.magazine = 1;
+    command(ctx).fire = true;
+    const shotTicks: number[] = [];
+    let last = p.lastShotTick;
+    for (let t = 0; t < Math.round((WEAPONS.smg.reloadTime + 1) * 60); t++) {
+      stepSimulation(ctx, 1 / 60);
+      if (p.lastShotTick !== last) shotTicks.push((last = p.lastShotTick));
+    }
+    // First shot, the reload, then shots spaced at the weapon's rate again: never two on consecutive ticks.
+    expect(shotTicks.length).toBeGreaterThan(5);
+    const gaps = shotTicks.slice(1).map((tick, i) => tick - (shotTicks[i] ?? 0));
+    expect(Math.min(...gaps)).toBeGreaterThanOrEqual(Math.floor(60 / WEAPONS.smg.fireRate));
+  });
+
+  it('reloads on demand with room in the magazine and bullets in reserve, not otherwise', () => {
+    const ctx = createTestContext();
+    const p = player(ctx);
+    const slot = p.weapons[0]!;
+    const cmd = command(ctx);
+    // Full magazine: nothing to reload.
+    cmd.reload = true;
+    stepSimulation(ctx, 1 / 60);
+    expect(p.reloadTimer).toBe(0);
+    // Two shots fired: the reload starts and tops the magazine up from the reserve.
+    slot.magazine -= 2;
+    const reserve = slot.reserve;
+    cmd.reload = true;
+    stepSimulation(ctx, 1 / 60);
+    expect(p.reloadTimer).toBeGreaterThan(0);
+    runTicks(ctx, Math.round(WEAPONS.pistol.reloadTime * 60) + 2, stepSimulation);
+    expect(slot.magazine).toBe(WEAPONS.pistol.magazine);
+    expect(slot.reserve).toBe(reserve - 2);
+    // Without reserve the button does nothing.
+    slot.magazine = 3;
+    slot.reserve = 0;
+    cmd.reload = true;
+    stepSimulation(ctx, 1 / 60);
+    expect(p.reloadTimer).toBe(0);
+  });
+
   it('reloads only what is left in reserve', () => {
     const ctx = createTestContext();
     const p = player(ctx);

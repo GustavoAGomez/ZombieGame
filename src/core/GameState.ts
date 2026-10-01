@@ -129,8 +129,10 @@ export interface ZombieState {
   facing: number;
   hp: number;
   maxHp: number;
-  /** Index into MapData.windows of the window this zombie comes through, -1 from an open spawn. */
+  /** Index into MapData.windows of the window this zombie goes through, -1 when none. */
   window: number;
+  /** Going through `window` from the inside out (the player is outside), instead of breaking in. */
+  crossOut: boolean;
   /** Countdown used by the current state (tear, climb, windup, corpse). */
   timer: number;
   /** Seconds until this zombie may start another attack. */
@@ -271,6 +273,7 @@ function createZombie(): ZombieState {
     hp: 0,
     maxHp: 0,
     window: -1,
+    crossOut: false,
     timer: 0,
     attackCooldown: 0,
     fromX: 0,

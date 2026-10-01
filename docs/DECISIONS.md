@@ -317,3 +317,17 @@ Registro de lo que la spec no definía (o definía de forma ambigua) y cómo se 
   - la cara (el lado sur) muestra el material del lado al que mira: lamas si da afuera, yeso si da a una habitación. Va en la capa nueva `wall_faces`, con tiles de solo cara;
   - por eso las paredes norte de las habitaciones, que son de fachada, ya no enseñan lamas por dentro.
 - **Valla contra la casa:** sus bordes superiores son distintos. Los brazos de la casa hacia la valla se repiten con el kit de la valla en la capa `wall_joins`, y manda el kit de menos rango (valla < yeso < fachada). En la mansión hay 2 uniones así.
+
+## Recarga, botón de recargar y zombies que rompen barricadas
+
+- **Ráfaga al terminar de recargar.** El enfriamiento del disparo guardaba el resto de cada tick mientras se mantenía el gatillo, para que la cadencia media fuera exacta. Pero seguía bajando sin límite mientras no se podía disparar (recarga, cambio de arma), y al acabar la recarga salía una bala por tick hasta ponerse al día. Ahora ese resto nunca pasa de un tick: nunca hay más de un disparo por tick ni disparos atrasados.
+- **Botón de recargar** justo encima del botón de disparo (a 124 px de su centro), con el texto «RECARGAR» y un icono de anillo con flecha.
+  - Recarga si al cargador le falta munición y queda reserva; si no, se ve atenuado.
+  - Mientras recarga, un velo se vacía con el progreso.
+  - En el ordenador, la tecla R hace lo mismo.
+  - El botón especial se desplaza a la izquierda para dejarle sitio: queda a (−84, −106) del centro del de disparo.
+  - Es un comando `reload` del `InputCommand` (regla 2).
+- **Zombies que rompen lo que se les pone delante.** El campo de flujo pasa de BFS a Dijkstra, y una ventana con barricada es un paso más con su coste: 1 casilla, más 0,5 por tablón y 1 por trepar. Una ventana entera cuesta 5 casillas de camino (`NAVIGATION` en `balance.ts`).
+  - **Persiguiendo:** si el siguiente paso del campo es una ventana, el zombie va a ella, rompe los tablones y trepa. Si el jugador está fuera, lo hace de dentro afuera.
+  - **Yendo a su ventana:** el zombie que sale de un spawn sigue con ella aunque la calle o el jardín estén abiertos, salvo que el campo conozca un camino al menos 2 casillas más corto (por ejemplo, el jugador ha salido a por él). Antes pasaba a perseguir en cuanto el campo lo alcanzaba y daba el rodeo largo por las puertas abiertas.
+  - **Puertas de pago:** siguen siendo un muro para los zombies.

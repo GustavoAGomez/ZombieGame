@@ -1,7 +1,7 @@
 import { NAVIGATION, PLAYER, ZOMBIES } from '../../config/balance';
 import type { PlayerState, ZombieAi, ZombieState } from '../../core/GameState';
 import { BLOCK_ZOMBIE, moveCircle, resolveCircle, segmentClear } from '../map/CollisionGrid';
-import { UNREACHABLE, computeFlowField, distanceAt, flowDirection, sourcesChanged } from '../map/FlowField';
+import { UNREACHABLE, computeFlowField, distanceAt, flowDirection, flowNextCell, sourcesChanged } from '../map/FlowField';
 import { isZombieAlive } from './Combat';
 import { damagePlayer, isPlayerAlive } from './HealthSystem';
 import type { SimContext } from './SimContext';
@@ -9,15 +9,19 @@ import { isDashing } from './SpecialSystem';
 
 /**
  * Zombie behaviour (spec 01 §4.4–4.5):
- *   toWindow  walk straight from the spawn to the window's exterior point
+ *   toWindow  walk straight to the window's near side (the exterior point
+ *             from a spawn, or whichever side the zombie is on)
  *   tearing   pull one plank every tearTime seconds while any are left
- *   climbing  0.8 s to the interior point; cannot move or be pushed
+ *   climbing  0.8 s to the far side; cannot move or be pushed
  *   emerging  0.6 s rising at an open spawn; can be shot, does not move (spec 02 §3.4)
  *   chasing   follow the flow field (straight line when close and visible)
  *
- * A zombie still outside (toWindow / tearing) on a cell the flow field
- * reaches starts chasing at once: the player can walk up to it, so it would
- * be silly to keep pulling planks (spec 02 §3.5).
+ * The flow field goes through barricaded windows at the cost of their
+ * planks: a chasing zombie whose way leads into a window goes for it,
+ * tears it down and climbs through, in or out, instead of walking round by
+ * the open doors. A zombie heading for its window keeps at it unless the
+ * field knows a way at least routeSwitchSteps shorter (the player walked
+ * out to it, say: spec 02 §3.5).
  *   attacking 0.35 s windup, 40 damage if still in range, 1.1 s cooldown
  *   dead      corpse for the death animation, then the slot is freed
  */
@@ -36,11 +40,11 @@ export function updateZombies(ctx: SimContext, dt: number): void {
     if (z.attackCooldown > 0) z.attackCooldown = Math.max(0, z.attackCooldown - dt);
     switch (z.ai) {
       case 'toWindow':
-        if (outsideButReachable(ctx, z)) setState(ctx, z, 'chasing');
+        if (betterWayThanWindow(ctx, z)) setState(ctx, z, 'chasing');
         else updateToWindow(ctx, z, dt);
         break;
       case 'tearing':
-        if (outsideButReachable(ctx, z)) setState(ctx, z, 'chasing');
+        if (betterWayThanWindow(ctx, z)) setState(ctx, z, 'chasing');
         else updateTearing(ctx, z, dt);
         break;
       case 'emerging':
@@ -74,8 +78,32 @@ function setState(ctx: SimContext, z: ZombieState, ai: ZombieAi, timer = 0): voi
   z.stateTick = ctx.state.tick;
 }
 
-function outsideButReachable(ctx: SimContext, z: ZombieState): boolean {
-  return distanceAt(ctx.nav, z.x, z.y) !== UNREACHABLE;
+/**
+ * True when the flow field knows a way from here clearly shorter than going
+ * through the zombie's window (or the window leads nowhere any more).
+ * Outside a zone the player can reach, the field does not get here: keep
+ * going for the window.
+ */
+function betterWayThanWindow(ctx: SimContext, z: ZombieState): boolean {
+  const { nav, map } = ctx;
+  const here = distanceAt(nav, z.x, z.y);
+  if (here === UNREACHABLE) return false;
+  const w = map.windows[z.window];
+  if (!w) return true;
+  const through = nav.dist[w.tileY * map.width + w.tileX] ?? UNREACHABLE;
+  if (through === UNREACHABLE) return true;
+  const entry = z.crossOut ? w.interior : w.exterior;
+  const toWindow = Math.hypot(entry.x - z.x, entry.y - z.y) / map.tileSize + 1;
+  return here + NAVIGATION.routeSwitchSteps < through + toWindow;
+}
+
+/** Heads for window `index` to go through it from the side the zombie is on. */
+function startCrossing(ctx: SimContext, z: ZombieState, index: number): void {
+  const w = ctx.map.windows[index];
+  if (!w) return;
+  z.window = index;
+  z.crossOut = (z.x - w.center.x) * w.outward.x + (z.y - w.center.y) * w.outward.y < 0;
+  setState(ctx, z, 'toWindow');
 }
 
 function speedOf(z: ZombieState): number {
@@ -85,8 +113,9 @@ function speedOf(z: ZombieState): number {
 function updateToWindow(ctx: SimContext, z: ZombieState, dt: number): void {
   const w = ctx.map.windows[z.window];
   if (!w) return setState(ctx, z, 'chasing');
-  const dx = w.exterior.x - z.x;
-  const dy = w.exterior.y - z.y;
+  const entry = z.crossOut ? w.interior : w.exterior;
+  const dx = entry.x - z.x;
+  const dy = entry.y - z.y;
   const dist = Math.hypot(dx, dy);
   if (dist <= ZOMBIES.windowArriveRadius) {
     if ((ctx.state.windowPlanks[z.window] ?? 0) > 0) setState(ctx, z, 'tearing', ZOMBIES.kinds[z.kind].tearTime);
@@ -102,7 +131,7 @@ function updateToWindow(ctx: SimContext, z: ZombieState, dt: number): void {
 function updateTearing(ctx: SimContext, z: ZombieState, dt: number): void {
   const w = ctx.map.windows[z.window];
   if (!w) return setState(ctx, z, 'chasing');
-  z.facing = Math.atan2(-w.outward.y, -w.outward.x);
+  z.facing = facingThrough(w, z);
   const planks = ctx.state.windowPlanks;
   if ((planks[z.window] ?? 0) <= 0) {
     startClimb(ctx, z);
@@ -126,10 +155,20 @@ function updateClimbing(ctx: SimContext, z: ZombieState, dt: number): void {
   if (!w) return setState(ctx, z, 'chasing');
   z.timer = Math.max(0, z.timer - dt);
   const t = 1 - z.timer / ZOMBIES.climbTime;
-  z.x = z.fromX + (w.interior.x - z.fromX) * t;
-  z.y = z.fromY + (w.interior.y - z.fromY) * t;
-  z.facing = Math.atan2(-w.outward.y, -w.outward.x);
-  if (z.timer <= 0) setState(ctx, z, 'chasing');
+  const exit = z.crossOut ? w.exterior : w.interior;
+  z.x = z.fromX + (exit.x - z.fromX) * t;
+  z.y = z.fromY + (exit.y - z.fromY) * t;
+  z.facing = facingThrough(w, z);
+  if (z.timer <= 0) {
+    z.window = -1;
+    z.crossOut = false;
+    setState(ctx, z, 'chasing');
+  }
+}
+
+/** Facing across the window: inwards when breaking in, outwards when going out. */
+function facingThrough(w: { outward: { x: number; y: number } }, z: ZombieState): number {
+  return z.crossOut ? Math.atan2(w.outward.y, w.outward.x) : Math.atan2(-w.outward.y, -w.outward.x);
 }
 
 function nearestAlivePlayer(ctx: SimContext, x: number, y: number): PlayerState | undefined {
@@ -174,6 +213,12 @@ function updateChasing(ctx: SimContext, z: ZombieState, dt: number): void {
     dirX = dx / dist;
     dirY = dy / dist;
   } else if (flowDirection(ctx.nav, z.x, z.y, scratchDir)) {
+    // The way goes through a window: tear it down and climb through.
+    const window = ctx.nav.cellWindow[flowNextCell(ctx.nav, z.x, z.y)] ?? -1;
+    if (window >= 0) {
+      startCrossing(ctx, z, window);
+      return;
+    }
     dirX = scratchDir.x;
     dirY = scratchDir.y;
   } else {
@@ -248,7 +293,7 @@ function refreshFlowField(ctx: SimContext, dt: number): void {
     sourceCells.push(Math.floor(p.y / map.tileSize) * map.width + Math.floor(p.x / map.tileSize));
   }
   if (nav.age >= NAVIGATION.flowFieldInterval || sourcesChanged(nav, sourceCells)) {
-    computeFlowField(nav, map, ctx.grid, state.zonesUnlocked, sourceCells, state.portalsOpen);
+    computeFlowField(nav, map, ctx.grid, state.zonesUnlocked, sourceCells, state.portalsOpen, state.windowPlanks);
   }
 }
 

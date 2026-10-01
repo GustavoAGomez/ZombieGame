@@ -108,14 +108,70 @@ describe('window zombies with the outside reachable', () => {
     expect(['toWindow', 'tearing']).toContain(z.ai);
   });
 
-  it('chase the player once the street is open', () => {
+  it('break in through their window when that is the short way, even with the street and the front door open', () => {
     const ctx = createMansionContext();
     unlock(ctx, 'calle');
     openDoor(ctx, ctx.map.doors.findIndex((d) => d.id === 'D8'));
     const z = ctx.state.zombies[0]!;
     spawnZombie(ctx, z, w1Spawn(ctx));
-    runTicks(ctx, 2, updateZombies);
+    runTicks(ctx, 60, updateZombies);
+    expect(['toWindow', 'tearing']).toContain(z.ai);
+  });
+
+  it('chase the player who walks out to them', () => {
+    const ctx = createMansionContext();
+    unlock(ctx, 'calle');
+    const z = ctx.state.zombies[0]!;
+    spawnZombie(ctx, z, w1Spawn(ctx));
+    movePlayer(ctx, Math.floor(z.x / 32), Math.floor(z.y / 32) + 2); // on the lawn, two tiles from it
+    runTicks(ctx, 4, updateZombies);
     expect(z.ai).toBe('chasing');
+  });
+});
+
+describe('zombies break through the barricades on their way', () => {
+  const DT = 1 / 60;
+  const w1 = (ctx: SimContext): number => ctx.map.windows.findIndex((w) => w.id === 'W1');
+
+  /** Runs the zombies until `done` (or 20 s) and returns every state the zombie went through. */
+  function runUntil(ctx: SimContext, done: () => boolean): Set<string> {
+    const seen = new Set<string>();
+    for (let t = 0; t < 60 * 20 && !done(); t++) {
+      updateZombies(ctx, DT);
+      seen.add(ctx.state.zombies[0]!.ai);
+    }
+    return seen;
+  }
+
+  it('a chasing zombie outside tears down the window in its way and climbs in, the front door being closed', () => {
+    const ctx = createMansionContext();
+    unlock(ctx, 'calle');
+    player(ctx).hp = player(ctx).maxHp = 1e9;
+    const porch = tileCenter(ctx, 39, 43);
+    const z = placeZombie(ctx, 0, porch.x, porch.y, 1000, 'chasing');
+    const seen = runUntil(ctx, () => z.ai === 'chasing' && z.y < 41 * 32);
+    expect(seen).toContain('tearing');
+    expect(seen).toContain('climbing');
+    expect(ctx.state.windowPlanks[w1(ctx)]).toBe(0);
+    expect(Math.floor(z.y / 32)).toBeLessThan(41); // in the hall
+  });
+
+  it('a zombie inside goes out through a window to reach a player outside', () => {
+    const ctx = createMansionContext();
+    unlock(ctx, 'calle');
+    movePlayer(ctx, 39, 44);
+    player(ctx).hp = player(ctx).maxHp = 1e9;
+    const hall = tileCenter(ctx, 39, 38);
+    const z = placeZombie(ctx, 0, hall.x, hall.y, 1000, 'chasing');
+    let wentOut = false;
+    const seen = runUntil(ctx, () => {
+      wentOut ||= z.crossOut;
+      return z.ai === 'chasing' && z.y > 42 * 32;
+    });
+    expect(wentOut).toBe(true);
+    expect(seen).toContain('tearing');
+    expect(seen).toContain('climbing');
+    expect(Math.floor(z.y / 32)).toBeGreaterThan(41); // on the porch
   });
 });
 

@@ -10,6 +10,8 @@ export const STRINGS = {
     weaponShort: 'ARMA',
     special: 'Movimiento especial',
     specialShort: 'ESPECIAL',
+    reload: 'Recargar',
+    reloadShort: 'RECARGAR',
   },
   weapons: {
     pistol: 'PISTOLA',

@@ -1,11 +1,14 @@
+import { WEAPONS } from '../config/balance';
 import type { EventBus } from '../core/EventBus';
 import { pixelIcon, type IconName } from '../ui/icons';
 import { STRINGS } from '../ui/strings';
 
 /**
- * Tap buttons in an arc above the fire button (spec 01 §2.3): weapon switch
- * and special (dash). Presses are latched until the next tick reads them.
- * The special button also shows its cooldown, received via the EventBus.
+ * Tap buttons in an arc above the fire button (spec 01 §2.3): weapon switch,
+ * special (dash) and reload, right above the fire button. Presses are
+ * latched until the next tick reads them. The special button shows its
+ * cooldown and the reload button the reload in progress (dimmed while there
+ * is nothing to reload), both received via the EventBus.
  */
 class TapButton {
   readonly el: HTMLButtonElement;
@@ -67,27 +70,44 @@ class TapButton {
 export class ActionButtons {
   private readonly switchButton: TapButton;
   private readonly specialButton: TapButton;
+  private readonly reloadButton: TapButton;
   private readonly veil: HTMLDivElement;
   private readonly seconds: HTMLSpanElement;
-  private readonly unsubscribe: () => void;
+  private readonly reloadVeil: HTMLDivElement;
+  private readonly unsubscribe: (() => void)[];
 
   constructor(parent: HTMLElement, events: EventBus) {
     this.switchButton = new TapButton(parent, 'action-button--switch', 'swap', STRINGS.controls.weaponShort, STRINGS.controls.switchWeapon);
     this.specialButton = new TapButton(parent, 'action-button--special', 'bolt', STRINGS.controls.specialShort, STRINGS.controls.special);
+    this.reloadButton = new TapButton(parent, 'action-button--reload', 'reload', STRINGS.controls.reloadShort, STRINGS.controls.reload);
 
     this.veil = document.createElement('div');
     this.veil.className = 'action-button__veil';
     this.seconds = document.createElement('span');
     this.seconds.className = 'action-button__seconds';
     this.specialButton.el.append(this.veil, this.seconds);
+    this.reloadVeil = document.createElement('div');
+    this.reloadVeil.className = 'action-button__veil';
+    this.reloadButton.el.append(this.reloadVeil);
 
-    this.unsubscribe = events.on('special:cooldown', ({ remaining, total }) => {
-      const fraction = total > 0 ? Math.min(1, remaining / total) : 0;
-      this.veil.style.transform = `scaleY(${fraction})`;
-      this.veil.style.display = fraction > 0 ? 'block' : 'none';
-      this.seconds.textContent = fraction > 0 ? String(Math.ceil(remaining)) : '';
-      this.specialButton.el.classList.toggle('is-cooling', fraction > 0);
-    });
+    this.unsubscribe = [
+      events.on('special:cooldown', ({ remaining, total }) => {
+        const fraction = total > 0 ? Math.min(1, remaining / total) : 0;
+        this.veil.style.transform = `scaleY(${fraction})`;
+        this.veil.style.display = fraction > 0 ? 'block' : 'none';
+        this.seconds.textContent = fraction > 0 ? String(Math.ceil(remaining)) : '';
+        this.specialButton.el.classList.toggle('is-cooling', fraction > 0);
+      }),
+      events.on('weapon:state', ({ weapon, magazine, reserve, reloadProgress, switching }) => {
+        const reloading = reloadProgress !== null;
+        // The veil empties as the reload progresses.
+        this.reloadVeil.style.transform = `scaleY(${reloading ? 1 - reloadProgress : 0})`;
+        this.reloadVeil.style.display = reloading ? 'block' : 'none';
+        this.reloadButton.el.classList.toggle('is-cooling', reloading);
+        const canReload = !reloading && !switching && magazine < WEAPONS[weapon].magazine && reserve > 0;
+        this.reloadButton.el.classList.toggle('is-disabled', !reloading && !canReload);
+      }),
+    ];
   }
 
   consumeSwitch(): boolean {
@@ -98,14 +118,20 @@ export class ActionButtons {
     return this.specialButton.consume();
   }
 
+  consumeReload(): boolean {
+    return this.reloadButton.consume();
+  }
+
   reset(): void {
     this.switchButton.reset();
     this.specialButton.reset();
+    this.reloadButton.reset();
   }
 
   destroy(): void {
-    this.unsubscribe();
+    for (const off of this.unsubscribe) off();
     this.switchButton.dispose();
     this.specialButton.dispose();
+    this.reloadButton.dispose();
   }
 }

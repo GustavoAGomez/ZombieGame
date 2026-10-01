@@ -18,6 +18,7 @@ export interface InputCommand {
   aimY: number;
   /** Edge-triggered: pressed since the previous tick. */
   switchWeapon: boolean;
+  reload: boolean;
   special: boolean;
   actionPressed: boolean;
   /** Held (e.g. hold-to-repair). */
@@ -34,6 +35,7 @@ export function createInputCommand(): InputCommand {
     aimX: 0,
     aimY: 0,
     switchWeapon: false,
+    reload: false,
     special: false,
     actionPressed: false,
     action: false,
@@ -48,6 +50,7 @@ export function resetInputCommand(cmd: InputCommand): InputCommand {
   cmd.aimX = 0;
   cmd.aimY = 0;
   cmd.switchWeapon = false;
+  cmd.reload = false;
   cmd.special = false;
   cmd.actionPressed = false;
   cmd.action = false;

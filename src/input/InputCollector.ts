@@ -65,6 +65,7 @@ export class InputCollector {
     }
 
     cmd.switchWeapon = this.buttons.consumeSwitch() || kb.consumePress('KeyQ');
+    cmd.reload = this.buttons.consumeReload() || kb.consumePress('KeyR');
     cmd.special = this.buttons.consumeSpecial() || kb.consumePress('ShiftLeft') || kb.consumePress('KeyE');
     // F / Enter mirror the chip on desktop.
     cmd.actionPressed = this.chip.consumePress() || kb.consumePress('KeyF') || kb.consumePress('Enter');

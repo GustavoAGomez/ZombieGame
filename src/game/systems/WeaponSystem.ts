@@ -13,9 +13,9 @@ const centre: Vec2 = { x: 0, y: 0 };
 const AUTO_AIM_MIN_REACH = 20;
 
 /**
- * Weapons (spec 01 §4.2): switching, automatic reload, aiming (manual drag
- * or auto-aim), automatic fire at the weapon's rate, and melee when every
- * weapon is out of ammo.
+ * Weapons (spec 01 §4.2): switching, automatic and manual reload, aiming
+ * (manual drag or auto-aim), automatic fire at the weapon's rate, and melee
+ * when every weapon is out of ammo.
  */
 export function updateWeapons(ctx: SimContext, dt: number): void {
   const { state, commands } = ctx;
@@ -25,7 +25,7 @@ export function updateWeapons(ctx: SimContext, dt: number): void {
     if (!p || !cmd || p.hp <= 0) continue;
     tickTimers(p, cmd, dt);
     handleSwitch(p, cmd);
-    handleReload(p, dt);
+    handleReload(p, cmd, dt);
     updateAim(ctx, p, cmd);
     if (cmd.fire) handleFire(ctx, p);
   }
@@ -34,10 +34,12 @@ export function updateWeapons(ctx: SimContext, dt: number): void {
 function tickTimers(p: PlayerState, cmd: InputCommand, dt: number): void {
   if (p.switchTimer > 0) p.switchTimer = Math.max(0, p.switchTimer - dt);
   if (p.meleeCooldown > 0) p.meleeCooldown = Math.max(0, p.meleeCooldown - dt);
-  p.fireCooldown -= dt;
-  // Keep the sub-tick remainder only while the trigger is held, so the
-  // average fire rate is exact but a fresh press never gets a free shot.
-  if (!cmd.fire && p.fireCooldown < 0) p.fireCooldown = 0;
+  // Keep the sub-tick remainder while the trigger is held, so the average
+  // fire rate is exact, but never more than one tick of it: holding the
+  // trigger while a shot is impossible (reloading, switching, empty) must
+  // not pile up shots that would all come out at once afterwards. A fresh
+  // press never gets a free shot.
+  p.fireCooldown = Math.max(p.fireCooldown - dt, cmd.fire ? -dt : 0);
 }
 
 function handleSwitch(p: PlayerState, cmd: InputCommand): void {
@@ -48,9 +50,14 @@ function handleSwitch(p: PlayerState, cmd: InputCommand): void {
   p.fireCooldown = Math.max(p.fireCooldown, 0);
 }
 
-function handleReload(p: PlayerState, dt: number): void {
+function handleReload(p: PlayerState, cmd: InputCommand, dt: number): void {
   const slot = p.weapons[p.activeSlot];
   if (!slot) return;
+  // Manual reload: only with room in the magazine and bullets in reserve.
+  if (cmd.reload && p.reloadTimer <= 0 && p.switchTimer <= 0 && slot.magazine < WEAPONS[slot.id].magazine && slot.reserve > 0) {
+    p.reloadTimer = WEAPONS[slot.id].reloadTime;
+    return;
+  }
   if (p.reloadTimer > 0) {
     p.reloadTimer -= dt;
     if (p.reloadTimer <= 0) {

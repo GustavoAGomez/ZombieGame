@@ -1,13 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { buildRoom01Map } from '../../../scripts/gen-placeholder-map';
 import { BLOCK_ALL, buildCollisionGrid, setDoorBlocking, type CollisionGrid } from './CollisionGrid';
-import { UNREACHABLE, computeFlowField, createFlowField, distanceAt, flowDirection, sourcesChanged } from './FlowField';
+import { UNREACHABLE, computeFlowField, createFlowField, distanceAt, flowDirection, flowNextCell, sourcesChanged, windowStepCost } from './FlowField';
 import { parseMap, type MapData } from './MapLoader';
 
 /**
- * Minimal map from ASCII: '.' floor, '#' wall. One zone covering everything.
+ * Minimal map from ASCII: '.' floor, '#' wall, 'W' barricaded window (blocks
+ * bodies, crossable by the field at its cost). One zone covering everything.
  */
 function asciiMap(rows: string[]): { map: MapData; grid: CollisionGrid } {
+  const windows: { tileX: number; tileY: number }[] = [];
   const height = rows.length;
   const width = rows[0]?.length ?? 0;
   const floor = new Int32Array(width * height); // global tile ids: 0 = no floor
@@ -16,6 +18,10 @@ function asciiMap(rows: string[]): { map: MapData; grid: CollisionGrid } {
     [...row].forEach((ch, x) => {
       if (ch === '.') floor[y * width + x] = 1;
       else cells[y * width + x] = BLOCK_ALL;
+      if (ch === 'W') {
+        floor[y * width + x] = 1;
+        windows.push({ tileX: x, tileY: y });
+      }
     }),
   );
   const map = {
@@ -26,6 +32,7 @@ function asciiMap(rows: string[]): { map: MapData; grid: CollisionGrid } {
     cellZone: new Int16Array(width * height).fill(0),
     cellPortal: new Int16Array(width * height).fill(-1),
     portals: [],
+    windows,
   } as unknown as MapData;
   return { map, grid: { width, height, tileSize: 10, cells } };
 }
@@ -33,6 +40,23 @@ function asciiMap(rows: string[]): { map: MapData; grid: CollisionGrid } {
 const center = (x: number, y: number) => [(x + 0.5) * 10, (y + 0.5) * 10] as const;
 
 describe('FlowField (synthetic maps)', () => {
+  it('goes through a barricade when that is shorter than walking round, and round when the barricade costs more', () => {
+    const rows = ['.........', 'W#######.', '.........'];
+    const source = 2 * 9 + 0; // bottom-left, right under the window
+    const [x, y] = center(0, 0);
+    // A full window (5 planks) costs 5 steps; walking round by the gap on the right costs 18.
+    const { map, grid } = asciiMap(rows);
+    const field = createFlowField(9, 3, 10);
+    computeFlowField(field, map, grid, [true], [source], [], [5]);
+    expect(windowStepCost(5)).toBe(5);
+    expect(field.dist[0]).toBe(1 + windowStepCost(5));
+    expect(flowNextCell(field, x, y)).toBe(1 * 9 + 0); // into the window
+    // A barricade that would take longer than the way round is left alone.
+    computeFlowField(field, map, grid, [true], [source], [], [40]);
+    expect(field.dist[0]).toBe(18);
+    expect(flowNextCell(field, x, y)).toBe(1);
+  });
+
   it('stores BFS steps from the source', () => {
     const { map, grid } = asciiMap(['.....', '.....', '.....']);
     const field = createFlowField(5, 3, 10);
@@ -117,10 +141,13 @@ describe('FlowField (room01)', () => {
     return { field, grid };
   }
 
-  it('covers the starting room and stops at closed doors and windows', () => {
+  it('covers the starting room, stops at closed doors and crosses windows only at their cost', () => {
     const { field } = fieldFromSpawn([false, false], [true, false, false]);
     for (const w of map.windows) {
-      expect(field.dist[w.tileY * map.width + w.tileX]).toBe(UNREACHABLE);
+      const at = field.dist[w.tileY * map.width + w.tileX];
+      // Windows of the starting room: one step past their inner side, plus the barricade.
+      if (w.zoneIndex === 0) expect(at).toBe(distanceAt(field, w.interior.x, w.interior.y) + windowStepCost(0));
+      else expect(at).toBe(UNREACHABLE); // windows of locked rooms lead nowhere
     }
     const w1 = map.windows[0]!;
     expect(distanceAt(field, w1.interior.x, w1.interior.y)).toBeGreaterThan(0);

@@ -54,7 +54,7 @@ export function placeZombie(
 ): ZombieState {
   const z = ctx.state.zombies[index];
   if (!z) throw new Error(`No zombie slot ${index}`);
-  Object.assign(z, { active: true, ai, x, y, prevX: x, prevY: y, hp, maxHp: hp, timer: 0, attackCooldown: 0, window: -1 });
+  Object.assign(z, { active: true, ai, x, y, prevX: x, prevY: y, hp, maxHp: hp, timer: 0, attackCooldown: 0, window: -1, crossOut: false });
   return z;
 }
 

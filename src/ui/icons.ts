@@ -2,7 +2,7 @@
  * Pixel icons as inline SVG with crisp edges (HUD "Propuesta A"). Each icon
  * is a list of [x, y, w, h, color?] rects on a small grid.
  */
-export type IconName = 'heart' | 'bullet' | 'crosshair' | 'swap' | 'bolt' | 'pause';
+export type IconName = 'heart' | 'bullet' | 'crosshair' | 'swap' | 'bolt' | 'pause' | 'reload';
 
 type Rect = readonly [number, number, number, number, string?];
 
@@ -37,6 +37,14 @@ const ICONS: Record<IconName, IconDef> = {
   pause: {
     w: 8, h: 8, fill: 'var(--bone)',
     rects: [[1, 1, 2, 6], [5, 1, 2, 6]],
+  },
+  // A ring open at the top right, with the arrow head pointing down into it.
+  reload: {
+    w: 12, h: 12, fill: 'var(--bone)',
+    rects: [
+      [3, 0, 5, 2], [1, 1, 2, 2], [0, 3, 2, 6], [1, 9, 2, 2], [3, 10, 6, 2], [9, 9, 2, 2], [10, 6, 2, 3],
+      [8, 2, 4, 1], [9, 3, 2, 1, 'var(--amber)'], [9, 4, 2, 1], [10, 5, 1, 1],
+    ],
   },
 };
 

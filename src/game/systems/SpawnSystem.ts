@@ -155,6 +155,7 @@ export function spawnZombie(ctx: SimContext, z: ZombieState, spawnIndex: number)
   if (open) {
     z.ai = 'emerging';
     z.window = -1;
+    z.crossOut = false;
     z.timer = ZOMBIES.emergeTime;
     const target = nearestPlayer(ctx, z.x, z.y);
     z.facing = target ? Math.atan2(target.y - z.y, target.x - z.x) : Math.PI / 2;
@@ -162,6 +163,7 @@ export function spawnZombie(ctx: SimContext, z: ZombieState, spawnIndex: number)
   }
   z.ai = 'toWindow';
   z.window = map.zombieSpawns[spawnIndex]?.windowIndex ?? -1;
+  z.crossOut = false;
   z.timer = 0;
   const w = map.windows[z.window];
   z.facing = w ? Math.atan2(w.exterior.y - z.y, w.exterior.x - z.x) : 0;
