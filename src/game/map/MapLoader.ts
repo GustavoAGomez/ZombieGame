@@ -26,15 +26,17 @@ export const TILE_WATER = 2;
 export const TILE_VOID = 4;
 
 /**
- * What a wall tile looks like, for bullets and line of sight (the bodies
- * still stop at whole tiles). 0 is the whole tile; WALL_SHAPE_THIN + mask is
+ * What stands on a blocking tile, for bullets and line of sight (the bodies
+ * still stop at whole tiles). WALL_SHAPE_FULL is anything flat drawn on its
+ * tile (furniture, doors, walls without a 3/4 kit); WALL_SHAPE_THIN + mask
  * a thin wall of the kit autotile with that neighbour mask (docs/ASSETS.md
- * §7.2: tiles 0–15 carry a `mask` property); WALL_SHAPE_SOLID_NORTH_OPEN is
- * a thick wall with nothing north, which starts at the top band.
+ * §7.2: tiles 0–15 carry a `mask` property); WALL_SHAPE_SOLID a kit's thick
+ * wall, and WALL_SHAPE_SOLID_NORTH_OPEN one with nothing north.
  */
 export const WALL_SHAPE_FULL = 0;
 export const WALL_SHAPE_THIN = 1;
 export const WALL_SHAPE_SOLID_NORTH_OPEN = 17;
+export const WALL_SHAPE_SOLID = 18;
 /** Kit layout (scripts/lib/wall-autotile.ts): tiles 16–19 are thick walls, +2 when the north is open. */
 const KIT_SOLID_BASE = 16;
 const KIT_SOLID_COUNT = 4;
@@ -330,7 +332,7 @@ function parseTilesets(map: TiledMap): MapTileset[] {
     // A kit's thick walls open to the north start at the band, like their art.
     if (isKit) {
       for (let i = 0; i < KIT_SOLID_COUNT; i++) {
-        if (i & KIT_SOLID_NORTH_OPEN) shapes[KIT_SOLID_BASE + i] = WALL_SHAPE_SOLID_NORTH_OPEN;
+        shapes[KIT_SOLID_BASE + i] = i & KIT_SOLID_NORTH_OPEN ? WALL_SHAPE_SOLID_NORTH_OPEN : WALL_SHAPE_SOLID;
       }
     }
     return {

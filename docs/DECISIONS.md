@@ -559,3 +559,19 @@ Bug del usuario: al disparar rozando la esquina de una pared, la bala desaparec�
 - **El zombi y la pared:** si en el mismo tick la bala alcanza un zombi y una pared, gana lo que esté más cerca.
 - **Cuerpos sin cambios:** jugador y zombis siguen chocando con casillas completas; el flow field y el movimiento no cambian.
 - **Debug:** el modo HITBOX dibuja en verde lo que para las balas en pantalla.
+
+### Corrección: base de la pared y punto bajo la bala dibujada
+
+El usuario siguió viendo balas que desaparecían al disparar en diagonal junto a la esquina de la primera habitación.
+
+- **Causa:** la comprobación usaba la silueta dibujada (banda y cara, y = 7–31) con el punto del suelo de la trayectoria. La bala se dibuja unos 12 px más arriba, así que desaparecía unos 12 px antes de tocar la pared, en el aire, encima de la esquina.
+- **Modelo 3/4:**
+  - las paredes del kit se comprueban contra su **base**: lo que tapa su parte de arriba bajada a la altura de la pared (18 px), es decir, y 25–31 en los brazos horizontales y en el extremo norte de la franja vertical;
+  - se comprueba con el **punto del suelo justo debajo de la bala dibujada** (`drawn + flightHeight`);
+  - así la bala se para cuando se la ve tocar la cara, y pasa si se la ve pasar junto a la esquina o por delante de la cara.
+- **Cosas planas** (muebles, puertas, paredes sin kit como las de room01): bloquean desde la altura de vuelo (12 px) hacia abajo de su casilla.
+  - Desde el norte, la bala se para al tocar visiblemente su borde superior; antes desaparecía 12 px antes.
+  - Pegado a ellas por el sur se sigue pudiendo disparar de lado.
+- **Muros gruesos del kit:** `WALL_SHAPE_SOLID` (casilla entera) y `WALL_SHAPE_SOLID_NORTH_OPEN` (desde la base).
+- **Comprobado** con un barrido en tres esquinas de la mansión (1.707 disparos desde 8 posiciones × 3 alturas × 29 ángulos): ninguna bala se para sin tocar visiblemente una pared o un mueble dibujados.
+- El modo HITBOX dibuja estas zonas a la altura de las balas.

@@ -44,7 +44,10 @@ export class DebugDraw {
     for (const b of state.bullets) if (b.active) g.fillCircle(b.x + b.drawX, b.y + b.drawY, Math.max(1, BULLETS.radius));
   }
 
-  /** What stops bullets in view, in green: thin walls show their strip, band and face only. */
+  /**
+   * What stops bullets in view, in green, drawn at the bullets' flight
+   * height: where a visible bullet stops (thin walls only on their base).
+   */
   private drawBulletBlockers(grid: CollisionGrid): void {
     const g = this.g;
     const ts = grid.tileSize;
@@ -57,7 +60,9 @@ export class DebugDraw {
     for (let y = y0; y <= y1; y++) {
       for (let x = x0; x <= x1; x++) {
         if (!cellBlocks(grid, x, y, BLOCK_BULLET)) continue;
-        for (const [rx0, ry0, rx1, ry1] of cellShapeRects(grid, x, y)) g.strokeRect(rx0 + 0.5, ry0 + 0.5, rx1 - rx0 - 1, ry1 - ry0 - 1);
+        for (const [rx0, ry0, rx1, ry1] of cellShapeRects(grid, x, y)) {
+          g.strokeRect(rx0 + 0.5, ry0 - BULLETS.flightHeight + 0.5, rx1 - rx0 - 1, ry1 - ry0 - 1);
+        }
       }
     }
   }

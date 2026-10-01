@@ -1,3 +1,4 @@
+import { BULLETS } from '../../config/balance';
 import type { BulletState } from '../../core/GameState';
 import { BLOCK_BULLET, pointBlocksShaped, segmentHitShaped } from '../map/CollisionGrid';
 import { damageZombie, isZombieAlive } from './Combat';
@@ -8,14 +9,15 @@ import type { SimContext } from './SimContext';
  * Moves pooled bullets. A bullet stops at the first wall or zombie it
  * touches, or when it has travelled its weapon's range. Walls and zombies
  * are tested along the whole segment of the tick so fast bullets cannot
- * skip over them, and walls only where they are drawn: a bullet that
- * visibly passes beside a thin wall or the end of one flies on (the empty
- * floor of the wall's tile does not stop it).
+ * skip over them.
  *
- * Walls stop a bullet on the ground plane, but zombies are hit where it is
- * drawn (from the gun's muzzle, drawX/drawY): if it visibly touches a
- * zombie's body (ZOMBIES.hurtbox), it hits. Shots that looked like hits used
- * to miss because the drawing and the collision used different heights.
+ * Everything is judged from where the bullet is drawn (from the gun's
+ * muzzle, drawX/drawY): zombies are hit when it visibly touches their body
+ * (ZOMBIES.hurtbox); walls when the point of the ground right under it
+ * (BULLETS.flightHeight lower) reaches the wall's base. In 3/4 that is when
+ * it visibly meets the wall's face, and a bullet that visibly passes beside
+ * a thin wall or the end of one flies on. Testing the ground point under the
+ * shooter's line instead made bullets vanish in mid air above corners.
  */
 export function updateBullets(ctx: SimContext, dt: number): void {
   const { bullets } = ctx.state;
@@ -24,15 +26,18 @@ export function updateBullets(ctx: SimContext, dt: number): void {
     if (!b?.active) continue;
     b.prevX = b.x;
     b.prevY = b.y;
+    // The ground right under the drawn bullet: what walls are tested with.
+    const gx = b.x + b.drawX;
+    const gy = b.y + b.drawY + BULLETS.flightHeight;
     // A bullet spawned inside a wall (player hugging it) dies immediately.
-    if (pointBlocksShaped(ctx.grid, b.x, b.y, BLOCK_BULLET)) {
+    if (pointBlocksShaped(ctx.grid, gx, gy, BLOCK_BULLET)) {
       b.active = false;
       continue;
     }
     const step = Math.min(b.speed * dt, b.remaining);
     const nx = b.x + b.dirX * step;
     const ny = b.y + b.dirY * step;
-    const wallT = segmentHitShaped(ctx.grid, b.x, b.y, nx, ny, BLOCK_BULLET);
+    const wallT = segmentHitShaped(ctx.grid, gx, gy, gx + b.dirX * step, gy + b.dirY * step, BLOCK_BULLET);
     const wallDist = wallT === Infinity ? Infinity : wallT * step;
 
     if (hitZombieAlongSegment(ctx, b, step, wallDist)) continue;

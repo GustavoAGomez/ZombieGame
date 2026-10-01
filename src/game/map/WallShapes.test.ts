@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { BULLETS } from '../../config/balance';
 import { buildRoom01Map } from '../../../scripts/gen-placeholder-map';
 import { contextFor, createMansionContext } from '../../test/fixtures';
 import { updateBullets } from '../systems/BulletSystem';
@@ -57,7 +58,7 @@ const shapeAt = (x: number, y: number): number => grid.shapes[y * map.width + x]
 const at = (tx: number, ty: number, lx: number, ly: number): [number, number] => [tx * T + lx, ty * T + ly];
 
 describe('wall shapes', () => {
-  it('reads the shape of each kit tile; other walls fill their tile', () => {
+  it('reads the shape of each kit tile; other walls are flat', () => {
     expect(shapeAt(8, 7)).toBe(WALL_SHAPE_THIN + (N | S));
     expect(shapeAt(13, 10)).toBe(WALL_SHAPE_THIN + (E | W));
     expect(shapeAt(16, 5)).toBe(WALL_SHAPE_SOLID_NORTH_OPEN);
@@ -66,25 +67,28 @@ describe('wall shapes', () => {
     expect(cellBlocks(grid, 3, 3, BLOCK_BULLET)).toBe(true);
   });
 
-  it('stops bullets only where the wall is drawn: the strip, the band and the face', () => {
+  it('stops bullets on the base of the wall only: the strip of a vertical wall, the bottom 7 px of a horizontal one', () => {
     // Vertical wall: the 12 px strip in the middle, not the floor beside it.
     expect(pointBlocksShaped(grid, ...at(8, 7, 4, 16), BLOCK_BULLET)).toBe(false);
     expect(pointBlocksShaped(grid, ...at(8, 7, 26, 16), BLOCK_BULLET)).toBe(false);
     expect(pointBlocksShaped(grid, ...at(8, 7, 16, 16), BLOCK_BULLET)).toBe(true);
-    // Its north end starts at the band: the floor above the cap lets bullets through.
-    expect(pointBlocksShaped(grid, ...at(8, 6, 16, 3), BLOCK_BULLET)).toBe(false);
-    expect(pointBlocksShaped(grid, ...at(8, 6, 16, 10), BLOCK_BULLET)).toBe(true);
-    // Horizontal wall: band and face, from y 7 down; nothing above the band.
-    expect(pointBlocksShaped(grid, ...at(13, 10, 16, 3), BLOCK_BULLET)).toBe(false);
-    expect(pointBlocksShaped(grid, ...at(13, 10, 16, 8), BLOCK_BULLET)).toBe(true);
+    // Its north end stands from y 25: its cap and face are drawn above that.
+    expect(pointBlocksShaped(grid, ...at(8, 6, 16, 10), BLOCK_BULLET)).toBe(false);
+    expect(pointBlocksShaped(grid, ...at(8, 6, 16, 28), BLOCK_BULLET)).toBe(true);
+    // Horizontal wall: band and face are drawn from y 7, but it stands on the bottom 7 px.
+    expect(pointBlocksShaped(grid, ...at(13, 10, 16, 8), BLOCK_BULLET)).toBe(false);
+    expect(pointBlocksShaped(grid, ...at(13, 10, 16, 20), BLOCK_BULLET)).toBe(false);
+    expect(pointBlocksShaped(grid, ...at(13, 10, 16, 28), BLOCK_BULLET)).toBe(true);
     expect(pointBlocksShaped(grid, ...at(13, 10, 3, 28), BLOCK_BULLET)).toBe(true);
     // Its west end has no arm to the west: the floor there is free.
-    expect(pointBlocksShaped(grid, ...at(12, 10, 4, 20), BLOCK_BULLET)).toBe(false);
-    // Thick wall open to the north: from the band down, the whole width.
-    expect(pointBlocksShaped(grid, ...at(16, 5, 2, 3), BLOCK_BULLET)).toBe(false);
-    expect(pointBlocksShaped(grid, ...at(16, 5, 2, 10), BLOCK_BULLET)).toBe(true);
-    // Room01's plain walls still block their whole tile.
-    expect(pointBlocksShaped(grid, ...at(3, 6, 1, 1), BLOCK_BULLET)).toBe(true);
+    expect(pointBlocksShaped(grid, ...at(12, 10, 4, 28), BLOCK_BULLET)).toBe(false);
+    expect(pointBlocksShaped(grid, ...at(12, 10, 16, 28), BLOCK_BULLET)).toBe(true);
+    // Thick wall open to the north: the whole width, from the base.
+    expect(pointBlocksShaped(grid, ...at(16, 5, 2, 10), BLOCK_BULLET)).toBe(false);
+    expect(pointBlocksShaped(grid, ...at(16, 5, 2, 28), BLOCK_BULLET)).toBe(true);
+    // Room01's plain walls are flat squares: they block from the bullets' flight height down.
+    expect(pointBlocksShaped(grid, ...at(3, 6, 1, BULLETS.flightHeight - 1), BLOCK_BULLET)).toBe(false);
+    expect(pointBlocksShaped(grid, ...at(3, 6, 1, BULLETS.flightHeight + 1), BLOCK_BULLET)).toBe(true);
   });
 
   it('finds where a segment first meets a wall, and lets it pass beside one', () => {
@@ -95,8 +99,9 @@ describe('wall shapes', () => {
     const [x1] = at(10, 7, 16, 16);
     const t = segmentHitShaped(grid, x0, y0, x1, y0, BLOCK_BULLET);
     expect(x0 + (x1 - x0) * t).toBeCloseTo(8 * T + 10);
-    // Diagonally past the end of the horizontal wall, over its empty corner.
-    expect(segmentClearShaped(grid, ...at(11, 9, 16, 16), ...at(12, 10, 9, 6), BLOCK_SIGHT)).toBe(true);
+    // Diagonally past the end of the horizontal wall, over its empty corner and in front of its face.
+    expect(segmentClearShaped(grid, ...at(11, 9, 16, 16), ...at(12, 10, 9, 20), BLOCK_SIGHT)).toBe(true);
+    expect(segmentClearShaped(grid, ...at(11, 9, 16, 16), ...at(12, 10, 14, 30), BLOCK_SIGHT)).toBe(false);
     // A whole-tile wall (room01's west wall at x 3) is met at its edge.
     const tWall = segmentHitShaped(grid, ...at(5, 6, 16, 16), ...at(2, 6, 16, 16), BLOCK_BULLET);
     expect(5 * T + 16 - 3 * T * tWall).toBeCloseTo(4 * T);
@@ -104,20 +109,56 @@ describe('wall shapes', () => {
 
   it('lets a real bullet fly past the side of a wall and stops one that hits it at the wall', () => {
     const ctx = contextFor(map);
-    const fire = (index: number, x: number, y: number): void => {
+    // Drawn at the flight height above its ground point, like a real shot.
+    const fire = (index: number, x: number, y: number, dirX = 0, dirY = -1): void => {
       const b = ctx.state.bullets[index]!;
-      Object.assign(b, { active: true, x, y, prevX: x, prevY: y, dirX: 0, dirY: -1, speed: 520, remaining: 400, damage: 1, drawX: 0, drawY: 0 });
+      Object.assign(b, { active: true, x, y, prevX: x, prevY: y, dirX, dirY, speed: 520, remaining: 400, damage: 1, drawX: 0, drawY: -BULLETS.flightHeight });
     };
     // Up past the floor beside the strip: on to the room's north wall (y 4 is the first floor row).
     fire(0, ...at(8, 11, 4, 16));
     // Up into the strip: it stops at the wall's south end (bottom of tile y 8).
     fire(1, ...at(8, 11, 16, 16));
+    // Down onto the horizontal wall: it stops at its base, where it visibly meets the face.
+    fire(2, ...at(13, 6, 16, 16), 0, 1);
     for (let i = 0; i < 60; i++) updateBullets(ctx, 1 / 60);
-    const [beside, into] = ctx.state.bullets;
+    const [beside, into, onto] = ctx.state.bullets;
     expect(beside?.active).toBe(false);
     expect(beside?.y).toBeCloseTo(4 * T);
     expect(into?.active).toBe(false);
     expect(into?.y).toBeCloseTo(9 * T);
+    expect(onto?.active).toBe(false);
+    expect(onto?.y).toBeCloseTo(10 * T + 25);
+  });
+
+  it('lets a bullet shot diagonally past the end of a wall fly on into the gap (the corner of the first room)', () => {
+    const ctx = contextFor(map);
+    // Standing right above the east end of the horizontal wall (x 14), shooting down and to the right.
+    const b = ctx.state.bullets[0]!;
+    const [x, y] = at(14, 9, 14, 26);
+    const d = Math.SQRT1_2;
+    Object.assign(b, { active: true, x, y, prevX: x, prevY: y, dirX: d, dirY: d, speed: 520, remaining: 200, damage: 1, drawX: 0, drawY: -BULLETS.flightHeight });
+    for (let i = 0; i < 8; i++) updateBullets(ctx, 1 / 60);
+    expect(b.active).toBe(true);
+    expect(b.y).toBeGreaterThan(11 * T);
+  });
+});
+
+describe('flat blockers', () => {
+  it('stop a bullet from the north as it visibly reaches their top edge, and let one fired from right in front fly', () => {
+    const ctx = contextFor(map);
+    // Room01's door D1 (closed) at x 10–11, y 13.
+    const fire = (index: number, x: number, y: number, dirX: number, dirY: number): void => {
+      const b = ctx.state.bullets[index]!;
+      Object.assign(b, { active: true, x, y, prevX: x, prevY: y, dirX, dirY, speed: 520, remaining: 300, damage: 1, drawX: 0, drawY: -BULLETS.flightHeight });
+    };
+    fire(0, ...at(10, 11, 16, 16), 0, 1);
+    // Fired along the room's south wall by a player hugging it (feet 6 px above the wall's tiles).
+    fire(1, ...at(5, 12, 16, 26), 1, 0);
+    for (let i = 0; i < 20; i++) updateBullets(ctx, 1 / 60);
+    const [down, along] = ctx.state.bullets;
+    expect(down?.active).toBe(false);
+    expect((down?.y ?? 0) + (down?.drawY ?? 0)).toBeCloseTo(13 * T);
+    expect(along?.x).toBeGreaterThan(9 * T);
   });
 });
 

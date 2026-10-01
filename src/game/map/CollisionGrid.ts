@@ -1,8 +1,10 @@
+import { BULLETS } from '../../config/balance';
 import {
   TILE_COLLIDES,
   TILE_VOID,
   TILE_WATER,
   WALL_SHAPE_FULL,
+  WALL_SHAPE_SOLID,
   WALL_SHAPE_SOLID_NORTH_OPEN,
   WALL_SHAPE_THIN,
   type MapData,
@@ -31,8 +33,8 @@ export interface CollisionGrid {
   cells: Uint8Array;
   /**
    * Wall shape per cell (WALL_SHAPE_*), for bullets and line of sight: they
-   * stop where the wall is drawn, not on the empty floor around a thin wall.
-   * Bodies always stop at whole tiles.
+   * stop at the wall's base (its drawn shape in 3/4), not on the empty floor
+   * around a thin wall. Bodies always stop at whole tiles.
    */
   shapes: Uint8Array;
 }
@@ -73,34 +75,52 @@ export function setDoorBlocking(grid: CollisionGrid, door: MapDoor, closed: bool
   }
 }
 
-/** Kit geometry on a 32 px tile (scripts/lib/wall-autotile.ts): the strip of a vertical wall and the top band. */
+/**
+ * Kit geometry on a 32 px tile (scripts/lib/wall-autotile.ts): the strip of
+ * a vertical wall (x 10–21), and the top band (y 7–13) over an 18 px face.
+ * In 3/4 the band is the top of the wall, drawn 18 px above its base, so the
+ * wall stands on the ground from y 25 to the bottom of the tile.
+ */
 const KIT_TILE = 32;
 const STRIP_X0 = 10;
 const STRIP_X1 = 22;
 const BAND_Y = 7;
+const WALL_HEIGHT = 18;
+const BASE_Y = BAND_Y + WALL_HEIGHT;
 
 type Rect = readonly [x0: number, y0: number, x1: number, y1: number];
 
 /**
- * Rectangles a wall shape covers inside its tile, in units of a 32 px tile.
- * A thin wall (WALL_SHAPE_THIN + mask): the central strip, from the top of
- * the tile if the wall goes on north (from the band otherwise) down to the
- * bottom (its face, or the strip going on south); east and west arms are
- * the band and the face under it, from the band down. These are the pixels
- * the kit draws, so a bullet that visibly misses the wall flies on.
+ * The ground a shape stands on inside its tile, in units of a 32 px tile.
+ * Things are tested with the point of the ground right under a bullet
+ * (BulletSystem), which flies BULLETS.flightHeight above it, so:
+ * - a kit wall stands on its base (what its drawn top would cover once
+ *   lowered by the wall's height): a thin wall (WALL_SHAPE_THIN + mask) on
+ *   the central strip, from the top of the tile if the wall goes on north
+ *   (from the base of its end otherwise) down to the bottom, and on the base
+ *   under the band of its east and west arms; a thick wall on its whole
+ *   tile, from the base if the north is open. A bullet meets the wall's face
+ *   where it is drawn, and one that visibly misses the wall flies on;
+ * - something flat drawn on its tile (furniture, doors, walls without a kit)
+ *   from the flight height down: a bullet coming from the north stops as it
+ *   visibly reaches the top edge, and one fired by a player standing right
+ *   in front of it still flies.
  */
 function shapeRects(shape: number): readonly Rect[] {
-  if (shape === WALL_SHAPE_SOLID_NORTH_OPEN) return [[0, BAND_Y, KIT_TILE, KIT_TILE]];
-  if (shape < WALL_SHAPE_THIN || shape >= WALL_SHAPE_THIN + 16) return [[0, 0, KIT_TILE, KIT_TILE]];
+  if (shape === WALL_SHAPE_SOLID_NORTH_OPEN) return [[0, BASE_Y, KIT_TILE, KIT_TILE]];
+  if (shape === WALL_SHAPE_SOLID) return FULL_TILE;
+  if (shape < WALL_SHAPE_THIN || shape >= WALL_SHAPE_THIN + 16) return [[0, FLAT_TOP, KIT_TILE, KIT_TILE]];
   const mask = shape - WALL_SHAPE_THIN;
-  const rects: Rect[] = [[STRIP_X0, mask & 1 ? 0 : BAND_Y, STRIP_X1, KIT_TILE]];
-  if (mask & 8) rects.push([0, BAND_Y, STRIP_X0, KIT_TILE]);
-  if (mask & 2) rects.push([STRIP_X1, BAND_Y, KIT_TILE, KIT_TILE]);
+  const rects: Rect[] = [[STRIP_X0, mask & 1 ? 0 : BASE_Y, STRIP_X1, KIT_TILE]];
+  if (mask & 8) rects.push([0, BASE_Y, STRIP_X0, KIT_TILE]);
+  if (mask & 2) rects.push([STRIP_X1, BASE_Y, KIT_TILE, KIT_TILE]);
   return rects;
 }
 
-const SHAPE_RECTS: readonly (readonly Rect[])[] = Array.from({ length: 18 }, (_, shape) => shapeRects(shape));
 const FULL_TILE: readonly Rect[] = [[0, 0, KIT_TILE, KIT_TILE]];
+/** Flat things block from the bullets' flight height down (see shapeRects). */
+const FLAT_TOP = Math.min(KIT_TILE, BULLETS.flightHeight);
+const SHAPE_RECTS: readonly (readonly Rect[])[] = Array.from({ length: WALL_SHAPE_SOLID + 1 }, (_, shape) => shapeRects(shape));
 
 function rectsOf(grid: CollisionGrid, index: number): readonly Rect[] {
   return SHAPE_RECTS[grid.shapes[index] ?? WALL_SHAPE_FULL] ?? FULL_TILE;
@@ -113,7 +133,7 @@ export function cellShapeRects(grid: CollisionGrid, tx: number, ty: number): Rec
   return rectsOf(grid, ty * grid.width + tx).map(([x0, y0, x1, y1]) => [tx * ts + x0 / k, ty * ts + y0 / k, tx * ts + x1 / k, ty * ts + y1 / k] as const);
 }
 
-/** Like pointBlocks, but inside a wall tile only where the wall is drawn. */
+/** Like pointBlocks, but inside a wall tile only on the wall's base. */
 export function pointBlocksShaped(grid: CollisionGrid, x: number, y: number, mask: number): boolean {
   const ts = grid.tileSize;
   const tx = Math.floor(x / ts);
@@ -129,8 +149,8 @@ export function pointBlocksShaped(grid: CollisionGrid, x: number, y: number, mas
 /**
  * Where the segment from (x0, y0) to (x1, y1) first touches something
  * matching `mask`, as a fraction of its length (0..1), or Infinity when it
- * gets through. Walls count only where they are drawn (shapes); doors,
- * furniture and the outside of the map, as whole tiles.
+ * gets through. Walls count only on their base (shapes); doors, furniture
+ * and the outside of the map, as whole tiles.
  */
 export function segmentHitShaped(grid: CollisionGrid, x0: number, y0: number, x1: number, y1: number, mask: number): number {
   const ts = grid.tileSize;
@@ -172,7 +192,7 @@ export function segmentHitShaped(grid: CollisionGrid, x0: number, y0: number, x1
   return Infinity;
 }
 
-/** True when nothing matching `mask` lies on the segment (walls by their drawn shape). */
+/** True when nothing matching `mask` lies on the segment (walls by their base). */
 export function segmentClearShaped(grid: CollisionGrid, x0: number, y0: number, x1: number, y1: number, mask: number): boolean {
   return segmentHitShaped(grid, x0, y0, x1, y1, mask) === Infinity;
 }
