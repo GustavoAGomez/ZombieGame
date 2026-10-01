@@ -86,6 +86,7 @@ export class ZombieViewPool {
       case 'attacking':
         return 'attack';
       case 'climbing':
+      case 'emerging':
         // `climb` is optional in the asset contract; fall back to walking.
         return this.manifest.characters[character]?.animations.climb ? 'climb' : 'walk';
       default:

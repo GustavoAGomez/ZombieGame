@@ -1,7 +1,7 @@
 import { NAVIGATION, PLAYER, ZOMBIES } from '../../config/balance';
 import type { PlayerState, ZombieAi, ZombieState } from '../../core/GameState';
 import { BLOCK_ZOMBIE, moveCircle, resolveCircle, segmentClear } from '../map/CollisionGrid';
-import { computeFlowField, flowDirection, sourcesChanged } from '../map/FlowField';
+import { UNREACHABLE, computeFlowField, distanceAt, flowDirection, sourcesChanged } from '../map/FlowField';
 import { isZombieAlive } from './Combat';
 import { damagePlayer, isPlayerAlive } from './HealthSystem';
 import type { SimContext } from './SimContext';
@@ -12,7 +12,12 @@ import { isDashing } from './SpecialSystem';
  *   toWindow  walk straight from the spawn to the window's exterior point
  *   tearing   pull one plank every tearTime seconds while any are left
  *   climbing  0.8 s to the interior point; cannot move or be pushed
+ *   emerging  0.6 s rising at an open spawn; can be shot, does not move (spec 02 §3.4)
  *   chasing   follow the flow field (straight line when close and visible)
+ *
+ * A zombie still outside (toWindow / tearing) on a cell the flow field
+ * reaches starts chasing at once: the player can walk up to it, so it would
+ * be silly to keep pulling planks (spec 02 §3.5).
  *   attacking 0.35 s windup, 40 damage if still in range, 1.1 s cooldown
  *   dead      corpse for the death animation, then the slot is freed
  */
@@ -31,10 +36,16 @@ export function updateZombies(ctx: SimContext, dt: number): void {
     if (z.attackCooldown > 0) z.attackCooldown = Math.max(0, z.attackCooldown - dt);
     switch (z.ai) {
       case 'toWindow':
-        updateToWindow(ctx, z, dt);
+        if (outsideButReachable(ctx, z)) setState(ctx, z, 'chasing');
+        else updateToWindow(ctx, z, dt);
         break;
       case 'tearing':
-        updateTearing(ctx, z, dt);
+        if (outsideButReachable(ctx, z)) setState(ctx, z, 'chasing');
+        else updateTearing(ctx, z, dt);
+        break;
+      case 'emerging':
+        z.timer -= dt;
+        if (z.timer <= 0) setState(ctx, z, 'chasing');
         break;
       case 'climbing':
         updateClimbing(ctx, z, dt);
@@ -61,6 +72,10 @@ function setState(ctx: SimContext, z: ZombieState, ai: ZombieAi, timer = 0): voi
   z.ai = ai;
   z.timer = timer;
   z.stateTick = ctx.state.tick;
+}
+
+function outsideButReachable(ctx: SimContext, z: ZombieState): boolean {
+  return distanceAt(ctx.nav, z.x, z.y) !== UNREACHABLE;
 }
 
 function speedOf(z: ZombieState): number {

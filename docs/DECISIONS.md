@@ -178,3 +178,10 @@ Registro de lo que la spec no definía (o definía de forma ambigua) y cómo se 
 - **El validador comprueba la alcanzabilidad casilla a casilla** (rejilla de colisión con todas las puertas abiertas y saltos entre los extremos de cada portal), no solo el grafo de zonas: detecta una puerta mal colocada que no conecta. También comprueba que cada puerta toca sus dos zonas y que los portales quedan dentro de la suya.
 - **`npm run build` ejecuta antes `assets:check`** (`prebuild`), así un mapa con tilesets externos o que no pasa el validador no llega al build.
 - **`room01` no pasa por el validador** (tiene 3 zonas): solo se validan los mapas con fuente en `art-src/tiled/`.
+
+## Spec 02 · Fase M4 (agua, vacío y spawns abiertos)
+
+- **Un solo índice de spawns:** primero los de ventana (`map.zombieSpawns`) y después los abiertos (`map.openSpawns`). `pickSpawn` y `spawnWeight` los tratan igual: peso 0 si su zona está bloqueada y, si no, `1 / (1 + distancia / 256)`. Los abiertos además valen 0 con un jugador vivo a menos de 8 tiles (`WAVES.openSpawnMinDistanceTiles`, en tiles como `directChaseTiles`).
+- **`emerging`** dura 0,6 s (`ZOMBIES.emergeTime`): no se mueve ni ataca, cuenta como vivo (recibe balas y bloquea al jugador) y usa la animación `climb` (o `walk` si no hay). Mira hacia el jugador más cercano al aparecer.
+- **Zombies de ventana con el exterior accesible:** si su casilla tiene distancia en el flow field (la zona exterior está desbloqueada y conectada con el jugador), pasan a `chasing` en vez de seguir hacia la ventana o arrancar tablones. Con la calle o el jardín bloqueados no cambia nada, porque el flow field no entra en zonas bloqueadas.
+- **Agua y vacío** ya bloqueaban cuerpos desde M2; esta fase añade los tests sobre la mansión: las balas cruzan la piscina, el flow field la rodea y el jugador no puede salir de la azotea.

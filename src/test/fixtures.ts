@@ -1,9 +1,10 @@
 import { buildRoom01Map } from '../../scripts/gen-placeholder-map';
+import { embeddedMansion } from '../../scripts/lib/mansion-fixture';
 import { EventBus } from '../core/EventBus';
 import { createGameState, type ZombieState } from '../core/GameState';
 import { createInputCommand } from '../core/InputCommand';
 import { buildCollisionGrid } from '../game/map/CollisionGrid';
-import { parseMap } from '../game/map/MapLoader';
+import { parseMap, type MapData } from '../game/map/MapLoader';
 import { createNav, type SimContext } from '../game/systems/SimContext';
 
 /**
@@ -11,7 +12,18 @@ import { createNav, type SimContext } from '../game/systems/SimContext';
  * off unless `toSpawn` is given (-1 = unlimited).
  */
 export function createTestContext(seed = 1, toSpawn = 0): SimContext {
-  const map = parseMap(buildRoom01Map());
+  return contextFor(parseMap(buildRoom01Map()), seed, toSpawn);
+}
+
+let mansion: MapData | undefined;
+
+/** Same as createTestContext, on the generated mansion (spec 02). */
+export function createMansionContext(seed = 1, toSpawn = 0): SimContext {
+  mansion ??= parseMap(embeddedMansion());
+  return contextFor(mansion, seed, toSpawn);
+}
+
+function contextFor(map: MapData, seed: number, toSpawn: number): SimContext {
   const state = createGameState(map, { seed, toSpawn });
   return {
     state,
@@ -40,6 +52,18 @@ export function placeZombie(
   if (!z) throw new Error(`No zombie slot ${index}`);
   Object.assign(z, { active: true, ai, x, y, prevX: x, prevY: y, hp, maxHp: hp, timer: 0, attackCooldown: 0, window: -1 });
   return z;
+}
+
+/** Index of zone `id`; throws when the map has no such zone. */
+export function zoneIndex(ctx: SimContext, id: string): number {
+  const i = ctx.map.zones.findIndex((z) => z.id === id);
+  if (i < 0) throw new Error(`No zone ${id}`);
+  return i;
+}
+
+/** Centre of tile (x, y) in world px. */
+export function tileCenter(ctx: SimContext, x: number, y: number): { x: number; y: number } {
+  return { x: (x + 0.5) * ctx.map.tileSize, y: (y + 0.5) * ctx.map.tileSize };
 }
 
 export function player(ctx: SimContext) {

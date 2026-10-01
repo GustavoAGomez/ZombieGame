@@ -98,9 +98,10 @@ export interface BulletState {
 
 /**
  * Zombie behaviour (spec 01 §4.4): toWindow → tearing → climbing →
- * chasing ⇄ attacking → dead. 'idle' stands still (tests and debug tools).
+ * chasing ⇄ attacking → dead. Open spawns start with emerging → chasing
+ * (spec 02 §3.4). 'idle' stands still (tests and debug tools).
  */
-export type ZombieAi = 'toWindow' | 'tearing' | 'climbing' | 'chasing' | 'attacking' | 'dead' | 'idle';
+export type ZombieAi = 'toWindow' | 'tearing' | 'climbing' | 'emerging' | 'chasing' | 'attacking' | 'dead' | 'idle';
 
 export interface ZombieState {
   active: boolean;
@@ -113,7 +114,7 @@ export interface ZombieState {
   facing: number;
   hp: number;
   maxHp: number;
-  /** Index into MapData.windows of the window this zombie comes through. */
+  /** Index into MapData.windows of the window this zombie comes through, -1 from an open spawn. */
   window: number;
   /** Countdown used by the current state (tear, climb, windup, corpse). */
   timer: number;
