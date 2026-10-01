@@ -179,8 +179,12 @@ export function checkAssets(root: string): CheckReport {
       continue;
     }
     const source = resolve(root, 'art-src/tiled', `${key}.tmj`);
+    const plan = resolve(root, 'maps/src', `${key}.txt`);
     if (existsSync(source) && statSync(source).mtimeMs > statSync(path).mtimeMs) {
       report.warnings.push(`maps.${key}: art-src/tiled/${key}.tmj es más reciente que ${file}; ejecuta npm run map:build`);
+    }
+    if (existsSync(plan) && (!existsSync(source) || statSync(plan).mtimeMs > statSync(source).mtimeMs)) {
+      report.warnings.push(`maps.${key}: maps/src/${key}.txt es más reciente que art-src/tiled/${key}.tmj; ejecuta npm run map:build`);
     }
     try {
       const raw: unknown = JSON.parse(readFileSync(path, 'utf8'));

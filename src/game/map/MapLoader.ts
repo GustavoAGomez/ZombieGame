@@ -47,6 +47,13 @@ export interface MapDecal {
   y: number;
 }
 
+export interface Rect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface MapZone {
   id: string;
   name: string;
@@ -55,11 +62,16 @@ export interface MapZone {
   interior: boolean;
   /** Zombies may also appear at open spawns inside this zone (street, roof). */
   openSpawns: boolean;
-  /** Rectangle in world px. */
+  /** Bounding box in world px. */
   x: number;
   y: number;
   width: number;
   height: number;
+  /**
+   * The zone's area in world px. Several zone objects with the same id add
+   * up to one zone, so a zone can be an L or any other shape.
+   */
+  rects: Rect[];
 }
 
 /** A wall runs horizontally (top/bottom wall) or vertically (left/right). */
@@ -350,17 +362,7 @@ export function parseMap(json: unknown): MapData {
   for (const obj of objects) {
     switch (objectType(obj)) {
       case 'zone':
-        zones.push({
-          id: stringProp(obj, 'id'),
-          name: stringProp(obj, 'name', false) || obj.name,
-          startsUnlocked: boolProp(obj, 'startsUnlocked', false),
-          interior: boolProp(obj, 'interior', false),
-          openSpawns: boolProp(obj, 'openSpawns', false),
-          x: obj.x,
-          y: obj.y,
-          width: obj.width,
-          height: obj.height,
-        });
+        addZoneRect(zones, obj);
         break;
       case 'player_spawn':
         playerSpawn = { x: obj.x, y: obj.y };
@@ -393,12 +395,14 @@ export function parseMap(json: unknown): MapData {
   const zoneIds = new Set(zones.map((z) => z.id));
   const cellZone = new Int16Array(size).fill(-1);
   zones.forEach((zone, index) => {
-    const x0 = Math.floor(zone.x / tileSize);
-    const y0 = Math.floor(zone.y / tileSize);
-    const x1 = Math.ceil((zone.x + zone.width) / tileSize);
-    const y1 = Math.ceil((zone.y + zone.height) / tileSize);
-    for (let ty = Math.max(0, y0); ty < Math.min(height, y1); ty++) {
-      for (let tx = Math.max(0, x0); tx < Math.min(width, x1); tx++) cellZone[ty * width + tx] = index;
+    for (const r of zone.rects) {
+      const x0 = Math.floor(r.x / tileSize);
+      const y0 = Math.floor(r.y / tileSize);
+      const x1 = Math.ceil((r.x + r.width) / tileSize);
+      const y1 = Math.ceil((r.y + r.height) / tileSize);
+      for (let ty = Math.max(0, y0); ty < Math.min(height, y1); ty++) {
+        for (let tx = Math.max(0, x0); tx < Math.min(width, x1); tx++) cellZone[ty * width + tx] = index;
+      }
     }
   });
 
@@ -526,6 +530,38 @@ export function parseMap(json: unknown): MapData {
     playerSpawn,
     cellZone,
   };
+}
+
+/**
+ * Adds a zone object. Objects sharing an id merge into one zone: their
+ * rectangles add up and a flag set on any of them applies to the zone.
+ */
+function addZoneRect(zones: MapZone[], obj: TiledObject): void {
+  const id = stringProp(obj, 'id');
+  const rect = { x: obj.x, y: obj.y, width: obj.width, height: obj.height };
+  const zone = zones.find((z) => z.id === id);
+  if (!zone) {
+    zones.push({
+      id,
+      name: stringProp(obj, 'name', false) || obj.name,
+      startsUnlocked: boolProp(obj, 'startsUnlocked', false),
+      interior: boolProp(obj, 'interior', false),
+      openSpawns: boolProp(obj, 'openSpawns', false),
+      ...rect,
+      rects: [rect],
+    });
+    return;
+  }
+  zone.rects.push(rect);
+  zone.startsUnlocked ||= boolProp(obj, 'startsUnlocked', false);
+  zone.interior ||= boolProp(obj, 'interior', false);
+  zone.openSpawns ||= boolProp(obj, 'openSpawns', false);
+  const x1 = Math.max(zone.x + zone.width, rect.x + rect.width);
+  const y1 = Math.max(zone.y + zone.height, rect.y + rect.height);
+  zone.x = Math.min(zone.x, rect.x);
+  zone.y = Math.min(zone.y, rect.y);
+  zone.width = x1 - zone.x;
+  zone.height = y1 - zone.y;
 }
 
 function parsePortals(raw: readonly TiledObject[], zones: readonly MapZone[], tileSize: number): MapPortal[] {

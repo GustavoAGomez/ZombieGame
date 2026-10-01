@@ -19,6 +19,34 @@ const portalIndex = (ctx: SimContext, id: string): number => {
 const zoneAtPoint = (ctx: SimContext, x: number, y: number): string | undefined =>
   ctx.map.zones[ctx.map.cellZone[Math.floor(y / 32) * ctx.map.width + Math.floor(x / 32)] ?? -1]?.id;
 
+/** Puts the player on a free floor tile next to portal end `id`, inside its zone. */
+function standNextTo(ctx: SimContext, id: string): void {
+  const portal = ctx.map.portals[portalIndex(ctx, id)]!;
+  const { map, grid } = ctx;
+  for (const t of portal.tiles) {
+    for (const [dx, dy] of [
+      [0, 1],
+      [0, -1],
+      [1, 0],
+      [-1, 0],
+    ] as const) {
+      const x = t.x + dx;
+      const y = t.y + dy;
+      const cell = y * map.width + x;
+      if (map.cellPortal[cell] !== -1 || map.cellZone[cell] !== portal.zoneIndex || grid.cells[cell] !== 0) continue;
+      movePlayerToTile(ctx, x, y);
+      return;
+    }
+  }
+  throw new Error(`No free tile next to ${id}`);
+}
+
+/** Tile where travellers through `id` come out. */
+const arrivalTile = (ctx: SimContext, id: string) => {
+  const a = ctx.map.portals[portalIndex(ctx, id)]!.arrival;
+  return { x: Math.floor(a.x / 32), y: Math.floor(a.y / 32) };
+};
+
 function pressAction(ctx: SimContext): void {
   command(ctx).actionPressed = true;
   updateInteractions(ctx, 1 / 60);
@@ -36,7 +64,7 @@ describe('buying portals', () => {
     ctx.events.on('action:context', chip);
 
     // Next to the hatch in the garden: the chip says BLOQUEADA and buying does nothing.
-    movePlayerToTile(ctx, 7, 11);
+    standNextTo(ctx, 'P3a');
     updateInteractions(ctx, 1 / 60);
     expect(p.contextAction).toBe('portal');
     expect(p.contextTarget).toBe(portalIndex(ctx, 'P3a'));
@@ -47,7 +75,7 @@ describe('buying portals', () => {
     expect(p.points).toBe(10_000);
 
     // Kitchen stairs: buying P1 opens both ends and unlocks the basement.
-    movePlayerToTile(ctx, 48, 18);
+    standNextTo(ctx, 'P1a');
     updateInteractions(ctx, 1 / 60);
     events.publish(ctx.state);
     expect(chip).toHaveBeenLastCalledWith({ kind: 'portal', amount: 1750, enabled: true, portal: 'stairs', locked: false });
@@ -59,7 +87,7 @@ describe('buying portals', () => {
 
     // Now the hatch can be bought, and it is cheaper.
     expect(isPortalBuyable(ctx.map, ctx.state, portalIndex(ctx, 'P3a'))).toBe(true);
-    movePlayerToTile(ctx, 7, 11);
+    standNextTo(ctx, 'P3a');
     pressAction(ctx);
     expect(isPortalOpen(ctx, portalIndex(ctx, 'P3b'))).toBe(true);
     expect(p.points).toBe(10_000 - 1750 - 1000);
@@ -71,7 +99,7 @@ describe('buying portals', () => {
     const chip = vi.fn();
     ctx.events.on('action:context', chip);
     player(ctx).points = 500;
-    movePlayerToTile(ctx, 48, 18);
+    standNextTo(ctx, 'P1a');
     updateInteractions(ctx, 1 / 60);
     presenter.publish(ctx.state);
     expect(chip).toHaveBeenLastCalledWith({ kind: 'portal', amount: 1250, enabled: false, portal: 'stairs', locked: false });
@@ -97,7 +125,7 @@ describe('travelling', () => {
     expect(p.teleports).toBe(1);
 
     // Step off and back on: back to the kitchen.
-    movePlayerToTile(ctx, 79, 35);
+    standNextTo(ctx, 'P1b');
     stepSimulation(ctx, 1 / 60);
     p.x = p.prevX = basementEnd.center.x;
     p.y = p.prevY = basementEnd.center.y;
@@ -139,10 +167,10 @@ describe('zombies and portals', () => {
   it('links both ends in the flow field', () => {
     const ctx = createMansionContext();
     unlockZones(ctx, 'cocina', 'sotano');
-    movePlayerToTile(ctx, 82, 32);
+    movePlayerToTile(ctx, 88, 30);
     const p = player(ctx);
     const source = [Math.floor(p.y / 32) * ctx.map.width + Math.floor(p.x / 32)];
-    const kitchen = tileCenter(ctx, 40, 20);
+    const kitchen = tileCenter(ctx, 40, 24);
     computeFlowField(ctx.nav, ctx.map, ctx.grid, ctx.state.zonesUnlocked, source, ctx.state.portalsOpen);
     expect(distanceAt(ctx.nav, kitchen.x, kitchen.y)).toBe(UNREACHABLE);
     openPortal(ctx, portalIndex(ctx, 'P1a'));
@@ -153,11 +181,11 @@ describe('zombies and portals', () => {
   it('follow you down the kitchen stairs', () => {
     const ctx = createMansionContext();
     openPortal(ctx, portalIndex(ctx, 'P1a'));
-    movePlayerToTile(ctx, 90, 35);
-    const start = tileCenter(ctx, 44, 20);
+    movePlayerToTile(ctx, 90, 33);
+    const start = tileCenter(ctx, 44, 24);
     placeZombie(ctx, 0, start.x, start.y, 100, 'chasing');
     const exit = followUntil(ctx, 'sotano', 1200);
-    expect(exit).toEqual({ x: 79, y: 38 });
+    expect(exit).toEqual(arrivalTile(ctx, 'P1a'));
   });
 
   it('follow you through the hatch when it is the shorter way', () => {
@@ -165,18 +193,18 @@ describe('zombies and portals', () => {
     unlockZones(ctx, 'jardin');
     openPortal(ctx, portalIndex(ctx, 'P1a'));
     openPortal(ctx, portalIndex(ctx, 'P3a'));
-    movePlayerToTile(ctx, 92, 30);
-    const start = tileCenter(ctx, 10, 9);
+    movePlayerToTile(ctx, 96, 29);
+    const start = tileCenter(ctx, 20, 9);
     placeZombie(ctx, 0, start.x, start.y, 100, 'chasing');
     const exit = followUntil(ctx, 'sotano', 1200);
-    expect(exit).toEqual({ x: 94, y: 27 });
+    expect(exit).toEqual(arrivalTile(ctx, 'P3a'));
   });
 
   it('stay put on a portal when the player is on their side', () => {
     const ctx = createMansionContext();
     unlockZones(ctx, 'cocina');
     openPortal(ctx, portalIndex(ctx, 'P1a'));
-    movePlayerToTile(ctx, 35, 22);
+    movePlayerToTile(ctx, 38, 24);
     const end = ctx.map.portals[portalIndex(ctx, 'P1a')]!;
     const z = placeZombie(ctx, 0, end.center.x, end.center.y, 100, 'chasing');
     runTicks(ctx, 5, chaseStep);

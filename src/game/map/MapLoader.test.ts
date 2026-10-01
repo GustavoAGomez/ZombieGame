@@ -195,3 +195,35 @@ describe('parseMap: zones flags, fences, open spawns and portals (spec 02)', () 
     expect(() => parseMap(lonely)).toThrow(/unknown pair "Zz"/);
   });
 });
+
+describe('parseMap: zones made of several rectangles', () => {
+  it('merges zone objects that share an id into one zone', () => {
+    const raw = clone();
+    const objects = (raw.layers.find((l) => l.name === 'objects') as TiledObjectLayer).objects;
+    // A second rectangle for "almacen" at the top-left corner, flagged as interior.
+    objects.push({
+      id: 700,
+      name: 'almacen',
+      type: 'zone',
+      x: 0,
+      y: 0,
+      width: 64,
+      height: 32,
+      rotation: 0,
+      visible: true,
+      properties: [
+        { name: 'id', type: 'string', value: 'almacen' },
+        { name: 'interior', type: 'bool', value: true },
+      ],
+    });
+    const map = parseMap(raw);
+    const almacen = map.zones.findIndex((z) => z.id === 'almacen');
+    expect(map.zones).toHaveLength(3);
+    expect(map.zones[almacen]?.rects).toHaveLength(2);
+    expect(map.zones[almacen]?.interior).toBe(true);
+    expect(map.zones[almacen]).toMatchObject({ x: 0, y: 0 });
+    expect(map.cellZone[0]).toBe(almacen);
+    expect(map.cellZone[1]).toBe(almacen);
+    expect(map.cellZone[21 * map.width + 24]).toBe(almacen); // the original room still belongs to it
+  });
+});

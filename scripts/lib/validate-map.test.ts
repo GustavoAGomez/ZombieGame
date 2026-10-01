@@ -51,7 +51,7 @@ describe('validateMap', () => {
   });
 
   it('keeps the player away from barricades', () => {
-    expect(errorsOf(variant((o) => Object.assign(byName(o, 'player'), { x: 23.5 * 32, y: 37.5 * 32 })))).toMatch(/a 3\.0 tiles de W1/);
+    expect(errorsOf(variant((o) => Object.assign(byName(o, 'player'), { x: 39.5 * 32, y: 38.5 * 32 })))).toMatch(/a 3\.0 tiles de W1/);
   });
 
   it('checks costs and sizes of doors and portals', () => {

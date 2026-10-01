@@ -1,0 +1,144 @@
+ssaaaaasgssFddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd___________________
+ssaaaaasgssFddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd___________________
+ssaaaaasgssFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFFg___________________
+ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggFg__rrrrrrrrrr_______
+ssaaaaasgssFgggggggggggggggggggggggggggggeeeeeeeeggggggggggggggggggggggggggggggFg__rrZrrrrrZr_______
+ssaaaaasgssFgggggggggggggggggggggggggggeeeeeeeeeeeeeeggggggggggggggggggHHHHHgggFg__rrrrrrrrrr_______
+ssaaaaasgssFgdggggggggggggggggggggggeeeeeeeeeeeeeeeeeegggggggggggggggggHHHHHgggFg__rrrrrrrrrr_______
+ssaaaaasgssFgddgggggggggggggggggggggeeeewwwwwwwwwwweeegggggggggggggggggHHHHHgggFg__rrrrrrrrrr_______
+ssaaaaasgssFgdggggggggggggggggggggggeeeewwwwwwwwwwweeegggdddddgggggggggHHHHHgggFg__rrrHHrrrrr_______
+ssaaaaasgssFgddgggggggggggggggggggggeeeewwwwwwwwwwweeedddgdggdddddddddddgggggggFg__rrrHHrrrrrrrrrrr_
+ssaaaaasgssWgddggggggggggggggggggggggeeeeeeeeeeeeeeeeedddggggggdgggdgdddgggggggFg__rrrrrrrrrrrrrrrr_
+ssaaaaasgssFgddggggggggppppppppgggddggeeeeeeeeeeeeeeeggggggggggggggggggggggggggFg__rrrrrrHHHrrrrrrr_
+ssaaaaasgssFgddggggppppppppppppgdddgggggggeeeeeeeegggggggggggggggggggggggggggggFg__rrrrrrHHHrrrrrZr_
+ssaaaaasgssFgdgggggppppppppppppddgdggggggggpppppgggggggggggggggggggggggggggggggFg__rrrrrrrrrrrrrrrr_
+ssaaaaasgssFgddgggggdppppppppppggggggggggppppppppppggggggggggggggggggggggggggggFg__rrrrrrrrrrHHrrrr_
+ssaaaaasgssFddggggddddpppppppggggggggggggppppppppppggggggggggggggggggggggggggggFg__rrrrrrrrrrHHrrrr_
+ssaaaaasgssFdggggggdggHHDDHHHggggggHHHHHWHHppppppppgdddggggggggggggggggggggggggFg__rrrrrrrrrrrrrrrr_
+ssaaaaasgssFdgggg<<gggH.....HggggggHkkkkkkHppppppgggdgdddddggggggggggggggggggggFg__rrrrrrrrrrrrrrrr_
+ssaaaaasgssFdggHHHHHHHH.....HHWHHggHkkkkkkHgggggggggggHHHHHHdddggggggggggggggggFg__rrrrrrrrrrrrrrrr_
+ssaaaaasgssFddgH.....#..........HHHHkkkkkkHDDHHgggggggHkk<<HgddddggggggggggggggFg__r<<rrrrrrrrrr<<r_
+ssaaaaasgssFdggH.....#..........#kkkkkkkkkkkkkHgggggggHkkkkHggdgddgggggggggggggFg___________________
+ssaaaaasgssFdggW.....o..........#kkkkkkkkkkkkkHgggggggHkkkkHgggggddggggggggggggFg___________________
+ssaaaaasgssFdddH.....o..........#kkkkkkkkkkkkkHHHHHWHHHoo##HHHHWHHHdgggggggggggFg___________________
+ssaaaaasgssFgddH.....#..........#kkkkkkkkkkkkkkkkkkkkk#kkkk#ccccccHdddgggggggggFg___________________
+ssaaaaasgssFgddH##oo##..........#kkkkkkkkkkkkkkkkkkkkk#kkkk#ccccccHgdggggggggggFg___________________
+ssaaaaasgssFgddH.....#..........Dkkkkkkkkkkkkkkkkkkkkkokkkk#ccccccHgdggggggggggFg_HHHHHWHHHHHHHHHHHH
+ssaaaaasgssFgddH.....o..........Dkkkkkkkkkkkkkkkkkkkkkokkkk#ccccccH<gggggggggggFg_Hcccccccccc#cc<<c#
+ssaaaaasgssFgdgH.....o..........#kkkkkkkkkkkkkkkkkkkkk#kkkkDccccccH<gggggggggggFg_Hccccccccccoccccc#
+ssaaaaasgssFgddH.....#..........#kkkkkkkkkkkkkkkkkkkkk#kkkkDccccccHggggggggggggFg_Hccccccccccoccccc#
+ssaaaaasgssFgdgH#DD##############################DD#########ccccccHggggggggggggFg_Hcccccccccc#ccccc#
+ssaaaaasgssFgddH................#..............D...........#ccccccHggggggggggggFg_Hcccccccccc#ccccc#
+ssaaaaasgssFgggW................#......P.......D...........#ccccccHggggggggggggFg_Hcccccccccc###oo##
+ssaaaaasgssFggHH................#..............#...........#ccccccHggggggggggggFg_Hcccccccccc#ccccc#
+ssaaaaasgssFggHH#.......##......###oo###oo######...........##oo###HHHHHHHFFFFFFFg_Hccccccccccoccccc#
+ssaaaaasgssFggHH#.......##......#.........o....#...........#ccccccccccccHggggggFg_Hccccccccccoccccc#
+ssaaaaasgssFggHH................#.........o....#...........#ccccccccccccHggggggFg_Hcccccccccc#ccccc#
+ssaaaaasgssFgggW................#.........######...........#ccccccccccccHggggggFg_Hcccccc#####ccccc#
+ssaaaaasgssFgggH................#.........obbbb#...........#ccccccccccccHggggggFg_Hcccccc######oo###
+ssaaaaasgssFFFFHHHHH............D.........obbbb#...........#ccccccccccccWggggggFg_Hcccccc#ccccccccc#
+ssaaaaasgssgggggg<<H............D.........#bbbb#...........#ccccccccccccHggggggFg_Hccccccoccccccccc#
+ssaZaaasgssggggggggH............#.........HHWHHHHHH.....HWHHccccccccccccHggggggFg_Hccccccoccccccccc#
+ssaaaaasgssggggggggH............HHDDHHHWHHHgggdddgH.....HggHccccccccccccHggggggFg_Hcccccc#ccccccccc#
+ssaaaaasgssggggggggHHHHHHHHHWHHHppppppppppgggdddddHHHWHHHggHccccccccccccHggggggFg_Hcccccc#ccccccccc#
+ssaaaaasgssggggggggdddddddddddggHpppppppppHgggddddgggggggggHccccccccccccHggggggFg_Hc<<ccc#ccccccccc#
+ssaaaaasgssggggggggggdddddddggggggpppggggggggggggggggggggggHHHDDHHHHHHHHHggggggFg_HHHHHHHHHHHHHWHHHH
+ssaaaaasgssgggggggggggggggggggggggpppggggggggggggggggggggggggppppppgdddgddgggggFg___________________
+ssaaaaasgssggggggggggggggggggggggpppgggggggggggggggggggggggggppppppdddddddddgggFg___________________
+ssaaaaasgssgggggggggggggggggggggpppggggggggggggggggggggggggggppppppgddddggdddggFgggggggggggggggggggg
+ssaaaaasgssgggggggggggggggggggggpppggggggggggggggggggggggggggppppppgggggggggddgFgggggggggggggggggggg
+ssaaaaasgssggggggggggggggggggggpppgggggggggggggggggggggggggggppppppggggggggggdgFgggggggggggggggggggg
+ssaaaaasgssggggggggggggggggggggpppgggggggggggggggggggggggggggppppppggggggggggggFFFFFFFFFFFFFFFFFFFFF
+ssaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+ssaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+ssaaaaassssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+ssaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+ssaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+ssaaaaassssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+ssaaaaassssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssZssssssssssssssssssssssssssssss
+ssaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+ssaaaaasgssFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+
+## Zonas (cada zona es la región que se rellena desde su semilla; las paredes, vallas, D y W la cierran. "suelo" es la variante de floors_interior; "paredes" cambia el kit)
+| id | nombre | inicial | interior | spawns abiertos | semilla | suelo | paredes | contiene |
+|---|---|---|---|---|---|---|---|---|
+| recibidor | Recibidor | sí | sí | no | 37,31 | 0 | — | hall, pasillo, guardarropa, aseo |
+| salon | Salón | no | sí | no | 23,37 | 3 | — | salón en L con chimenea y columna |
+| comedor | Comedor | no | sí | no | 53,35 | 1 | — | comedor con mirador |
+| biblioteca | Biblioteca | no | sí | no | 26,23 | 2 | — | biblioteca, mirador, estudio, rincón de lectura |
+| cocina | Cocina | no | sí | no | 39,24 | 1 | — | cocina en L, office, despensa, lavadero |
+| garaje | Garaje | no | sí | no | 65,38 | 1 | — | garaje doble y taller (L) |
+| jardin | Jardín trasero | no | no | no | 29,6 | — | — | patios, piscina, cobertizo, pasillos laterales |
+| calle | Calle delantera | no | no | sí | 40,57 | — | — | porche, jardín delantero, entrada de coches, las dos calles |
+| sotano | Sótano | no | sí | no | 86,30 | 3 | sótano | sala en L, calderas, trastero, bodega |
+| azotea | Azotea | no | no | sí | 88,6 | 0 | sótano | azotea en L con chimeneas |
+
+## Puertas de pago (D)
+| id | casillas | de | a | coste |
+|---|---|---|---|---|
+| D1 | 32,38 32,39 | recibidor | salon | 750 |
+| D2 | 47,30 47,31 | recibidor | comedor | 750 |
+| D3 | 17,29 18,29 | salon | biblioteca | 1000 |
+| D4 | 49,29 50,29 | comedor | cocina | 1000 |
+| D5 | 32,25 32,26 | biblioteca | cocina | 1250 |
+| D6 | 59,27 59,28 | cocina | garaje | 1250 |
+| D7 | 62,44 63,44 | garaje | calle | 1250 |
+| D8 | 34,41 35,41 | recibidor | calle | 1500 |
+| D9 | 43,19 44,19 | cocina | jardin | 1500 |
+| D10 | 24,16 25,16 | biblioteca | jardin | 1500 |
+
+## Barricadas (W): ventanas, huecos de valla (F*) y rejillas del sótano (S*)
+| id | casilla | zona | tipo |
+|---|---|---|---|
+| W1 | 39,41 | recibidor | ventana |
+| W2 | 44,40 | recibidor | ventana |
+| W3 | 15,31 | salon | ventana |
+| W4 | 15,36 | salon | ventana |
+| W5 | 28,42 | salon | ventana |
+| W6 | 53,42 | comedor | ventana |
+| W7 | 57,40 | comedor | ventana |
+| W8 | 15,21 | biblioteca | ventana |
+| W9 | 30,18 | biblioteca | ventana |
+| W10 | 40,16 | cocina | ventana |
+| W11 | 51,22 | cocina | ventana |
+| W12 | 72,38 | garaje | ventana |
+| W13 | 63,22 | garaje | ventana |
+| F1 | 23,2 | jardin | valla |
+| F2 | 61,2 | jardin | valla |
+| F3 | 11,10 | jardin | valla |
+| S1 | 87,25 | sotano | ventana |
+| S2 | 95,44 | sotano | ventana |
+
+## Portales (<)
+| id | casillas | zona | par | coste | secundario | tipo |
+|---|---|---|---|---|---|---|
+| P1a | 57,19 58,19 | cocina | P1b | 1750 | no | escalera |
+| P1b | 84,43 85,43 | sotano | P1a | 1750 | no | escalera |
+| P2a | 67,26 67,27 | jardin | P2b | 2000 | no | escalera de mano |
+| P2b | 84,19 85,19 | azotea | P2a | 2000 | no | escalera de mano |
+| P3a | 17,17 18,17 | jardin | P3b | 1000 | sí | trampilla |
+| P3b | 96,26 97,26 | sotano | P3a | 1000 | sí | trampilla |
+| P4a | 17,39 18,39 | calle | P4b | 1250 | sí | escalera de mano |
+| P4b | 96,19 97,19 | azotea | P4a | 1250 | sí | escalera de mano |
+
+## Spawns abiertos (Z)
+| id | casilla | zona |
+|---|---|---|
+| O1 | 3,40 | calle |
+| O2 | 69,62 | calle |
+| O3 | 85,4 | azotea |
+| O4 | 91,4 | azotea |
+| O5 | 97,12 | azotea |
+
+## Jugador (P)
+| casilla |
+|---|
+| 39,31 |

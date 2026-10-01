@@ -19,8 +19,8 @@
     "assets:import": "tsx scripts/import-pixellab.ts",
     "assets:check": "tsx scripts/check-assets.ts",
     "tiles:import": "tsx scripts/import-tiles.ts",
-    "map:mansion": "tsx scripts/gen-mansion-map.ts",
-    "map:build": "tsx scripts/build-map.ts"
+    "map:build": "tsx scripts/build-map.ts",
+    "map:preview": "tsx scripts/preview-map.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",

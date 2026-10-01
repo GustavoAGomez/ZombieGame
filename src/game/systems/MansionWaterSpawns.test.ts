@@ -28,8 +28,8 @@ describe('pool', () => {
   it('lets bullets cross the water', () => {
     const ctx = createMansionContext();
     unlock(ctx, 'jardin');
-    movePlayer(ctx, 30, 5);
-    const target = tileCenter(ctx, 30, 12);
+    movePlayer(ctx, 45, 4);
+    const target = tileCenter(ctx, 45, 12);
     const z = placeZombie(ctx, 0, target.x, target.y, 100);
     const cmd = command(ctx);
     Object.assign(cmd, { fire: true, aimManual: true, aimX: 0, aimY: 1 });
@@ -42,13 +42,13 @@ describe('pool', () => {
   it('makes zombies walk around it', () => {
     const ctx = createMansionContext();
     unlock(ctx, 'jardin');
-    movePlayer(ctx, 30, 5);
+    movePlayer(ctx, 45, 4);
     const p = player(ctx);
     computeFlowField(ctx.nav, ctx.map, ctx.grid, ctx.state.zonesUnlocked, [Math.floor(p.y / 32) * ctx.map.width + Math.floor(p.x / 32)]);
-    const across = tileCenter(ctx, 30, 12);
-    // Straight across would be 7 steps; around the deck it takes far more.
+    const across = tileCenter(ctx, 45, 12);
+    // Straight across would be 8 steps; around the pool it takes far more.
     expect(distanceAt(ctx.nav, across.x, across.y)).toBeGreaterThan(15);
-    const water = tileCenter(ctx, 30, 9);
+    const water = tileCenter(ctx, 45, 8);
     expect(distanceAt(ctx.nav, water.x, water.y)).toBe(UNREACHABLE);
   });
 });
@@ -58,17 +58,17 @@ describe('open spawns', () => {
     const ctx = createMansionContext();
     for (let i = ctx.map.zombieSpawns.length; i < spawnCount(ctx); i++) expect(spawnWeight(ctx, i)).toBe(0);
     unlock(ctx, 'calle');
-    expect(spawnWeight(ctx, openSpawnAt(ctx, 1, 46))).toBeGreaterThan(0);
-    expect(spawnWeight(ctx, openSpawnAt(ctx, 78, 4))).toBe(0); // the roof is still locked
+    expect(spawnWeight(ctx, openSpawnAt(ctx, 3, 40))).toBeGreaterThan(0);
+    expect(spawnWeight(ctx, openSpawnAt(ctx, 85, 4))).toBe(0); // the roof is still locked
   });
 
   it('never spawn closer than 8 tiles to a live player', () => {
     const ctx = createMansionContext();
     unlock(ctx, 'calle');
-    movePlayer(ctx, 4, 46);
-    expect(spawnWeight(ctx, openSpawnAt(ctx, 1, 46))).toBe(0);
-    expect(spawnWeight(ctx, openSpawnAt(ctx, 70, 46))).toBeGreaterThan(0);
-    // 11 tiles from the west open spawn: close enough to be picked, never closer than 8.
+    movePlayer(ctx, 5, 44);
+    expect(spawnWeight(ctx, openSpawnAt(ctx, 3, 40))).toBe(0);
+    expect(spawnWeight(ctx, openSpawnAt(ctx, 69, 62))).toBeGreaterThan(0);
+    // 11 tiles from the open spawn on the side street: close enough to be picked, never closer than 8.
     movePlayer(ctx, 12, 46);
     const p = player(ctx);
     let open = 0;
@@ -85,7 +85,7 @@ describe('open spawns', () => {
     const ctx = createMansionContext();
     unlock(ctx, 'calle');
     const z = ctx.state.zombies[0]!;
-    spawnZombie(ctx, z, openSpawnAt(ctx, 70, 46));
+    spawnZombie(ctx, z, openSpawnAt(ctx, 69, 62));
     expect(z).toMatchObject({ active: true, ai: 'emerging', window: -1 });
     expect(isZombieAlive(z)).toBe(true);
     const start = { x: z.x, y: z.y };
@@ -123,11 +123,11 @@ describe('roof void', () => {
   it('stops the player at the edge of the roof', () => {
     const ctx = createMansionContext();
     unlock(ctx, 'azotea');
-    movePlayer(ctx, 85, 16);
+    movePlayer(ctx, 90, 17);
     const cmd = command(ctx);
     cmd.moveY = 1;
     runTicks(ctx, 120, stepSimulation);
-    expect(player(ctx).y).toBeLessThan(18 * 32);
+    expect(player(ctx).y).toBeLessThan(20 * 32);
   });
 });
 
@@ -142,9 +142,9 @@ describe('spawn distance on the big map (Fase M7)', () => {
   it('measures windows by walking distance, not through walls', () => {
     const ctx = createMansionContext();
     for (const id of ['D1', 'D2', 'D3', 'D4', 'D5']) openDoor(ctx, ctx.map.doors.findIndex((d) => d.id === id));
-    movePlayer(ctx, 28, 34);
+    movePlayer(ctx, 37, 35);
     withField(ctx);
-    // W9 (biblioteca, north wall) is ~22 tiles away in a straight line but much farther on foot.
+    // W9 (biblioteca, north wall) is ~18 tiles away in a straight line but much farther on foot.
     const w9 = spawnOf(ctx, 'W9');
     const straight = Math.hypot(ctx.map.zombieSpawns[w9]!.x - player(ctx).x, ctx.map.zombieSpawns[w9]!.y - player(ctx).y) / 32;
     expect(spawnPathTiles(ctx, w9)).toBeGreaterThan(straight + 8);
@@ -154,16 +154,16 @@ describe('spawn distance on the big map (Fase M7)', () => {
   it('counts a window spawn on an open exterior from where it appears', () => {
     const ctx = createMansionContext();
     unlock(ctx, 'jardin');
-    movePlayer(ctx, 45, 9);
+    movePlayer(ctx, 51, 16);
     withField(ctx);
-    // W11's zombies appear in the garden at (45, 13): 4 tiles from the player, who can walk there.
+    // W11's zombies appear in the garden at (51, 20): 4 tiles from the player, who can walk there.
     expect(spawnPathTiles(ctx, spawnOf(ctx, 'W11'))).toBe(4);
   });
 
   it('skips far spawns while closer ones exist', () => {
     const ctx = createMansionContext();
     for (const door of ctx.map.doors) openDoor(ctx, ctx.map.doors.indexOf(door));
-    movePlayer(ctx, 28, 34);
+    movePlayer(ctx, 37, 35);
     withField(ctx);
     for (let i = 0; i < 500; i++) expect(spawnPathTiles(ctx, pickSpawn(ctx))).toBeLessThanOrEqual(WAVES.spawnMaxPathTiles);
   });
@@ -171,7 +171,7 @@ describe('spawn distance on the big map (Fase M7)', () => {
   it('still spawns when every spawn is far', () => {
     const ctx = createMansionContext();
     openPortal(ctx, ctx.map.portals.findIndex((p) => p.id === 'P1a'));
-    movePlayer(ctx, 40, 20); // kitchen: only the basement is open besides it, and its grates are far away
+    movePlayer(ctx, 40, 24); // kitchen: only the basement is open besides it, and its grates are far away
     ctx.state.zonesUnlocked[zoneIndexOf(ctx, 'cocina')] = false;
     ctx.state.zonesUnlocked[zoneIndexOf(ctx, 'recibidor')] = false;
     withField(ctx);

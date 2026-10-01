@@ -5,10 +5,10 @@
   "name": "map_special",
   "tilewidth": 32,
   "tileheight": 32,
-  "tilecount": 2,
-  "columns": 2,
+  "tilecount": 3,
+  "columns": 3,
   "image": "../../../public/assets/tiles/map_special.png",
-  "imagewidth": 64,
+  "imagewidth": 96,
   "imageheight": 32,
   "margin": 0,
   "spacing": 0,
@@ -30,6 +30,21 @@
           "name": "material",
           "type": "string",
           "value": "tierra"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "properties": [
+        {
+          "name": "material",
+          "type": "string",
+          "value": "tierra"
+        },
+        {
+          "name": "placeholder",
+          "type": "bool",
+          "value": true
         }
       ]
     }

@@ -26,8 +26,8 @@ Juego móvil (iOS + Android) top-down shooter pixel art de supervivencia por ole
 | `npm run assets:import` | Importa exports crudos de PixelLab (ver `docs/ASSETS.md`) |
 | `npm run assets:check` | Valida tamaños, nombres, manifiesto y paleta |
 | `npm run tiles:import` | Importa los tilesets, kits y decals de PixelLab (spec 02) |
-| `npm run map:mansion` | Genera una vez `art-src/tiled/mansion.tmj` (`--force` para regenerar) |
-| `npm run map:build` | Embebe los tilesets de `art-src/tiled/*.tmj` en `public/assets/maps/` y valida |
+| `npm run map:build [mapa]` | Compila el plano ASCII `maps/src/<mapa>.txt` a `art-src/tiled/<mapa>.tmj` (sin pisar retoques hechos en Tiled salvo con `--force`), embebe los tilesets en `public/assets/maps/` y valida |
+| `npm run map:preview [mapa]` | Renderiza el mapa a PNG en `maps/preview/` (completo a 1:4, cada zona a 1:1 y el plano ASCII) |
 
 ## Reglas de arquitectura
 
@@ -70,7 +70,9 @@ src/
     hud/                  Hud.ts, hud.css, componentes
     strings.ts            todos los textos de UI en español
   debug/DebugOverlay.ts
-scripts/                  gen-placeholder-map.ts, import-pixellab.ts, check-assets.ts
+scripts/                  gen-placeholder-map.ts, import-pixellab.ts, check-assets.ts, build-map.ts, preview-map.ts
+maps/src/                 planos ASCII de los mapas (fuente; skill level-design)
+maps/preview/             vistas previas generadas por map:preview
 public/assets/            manifest.json, maps/, sprites/, tiles/
 docs/                     specs/, ASSETS.md, DECISIONS.md
 ```

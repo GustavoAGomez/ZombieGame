@@ -173,11 +173,15 @@ Los exports están en `art-src/pixellab/<grupo>/<grupo>.png`, con un `README.md`
 
 ```
 npm run tiles:import    art-src/pixellab/ → public/assets/tiles/*.png + art-src/tiled/tilesets/*.tsj
-npm run map:mansion     genera art-src/tiled/mansion.tmj UNA vez (no sobrescribe; --force para regenerar y perder retoques)
-(Tiled)                 se retoca art-src/tiled/mansion.tmj
-npm run map:build       embebe los tilesets → public/assets/maps/mansion.tmj, pasa el validador y lo registra en el manifiesto
+maps/src/mansion.txt    plano ASCII (skill level-design): un carácter por tile y tablas de ids debajo
+npm run map:build       plano → art-src/tiled/mansion.tmj → embebe los tilesets → public/assets/maps/mansion.tmj, valida y registra en el manifiesto
+npm run map:preview     maps/preview/: el mapa completo a 1:4, cada zona a 1:1 y el plano en colores
+(Tiled)                 se retoca art-src/tiled/mansion.tmj; map:build ya no lo pisa (avisa), salvo con --force
 ```
 
+- El `.tmj` compilado guarda en sus propiedades un hash de su contenido (`compiledHash`). Si al recompilar el contenido ya no coincide, alguien lo ha retocado en Tiled: `map:build` lo conserva, avisa y construye con los retoques.
+- Las zonas se calculan desde el plano: cada zona es la región que se rellena desde su semilla, cerrada por paredes, vallas, puertas de pago, barricadas y vacío. Se guardan como varios objetos `zone` con el mismo `id` (las zonas en L necesitan varios rectángulos) y el `MapLoader` los une.
+- Cada barricada pone su `zombie_spawn` 2 tiles hacia fuera, en el lado contrario a su zona.
 - `map:build` no escribe el mapa del juego si el validador falla, y lista los errores (zonas, barricadas, costes, salidas, alcanzabilidad, portales…).
-- `assets:check` (y por tanto `npm run build`) pasa el mismo validador a los mapas que tienen fuente en `art-src/tiled/` y avisa si la fuente es más reciente que el mapa del juego.
+- `assets:check` (y por tanto `npm run build`) pasa el mismo validador a los mapas que tienen fuente en `art-src/tiled/` y avisa si el plano o la fuente son más recientes que el mapa del juego.
 - La mansión es el mapa por defecto; `?map=room01` carga el mapa de prueba.
