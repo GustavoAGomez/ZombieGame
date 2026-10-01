@@ -11,11 +11,11 @@ ssaaaaasgssFgddgggggggggggggggggggggeeeewwwwwwwwwwweeedddgdggdddddddddddgggggggF
 ssaaaaasgssWgddggggggggggggggggggggggeeeeeeeeeeeeeeeeedddggggggdgggdgdddgggggggFg__________rrrrrrrrrrrrrrrr_
 ssaaaaasgssFgddggggggggppppppppgggddggeeeeeeeeeeeeeeeggggggggggggggggggggggggggFg__________rrrrrrHHHrrrrrrr_
 ssaaaaasgssFgddggggppppppppppppgdddgggggggeeeeeeeegggggggggggggggggggggggggggggFg__________rrrrrrHHHrrrrrZr_
-ssaaaaasgssFgdgggggppppppppppppddgdggggggggpppppgggggggggggggggggggggggggggggggFg__________rrrrrrrrrrrrrrrr_
-ssaaaaasgssFgddgggggdppppppppppggggggggggppppppppppggggggggggggggggggggggggggggFg__________rrrrrrrrrrHHrrrr_
-ssaaaaasgssFddggggddddpppppppggggggggggggppppppppppggggggggggggggggggggggggggggFg__________rrrrrrrrrrHHrrrr_
-ssaaaaasgssFdggggggdggHHDDHHHggggggHHHHHWHHppppppppgdddggggggggggggggggggggggggFg__________rrrrrrrrrrrrrrrr_
-ssaaaaasgssFdgggg<<gggH.....HggggggHkkkkkkHppppppgggdgdddddggggggggggggggggggggFg__________rrrrrrrrrrrrrrrr_
+ssaaaaasgssFgdgggggppppppppppppddgdggggggggeeeeegggggggggggggggggggggggggggggggFg__________rrrrrrrrrrrrrrrr_
+ssaaaaasgssFgddgggggdppppppppppggggggggggeeeeeeeeeeggggggggggggggggggggggggggggFg__________rrrrrrrrrrHHrrrr_
+ssaaaaasgssFddggggddddpppppppggggggggggggeeeeeeeeeeggggggggggggggggggggggggggggFg__________rrrrrrrrrrHHrrrr_
+ssaaaaasgssFdggggggdggHHDDHHHggggggHHHHHWHHeeeeeeeegdddggggggggggggggggggggggggFg__________rrrrrrrrrrrrrrrr_
+ssaaaaasgssFdgggg<<gggH.....HggggggHkkkkkkHeeeeeegggdgdddddggggggggggggggggggggFg__________rrrrrrrrrrrrrrrr_
 ssaaaaasgssFdggHHHHHHHH.....HHWHHggHkkkkkkHgggggggggggHHHHHHdddggggggggggggggggFg__________rrrrrrrrrrrrrrrr_
 ssaaaaasgssFddgH.....#..........HHHHkkkkkkHDDHHgggggggHkk<<HgddddggggggggggggggFg__________r<<rrrrrrrrrr<<r_
 ssaaaaasgssFdggH.....#..........#kkkkkkkkkkkkkHgggggggHkkkkHggdgddgggggggggggggFg___________________________
@@ -40,15 +40,15 @@ ssaaaaasgssFFFFHHHHH............D.........obbbb#...........#ccccccccccccWggggggF
 ssaaaaasgssgggggg<<H............D.........#bbbb#...........#ccccccccccccHggggggFg_________Hccccccoccccccccc#
 ssaZaaasgssggggggggH............#.........HHWHHHHHH.....HWHHccccccccccccHggggggFg_________Hccccccoccccccccc#
 ssaaaaasgssggggggggH............HHDDHHHWHHHgggdddgH.....HggHccccccccccccHggggggFg_________Hcccccc#ccccccccc#
-ssaaaaasgssggggggggHHHHHHHHHWHHHppppppppppgggdddddHHHWHHHggHccccccccccccHggggggFg_________Hcccccc#ccccccccc#
-ssaaaaasgssggggggggdddddddddddggHpppppppppHgggddddgggggggggHccccccccccccHggggggFg_________Hc<<ccc#ccccccccc#
-ssaaaaasgssggggggggggdddddddggggggpppggggggggggggggggggggggHHHDDHHHHHHHHHggggggFg_________HHHHHHHHHHHHHWHHHH
-ssaaaaasgssgggggggggggggggggggggggpppggggggggggggggggggggggggppppppgdddgddgggggFg___________________________
-ssaaaaasgssggggggggggggggggggggggpppgggggggggggggggggggggggggppppppdddddddddgggFg___________________________
-ssaaaaasgssgggggggggggggggggggggpppggggggggggggggggggggggggggppppppgddddggdddggFgg__________________________
-ssaaaaasgssgggggggggggggggggggggpppggggggggggggggggggggggggggppppppgggggggggddgFgg__________________________
-ssaaaaasgssggggggggggggggggggggpppgggggggggggggggggggggggggggppppppggggggggggdgFgg__________________________
-ssaaaaasgssggggggggggggggggggggpppgggggggggggggggggggggggggggppppppggggggggggggFFF__________________________
+ssaaaaasgssggggggggHHHHHHHHHWHHHssssssssssgggdddddHHHWHHHggHccccccccccccHggggggFg_________Hcccccc#ccccccccc#
+ssaaaaasgssggggggggdddddddddddggHsssssssssHgggddddgggggggggHccccccccccccHggggggFg_________Hc<<ccc#ccccccccc#
+ssaaaaasgssggggggggggdddddddggggggsssggggggggggggggggggggggHHHDDHHHHHHHHHggggggFg_________HHHHHHHHHHHHHWHHHH
+ssaaaaasgssgggggggggggggggggggggggsssggggggggggggggggggggggggssssssgdddgddgggggFg___________________________
+ssaaaaasgssggggggggggggggggggggggsssgggggggggggggggggggggggggssssssdddddddddgggFg___________________________
+ssaaaaasgssgggggggggggggggggggggsssggggggggggggggggggggggggggssssssgddddggdddggFgg__________________________
+ssaaaaasgssgggggggggggggggggggggsssggggggggggggggggggggggggggssssssgggggggggddgFgg__________________________
+ssaaaaasgssggggggggggggggggggggsssgggggggggggggggggggggggggggssssssggggggggggdgFgg__________________________
+ssaaaaasgssggggggggggggggggggggsssgggggggggggggggggggggggggggssssssggggggggggggFFF__________________________
 ssaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss__________________________
 ssaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss__________________________
 ssaaaaassssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg__________________________
@@ -67,19 +67,19 @@ ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
 ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg__________________________
 ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg__________________________
 
-## Zonas (cada zona es la región que se rellena desde su semilla; las paredes, vallas, D y W la cierran. "suelo" es la variante de floors_interior; "paredes" cambia el kit)
-| id | nombre | inicial | interior | spawns abiertos | semilla | suelo | paredes | contiene |
-|---|---|---|---|---|---|---|---|---|
-| recibidor | Recibidor | sí | sí | no | 37,31 | 0+2 | — | hall, pasillo, guardarropa, aseo |
-| salon | Salón | no | sí | no | 23,37 | 3 | — | salón en L con chimenea y columna |
-| comedor | Comedor | no | sí | no | 53,35 | 1 | — | comedor con mirador |
-| biblioteca | Biblioteca | no | sí | no | 26,23 | 2+0 | — | biblioteca, mirador, estudio, rincón de lectura |
-| cocina | Cocina | no | sí | no | 39,24 | 1+3 | — | cocina en L, office, despensa, lavadero |
-| garaje | Garaje | no | sí | no | 65,38 | 1+3 | — | garaje doble y taller (L) |
-| jardin | Jardín trasero | no | no | no | 29,6 | — | — | patios, piscina, cobertizo, pasillos laterales |
-| calle | Calle delantera | no | no | sí | 40,57 | — | — | porche, jardín delantero, entrada de coches, las dos calles |
-| sotano | Sótano | no | sí | no | 94,30 | 3+1 | sótano | sala en L, calderas, trastero, bodega |
-| azotea | Azotea | no | no | sí | 96,6 | 0+2 | sótano | azotea en L con chimeneas |
+## Zonas (cada zona es la región que se rellena desde su semilla; las paredes, vallas, D y W la cierran. "paredes" cambia el kit; el suelo interior sale del material: docs/ASSETS.md §7.4)
+| id | nombre | inicial | interior | spawns abiertos | semilla | paredes | contiene |
+|---|---|---|---|---|---|---|---|
+| recibidor | Recibidor | sí | sí | no | 37,31 | — | hall, pasillo, guardarropa, aseo |
+| salon | Salón | no | sí | no | 23,37 | — | salón en L con chimenea y columna |
+| comedor | Comedor | no | sí | no | 53,35 | — | comedor con mirador |
+| biblioteca | Biblioteca | no | sí | no | 26,23 | — | biblioteca, mirador, estudio, rincón de lectura |
+| cocina | Cocina | no | sí | no | 39,24 | — | cocina en L, office, despensa, lavadero |
+| garaje | Garaje | no | sí | no | 65,38 | — | garaje doble y taller (L) |
+| jardin | Jardín trasero | no | no | no | 29,6 | — | patios, piscina, cobertizo, pasillos laterales |
+| calle | Calle delantera | no | no | sí | 40,57 | — | porche, jardín delantero, entrada de coches, las dos calles |
+| sotano | Sótano | no | sí | no | 94,30 | sótano | sala en L, calderas, trastero, bodega |
+| azotea | Azotea | no | no | sí | 96,6 | sótano | azotea en L con chimeneas |
 
 ## Puertas de pago (D)
 | id | casillas | de | a | coste |

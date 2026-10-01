@@ -4,23 +4,32 @@
   "tiledversion": "1.11.0",
   "name": "kit_basement",
   "tilewidth": 32,
-  "tileheight": 48,
+  "tileheight": 32,
   "tilecount": 20,
-  "columns": 5,
+  "columns": 4,
   "image": "../../../public/assets/tiles/kit_basement.png",
-  "imagewidth": 160,
-  "imageheight": 192,
+  "imagewidth": 128,
+  "imageheight": 160,
   "margin": 0,
   "spacing": 0,
-  "objectalignment": "bottomleft",
   "tiles": [
     {
       "id": 0,
       "properties": [
         {
+          "name": "collides",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "mask",
+          "type": "int",
+          "value": 0
+        },
+        {
           "name": "piece",
           "type": "string",
-          "value": "floor_persp"
+          "value": "----"
         }
       ]
     },
@@ -28,14 +37,19 @@
       "id": 1,
       "properties": [
         {
-          "name": "piece",
-          "type": "string",
-          "value": "wall_h"
-        },
-        {
           "name": "collides",
           "type": "bool",
           "value": true
+        },
+        {
+          "name": "mask",
+          "type": "int",
+          "value": 1
+        },
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "N---"
         }
       ]
     },
@@ -43,14 +57,19 @@
       "id": 2,
       "properties": [
         {
-          "name": "piece",
-          "type": "string",
-          "value": "wall_v_long"
-        },
-        {
           "name": "collides",
           "type": "bool",
           "value": true
+        },
+        {
+          "name": "mask",
+          "type": "int",
+          "value": 2
+        },
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "-E--"
         }
       ]
     },
@@ -58,14 +77,19 @@
       "id": 3,
       "properties": [
         {
-          "name": "piece",
-          "type": "string",
-          "value": "wall_v_end"
-        },
-        {
           "name": "collides",
           "type": "bool",
           "value": true
+        },
+        {
+          "name": "mask",
+          "type": "int",
+          "value": 3
+        },
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "NE--"
         }
       ]
     },
@@ -73,14 +97,19 @@
       "id": 4,
       "properties": [
         {
-          "name": "piece",
-          "type": "string",
-          "value": "wall_v"
-        },
-        {
           "name": "collides",
           "type": "bool",
           "value": true
+        },
+        {
+          "name": "mask",
+          "type": "int",
+          "value": 4
+        },
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "--S-"
         }
       ]
     },
@@ -88,14 +117,19 @@
       "id": 5,
       "properties": [
         {
-          "name": "piece",
-          "type": "string",
-          "value": "door_jamb"
-        },
-        {
           "name": "collides",
           "type": "bool",
           "value": true
+        },
+        {
+          "name": "mask",
+          "type": "int",
+          "value": 5
+        },
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "N-S-"
         }
       ]
     },
@@ -103,14 +137,19 @@
       "id": 6,
       "properties": [
         {
-          "name": "piece",
-          "type": "string",
-          "value": "pillar"
-        },
-        {
           "name": "collides",
           "type": "bool",
           "value": true
+        },
+        {
+          "name": "mask",
+          "type": "int",
+          "value": 6
+        },
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "-ES-"
         }
       ]
     },
@@ -118,14 +157,19 @@
       "id": 7,
       "properties": [
         {
-          "name": "piece",
-          "type": "string",
-          "value": "corner_tl"
-        },
-        {
           "name": "collides",
           "type": "bool",
           "value": true
+        },
+        {
+          "name": "mask",
+          "type": "int",
+          "value": 7
+        },
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "NES-"
         }
       ]
     },
@@ -133,14 +177,19 @@
       "id": 8,
       "properties": [
         {
-          "name": "piece",
-          "type": "string",
-          "value": "corner_tr"
-        },
-        {
           "name": "collides",
           "type": "bool",
           "value": true
+        },
+        {
+          "name": "mask",
+          "type": "int",
+          "value": 8
+        },
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "---O"
         }
       ]
     },
@@ -148,14 +197,19 @@
       "id": 9,
       "properties": [
         {
-          "name": "piece",
-          "type": "string",
-          "value": "pillar"
-        },
-        {
           "name": "collides",
           "type": "bool",
           "value": true
+        },
+        {
+          "name": "mask",
+          "type": "int",
+          "value": 9
+        },
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "N--O"
         }
       ]
     },
@@ -163,14 +217,19 @@
       "id": 10,
       "properties": [
         {
-          "name": "piece",
-          "type": "string",
-          "value": "wall_v_long"
-        },
-        {
           "name": "collides",
           "type": "bool",
           "value": true
+        },
+        {
+          "name": "mask",
+          "type": "int",
+          "value": 10
+        },
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "-E-O"
         }
       ]
     },
@@ -178,14 +237,19 @@
       "id": 11,
       "properties": [
         {
-          "name": "piece",
-          "type": "string",
-          "value": "wall_low"
-        },
-        {
           "name": "collides",
           "type": "bool",
           "value": true
+        },
+        {
+          "name": "mask",
+          "type": "int",
+          "value": 11
+        },
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "NE-O"
         }
       ]
     },
@@ -193,14 +257,19 @@
       "id": 12,
       "properties": [
         {
-          "name": "piece",
-          "type": "string",
-          "value": "wall_high"
-        },
-        {
           "name": "collides",
           "type": "bool",
           "value": true
+        },
+        {
+          "name": "mask",
+          "type": "int",
+          "value": 12
+        },
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "--SO"
         }
       ]
     },
@@ -208,9 +277,19 @@
       "id": 13,
       "properties": [
         {
+          "name": "collides",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "mask",
+          "type": "int",
+          "value": 13
+        },
+        {
           "name": "piece",
           "type": "string",
-          "value": "stairs"
+          "value": "N-SO"
         }
       ]
     },
@@ -218,9 +297,19 @@
       "id": 14,
       "properties": [
         {
+          "name": "collides",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "mask",
+          "type": "int",
+          "value": 14
+        },
+        {
           "name": "piece",
           "type": "string",
-          "value": "stairs"
+          "value": "-ESO"
         }
       ]
     },
@@ -228,9 +317,19 @@
       "id": 15,
       "properties": [
         {
+          "name": "collides",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "mask",
+          "type": "int",
+          "value": 15
+        },
+        {
           "name": "piece",
           "type": "string",
-          "value": "roof_persp"
+          "value": "NESO"
         }
       ]
     },
@@ -238,14 +337,14 @@
       "id": 16,
       "properties": [
         {
-          "name": "piece",
-          "type": "string",
-          "value": "pillar"
-        },
-        {
           "name": "collides",
           "type": "bool",
           "value": true
+        },
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "MACIZO --"
         }
       ]
     },
@@ -253,14 +352,14 @@
       "id": 17,
       "properties": [
         {
-          "name": "piece",
-          "type": "string",
-          "value": "wall_v_long"
-        },
-        {
           "name": "collides",
           "type": "bool",
           "value": true
+        },
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "MACIZO -S"
         }
       ]
     },
@@ -268,14 +367,14 @@
       "id": 18,
       "properties": [
         {
-          "name": "piece",
-          "type": "string",
-          "value": "corner_bl"
-        },
-        {
           "name": "collides",
           "type": "bool",
           "value": true
+        },
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "MACIZO N-"
         }
       ]
     },
@@ -283,14 +382,14 @@
       "id": 19,
       "properties": [
         {
-          "name": "piece",
-          "type": "string",
-          "value": "corner_br"
-        },
-        {
           "name": "collides",
           "type": "bool",
           "value": true
+        },
+        {
+          "name": "piece",
+          "type": "string",
+          "value": "MACIZO NS"
         }
       ]
     }

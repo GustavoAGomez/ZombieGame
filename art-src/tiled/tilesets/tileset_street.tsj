@@ -192,13 +192,13 @@
       "colors": [
         {
           "name": "asfalto",
-          "color": "#584f49",
+          "color": "#494b49",
           "probability": 1,
           "tile": -1
         },
         {
           "name": "acera",
-          "color": "#7f7869",
+          "color": "#807b6c",
           "probability": 1,
           "tile": -1
         }

@@ -117,6 +117,14 @@ describe('zones from regions', () => {
 describe('compileAsciiMap', () => {
   const tiny = compileAsciiMap(parseAsciiMap(TINY), tilesets, 'maps/src/tiny.txt');
 
+  it('fails when two terrains without a tileset touch, saying which and where', () => {
+    // A strip of lawn between the sidewalk and the road: grass touches asphalt.
+    const lines = TINY.split('\n');
+    const road = lines.findIndex((l) => /^a+$/.test(l));
+    lines[road - 1] = 'ssssggssssss';
+    expect(() => compileAsciiMap(parseAsciiMap(lines.join('\n')), tilesets, 't')).toThrow(new RegExp(`par sin tileset (asfalto↔césped|césped↔asfalto) en el vértice 5,${road}`));
+  });
+
   it('writes zones, doors, barricades with their spawns outside, and the player', () => {
     const objects = (tiny.layers.find((l) => l.name === 'objects') as { objects: { type?: string; name: string; x: number; y: number }[] }).objects;
     expect(objects.filter((o) => o.type === 'zone').map((o) => o.name)).toEqual(expect.arrayContaining(['a', 'b', 'fuera']));
@@ -187,15 +195,17 @@ describe('compileAsciiMap', () => {
       expect(tileProps(30, 2)).toMatchObject({ tileset: 'map_special', material: 'tierra' }); // the neighbour's dirt
       expect(tileProps(40, 29).tileset).toBe('floors_interior'); // the kitchen, above the hall's wall
       expect(tileProps(34, 41).tileset).toBe('floors_interior'); // D8, the front door
-      // A vertical wall is a strip in the middle of its cell: the salón floor on its left, the hall's on its right.
-      const floorGid = map.floor[31 * map.width + 32] ?? 0;
+      // A vertical wall is a strip in the middle of its cell: the library's wood on its left, the kitchen's linoleum on its right.
+      const floorGid = map.floor[21 * map.width + 32] ?? 0;
       const floors = map.tilesets.find((t) => t.name === 'floors_interior')!;
-      expect(floorGid - floors.firstGid).toBe(3); // wood, the salón's variant
-      const decorGid = map.decor[31 * map.width + 32] ?? 0;
+      expect(floorGid - floors.firstGid).toBe(1); // wood, clean variant
+      const decorGid = map.decor[21 * map.width + 32] ?? 0;
       const halves = tilesetForGid(map.tilesets, decorGid);
       expect(halves?.name).toBe('floor_halves');
       const half = raw.tilesets.find((t) => t.name === 'floor_halves')?.tiles?.find((d) => d.id === decorGid - (halves?.firstGid ?? 0));
-      expect(Object.fromEntries((half?.properties ?? []).map((q) => [q.name, q.value]))).toEqual({ tileset: 'floors_interior', tile: 0 });
+      expect(Object.fromEntries((half?.properties ?? []).map((q) => [q.name, q.value]))).toEqual({ tileset: 'floors_interior', tile: 6 }); // linoleum, clean
+      // Between two rooms of the same floor nothing is added.
+      expect(map.decor[31 * map.width + 32]).toBe(0);
     });
 
     it('puts every barricade spawn two tiles outside, where zombies come from', () => {
@@ -278,13 +288,14 @@ describe('decoration and props', () => {
     expect(map.decals.some((d) => d.flipX || d.flipY)).toBe(true);
   });
 
-  it('mixes a rare floor variant with "main+rare"', () => {
-    const compiled = compileAsciiMap(parseAsciiMap(WITH_PROPS.replace('| a | A | sí | sí | no | 1,1 | 0 |', '| a | A | sí | sí | no | 1,1 | 0+2 |')), tilesets, 't');
+  it('lays the clean variant of the floor with stained ones sprinkled, each tile in one of its four flips', () => {
+    const compiled = compileAsciiMap(parseAsciiMap(WITH_PROPS), tilesets, 't');
     const floor = layer(compiled, 'floor').data;
     const firstFloors = compiled.tilesets.find((t) => 'source' in t && t.source === 'tilesets/floors_interior.tsj')!.firstgid;
     const inA = [1, 2, 3, 4].flatMap((y) => [1, 2, 3, 4].map((x) => (floor[y * 12 + x] ?? 0) - firstFloors));
-    expect(new Set(inA).size).toBeGreaterThan(1);
-    expect(inA.every((v) => v === 0 || v === 2)).toBe(true);
+    // Wood: variant 1 (clean) or 2 (stained), in any flip (tile = flip × 16 + variant).
+    expect(inA.every((v) => [1, 2].includes(v % 16))).toBe(true);
+    expect(new Set(inA.map((v) => Math.floor(v / 16))).size).toBeGreaterThan(1);
   });
 });
 

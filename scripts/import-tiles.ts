@@ -3,27 +3,34 @@
  * art-src/pixellab/<group>/<group>.png (see that folder's README.md) into
  *   - clean sheets in public/assets/tiles/<tileset>.png, and
  *   - Tiled tilesets in art-src/tiled/tilesets/<tileset>.tsj
- *     (wangsets, collides / water / void / material / piece properties),
+ *     (wangsets, collides / water / void / material / mask properties),
  * and registers every tileset in public/assets/manifest.json.
- * Formats are measured on every run (docs/specs/02-mapa-mansion.md §1).
+ * Formats are measured on every run (docs/ASSETS.md §7); nothing assumes a
+ * grid or an order of the tiles. Review the result first with
+ * `npm run tiles:review` (contact sheets in maps/preview/tiles/).
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { detectPieces } from './lib/kit';
+import { floorCells } from './lib/floor-cells';
 import { decodePng, encodePng } from './lib/png';
-import { blank, cut, downscaleByMode, fillTransparent, opaqueBounds, paste, type Frame } from './lib/sheet';
+import { blank, cut, paste, type Frame } from './lib/sheet';
 import { prop, tileset, type Tsj } from './lib/tiled-tileset';
-import { cornerWangId, cornersOf, measureWangSheet } from './lib/wang';
+import { SOLID_BASE, STRIP, flipY, kitPieces, mirrorX, tileLabel, wallAutotile, wallParts } from './lib/wall-autotile';
+import { cornerWangId, cornersOf, measureWangSheet, orderTerrains, type TerrainRule } from './lib/wang';
 
 const TILE = 32;
 
-/** Terrain names in measured order: terrain 0 is the plain tile at (0,3). */
-export const WANG_SETS = [
-  { group: 'tileset_street', terrains: ['asfalto', 'acera'] as const, water: -1 },
-  { group: 'tileset_pool', terrains: ['agua', 'cubierta'] as const, water: 0 },
-  { group: 'tileset_garden', terrains: ['patio', 'cesped'] as const, water: -1 },
-] as const;
+/**
+ * Terrain 0 and 1 of each Wang tileset, told apart by colour (the corners
+ * are measured without assuming the order of the tiles): asphalt and water
+ * are the darker terrain, the grey patio the less saturated one.
+ */
+export const WANG_SETS: readonly { group: string; terrains: readonly [string, string]; first: TerrainRule; water: number }[] = [
+  { group: 'tileset_street', terrains: ['asfalto', 'acera'], first: 'darker', water: -1 },
+  { group: 'tileset_pool', terrains: ['agua', 'cubierta'], first: 'darker', water: 0 },
+  { group: 'tileset_garden', terrains: ['patio', 'cesped'], first: 'lessSaturated', water: -1 },
+];
 
 /** Tiles with at least this many water corners block bodies (but not bullets). */
 export const WATER_MIN_CORNERS = 2;
@@ -31,36 +38,12 @@ export const WATER_MIN_CORNERS = 2;
 export const FLOOR_MATERIALS = ['madera', 'linoleo', 'bano', 'hormigon'] as const;
 
 export const KITS = ['kit_interior', 'kit_exterior', 'kit_basement', 'kit_fence'] as const;
-export const KIT_CELL = { width: 32, height: 48, columns: 5 } as const;
-
-/** Role of each piece in reading order (the four kits share this template). */
-export const KIT_PIECES: readonly { piece: string; collides: boolean }[] = [
-  { piece: 'floor_persp', collides: false },
-  { piece: 'wall_h', collides: true },
-  { piece: 'wall_v_long', collides: true },
-  { piece: 'wall_v_end', collides: true },
-  { piece: 'wall_v', collides: true },
-  { piece: 'door_jamb', collides: true },
-  { piece: 'pillar', collides: true },
-  { piece: 'corner_tl', collides: true },
-  { piece: 'corner_tr', collides: true },
-  { piece: 'pillar', collides: true },
-  { piece: 'wall_v_long', collides: true },
-  { piece: 'wall_low', collides: true },
-  { piece: 'wall_high', collides: true },
-  { piece: 'stairs', collides: false },
-  { piece: 'stairs', collides: false },
-  { piece: 'roof_persp', collides: false },
-  { piece: 'pillar', collides: true },
-  { piece: 'wall_v_long', collides: true },
-  { piece: 'corner_bl', collides: true },
-  { piece: 'corner_br', collides: true },
-];
-
 export const DECALS = ['decals_asphalt', 'decals_grass'] as const;
 
-/** Grid of the floors and decals sheets: cells of 48 px with 1 px gaps. */
+/** Grid of the decals sheets: cells of 48 px with 1 px gaps. */
 const GRID48 = { cell: 48, pitch: 49, columns: 4, rows: 4 } as const;
+/** Columns of the generated sheets of 16 tiles (wall autotile, floors). */
+const SHEET_COLUMNS = 4;
 
 interface Paths {
   root: string;
@@ -107,7 +90,7 @@ export interface ImportedTileset {
 function importWang(p: Paths, set: (typeof WANG_SETS)[number], log: (l: string) => void): ImportedTileset {
   const img = readFrame(p.source(set.group));
   if (img.width % TILE || img.height % TILE) throw new Error(`${set.group}: ${img.width}×${img.height} no es múltiplo de ${TILE}`);
-  const m = measureWangSheet(img, TILE);
+  const m = orderTerrains(measureWangSheet(img, TILE), set.first);
   if (m.missing.length > 0) throw new Error(`${set.group}: faltan combinaciones de esquinas ${m.missing.join(', ')}`);
   writeSheet(p, set.group, img);
   const tsj = tileset(set.group, imagePath(p, set.group), img.width, img.height, TILE, TILE);
@@ -131,63 +114,56 @@ function importWang(p: Paths, set: (typeof WANG_SETS)[number], log: (l: string) 
   return { name: set.group, tileWidth: TILE, tileHeight: TILE };
 }
 
+/** Flipped copies of the floors, in this order after the originals (floors have no front face). */
+export const FLOOR_FLIPS = ['none', 'x', 'y', 'xy'] as const;
+
+/**
+ * floors_interior: one cell per connected blob of the irregular export,
+ * without its dark outline, scaled to 32×32 (docs/ASSETS.md §7.4). The 16
+ * tiles come four times: as they are, mirrored horizontally, vertically
+ * and both (tile id = flip × 16 + row × 4 + variant). The compiler picks a
+ * flip at random so a mark never repeats in a grid; the copies are baked
+ * because Phaser 4's tilemap layers draw flipped tiles black.
+ */
 function importFloors(p: Paths, log: (l: string) => void): ImportedTileset {
   const name = 'floors_interior';
-  const img = readFrame(p.source(name));
-  const out = blank(GRID48.columns * TILE, GRID48.rows * TILE);
-  let filled = 0;
-  let cropped = 0;
-  for (let row = 0; row < GRID48.rows; row++) {
-    for (let col = 0; col < GRID48.columns; col++) {
-      let cell = cut(img, col * GRID48.pitch, row * GRID48.pitch, GRID48.cell, GRID48.cell);
-      // Some cells come smaller than the grid (transparent margins): use just their content.
-      const b = opaqueBounds(cell);
-      if (b && (b.maxX - b.minX + 1 < GRID48.cell || b.maxY - b.minY + 1 < GRID48.cell)) {
-        cell = cut(cell, b.minX, b.minY, b.maxX - b.minX + 1, b.maxY - b.minY + 1);
-        cropped++;
-      }
-      filled += fillTransparent(cell);
-      paste(out, downscaleByMode(cell, TILE, TILE), col * TILE, row * TILE);
-    }
-  }
+  const cells = floorCells(readFrame(p.source(name)));
+  const tiles = FLOOR_FLIPS.flatMap((flip) =>
+    cells.map((c) => (flip === 'x' ? mirrorX(c.tile) : flip === 'y' ? flipY(c.tile) : flip === 'xy' ? flipY(mirrorX(c.tile)) : c.tile)),
+  );
+  const out = blank(SHEET_COLUMNS * TILE, Math.ceil(tiles.length / SHEET_COLUMNS) * TILE);
+  tiles.forEach((t, i) => paste(out, t, (i % SHEET_COLUMNS) * TILE, Math.floor(i / SHEET_COLUMNS) * TILE));
   writeSheet(p, name, out);
   const tsj = tileset(name, imagePath(p, name), out.width, out.height, TILE, TILE);
-  tsj.tiles = Array.from({ length: 16 }, (_, id) => ({ id, properties: [prop('material', FLOOR_MATERIALS[Math.floor(id / 4)] ?? 'madera')] }));
+  tsj.tiles = tiles.map((_, id) => ({
+    id,
+    properties: [prop('material', FLOOR_MATERIALS[Math.floor((id % cells.length) / 4)] ?? 'madera'), prop('flip', FLOOR_FLIPS[Math.floor(id / cells.length)] ?? 'none')],
+  }));
   writeTsj(p, tsj);
-  log(
-    `  ⚠ ${name}: celdas de ${GRID48.cell}×${GRID48.cell} reducidas a ${TILE}×${TILE} (provisional)` +
-      `${cropped ? `; ${cropped} celdas más pequeñas que la rejilla, recortadas a su contenido` : ''}` +
-      `${filled ? `; ${filled} píxeles transparentes rellenados` : ''}`,
-  );
+  const short = cells.filter((c) => c.kept.width < 46).length;
+  log(`  ✓ ${name}: ${cells.length} celdas por componentes conexos, sin contorno, a ${TILE}×${TILE}${short ? ` (${short} celdas recortadas en el export)` : ''}`);
   return { name, tileWidth: TILE, tileHeight: TILE };
 }
 
+/**
+ * A Building kit as a wall autotile of 32×32 tiles, composed from the kit's
+ * pieces with the 3/4 perspective rules (docs/ASSETS.md §7.2): tiles 0–15
+ * by mask of wall neighbours (N=1, E=2, S=4, W=8), 16–19 the solid tiles
+ * of thick walls.
+ */
 function importKit(p: Paths, name: string, log: (l: string) => void): ImportedTileset {
-  const img = readFrame(p.source(name));
-  const pieces = detectPieces(img, TILE);
-  if (pieces.length !== KIT_PIECES.length) {
-    throw new Error(`${name}: ${pieces.length} piezas detectadas, se esperaban ${KIT_PIECES.length} (plantilla de los kits)`);
-  }
-  const rows = Math.ceil(pieces.length / KIT_CELL.columns);
-  const out = blank(KIT_CELL.columns * KIT_CELL.width, rows * KIT_CELL.height);
-  for (const piece of pieces) {
-    const col = piece.index % KIT_CELL.columns;
-    const row = Math.floor(piece.index / KIT_CELL.columns);
-    // Bottom-aligned in its cell, keeping its place inside the column (flush left or centred).
-    const x = col * KIT_CELL.width + Math.min(piece.columnOffset, KIT_CELL.width - piece.width);
-    const y = row * KIT_CELL.height + KIT_CELL.height - piece.height;
-    paste(out, cut(img, piece.x, piece.y, piece.width, piece.height), x, y);
-  }
+  const tiles = wallAutotile(wallParts(kitPieces(readFrame(p.source(name)), name)));
+  const out = blank(SHEET_COLUMNS * TILE, Math.ceil(tiles.length / SHEET_COLUMNS) * TILE);
+  tiles.forEach((t, mask) => paste(out, t, (mask % SHEET_COLUMNS) * TILE, Math.floor(mask / SHEET_COLUMNS) * TILE));
   writeSheet(p, name, out);
-  const tsj = tileset(name, imagePath(p, name), out.width, out.height, KIT_CELL.width, KIT_CELL.height);
-  tsj.objectalignment = 'bottomleft';
-  tsj.tiles = KIT_PIECES.map((role, id) => ({
+  const tsj = tileset(name, imagePath(p, name), out.width, out.height, TILE, TILE);
+  tsj.tiles = tiles.map((_, id) => ({
     id,
-    properties: [prop('piece', role.piece), ...(role.collides ? [prop('collides', true)] : [])],
+    properties: [prop('collides', true), ...(id < SOLID_BASE ? [prop('mask', id)] : []), prop('piece', tileLabel(id))],
   }));
   writeTsj(p, tsj);
-  log(`  ✓ ${name}: ${pieces.length} piezas por caja delimitadora → celdas de ${KIT_CELL.width}×${KIT_CELL.height}`);
-  return { name, tileWidth: KIT_CELL.width, tileHeight: KIT_CELL.height };
+  log(`  ✓ ${name}: 20 piezas por componentes conexos → autotile de 16 casos + ${tiles.length - SOLID_BASE} de muro grueso, de ${TILE}×${TILE}`);
+  return { name, tileWidth: TILE, tileHeight: TILE };
 }
 
 function importDecals(p: Paths, name: string, log: (l: string) => void): ImportedTileset {
@@ -352,8 +328,8 @@ function importInteriorDecals(p: Paths, log: (l: string) => void): ImportedTiles
 export const SHADOW = { top: 0, left: 1, both: 2, corner: 3, wallV: 4 } as const;
 const SHADOW_SIZE = 6;
 const SHADOW_ALPHA = 110;
-/** Right edge (px) of the vertical wall pieces of every kit: a 12 px strip at x 10..21 of their cell. */
-const WALL_V_STRIP_RIGHT = 21;
+/** Right edge (px) of the top edge of a vertical wall in the autotile. */
+const WALL_V_STRIP_RIGHT = STRIP.x + STRIP.width - 1;
 
 function importShadows(p: Paths, log: (l: string) => void): ImportedTileset {
   const name = 'map_shadows';
@@ -395,7 +371,9 @@ function importFloorHalves(p: Paths, log: (l: string) => void): ImportedTileset 
     const plain = new Set(
       (wang?.wangtiles ?? []).filter(({ wangid }) => [3, 5, 7].every((i) => wangid[i] === wangid[1])).map((t) => t.tileid),
     );
-    for (let tile = 0; tile < tsj.tilecount; tile++) {
+    // Floors: the originals only (the flipped copies are never under a wall).
+    const count = source === 'floors_interior' ? 16 : tsj.tilecount;
+    for (let tile = 0; tile < count; tile++) {
       if (wang && !plain.has(tile)) continue;
       const x = (tile % tsj.columns) * TILE;
       const y = Math.floor(tile / tsj.columns) * TILE;

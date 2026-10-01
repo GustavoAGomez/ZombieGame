@@ -12,14 +12,36 @@ describe('floorVariants', () => {
     expect(main).toBeLessThan(0.9);
   });
 
-  it('never puts the same rare variant on two neighbouring tiles', () => {
+  it('never puts the same rare variant on two touching tiles, diagonals included', () => {
     for (let y = 0; y < H; y++) {
       for (let x = 0; x < W; x++) {
         if (v[y * W + x] !== 2) continue;
-        if (x > 0) expect(v[y * W + x - 1]).not.toBe(2);
-        if (y > 0) expect(v[(y - 1) * W + x]).not.toBe(2);
+        for (const [dx, dy] of [[-1, 0], [-1, -1], [0, -1], [1, -1]] as const) {
+          const nx = x + dx;
+          const ny = y + dy;
+          if (nx >= 0 && ny >= 0 && nx < W) expect(v[ny * W + nx]).not.toBe(2);
+        }
       }
     }
+  });
+
+  it('spreads the rare variants evenly, without dense patches', () => {
+    // Every 8×8 block holds some rare tiles and never more than half.
+    for (let by = 0; by < H; by += 8) {
+      for (let bx = 0; bx < W; bx += 8) {
+        let rare = 0;
+        for (let y = by; y < by + 8; y++) for (let x = bx; x < bx + 8; x++) if (v[y * W + x] !== 0) rare++;
+        expect(rare).toBeGreaterThan(2);
+        expect(rare).toBeLessThan(32);
+      }
+    }
+  });
+
+  it('keeps the main variant near 70 % when there are several rare variants to alternate', () => {
+    const several = floorVariants(W, H, () => true, () => ({ main: 2, rares: [0, 1, 3] }));
+    const main = [...several].filter((x) => x === 2).length / several.length;
+    expect(main).toBeGreaterThan(0.64);
+    expect(main).toBeLessThan(0.76);
   });
 
   it('leaves non-floor cells alone and keeps a single variant without rares', () => {

@@ -32,13 +32,19 @@ describe('importTiles (end to end on a copy of the repo)', () => {
     expect(water).toEqual([1, 3, 4, 5, 6, 7, 8, 9, 11, 13, 14, 15]);
     expect(pool.image).toBe('../../../public/assets/tiles/tileset_pool.png');
 
+    // Kits: a wall autotile of 32×32 tiles, id = mask of neighbours for 0–15, then 4 solid tiles of thick walls.
     const kit = tsj('kit_interior');
-    expect([kit.tilewidth, kit.tileheight, kit.tilecount]).toEqual([32, 48, 20]);
-    expect(kit.tiles?.[1]?.properties).toContainEqual({ name: 'collides', type: 'bool', value: true });
+    expect([kit.tilewidth, kit.tileheight, kit.tilecount]).toEqual([32, 32, 20]);
+    expect(kit.tiles?.[5]?.properties).toContainEqual({ name: 'collides', type: 'bool', value: true });
+    expect(kit.tiles?.[5]?.properties).toContainEqual({ name: 'mask', type: 'int', value: 5 });
     expect(tsj('map_special').tiles?.[0]?.properties).toContainEqual({ name: 'void', type: 'bool', value: true });
 
+    // Floors: 16 tiles, then the same mirrored horizontally, vertically and both.
     const floors = decodePng(readFileSync(join(tmp, 'public/assets/tiles/floors_interior.png')));
-    expect([floors.width, floors.height]).toEqual([128, 128]);
+    expect([floors.width, floors.height]).toEqual([128, 512]);
+    const px = (x: number, y: number) => [...floors.pixels.subarray((y * floors.width + x) * 4, (y * floors.width + x) * 4 + 4)];
+    expect(px(31 - 3, 128 + 5)).toEqual(px(3, 5)); // tile 16 = tile 0 mirrored
+    expect(px(3, 256 + 31 - 5)).toEqual(px(3, 5)); // tile 32 = tile 0 flipped vertically
     // No transparent pixels left in the floors.
     expect(floors.pixels.some((v, i) => i % 4 === 3 && v === 0)).toBe(false);
     expect(existsSync(join(tmp, 'public/assets/tiles/decals_grass.png'))).toBe(true);
@@ -56,7 +62,7 @@ describe('importTiles (end to end on a copy of the repo)', () => {
     expect([alphaAt(5, 10), alphaAt(25, 10)]).toEqual([0, 255]);
 
     const manifest = JSON.parse(readFileSync(join(tmp, 'public/assets/manifest.json'), 'utf8')) as { tilesets: Record<string, unknown> };
-    expect(manifest.tilesets.kit_fence).toEqual({ file: 'tiles/kit_fence.png', tileWidth: 32, tileHeight: 48 });
+    expect(manifest.tilesets.kit_fence).toEqual({ file: 'tiles/kit_fence.png', tileWidth: 32, tileHeight: 32 });
     expect(checkAssets(tmp).errors).toEqual([]);
   });
 });

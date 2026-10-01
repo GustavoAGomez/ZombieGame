@@ -285,3 +285,25 @@ Registro de lo que la spec no definía (o definía de forma ambigua) y cómo se 
 - **Sombra por un solo lado:** la luz viene de arriba a la izquierda, así que una pared vertical sombrea solo el suelo a la derecha de su franja, dentro de su propia casilla (nuevo tile `wallV` de `map_shadows`). Ya no proyecta la banda en la casilla de al lado, que quedaba separada de la pared. Las horizontales siguen sombreando la casilla de abajo.
 - **Capa `decor` entre el suelo y las sombras** (`DEPTH.floorDetail`), para que la sombra caiga también sobre la media baldosa. Hasta ahora estaba vacía.
 - **Zombies en la oscuridad:** no se dibujan mientras pisan una casilla a oscuras (aparecen y desaparecen en 150 ms). Se ven mientras están en una ventana, rompiendo tablones o trepando, y entonces se dibujan por encima de la oscuridad (`DEPTH.actorsOverFog`, aún ordenados por altura y por debajo de las balas), porque el jugador tiene que ver qué rompe la barricada. Antes la niebla tapaba casi todo su cuerpo y solo asomaba la cabeza por encima de la pared. Un zombie que muere conserva lo que tenía, así que su animación de muerte en la ventana se ve. Los zombies solo van a ventanas de zonas desbloqueadas, y esas ventanas siempre se ven.
+
+## Importación de kits, Wang y suelos rehecha
+
+- **Kits sin rejilla.** Las piezas se extraen por componentes conexos del canal alfa; los cuatro kits comparten una plantilla de 20 piezas, clasificada mirando las hojas de contactos (`npm run tiles:review`, nuevo) y comprobada en cada importación por número y tamaño. La clasificación está en `docs/ASSETS.md` §7.2.
+- **Autotile de paredes de 16 casos** (máscara N/E/S/O) en tiles de 32×32, con las reglas de la 3/4. Una pared horizontal muestra su cara al sur; las demás, solo el borde superior. El espejo horizontal está siempre permitido, y rotar o voltear en vertical solo en partes sin cara.
+- **Lo que no se usa del kit:** las esquinas de PixelLab dibujan la pata vertical como cara, así que no se usan; las uniones en T, el cruce y las esquinas se componen.
+- **Ya no hay paredes de 1,5 tiles:** las paredes caben en su casilla y no asoman sobre la de arriba.
+- **Muros gruesos: 4 tiles más.** Toda pared dentro de un cuadrado de 2×2 paredes usa un tile macizo (borde superior ancho de la pieza #11 y cara solo al sur). Con solo 16 casos, la chimenea y la columna del salón, el muro doble de la fachada, el cobertizo y las chimeneas de la azotea salían como una escalera de bandas.
+- **Wang sin suponer el orden.** Los dos terrenos puros son los dos tiles de colores medios más lejanos, y cada esquina se compara con ellos. Se afina con 2-medias porque la tierra del bordillo está casi a la misma distancia del asfalto que de la acera. Los terrenos se nombran por color.
+- **Terreno por vértices.** Mapa de (ancho+1)×(alto+1) vértices; cada tile se elige por sus 4 esquinas. Pares con transición: acera↔asfalto, cubierta↔agua y patio↔césped; además acera↔césped y cubierta↔césped con el tileset del jardín, la acera y la cubierta haciendo de patio. Cualquier otro par hace fallar a `map:build` con el par y el vértice. El umbral de cada par es una proporción de las casillas de terreno del vértice, para que valga igual en el borde del mapa.
+- **Plano de la mansión** (decidido con el usuario):
+  - la terraza de patio que llevaba a la piscina pasa a ser cubierta;
+  - el porche, el camino de entrada y el de coches pasan a ser acera, porque patio↔acera y cubierta↔patio no tienen tileset;
+  - el patio queda para el jardín trasero.
+- **No existe `tileset_asphalt_grass`:** no hay bordes de calzada rota.
+- **Suelos sin cuadrícula.** El export de suelos no es una rejilla regular, y el corte a paso fijo metía en cada baldosa el contorno oscuro de la celda. Ahora cada celda se detecta como pieza, se recorta su contorno y se escala su mayor cuadrado centrado. Completar con espejo las celdas cortas dejaba simetrías repetidas.
+- **Variantes por material, no por zona** (decidido con el usuario):
+  - cada suelo usa su variante limpia al 70 % y las manchadas como raras, repartidas por igual y nunca dos iguales juntas, tampoco en diagonal;
+  - las rayadas no se usan; toda la madera pasa a ser la clara;
+  - la columna `suelo` de la tabla de zonas desaparece;
+  - las raras ya no se agrupan con ruido: en las manchas densas caían una sí y otra no, y formaban un tablero.
+- **Volteos de suelo guardados en el tileset** (64 tiles). Cada baldosa va en un volteo al azar para que ninguna marca se repita en cuadrícula. Phaser 4 dibuja en negro los tiles de una capa con `flipX`/`flipY`, así que los volteos se guardan en el tileset y no se hacen en tiempo de ejecución.

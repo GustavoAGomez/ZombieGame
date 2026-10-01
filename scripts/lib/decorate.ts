@@ -79,10 +79,12 @@ export function valueNoise(x: number, y: number, cell: number, salt: number): nu
 }
 
 /**
- * Variant per tile: `main` about 70 % of the time, otherwise one of
- * `rares`, but never the same rare variant on two neighbouring tiles. Rare
- * tiles gather where a smooth noise is high (worn patches) instead of an
- * even sprinkle, which would read as a polka-dot pattern.
+ * Variant per tile: `main` (the clean variant) about 70 % of the time,
+ * otherwise one of `rares` (the stained ones), never the same rare variant
+ * on two touching tiles, diagonals included. Rares are spread evenly: the
+ * worn patches of an earlier version packed them every other tile and drew
+ * a checkerboard. With a single rare variant the spacing leaves the main
+ * variant at about 75–80 %.
  */
 export function floorVariants(
   width: number,
@@ -91,16 +93,17 @@ export function floorVariants(
   variantsAt: (x: number, y: number) => { main: number; rares: readonly number[] },
 ): Int8Array {
   const out = new Int8Array(width * height).fill(-1);
+  const placed = (x: number, y: number): number => (x >= 0 && y >= 0 && x < width && y < height ? (out[y * width + x] ?? -1) : -1);
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       if (!isFloor(x, y)) continue;
       const { main, rares } = variantsAt(x, y);
       let v = main;
-      const wear = valueNoise(x, y, 5, 17); // mean 0.5: keeps the 30 % share on average
-      if (rares.length > 0 && hash(x, y, 7) < (1 - MAIN_VARIANT_SHARE) * 2 * wear) {
-        const rare = rares[Math.floor(hash(x, y, 11) * rares.length)] ?? main;
-        const around = [out[y * width + x - 1], out[(y - 1) * width + x], out[(y - 1) * width + x - 1], out[(y - 1) * width + x + 1]];
-        if (!around.includes(rare)) v = rare;
+      if (rares.length > 0 && hash(x, y, 7) < 1 - MAIN_VARIANT_SHARE) {
+        // The neighbours placed so far: west and the three above.
+        const around = [placed(x - 1, y), placed(x - 1, y - 1), placed(x, y - 1), placed(x + 1, y - 1)];
+        const free = rares.filter((r) => !around.includes(r));
+        if (free.length > 0) v = free[Math.floor(hash(x, y, 11) * free.length)] ?? main;
       }
       out[y * width + x] = v;
     }

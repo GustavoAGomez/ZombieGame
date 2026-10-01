@@ -236,22 +236,22 @@
     "kit_interior": {
       "file": "tiles/kit_interior.png",
       "tileWidth": 32,
-      "tileHeight": 48
+      "tileHeight": 32
     },
     "kit_exterior": {
       "file": "tiles/kit_exterior.png",
       "tileWidth": 32,
-      "tileHeight": 48
+      "tileHeight": 32
     },
     "kit_basement": {
       "file": "tiles/kit_basement.png",
       "tileWidth": 32,
-      "tileHeight": 48
+      "tileHeight": 32
     },
     "kit_fence": {
       "file": "tiles/kit_fence.png",
       "tileWidth": 32,
-      "tileHeight": 48
+      "tileHeight": 32
     },
     "decals_asphalt": {
       "file": "tiles/decals_asphalt.png",

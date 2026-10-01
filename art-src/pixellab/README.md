@@ -30,16 +30,16 @@ su caja delimitadora sobre el fondo transparente.
 
 ## Formato medido de estos PNG (1 de octubre de 2026)
 
-Medido píxel a píxel por `npm run tiles:import` y documentado en `docs/ASSETS.md` §7. **No todos son de 32×32**; el importador los normaliza de forma provisional y avisa, hasta que haya exports a 32×32:
+Medido píxel a píxel por `npm run tiles:import` (y revisado con las hojas de `npm run tiles:review` en `maps/preview/tiles/`). Detalle en `docs/ASSETS.md` §7. Nada se corta por rejilla ni se supone el orden de los tiles:
 
-| Grupo | Rejilla medida | Normalización provisional |
+| Grupo | Formato medido | Importación |
 |---|---|---|
-| tileset_street, tileset_pool, tileset_garden | Lámina de 160×128 = **5×4 celdas de 32×32** sin separación; 17 tiles y 3 celdas vacías | Ninguna: la lámina se usa tal cual como tileset |
-| floors_interior | 4×4 celdas de **48×48** con 1 px de separación; la 4.ª columna y la 4.ª fila tienen márgenes transparentes | Reducir a 32×32 con el color dominante de cada bloque |
-| decals_asphalt, decals_grass | 4×4 celdas de 48×48 con transparencia | Ninguna: se colocan como objetos libres |
-| kit_* | 20 piezas detectadas por caja delimitadora, de hasta 32×37 (paredes en 3/4); el suelo y el tejado miden 32×19 | Paredes en celdas de 32×48 alineadas abajo |
+| tileset_street, tileset_pool, tileset_garden | Lámina de 160×128 = 5×4 celdas de 32×32; 17 tiles (las 16 combinaciones + una repetida) y 3 celdas vacías | Tal cual. Las esquinas de cada tile se miden comparando sus parches con los colores medios de los dos terrenos puros (§7.3) |
+| floors_interior | 4×4 celdas de unos 48 px, irregulares: separaciones de 1 a 6 px, la última columna (37 px) y la última fila (34 px) recortadas, y contornos oscuros en algunos lados | Una celda por componente conexo, sin contorno, y el mayor cuadrado centrado a 32×32; más sus 3 volteos (§7.4) |
+| decals_asphalt, decals_grass | 4×4 celdas de 48×48 con transparencia | Objetos libres |
+| kit_* | 20 piezas de distinto tamaño (hasta 32×37) por componentes conexos, la misma plantilla en los cuatro kits | Autotile de paredes de 32×32: 16 casos por máscara de vecinos y 4 de muro grueso (§7.2). Las piezas sueltas quedan en `<kit>/pieces/` |
 
-**Esquinas de los tilesets Wang** (verificado abriendo los tres PNG: los tres tienen la misma disposición y las 16 combinaciones). Por celda (columna, fila), las esquinas NO NE / SO SE, con 0 = el terreno de la celda (0,3) y 1 = el de la celda (1,3):
+**Esquinas de los tilesets Wang** (las mide el importador en cada ejecución; los tres tienen la misma disposición y las 16 combinaciones). Por celda (columna, fila), las esquinas NO NE / SO SE, con 0 = asfalto, agua o patio, y 1 = acera, cubierta o césped:
 
 ```
         col 0    col 1    col 2    col 3    col 4
@@ -49,6 +49,5 @@ fila 2  10/11    00/11    01/11    01/10    10/01
 fila 3  00/00    11/11    (vacía)  (vacía)  (vacía)
 ```
 
-- El tile "todo 0" aparece dos veces: en (1,1), centro del bloque 3×3, y en (0,3).
-- **Terreno 0 / 1 medido:** tileset_street = asfalto / acera; tileset_pool = agua / cubierta.
-- **tileset_garden = patio / césped**, al revés de lo que dice la lista de arriba (en el PNG, el patio es el terreno de dentro del bloque 3×3). No afecta al juego: los dos son transitables.
+- El tile "todo 0" aparece dos veces: en (1,1) y en (0,3).
+- Los terrenos se nombran por color: el asfalto y el agua son los más oscuros; el patio, el menos saturado. En el PNG del jardín el patio es el terreno de dentro del bloque 3×3, al revés de lo que dice la lista de arriba.

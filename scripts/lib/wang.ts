@@ -16,8 +16,10 @@ export interface WangTile {
 
 export interface WangMeasurement {
   tiles: WangTile[];
-  /** Average colour of terrain 0 and terrain 1, as '#rrggbb'. */
+  /** Average colour of the plain tiles of terrain 0 and of terrain 1, as '#rrggbb'. */
   colors: [string, string];
+  /** Ids of the plain tiles (four equal corners) of terrain 0 and of terrain 1. */
+  plain: [number[], number[]];
   /** Corner codes ("NWNESWSE") missing from the sheet; empty when complete. */
   missing: string[];
 }
@@ -42,6 +44,10 @@ function meanColor(img: Frame, x0: number, y0: number, w: number, h: number): RG
 
 const dist2 = (p: RGB, q: RGB): number => (p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2 + (p[2] - q[2]) ** 2;
 const hex = (c: RGB): string => `#${c.map((v) => Math.round(v).toString(16).padStart(2, '0')).join('')}`;
+const average = (colors: RGB[]): RGB => {
+  const n = Math.max(1, colors.length);
+  return [colors.reduce((s, c) => s + c[0], 0) / n, colors.reduce((s, c) => s + c[1], 0) / n, colors.reduce((s, c) => s + c[2], 0) / n];
+};
 
 function isEmptyCell(img: Frame, x0: number, y0: number, size: number): boolean {
   for (let y = y0; y < y0 + size; y++) {
@@ -51,26 +57,31 @@ function isEmptyCell(img: Frame, x0: number, y0: number, size: number): boolean 
 }
 
 /**
- * Classifies the 4 corner patches of every non-empty tile into two
- * terrains (2-means seeded with the given reference tiles, by default
- * the plain tiles at (0,3) and (1,3) of PixelLab's layout).
+ * Finds the terrain at the 4 corners of every non-empty tile without
+ * assuming any order of the tiles:
+ *   1. the two plain terrains are the two tiles whose average colours are
+ *      farthest apart (a transition tile is a mix of both, so it lies
+ *      between them);
+ *   2. a small patch is sampled at each corner of every tile and compared
+ *      with those two colours;
+ *   3. the comparison is refined by 2-means over all the corner patches,
+ *      starting from the plain colours: transition details that reach the
+ *      corner (the dirt along the street's kerb) join the terrain they
+ *      belong to instead of whichever plain colour happens to be nearer.
+ * Which terrain is "0" is arbitrary here: orderTerrains names them.
  */
-export function measureWangSheet(
-  img: Frame,
-  tileSize = 32,
-  seeds: { terrain0: [number, number]; terrain1: [number, number] } = { terrain0: [0, 3], terrain1: [1, 3] },
-): WangMeasurement {
+export function measureWangSheet(img: Frame, tileSize = 32): WangMeasurement {
   const cols = Math.floor(img.width / tileSize);
   const rows = Math.floor(img.height / tileSize);
   const patch = Math.max(3, Math.floor(tileSize / 6));
   const inset = 1;
+  const far = tileSize - inset - patch;
   const samples: { tile: WangTile; colors: RGB[] }[] = [];
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
       const x0 = col * tileSize;
       const y0 = row * tileSize;
       if (isEmptyCell(img, x0, y0, tileSize)) continue;
-      const far = tileSize - inset - patch;
       samples.push({
         tile: { id: row * cols + col, col, row, corners: [0, 0, 0, 0] },
         colors: [
@@ -82,28 +93,55 @@ export function measureWangSheet(
       });
     }
   }
-  const ref = (c: number, r: number): RGB => meanColor(img, c * tileSize + 2, r * tileSize + 2, tileSize - 4, tileSize - 4);
-  let a = ref(...seeds.terrain0);
-  let b = ref(...seeds.terrain1);
-  for (let iteration = 0; iteration < 4; iteration++) {
-    const sums: [RGB, RGB] = [[0, 0, 0], [0, 0, 0]];
-    const counts = [0, 0];
-    for (const s of samples) {
-      s.colors.forEach((c, k) => {
-        const t = dist2(c, a) <= dist2(c, b) ? 0 : 1;
-        s.tile.corners[k] = t;
-        sums[t][0] += c[0];
-        sums[t][1] += c[1];
-        sums[t][2] += c[2];
-        counts[t]!++;
-      });
-    }
-    if (counts[0]) a = [sums[0][0] / counts[0], sums[0][1] / counts[0], sums[0][2] / counts[0]];
-    if (counts[1]) b = [sums[1][0] / counts[1], sums[1][1] / counts[1], sums[1][2] / counts[1]];
+  const tileColor = (tile: WangTile): RGB => meanColor(img, tile.col * tileSize + 2, tile.row * tileSize + 2, tileSize - 4, tileSize - 4);
+  const tileColors = samples.map((s) => tileColor(s.tile));
+  let a: RGB = tileColors[0] ?? [0, 0, 0];
+  let b: RGB = a;
+  for (const p of tileColors) for (const q of tileColors) if (dist2(p, q) > dist2(a, b)) [a, b] = [p, q];
+  const classify = (): void => {
+    for (const s of samples) s.colors.forEach((c, k) => (s.tile.corners[k] = dist2(c, a) <= dist2(c, b) ? 0 : 1));
+  };
+  for (let iteration = 0; iteration < 6; iteration++) {
+    classify();
+    const groups: [RGB[], RGB[]] = [[], []];
+    for (const s of samples) s.colors.forEach((c, k) => groups[s.tile.corners[k] as 0 | 1].push(c));
+    if (groups[0].length) a = average(groups[0]);
+    if (groups[1].length) b = average(groups[1]);
   }
+  classify();
+  const plainOf = (t: number): WangTile[] => samples.map((s) => s.tile).filter((tile) => tile.corners.every((c) => c === t));
+  const plainColor = (t: number): RGB => average(plainOf(t).map(tileColor));
   const seen = new Set(samples.map((s) => s.tile.corners.join('')));
   const missing = Array.from({ length: 16 }, (_, i) => i.toString(2).padStart(4, '0')).filter((code) => !seen.has(code));
-  return { tiles: samples.map((s) => s.tile), colors: [hex(a), hex(b)], missing };
+  return {
+    tiles: samples.map((s) => s.tile),
+    colors: [hex(plainColor(0)), hex(plainColor(1))],
+    plain: [plainOf(0).map((t) => t.id), plainOf(1).map((t) => t.id)],
+    missing,
+  };
+}
+
+/** How a terrain is told from the other by its plain colour. */
+export type TerrainRule = 'darker' | 'lessSaturated';
+
+const rgbOf = (color: string): RGB => [1, 3, 5].map((i) => Number.parseInt(color.slice(i, i + 2), 16)) as RGB;
+const luma = ([r, g, b]: RGB): number => 0.3 * r + 0.59 * g + 0.11 * b;
+const saturation = (c: RGB): number => Math.max(...c) - Math.min(...c);
+
+/**
+ * Renumbers the terrains so that terrain 0 is the one the rule picks
+ * (the darker: asphalt, water; the less saturated: the grey patio).
+ */
+export function orderTerrains(m: WangMeasurement, first: TerrainRule): WangMeasurement {
+  const [c0, c1] = m.colors.map(rgbOf) as [RGB, RGB];
+  const firstIsZero = first === 'darker' ? luma(c0) <= luma(c1) : saturation(c0) <= saturation(c1);
+  if (firstIsZero) return m;
+  return {
+    tiles: m.tiles.map((t) => ({ ...t, corners: t.corners.map((c) => 1 - c) as Corners })),
+    colors: [m.colors[1], m.colors[0]],
+    plain: [m.plain[1], m.plain[0]],
+    missing: m.missing.map((code) => [...code].map((c) => (c === '0' ? '1' : '0')).join('')),
+  };
 }
 
 /**

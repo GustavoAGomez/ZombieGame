@@ -252,13 +252,13 @@
       "colors": [
         {
           "name": "agua",
-          "color": "#2b452d",
+          "color": "#2d472f",
           "probability": 1,
           "tile": -1
         },
         {
           "name": "cubierta",
-          "color": "#948065",
+          "color": "#968367",
           "probability": 1,
           "tile": -1
         }

@@ -25,7 +25,8 @@ Juego móvil (iOS + Android) top-down shooter pixel art de supervivencia por ole
 | `npm run cap:ios` / `npm run cap:android` | Abren el proyecto nativo (Xcode / Android Studio) |
 | `npm run assets:import` | Importa exports crudos de PixelLab (ver `docs/ASSETS.md`) |
 | `npm run assets:check` | Valida tamaños, nombres, manifiesto y paleta |
-| `npm run tiles:import` | Importa los tilesets, kits y decals de PixelLab (spec 02) |
+| `npm run tiles:review` | Hojas de revisión de los kits, los Wang y los suelos en `maps/preview/tiles/` (ábrelas antes de importar) |
+| `npm run tiles:import` | Importa los tilesets, kits (autotile de paredes) y decals de PixelLab (spec 02, `docs/ASSETS.md` §7) |
 | `npm run map:build [mapa]` | Compila el plano ASCII `maps/src/<mapa>.txt` a `art-src/tiled/<mapa>.tmj` (sin pisar retoques hechos en Tiled salvo con `--force`), embebe los tilesets en `public/assets/maps/` y valida |
 | `npm run map:preview [mapa]` | Renderiza el mapa a PNG en `maps/preview/` (completo a 1:4, cada zona a 1:1 y el plano ASCII) |
 

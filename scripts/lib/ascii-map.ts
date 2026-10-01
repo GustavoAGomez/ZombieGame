@@ -18,7 +18,9 @@ import { BARRICADES } from '../../src/config/balance';
 import type { PortalKind } from '../../src/game/map/MapLoader';
 import type { TiledObject, TiledProperty, TiledSourceMap, TiledTileLayer } from '../../src/game/map/tiled';
 import { DECALS, SHADOW, floorVariants, placeDecals, shadowTile } from './decorate';
+import { PLAIN_TERRAIN, terrainTile, terrainVertices } from './terrain';
 import type { Tsj } from './tiled-tileset';
+import { E, SOLID_BASE, SOLID_NORTH_OPEN, SOLID_SOUTH_OPEN, W as WEST, solidCells, wallMask } from './wall-autotile';
 
 const TILE = 32;
 
@@ -51,22 +53,22 @@ export type Kit = 'kit_interior' | 'kit_exterior' | 'kit_basement' | 'kit_fence'
 
 /** Rows of floors_interior (4 variants each) per indoor character. */
 const FLOOR_ROW: Record<string, number> = { '.': 0, k: 1, b: 2, c: 3, r: 3 };
-const SPECIAL = { void: 0, ground: 1, dirt: 2 } as const;
-/** Kit pieces (template order, docs/specs/02-mapa-mansion.md §1.1). */
-const PIECE = { wallH: 1, wallHigh: 12, wallV: 17, pillar: 6 } as const;
-
 /**
- * Corner Wang sets: a vertex takes the inner terrain (index 0) when at least
- * `threshold` of the 4 tiles around it are inner. With 2 the outer tiles next
- * to the inner area become the transition (kerbs on the sidewalk side); with
- * 4 the transition falls on the inner tiles, so the pool's water stays
- * inside the `w` cells.
+ * Variants of each floors_interior row (docs/ASSETS.md §7.4): the clean one
+ * covers about 70 % of the floor and the stained ones are sprinkled, never
+ * two equal together. The scratched ones (dark and reddish wood, the other
+ * bathroom tiling) repeat their mark on every tile and are not used.
  */
-const WANG: readonly { tileset: TilesetName; chars: string; inner: string; threshold: number }[] = [
-  { tileset: 'tileset_street', chars: 'as', inner: 'a', threshold: 2 },
-  { tileset: 'tileset_garden', chars: 'gp', inner: 'p', threshold: 2 },
-  { tileset: 'tileset_pool', chars: 'we', inner: 'w', threshold: 4 },
-];
+export const FLOOR_VARIANTS: Readonly<Record<string, { clean: number; stained: readonly number[] }>> = {
+  '.': { clean: 1, stained: [2] },
+  k: { clean: 2, stained: [0, 1, 3] },
+  b: { clean: 0, stained: [2, 3] },
+  c: { clean: 2, stained: [0, 1, 3] },
+  r: { clean: 2, stained: [0, 1, 3] },
+};
+const SPECIAL = { void: 0, ground: 1, dirt: 2 } as const;
+/** floors_interior holds each tile 4 times: as it is and flipped horizontally, vertically and both. */
+const FLOOR_FLIPS = 4;
 
 export interface Cell {
   x: number;
@@ -80,10 +82,6 @@ export interface AsciiZone {
   interior: boolean;
   openSpawns: boolean;
   seed: Cell;
-  /** Column of floors_interior used for about 70 % of the zone's indoor floor… */
-  floorVariant: number;
-  /** …and the variants sprinkled over the rest ("0+2" in the table). */
-  floorRares: number[];
   /** Wall kit for the zone's walls instead of interior / exterior. */
   wallKit?: Kit;
 }
@@ -200,14 +198,6 @@ function parseCells(text: string, problems: string[], what: string): Cell[] {
   return cells;
 }
 
-/** "0+2+3" → main variant 0, rare variants 2 and 3; "—" or empty → 0. */
-function parseFloorVariants(text: string): { floorVariant: number; floorRares: number[] } {
-  const parts = text
-    .split('+')
-    .map((t) => Number.parseInt(t.trim(), 10))
-    .filter((n) => Number.isInteger(n) && n >= 0 && n < 4);
-  return { floorVariant: parts[0] ?? 0, floorRares: parts.slice(1) };
-}
 
 /** "x0,y0 x1,y1" is a rectangle (corners included); a single "x,y" is one tile. */
 function parseArea(text: string, problems: string[], what: string): Cell[] {
@@ -252,7 +242,6 @@ export function parseAsciiMap(text: string): AsciiMap {
       interior: yes(r.interior),
       openSpawns: yes(r['spawns abiertos']),
       seed,
-      ...parseFloorVariants(r.suelo ?? ''),
       ...(kit ? { wallKit: kit } : {}),
     };
   });
@@ -557,52 +546,12 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
     }
   }
 
-  // --- floor layer
-  const floor = new Array<number>(W * H).fill(0);
-  const variants = floorVariants(
-    W,
-    H,
-    (x, y) => g(x, y) in FLOOR_ROW,
-    (x, y) => {
-      const zone = map.zones[groundZone[y * W + x] ?? -1];
-      return { main: zone?.floorVariant ?? 0, rares: zone?.floorRares ?? [] };
-    },
-  );
-  const wangSet = (ch: string) => WANG.find((s) => s.chars.includes(ch));
-  const lookups = new Map(WANG.map((s) => [s.tileset, wangLookup(tilesets[s.tileset])]));
-  for (let y = 0; y < H; y++) {
-    for (let x = 0; x < W; x++) {
-      const ch = g(x, y);
-      const i = y * W + x;
-      const set = wangSet(ch);
-      if (set) {
-        const vertex = (vx: number, vy: number): number => {
-          let inner = 0;
-          for (const [tx, ty] of [
-            [vx - 1, vy - 1],
-            [vx, vy - 1],
-            [vx - 1, vy],
-            [vx, vy],
-          ] as const) {
-            if (set.inner.includes(g(tx, ty))) inner++;
-          }
-          return inner >= set.threshold ? 0 : 1;
-        };
-        const key = `${vertex(x, y)}${vertex(x + 1, y)}${vertex(x, y + 1)}${vertex(x + 1, y + 1)}`;
-        const ids = lookups.get(set.tileset)?.get(key);
-        if (!ids?.length) problems.push(`${set.tileset}: no hay tile con esquinas ${key} (${x},${y})`);
-        else floor[i] = firstGid[set.tileset] + (ids[hash(x, y) % ids.length] ?? 0);
-      } else if (ch in FLOOR_ROW) {
-        floor[i] = firstGid.floors_interior + (FLOOR_ROW[ch] ?? 0) * 4 + Math.max(0, variants[i] ?? 0);
-      } else if (ch === 'd') floor[i] = firstGid.map_special + SPECIAL.dirt;
-      else if (ch === 'wall') floor[i] = firstGid.map_special + SPECIAL.ground;
-      else if (ch === '_') floor[i] = firstGid.map_special + SPECIAL.void;
-    }
-  }
-
-  // --- walls layer: the piece depends on the neighbours (doors and windows continue the wall)
+  // --- walls: one tile of the autotile per wall, picked by its mask of neighbours (doors and
+  //     windows continue the wall; open gaps end it). A wall inside a 2×2 square of walls is thick:
+  //     it takes a solid tile, open to the north and the south where no wall continues.
   const walls = new Array<number>(W * H).fill(0);
   const wallish = (x: number, y: number): boolean => '#HFDW'.includes(at(x, y));
+  const isWall = (x: number, y: number): boolean => WALLS.includes(at(x, y));
   const kitOf = (x: number, y: number): Kit => {
     const ch = at(x, y);
     if (ch === 'F') return 'kit_fence';
@@ -614,54 +563,98 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
     }
     return ch === 'H' ? 'kit_exterior' : 'kit_interior';
   };
-  /** Vertical walls and pillars: a thin strip in the middle of their cell, with floor on both sides. */
-  const narrow = new Uint8Array(W * H);
-  /** Plain horizontal walls: their face fills the bottom of the cell and leaves floor showing above it. */
-  const low = new Uint8Array(W * H);
+  const masks = new Int8Array(W * H).fill(-1);
+  const solid = solidCells(W, H, isWall);
   for (let y = 0; y < H; y++) {
     for (let x = 0; x < W; x++) {
-      if (!WALLS.includes(at(x, y))) continue;
-      const horizontal = wallish(x - 1, y) || wallish(x + 1, y);
-      const vertical = wallish(x, y - 1) || wallish(x, y + 1);
-      let piece: number;
-      if (horizontal) piece = wallish(x, y - 1) ? PIECE.wallHigh : PIECE.wallH;
-      else if (vertical) piece = PIECE.wallV;
-      else piece = PIECE.pillar;
-      walls[y * W + x] = firstGid[kitOf(x, y)] + piece;
-      if (piece === PIECE.wallV || piece === PIECE.pillar) narrow[y * W + x] = 1;
-      else if (piece === PIECE.wallH) low[y * W + x] = 1;
+      if (!isWall(x, y)) continue;
+      const mask = wallMask(wallish, x, y);
+      masks[y * W + x] = mask;
+      const tile = solid[y * W + x]
+        ? SOLID_BASE + (wallish(x, y - 1) ? 0 : SOLID_NORTH_OPEN) + (wallish(x, y + 1) ? 0 : SOLID_SOUTH_OPEN)
+        : mask;
+      walls[y * W + x] = firstGid[kitOf(x, y)] + tile;
     }
   }
-  const narrowAt = (x: number, y: number): boolean => x >= 0 && y >= 0 && x < W && y < H && narrow[y * W + x] === 1;
+  const maskAt = (x: number, y: number): number => (x >= 0 && y >= 0 && x < W && y < H ? (masks[y * W + x] ?? -1) : -1);
+  const solidAt = (x: number, y: number): boolean => x >= 0 && y >= 0 && x < W && y < H && solid[y * W + x] === 1;
 
-  // --- floor around the wall art instead of dark ground. Under a narrow wall each side of the strip
-  //     shows the floor beside it: the floor layer carries the plain floor on the left and the decor
-  //     layer the right half of the one on the right. Above a horizontal face, the floor north of it.
+  // --- outdoor terrain by vertices: one terrain per vertex, each tile by its 4 corners
+  const terrain = terrainVertices(W, H, g);
+  problems.push(...terrain.errors);
+  const lookups = new Map((['tileset_street', 'tileset_pool', 'tileset_garden'] as const).map((name) => [name, wangLookup(tilesets[name])]));
+  const wangGid = (tileset: 'tileset_street' | 'tileset_pool' | 'tileset_garden', code: string, x: number, y: number): number => {
+    const ids = lookups.get(tileset)?.get(code);
+    if (!ids?.length) {
+      problems.push(`${tileset}: no hay tile con esquinas ${code} (${x},${y})`);
+      return 0;
+    }
+    return firstGid[tileset] + (ids[hash(x, y) % ids.length] ?? 0);
+  };
+
+  // --- floor layer. Interior floors: the clean variant of each material and stained ones sprinkled,
+  //     each tile in one of its flips at random (floors have no front face), so no mark repeats in a grid.
+  const floor = new Array<number>(W * H).fill(0);
+  const variants = floorVariants(
+    W,
+    H,
+    (x, y) => g(x, y) in FLOOR_ROW,
+    (x, y) => {
+      const v = FLOOR_VARIANTS[g(x, y)];
+      return { main: v?.clean ?? 0, rares: v?.stained ?? [] };
+    },
+  );
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const ch = g(x, y);
+      const i = y * W + x;
+      if (PLAIN_TERRAIN[ch]) {
+        const tile = terrainTile(terrain, x, y, ch);
+        if (typeof tile === 'string') problems.push(tile);
+        else floor[i] = wangGid(tile.tileset, tile.code, x, y);
+      } else if (ch in FLOOR_ROW) {
+        // One of the four baked flips of the tile (floors_interior: flip × 16 + row × 4 + variant).
+        const flip = (hash(x * 3 + 11, y * 7 + 5) >>> 11) % FLOOR_FLIPS;
+        floor[i] = firstGid.floors_interior + flip * 16 + (FLOOR_ROW[ch] ?? 0) * 4 + Math.max(0, variants[i] ?? 0);
+      } else if (ch === 'd') floor[i] = firstGid.map_special + SPECIAL.dirt;
+      else if (ch === 'wall') floor[i] = firstGid.map_special + SPECIAL.ground;
+      else if (ch === '_') floor[i] = firstGid.map_special + SPECIAL.void;
+    }
+  }
+
+  // --- floor around the wall art. A wall tile is transparent where the floor shows: west and east of
+  //     a vertical strip, north of a horizontal band. The floor layer carries the floor of the left
+  //     side and the decor layer the right half of the right side's floor (floor_halves).
   const decor = new Array<number>(W * H).fill(0);
   const tileProp = (t: { properties?: TiledProperty[] }, name: string): TiledProperty['value'] | undefined =>
     t.properties?.find((q) => q.name === name)?.value;
   const halves = new Map((tilesets.floor_halves.tiles ?? []).map((t) => [`${String(tileProp(t, 'tileset'))}:${String(tileProp(t, 'tile'))}`, t.id]));
-  const plainFloor = (x: number, y: number): { tileset: TilesetName; tile: number } => {
+  const plainFloor = (x: number, y: number): { tileset: TilesetName; tile: number } | undefined => {
     // Under a wall there is never water or void, which would change what the cell is.
     const ch = g(x, y) === 'w' ? 'e' : g(x, y);
-    const set = wangSet(ch);
-    if (set) return { tileset: set.tileset, tile: lookups.get(set.tileset)?.get(set.inner.includes(ch) ? '0000' : '1111')?.[0] ?? 0 };
-    if (ch in FLOOR_ROW) {
-      const zone = map.zones[groundZone[y * W + x] ?? -1];
-      return { tileset: 'floors_interior', tile: (FLOOR_ROW[ch] ?? 0) * 4 + (zone?.floorVariant ?? 0) };
-    }
+    const plain = PLAIN_TERRAIN[ch];
+    if (plain) return { tileset: plain.tileset, tile: lookups.get(plain.tileset)?.get(String(plain.terrain).repeat(4))?.[0] ?? 0 };
+    if (ch in FLOOR_ROW) return { tileset: 'floors_interior', tile: (FLOOR_ROW[ch] ?? 0) * 4 + (FLOOR_VARIANTS[ch]?.clean ?? 0) };
     if (ch === 'd') return { tileset: 'map_special', tile: SPECIAL.dirt };
+    return undefined;
+  };
+  /** The first of the cells that has a floor (walls have none), or dark ground. */
+  const floorOf = (...cells: [number, number][]): { tileset: TilesetName; tile: number } => {
+    for (const [x, y] of cells) {
+      const f = plainFloor(x, y);
+      if (f) return f;
+    }
     return { tileset: 'map_special', tile: SPECIAL.ground };
   };
   for (let y = 0; y < H; y++) {
     for (let x = 0; x < W; x++) {
-      if (low[y * W + x] === 1) {
-        const above = plainFloor(x, y - 1);
-        floor[y * W + x] = firstGid[above.tileset] + above.tile;
-      }
-      if (!narrowAt(x, y)) continue;
-      const left = plainFloor(x - 1, y);
-      const right = plainFloor(x + 1, y);
+      const mask = maskAt(x, y);
+      if (mask < 0) continue;
+      // With an arm towards a side, only the strip north of its band shows: the floor north (or diagonal).
+      // A thick wall shows at most the strip north of it.
+      const wide = solidAt(x, y);
+      const left = wide || mask & WEST ? floorOf([x, y - 1], [x - 1, y - 1], [x - 1, y]) : floorOf([x - 1, y], [x, y - 1]);
+      const right = wide || mask & E ? floorOf([x, y - 1], [x + 1, y - 1], [x + 1, y]) : floorOf([x + 1, y], [x, y - 1]);
       floor[y * W + x] = firstGid[left.tileset] + left.tile;
       if (left.tileset === right.tileset && left.tile === right.tile) continue;
       const half = halves.get(`${right.tileset}:${right.tile}`);
@@ -670,19 +663,24 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
     }
   }
 
-  // --- shadows: soft band at the foot of walls, fences, doors, barricades and furniture. A narrow wall
-  //     shades only the floor right of its strip, inside its own cell (light from the top left).
+  // --- shadows: soft band at the foot of walls, fences, doors, barricades and furniture (light from
+  //     the top left). A wall shades the cell below only under a horizontal face, and the floor east
+  //     of its vertical strip inside its own cell; doors, barricades, furniture and thick walls fill
+  //     their cell.
   const shadows = new Array<number>(W * H).fill(0);
-  const casts = (x: number, y: number): boolean => '#HFDW'.includes(at(x, y)) || propBlocked.has(y * W + x);
-  const castsBand = (x: number, y: number): boolean => casts(x, y) && !narrowAt(x, y);
+  const fills = (x: number, y: number): boolean => 'DW'.includes(at(x, y)) || propBlocked.has(y * W + x) || solidAt(x, y);
+  const castsDown = (x: number, y: number): boolean => fills(x, y) || (maskAt(x, y) >= 0 && (maskAt(x, y) & (E | WEST)) !== 0);
+  const castsRight = (x: number, y: number): boolean => fills(x, y);
+  const castsCorner = (x: number, y: number): boolean => fills(x, y) || (maskAt(x, y) >= 0 && (maskAt(x, y) & E) !== 0);
   for (let y = 0; y < H; y++) {
     for (let x = 0; x < W; x++) {
-      if (narrowAt(x, y)) {
-        shadows[y * W + x] = firstGid.map_shadows + SHADOW.wallV;
+      const mask = maskAt(x, y);
+      if (mask >= 0) {
+        if ((mask & E) === 0 && !solidAt(x, y)) shadows[y * W + x] = firstGid.map_shadows + SHADOW.wallV;
         continue;
       }
-      if (casts(x, y) || at(x, y) === '_' || at(x, y) === 'w') continue;
-      const tile = shadowTile(castsBand(x, y - 1), castsBand(x - 1, y), castsBand(x - 1, y - 1));
+      if (fills(x, y) || at(x, y) === '_' || at(x, y) === 'w') continue;
+      const tile = shadowTile(castsDown(x, y - 1), castsRight(x - 1, y), castsCorner(x - 1, y - 1));
       if (tile >= 0) shadows[y * W + x] = firstGid.map_shadows + tile;
     }
   }
