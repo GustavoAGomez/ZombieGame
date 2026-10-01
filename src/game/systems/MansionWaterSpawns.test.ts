@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { WAVES, WEAPONS, ZOMBIES } from '../../config/balance';
-import { command, createMansionContext, placeZombie, player, runTicks, tileCenter, zoneIndex } from '../../test/fixtures';
+import {
+  command,
+  createMansionContext,
+  movePlayerToTile as movePlayer,
+  placeZombie,
+  player,
+  runTicks,
+  tileCenter,
+  unlockZones as unlock,
+} from '../../test/fixtures';
 import { UNREACHABLE, computeFlowField, distanceAt } from '../map/FlowField';
 import { isZombieAlive } from './Combat';
 import { openDoor } from './DoorSystem';
@@ -10,18 +19,6 @@ import { stepSimulation } from './Simulation';
 import { updateZombies } from './ZombieSystem';
 
 /** Spec 02 Fase M4: water, void and open spawns on the generated mansion. */
-
-function movePlayer(ctx: SimContext, x: number, y: number): void {
-  const p = player(ctx);
-  const c = tileCenter(ctx, x, y);
-  p.x = p.prevX = c.x;
-  p.y = p.prevY = c.y;
-}
-
-function unlock(ctx: SimContext, ...zones: string[]): void {
-  for (const id of zones) ctx.state.zonesUnlocked[zoneIndex(ctx, id)] = true;
-  ctx.nav.age = Infinity;
-}
 
 const openSpawnAt = (ctx: SimContext, x: number, y: number): number =>
   ctx.map.zombieSpawns.length + ctx.map.openSpawns.findIndex((s) => Math.floor(s.x / 32) === x && Math.floor(s.y / 32) === y);

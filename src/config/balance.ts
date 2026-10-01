@@ -197,6 +197,12 @@ export const DOORS = {
   interactRange: 48,
 } as const;
 
+/** Stairs, ladders and the hatch between islands (spec 02 §3.6). Costs live in the map. */
+export const PORTALS = {
+  /** The chip shows up within this distance of the centre of a closed portal end. */
+  interactRange: 48,
+} as const;
+
 export const WAVES = {
   bannerDuration: 2.5,
   zombiesBase: 6,

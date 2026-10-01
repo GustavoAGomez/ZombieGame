@@ -4,6 +4,7 @@ import { updateHealth } from './HealthSystem';
 import { updateInteractions } from './InteractionSystem';
 import { updateMovement } from './MovementSystem';
 import { updatePickups } from './PickupSystem';
+import { updatePlayerPortals, updateZombiePortals } from './PortalSystem';
 import type { SimContext } from './SimContext';
 import { updateSpawns } from './SpawnSystem';
 import { updateSpecial } from './SpecialSystem';
@@ -22,11 +23,13 @@ export function stepSimulation(ctx: SimContext, dt: number): void {
   }
   updateSpecial(ctx, dt);
   updateMovement(ctx, dt);
+  updatePlayerPortals(ctx);
   updateWeapons(ctx, dt);
   updateInteractions(ctx, dt);
   updateBullets(ctx, dt);
   updateSpawns(ctx, dt);
   updateZombies(ctx, dt);
+  updateZombiePortals(ctx);
   updatePickups(ctx, dt);
   updateHealth(ctx, dt);
   updateBlood(ctx, dt);

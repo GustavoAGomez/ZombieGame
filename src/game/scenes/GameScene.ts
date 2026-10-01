@@ -49,6 +49,8 @@ export class GameScene extends Phaser.Scene {
   private pickupViews!: PickupViewPool;
   /** ms since every player died; the scene restarts after a pause (until phase 7). */
   private deadFor = 0;
+  /** Player teleports already shown: a new one snaps the camera instead of panning across the map. */
+  private shownTeleports = 0;
   private readonly fixedStep = new FixedStep(SIM.hz, SIM.maxStepsPerFrame, SIM.maxFrameMs);
 
   constructor() {
@@ -74,6 +76,7 @@ export class GameScene extends Phaser.Scene {
     };
     this.fixedStep.reset();
     this.deadFor = 0;
+    this.shownTeleports = 0;
 
     this.hud = new Hud(hudRoot, events);
     this.controls = new InputCollector(hudRoot, events);
@@ -137,6 +140,10 @@ export class GameScene extends Phaser.Scene {
     this.zombieViews.sync(this.state.zombies, alpha, now);
     if (player) {
       this.playerView.sync(player, alpha);
+      if (player.teleports !== this.shownTeleports) {
+        this.shownTeleports = player.teleports;
+        this.cameras.main.centerOn(this.playerView.sprite.x, this.playerView.sprite.y);
+      }
       this.aimLine.sync(player, alpha);
       this.muzzleFlash.sync(player, alpha, this.state.tick);
     }

@@ -174,6 +174,8 @@ export interface MapData {
   portals: MapPortal[];
   /** Number of portal pairs (length of GameState.portalsOpen). */
   portalLinks: number;
+  /** Portal end per cell (row-major), -1 where there is none. */
+  cellPortal: Int16Array;
   playerSpawn: Vec2;
   /** Zone index per cell (row-major), -1 outside every zone. */
   cellZone: Int16Array;
@@ -494,6 +496,12 @@ export function parseMap(json: unknown): MapData {
   });
 
   const portals = parsePortals(rawPortals, zones, tileSize);
+  const cellPortal = new Int16Array(size).fill(-1);
+  portals.forEach((portal, i) => {
+    for (const t of portal.tiles) {
+      if (t.x >= 0 && t.y >= 0 && t.x < width && t.y < height) cellPortal[t.y * width + t.x] = i;
+    }
+  });
 
   return {
     width,
@@ -514,6 +522,7 @@ export function parseMap(json: unknown): MapData {
     openSpawns,
     portals,
     portalLinks: portals.reduce((n, p) => Math.max(n, p.link + 1), 0),
+    cellPortal,
     playerSpawn,
     cellZone,
   };

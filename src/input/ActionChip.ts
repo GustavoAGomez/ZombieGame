@@ -72,7 +72,7 @@ export class ActionChip extends PointerControl {
     const chip = this.target;
     chip.classList.toggle('is-visible', e.kind !== null);
     chip.classList.toggle('is-disabled', !e.enabled);
-    chip.classList.toggle('action-chip--door', e.kind === 'door');
+    chip.classList.toggle('action-chip--door', e.kind === 'door' || e.kind === 'portal');
     // Blinking border: repairing is done with repeated taps.
     chip.classList.toggle('action-chip--repair', e.kind === 'repair');
     if (e.kind === 'repair') {
@@ -83,6 +83,11 @@ export class ActionChip extends PointerControl {
       this.label.textContent = e.enabled ? STRINGS.actions.openDoor : STRINGS.actions.missing;
       this.value.textContent = String(e.amount);
       chip.setAttribute('aria-label', STRINGS.actions.openDoor);
+    } else if (e.kind === 'portal') {
+      const open = e.portal === 'hatch' ? STRINGS.actions.openHatch : STRINGS.actions.openStairs;
+      this.label.textContent = e.locked ? STRINGS.actions.locked : e.enabled ? open : STRINGS.actions.missing;
+      this.value.textContent = e.locked ? '' : String(e.amount);
+      chip.setAttribute('aria-label', e.locked ? STRINGS.actions.locked : open);
     } else if (this.active) {
       this.reset();
     }

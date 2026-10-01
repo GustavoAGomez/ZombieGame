@@ -185,3 +185,15 @@ Registro de lo que la spec no definía (o definía de forma ambigua) y cómo se 
 - **`emerging`** dura 0,6 s (`ZOMBIES.emergeTime`): no se mueve ni ataca, cuenta como vivo (recibe balas y bloquea al jugador) y usa la animación `climb` (o `walk` si no hay). Mira hacia el jugador más cercano al aparecer.
 - **Zombies de ventana con el exterior accesible:** si su casilla tiene distancia en el flow field (la zona exterior está desbloqueada y conectada con el jugador), pasan a `chasing` en vez de seguir hacia la ventana o arrancar tablones. Con la calle o el jardín bloqueados no cambia nada, porque el flow field no entra en zonas bloqueadas.
 - **Agua y vacío** ya bloqueaban cuerpos desde M2; esta fase añade los tests sobre la mansión: las balas cruzan la piscina, el flow field la rodea y el jugador no puede salir de la azotea.
+
+## Spec 02 · Fase M5 (portales)
+
+- **Segundas entradas:** un portal `secondary` solo se puede comprar cuando **sus dos zonas** ya están desbloqueadas, se compre desde el lado que se compre. Así nunca abre nada nuevo: ni la isla ni, desde la isla, el jardín o la calle. Mientras tanto el chip sale atenuado con `BLOQUEADA` y sin precio.
+- **Llegada al centro del otro extremo** con `prevX/prevY` igual a la nueva posición (sin interpolar el salto). Ese extremo queda bloqueado para el viajero (`portalLock`) hasta que su centro sale de él, así no rebota.
+- **Zombies:** solo los que persiguen usan portales, y solo si alguna casilla del otro extremo tiene menos distancia en el flow field que la suya. Se compara con la casilla más cercana del otro extremo y no con su centro: el centro cae en la casilla más lejana de las dos y el zombie se quedaba atascado en la trampilla.
+- **Flow field:** al expandir una casilla de un portal abierto, se visitan las casillas del otro extremo con coste 1. `MapData.cellPortal` guarda el extremo de cada casilla para no buscarlo.
+- **Cámara:** el jugador lleva un contador `teleports`; cuando cambia, `GameScene` centra la cámara de golpe en vez de dejar que el lerp cruce el mapa.
+- **Placeholder `portal`:** cuatro peldaños vistos desde arriba, oscuros con candado ámbar si está cerrado y claros con bordes ámbar si está abierto. Un sprite por casilla, como las puertas.
+- **Chip:** el evento `action:context` lleva `kind: 'portal'`, `portal: 'stairs' | 'hatch'` (escalera y escalera de mano dicen `ABRIR ESCALERA`, la trampilla `ABRIR TRAMPILLA`) y `locked`. Los campos nuevos solo se envían para portales.
+- **Evento `portal:opened`** para la vibración de la Fase 9, como `door:opened`.
+- **Alcance del chip:** `PORTALS.interactRange` = 48 px, igual que las puertas.

@@ -71,9 +71,10 @@ public/assets/
     "window_planks":   { "file": "sprites/objects/window_planks.png",   "frameWidth": 32, "frameHeight": 32, "frames": 6 },
     "window_planks_v": { "file": "sprites/objects/window_planks_v.png", "frameWidth": 32, "frameHeight": 32, "frames": 6 },
     "door":            { "file": "sprites/objects/door.png",            "frameWidth": 32, "frameHeight": 32, "frames": 2 },
-    "door_v":          { "file": "sprites/objects/door_v.png",          "frameWidth": 32, "frameHeight": 32, "frames": 2 }
+    "door_v":          { "file": "sprites/objects/door_v.png",          "frameWidth": 32, "frameHeight": 32, "frames": 2 },
+    "portal":          { "file": "sprites/objects/portal.png",          "frameWidth": 32, "frameHeight": 32, "frames": 2 }
   },
-  "maps": { "room01": "maps/room01.tmj" }
+  "maps": { "room01": "maps/room01.tmj", "mansion": "maps/mansion.tmj" }
 }
 ```
 
@@ -85,6 +86,7 @@ public/assets/
 - **`window_planks`:** el frame N representa la ventana con N tablones (del 0 al 5).
 - **`door`:** frame 0 = cerrada, frame 1 = abierta.
 - **Otros objetos del juego** (en el manifiesto como placeholder hasta tener arte): `bullet` (5×2, trazadora dibujada hacia +x: cola naranja y punta blanca, para no confundirse con la línea de apuntado ámbar), `aim_dot` (2×2), `blood` (16×16, 3 variantes), `pickup_ammo` y `pickup_health` (16×16, se dibujan apoyados en el suelo con el borde inferior como ancla).
+- **`portal`:** escalera, escalera de mano o trampilla vista desde arriba (spec 02 §3.6). Frame 0 = cerrada, frame 1 = abierta. Se dibuja un sprite por casilla del portal.
 - **Variantes verticales `window_planks_v` y `door_v`:** mismos frames y tamaño, dibujadas para paredes verticales (izquierda y derecha). Las versiones sin sufijo son para paredes horizontales (arriba y abajo). El motor **nunca rota** estos sprites, para que la luz siga viniendo de arriba a la izquierda; elige la variante según la orientación de la pared en el mapa.
 
 ## 5. Mapas (Tiled JSON, `.tmj`)

@@ -15,8 +15,10 @@ import { tilesetForGid, type MapData, type MapTileset } from './MapLoader';
 export class MapView {
   private readonly windowSprites: Phaser.GameObjects.Sprite[] = [];
   private readonly doorSprites: Phaser.GameObjects.Sprite[][] = [];
+  private readonly portalSprites: Phaser.GameObjects.Sprite[][] = [];
   private readonly shownPlanks: number[] = [];
   private readonly shownDoorsOpen: boolean[] = [];
+  private readonly shownPortalsOpen: boolean[] = [];
 
   constructor(scene: Phaser.Scene, private readonly map: MapData) {
     const ts = map.tileSize;
@@ -70,6 +72,14 @@ export class MapView {
       this.doorSprites.push(sprites);
       this.shownDoorsOpen.push(false);
     }
+
+    for (const portal of map.portals) {
+      const sprites = portal.tiles.map((t) =>
+        scene.add.sprite((t.x + 0.5) * ts, (t.y + 0.5) * ts, objectTextureKey(ASSET_KEYS.portal), 0).setDepth(DEPTH.mapObjects),
+      );
+      this.portalSprites.push(sprites);
+      this.shownPortalsOpen.push(false);
+    }
   }
 
   /** A tile drawn as an image from its bottom-left corner (Tiled's convention for tall tiles). */
@@ -94,6 +104,13 @@ export class MapView {
       if (open !== this.shownDoorsOpen[i]) {
         this.shownDoorsOpen[i] = open;
         for (const sprite of this.doorSprites[i] ?? []) sprite.setFrame(open ? 1 : 0);
+      }
+    }
+    for (let i = 0; i < this.portalSprites.length; i++) {
+      const open = state.portalsOpen[this.map.portals[i]?.link ?? -1] ?? false;
+      if (open !== this.shownPortalsOpen[i]) {
+        this.shownPortalsOpen[i] = open;
+        for (const sprite of this.portalSprites[i] ?? []) sprite.setFrame(open ? 1 : 0);
       }
     }
   }

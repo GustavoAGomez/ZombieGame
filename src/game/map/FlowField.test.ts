@@ -24,6 +24,8 @@ function asciiMap(rows: string[]): { map: MapData; grid: CollisionGrid } {
     tileSize: 10,
     floor,
     cellZone: new Int16Array(width * height).fill(0),
+    cellPortal: new Int16Array(width * height).fill(-1),
+    portals: [],
   } as unknown as MapData;
   return { map, grid: { width, height, tileSize: 10, cells } };
 }

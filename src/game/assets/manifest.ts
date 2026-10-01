@@ -73,7 +73,7 @@ export const REQUIRED_ANIMATIONS: Readonly<Record<string, readonly string[]>> = 
 };
 
 /** Map objects that must exist, one per wall orientation (docs/ASSETS.md §4). */
-export const REQUIRED_OBJECTS: readonly string[] = ['window_planks', 'window_planks_v', 'door', 'door_v'];
+export const REQUIRED_OBJECTS: readonly string[] = ['window_planks', 'window_planks_v', 'door', 'door_v', 'portal'];
 
 /** Asset keys the game code uses. */
 export const ASSET_KEYS = {
@@ -86,6 +86,7 @@ export const ASSET_KEYS = {
   windowPlanksV: 'window_planks_v',
   door: 'door',
   doorV: 'door_v',
+  portal: 'portal',
   bullet: 'bullet',
   aimDot: 'aim_dot',
   blood: 'blood',

@@ -66,6 +66,20 @@ export function tileCenter(ctx: SimContext, x: number, y: number): { x: number; 
   return { x: (x + 0.5) * ctx.map.tileSize, y: (y + 0.5) * ctx.map.tileSize };
 }
 
+/** Puts the local player on the centre of tile (x, y), with no interpolation. */
+export function movePlayerToTile(ctx: SimContext, x: number, y: number): void {
+  const p = player(ctx);
+  const c = tileCenter(ctx, x, y);
+  p.x = p.prevX = c.x;
+  p.y = p.prevY = c.y;
+}
+
+/** Unlocks zones by id and forces the flow field to be recomputed. */
+export function unlockZones(ctx: SimContext, ...ids: string[]): void {
+  for (const id of ids) ctx.state.zonesUnlocked[zoneIndex(ctx, id)] = true;
+  ctx.nav.age = Infinity;
+}
+
 export function player(ctx: SimContext) {
   const p = ctx.state.players[0];
   if (!p) throw new Error('No player');

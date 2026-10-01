@@ -3,12 +3,14 @@ import type { PlayerState } from '../../core/GameState';
 import { repairableWindow, updateRepair } from './BarricadeSystem';
 import { nearestClosedDoor, tryBuyDoor } from './DoorSystem';
 import { isPlayerAlive } from './HealthSystem';
+import { isPortalBuyable, nearestClosedPortal, tryBuyPortal } from './PortalSystem';
 import type { SimContext } from './SimContext';
 
 /**
  * The contextual action chip (spec 01 §2.4): per player, pick the nearest
- * thing to interact with — a window to repair (hold) or a closed door to
- * buy (tap) — publish it in the state for the HUD, and act on the command.
+ * thing to interact with — a window to repair (taps), a closed door or a
+ * closed portal to buy (tap) — publish it in the state for the HUD, and act
+ * on the command.
  */
 export function updateInteractions(ctx: SimContext, dt: number): void {
   const { state, commands } = ctx;
@@ -27,9 +29,18 @@ export function updateInteractions(ctx: SimContext, dt: number): void {
 
     const window = repairableWindow(ctx, p);
     const { door, distSq: doorDistSq } = nearestClosedDoor(ctx, p);
-    const useDoor = door >= 0 && (window < 0 || doorDistSq < windowDistSq(ctx, p, window));
+    const { portal, distSq: portalDistSq } = nearestClosedPortal(ctx, p);
+    const usePortal = portal >= 0 && (door < 0 || portalDistSq < doorDistSq);
+    const buyDistSq = usePortal ? portalDistSq : doorDistSq;
+    const buy = usePortal || door >= 0;
+    const useBuy = buy && (window < 0 || buyDistSq < windowDistSq(ctx, p, window));
 
-    if (useDoor) {
+    if (useBuy && usePortal) {
+      p.contextAction = 'portal';
+      p.contextTarget = portal;
+      updateRepair(ctx, p, undefined, -1, dt);
+      if (cmd?.actionPressed && isPortalBuyable(ctx.map, ctx.state, portal)) tryBuyPortal(ctx, p, portal);
+    } else if (useBuy) {
       p.contextAction = 'door';
       p.contextTarget = door;
       updateRepair(ctx, p, undefined, -1, dt);

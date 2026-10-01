@@ -13,6 +13,8 @@ export interface GameEvents {
   'pickup:collected': { playerId: number; kind: PickupKind };
   /** A door was bought (medium haptic in phase 9). */
   'door:opened': { doorId: string; playerId: number };
+  /** A portal (stairs, ladder, hatch) was bought. */
+  'portal:opened': { portalId: string; playerId: number };
   'weapon:state': {
     weapon: WeaponId;
     magazine: number;
@@ -30,9 +32,17 @@ export interface GameEvents {
   'points:gained': { playerId: number; amount: number; reason: 'repair' | 'hit' | 'kill'; x?: number; y?: number };
   /**
    * Contextual action chip. kind null hides it. For 'repair', amount is the
-   * points per plank (0 once the round's repair limit is reached).
+   * points per plank (0 once the round's repair limit is reached). For
+   * 'door' and 'portal', the cost when affordable, otherwise the points
+   * missing. A `locked` portal is a second entrance not yet buyable.
    */
-  'action:context': { kind: 'repair' | 'door' | null; amount: number; enabled: boolean };
+  'action:context': {
+    kind: 'repair' | 'door' | 'portal' | null;
+    amount: number;
+    enabled: boolean;
+    portal?: 'stairs' | 'hatch';
+    locked?: boolean;
+  };
   'round:changed': { round: number };
 }
 

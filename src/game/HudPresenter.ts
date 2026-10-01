@@ -3,6 +3,7 @@ import type { EventBus } from '../core/EventBus';
 import type { GameState } from '../core/GameState';
 import type { MapData } from './map/MapLoader';
 import { repairPointsAvailable } from './systems/BarricadeSystem';
+import { isPortalBuyable } from './systems/PortalSystem';
 import { reloadProgress } from './systems/WeaponSystem';
 
 /** Steps used to quantise continuous values so the DOM updates rarely. */
@@ -23,9 +24,11 @@ export class HudPresenter {
   private hp = -1;
   private round = -1;
   private points = -1;
-  private actionKind: 'repair' | 'door' | null | undefined = undefined;
+  private actionKind: 'repair' | 'door' | 'portal' | null | undefined = undefined;
   private actionAmount = -1;
   private actionEnabled = false;
+  private actionLocked = false;
+  private actionPortal: 'stairs' | 'hatch' | undefined;
 
   constructor(
     private readonly events: EventBus,
@@ -50,19 +53,34 @@ export class HudPresenter {
     const kind = p.contextAction === 'none' ? null : p.contextAction;
     let amount = 0;
     let enabled = kind !== null;
+    let locked = false;
+    let portalKind: 'stairs' | 'hatch' | undefined;
     if (kind === 'repair') {
       amount = repairPointsAvailable(p);
-    } else if (kind === 'door') {
+    } else if (kind === 'door' || kind === 'portal') {
       // Affordable: show the cost. Otherwise: how many points are missing.
-      const cost = this.map.doors[p.contextTarget]?.cost ?? 0;
-      enabled = p.points >= cost;
-      amount = enabled ? cost : cost - p.points;
+      const portal = kind === 'portal' ? this.map.portals[p.contextTarget] : undefined;
+      const cost = (portal ?? this.map.doors[p.contextTarget])?.cost ?? 0;
+      if (portal) {
+        portalKind = portal.kind === 'hatch' ? 'hatch' : 'stairs';
+        locked = !isPortalBuyable(this.map, state, p.contextTarget);
+      }
+      enabled = !locked && p.points >= cost;
+      amount = locked ? 0 : enabled ? cost : cost - p.points;
     }
-    if (kind !== this.actionKind || amount !== this.actionAmount || enabled !== this.actionEnabled) {
+    if (
+      kind !== this.actionKind ||
+      amount !== this.actionAmount ||
+      enabled !== this.actionEnabled ||
+      locked !== this.actionLocked ||
+      portalKind !== this.actionPortal
+    ) {
       this.actionKind = kind;
       this.actionAmount = amount;
       this.actionEnabled = enabled;
-      this.events.emit('action:context', { kind, amount, enabled });
+      this.actionLocked = locked;
+      this.actionPortal = portalKind;
+      this.events.emit('action:context', kind === 'portal' ? { kind, amount, enabled, portal: portalKind, locked } : { kind, amount, enabled });
     }
 
     if (state.wave.round !== this.round) {

@@ -23,6 +23,8 @@ export const PLACEHOLDER_COLORS = {
   windowGap: '#14120f',
   plankNail: '#2a2420',
   doorClosed: '#2b3d47',
+  stepDark: '#3a332b',
+  stepLight: '#8c7a62',
   player: '#4b5a36',
   playerShade: '#3d4a2c',
   playerNotch: '#d9b38c',
@@ -211,6 +213,29 @@ function drawDoor(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h:
   rect(ctx, COLORS.amberDark, ox + w / 2 - 2, oy + h / 2 + 1, 4, 1);
 }
 
+/**
+ * Stairs seen from above: four steps getting lighter towards the top.
+ * Frame 0 = closed (dark steps and the door padlock), frame 1 = open
+ * (lit steps with an amber edge so it reads as usable).
+ */
+function drawPortal(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number): void {
+  const open = frame !== 0;
+  const steps = 4;
+  const stepH = h / steps;
+  for (let i = 0; i < steps; i++) {
+    const color = open ? PLACEHOLDER_COLORS.stepLight : PLACEHOLDER_COLORS.stepDark;
+    rect(ctx, color, ox + 2, oy + i * stepH, w - 4, stepH - 1);
+    rect(ctx, open ? '#b7a382' : '#4a4137', ox + 2, oy + i * stepH, w - 4, 1);
+  }
+  if (open) {
+    rect(ctx, COLORS.amber, ox + 1, oy, 1, h);
+    rect(ctx, COLORS.amber, ox + w - 2, oy, 1, h);
+  } else {
+    rect(ctx, COLORS.amber, ox + w / 2 - 2, oy + h / 2 - 2, 4, 4);
+    rect(ctx, COLORS.amberDark, ox + w / 2 - 2, oy + h / 2 + 1, 4, 1);
+  }
+}
+
 /** Irregular blood splat; each frame is a different shape. */
 function drawBlood(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number): void {
   const cx = ox + w / 2;
@@ -299,6 +324,9 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
       case ASSET_KEYS.door:
       case ASSET_KEYS.doorV:
         drawDoor(ctx, col, ox, oy, w, h, object === ASSET_KEYS.doorV);
+        break;
+      case ASSET_KEYS.portal:
+        drawPortal(ctx, col, ox, oy, w, h);
         break;
       case ASSET_KEYS.bullet:
         drawTracer(ctx, ox, oy, w, h);

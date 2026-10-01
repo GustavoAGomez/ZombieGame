@@ -25,6 +25,9 @@ export const STRINGS = {
   actions: {
     repair: 'REPARAR',
     openDoor: 'ABRIR PUERTA',
+    openStairs: 'ABRIR ESCALERA',
+    openHatch: 'ABRIR TRAMPILLA',
+    locked: 'BLOQUEADA',
     missing: 'FALTAN',
   },
 } as const;

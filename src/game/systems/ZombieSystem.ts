@@ -248,7 +248,7 @@ function refreshFlowField(ctx: SimContext, dt: number): void {
     sourceCells.push(Math.floor(p.y / map.tileSize) * map.width + Math.floor(p.x / map.tileSize));
   }
   if (nav.age >= NAVIGATION.flowFieldInterval || sourcesChanged(nav, sourceCells)) {
-    computeFlowField(nav, map, ctx.grid, state.zonesUnlocked, sourceCells);
+    computeFlowField(nav, map, ctx.grid, state.zonesUnlocked, sourceCells, state.portalsOpen);
   }
 }
 

@@ -8,7 +8,9 @@ import type { MapData } from './MapLoader';
  * 8-neighbour with the lowest distance, never cutting corners.
  *
  * The BFS is 4-connected (distances are Manhattan steps); choosing among
- * 8 neighbours on top of that gives diagonal moves in open space.
+ * 8 neighbours on top of that gives diagonal moves in open space. The two
+ * ends of an open portal are linked with cost 1 (spec 02 §3.6), so the
+ * field crosses between islands.
  */
 export const UNREACHABLE = -1;
 
@@ -58,6 +60,7 @@ export function computeFlowField(
   grid: CollisionGrid,
   zonesUnlocked: readonly boolean[],
   sourceCells: readonly number[],
+  portalsOpen: readonly boolean[] = [],
 ): void {
   const { width, height, dist, queue } = field;
   dist.fill(UNREACHABLE);
@@ -84,6 +87,10 @@ export function computeFlowField(
     if (x < width - 1) tail = visit(field, map, grid, zonesUnlocked, cell + 1, d, tail);
     if (y > 0) tail = visit(field, map, grid, zonesUnlocked, cell - width, d, tail);
     if (y < height - 1) tail = visit(field, map, grid, zonesUnlocked, cell + width, d, tail);
+    const portal = map.portals[map.cellPortal[cell] ?? -1];
+    if (portal && portalsOpen[portal.link]) {
+      for (const t of map.portals[portal.other]?.tiles ?? []) tail = visit(field, map, grid, zonesUnlocked, t.y * width + t.x, d, tail);
+    }
   }
   field.age = 0;
 }

@@ -15,7 +15,7 @@ export interface WeaponSlotState {
 }
 
 /** What the contextual action chip would do for a player right now. */
-export type ContextAction = 'none' | 'repair' | 'door';
+export type ContextAction = 'none' | 'repair' | 'door' | 'portal';
 
 export interface PlayerState {
   id: number;
@@ -76,8 +76,13 @@ export interface PlayerState {
   /** True right after a plank was repaired (the player faces the window). */
   repairing: boolean;
   contextAction: ContextAction;
-  /** Window or door index the context action applies to, -1 when none. */
+  /** Window, door or portal index the context action applies to, -1 when none. */
   contextTarget: number;
+
+  /** Portal end just arrived at: it does not fire again until the player steps off it. -1 = none. */
+  portalLock: number;
+  /** Times this player went through a portal (views snap the camera when it changes). */
+  teleports: number;
 }
 
 export interface BulletState {
@@ -127,6 +132,8 @@ export interface ZombieState {
   stateTick: number;
   /** Tick of the last tear or strike (views restart the attack animation). */
   actionTick: number;
+  /** Portal end just arrived at, as for players. -1 = none. */
+  portalLock: number;
 }
 
 export interface BloodState {
@@ -168,6 +175,8 @@ export interface GameState extends RngState {
   wave: WaveState;
   /** Parallel to MapData.doors. */
   doorsOpen: boolean[];
+  /** One per portal pair (MapPortal.link): both ends open together. */
+  portalsOpen: boolean[];
   /** Parallel to MapData.windows. */
   windowPlanks: number[];
   /** Parallel to MapData.zones. */
@@ -217,6 +226,8 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     repairing: false,
     contextAction: 'none',
     contextTarget: -1,
+    portalLock: -1,
+    teleports: 0,
   };
 }
 
@@ -243,6 +254,7 @@ function createZombie(): ZombieState {
     fromY: 0,
     stateTick: 0,
     actionTick: -1,
+    portalLock: -1,
   };
 }
 
@@ -278,6 +290,7 @@ export function createGameState(map: MapData, options: GameOptions = {}): GameSt
     pickups: Array.from({ length: PICKUPS.poolSize }, createPickup),
     wave: { round: Math.max(1, Math.floor(startRound)), toSpawn, spawnTimer: 0 },
     doorsOpen: map.doors.map(() => false),
+    portalsOpen: Array.from({ length: map.portalLinks }, () => false),
     windowPlanks: map.windows.map((w) => w.planks),
     zonesUnlocked: map.zones.map((z) => z.startsUnlocked),
   };
