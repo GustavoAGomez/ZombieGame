@@ -14,8 +14,9 @@ const AUTO_AIM_MIN_REACH = 20;
 
 /**
  * Weapons (spec 01 §4.2): switching, automatic and manual reload, aiming
- * (manual drag or auto-aim), automatic fire at the weapon's rate, and melee
- * when every weapon is out of ammo.
+ * (manual drag or auto-aim), automatic fire at the weapon's rate, and the
+ * knife: its own button at any time (turning to the nearest zombie in
+ * reach), or the fire button when every weapon is out of ammo.
  */
 export function updateWeapons(ctx: SimContext, dt: number): void {
   const { state, commands } = ctx;
@@ -27,13 +28,15 @@ export function updateWeapons(ctx: SimContext, dt: number): void {
     handleSwitch(p, cmd);
     handleReload(p, cmd, dt);
     updateAim(ctx, p, cmd);
-    if (cmd.fire) handleFire(ctx, p);
+    if (cmd.melee) handleMelee(ctx, p, true);
+    else if (cmd.fire) handleFire(ctx, p);
   }
 }
 
 function tickTimers(p: PlayerState, cmd: InputCommand, dt: number): void {
   if (p.switchTimer > 0) p.switchTimer = Math.max(0, p.switchTimer - dt);
   if (p.meleeCooldown > 0) p.meleeCooldown = Math.max(0, p.meleeCooldown - dt);
+  if (p.meleeTimer > 0) p.meleeTimer = Math.max(0, p.meleeTimer - dt);
   // Keep the sub-tick remainder while the trigger is held, so the average
   // fire rate is exact, but never more than one tick of it: holding the
   // trigger while a shot is impossible (reloading, switching, empty) must
@@ -140,7 +143,7 @@ function freeBullet(state: GameState): BulletState | undefined {
 function handleFire(ctx: SimContext, p: PlayerState): void {
   if (p.switchTimer > 0) return;
   if (!hasAnyAmmo(p)) {
-    handleMelee(ctx, p);
+    handleMelee(ctx, p, false);
     return;
   }
   const slot = p.weapons[p.activeSlot];
@@ -210,12 +213,29 @@ function pointBlank(ctx: SimContext, p: PlayerState, bullet: BulletState, muzzle
   damageZombie(ctx, z, bullet.damage, p.id);
 }
 
-function handleMelee(ctx: SimContext, p: PlayerState): void {
+/**
+ * A knife slash. From the knife button (`turn`) the player turns to the
+ * nearest zombie within reach in any direction, or slashes where it faces;
+ * from the fire button (out of ammo) it hits in a cone along the aim.
+ */
+function handleMelee(ctx: SimContext, p: PlayerState, turn: boolean): void {
   if (p.meleeCooldown > 0) return;
   p.meleeCooldown = MELEE.cooldown;
   p.lastAttackTick = ctx.state.tick;
-  const target = findMeleeTarget(ctx, p.x, p.y, p.aimX, p.aimY, MELEE.range, degToRad(MELEE.coneHalfAngle));
+  let dirX = turn ? Math.cos(p.facing) : p.aimX;
+  let dirY = turn ? Math.sin(p.facing) : p.aimY;
+  const cone = turn ? Math.PI : degToRad(MELEE.coneHalfAngle);
+  const target = findMeleeTarget(ctx, p.x, p.y, dirX, dirY, MELEE.range, cone);
   const z = target >= 0 ? ctx.state.zombies[target] : undefined;
+  if (z && turn) {
+    const len = Math.hypot(z.x - p.x, z.y - p.y) || 1;
+    dirX = (z.x - p.x) / len;
+    dirY = (z.y - p.y) / len;
+  }
+  p.meleeAngle = Math.atan2(dirY, dirX);
+  p.meleeTimer = MELEE.swingTime;
+  p.meleeTick = ctx.state.tick;
+  p.facing = p.meleeAngle;
   if (z) damageZombie(ctx, z, MELEE.damage, p.id);
 }
 

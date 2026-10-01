@@ -76,6 +76,9 @@ describe('normaliseAnimationName', () => {
     expect(normaliseAnimationName('Walking 6 frames')).toBe('walk');
     expect(normaliseAnimationName('Running')).toBe('walk');
     expect(normaliseAnimationName('Shooting pistol')).toBe('shoot');
+    expect(normaliseAnimationName('Knife attack')).toBe('melee');
+    expect(normaliseAnimationName('Stabbing with a knife')).toBe('melee');
+    expect(normaliseAnimationName('Bite attack')).toBe('attack');
     expect(normaliseAnimationName('Zombie bite')).toBe('attack');
     expect(normaliseAnimationName('Falling Dead')).toBe('death');
     expect(normaliseAnimationName('Wave Hello!')).toBe('wave_hello');

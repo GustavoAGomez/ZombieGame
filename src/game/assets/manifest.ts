@@ -93,6 +93,7 @@ export const ASSET_KEYS = {
   pickupAmmo: 'pickup_ammo',
   pickupHealth: 'pickup_health',
   muzzleFlash: 'muzzle_flash',
+  meleeSlash: 'melee_slash',
   mapRoom01: 'room01',
   mapMansion: 'mansion',
 } as const;

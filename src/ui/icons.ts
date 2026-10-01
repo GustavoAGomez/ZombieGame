@@ -2,7 +2,7 @@
  * Pixel icons as inline SVG with crisp edges (HUD "Propuesta A"). Each icon
  * is a list of [x, y, w, h, color?] rects on a small grid.
  */
-export type IconName = 'heart' | 'bullet' | 'crosshair' | 'swap' | 'bolt' | 'pause' | 'reload';
+export type IconName = 'heart' | 'bullet' | 'crosshair' | 'swap' | 'bolt' | 'pause' | 'reload' | 'knife';
 
 type Rect = readonly [number, number, number, number, string?];
 
@@ -37,6 +37,15 @@ const ICONS: Record<IconName, IconDef> = {
   pause: {
     w: 8, h: 8, fill: 'var(--bone)',
     rects: [[1, 1, 2, 6], [5, 1, 2, 6]],
+  },
+  // A knife on the diagonal: blade up to the right, guard, handle down to the left.
+  knife: {
+    w: 12, h: 12, fill: 'var(--bone)',
+    rects: [
+      [10, 0, 2, 2], [9, 1, 2, 2], [8, 2, 2, 2], [7, 3, 2, 2], [6, 4, 2, 2],
+      [4, 5, 2, 1, 'var(--amber)'], [6, 7, 1, 2, 'var(--amber)'], [5, 6, 2, 1, 'var(--amber)'],
+      [4, 7, 2, 2, 'var(--amber-dark)'], [3, 8, 2, 2, 'var(--amber-dark)'], [2, 9, 2, 2, 'var(--amber-dark)'], [1, 10, 2, 2, 'var(--amber-dark)'],
+    ],
   },
   // A ring open at the top right, with the arrow head pointing down into it.
   reload: {

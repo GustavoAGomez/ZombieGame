@@ -49,6 +49,12 @@ export interface PlayerState {
   /** Time until the next shot is allowed (can dip below 0 by < 1 tick). */
   fireCooldown: number;
   meleeCooldown: number;
+  /** Seconds left of the knife slash on screen; the player keeps facing meleeAngle meanwhile. */
+  meleeTimer: number;
+  /** Direction of the last knife slash (radians). */
+  meleeAngle: number;
+  /** Tick of the last knife slash (views restart its animation). */
+  meleeTick: number;
   /** Fire held during the last tick. */
   firing: boolean;
   /** True when aiming with a drag (draws the aim line). */
@@ -233,6 +239,9 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     reloadTimer: 0,
     fireCooldown: 0,
     meleeCooldown: 0,
+    meleeTimer: 0,
+    meleeAngle: 0,
+    meleeTick: -1000,
     firing: false,
     aimManual: false,
     aimX: 0,

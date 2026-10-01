@@ -340,3 +340,13 @@ Registro de lo que la spec no definía (o definía de forma ambigua) y cómo se 
 - **Ejemplos en la ronda 1:** con la pistola, el zombie se arrastra tras el segundo disparo y muere con el tercero. Con la metralleta, se arrastra tras la cuarta bala y muere con la sexta.
 - **Puntos:** cada impacto sigue dando 10 puntos. Con la metralleta se hacen más impactos por zombie (6 en vez de 4), así que da algo más de puntos por baja.
 - **Cambio posterior (pedido por el usuario):** la vida sube 1 unidad cada ronda, no cada 2: 3 en la ronda 1, 4 en la 2, 5 en la 3… (22 en la ronda 20). El cuchillo, con 3, mata de un golpe solo en la ronda 1.
+
+## Cuchillo con botón propio
+
+- **El cuchillo** (`MELEE`) tiene ahora botón propio, «CUCHILLO», a la izquierda del de cambiar arma: a (−176, 0) del centro del de disparo. En el ordenador va con la tecla V. Se puede usar en cualquier momento, aunque haya munición e incluso recargando, y es un comando `melee` del `InputCommand`. El botón de disparo sigue usando el cuchillo cuando todas las armas están vacías.
+- **Hacia dónde golpea:**
+  - Desde el botón, el jugador se gira hacia el zombie más cercano a su alcance (20 px del borde de su cuerpo), en cualquier dirección, como el autoapuntado. Si no hay ninguno, da el tajo hacia donde mira.
+  - Desde el botón de disparo sin munición sigue golpeando en un cono de ±60° hacia donde apunta.
+  - Una pulsación durante la pausa de 0,6 s entre golpes se ignora.
+- **Animación provisional:** durante 0,25 s (`MELEE.swingTime`) se dibuja delante del jugador un tajo en arco, girado hacia el golpe (`melee_slash`, placeholder generado de 4 fotogramas). Mientras dura, el jugador sigue mirando hacia el tajo aunque se mueva.
+- **Animación final:** cuando llegue, entra como animación `melee` del jugador en el manifiesto. El importador normaliza «Knife», «Stab», «Slash» o «Melee» a `melee`. Si existe, el personaje la reproduce en cada cuchillada, desde el principio, y el tajo provisional deja de dibujarse sin tocar el código.

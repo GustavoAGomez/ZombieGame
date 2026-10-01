@@ -2,6 +2,13 @@
 
 Objetos y tiles que el juego ya usa con un placeholder. Cada entrada lleva el prompt sugerido para PixelLab (vista top-down, ángulo *high top-down*, misma paleta que el jugador). Cuando llegue el export, se importa con las herramientas de `docs/ASSETS.md` y se borra de esta lista.
 
+## Personajes y efectos
+
+| Clave | Uso | Placeholder actual | Prompt sugerido |
+|---|---|---|---|
+| `player`, animación `melee` | Cuchillada del jugador (botón CUCHILLO): 8 direcciones, unos 0,25 s, sin bucle | Ninguna: el cuerpo no cambia y se dibuja el tajo `melee_slash` | El mismo personaje de PixelLab, animación "knife stab / slash attack" (el importador la normaliza a `melee`) |
+| `melee_slash` | Tajo provisional delante del jugador mientras no exista la animación `melee` | Arco claro generado, 4 fotogramas de 32×32 dibujados hacia la derecha (la vista lo gira) | Opcional si la animación del personaje ya lleva el tajo: "knife slash swoosh arc, white, 4 frames, 32x32, facing right" |
+
 ## Tiles
 
 | Clave | Uso | Placeholder actual | Prompt sugerido |

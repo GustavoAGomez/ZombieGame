@@ -29,7 +29,8 @@ export function updateMovement(ctx: SimContext, dt: number): void {
     const speed = PLAYER.speed * (cmd.fire ? PLAYER.shootingSpeedFactor : 1);
     moveCircle(grid, player, mx * speed * dt, my * speed * dt, PLAYER.hitboxRadius, BLOCK_PLAYER);
     blockByZombies(ctx, player);
-    player.facing = Math.atan2(my, mx);
+    // During a knife slash the player keeps facing the slash.
+    if (player.meleeTimer <= 0) player.facing = Math.atan2(my, mx);
   }
 }
 

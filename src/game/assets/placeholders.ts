@@ -333,6 +333,31 @@ function drawProp(ctx: Ctx, key: string, ox: number, oy: number, w: number, h: n
   if (w >= 12 && h >= 12) rect(ctx, css(shade(base, 0.85)), ox + 4, oy + 5, w - 8, h - 10);
 }
 
+/**
+ * Provisional knife slash, drawn pointing right (+x; the view rotates it to
+ * the slash's direction): an arc that sweeps from top to bottom and fades.
+ * Pixel by pixel on a ring, so it reads as a swoosh rather than a box.
+ */
+function drawMeleeSlash(ctx: Ctx, frame: number, frames: number, ox: number, oy: number, w: number, h: number): void {
+  const cx = ox + Math.floor(w * 0.3);
+  const cy = oy + Math.floor(h / 2);
+  // Frame f shows the sweep at (f + 1) / frames, so the first frame already shows a quarter of it.
+  const t = (frame + 1) / Math.max(1, frames);
+  // The lit part of the arc grows during the first half and the tail fades during the second.
+  const from = -70 + Math.max(0, t - 0.5) * 2 * 120;
+  const to = -70 + Math.min(1, t * 2) * 140;
+  const fade = 1 - Math.max(0, t - 0.5) * 1.4;
+  for (let deg = from; deg <= to; deg += 4) {
+    const a = (deg * Math.PI) / 180;
+    const edge = (deg - from) / Math.max(1, to - from); // brighter towards the leading edge
+    for (let r = 9; r <= 13; r++) {
+      const inner = r === 9 || r === 13;
+      const alpha = (inner ? 0.35 : 0.85) * fade * (0.4 + 0.6 * edge);
+      rect(ctx, `rgba(255, 246, 216, ${alpha.toFixed(2)})`, Math.round(cx + Math.cos(a) * r), Math.round(cy + Math.sin(a) * r), 1, 1);
+    }
+  }
+}
+
 export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def: ObjectDef): void {
   createSheet(scene, objectTextureKey(object), def.frameWidth, def.frameHeight, def.frames, 1, (ctx, col, _row, ox, oy) => {
     const { frameWidth: w, frameHeight: h } = def;
@@ -365,6 +390,9 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
         break;
       case ASSET_KEYS.muzzleFlash:
         drawMuzzleFlash(ctx, col, ox, oy, w, h);
+        break;
+      case ASSET_KEYS.meleeSlash:
+        drawMeleeSlash(ctx, col, def.frames, ox, oy, w, h);
         break;
       default:
         if (object.startsWith('prop_')) {

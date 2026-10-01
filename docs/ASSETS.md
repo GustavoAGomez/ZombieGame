@@ -39,7 +39,7 @@ public/assets/
 
 | Asset | Animaciones |
 |---|---|
-| `player` | `idle`, `walk`, `shoot`, `dash`, `death` (y opcional `shoot_walk`: disparar andando; al retroceder mientras dispara se reproduce al revés) |
+| `player` | `idle`, `walk`, `shoot`, `dash`, `death`. Opcionales: `shoot_walk` (disparar andando; al retroceder mientras dispara se reproduce al revés) y `melee` (cuchillada; dura `MELEE.swingTime`, 0,25 s, y mientras no exista se dibuja el tajo provisional `melee_slash`) |
 | `zombie_walker`, `zombie_runner` | `walk`, `attack` (también se usa para arrancar tablones), `climb` (opcional; si falta, se usa `walk`), `death` |
 
 ## 4. Manifiesto (`public/assets/manifest.json`)
@@ -150,7 +150,7 @@ Detectado con el primer export (jugador, septiembre de 2026):
 - **Distinto número de frames por dirección** (11 o 13 en los disparos): las direcciones cortas se estiran repitiendo frames de forma uniforme hasta igualar a la más larga, porque el sheet necesita las mismas columnas en todas las filas.
 - **Nombres truncados:** PixelLab corta los nombres de animación a 50 caracteres, así que el importador mira también el nombre del estado. Una animación de andar dentro de un estado de disparo (`standing in a firing`) se importa como `shoot_walk`.
 - **Animaciones incompletas:** una animación a la que le faltan direcciones (por ejemplo, `Walking` solo con `south`) se omite con un aviso.
-- **Animaciones:** se aceptan como `{ <dirección>: [rutas] }` o `{ <dirección>: { frames: [rutas] } }`. Los nombres se normalizan al vocabulario del manifiesto (`Running`/`Walking` → `walk`, que es el bucle de movimiento; si llegan las dos completas, gana `Running` porque el jugador corre; `Shoot…` → `shoot`, `Bite`/`Attack` → `attack`, `Dash`/`Roll` → `dash`, `Death`/`Dying` → `death`, `Climb` → `climb`); el resto pasa a `snake_case`. Si un export trae otra estructura, el importador avisa y muestra un extracto.
+- **Animaciones:** se aceptan como `{ <dirección>: [rutas] }` o `{ <dirección>: { frames: [rutas] } }`. Los nombres se normalizan al vocabulario del manifiesto (`Running`/`Walking` → `walk`, que es el bucle de movimiento; si llegan las dos completas, gana `Running` porque el jugador corre; `Shoot…` → `shoot`, `Bite`/`Attack` → `attack`, `Dash`/`Roll` → `dash`, `Death`/`Dying` → `death`, `Climb` → `climb`, `Knife`/`Stab`/`Slash`/`Melee` → `melee`); el resto pasa a `snake_case`. Si un export trae otra estructura, el importador avisa y muestra un extracto.
 - **Qué hace el importador:** construye un sheet por animación (fila por dirección, columna por frame), alinea cada frame por el `anchor` del manifiesto si el lienzo no mide lo declarado, fuerza el alfa a 0/255, cuantiza a `palette.hex` si existe (si no, avisa) y actualiza el manifiesto (`frames`, `directions`, `placeholder`). Conserva `fps` y `loop` si ya estaban declarados.
 
 ## 7. Tiles, kits y decals del mapa definitivo (spec 02)

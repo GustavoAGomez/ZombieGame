@@ -136,6 +136,12 @@
   bottom: calc(var(--pad-bottom) + 160px);
 }
 
+/* Knife left of the switch, at (-176, 0) from the fire centre. */
+.action-button--melee {
+  right: calc(var(--pad-x) + 204px);
+  bottom: calc(var(--pad-bottom) + 36px);
+}
+
 /* Nothing to reload (full magazine or no reserve): dimmed, still tappable. */
 .action-button.is-disabled {
   opacity: 0.4;

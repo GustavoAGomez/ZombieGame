@@ -5,7 +5,8 @@ import { STRINGS } from '../ui/strings';
 
 /**
  * Tap buttons in an arc above the fire button (spec 01 §2.3): weapon switch,
- * special (dash) and reload, right above the fire button. Presses are
+ * special (dash), reload, right above the fire button, and the knife, left
+ * of the switch. Presses are
  * latched until the next tick reads them. The special button shows its
  * cooldown and the reload button the reload in progress (dimmed while there
  * is nothing to reload), both received via the EventBus.
@@ -71,6 +72,7 @@ export class ActionButtons {
   private readonly switchButton: TapButton;
   private readonly specialButton: TapButton;
   private readonly reloadButton: TapButton;
+  private readonly meleeButton: TapButton;
   private readonly veil: HTMLDivElement;
   private readonly seconds: HTMLSpanElement;
   private readonly reloadVeil: HTMLDivElement;
@@ -80,6 +82,7 @@ export class ActionButtons {
     this.switchButton = new TapButton(parent, 'action-button--switch', 'swap', STRINGS.controls.weaponShort, STRINGS.controls.switchWeapon);
     this.specialButton = new TapButton(parent, 'action-button--special', 'bolt', STRINGS.controls.specialShort, STRINGS.controls.special);
     this.reloadButton = new TapButton(parent, 'action-button--reload', 'reload', STRINGS.controls.reloadShort, STRINGS.controls.reload);
+    this.meleeButton = new TapButton(parent, 'action-button--melee', 'knife', STRINGS.controls.meleeShort, STRINGS.controls.melee);
 
     this.veil = document.createElement('div');
     this.veil.className = 'action-button__veil';
@@ -122,10 +125,15 @@ export class ActionButtons {
     return this.reloadButton.consume();
   }
 
+  consumeMelee(): boolean {
+    return this.meleeButton.consume();
+  }
+
   reset(): void {
     this.switchButton.reset();
     this.specialButton.reset();
     this.reloadButton.reset();
+    this.meleeButton.reset();
   }
 
   destroy(): void {
@@ -133,5 +141,6 @@ export class ActionButtons {
     this.switchButton.dispose();
     this.specialButton.dispose();
     this.reloadButton.dispose();
+    this.meleeButton.dispose();
   }
 }

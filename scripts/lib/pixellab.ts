@@ -42,6 +42,8 @@ const ALIASES: readonly (readonly [RegExp, string])[] = [
   [/idle|breath|stand|rotation/, 'idle'],
   // `walk` is the movement loop; for the player it is a run.
   [MOVING, 'walk'],
+  // The player's knife (before `attack`, so "knife attack" is a knife).
+  [/knife|stab|slash|melee|cuchill/, 'melee'],
   [/attack|punch|bite|swipe|tear/, 'attack'],
   [/dash|roll|dodge/, 'dash'],
   [/death|die|dying|dead/, 'death'],

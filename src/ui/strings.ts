@@ -12,6 +12,8 @@ export const STRINGS = {
     specialShort: 'ESPECIAL',
     reload: 'Recargar',
     reloadShort: 'RECARGAR',
+    melee: 'Cuchillo',
+    meleeShort: 'CUCHILLO',
   },
   weapons: {
     pistol: 'PISTOLA',

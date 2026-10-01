@@ -14,6 +14,7 @@ import { ASSET_KEYS } from '../assets/manifest';
 import { AimLine } from '../entities/AimLine';
 import { BloodViewPool } from '../entities/Blood';
 import { BulletViewPool } from '../entities/Bullet';
+import { MeleeSlash } from '../entities/MeleeSlash';
 import { MuzzleFlash } from '../entities/MuzzleFlash';
 import { PickupViewPool } from '../entities/Pickup';
 import { PlayerView } from '../entities/Player';
@@ -55,6 +56,7 @@ export class GameScene extends Phaser.Scene {
   private bulletViews!: BulletViewPool;
   private aimLine!: AimLine;
   private muzzleFlash!: MuzzleFlash;
+  private meleeSlash!: MeleeSlash;
   private worldTexts!: WorldTextPool;
   private bloodViews!: BloodViewPool;
   private pickupViews!: PickupViewPool;
@@ -123,6 +125,7 @@ export class GameScene extends Phaser.Scene {
     this.bulletViews = new BulletViewPool(this, this.state.bullets.length, playerDef);
     this.aimLine = new AimLine(this, playerDef);
     this.muzzleFlash = new MuzzleFlash(this, playerDef);
+    this.meleeSlash = new MeleeSlash(this, playerDef, manifest.objects[ASSET_KEYS.meleeSlash]);
     this.worldTexts = new WorldTextPool(this, events);
     this.syncViews(0);
 
@@ -238,6 +241,7 @@ export class GameScene extends Phaser.Scene {
       }
       this.aimLine.sync(player, alpha);
       this.muzzleFlash.sync(player, alpha, this.state.tick);
+      this.meleeSlash.sync(player, alpha);
     }
     this.bulletViews.sync(this.state.bullets, this.state.players, alpha);
     this.worldTexts.sync(now);

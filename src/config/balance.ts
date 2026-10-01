@@ -82,11 +82,18 @@ export const LOADOUT = {
   switchTime: 0.4,
 } as const;
 
+/**
+ * The knife: its own button, usable at any time (and the fire button falls
+ * back to it when every weapon is empty). The button turns the player to
+ * the nearest zombie within reach, in any direction.
+ */
 export const MELEE = {
   range: 20,
   /** Damage units: kills a zombie of round 1 in one blow, as in BO1. */
   damage: 3,
   cooldown: 0.6,
+  /** Seconds the slash is on screen (and the player keeps facing it). */
+  swingTime: 0.25,
   /** Half-angle of the cone in front of the player that melee can hit. */
   coneHalfAngle: 60,
 } as const;

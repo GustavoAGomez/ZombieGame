@@ -19,6 +19,17 @@ describe('player animation choice', () => {
     expect(pickAnimation(p)).toBe('death');
   });
 
+  it('plays the melee animation during a knife slash, only when the character has one', () => {
+    const p = player(createTestContext());
+    p.meleeTimer = 0.1;
+    p.firing = true;
+    expect(pickAnimation(p, true, true)).toBe('melee');
+    // Without the animation (provisional art), the slash effect is drawn and the body keeps its pose.
+    expect(pickAnimation(p, true, false)).toBe('shoot');
+    p.meleeTimer = 0;
+    expect(pickAnimation(p, true, true)).toBe('shoot');
+  });
+
   it('detects moving backwards against the aim', () => {
     const p = player(createTestContext());
     p.facing = 0; // aiming east

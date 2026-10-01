@@ -19,6 +19,8 @@ export interface InputCommand {
   /** Edge-triggered: pressed since the previous tick. */
   switchWeapon: boolean;
   reload: boolean;
+  /** Knife button. */
+  melee: boolean;
   special: boolean;
   actionPressed: boolean;
   /** Held (e.g. hold-to-repair). */
@@ -36,6 +38,7 @@ export function createInputCommand(): InputCommand {
     aimY: 0,
     switchWeapon: false,
     reload: false,
+    melee: false,
     special: false,
     actionPressed: false,
     action: false,
@@ -51,6 +54,7 @@ export function resetInputCommand(cmd: InputCommand): InputCommand {
   cmd.aimY = 0;
   cmd.switchWeapon = false;
   cmd.reload = false;
+  cmd.melee = false;
   cmd.special = false;
   cmd.actionPressed = false;
   cmd.action = false;

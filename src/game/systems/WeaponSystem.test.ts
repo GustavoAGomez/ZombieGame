@@ -229,7 +229,43 @@ describe('WeaponSystem · aiming', () => {
 });
 
 describe('WeaponSystem · melee', () => {
-  it('melees when every weapon is empty: 50 damage every 0.6 s', () => {
+  it('knifes from its own button at any time, turning to the nearest zombie in reach, even behind', () => {
+    const ctx = createTestContext();
+    const p = player(ctx);
+    p.facing = 0; // facing east…
+    const z = placeZombie(ctx, 0, p.x - 18, p.y, 500); // …with a zombie right behind
+    const magazine = p.weapons[0]!.magazine;
+    const cmd = command(ctx);
+    cmd.melee = true;
+    stepSimulation(ctx, 1 / 60);
+    expect(z.hp).toBe(500 - MELEE.damage);
+    expect(p.weapons[0]!.magazine).toBe(magazine); // no bullet fired
+    expect(Math.cos(p.meleeAngle)).toBeCloseTo(-1); // turned to it
+    expect(p.facing).toBeCloseTo(p.meleeAngle);
+    expect(p.meleeTimer).toBeGreaterThan(0);
+  });
+
+  it('waits its cooldown between slashes and swings even when nothing is in reach', () => {
+    const ctx = createTestContext();
+    const p = player(ctx);
+    const z = placeZombie(ctx, 0, p.x + 18, p.y, 500);
+    const cmd = command(ctx);
+    cmd.melee = true;
+    stepSimulation(ctx, 1 / 60);
+    runTicks(ctx, Math.floor(MELEE.cooldown * 60) - 2, stepSimulation); // pressed again and again: ignored
+    expect(z.hp).toBe(500 - MELEE.damage);
+    runTicks(ctx, 3, stepSimulation);
+    expect(z.hp).toBe(500 - 2 * MELEE.damage);
+    // With nothing in reach the slash still happens, where the player faces.
+    z.x += 200;
+    p.facing = Math.PI / 2;
+    runTicks(ctx, Math.ceil(MELEE.cooldown * 60) + 1, stepSimulation);
+    expect(z.hp).toBe(500 - 2 * MELEE.damage);
+    expect(p.meleeTick).toBeGreaterThan(Math.floor(MELEE.cooldown * 60));
+    expect(Math.sin(p.meleeAngle)).toBeCloseTo(1);
+  });
+
+  it('knifes with the fire button when every weapon is empty, every 0.6 s', () => {
     const ctx = createTestContext();
     const p = player(ctx);
     for (const w of p.weapons) {
