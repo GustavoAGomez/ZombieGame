@@ -1,3 +1,22 @@
+/** Rooms by zone id, with their gender for «COCINA DESBLOQUEADA» / «GARAJE DESBLOQUEADO». */
+const ZONES: Readonly<Record<string, { name: string; feminine: boolean }>> = {
+  recibidor: { name: 'RECIBIDOR', feminine: false },
+  salon: { name: 'SALÓN', feminine: false },
+  comedor: { name: 'COMEDOR', feminine: false },
+  biblioteca: { name: 'BIBLIOTECA', feminine: true },
+  cocina: { name: 'COCINA', feminine: true },
+  garaje: { name: 'GARAJE', feminine: false },
+  jardin: { name: 'JARDÍN', feminine: false },
+  calle: { name: 'CALLE', feminine: true },
+  sotano: { name: 'SÓTANO', feminine: false },
+  azotea: { name: 'AZOTEA', feminine: true },
+  // The test map (room01).
+  pasillo: { name: 'PASILLO', feminine: false },
+  almacen: { name: 'ALMACÉN', feminine: false },
+};
+/** A zone without a name here. */
+const ROOM = { name: 'SALA', feminine: true };
+
 /** Every user-visible text, in Spanish. */
 export const STRINGS = {
   gameTitle: 'ZOMBIES',
@@ -115,10 +134,10 @@ export const STRINGS = {
   },
   actions: {
     repair: 'REPARAR',
-    /** Doors and main stairs sell the room behind them: "DESBLOQUEAR COCINA · 1000$", or what is missing. */
-    unlockRoom: (room: string, price: string): string => `DESBLOQUEAR ${room} · ${price}`,
-    unlockRoomMissing: (room: string, missing: string): string => `DESBLOQUEAR ${room} · FALTAN ${missing}`,
-    unlockRoomLabel: (room: string): string => `Desbloquear ${room}`,
+    /** Doors and main stairs sell the room behind them without saying which: "DESBLOQUEAR · 1000$", or what is missing. */
+    unlockRoom: (price: string): string => `DESBLOQUEAR · ${price}`,
+    unlockRoomMissing: (missing: string): string => `DESBLOQUEAR · FALTAN ${missing}`,
+    unlockRoomLabel: 'Desbloquear sala',
     /** A secondary staircase or hatch: it opens by itself once both its rooms are unlocked. */
     locked: 'BLOQUEADA',
     missing: 'FALTAN',
@@ -134,20 +153,11 @@ export const STRINGS = {
     pickUp: (item: string): string => `RECOGER ${item}`,
     inventoryFull: 'INVENTARIO LLENO',
   },
-  /** Rooms of the mansion, by zone id (the action button names the one a door unlocks); others say SALA. */
-  zones: {
-    recibidor: 'RECIBIDOR',
-    salon: 'SALÓN',
-    comedor: 'COMEDOR',
-    biblioteca: 'BIBLIOTECA',
-    cocina: 'COCINA',
-    garaje: 'GARAJE',
-    jardin: 'JARDÍN',
-    calle: 'CALLE',
-    sotano: 'SÓTANO',
-    azotea: 'AZOTEA',
-  } as Readonly<Record<string, string>>,
-  room: 'SALA',
+  /** Only once a room is unlocked does the HUD say which: «COCINA DESBLOQUEADA», «GARAJE DESBLOQUEADO» (SALA if unnamed). */
+  zoneUnlocked: (zone: string): string => {
+    const room = ZONES[zone] ?? ROOM;
+    return `${room.name} ${room.feminine ? 'DESBLOQUEADA' : 'DESBLOQUEADO'}`;
+  },
   /** Special items (spec 05), by id. */
   items: {
     names: { living_heart: 'CORAZÓN VIVO', worn_wand: 'VARITA DESGASTADA' },

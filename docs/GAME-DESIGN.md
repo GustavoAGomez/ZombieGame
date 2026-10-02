@@ -132,7 +132,8 @@ Magos con gabardina que venden munición y mejoras. Sus puntos de aparición son
 
 ## Salas
 
-- **Se desbloquean salas, no puertas.** Junto a una puerta cerrada, el botón de acción ofrece la sala del otro lado: «DESBLOQUEAR COCINA · 1000$». Cada sala tiene un solo precio, el mismo por cualquiera de sus puertas.
+- **Se desbloquean salas, no puertas.** Junto a una puerta cerrada, el botón de acción ofrece la sala del otro lado, pero sin decir cuál: «DESBLOQUEAR · 1000$» (o «DESBLOQUEAR · FALTAN 250$»). Cada sala tiene un solo precio, el mismo por cualquiera de sus puertas.
+- **Solo al desbloquearla se sabe qué sala era:** sale en el centro de la pantalla durante 2 s, para todos los jugadores: «COCINA DESBLOQUEADA», «GARAJE DESBLOQUEADO». Las que se abren solas no avisan.
 - **Al desbloquear una sala, se abren todas las puertas entre ella y las salas ya desbloqueadas:** se puede llegar a ella desde cualquier sala abierta. Las puertas hacia salas aún cerradas siguen cerradas: son las que las venden. Desbloquear una sala nunca abre gratis la siguiente.
 - **Portales:**
   - Las escaleras principales (cocina–sótano, jardín–azotea) venden la sala del otro extremo, a su precio.

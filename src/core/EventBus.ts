@@ -26,6 +26,8 @@ export interface GameEvents {
   'door:opened': { doorId: string; playerId: number };
   /** A portal (stairs, ladder, hatch) was bought. */
   'portal:opened': { portalId: string; playerId: number };
+  /** A room was unlocked (its zone id): only now does the HUD say which one, «COCINA DESBLOQUEADA». */
+  'zone:unlocked': { zone: string };
   'weapon:state': {
     weapon: WeaponId;
     /**
@@ -75,10 +77,12 @@ export interface GameEvents {
      * `amount` is the price, or what is missing when not enabled.
      */
     weaponCase?: { weapon: WeaponId; mode: 'buy' | 'ammo' | 'confirm'; full: boolean; replaces?: WeaponId; replacesLevel?: number };
-    /** With kind 'pickup' (spec 05 §3): the special item on the floor; not enabled with the inventory full. */
+    /**
+     * With kind 'pickup' (spec 05 §3): the special item on the floor; not enabled with the inventory full.
+     * Doors and portals never say which room they unlock (`amount` is its price, or what is missing):
+     * it is only told once unlocked ('zone:unlocked').
+     */
     item?: ItemId;
-    /** With kind 'door' or 'portal': the zone id of the room it unlocks (`amount` is its price, or what is missing). */
-    room?: string;
   };
   /** A special item picked up (spec 05 §3): light vibration and its name on the HUD. */
   'item:picked': { playerId: number; item: ItemId };

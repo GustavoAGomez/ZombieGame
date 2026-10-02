@@ -1,4 +1,4 @@
-import { ITEMS, MERCHANT, POINTS, WAVES, type BoostKind } from '../../config/balance';
+import { DOORS, ITEMS, MERCHANT, POINTS, WAVES, type BoostKind } from '../../config/balance';
 import { merchantDef } from '../../config/merchants';
 import { COLORS } from '../../config/theme';
 import { UPGRADE_KINDS, type UpgradeKind } from '../../config/weapons';
@@ -139,6 +139,7 @@ export class Hud {
       events.on('boost:activated', this.onBoostActivated),
       events.on('item:picked', this.onItemPicked),
       events.on('activation:completed', this.onActivationCompleted),
+      events.on('zone:unlocked', this.onZoneUnlocked),
     );
   }
 
@@ -220,6 +221,11 @@ export class Hud {
     if (e.effect.kind !== 'summon_merchant') return;
     const merchant = e.effect.merchant;
     this.showNotice(STRINGS.merchants.summoned(STRINGS.merchants.names[merchant]), merchantDef(merchant).color, ITEMS.summonNoticeTime);
+  };
+
+  /** A room unlocked: only now is it told which one, for everyone. */
+  private readonly onZoneUnlocked = (e: GameEvents['zone:unlocked']): void => {
+    this.showNotice(STRINGS.zoneUnlocked(e.zone), 'var(--bone)', DOORS.unlockedNoticeTime);
   };
 
   private showNotice(text: string, color: string, seconds: number = MERCHANT.movedNoticeTime): void {

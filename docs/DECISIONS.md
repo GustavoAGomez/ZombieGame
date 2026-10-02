@@ -1218,3 +1218,14 @@ Petición del usuario: al pulsar el botón de disparo, a veces el dedo cae desce
 - **Cada pulsación nueva espera de nuevo.** Mantener pulsado no vuelve a esperar entre balas.
 - **El cuchillo no espera:** ni en su botón ni en el de disparo cuando no queda munición.
 - **Tests:** el ayudante `holdFire` deja al jugador con el botón pulsado y la espera cumplida, para los tests que miran las balas y no la espera.
+
+## La puerta no dice qué sala desbloquea
+
+Petición del usuario: no saber a qué sala lleva una puerta hasta abrirla. Al desbloquearla sale en el centro «X desbloqueado/desbloqueada».
+
+- **Botón:** «DESBLOQUEAR · 1000$» o «DESBLOQUEAR · FALTAN 250$». Las escaleras principales dicen lo mismo, y las secundarias siguen diciendo «BLOQUEADA».
+  - El evento `action:context` ya no lleva la sala (`room`): el HUD no puede saber cuál es.
+- **Aviso:** `unlockZone` emite `zone:unlocked` (id de la zona) solo si la sala estaba cerrada. El HUD lo enseña con el aviso del centro (el de los magos y los objetos), en color hueso y durante `DOORS.unlockedNoticeTime` (2 s).
+  - Se ve para todos los jugadores, porque abre el mapa a todos.
+  - Las puertas que se abren solas no avisan: la sala de detrás ya estaba desbloqueada.
+- **Género:** «COCINA DESBLOQUEADA», «GARAJE DESBLOQUEADO». Cada sala lleva su género en `strings.ts`; una zona sin nombre dice «SALA DESBLOQUEADA». También tienen nombre las del mapa de pruebas (pasillo y almacén).

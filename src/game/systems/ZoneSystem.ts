@@ -21,11 +21,18 @@ export function zoneToUnlock(state: GameState, a: number, b: number): number {
   return ua ? b : a;
 }
 
-/** Unlocks zone `index` (its zombie spawns come alive) and opens the accesses that now join two unlocked zones. */
+/**
+ * Unlocks zone `index` (its zombie spawns come alive), opens the accesses
+ * that now join two unlocked zones and tells the HUD which room it was:
+ * the doors never say it beforehand.
+ */
 export function unlockZone(ctx: SimContext, index: number): void {
   if (index < 0 || index >= ctx.state.zonesUnlocked.length) return;
+  const wasLocked = !ctx.state.zonesUnlocked[index];
   ctx.state.zonesUnlocked[index] = true;
   openUnlockedAccesses(ctx);
+  const zone = ctx.map.zones[index];
+  if (wasLocked && zone) ctx.events.emit('zone:unlocked', { zone: zone.id });
 }
 
 /** Opens every closed door and portal whose two zones are unlocked. Zombies learn the new ways at once. */

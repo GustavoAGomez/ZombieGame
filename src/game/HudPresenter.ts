@@ -108,19 +108,17 @@ export class HudPresenter {
     let enabled = kind !== null;
     let locked = false;
     let portalKind: 'stairs' | 'hatch' | undefined;
-    let room: string | undefined;
     if (kind === 'repair') {
       amount = repairPointsAvailable(p);
       // Only the long wait under attack shows: the chip dims (a tap shakes it); ready again, it blinks.
       enabled = p.repairCooldown <= BARRICADES.repairTapCooldown;
     } else if (kind === 'door' || kind === 'portal') {
-      // The room it unlocks and its price; affordable: the price, otherwise what is missing.
+      // The price of the room it unlocks (never which room: that is a surprise); affordable: the price, otherwise what is missing.
       const portal = kind === 'portal' ? this.map.portals[p.contextTarget] : undefined;
       if (portal) portalKind = portal.kind === 'hatch' ? 'hatch' : 'stairs';
       const target = portal ? portalTarget(this.map, state, p.contextTarget) : doorTarget(this.map, state, p.contextTarget);
       const zone = this.map.zones[target];
       locked = !zone;
-      room = zone?.id;
       const cost = zone?.cost ?? 0;
       enabled = !locked && p.money >= cost;
       amount = locked ? 0 : enabled ? cost : cost - p.money;
@@ -142,7 +140,7 @@ export class HudPresenter {
     // A special item on the floor (spec 05 §3): picked up while there is room.
     const item = kind === 'pickup' ? state.groundItems[p.contextTarget]?.item : undefined;
     if (kind === 'pickup') enabled = hasItemRoom(p);
-    const caseKey = weaponCase ? JSON.stringify(weaponCase) : (item ?? room ?? '');
+    const caseKey = weaponCase ? JSON.stringify(weaponCase) : (item ?? '');
     if (
       kind !== this.actionKind ||
       merchant !== this.actionMerchant ||
@@ -159,8 +157,7 @@ export class HudPresenter {
       this.actionPortal = portalKind;
       this.actionMerchant = merchant;
       this.actionCase = caseKey;
-      if (kind === 'portal') this.events.emit('action:context', { kind, amount, enabled, portal: portalKind, locked, ...(room ? { room } : {}) });
-      else if (kind === 'door') this.events.emit('action:context', { kind, amount, enabled, ...(room ? { room } : {}) });
+      if (kind === 'portal') this.events.emit('action:context', { kind, amount, enabled, portal: portalKind, locked });
       else if (weaponCase) this.events.emit('action:context', { kind, amount, enabled, weaponCase });
       else if (merchant) this.events.emit('action:context', { kind, amount, enabled, merchant });
       else if (item) this.events.emit('action:context', { kind, amount, enabled, item });

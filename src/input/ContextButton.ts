@@ -134,11 +134,11 @@ export class ContextButton extends PointerControl {
       this.value.textContent = e.amount > 0 ? STRINGS.hud.moneyGained(e.amount) : '';
       button.setAttribute('aria-label', STRINGS.actions.repair);
     } else if (e.kind === 'door' || e.kind === 'portal') {
-      // Rooms are unlocked, not doors: "DESBLOQUEAR COCINA · 1000$" (or what is missing). A secondary staircase is locked.
-      const room = (e.room && STRINGS.zones[e.room]) || STRINGS.room;
+      // Rooms are unlocked, not doors, and which one is a surprise: "DESBLOQUEAR · 1000$" (or what is missing).
+      // A secondary staircase is locked.
       if (e.locked) this.value.textContent = STRINGS.actions.locked;
-      else this.value.textContent = e.enabled ? STRINGS.actions.unlockRoom(room, STRINGS.hud.money(e.amount)) : STRINGS.actions.unlockRoomMissing(room, STRINGS.hud.money(e.amount));
-      button.setAttribute('aria-label', e.locked ? STRINGS.actions.locked : STRINGS.actions.unlockRoomLabel(room));
+      else this.value.textContent = e.enabled ? STRINGS.actions.unlockRoom(STRINGS.hud.money(e.amount)) : STRINGS.actions.unlockRoomMissing(STRINGS.hud.money(e.amount));
+      button.setAttribute('aria-label', e.locked ? STRINGS.actions.locked : STRINGS.actions.unlockRoomLabel);
     } else if (this.active) {
       this.reset();
     }

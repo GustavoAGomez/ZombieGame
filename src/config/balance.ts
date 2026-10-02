@@ -249,6 +249,8 @@ export const POINTS = {
 
 export const DOORS = {
   interactRange: 48,
+  /** Seconds «COCINA DESBLOQUEADA» stays in the middle of the screen: the doors never say which room beforehand. */
+  unlockedNoticeTime: 2,
 } as const;
 
 /** Stairs, ladders and the hatch between islands (spec 02 §3.6). Costs live in the map. */

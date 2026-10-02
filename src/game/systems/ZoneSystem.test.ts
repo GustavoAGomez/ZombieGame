@@ -47,6 +47,21 @@ describe('unlocking rooms', () => {
     expect(unlocked(ctx, 'garaje') || unlocked(ctx, 'jardin')).toBe(false);
   });
 
+  it('tells which room only once it is unlocked, once', () => {
+    const ctx = createMansionContext();
+    const p = player(ctx);
+    p.money = 100_000;
+    const told = vi.fn();
+    ctx.events.on('zone:unlocked', told);
+    tryBuyDoor(ctx, p, door(ctx, 'D2'));
+    tryBuyDoor(ctx, p, door(ctx, 'D4'));
+    expect(told.mock.calls).toEqual([[{ zone: 'comedor' }], [{ zone: 'cocina' }]]);
+    // The library's door to the kitchen opens by itself with the library: one notice, for the library.
+    tryBuyDoor(ctx, p, door(ctx, 'D1'));
+    tryBuyDoor(ctx, p, door(ctx, 'D3'));
+    expect(told.mock.calls.slice(2)).toEqual([[{ zone: 'salon' }], [{ zone: 'biblioteca' }]]);
+  });
+
   it('a room costs the same through any of its doors', () => {
     const ctx = createMansionContext();
     const p = player(ctx);

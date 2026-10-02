@@ -79,7 +79,7 @@ describe('buying portals', () => {
     standNextTo(ctx, 'P1a');
     updateInteractions(ctx, 1 / 60);
     events.publish(ctx.state);
-    expect(chip).toHaveBeenLastCalledWith({ kind: 'portal', amount: 1750, enabled: true, portal: 'stairs', locked: false, room: 'sotano' });
+    expect(chip).toHaveBeenLastCalledWith({ kind: 'portal', amount: 1750, enabled: true, portal: 'stairs', locked: false });
     pressAction(ctx);
     expect(isPortalOpen(ctx, portalIndex(ctx, 'P1a'))).toBe(true);
     expect(isPortalOpen(ctx, portalIndex(ctx, 'P1b'))).toBe(true);
@@ -102,7 +102,7 @@ describe('buying portals', () => {
     standNextTo(ctx, 'P1a');
     updateInteractions(ctx, 1 / 60);
     presenter.publish(ctx.state);
-    expect(chip).toHaveBeenLastCalledWith({ kind: 'portal', amount: 1250, enabled: false, portal: 'stairs', locked: false, room: 'sotano' });
+    expect(chip).toHaveBeenLastCalledWith({ kind: 'portal', amount: 1250, enabled: false, portal: 'stairs', locked: false });
   });
 });
 
