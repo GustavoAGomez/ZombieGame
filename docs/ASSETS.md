@@ -99,6 +99,27 @@ public/assets/
 - **`portal`:** escalera, escalera de mano o trampilla vista desde arriba (spec 02 §3.6). Frame 0 = cerrada, frame 1 = abierta. Se dibuja un sprite por casilla del portal.
 - **Variantes verticales `window_planks_v` y `door_v`:** mismos frames y tamaño, dibujadas para paredes verticales (izquierda y derecha). Las versiones sin sufijo son para paredes horizontales (arriba y abajo). El motor **nunca rota** estos sprites, para que la luz siga viniendo de arriba a la izquierda; elige la variante según la orientación de la pared en el mapa.
 
+### Piezas del HUD (`ui`)
+
+El HUD es DOM, así que sus imágenes no pasan por Phaser. `npm run hud:import` limpia las piezas de PixelLab (`art-src/pixellab/hud/`), las recorta a su contorno y las escribe en `public/assets/ui/`. También deja la hoja del antes y el después en `maps/preview/hud/` y registra la sección `ui` del manifiesto:
+
+```json
+"ui": {
+  "ringLargeRed":    { "file": "ui/ring_large_red.png", "width": 97, "height": 97 },
+  "ringMedium":      { "file": "ui/ring_medium.png", "width": 33, "height": 33 },
+  "ringMediumAmber": { "file": "ui/ring_medium_amber.png", "width": 33, "height": 33 },
+  "button":          { "file": "ui/button.png", "width": 97, "height": 33, "slice": 12 },
+  "healthFrame":     { "file": "ui/health_frame.png", "width": 145, "height": 17, "trough": { "x": 22, "y": 5, "width": 116, "height": 8 } },
+  "panel":           { "file": "ui/panel.png", "width": 144, "height": 97, "slice": 20 }
+}
+```
+
+- **Aros redondos:** se conservan el metal y su borde hueso; el interior pasa al color oscuro del botón. El mediano se reduce exactamente a la mitad para los botones pequeños.
+- **Botón rectangular:** se pinta su texto con el color de su fondo. Se usa con 9-slice (`slice`).
+- **Barra de vida:** se vacía el canal y se conserva la cruz. `trough` dice dónde dibuja el juego los segmentos.
+- **Panel:** va tal cual, con 9-slice.
+- **Cómo se aplican:** `src/ui/skin.ts` pasa las piezas a variables CSS y activa `.has-ui-skin` (`skin.css`). Todo se dibuja a escala 1 con `pixelated`. Si falta alguna pieza, el HUD conserva su aspecto solo con CSS.
+
 ## 5. Mapas (Tiled JSON, `.tmj`)
 
 Los tilesets deben ir **embebidos** en el `.tmj` que carga el juego (`public/assets/maps/`). Los mapas que se editan en Tiled viven en `art-src/tiled/` con tilesets externos y `npm run map:build` los embebe (ver §7).

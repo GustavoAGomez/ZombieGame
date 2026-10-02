@@ -54,12 +54,26 @@ export interface ObjectDef {
   placeholder?: boolean;
 }
 
+/**
+ * A piece of the HUD skin (DOM, drawn by CSS): its image and size, the
+ * 9-slice inset for stretchable frames, and where the health bar's trough is.
+ */
+export interface UiPieceDef {
+  file: string;
+  width: number;
+  height: number;
+  slice?: number;
+  trough?: { x: number; y: number; width: number; height: number };
+}
+
 export interface Manifest {
   tileSize: number;
   characters: Record<string, CharacterDef>;
   tilesets: Record<string, TilesetDef>;
   objects: Record<string, ObjectDef>;
   maps: Record<string, string>;
+  /** HUD skin pieces (npm run hud:import); without them the HUD keeps its CSS-only look. */
+  ui: Record<string, UiPieceDef>;
 }
 
 /** Row order of character sheets (same as PixelLab). */
@@ -255,7 +269,30 @@ export function parseManifest(json: unknown): Manifest {
   const maps: Record<string, string> = {};
   for (const [key, raw] of Object.entries(section(json.maps, 'maps'))) maps[key] = text(raw, `maps.${key}`);
 
-  return { tileSize, characters, tilesets, objects, maps };
+  const ui: Record<string, UiPieceDef> = {};
+  for (const [key, raw] of Object.entries(section(json.ui, 'ui'))) {
+    const where = `ui.${key}`;
+    if (!isRecord(raw)) throw new ManifestError(`${where} must be an object`);
+    const t = isRecord(raw.trough) ? raw.trough : undefined;
+    ui[key] = {
+      file: text(raw.file, `${where}.file`),
+      width: positive(raw.width, `${where}.width`),
+      height: positive(raw.height, `${where}.height`),
+      ...(typeof raw.slice === 'number' ? { slice: raw.slice } : {}),
+      ...(t
+        ? {
+            trough: {
+              x: Number(t.x) || 0,
+              y: Number(t.y) || 0,
+              width: positive(t.width, `${where}.trough.width`),
+              height: positive(t.height, `${where}.trough.height`),
+            },
+          }
+        : {}),
+    };
+  }
+
+  return { tileSize, characters, tilesets, objects, maps, ui };
 }
 
 /**

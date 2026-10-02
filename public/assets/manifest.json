@@ -984,5 +984,50 @@
   "maps": {
     "room01": "maps/room01.tmj",
     "mansion": "maps/mansion.tmj"
+  },
+  "ui": {
+    "ringLarge": {
+      "file": "ui/ring_large.png",
+      "width": 97,
+      "height": 97
+    },
+    "ringLargeRed": {
+      "file": "ui/ring_large_red.png",
+      "width": 97,
+      "height": 97
+    },
+    "ringMedium": {
+      "file": "ui/ring_medium.png",
+      "width": 33,
+      "height": 33
+    },
+    "ringMediumAmber": {
+      "file": "ui/ring_medium_amber.png",
+      "width": 33,
+      "height": 33
+    },
+    "button": {
+      "file": "ui/button.png",
+      "width": 97,
+      "height": 33,
+      "slice": 12
+    },
+    "healthFrame": {
+      "file": "ui/health_frame.png",
+      "width": 145,
+      "height": 17,
+      "trough": {
+        "x": 22,
+        "y": 5,
+        "width": 116,
+        "height": 8
+      }
+    },
+    "panel": {
+      "file": "ui/panel.png",
+      "width": 144,
+      "height": 97,
+      "slice": 20
+    }
   }
 }

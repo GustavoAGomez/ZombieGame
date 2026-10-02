@@ -1,0 +1,88 @@
+/*
+ * HUD skin from PixelLab (src/ui/skin.ts, npm run hud:import). Only with
+ * `.has-ui-skin` on <html>: without the pieces the HUD keeps its CSS look.
+ * Every image at 1×, pixelated: whole art pixels, never a fractional scale.
+ */
+
+/* Fire button: the big ring, tinted red, centred on the 96 px button (the ring is 97). */
+.has-ui-skin .fire-stick {
+  background: none;
+  box-shadow: none;
+}
+
+.has-ui-skin .fire-stick::after {
+  content: '';
+  position: absolute;
+  left: -1px;
+  top: -1px;
+  z-index: -1;
+  width: var(--ui-ring-large-size);
+  height: var(--ui-ring-large-size);
+  background: var(--ui-ring-large) 0 0 / 100% 100% no-repeat;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+/* Special, reload, knife and weapon slots: the medium ring; the special and the weapon in hand in amber. */
+.has-ui-skin .action-button {
+  width: var(--ui-ring-medium-size);
+  height: var(--ui-ring-medium-size);
+  background: var(--ui-ring-medium) 0 0 / 100% 100% no-repeat;
+  box-shadow: none;
+  image-rendering: pixelated;
+}
+
+.has-ui-skin .weapon-column .action-button {
+  width: var(--ui-ring-medium-size);
+  height: var(--ui-ring-medium-size);
+}
+
+.has-ui-skin .action-button--special,
+.has-ui-skin .weapon-slot.is-active {
+  background-image: var(--ui-ring-medium-amber);
+  box-shadow: none;
+}
+
+/* The reload and special veils fill only the ring's dark face. */
+.has-ui-skin .action-button__clip {
+  inset: 4px;
+}
+
+/* Health: the frame with the cross replaces the heart; the segments sit in its trough. */
+.has-ui-skin .hud-heart {
+  display: none;
+}
+
+.has-ui-skin .hud-bar {
+  width: var(--ui-health-w);
+  height: var(--ui-health-h);
+  padding: var(--ui-health-pad);
+  background: var(--ui-health) 0 0 / 100% 100% no-repeat;
+  box-shadow: none;
+  image-rendering: pixelated;
+}
+
+/* Merchant shop: the panel with 9-slice; whole art pixels on the edges (repeat, never scaled). */
+.has-ui-skin .shop-panel {
+  border: var(--ui-panel-border) solid transparent;
+  border-image: var(--ui-panel) var(--ui-panel-slice) fill / var(--ui-panel-border) repeat;
+  background: none;
+  box-shadow: 3px 3px 0 rgba(15, 14, 12, 0.6);
+  padding: 0 0 2px 2px;
+  image-rendering: pixelated;
+}
+
+/* Rectangular buttons (shop and menus): the button with 9-slice instead of the flat box. */
+.has-ui-skin .shop-row__buy:not([data-status='unavailable']):not([data-status='limit']),
+.has-ui-skin .screen-button {
+  border: var(--ui-button-border) solid transparent;
+  border-image: var(--ui-button) var(--ui-button-slice) fill / var(--ui-button-border) repeat;
+  background: none;
+  box-shadow: none;
+  padding: 0 4px;
+  image-rendering: pixelated;
+}
+
+.has-ui-skin .screen-button--primary {
+  color: var(--amber);
+}

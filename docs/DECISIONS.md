@@ -883,3 +883,24 @@ Resueltas sin preguntar, por ser solo nombres o huecos de la spec:
   - encima, el precio en ámbar a menos de 96 px (el de la munición si ya se lleva el arma).
 - **`map:preview`** dibuja las vitrinas con una marca ámbar en su frente.
 - **Tests de las vitrinas:** como solo hay tres armas básicas, en los tests de sustitución el tercer hueco lo ocupa una segunda pistola, que hace de un arma futura.
+
+## Prueba: HUD con las piezas de PixelLab (rama `prueba-hud-pixellab`)
+
+Petición del usuario, de prueba: si no le gusta, se vuelve al HUD de antes (`main`, sin esta rama).
+
+- **Limpieza** (`npm run hud:import`, `scripts/import-hud.ts`), por color y forma, sin coordenadas fijas:
+  - **Aros:** en cada dirección, el primer píxel hueso que se encuentra desde fuera es el borde interior. Las direcciones que no lo encuentran (un remache encima) toman el radio típico. Dentro, se conserva la línea oscura pegada al borde y el resto pasa al color de la cara (`#332d29`).
+  - **Botón:** el texto naranja (y un píxel alrededor) se pinta con el color de la cara.
+  - **Barra:** el canal es la zona negra conectada (también en diagonal), empezando por su parte vacía. Su interior pasa a negro y la cruz, que queda fuera, se conserva.
+  - **Hoja de revisión:** `maps/preview/hud/hud-antes-despues.png`.
+- **Escala siempre entera (1×, `pixelated`):**
+  - el aro grande mide 97 px y el botón de disparo 96, así que va a 1× y sobresale medio píxel por lado;
+  - el mediano mide 65 px: a 1× los botones pequeños doblarían su tamaño (32–34 px). Se reduce exactamente a la mitad al importar (2:1, cada píxel el color más repetido de su bloque, y en los empates gana el claro para que el borde hueso no se pierda) y se muestra a 1× en 33 px. Los botones pasan de 34 y 32 a 33 px.
+- **Dónde va cada pieza:**
+  - aro grande en rojo para el disparo;
+  - aro mediano para especial, recargar, cuchillo y huecos de arma, en ámbar el especial y el arma en mano. Iconos y símbolos encima, como antes;
+  - el botón de acción contextual y el de la mejora no estaban en la lista y no cambian.
+- **Vida:** el marco con la cruz sustituye al corazón. Los 10 segmentos van en el canal con un margen que les da un ancho entero (9 px, 2 de separación) y 1 px arriba y abajo. El latido del corazón por debajo de 30 PV desaparece con él; queda el color de vida baja de los segmentos.
+- **Tienda:** el panel con 9-slice (20 px), con los bordes y el centro repetidos píxel a píxel (`repeat`), nunca escalados.
+- **Botón rectangular:** se usa en los botones COMPRAR de la tienda y en los de las pantallas de título, pausa y fin de partida, con 9-slice (12 px).
+- **Rutas por manifiesto** (regla 5): nueva sección `ui`. `applyUiSkin` las pasa al CSS como variables con URL absoluta. Si falta alguna pieza, no se activa y el HUD queda como antes.
