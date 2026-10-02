@@ -934,3 +934,12 @@ Petición del usuario: los botones que no son joysticks, más pequeños, con el 
 - **Huecos de arma de 45 px al tocar** (se pedían 44): margen invisible de 6 px y 12 px de separación entre huecos, para que los márgenes se junten sin que un hueco robe toques al aro del vecino. La columna mide 123 px.
   - En pantallas de 360 px de alto la columna baja hasta el especial y el margen de 14 px del especial tapaba los 3 px de abajo del último hueco. La columna se pinta por encima del especial (`z-index` 21): los huecos ganan donde se cruzan los márgenes, y su margen de 6 px no llega al aro del especial.
   - Comprobado a 844×390 y a 640×360, sin solapes. Captura: `maps/preview/hud/hud-aros-pequenos.jpg`.
+
+### JUGAR, botones de la tienda y parpadeo de reparar (misma rama)
+
+Petición del usuario: la placa en el botón de empezar y en los botones de mejora del mago, y que vuelva el parpadeo del borde del botón de reparar.
+
+- **JUGAR** (solo el de la pantalla de inicio, como se pidió) va sobre la placa a 2×: esquinas de 16 px, que casan con el título grande. Mide 50 px de alto, el doble de los 25 de la placa, así que su centro solo se estira a lo ancho. REINTENTAR y los botones de pausa conservan su aspecto.
+- **Botones de la tienda:** la placa salía solo en COMPRAR y en «FALTAN…». Cuando el artículo no haría nada («NIVEL MÁXIMO», «MUNICIÓN COMPLETA»…) o ya se ha llegado al límite de la visita («VUELVE EN OTRA RONDA», justo después de comprar una mejora), quedaba un recuadro fino sin diseño. Ahora todos los botones llevan la placa: estos dos estados, oscurecida al 60 % (`brightness`) y con el motivo en hueso.
+- **Reparar:** el parpadeo de antes animaba un `box-shadow` que la placa tapa, así que no se veía. Ahora parpadea un borde ámbar de 2 px que sigue el contorno de la propia placa (cuatro `drop-shadow` sin desenfoque). Mismo ritmo de antes: 0,5 s por ciclo, a pasos, la mitad encendido y la otra mitad apagado. Igual que antes, mientras dura la sacudida de un toque que no hace nada, el parpadeo se para.
+- **Capturas:** `maps/preview/hud/hud-inicio.jpg`, `hud-tienda-limite.jpg` y `hud-reparar.jpg` (esta última con el borde encendido).

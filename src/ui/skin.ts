@@ -50,6 +50,7 @@ export async function applyUiSkin(ui: Readonly<Record<string, UiPieceDef>>, asse
   style.setProperty('--ui-plate', url(href(plate)));
   style.setProperty('--ui-plate-slice', sliceNumbers(plate));
   style.setProperty('--ui-plate-width', slicePx(plate));
+  style.setProperty('--ui-plate-width-2x', slicePx(plate, 2));
 
   style.setProperty('--ui-health', url(href(health)));
   style.setProperty('--ui-health-w', px(health.width));
@@ -72,9 +73,10 @@ function sliceNumbers(piece: UiPieceDef): string {
   return sliceOf(piece).join(' ');
 }
 
-function slicePx(piece: UiPieceDef): string {
+/** The slices as border widths, at a whole scale: corners and edges drawn `scale` times bigger. */
+function slicePx(piece: UiPieceDef, scale = 1): string {
   return sliceOf(piece)
-    .map((n) => `${n}px`)
+    .map((n) => `${n * scale}px`)
     .join(' ');
 }
 

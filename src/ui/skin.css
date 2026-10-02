@@ -111,6 +111,24 @@
   }
 }
 
+/* Repair = repeated taps: an amber edge, 2 px around the plate's own outline, blinks on and off. */
+.has-ui-skin .context-button--repair {
+  animation: skin-tap-hint 0.5s steps(1, end) infinite;
+}
+
+.has-ui-skin .context-button--repair.is-shaking {
+  animation: context-button-shake 280ms steps(1, end);
+}
+
+@keyframes skin-tap-hint {
+  0% {
+    filter: none;
+  }
+  50% {
+    filter: drop-shadow(2px 0 0 var(--amber)) drop-shadow(-2px 0 0 var(--amber)) drop-shadow(0 2px 0 var(--amber)) drop-shadow(0 -2px 0 var(--amber));
+  }
+}
+
 /* The boost button keeps its own look, to the left of the plate. */
 .has-ui-skin .action-button--boost {
   left: calc(50% - 112px);
@@ -167,12 +185,37 @@
   image-rendering: pixelated;
 }
 
-.has-ui-skin .shop-row__buy:not([data-status='unavailable']):not([data-status='limit']) {
+.has-ui-skin .shop-panel .shop-row__buy {
   border: 8px solid transparent;
   border-image: var(--ui-plate) var(--ui-plate-slice) fill / var(--ui-plate-width) repeat;
   background: none;
   box-shadow: none;
   padding: 0 2px;
+  image-rendering: pixelated;
+}
+
+/* Would do nothing, or the visit's purchases are used up: the same plate, darkened, with the reason. */
+.has-ui-skin .shop-panel .shop-row__buy[data-status='unavailable'],
+.has-ui-skin .shop-panel .shop-row__buy[data-status='limit'] {
+  color: var(--bone);
+  filter: brightness(0.6);
+}
+
+/*
+ * ── Title screen: JUGAR on the plate at 2× (corners 16 px), so it matches
+ * the big title; 50 px high, the plate's own 25 doubled, so its middle is
+ * only stretched sideways. ──
+ */
+.has-ui-skin .screen--title .screen-button--primary {
+  min-height: 50px;
+  padding: 0 12px;
+  border-style: solid;
+  border-color: transparent;
+  border-width: var(--ui-plate-width-2x);
+  border-image: var(--ui-plate) var(--ui-plate-slice) fill / var(--ui-plate-width-2x) repeat;
+  background: none;
+  box-shadow: none;
+  line-height: 18px;
   image-rendering: pixelated;
 }
 
