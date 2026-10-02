@@ -153,6 +153,8 @@ describe('importAssets (the zombie export)', () => {
     // Each kind keeps its own pace.
     expect(runner?.animations.walk?.fps).toBeGreaterThan(walker?.animations.walk?.fps ?? Infinity);
     expect(lines.some((l) => l.includes('zombie_sprinter usa el arte de zombie_walker'))).toBe(true);
+    // The crawl was drawn 1.5× bigger: brought down to the standing zombie's size.
+    expect(lines.some((l) => l.includes('dragging_itself_forward') && l.includes('escalado'))).toBe(true);
     expect(checkAssets(tmp).errors).toEqual([]);
   });
 });

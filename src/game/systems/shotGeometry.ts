@@ -1,4 +1,5 @@
 import { BULLETS, PLAYER, ZOMBIES } from '../../config/balance';
+import type { ZombieState } from '../../core/GameState';
 import { angleFromDir8, dir8FromAngle } from '../../core/math';
 
 export interface Vec2 {
@@ -27,22 +28,41 @@ export function muzzleFor(muzzles: MuzzleTable, angle: number): Vec2 {
   return muzzles[dir8FromAngle(angle)] ?? { x: 0, y: -BULLETS.flightHeight };
 }
 
-/** Centre of a zombie's drawn body (ZOMBIES.hurtbox stands on its feet). */
-export function bodyCentre(zx: number, zy: number, out: Vec2): Vec2 {
+export interface Hurtbox {
+  readonly width: number;
+  readonly height: number;
+}
+
+/** The box bullets hit, standing on the feet: smaller once the zombie crawls without legs. */
+export function hurtboxOf(z: Pick<ZombieState, 'hp'>): Hurtbox {
+  return z.hp > 0 && z.hp <= ZOMBIES.crawlAtHp ? ZOMBIES.crawlHurtbox : ZOMBIES.hurtbox;
+}
+
+/** Centre of a zombie's drawn body (its hurtbox stands on its feet). */
+export function bodyCentre(zx: number, zy: number, out: Vec2, box: Hurtbox = ZOMBIES.hurtbox): Vec2 {
   out.x = zx;
-  out.y = zy - ZOMBIES.hurtbox.height / 2;
+  out.y = zy - box.height / 2;
   return out;
 }
 
 /**
  * Where along a drawn path, from (x, y) along (dirX, dirY) for `length`, it
- * first touches the drawn body of the zombie standing at (zx, zy): a box of
- * ZOMBIES.hurtbox from the feet up, widened by the bullet radius. Infinity
- * when it misses.
+ * first touches the drawn body of the zombie standing at (zx, zy): its
+ * hurtbox from the feet up, widened by the bullet radius. Infinity when it
+ * misses.
  */
-export function bodyEntry(x: number, y: number, dirX: number, dirY: number, length: number, zx: number, zy: number): number {
-  const halfW = ZOMBIES.hurtbox.width / 2 + BULLETS.radius;
-  const top = zy - ZOMBIES.hurtbox.height - BULLETS.radius;
+export function bodyEntry(
+  x: number,
+  y: number,
+  dirX: number,
+  dirY: number,
+  length: number,
+  zx: number,
+  zy: number,
+  box: Hurtbox = ZOMBIES.hurtbox,
+): number {
+  const halfW = box.width / 2 + BULLETS.radius;
+  const top = zy - box.height - BULLETS.radius;
   const bottom = zy + BULLETS.radius;
   let tEnter = 0;
   let tExit = length;

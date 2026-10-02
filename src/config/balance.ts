@@ -183,11 +183,14 @@ export const ZOMBIES = {
   /** Measured from the zombie centre to the edge of the player's hitbox. */
   attackRange: 16,
   /**
-   * The zombie's whole drawn body, from the feet up (world px): a bullet hits
-   * when its drawn path touches it. The placeholder is drawn exactly this
-   * size (body plus a 1 px outline); final art should keep roughly this size.
+   * The zombie's drawn body, from the feet up (world px): a bullet hits when
+   * its drawn path touches it. Measured on the PixelLab art: about 41 px tall
+   * and 24–29 px wide with the arms out; the box covers head to feet and the
+   * body without the tips of the arms. The placeholder is drawn this size.
    */
-  hurtbox: { width: 16, height: 28 },
+  hurtbox: { width: 20, height: 40 },
+  /** Legless (crawlAtHp or less) it lies on the ground: about 24 px tall and 21–30 px wide. */
+  crawlHurtbox: { width: 24, height: 24 },
   attackWindup: 0.35,
   attackDamage: 40,
   attackCooldown: 1.1,

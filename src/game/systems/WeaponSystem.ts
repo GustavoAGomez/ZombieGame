@@ -6,7 +6,7 @@ import { randomRange } from '../../core/Rng';
 import { BLOCK_BULLET, segmentClearShaped } from '../map/CollisionGrid';
 import { damageFactor } from './BoostSystem';
 import { bodyHitPoint, damageZombie, findAutoAimTarget, findMeleeTarget, isZombieAlive } from './Combat';
-import { bodyCentre, bodyEntry, muzzleFor, type Vec2 } from './shotGeometry';
+import { bodyCentre, bodyEntry, hurtboxOf, muzzleFor, type Hurtbox, type Vec2 } from './shotGeometry';
 import type { SimContext } from './SimContext';
 import { bulletHitsZombie } from './BulletSystem';
 import { bulletDamage, bulletLook, fireRate, magazineSize } from './weaponStats';
@@ -98,7 +98,7 @@ function updateAim(ctx: SimContext, p: PlayerState, cmd: InputCommand): void {
     const range = slot ? WEAPONS[slot.id].range : MELEE.range;
     const target = findAutoAimTarget(ctx, p.x, p.y, range);
     const z = target >= 0 ? ctx.state.zombies[target] : undefined;
-    if (z) aimAtBody(ctx, p, z.x, z.y);
+    if (z) aimAtBody(ctx, p, z.x, z.y, hurtboxOf(z));
     else {
       p.aimX = Math.cos(p.facing);
       p.aimY = Math.sin(p.facing);
@@ -113,8 +113,8 @@ function updateAim(ctx: SimContext, p: PlayerState, cmd: InputCommand): void {
  * zombie's drawn body. The muzzle depends on the direction, which depends on
  * the aim, so the direction is settled in two passes.
  */
-export function aimAtBody(ctx: SimContext, p: PlayerState, zx: number, zy: number): void {
-  bodyCentre(zx, zy, centre);
+export function aimAtBody(ctx: SimContext, p: PlayerState, zx: number, zy: number, box?: Hurtbox): void {
+  bodyCentre(zx, zy, centre, box);
   let ax = centre.x - p.x;
   let ay = centre.y - p.y;
   for (let pass = 0; pass < 2; pass++) {
@@ -221,7 +221,7 @@ function pointBlank(ctx: SimContext, p: PlayerState, bullet: BulletState, muzzle
   for (let i = 0; i < zombies.length; i++) {
     const z = zombies[i];
     if (!z || !isZombieAlive(z)) continue;
-    const t = bodyEntry(x0, y0, dx / len, dy / len, len, z.x, z.y);
+    const t = bodyEntry(x0, y0, dx / len, dy / len, len, z.x, z.y, hurtboxOf(z));
     if (t < best && segmentClearShaped(ctx.grid, p.x, p.y, z.x, z.y, BLOCK_BULLET)) {
       best = t;
       hit = i;

@@ -239,3 +239,63 @@ export function fillTransparent(frame: Frame): number {
   }
   return filled;
 }
+
+/** `src` centred on a `width`×`height` canvas, as buildSheet places each frame. */
+export function centerIn(src: Frame, width: number, height: number): Frame {
+  const out = blank(width, height);
+  const offX = Math.floor((width - src.width) / 2);
+  const offY = Math.floor((height - src.height) / 2);
+  for (let y = 0; y < src.height; y++) {
+    const fy = y + offY;
+    if (fy < 0 || fy >= height) continue;
+    for (let x = 0; x < src.width; x++) {
+      const fx = x + offX;
+      if (fx < 0 || fx >= width) continue;
+      const s = (y * src.width + x) * 4;
+      out.pixels.set(src.pixels.subarray(s, s + 4), (fy * width + fx) * 4);
+    }
+  }
+  return out;
+}
+
+/**
+ * Pixel art scaled by `factor` around the point (cx, cy), on a canvas of the
+ * same size. Each output pixel takes the most common colour of a 3×3 grid of
+ * samples over the area it covers in the source; on a tie an opaque colour
+ * beats transparency and a darker one beats a lighter one, so the 1 px
+ * outline survives a reduction instead of breaking up.
+ */
+export function scaleAbout(src: Frame, factor: number, cx: number, cy: number): Frame {
+  const out = blank(src.width, src.height);
+  const counts = new Map<number, number>();
+  const luma = (key: number): number => ((key >> 16) & 0xff) * 3 + ((key >> 8) & 0xff) * 6 + (key & 0xff);
+  for (let y = 0; y < out.height; y++) {
+    for (let x = 0; x < out.width; x++) {
+      counts.clear();
+      for (let j = 0; j < 3; j++) {
+        for (let i = 0; i < 3; i++) {
+          const sx = Math.floor(cx + (x + (i + 0.5) / 3 - cx) / factor);
+          const sy = Math.floor(cy + (y + (j + 0.5) / 3 - cy) / factor);
+          let key = -1;
+          if (sx >= 0 && sy >= 0 && sx < src.width && sy < src.height) {
+            const s = (sy * src.width + sx) * 4;
+            if ((src.pixels[s + 3] ?? 0) > 0) key = ((src.pixels[s] ?? 0) << 16) | ((src.pixels[s + 1] ?? 0) << 8) | (src.pixels[s + 2] ?? 0);
+          }
+          counts.set(key, (counts.get(key) ?? 0) + 1);
+        }
+      }
+      let best = -1;
+      let bestCount = -1;
+      for (const [key, count] of counts) {
+        const wins =
+          count > bestCount || (count === bestCount && (best === -1 || (key !== -1 && luma(key) < luma(best))));
+        if (wins) {
+          best = key;
+          bestCount = count;
+        }
+      }
+      if (best >= 0) out.pixels.set([(best >> 16) & 0xff, (best >> 8) & 0xff, best & 0xff, 255], (y * out.width + x) * 4);
+    }
+  }
+  return out;
+}

@@ -14,7 +14,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { decodePng, encodePng, parsePaletteHex } from './lib/png';
 import { directionRows, parsePixelLabMetadata, selectAnimations, type ExportAnimation, type TakeOverrides } from './lib/pixellab';
-import { binarizeAlpha, buildSheet, croppedPixels, opaqueBounds, quantize, type Frame } from './lib/sheet';
+import { binarizeAlpha, buildSheet, centerIn, croppedPixels, opaqueBounds, quantize, scaleAbout, type Frame } from './lib/sheet';
 
 /** Defaults for animations the manifest does not declare yet. */
 const ANIMATION_DEFAULTS: Record<string, { fps: number; loop: boolean }> = {
@@ -143,6 +143,7 @@ function importAnimation(
   palette: number[] | null,
   log: (line: string) => void,
   frameCount?: number,
+  scale?: number,
 ): ImportedAnimation {
   const frameWidth = typeof character.frameWidth === 'number' ? character.frameWidth : anim.width || 48;
   const frameHeight = typeof character.frameHeight === 'number' ? character.frameHeight : anim.height || 48;
@@ -162,13 +163,23 @@ function importAnimation(
   }
   const rows = sourceRows.map((r) => resampleFrames(r, frames));
 
-  const decoded = rows.map((row) => row.map((rel) => readFrame(join(sourceDir, rel))));
+  let decoded = rows.map((row) => row.map((rel) => readFrame(join(sourceDir, rel))));
   const odd = decoded.flat().filter((f) => f.width !== frameWidth || f.height !== frameHeight);
   if (odd.length > 0) {
     const sizes = [...new Set(odd.map((f) => `${f.width}×${f.height}`))].join(', ');
     log(`  · ${anim.sourceName}: ${odd.length} frames de ${sizes}, centrados en ${frameWidth}×${frameHeight}`);
     const lost = odd.reduce((n, f) => n + croppedPixels(f, frameWidth, frameHeight), 0);
     if (lost > 0) log(`  ⚠ ${anim.sourceName}: se recortan ${lost} píxeles del personaje al centrarlo`);
+  }
+
+  if (scale !== undefined && scale !== 1) {
+    // Drawn at another size than the rest of the character (PixelLab drew the crawl 1.5× bigger):
+    // scaled around the feet, so it keeps standing where the character stands.
+    const anchorX = (isRecord(character.anchor) && typeof character.anchor.x === 'number' ? character.anchor.x : 0.5) * frameWidth;
+    const cx = Math.round(anchorX);
+    const cy = Math.round(anchorY * frameHeight);
+    decoded = decoded.map((row) => row.map((f) => scaleAbout(centerIn(f, frameWidth, frameHeight), scale, cx, cy)));
+    log(`  · ${anim.sourceName}: escalado ×${scale} alrededor de los pies (import.json)`);
   }
 
   const sheet = buildSheet(decoded, frameWidth, frameHeight);
@@ -206,6 +217,8 @@ interface ImportOptions {
   takes: TakeOverrides;
   /** Frames per row of an animation, instead of its longest direction. */
   frames: Record<string, number>;
+  /** Scale of an animation drawn at another size than the rest of the character. */
+  scale: Record<string, number>;
   /** Other characters that use this art (zombie kinds sharing one zombie). */
   alsoFor: string[];
 }
@@ -213,11 +226,12 @@ interface ImportOptions {
 /**
  * Optional art-src/pixellab/<asset>/import.json with artist choices:
  * { "takes": { "<animation>": { "<direction>": "<take folder>" } },
- *   "frames": { "<animation>": <frames per row> }, "alsoFor": ["<asset>", …] }
+ *   "frames": { "<animation>": <frames per row> }, "scale": { "<animation>": <factor> },
+ *   "alsoFor": ["<asset>", …] }
  */
 function readOptions(assetDir: string, log: (line: string) => void): ImportOptions {
   const path = join(assetDir, 'import.json');
-  if (!existsSync(path)) return { takes: {}, frames: {}, alsoFor: [] };
+  if (!existsSync(path)) return { takes: {}, frames: {}, scale: {}, alsoFor: [] };
   const json: unknown = JSON.parse(readFileSync(path, 'utf8'));
   const takes = isRecord(json) && isRecord(json.takes) ? json.takes : {};
   const out: TakeOverrides = {};
@@ -229,9 +243,13 @@ function readOptions(assetDir: string, log: (line: string) => void): ImportOptio
   const frames = Object.fromEntries(
     Object.entries(framesRaw).filter((e): e is [string, number] => typeof e[1] === 'number' && Number.isInteger(e[1]) && e[1] > 0),
   );
+  const scaleRaw = isRecord(json) && isRecord(json.scale) ? json.scale : {};
+  const scale = Object.fromEntries(
+    Object.entries(scaleRaw).filter((e): e is [string, number] => typeof e[1] === 'number' && e[1] > 0 && e[1] <= 4),
+  );
   const alsoFor = isRecord(json) && Array.isArray(json.alsoFor) ? json.alsoFor.filter((a): a is string => typeof a === 'string') : [];
   log(`  · import.json: elecciones de tomas para ${Object.keys(out).join(', ') || 'nada'}${alsoFor.length ? `; arte compartido con ${alsoFor.join(', ')}` : ''}`);
-  return { takes: out, frames, alsoFor };
+  return { takes: out, frames, scale, alsoFor };
 }
 
 /**
@@ -288,7 +306,7 @@ export function importAssets(root: string, only: readonly string[], log: (line: 
         const previous = seen.get(anim.name);
         if (previous) log(`  ⚠ "${anim.name}" aparece en ${previous} y en ${exportDir}; se usa el último`);
         seen.set(anim.name, exportDir);
-        const result = importAnimation(root, asset, exportDir, anim, character, palette, log, options.frames[anim.name]);
+        const result = importAnimation(root, asset, exportDir, anim, character, palette, log, options.frames[anim.name], options.scale[anim.name]);
         applyImport(manifest, asset, result, hasFile);
         imported++;
       }

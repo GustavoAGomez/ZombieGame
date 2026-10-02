@@ -5,6 +5,7 @@ import { DEPTH } from '../game/depth';
 import { BLOCK_BULLET, cellBlocks, cellShapeRects, type CollisionGrid } from '../game/map/CollisionGrid';
 import { UNREACHABLE, flowNextCell, type FlowField } from '../game/map/FlowField';
 import { isZombieAlive } from '../game/systems/Combat';
+import { hurtboxOf } from '../game/systems/shotGeometry';
 
 /**
  * Debug drawing over the world (spec 01 §8): hitboxes (player, zombie and
@@ -38,7 +39,8 @@ export class DebugDraw {
       g.lineStyle(1, 0xff4040, 1);
       g.strokeCircle(z.x, z.y, ZOMBIES.hitboxRadius);
       g.lineStyle(1, 0xffd040, 1);
-      g.strokeRect(z.x - ZOMBIES.hurtbox.width / 2, z.y - ZOMBIES.hurtbox.height, ZOMBIES.hurtbox.width, ZOMBIES.hurtbox.height);
+      const box = hurtboxOf(z);
+      g.strokeRect(z.x - box.width / 2, z.y - box.height, box.width, box.height);
     }
     g.fillStyle(0xffffff, 1);
     for (const b of state.bullets) if (b.active) g.fillCircle(b.x + b.drawX, b.y + b.drawY, Math.max(1, BULLETS.radius));

@@ -2,7 +2,7 @@ import { BULLETS } from '../../config/balance';
 import type { BulletState } from '../../core/GameState';
 import { BLOCK_BULLET, pointBlocksShaped, segmentHitShaped } from '../map/CollisionGrid';
 import { damageZombie, isZombieAlive, type HitPoint } from './Combat';
-import { bodyEntry } from './shotGeometry';
+import { bodyEntry, hurtboxOf } from './shotGeometry';
 import type { SimContext } from './SimContext';
 
 /**
@@ -13,7 +13,7 @@ import type { SimContext } from './SimContext';
  *
  * Everything is judged from where the bullet is drawn (from the gun's
  * muzzle, drawX/drawY): zombies are hit when it visibly touches their body
- * (ZOMBIES.hurtbox); walls when the point of the ground right under it
+ * (ZOMBIES.hurtbox, or crawlHurtbox once legless); walls when the point of the ground right under it
  * (BULLETS.flightHeight lower) reaches the wall's base. In 3/4 that is when
  * it visibly meets the wall's face, and a bullet that visibly passes beside
  * a thin wall or the end of one flies on. Testing the ground point under the
@@ -69,7 +69,7 @@ function hitZombieAlongSegment(ctx: SimContext, b: BulletState, step: number, wa
   for (let i = 0; i < zombies.length; i++) {
     const z = zombies[i];
     if (!z || !isZombieAlive(z) || b.hits.includes(i)) continue;
-    const t = bodyEntry(b.x + b.drawX, b.y + b.drawY, b.dirX, b.dirY, step, z.x, z.y);
+    const t = bodyEntry(b.x + b.drawX, b.y + b.drawY, b.dirX, b.dirY, step, z.x, z.y, hurtboxOf(z));
     if (t < hitT) {
       hitT = t;
       hitIndex = i;

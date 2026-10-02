@@ -4,6 +4,7 @@ import { random } from '../../core/Rng';
 import { BLOCK_SIGHT, segmentClearShaped } from '../map/CollisionGrid';
 import { rollZombieDrop } from './PickupSystem';
 import { awardPoints } from './PointsSystem';
+import { hurtboxOf } from './shotGeometry';
 import type { SimContext } from './SimContext';
 
 export function isZombieAlive(z: ZombieState): boolean {
@@ -43,7 +44,7 @@ export function damageZombie(ctx: SimContext, z: ZombieState, amount: number, at
 
 /** The middle of a zombie's drawn body (its hurtbox): where a hit without a drawn point sprays from. */
 export function bodyHitPoint(z: ZombieState, dirX: number, dirY: number): HitPoint {
-  return { x: z.x, y: z.y - ZOMBIES.hurtbox.height / 2, dirX, dirY };
+  return { x: z.x, y: z.y - hurtboxOf(z).height / 2, dirX, dirY };
 }
 
 /** Leaves a blood decal; when all 40 are in use, the oldest is reused. */

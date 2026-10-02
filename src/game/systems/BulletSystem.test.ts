@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { BULLETS, WEAPONS, ZOMBIES } from '../../config/balance';
 import { command, createTestContext, placeZombie, player, runTicks } from '../../test/fixtures';
 import { updateBullets } from './BulletSystem';
-import { bodyEntry } from './shotGeometry';
+import { bodyEntry, hurtboxOf } from './shotGeometry';
 import { stepSimulation } from './Simulation';
 
 function fireOnce(ctx: ReturnType<typeof createTestContext>, aimX: number, aimY: number): void {
@@ -152,5 +152,23 @@ describe('bullets hit what they visibly touch (drawn path vs the zombie rectangl
     expect(bodyEntry(ZX - 50, ZY - 10, 1, 0, 100, ZX, ZY)).toBeCloseTo(50 - half - BULLETS.radius);
     expect(bodyEntry(ZX, ZY - 10, 1, 0, 10, ZX, ZY)).toBe(0);
     expect(bodyEntry(ZX - 50, ZY - 10, 1, 0, 20, ZX, ZY)).toBe(Infinity);
+  });
+});
+
+describe('legless hurtbox', () => {
+  it('is lower once the zombie crawls, so a shot over its back flies on', () => {
+    const ZX = 200;
+    const ZY = 200;
+    const standing = hurtboxOf({ hp: 5 });
+    const legless = hurtboxOf({ hp: ZOMBIES.crawlAtHp });
+    expect(standing).toBe(ZOMBIES.hurtbox);
+    expect(legless).toBe(ZOMBIES.crawlHurtbox);
+    expect(hurtboxOf({ hp: 0 })).toBe(ZOMBIES.hurtbox);
+    // A shot across at chest height of a standing zombie, above a crawling one.
+    const y = ZY - (ZOMBIES.crawlHurtbox.height + ZOMBIES.hurtbox.height) / 2;
+    expect(bodyEntry(ZX - 50, y, 1, 0, 100, ZX, ZY, standing)).toBeLessThan(Infinity);
+    expect(bodyEntry(ZX - 50, y, 1, 0, 100, ZX, ZY, legless)).toBe(Infinity);
+    // Low shots still hit it on the ground.
+    expect(bodyEntry(ZX - 50, ZY - 8, 1, 0, 100, ZX, ZY, legless)).toBeLessThan(Infinity);
   });
 });

@@ -727,3 +727,17 @@ Petición del usuario: integrar las animaciones del zombi y nuevas del jugador.
   - la muerte se comprueba antes que el disparo, porque «drops the handgun» contiene «gun»;
   - `assets:check` acepta el arte compartido y mide cada hoja con sus propias filas.
 - **Pendiente** (`ASSETS-TODO.md`): la muerte del zombi, la del jugador al norte y en diagonal, el dash del jugador y, si se quiere, un aspecto propio para corredores y sprinters.
+
+## Zombi gateando a su tamaño y hurtbox ajustada al arte
+
+Petición del usuario: el zombi sin piernas se veía más grande que de pie, y la hurtbox debía ajustarse al tamaño del zombi.
+
+- **Escala del zombi gateando.** PixelLab dibujó el estado de arrastrarse 1,5 veces más grande: 6 px entre los ojos y ojos de 2 px, frente a 4 px y ojos de 1 px de pie.
+  - El importador reduce `crawl` y `crawl_attack` a 2/3 (`"scale"` en `import.json`), alrededor de los pies, para que siga en el mismo sitio.
+  - Cada píxel toma el color más repetido de 9 muestras; en caso de empate gana el opaco y luego el más oscuro, así se conserva el contorno.
+  - Escalar pixel art lo ensucia un poco, pero el contrato prohíbe escalar en el motor. Si se regenera el estado en PixelLab al tamaño correcto, basta con quitar `scale`.
+- **Hurtbox de pie: 20×40** (antes 16×28, el tamaño del placeholder). El arte mide unos 41 px de alto y 24–29 de ancho con los brazos; la caja va de cabeza a pies y cubre el cuerpo sin las puntas de los brazos.
+- **Hurtbox sin piernas: 24×24** (`ZOMBIES.crawlHurtbox`), medida sobre el arte ya escalado: 23–28 px de alto y 21–30 de ancho.
+  - Se usa con la misma regla con la que se arrastra (vida ≤ `crawlAtHp`): `hurtboxOf(z)`.
+  - La usan las balas, el disparo a quemarropa, el autoapuntado (apunta al centro de la caja), el punto del que sale la sangre y el dibujo de hitboxes del debug.
+- Efecto en el juego: de pie es más fácil acertar (la caja es más grande). Sin piernas, un disparo a la altura del pecho de uno de pie le pasa por encima, como se ve.
