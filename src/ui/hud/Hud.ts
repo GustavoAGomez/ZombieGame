@@ -1,4 +1,4 @@
-import { MERCHANT, POINTS, WAVES, type BoostKind } from '../../config/balance';
+import { ITEMS, MERCHANT, POINTS, WAVES, type BoostKind } from '../../config/balance';
 import { merchantDef } from '../../config/merchants';
 import { COLORS } from '../../config/theme';
 
@@ -129,6 +129,7 @@ export class Hud {
       events.on('player:died', this.onDied),
       events.on('merchant:moved', this.onMerchantMoved),
       events.on('boost:activated', this.onBoostActivated),
+      events.on('item:picked', this.onItemPicked),
     );
   }
 
@@ -200,9 +201,15 @@ export class Hud {
     if (e.playerId === this.localPlayerId) this.showNotice(STRINGS.boosts.activated(STRINGS.boosts.names[e.boost]), BOOST_COLORS[e.boost]);
   };
 
-  private showNotice(text: string, color: string): void {
+  /** A special item picked up: its name for a moment (spec 05 §3). */
+  private readonly onItemPicked = (e: GameEvents['item:picked']): void => {
+    if (e.playerId === this.localPlayerId) this.showNotice(STRINGS.items.names[e.item], 'var(--bone)', ITEMS.pickupNoticeTime);
+  };
+
+  private showNotice(text: string, color: string, seconds: number = MERCHANT.movedNoticeTime): void {
     this.notice.textContent = text;
     this.notice.style.color = color;
+    this.notice.style.animationDuration = `${seconds}s`;
     this.notice.classList.remove('is-showing');
     void this.notice.offsetWidth;
     this.notice.classList.add('is-showing');

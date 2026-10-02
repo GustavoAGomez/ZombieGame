@@ -119,5 +119,16 @@ export const STRINGS = {
     swapFrom: (weapon: string): string => `CAMBIAR ${weapon}`,
     swapTo: (weapon: string): string => `POR ${weapon}`,
     buyWeaponLabel: (weapon: string): string => `Comprar ${weapon}`,
+    /** Special items on the floor (spec 05 §3): "RECOGER VARITA DESGASTADA". */
+    pickUp: (item: string): string => `RECOGER ${item}`,
+    inventoryFull: 'INVENTARIO LLENO',
+  },
+  /** Special items (spec 05), by id. */
+  items: {
+    names: { living_heart: 'CORAZÓN VIVO', worn_wand: 'VARITA DESGASTADA' },
+    /** A tap on an item where it does nothing (spec 05 §5). */
+    cantUse: 'AQUÍ NO SE USA',
+    use: (item: string): string => `Usar ${item}`,
+    inventory: 'Objetos',
   },
 } as const;

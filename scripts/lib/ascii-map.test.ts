@@ -72,6 +72,19 @@ describe('parseAsciiMap', () => {
     expect(plan.openSpawns).toHaveLength(5);
     expect(plan.merchantSpots).toHaveLength(20);
     for (const zone of plan.zones) expect(plan.merchantSpots.filter((m) => m.zone === zone.id).length, zone.id).toBe(2);
+    // Item spots (spec 05 §2): 1 or 2 per zone, the cellar and the roof included.
+    expect(plan.itemSpots).toHaveLength(19);
+    for (const zone of plan.zones) expect(plan.itemSpots.filter((s) => s.zone === zone.id).length, zone.id).toBeGreaterThanOrEqual(1);
+  });
+
+  it('writes item spots as points with their zone and keeps them off walls and out from under furniture', () => {
+    const withSpots = (rows: string): string =>
+      TINY.replace('## Jugador (P)', `## Objetos\n| id | casilla | zona |\n|---|---|---|\n${rows}\n## Jugador (P)`);
+    const source = compileAsciiMap(parseAsciiMap(withSpots('| I1 | 1,1 | a |')), tilesets, 'tiny.txt');
+    const objects = (source.layers.find((l) => l.name === 'objects') as { objects: { type?: string; x: number; y: number; properties?: TiledProperty[] }[] }).objects;
+    expect(objects.filter((o) => o.type === 'item_spot').map((o) => [o.x, o.y, o.properties?.[0]?.value])).toEqual([[1.5 * 32, 1.5 * 32, 'a']]);
+    expect(() => parseAsciiMap(withSpots('| I1 | 0,1 | a |'))).toThrow(/objeto I1: la casilla 0,1 es "H"/);
+    expect(() => parseAsciiMap(withSpots('| I1 | 1,1 | a |\n| I1 | 2,1 | a |'))).toThrow(/objeto I1: id repetido/);
   });
 
   it('writes merchant spots as points with their zone and rejects them on walls, under furniture or outside their zone', () => {

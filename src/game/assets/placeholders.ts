@@ -1,6 +1,8 @@
 import type Phaser from 'phaser';
 import { ZOMBIES } from '../../config/balance';
+import { ITEM_IDS } from '../../config/items';
 import { MERCHANTS } from '../../config/merchants';
+import { iconDef } from '../../ui/icons';
 import { COLORS } from '../../config/theme';
 import { propColor, shade } from './propColors';
 import { TILE_COLLIDES, TILE_VOID, TILE_WATER, type MapTileset } from '../map/MapLoader';
@@ -539,6 +541,19 @@ function drawSmokePuff(ctx: Ctx, frame: number, frames: number, ox: number, oy: 
   }
 }
 
+/**
+ * A special item (spec 05 §3): its HUD icon (ui/icons.ts) at 1×, centred at
+ * the bottom of the frame, frame `index` in ITEM_IDS order.
+ */
+function drawItemIcon(ctx: Ctx, index: number, ox: number, oy: number, w: number, h: number): void {
+  const id = ITEM_IDS[index];
+  if (!id) return;
+  const def = iconDef(id);
+  const dx = ox + Math.floor((w - def.w) / 2);
+  const dy = oy + h - def.h;
+  for (const [x, y, rw, rh, color] of def.rects) rect(ctx, color ?? def.fill, dx + x, dy + y, rw, rh);
+}
+
 /** Off-screen pointer: a white triangle towards +x with a dark outline, tinted at runtime. */
 function drawOffscreenArrow(ctx: Ctx, ox: number, oy: number, w: number, h: number): void {
   for (let x = 0; x < w; x++) {
@@ -612,6 +627,9 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
         break;
       case ASSET_KEYS.offscreenArrow:
         drawOffscreenArrow(ctx, ox, oy, w, h);
+        break;
+      case ASSET_KEYS.item:
+        drawItemIcon(ctx, col, ox, oy, w, h);
         break;
       default: {
         const merchant = MERCHANTS.find((m) => object === `merchant_${m.id}`);

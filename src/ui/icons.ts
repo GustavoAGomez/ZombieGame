@@ -18,11 +18,14 @@ export type IconName =
   | 'stairs'
   | 'wizard'
   | 'x2'
-  | 'star';
+  | 'star'
+  | 'living_heart'
+  | 'worn_wand';
 
-type Rect = readonly [number, number, number, number, string?];
+export type IconRect = readonly [number, number, number, number, string?];
+type Rect = IconRect;
 
-interface IconDef {
+export interface IconDef {
   w: number;
   h: number;
   fill: string;
@@ -110,6 +113,24 @@ const ICONS: Record<IconName, IconDef> = {
       [7, 0, 3, 1], [6, 1, 1, 1], [10, 1, 1, 2], [9, 3, 1, 1], [8, 4, 1, 1], [7, 5, 1, 1], [6, 6, 5, 1],
     ],
   },
+  // Special items (spec 05): placeholders on a 12×12 grid in their catalogue colours (items.ts), plain
+  // colours so the floor sprite can be drawn from the same data on a canvas (assets/placeholders.ts).
+  living_heart: {
+    w: 12, h: 10, fill: '#c93a2b',
+    rects: [
+      [2, 0, 3, 1], [7, 0, 3, 1], [1, 1, 10, 1], [0, 2, 12, 3], [1, 5, 10, 1], [2, 6, 8, 1], [3, 7, 6, 1], [4, 8, 4, 1], [5, 9, 2, 1],
+      [2, 2, 2, 1, '#e8503a'], [2, 3, 1, 1, '#e8503a'], [7, 6, 2, 1, '#7a1f17'], [6, 7, 2, 1, '#7a1f17'],
+    ],
+  },
+  // A stick leaning to the right, its grip darker and its tip light.
+  worn_wand: {
+    w: 12, h: 12, fill: '#8a6a3f',
+    rects: [
+      [9, 2, 2, 1], [8, 3, 2, 1], [7, 4, 2, 1], [6, 5, 2, 1], [5, 6, 2, 1], [4, 7, 2, 1], [3, 8, 2, 1],
+      [2, 9, 2, 1, '#5a4636'], [1, 10, 2, 1, '#5a4636'], [0, 11, 2, 1, '#5a4636'],
+      [10, 0, 2, 2, '#efe6d2'], [9, 1, 1, 1, '#efe6d2'],
+    ],
+  },
   // A ring open at the top right, with the arrow head pointing down into it.
   reload: {
     w: 12, h: 12, fill: 'var(--bone)',
@@ -123,6 +144,11 @@ const ICONS: Record<IconName, IconDef> = {
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 /** Creates an icon whose longest side measures `size` CSS px; `fill` replaces its main colour. */
+/** Icon `name`'s grid and rects, to draw it elsewhere than an SVG (the special items' floor sprite). */
+export function iconDef(name: IconName): Readonly<IconDef> {
+  return ICONS[name];
+}
+
 /** The size (px of its longest side) that draws icon `name` at `scale`× its grid: whole pixels. */
 export function iconSize(name: IconName, scale: number): number {
   const def = ICONS[name];

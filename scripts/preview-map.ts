@@ -203,6 +203,16 @@ export function renderMap(mapPath: string): { image: Frame; map: MapData } {
       rect(image, Math.round(m.x) - half, Math.round(m.y) + i, half * 2 + 1, 1, [58, 111, 216]);
     }
   }
+  // Item spots: a violet four-pointed star with a dark outline (spec 05 §2).
+  for (const s of map.itemSpots) {
+    const cx = Math.round(s.x);
+    const cy = Math.round(s.y);
+    rect(image, cx - 6, cy - 2, 13, 5, [30, 15, 40]);
+    rect(image, cx - 2, cy - 6, 5, 13, [30, 15, 40]);
+    rect(image, cx - 5, cy - 1, 11, 3, [190, 90, 235]);
+    rect(image, cx - 1, cy - 5, 3, 11, [190, 90, 235]);
+    rect(image, cx - 1, cy - 1, 3, 3, [245, 225, 255]);
+  }
   for (let i = 0; i <= 8; i++) rect(image, Math.round(map.playerSpawn.x) - i, Math.round(map.playerSpawn.y) - 8 + i, i * 2 + 1, 1, [255, 230, 40]);
   for (let i = 0; i < 8; i++) rect(image, Math.round(map.playerSpawn.x) - 7 + i, Math.round(map.playerSpawn.y) + 1 + i, 15 - i * 2, 1, [255, 230, 40]);
   return { image, map };

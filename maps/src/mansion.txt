@@ -168,6 +168,29 @@ ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
 | V1 | 24,35 | smg | 1000 | sur | salon | en el centro del salón, contra la cara sur de la columna |
 | V2 | 53,30 | shotgun | 1500 | sur | comedor | centrada en la pared norte, frente a la mesa |
 
+## Objetos (puntos de objeto especial, spec 05 §2: 1 o 2 por zona, en una casilla de suelo a la que se llega a pie, a 2 tiles o más de barricadas, puertas, portales, spawns, puntos de mago y vitrinas, nunca tapados por atrezo; la casilla conserva su suelo)
+| id | casilla | zona | nota |
+|---|---|---|---|
+| I1 | 36,36 | recibidor | entre los cascotes de la escalera hundida |
+| I2 | 17,32 | salon | rincón junto a la chimenea, al borde de la alfombra del hogar |
+| I3 | 30,40 | salon | rincón del brazo bajo de la L |
+| I4 | 57,33 | comedor | junto al aparador |
+| I5 | 50,34 | comedor | junto a las sillas volcadas, en la cabecera de la mesa |
+| I6 | 19,23 | biblioteca | junto a la caja fuerte abierta del estudio |
+| I7 | 24,26 | biblioteca | junto a la mesa de lectura |
+| I8 | 45,24 | cocina | junto a la nevera abierta |
+| I9 | 56,21 | cocina | en la despensa saqueada, junto a las latas |
+| I10 | 64,28 | garaje | junto al banco de trabajo del taller |
+| I11 | 65,37 | garaje | junto a la puerta abierta del coche: se le cayó al huir |
+| I12 | 49,14 | jardin | junto a la barbacoa volcada |
+| I13 | 28,12 | jardin | junto a la mesa del patio de la biblioteca |
+| I14 | 7,47 | calle | junto al coche accidentado y la farola caída |
+| I15 | 35,49 | calle | junto al buzón del sendero |
+| I16 | 95,35 | sotano | junto al colchón del refugio improvisado |
+| I17 | 104,30 | sotano | en el cuarto de calderas |
+| I18 | 93,13 | azotea | en el campamento, entre las cajas y los sacos de dormir |
+| I19 | 98,16 | azotea | junto al aparato de aire acondicionado |
+
 ## Jugador (P)
 | casilla |
 |---|

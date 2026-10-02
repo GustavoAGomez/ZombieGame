@@ -1,6 +1,7 @@
 /**
- * Design rules of a full game map (docs/specs/02-mapa-mansion.md §4, and the
- * merchant spots of docs/specs/03-magos.md §1). Used by
+ * Design rules of a full game map (docs/specs/02-mapa-mansion.md §4, the
+ * merchant spots of docs/specs/03-magos.md §1, the weapon cases of spec 04
+ * §3 and the item spots of spec 05 §2). Used by
  * `map:build`, `assets:check` and the tests. Returns readable errors in
  * Spanish; an empty list means the map is valid.
  */
@@ -26,6 +27,10 @@ export const MAP_RULES = {
   minMerchantClearanceTiles: 3,
   /** Weapon cases keep at least this far (tiles, centre to centre) from barricades, doors and merchant spots (spec 04 §3). */
   minCaseClearanceTiles: 3,
+  minItemSpotsPerZone: 1,
+  maxItemSpotsPerZone: 2,
+  /** Item spots keep at least this far (tiles, centre to centre) from barricades, doors, portals, spawns, merchant spots and weapon cases (spec 05 §2). */
+  minItemClearanceTiles: 2,
   maxWidth: 120,
   maxHeight: 70,
 } as const;
@@ -210,6 +215,7 @@ export function validateMap(raw: TiledSourceMap | TiledMap): MapValidation {
 
   validateMerchantSpots(map, free, inOpenSquare, errors);
   validateWeaponCases(map, free, inOpenSquare, errors);
+  validateItemSpots(map, free, (x, y) => seen[y * map.width + x] === 1, errors);
   return { errors, map };
 }
 
@@ -250,6 +256,55 @@ function validateWeaponCases(
     const narrow = SIDES.map(([dx, dy]) => [c.tileX + dx, c.tileY + dy] as const).filter(([x, y]) => free(x, y) && !inOpenSquare(x, y));
     if (narrow.length > 0) errors.push(`${who} deja un paso de menos de 2 tiles en ${narrow.map(([x, y]) => `${x},${y}`).join(' ')}`);
   }
+}
+
+/**
+ * Item spots (spec 05 §2): 1 or 2 per zone, on a free tile of their zone
+ * that can be walked to, and at least minItemClearanceTiles from barricades,
+ * doors, portals, spawns, merchant spots and weapon cases. Water, void and
+ * furniture with collision are not free; the ASCII plan also keeps them out
+ * from under any prop. Being somewhere believable is for the design review.
+ */
+function validateItemSpots(
+  map: MapData,
+  free: (x: number, y: number) => boolean,
+  reachable: (x: number, y: number) => boolean,
+  errors: string[],
+): void {
+  const R = MAP_RULES;
+  const ts = map.tileSize;
+  map.zones.forEach((zone, i) => {
+    const count = map.itemSpots.filter((s) => s.zoneIndex === i).length;
+    if (count < R.minItemSpotsPerZone || count > R.maxItemSpotsPerZone) {
+      errors.push(`la zona ${zone.id} tiene ${count} puntos de objeto; deben ser de ${R.minItemSpotsPerZone} a ${R.maxItemSpotsPerZone}`);
+    }
+  });
+  const centre = (t: { x: number; y: number }) => ({ x: (t.x + 0.5) * ts, y: (t.y + 0.5) * ts });
+  const keepAway: { what: string; points: { x: number; y: number }[] }[] = [
+    ...map.windows.map((w) => ({ what: `la barricada ${w.id}`, points: [w.center] })),
+    ...map.doors.map((d) => ({ what: `la puerta ${d.id}`, points: d.tiles.map(centre) })),
+    ...map.portals.map((p) => ({ what: `el portal ${p.id}`, points: p.tiles.map(centre) })),
+    ...map.zombieSpawns.map((s) => ({ what: `el spawn de ${s.window}`, points: [s] })),
+    ...map.openSpawns.map((s, i) => ({ what: `el spawn abierto ${i + 1}`, points: [s] })),
+    { what: 'el spawn del jugador', points: [map.playerSpawn] },
+    ...map.merchantSpots.map((s, i) => ({ what: `el punto de mago ${i + 1} (${s.zone})`, points: [s] })),
+    ...map.weaponCases.map((c) => ({ what: `la vitrina ${c.id}`, points: [c] })),
+  ];
+  map.itemSpots.forEach((spot, i) => {
+    const who = `el punto de objeto ${i + 1} (${spot.zone})`;
+    const tx = Math.floor(spot.x / ts);
+    const ty = Math.floor(spot.y / ts);
+    if ((map.cellZone[ty * map.width + tx] ?? -1) !== spot.zoneIndex) errors.push(`${who} no cae en su zona`);
+    if (!free(tx, ty)) {
+      errors.push(`${who} está en una casilla bloqueada (${tx},${ty}): agua, vacío, pared o atrezo`);
+      return;
+    }
+    if (!reachable(tx, ty)) errors.push(`${who} no se puede alcanzar a pie (${tx},${ty})`);
+    for (const k of keepAway) {
+      const d = Math.min(...k.points.map((p) => Math.hypot(p.x - spot.x, p.y - spot.y))) / ts;
+      if (d < R.minItemClearanceTiles) errors.push(`${who} está a ${d.toFixed(1)} tiles ${k.what.startsWith('el ') ? `del ${k.what.slice(3)}` : `de ${k.what}`}; debe estar a ${R.minItemClearanceTiles} o más`);
+    }
+  });
 }
 
 const SIDES = [

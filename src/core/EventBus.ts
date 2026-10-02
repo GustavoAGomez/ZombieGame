@@ -1,6 +1,7 @@
 import type { BoostKind, PickupKind, ZombieKind } from '../config/balance';
 import type { WeaponId } from '../config/weapons';
 import type { MerchantId, MerchantItemId } from '../config/merchants';
+import type { ItemId } from '../config/items';
 import type { ShopItemStatus } from './shop';
 
 /**
@@ -54,7 +55,7 @@ export interface GameEvents {
    * missing. A `locked` portal is a second entrance not yet buyable.
    */
   'action:context': {
-    kind: 'repair' | 'door' | 'portal' | 'merchant' | 'weaponCase' | null;
+    kind: 'repair' | 'door' | 'portal' | 'merchant' | 'weaponCase' | 'pickup' | null;
     amount: number;
     enabled: boolean;
     portal?: 'stairs' | 'hatch';
@@ -68,7 +69,11 @@ export interface GameEvents {
      * `amount` is the price, or what is missing when not enabled.
      */
     weaponCase?: { weapon: WeaponId; mode: 'buy' | 'ammo' | 'confirm'; full: boolean; replaces?: WeaponId; replacesLevel?: number };
+    /** With kind 'pickup' (spec 05 §3): the special item on the floor; not enabled with the inventory full. */
+    item?: ItemId;
   };
+  /** A special item picked up (spec 05 §3): light vibration and its name on the HUD. */
+  'item:picked': { playerId: number; item: ItemId };
   'round:changed': { round: number };
   /** A merchant appeared (`first`) or teleported to another spot at the start of a round (spec 03 §2). */
   'merchant:moved': { merchant: MerchantId; first: boolean };

@@ -1,7 +1,9 @@
 import { BOOSTS, BULLETS, LOADOUT, PICKUPS, PLAYER, POINTS, WAVES, ZOMBIES, type BoostKind, type PickupKind, type ZombieKind } from '../config/balance';
 import { WEAPON_SPECIALS, WEAPONS, type WeaponId } from '../config/weapons';
 import { MERCHANTS, type MerchantId } from '../config/merchants';
+import type { ItemId } from '../config/items';
 import type { MapData } from '../game/map/MapLoader';
+import { placeMatchItems } from '../game/systems/itemSpawns';
 import { zombiesInRound } from '../game/systems/waveFormulas';
 import type { RngState } from './Rng';
 
@@ -28,7 +30,7 @@ export interface WeaponSlotState {
 export type BulletLook = 'normal' | 'upgraded' | 'boosted' | 'special' | 'fire';
 
 /** What the contextual action chip would do for a player right now. */
-export type ContextAction = 'none' | 'repair' | 'door' | 'portal' | 'merchant' | 'weaponCase';
+export type ContextAction = 'none' | 'repair' | 'door' | 'portal' | 'merchant' | 'weaponCase' | 'pickup';
 
 export interface PlayerState {
   id: number;
@@ -114,11 +116,24 @@ export interface PlayerState {
   /** Boost running now, for boostTimer more seconds. */
   boostActive: BoostKind | null;
   boostTimer: number;
+  /** Special items carried (spec 05), in the order they were picked up: at most ITEMS.maxSlots, never two alike. */
+  items: ItemId[];
 
   /** Portal end just arrived at: it does not fire again until the player steps off it. -1 = none. */
   portalLock: number;
   /** Times this player went through a portal (views snap the camera when it changes). */
   teleports: number;
+}
+
+/** A special item lying on the map (spec 05 §2–3) until someone picks it up. */
+export interface GroundItemState {
+  item: ItemId;
+  /** Still on the floor (false once picked up). */
+  active: boolean;
+  x: number;
+  y: number;
+  /** Index into MapData.itemSpots. */
+  spot: number;
 }
 
 export interface BulletState {
@@ -293,6 +308,8 @@ export interface GameState extends RngState {
   pickups: PickupState[];
   /** One per merchant in merchants.ts, enabled or not. */
   merchants: MerchantState[];
+  /** Special items placed on the map this match (spec 05 §2): one entry each, kept once picked up (inactive). */
+  groundItems: GroundItemState[];
   wave: WaveState;
   /** Parallel to MapData.doors. */
   doorsOpen: boolean[];
@@ -357,6 +374,7 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     boostStored: null,
     boostActive: null,
     boostTimer: 0,
+    items: [],
     portalLock: -1,
     teleports: 0,
   };
@@ -456,7 +474,7 @@ export function createGameState(map: MapData, options: GameOptions = {}): GameSt
   const round = Math.max(1, Math.floor(options.startRound ?? 1));
   const { seed = 1, toSpawn = zombiesInRound(round), waveFlow = true } = options;
   const players = [createPlayerState(0, map.playerSpawn.x, map.playerSpawn.y)];
-  return {
+  const state: GameState = {
     tick: 0,
     time: 0,
     rng: seed | 0,
@@ -471,5 +489,9 @@ export function createGameState(map: MapData, options: GameOptions = {}): GameSt
     portalsOpen: Array.from({ length: map.portalLinks }, () => false),
     windowPlanks: map.windows.map((w) => w.planks),
     zonesUnlocked: map.zones.map((z) => z.startsUnlocked),
+    groundItems: [],
   };
+  // Drawn with the match's RNG as the match starts (spec 05 §2).
+  state.groundItems = placeMatchItems(state, map);
+  return state;
 }

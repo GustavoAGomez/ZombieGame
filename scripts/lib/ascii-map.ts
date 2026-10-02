@@ -125,6 +125,13 @@ export interface AsciiMerchantSpot {
   zone: string;
 }
 
+/** Where a special item can lie (table "Objetos", spec 05 §2). Only in the table: the cell keeps its floor. */
+export interface AsciiItemSpot {
+  id: string;
+  cell: Cell;
+  zone: string;
+}
+
 /** A weapon case (table "Vitrinas", spec 04 §3): 1 tile, its weapon, price, facing and zone. */
 export interface AsciiWeaponCase {
   id: string;
@@ -156,6 +163,7 @@ export interface AsciiMap {
   openSpawns: AsciiOpenSpawn[];
   merchantSpots: AsciiMerchantSpot[];
   weaponCases: AsciiWeaponCase[];
+  itemSpots: AsciiItemSpot[];
   props: AsciiProp[];
   player: Cell;
 }
@@ -202,7 +210,7 @@ function readTables(text: string): Map<string, Row[]> {
     }
     const row: Row = {};
     header.forEach((h, i) => (row[h] = cells[i] ?? ''));
-    const key = ['zonas', 'puertas', 'barricadas', 'portales', 'spawns', 'magos', 'vitrinas', 'jugador', 'atrezo'].find((k) => section.startsWith(k)) ?? section;
+    const key = ['zonas', 'puertas', 'barricadas', 'portales', 'spawns', 'magos', 'vitrinas', 'objetos', 'activaciones', 'jugador', 'atrezo'].find((k) => section.startsWith(k)) ?? section;
     tables.set(key, [...(tables.get(key) ?? []), row]);
   }
   return tables;
@@ -310,6 +318,11 @@ export function parseAsciiMap(text: string): AsciiMap {
     facing: FACING[normalize(r.orientacion ?? '')] ?? normalize(r.orientacion ?? ''),
     zone: r.zona ?? '',
   }));
+  const itemSpots: AsciiItemSpot[] = rows('objetos').map((r) => ({
+    id: r.id ?? '',
+    cell: parseCells(r.casilla ?? '', problems, `objeto ${r.id}`)[0] ?? { x: -1, y: -1 },
+    zone: r.zona ?? '',
+  }));
   const player = parseCells(rows('jugador')[0]?.casilla ?? '', problems, 'jugador')[0] ?? { x: -1, y: -1 };
   const props: AsciiProp[] = rows('atrezo').map((r) => {
     const flip = normalize(r.volteo ?? '');
@@ -323,11 +336,12 @@ export function parseAsciiMap(text: string): AsciiMap {
     };
   });
 
-  const map: AsciiMap = { grid, width, height, zones, doors, windows, portals, openSpawns, merchantSpots, weaponCases, props, player };
+  const map: AsciiMap = { grid, width, height, zones, doors, windows, portals, openSpawns, merchantSpots, weaponCases, itemSpots, props, player };
   checkMarkers(map, problems);
   checkProps(map, problems);
   checkMerchantSpots(map, problems);
   checkWeaponCases(map, problems);
+  checkItemSpots(map, problems);
   if (problems.length > 0) throw new AsciiMapError(problems);
   return map;
 }
@@ -396,6 +410,25 @@ function checkMerchantSpots(map: AsciiMap, problems: string[]): void {
     const ch = map.grid[spot.cell.y]?.[spot.cell.x] ?? '_';
     if ('#HFWDo<PZ_w'.includes(ch)) problems.push(`${who}: la casilla ${spot.cell.x},${spot.cell.y} es "${ch}"; el mago va sobre suelo`);
     if (solid.has(`${spot.cell.x},${spot.cell.y}`)) problems.push(`${who}: la casilla ${spot.cell.x},${spot.cell.y} está bajo atrezo con colisión`);
+  }
+}
+
+/**
+ * Item spots lie on plain floor: not on walls, markers, water or void, and
+ * under no furniture at all (an item hidden under a prop could not be seen).
+ * The design rules (reachable, clear of barricades, doors, portals, spawns,
+ * merchant spots and weapon cases) are checked on the built map.
+ */
+function checkItemSpots(map: AsciiMap, problems: string[]): void {
+  const covered = new Set(map.props.flatMap((p) => p.cells.map((c) => `${c.x},${c.y}`)));
+  const ids = new Set<string>();
+  for (const spot of map.itemSpots) {
+    const who = `objeto ${spot.id}`;
+    if (ids.has(spot.id)) problems.push(`${who}: id repetido`);
+    ids.add(spot.id);
+    const ch = map.grid[spot.cell.y]?.[spot.cell.x] ?? '_';
+    if ('#HFWDo<PZ_w'.includes(ch)) problems.push(`${who}: la casilla ${spot.cell.x},${spot.cell.y} es "${ch}"; el objeto va sobre suelo`);
+    if (covered.has(`${spot.cell.x},${spot.cell.y}`)) problems.push(`${who}: la casilla ${spot.cell.x},${spot.cell.y} está tapada por atrezo`);
   }
 }
 
@@ -884,6 +917,11 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
     knownZone(m.zone, `mago ${m.id}`);
     if (zoneIndex.has(m.zone) && cellZone[m.cell.y * W + m.cell.x] !== zoneIndex.get(m.zone)) problems.push(`mago ${m.id}: no cae en la zona ${m.zone}`);
     add({ name: m.id, type: 'merchant_spot', ...point(m.cell), properties: [p('zone', 'string', m.zone)] });
+  }
+  for (const s of map.itemSpots) {
+    knownZone(s.zone, `objeto ${s.id}`);
+    if (zoneIndex.has(s.zone) && cellZone[s.cell.y * W + s.cell.x] !== zoneIndex.get(s.zone)) problems.push(`objeto ${s.id}: no cae en la zona ${s.zone}`);
+    add({ name: s.id, type: 'item_spot', ...point(s.cell), properties: [p('zone', 'string', s.zone)] });
   }
   for (const c of map.weaponCases) {
     knownZone(c.zone, `vitrina ${c.id}`);

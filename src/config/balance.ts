@@ -342,6 +342,22 @@ export const MERCHANT = {
   offscreenIndicator: true,
 } as const;
 
+/** Special items (spec 05): items.ts has the catalogue, activations.ts what they open. */
+export const ITEMS = {
+  /** Closer than this (px, feet to item) the action button offers to pick it up. */
+  pickupRange: 32,
+  /** A player is at an activation site within this distance (px) of its rectangle's edge. */
+  useRange: 40,
+  /** Inventory slots on the HUD (only the full ones are drawn). */
+  maxSlots: 4,
+  /** "VARITA DESGASTADA" on the HUD after picking it up (s). */
+  pickupNoticeTime: 1.5,
+  /** "AQUÍ NO SE USA" over the player (s); a new failed use restarts it. */
+  cantUseTime: 1.2,
+  /** Period of the glow pulsing under an item on the floor (s). */
+  glowPeriod: 1.2,
+} as const;
+
 export const DEBUG = {
   /** Money added by the bigger button (spec 03 §7). */
   bigPoints: 10000,

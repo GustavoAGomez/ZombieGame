@@ -1043,3 +1043,30 @@ Petición del usuario: subir la espera entre toques de reparar. Con 0,2 s se pod
   - cuatro caminantes: 2,2 s.
 - **Los puntos por tablón no cambian:** +10, con el tope de 500 por ronda.
 - **El botón muestra la espera larga:** se atenúa, deja de parpadear y un toque lo sacude sin reparar nada. Cuando vuelve a valer un toque, se ilumina y parpadea. El +10 sigue en ámbar mientras espera: no es que falte dinero. Los 0,2 s de la reparación libre no se señalan, para que el botón no parpadee a cada toque.
+
+## Spec 05 · Objetos especiales
+
+Antes de empezar se resolvieron dos choques con el usuario:
+- **El inventario no cabía a la derecha de la vida** en 640×360: entre el número de vida y la pausa quedan unos 80 px, y cuatro huecos con 44 px de toque necesitan 176. Va en una fila horizontal a la izquierda de los puntos; si hace falta sitio, la pausa se mueve un poco a la izquierda (fase O2).
+- **El mago rojo «sale de la piscina»,** pero los dos puntos de mago del jardín (M13, junto al árbol, y M14, contra el cobertizo) estaban a 25–33 tiles del agua. M13 pasa al borde de la piscina; el validador acepta el borde del agua como «pared» (fase O3).
+
+### O1 · Objetos en el mapa y recogida
+
+- **Catálogo por datos** (`src/config/items.ts`): `living_heart` y `worn_wand`, con su color y su regla de aparición (`spawn: { when: 'match_start', excludeStartZone: true }` en la varita). El corazón va en `STARTING_ITEMS` y se da al empezar en la O2, con el inventario visible. Los números van en `ITEMS` (`balance.ts`) y los textos en `STRINGS.items`.
+- **Puntos de objeto:** tabla `## Objetos` del plano, con ids `I1`–`I19` (las `O` ya eran de los spawns abiertos). Hay 19: dos por zona y uno en el recibidor, la zona inicial, donde la varita nunca aparece. Cada uno está junto a algo que cuenta una historia:
+  - la caja fuerte abierta del estudio;
+  - la puerta abierta del coche del garaje;
+  - la barbacoa volcada;
+  - el colchón del refugio del sótano;
+  - el campamento de la azotea.
+- **Validador** (`validate-map`): 1 o 2 por zona; casilla libre de su zona y alcanzable a pie; a 2 tiles o más (de centro a centro) de barricadas, puertas, portales, spawns, puntos de mago y vitrinas. La distancia se mide sea cual sea la zona del otro elemento, como en los puntos de mago. El plano rechaza los que caen bajo cualquier atrezo, con o sin colisión.
+- **«Sobre una mesa baja» choca con «casilla transitable»:** las mesas tienen colisión y bloquean su casilla. Los objetos van junto al mueble, no encima.
+- **Sorteo de la varita:** con el RNG de la partida, al crear el estado (`placeMatchItems` en `createGameState`), entre los puntos de cualquier zona salvo la inicial y sin repetir punto entre objetos. Si no hay punto disponible no se gasta ningún número aleatorio, así que el mapa de pruebas (sin puntos) mantiene su secuencia.
+- **Estado:** el inventario es de cada jugador (`PlayerState.items`, en orden de recogida); los objetos del suelo son de la partida (`GameState.groundItems`, que se quedan inactivos al recogerse).
+- **Recogida:** acción contextual `pickup`, la última en prioridad, cuando no hay nada más a mano.
+  - El orden de las demás no cambia: mago, vitrina, puerta o portal, reparar. La spec lo da distinto, pero los puntos guardan distancia entre sí y no coinciden.
+  - El botón dice `RECOGER VARITA DESGASTADA` con el icono del objeto. Con el inventario lleno dice `INVENTARIO LLENO` y se sacude.
+  - Al recoger, evento `item:picked`: vibración ligera y el nombre en el aviso del HUD durante 1,5 s.
+- **En el suelo:** el icono de 12×12 del objeto (el mismo que el del HUD, con colores fijos para poder dibujarlo en el canvas), una sombra pequeña y un brillo claro en modo aditivo que late cada 1,2 s.
+  - El brillo en el color del objeto no se veía sobre la madera, así que es claro y se suma al suelo.
+  - Se dibuja con los pickups, por debajo de la oscuridad de las zonas cerradas: allí se ve como el resto de cosas de la habitación, sin indicador.

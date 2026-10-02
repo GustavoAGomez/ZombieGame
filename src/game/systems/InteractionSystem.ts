@@ -3,6 +3,7 @@ import type { PlayerState } from '../../core/GameState';
 import { repairableWindow, updateRepair } from './BarricadeSystem';
 import { nearestClosedDoor, tryBuyDoor } from './DoorSystem';
 import { isPlayerAlive } from './HealthSystem';
+import { itemInReach, pickUpItem } from './ItemSystem';
 import { isPortalBuyable, nearestClosedPortal, tryBuyPortal } from './PortalSystem';
 import { nearestMerchant } from './ShopSystem';
 import { caseInReach, tapCase, updateSwapConfirm } from './WeaponCaseSystem';
@@ -12,8 +13,9 @@ import type { SimContext } from './SimContext';
  * The contextual action chip (spec 01 §2.4): per player, pick the nearest
  * thing to interact with — a merchant's shop to open or close (tap), a
  * weapon case to buy from (tap, spec 04 §3), a window to repair (taps), a
- * closed door or a closed portal to buy (tap) —
- * publish it in the state for the HUD, and act on the command. Merchant
+ * closed door or a closed portal to buy (tap) and, last of all, a special
+ * item on the floor to pick up (tap, spec 05 §3) — publish it in the state
+ * for the HUD, and act on the command. Merchant
  * spots keep more than 3 tiles from windows, doors and portals, so a
  * merchant in range never hides one of them.
  */
@@ -76,8 +78,15 @@ export function updateInteractions(ctx: SimContext, dt: number): void {
       p.contextTarget = window;
       updateRepair(ctx, p, cmd, window, dt);
     } else {
+      // Last of all, a special item on the floor (spec 05 §3); item spots keep clear of everything above.
+      const item = itemInReach(state, p);
       clearContext(p);
       updateRepair(ctx, p, undefined, -1, dt);
+      if (item >= 0) {
+        p.contextAction = 'pickup';
+        p.contextTarget = item;
+        if (cmd?.actionPressed) pickUpItem(ctx, p, item);
+      }
     }
   }
 }

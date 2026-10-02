@@ -532,6 +532,13 @@
       "frames": 1,
       "placeholder": true
     },
+    "item": {
+      "file": "sprites/objects/item.png",
+      "frameWidth": 12,
+      "frameHeight": 12,
+      "frames": 2,
+      "placeholder": true
+    },
     "prop_escalera_derrumbada": {
       "file": "sprites/props/prop_escalera_derrumbada.png",
       "frameWidth": 96,

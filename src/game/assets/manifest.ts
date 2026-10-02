@@ -126,6 +126,7 @@ export const REQUIRED_OBJECTS: readonly string[] = [
   'merchant_gem',
   'smoke_puff',
   'offscreen_arrow',
+  'item',
 ];
 
 /** Asset keys the game code uses. */
@@ -167,6 +168,8 @@ export const ASSET_KEYS = {
   weaponCase: 'weapon_case',
   weaponCaseV: 'weapon_case_v',
   offscreenArrow: 'offscreen_arrow',
+  /** Special items on the floor (spec 05 §3): one 12×12 frame per item in ITEM_IDS order. */
+  item: 'item',
   mapRoom01: 'room01',
   mapMansion: 'mansion',
 } as const;

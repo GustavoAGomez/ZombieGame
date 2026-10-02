@@ -21,6 +21,7 @@ import { SpeedTrail } from '../entities/SpeedTrail';
 import { PlayerBloodStains } from '../entities/PlayerBlood';
 import { MuzzleFlash } from '../entities/MuzzleFlash';
 import { PickupViewPool } from '../entities/Pickup';
+import { GroundItemViews } from '../entities/GroundItem';
 import { PlayerView } from '../entities/Player';
 import { WorldTextPool } from '../entities/WorldText';
 import { ZombieViewPool } from '../entities/Zombie';
@@ -81,6 +82,7 @@ export class GameScene extends Phaser.Scene {
   private burnFlames!: BurnFlames;
   private weaponCases!: WeaponCaseViews;
   private pickupViews!: PickupViewPool;
+  private groundItemViews!: GroundItemViews;
   private merchantViews!: MerchantViewPool;
   private offscreenArrows!: OffscreenArrows;
   /** The HUD's safe-area margins, for the off-screen arrows (measured on resize). */
@@ -148,6 +150,7 @@ export class GameScene extends Phaser.Scene {
     this.bloodViews = new BloodViewPool(this, this.state.blood.length);
     this.bloodSpray = new BloodSprayPool(this, events, this.isDark);
     this.pickupViews = new PickupViewPool(this, this.state.pickups.length);
+    this.groundItemViews = new GroundItemViews(this, this.state.groundItems);
     this.zombieViews = new ZombieViewPool(this, manifest, this.state.zombies.length);
     this.burnFlames = new BurnFlames(this, this.state.zombies.length);
     this.weaponCases = new WeaponCaseViews(this, this.map);
@@ -280,6 +283,7 @@ export class GameScene extends Phaser.Scene {
     this.mapView.sync(this.state);
     this.bloodViews.sync(this.state.blood);
     this.pickupViews.sync(this.state.pickups, this.state.time);
+    this.groundItemViews.sync(this.state.groundItems, this.state.time);
     this.zombieViews.sync(this.state.zombies, alpha, now, this.isDark);
     this.merchantViews.sync(this.state.merchants, this.state.players, this.state.tick, this.state.time);
     this.weaponCases.sync(this.state, player);

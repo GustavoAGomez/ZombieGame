@@ -1,3 +1,4 @@
+import type { ItemId } from '../config/items';
 import { merchantDef, type MerchantId } from '../config/merchants';
 import type { WeaponId } from '../config/weapons';
 import { WEAPON_ICONS } from './WeaponBar';
@@ -21,6 +22,8 @@ export class ContextButton extends PointerControl {
   private readonly hats = new Map<MerchantId, SVGSVGElement>();
   /** A weapon case's weapon, one icon per weapon. */
   private readonly weaponIcons = new Map<WeaponId, SVGSVGElement>();
+  /** A special item on the floor, one icon per item. */
+  private readonly itemIcons = new Map<ItemId, SVGSVGElement>();
   private readonly face: HTMLSpanElement;
   private readonly value: HTMLSpanElement;
   private readonly unsubscribe: () => void;
@@ -94,6 +97,7 @@ export class ContextButton extends PointerControl {
     for (const kind of ['repair', 'door', 'portal'] as const) this.icons[kind].style.display = e.kind === kind ? 'block' : 'none';
     for (const [id, hat] of this.hats) hat.style.display = e.kind === 'merchant' && e.merchant === id ? 'block' : 'none';
     for (const [id, icon] of this.weaponIcons) icon.style.display = e.kind === 'weaponCase' && e.weaponCase?.weapon === id ? 'block' : 'none';
+    for (const [id, icon] of this.itemIcons) icon.style.display = e.kind === 'pickup' && e.item === id ? 'block' : 'none';
     this.value.style.color = '';
     button.classList.toggle('is-confirming', e.weaponCase?.mode === 'confirm');
     if (e.kind === 'weaponCase' && e.weaponCase) {
@@ -114,6 +118,12 @@ export class ContextButton extends PointerControl {
         this.value.textContent = offer.mode === 'ammo' ? STRINGS.actions.weaponAmmo(name, price) : STRINGS.actions.buyWeapon(name, price);
       }
       button.setAttribute('aria-label', STRINGS.actions.buyWeaponLabel(name));
+    } else if (e.kind === 'pickup' && e.item) {
+      // "RECOGER VARITA DESGASTADA", or why not with the inventory full.
+      this.itemIconFor(e.item).style.display = 'block';
+      const name = STRINGS.items.names[e.item];
+      this.value.textContent = e.enabled ? STRINGS.actions.pickUp(name) : STRINGS.actions.inventoryFull;
+      button.setAttribute('aria-label', STRINGS.actions.pickUp(name));
     } else if (e.kind === 'merchant' && e.merchant) {
       this.hatFor(e.merchant).style.display = 'block';
       this.value.textContent = STRINGS.merchants.names[e.merchant];
@@ -139,6 +149,16 @@ export class ContextButton extends PointerControl {
     if (!icon) {
       icon = pixelIcon(WEAPON_ICONS[id], iconSize(WEAPON_ICONS[id], 2));
       this.weaponIcons.set(id, icon);
+      this.face.appendChild(icon);
+    }
+    return icon;
+  }
+
+  private itemIconFor(id: ItemId): SVGSVGElement {
+    let icon = this.itemIcons.get(id);
+    if (!icon) {
+      icon = pixelIcon(id, iconSize(id, 2));
+      this.itemIcons.set(id, icon);
       this.face.appendChild(icon);
     }
     return icon;

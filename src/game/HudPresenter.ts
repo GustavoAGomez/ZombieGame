@@ -9,6 +9,7 @@ import { isPortalBuyable } from './systems/PortalSystem';
 import { isPerWeapon, shopItemStatus } from './systems/ShopSystem';
 import { magazineSize } from './systems/weaponStats';
 import { caseOffer } from './systems/WeaponCaseSystem';
+import { hasItemRoom } from './systems/ItemSystem';
 import { reloadProgress } from './systems/WeaponSystem';
 
 /** Steps used to quantise continuous values so the DOM updates rarely. */
@@ -133,7 +134,10 @@ export class HudPresenter {
         }
       }
     }
-    const caseKey = weaponCase ? JSON.stringify(weaponCase) : '';
+    // A special item on the floor (spec 05 §3): picked up while there is room.
+    const item = kind === 'pickup' ? state.groundItems[p.contextTarget]?.item : undefined;
+    if (kind === 'pickup') enabled = hasItemRoom(p);
+    const caseKey = weaponCase ? JSON.stringify(weaponCase) : item ?? '';
     if (
       kind !== this.actionKind ||
       merchant !== this.actionMerchant ||
@@ -153,6 +157,7 @@ export class HudPresenter {
       if (kind === 'portal') this.events.emit('action:context', { kind, amount, enabled, portal: portalKind, locked });
       else if (weaponCase) this.events.emit('action:context', { kind, amount, enabled, weaponCase });
       else if (merchant) this.events.emit('action:context', { kind, amount, enabled, merchant });
+      else if (item) this.events.emit('action:context', { kind, amount, enabled, item });
       else this.events.emit('action:context', { kind, amount, enabled });
     }
 

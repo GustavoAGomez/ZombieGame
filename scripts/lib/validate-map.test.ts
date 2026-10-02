@@ -156,4 +156,30 @@ describe('validateMap', () => {
       expect(errorsOf(moveSpot('M7', 21, 21))).toMatch(/punto de mago 7 \(biblioteca\) deja un paso de menos de 2 tiles en 21,22/);
     });
   });
+
+  describe('item spots (spec 05 §2)', () => {
+    const moveSpot = (name: string, tx: number, ty: number) =>
+      variant((o) => Object.assign(byName(o, name), { x: (tx + 0.5) * 32, y: (ty + 0.5) * 32 }));
+
+    it('needs one or two per zone', () => {
+      const none = variant((o) => {
+        for (const name of ['I16', 'I17']) o.splice(o.indexOf(byName(o, name)), 1);
+      });
+      expect(errorsOf(none)).toMatch(/la zona sotano tiene 0 puntos de objeto/);
+      const three = variant((o) => o.push({ ...byName(o, 'I2'), id: 9999, name: 'I99', x: 25.5 * 32, y: 37.5 * 32 }));
+      expect(errorsOf(three)).toMatch(/la zona salon tiene 3 puntos de objeto/);
+    });
+
+    it('keeps them on a free tile of their zone, clear of barricades, merchant spots and weapon cases', () => {
+      // On the dining table, next to a merchant spot, by a weapon case, in another zone.
+      expect(errorsOf(moveSpot('I5', 52, 34))).toMatch(/punto de objeto 5 \(comedor\) está en una casilla bloqueada \(52,34\)/);
+      expect(errorsOf(moveSpot('I5', 49, 39))).toMatch(/punto de objeto 5 \(comedor\) está a 1\.0 tiles del punto de mago 5/);
+      expect(errorsOf(moveSpot('I5', 53, 31))).toMatch(/punto de objeto 5 \(comedor\) está a 1\.0 tiles de la vitrina V2/);
+      expect(errorsOf(moveSpot('I5', 25, 37))).toMatch(/punto de objeto 5 \(comedor\) no cae en su zona/);
+    });
+
+    it('never puts one in the water', () => {
+      expect(errorsOf(moveSpot('I12', 45, 8))).toMatch(/punto de objeto 12 \(jardin\) está en una casilla bloqueada \(45,8\)/);
+    });
+  });
 });
