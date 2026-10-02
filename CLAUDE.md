@@ -78,7 +78,7 @@ scripts/                  gen-placeholder-map.ts, import-pixellab.ts, check-asse
 maps/src/                 planos ASCII de los mapas (fuente; skill level-design)
 maps/preview/             vistas previas generadas por map:preview
 public/assets/            manifest.json, maps/, sprites/, tiles/
-docs/                     specs/, ASSETS.md, DECISIONS.md, GAME-DESIGN.md
+docs/                     specs/, ASSETS.md, DECISIONS.md, GAME-DESIGN.md, ROADMAP.md
 ```
 
 ## Forma de trabajar
@@ -90,4 +90,5 @@ docs/                     specs/, ASSETS.md, DECISIONS.md, GAME-DESIGN.md
   3. Resumen breve: qué funciona, cómo probarlo en el móvil y qué queda pendiente.
 - Si algo no está definido en la spec, elige la opción más simple y anótala en `docs/DECISIONS.md`.
 - Las reglas del juego tal como están implementadas (armas y sus mejoras, vitrinas, magos, economía y precios, objetos y activaciones) viven en `docs/GAME-DESIGN.md`. Actualízalo en el mismo commit cuando cambie una regla, un precio o un número de juego, o se añada un arma, un mago, un objeto o una activación.
+- Lo que queremos añadir al juego y por qué, por orden, vive en `docs/ROADMAP.md`. Cada bloque pasa a ser una spec cuando toque; al cerrar una spec, márcalo como hecho allí y lleva las reglas definitivas a `GAME-DESIGN.md`.
 - **Idioma:** código, nombres y comentarios en inglés. Todos los textos visibles, en español y centralizados en `src/ui/strings.ts`.
