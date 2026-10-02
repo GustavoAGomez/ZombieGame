@@ -7,8 +7,9 @@ import type { SimContext } from './SimContext';
 /**
  * Barricades (spec 01 §4.6). Zombies tear planks in ZombieSystem; here the
  * player repairs them: within 40 px of a window that is not full, each tap on
- * the contextual chip puts back one plank per tap (at most one every 0.2 s)
- * for +10 points, up
+ * the contextual chip puts back one plank (at most one every
+ * BARRICADES.repairTapCooldown seconds, longer than a zombie takes to tear
+ * one) for +10 points, up
  * to 500 repair points per round. Repairing keeps working past the limit,
  * just without points, and works while a zombie is tearing the same window.
  * InteractionSystem decides when a window is the chip's target.
@@ -40,7 +41,7 @@ export function repairPointsAvailable(p: PlayerState): number {
 
 /**
  * Tap-to-repair on `window` (-1 when there is none in range): every tap of
- * the chip puts back one plank, at most one every 0.2 s.
+ * the chip puts back one plank, at most one every repairTapCooldown seconds.
  */
 export function updateRepair(ctx: SimContext, p: PlayerState, cmd: InputCommand | undefined, window: number, dt: number): void {
   if (p.repairCooldown > 0) p.repairCooldown = Math.max(0, p.repairCooldown - dt);

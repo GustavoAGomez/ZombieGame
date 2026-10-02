@@ -141,6 +141,11 @@
   animation: skin-tap-hint 0.5s steps(1, end) infinite;
 }
 
+/* Waiting for the next repair: no blink until a tap counts again. */
+.has-ui-skin .context-button--repair.is-disabled {
+  animation: none;
+}
+
 .has-ui-skin .context-button--repair.is-shaking {
   animation: context-button-shake 280ms steps(1, end);
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { BARRICADES, POINTS, ZOMBIES } from '../../config/balance';
 import { command, createTestContext, player, runTicks } from '../../test/fixtures';
+import { HudPresenter } from '../HudPresenter';
 import { repairableWindow } from './BarricadeSystem';
 import { stepSimulation } from './Simulation';
 import { spawnZombie } from './SpawnSystem';
@@ -132,20 +133,43 @@ describe('BarricadeSystem · repairing with taps', () => {
     expect(p.repairRound).toBe(2);
   });
 
-  it('works while a zombie tears the same window', () => {
+  it('works while a zombie tears the same window, but even a lone walker gets in against nonstop repairs', () => {
     const ctx = createTestContext();
-    const { p } = atWindow(ctx, 0, 2);
+    const { p } = atWindow(ctx, 0, 5);
     const z = ctx.state.zombies[0]!;
     spawnZombie(ctx, z, ctx.map.zombieSpawns.findIndex((s) => s.windowIndex === 0));
     z.kind = 'walker';
-    p.hp = 1e9; // survive if it gets in
-    // Tapping twice per second outpaces a walker tearing one plank every 1.4 s.
-    for (let i = 0; i < 12; i++) {
-      tap(ctx);
-      runTicks(ctx, 29, stepSimulation);
+    p.hp = 1e9; // survive once it gets in
+    // Slower than any zombie tears a plank: repairing never holds a window for good.
+    for (const kind of Object.values(ZOMBIES.kinds)) expect(BARRICADES.repairTapCooldown).toBeGreaterThan(kind.tearTime);
+    let repairedWhileTearing = false;
+    const cmd = command(ctx);
+    // Tapping as fast as a finger can: a tap every other tick.
+    for (let t = 0; t < 60 * 60 && z.ai !== 'climbing' && z.ai !== 'chasing'; t++) {
+      const before = ctx.state.windowPlanks[0]!;
+      cmd.actionPressed = t % 2 === 0;
+      stepSimulation(ctx, 1 / 60);
+      if (z.ai === 'tearing' && ctx.state.windowPlanks[0]! > before) repairedWhileTearing = true;
     }
-    expect(z.ai).toBe('tearing');
-    expect(ctx.state.windowPlanks[0]).toBeGreaterThanOrEqual(4);
-    expect(ZOMBIES.kinds.walker.tearTime).toBeGreaterThan(0.5);
+    cmd.actionPressed = false;
+    expect(repairedWhileTearing).toBe(true);
+    expect(['climbing', 'chasing']).toContain(z.ai);
+  });
+
+  it('the chip waits between repairs: dimmed until a tap counts again', () => {
+    const ctx = createTestContext();
+    atWindow(ctx, 0, 2);
+    const presenter = new HudPresenter(ctx.events, ctx.map);
+    const action = vi.fn();
+    ctx.events.on('action:context', action);
+    stepSimulation(ctx, 1 / 60);
+    presenter.publish(ctx.state);
+    expect(action).toHaveBeenLastCalledWith(expect.objectContaining({ kind: 'repair', enabled: true }));
+    tap(ctx);
+    presenter.publish(ctx.state);
+    expect(action).toHaveBeenLastCalledWith(expect.objectContaining({ kind: 'repair', enabled: false }));
+    runTicks(ctx, cooldownTicks + 1, stepSimulation);
+    presenter.publish(ctx.state);
+    expect(action).toHaveBeenLastCalledWith(expect.objectContaining({ kind: 'repair', enabled: true }));
   });
 });

@@ -1025,6 +1025,18 @@ Petición del usuario: si hay muchos zombis apelotonados en una ventana, que los
   - Dos al lado y nadie esperando van 1× cada uno, como antes.
   - Con más de 4, el total sigue siendo 4×. Es rápido, pero nunca instantáneo.
 - **Animación:** el golpe se reproduce a esa misma velocidad (`tearRate`), así el zarpazo sigue cayendo cuando sale el tablón.
-- **Frente a la reparación:** el jugador repone un tablón por toque, como mucho uno cada 0,2 s (5 por segundo).
-  - Con 4 de fuerza, los caminantes arrancan 2,9 tablones por segundo y los corredores 4.
-  - Quien toque muy rápido aún aguanta. Si hace falta, el ajuste está en `BARRICADES.repairTapCooldown`.
+- **Frente a la reparación:** al hacer este cambio el jugador reponía un tablón por toque, como mucho uno cada 0,2 s. Quien tocara muy rápido aún aguantaba; se resolvió en el apartado siguiente.
+
+### Reparar, como mucho un tablón cada 2 s
+
+Petición del usuario: subir la espera entre toques de reparar. Con 0,2 s se podía hacer dinero en las ventanas reparando sin parar mientras los zombis arrancaban tablones, y nunca entraban. El objetivo: que los zombis entren aunque el jugador se quede reparando.
+
+- **`BARRICADES.repairTapCooldown` pasa de 0,2 a 2 s.** Tiene que ser mayor que lo que tarda el zombi más lento en arrancar un tablón (el caminante, 1,4 s): si no, un zombi solo nunca entraría. Un test lo comprueba con todos los tipos.
+- **Medido, desde que el primer zombi empieza a arrancar hasta que no queda ningún tablón,** con el jugador tocando todo lo rápido que puede:
+  - un caminante: 19,6 s;
+  - un corredor: 9,0 s;
+  - dos caminantes: 5,6 s;
+  - cuatro caminantes: 2,2 s.
+- **Reparar una ventana vacía entera** (5 tablones) lleva unos 8 s.
+- **Los puntos por tablón no cambian:** +10, con el tope de 500 por ronda.
+- **El botón muestra la espera:** mientras dura, se atenúa, deja de parpadear y un toque lo sacude sin reparar nada. Cuando vuelve a valer un toque, se ilumina y parpadea. El +10 sigue en ámbar mientras espera: no es que falte dinero.

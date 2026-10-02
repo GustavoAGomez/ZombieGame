@@ -431,6 +431,15 @@
   animation: context-button-tap-hint 0.5s steps(1, end) infinite;
 }
 
+/* Waiting for the next repair: dimmed, no blink, the points still in amber (not "missing"). */
+.context-button--repair.is-disabled {
+  animation: none;
+}
+
+.context-button--repair.is-disabled .context-button__value {
+  color: var(--amber);
+}
+
 .context-button--repair.is-shaking {
   animation: context-button-shake 280ms steps(1, end);
 }
