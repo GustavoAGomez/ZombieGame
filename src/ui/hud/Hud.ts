@@ -74,7 +74,8 @@ export class Hud {
     this.hpValue = el('span', 'hud-hp');
     this.healthRow.append(heart, bar, this.hpValue);
     this.round = el('div', 'hud-round');
-    this.weaponRow = el('div', 'hud-row hud-weapon');
+    // The weapon in hand: its name and upgrade marks, and the ammo on the line below.
+    this.weaponRow = el('div', 'hud-weapon');
     this.weaponName = el('span', 'hud-label hud-weapon__name');
     this.marks = el('span', 'hud-marks');
     this.magazine = el('span', 'hud-mag');
@@ -83,7 +84,11 @@ export class Hud {
     this.reloadFill = el('div', 'hud-reload__fill');
     reload.appendChild(this.reloadFill);
     this.reserve = el('span', 'hud-reserve');
-    this.weaponRow.append(this.weaponName, this.marks, pixelIcon('bullet', 12), this.magazine, reload, this.reserve);
+    const nameRow = el('div', 'hud-row hud-weapon__head');
+    nameRow.append(this.weaponName, this.marks);
+    const ammoRow = el('div', 'hud-row hud-ammo');
+    ammoRow.append(pixelIcon('bullet', 12), this.magazine, reload, this.reserve);
+    this.weaponRow.append(nameRow, ammoRow);
     // An empty row kept for future stats and perks (spec 01 §5).
     left.append(this.healthRow, this.round, this.weaponRow, el('div', 'hud-reserved'));
 

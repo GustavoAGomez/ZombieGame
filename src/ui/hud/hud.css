@@ -29,13 +29,19 @@
   text-shadow: 2px 2px 0 var(--ink);
 }
 
+/* The weapon in hand: name and marks, and the ammo on its own line below. */
+.hud-weapon {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
 .hud-mag {
   font-family: var(--font-display);
   font-size: 14px;
   color: var(--amber);
   text-shadow: 2px 2px 0 var(--ink);
-  min-width: 28px;
-  text-align: right;
 }
 
 .hud-reserve {
