@@ -1115,3 +1115,13 @@ Antes de empezar se resolvieron dos choques con el usuario:
   - Un test de las mejoras del rojo lo activaba a mano sin marcar su ronda, y ahora se teletransportaba en el siguiente paso; se le marca la ronda, como hacen el debug y la invocación.
 - **Aviso** `EL MAGO ROJO HA SIDO INVOCADO` en el color del mago durante 2,5 s, para todos. Vibración fuerte para quien tiró el último objeto.
 - **Pausa:** el agua, el vuelo, la salpicadura y `AQUÍ NO SE USA` van con el reloj de la simulación y se congelan. Los avisos del HUD (animaciones CSS) se congelan con la clase `is-paused` en la raíz del HUD.
+
+### O4 · Debug y documentación
+
+- **Debug:**
+  - `DAR OBJETOS` da los objetos del catálogo que no se llevan, mientras haya hueco. Si alguno está en el suelo, desaparece de allí, porque los objetos son únicos.
+  - `IR A LA VARITA` deja al jugador sobre la casilla de la varita mientras siga en el suelo; la cámara salta con él. Esa casilla siempre es transitable, así que la puede recoger al momento.
+  - `MOSTRAR PUNTOS DE OBJETO` dibuja, por encima de la oscuridad, una cruz violeta en cada punto de objeto, un aro ámbar donde aún hay un objeto y el marco de los lugares de activación.
+- **`ASSETS-TODO.md`:** el sprite `item` (corazón y varita, a la espera de los diseños del usuario), la salpicadura, las burbujas de la piscina y los iconos del HUD de los dos objetos.
+- **`GAME-DESIGN.md`:** nueva sección de objetos especiales y activaciones.
+

@@ -3,7 +3,7 @@ import { ITEMS } from '../../config/balance';
 import type { ItemId } from '../../config/items';
 import { command, createMansionContext, player } from '../../test/fixtures';
 import { HudPresenter } from '../HudPresenter';
-import { pickUpItem } from './ItemSystem';
+import { debugGiveItems, pickUpItem } from './ItemSystem';
 import { pickItemSpot } from './itemSpawns';
 import { stepSimulation } from './Simulation';
 
@@ -140,5 +140,17 @@ describe('special items · the inventory and using them (spec 05 §4–5)', () =
     command(ctx).useItem = 2;
     stepSimulation(ctx, 1 / 60);
     expect(cantUse).not.toHaveBeenCalled();
+  });
+});
+
+describe('special items · debug (spec 05 §8)', () => {
+  it('DAR OBJETOS: both into the inventory, the wand off the floor, never twice', () => {
+    const ctx = createMansionContext();
+    const p = player(ctx);
+    debugGiveItems(ctx.state, p);
+    expect(p.items).toEqual(['living_heart', 'worn_wand']);
+    expect(ctx.state.groundItems.find((g) => g.item === 'worn_wand')?.active).toBe(false);
+    debugGiveItems(ctx.state, p);
+    expect(p.items).toEqual(['living_heart', 'worn_wand']);
   });
 });

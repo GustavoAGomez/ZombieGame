@@ -29,18 +29,25 @@ export interface DebugActions {
   /** Spec 04 §5: the weapon into a free slot (or in place of the one in hand), full of ammo. */
   giveSmg(): void;
   giveShotgun(): void;
+  /** Spec 05 §8: the heart and the wand into the inventory (off the floor: items are unique). */
+  giveItems(): void;
+  /** Spec 05 §8: the player next to the wand, while it is still on the floor. */
+  goToWand(): void;
+  /** Spec 05 §8: every item spot on the map (the wand's ringed) and the activation sites. */
+  toggleItemSpots(): boolean;
 }
 
 const TRIPLE_TAP_WINDOW_MS = 600;
 const REFRESH_MS = 250;
 
 /**
- * Debug panel (spec 01 §8, spec 03 §7). Enabled with ?debug=1 or a triple
- * tap on the top-left corner. Stats are pulled on a timer, never every
- * frame. Buttons: next round, +1000 points, god mode, drawing the hitboxes
- * and the flow field, then weapon level and special, a boost, moving the
- * merchants, the red and gold merchants and +10000 points (only while a
- * match is running).
+ * Debug panel (spec 01 §8, spec 03 §7, spec 04 §5, spec 05 §8). Enabled
+ * with ?debug=1 or a triple tap on the top-left corner. Stats are pulled on
+ * a timer, never every frame. Buttons: next round, +5000$, god mode,
+ * drawing the hitboxes and the flow field, then weapon level and special, a
+ * boost, moving the merchants, the red and gold merchants, +10000$, the SMG
+ * and the shotgun, and the special items: both into the inventory, a jump
+ * to the wand and drawing the item spots (only while a match is running).
  */
 export class DebugOverlay {
   private readonly panel: HTMLDivElement;
@@ -86,6 +93,9 @@ export class DebugOverlay {
     button(STRINGS.debug.bigPoints, (a) => a.addManyPoints());
     button(STRINGS.debug.giveSmg, (a) => a.giveSmg());
     button(STRINGS.debug.giveShotgun, (a) => a.giveShotgun());
+    button(STRINGS.debug.giveItems, (a) => a.giveItems());
+    button(STRINGS.debug.goToWand, (a) => a.goToWand());
+    button(STRINGS.debug.itemSpots, (a) => a.toggleItemSpots());
     this.panel.append(this.statsEl, buttons);
     this.statsEl.addEventListener('pointerdown', (e) => {
       e.preventDefault();

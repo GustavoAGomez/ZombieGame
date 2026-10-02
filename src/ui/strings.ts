@@ -17,6 +17,10 @@ export const STRINGS = {
     bigPoints: '+10000$',
     giveSmg: 'DAR SMG',
     giveShotgun: 'DAR ESCOPETA',
+    /** Spec 05 §8. */
+    giveItems: 'DAR OBJETOS',
+    goToWand: 'IR A LA VARITA',
+    itemSpots: 'MOSTRAR PUNTOS DE OBJETO',
   },
   controls: {
     joystick: 'Joystick de movimiento',

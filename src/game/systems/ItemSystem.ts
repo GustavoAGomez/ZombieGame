@@ -1,6 +1,6 @@
 import { ACTIVATIONS, type ActivationDef } from '../../config/activations';
 import { ITEMS, PLAYER, SIM } from '../../config/balance';
-import type { ItemId } from '../../config/items';
+import { ITEM_IDS, type ItemId } from '../../config/items';
 import type { ActivationState, GameState, PlayerState } from '../../core/GameState';
 import type { MapActivationSite, MapData } from '../map/MapLoader';
 import { isPlayerAlive } from './HealthSystem';
@@ -103,6 +103,18 @@ function completeActivations(ctx: SimContext): void {
     // The completion is the last thrower's (their vibration).
     ctx.events.emit('activation:completed', { playerId: st.thrownBy[st.thrownBy.length - 1] ?? 0, activation: def.id, effect: def.effect });
   });
+}
+
+/**
+ * Debug (spec 05 §8): every item of the catalogue the player does not carry,
+ * while there is room; one lying on the floor leaves it (items are unique).
+ */
+export function debugGiveItems(state: GameState, p: PlayerState): void {
+  for (const id of ITEM_IDS) {
+    if (p.items.includes(id) || !hasItemRoom(p)) continue;
+    p.items.push(id);
+    for (const g of state.groundItems) if (g.item === id) g.active = false;
+  }
 }
 
 /** Room for one more item in the player's inventory. */

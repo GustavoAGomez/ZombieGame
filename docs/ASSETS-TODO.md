@@ -24,6 +24,9 @@ Objetos y tiles que el juego ya usa con un placeholder. Cada entrada lleva el pr
 | `blood_drop_fresh`, `blood_splat_fresh` | Sangre del jugador al recibir daño: gotas en vuelo y salpicaduras (mismos tamaños y fotogramas que las de sangre podrida) | Las mismas formas en rojo vivo | "fresh red blood droplet / splat, bright red, glossy, top-down", con los mismos tamaños |
 | `blood_stain` | Manchas de sangre sobre el cuerpo del jugador hasta que vuelve a tener la vida al máximo (3 formas de 6×6, una con chorreón) | Manchas pequeñas en rojo vivo | "small fresh blood stain on clothes, bright red, 6x6, 3 variants, one dripping" |
 | `melee_slash` | Tajo provisional delante del jugador mientras no exista la animación `melee` | Arco claro generado, 4 fotogramas de 32×32 dibujados hacia la derecha (la vista lo gira) | Opcional si la animación del personaje ya lleva el tajo: "knife slash swoosh arc, white, 4 frames, 32x32, facing right" |
+| `item` | Objetos especiales en el suelo y en vuelo (spec 05): un fotograma de 12×12 por objeto, en el orden de `ITEM_IDS` (corazón vivo, varita desgastada). El juego los pone dentro de un foco circular ámbar que late | Los iconos provisionales del HUD: un corazón rojo y, para la varita, un palo sin detalles. El usuario pasará los diseños definitivos | "living human heart, glowing faintly, 12x12, top-down pixel art icon" / "old worn wooden magic wand, 12x12, top-down pixel art icon" |
+| salpicadura de objeto | Un objeto que cae al agua de la piscina (spec 05 §6): unos 0,35 s | Aro claro que se abre y cuatro gotas, dibujados por código (`ThrownItem.ts`) | "small water splash ring with droplets, 4-5 frames, 24x24, top-down pixel art" |
+| burbujas de la piscina | El agua de la piscina con un objeto dentro (burbujas lentas) y al invocar al mago rojo (hierve en rojo 1,5 s) | Círculos claros que crecen y revientan sobre un tinte rojo, dibujados por código (`ActivationSite.ts`) | "bubbles rising and popping in reddish water, 4 frames, 8x8 each, top-down pixel art" |
 
 ## Iconos del HUD
 
@@ -38,6 +41,7 @@ Iconos en píxeles provisionales en `src/ui/icons.ts` (rectángulos sobre una re
 | `star` | Nivel de mejora del arma: una estrella por nivel junto a su nombre |
 | `bolt`, `x2` | Mejoras temporales (velocidad, doble daño): botón de la mejora y fila de la tienda |
 | `bullet`, `rifle`, `crosshair` | Iconos de los artículos de la tienda (munición máxima, mejorar arma, mejora especial), en el color del mago |
+| `living_heart`, `worn_wand` | Objetos especiales (spec 05): inventario, botón de acción al recogerlos y fotogramas del sprite `item`. Colores fijos (no variables CSS) para poder dibujarlos también en el canvas |
 
 ## Tiles
 

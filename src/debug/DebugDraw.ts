@@ -1,6 +1,7 @@
 import type Phaser from 'phaser';
 import { BULLETS, MERCHANT, PLAYER, ZOMBIES } from '../config/balance';
 import type { GameState } from '../core/GameState';
+import type { MapData } from '../game/map/MapLoader';
 import { DEPTH } from '../game/depth';
 import { BLOCK_BULLET, cellBlocks, cellShapeRects, type CollisionGrid } from '../game/map/CollisionGrid';
 import { UNREACHABLE, flowNextCell, type FlowField } from '../game/map/FlowField';
@@ -12,14 +13,20 @@ import { hurtboxOf } from '../game/systems/shotGeometry';
  * merchant circles, the zombies' drawn bodies that bullets hit, bullets, and
  * what stops bullets: walls by their drawn shape, doors and furniture) and the flow
  * field (an arrow per visible cell towards its next cell, windows the way
- * goes through in amber). Redrawn every frame only while enabled.
+ * goes through in amber) and the special items' spots (spec 05 §8: violet
+ * crosses, the one with an item still on it ringed in amber, and the
+ * activation sites framed). Redrawn every frame only while enabled.
  */
 export class DebugDraw {
   showHitboxes = false;
   showFlowField = false;
+  showItemSpots = false;
   private readonly g: Phaser.GameObjects.Graphics;
 
-  constructor(private readonly scene: Phaser.Scene) {
+  constructor(
+    private readonly scene: Phaser.Scene,
+    private readonly map: MapData,
+  ) {
     this.g = scene.add.graphics().setDepth(DEPTH.debug);
   }
 
@@ -27,6 +34,7 @@ export class DebugDraw {
     const g = this.g;
     g.clear();
     if (this.showFlowField) this.drawFlowField(nav);
+    if (this.showItemSpots) this.drawItemSpots(state);
     if (!this.showHitboxes) return;
     this.drawBulletBlockers(grid);
     g.lineStyle(1, 0x5fd0ff, 1);
@@ -44,6 +52,19 @@ export class DebugDraw {
     }
     g.fillStyle(0xffffff, 1);
     for (const b of state.bullets) if (b.active) g.fillCircle(b.x + b.drawX, b.y + b.drawY, Math.max(1, BULLETS.radius));
+  }
+
+  private drawItemSpots(state: GameState): void {
+    const g = this.g;
+    g.lineStyle(2, 0xbe5aeb, 1);
+    for (const s of this.map.itemSpots) {
+      g.lineBetween(s.x - 6, s.y, s.x + 6, s.y);
+      g.lineBetween(s.x, s.y - 6, s.x, s.y + 6);
+    }
+    g.lineStyle(2, 0xe8b04a, 1);
+    for (const item of state.groundItems) if (item.active) g.strokeCircle(item.x, item.y, 14);
+    g.lineStyle(1, 0xbe5aeb, 1);
+    for (const a of this.map.activationSites) g.strokeRect(a.x, a.y, a.width, a.height);
   }
 
   /**

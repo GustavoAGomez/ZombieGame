@@ -70,6 +70,34 @@ Magos con gabardina que venden munición y mejoras. Sus puntos de aparición son
 
 **Relación con las mejoras de arma:** el rojo vende los niveles de la lista de cada arma; el dorado, su especial. Las mejoras pertenecen al arma: si la cambias en una vitrina, se pierden.
 
+## Objetos especiales y activaciones
+
+- **Objetos especiales:** se recogen del mapa, se guardan en un inventario y se usan con un toque en lugares concretos. Cada objeto es único: no se apila ni hay dos iguales en la partida.
+
+| Objeto | Cómo se consigue |
+|---|---|
+| Corazón vivo | Se lleva desde el inicio de la partida (provisional: más adelante se conseguirá de otra forma) |
+| Varita desgastada | Al empezar la partida aparece en un punto de objeto al azar de cualquier zona salvo la inicial, y se queda ahí hasta que alguien la recoge |
+
+- **Puntos de objeto:** 1 o 2 por zona, también en el sótano y la azotea (19 en la mansión). Cada uno está junto a algo que cuenta una historia: la caja fuerte abierta del estudio, la puerta abierta del coche del garaje, la barbacoa volcada, el refugio del sótano… En el suelo, el objeto se ve dentro de un foco circular de luz ámbar. En una zona cerrada o a oscuras se ve como el resto de cosas de la habitación: no hay flecha ni indicador hacia él, hay que encontrarlo.
+- **Recoger:** a menos de 32 px, el botón de acción ofrece «RECOGER VARITA DESGASTADA». Es la última opción del botón: cualquier otra acción cercana va antes.
+- **Inventario:** como mucho 4 objetos, en una fila a la izquierda de los puntos, en el orden en que se recogieron (el primero, junto a los puntos). Se pueden usar en cualquier momento, también durante una ronda.
+- **Usar:** un toque en el objeto.
+  - Junto a un lugar que lo acepta, se tira y se gasta.
+  - En cualquier otro sitio sale «AQUÍ NO SE USA», el hueco tiembla y el objeto no se pierde.
+- **Activaciones:** lugares del mapa que aceptan ciertos objetos y hacen algo cuando los tienen todos. Recuerdan lo que han recibido, así que los objetos se pueden tirar por separado y en momentos distintos de la partida. Una activación completa no acepta nada más.
+
+| Activación | Lugar | Objetos | Orden | Efecto |
+|---|---|---|---|---|
+| Invocar al mago rojo | El agua de la piscina del jardín (se usa a menos de 40 px de su borde) | Corazón vivo y varita desgastada | Cualquiera | El mago rojo sale de la piscina |
+
+- **El ritual de la piscina:**
+  - Cada objeto tirado vuela en arco hasta el agua y salpica.
+  - Con uno dentro, el agua se queda con un tinte rojizo y burbujas lentas.
+  - Al caer el segundo, el agua hierve en rojo 1,5 s, sale el aviso «EL MAGO ROJO HA SIDO INVOCADO» y el mago aparece con su humo en el punto de mago del borde de la piscina (si está ocupado, en el siguiente más cercano del jardín).
+  - Desde la ronda siguiente se teletransporta como los demás.
+  - El jardín empieza cerrado: para completar el ritual hay que abrir antes una de sus puertas (desde la cocina o la biblioteca, 1500$).
+
 ## Economía
 
 - **Puntos y dinero:** cada ganancia suma lo mismo a los dos.

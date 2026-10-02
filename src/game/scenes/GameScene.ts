@@ -31,6 +31,7 @@ import { ZombieViewPool } from '../entities/Zombie';
 import { BurnFlames } from '../entities/BurnFlames';
 import { WeaponCaseViews } from '../entities/WeaponCase';
 import { findWeapon, giveWeapon, refillWeapon } from '../systems/InventorySystem';
+import { debugGiveItems } from '../systems/ItemSystem';
 import type { WeaponId } from '../../config/weapons';
 import { HudPresenter } from '../HudPresenter';
 import { buildCollisionGrid } from '../map/CollisionGrid';
@@ -174,7 +175,7 @@ export class GameScene extends Phaser.Scene {
     this.worldTexts = new WorldTextPool(this, events);
     this.cantUseText = new CantUseText(this, events);
     this.thrownItems = new ThrownItemViews(this, events);
-    this.debugDraw = new DebugDraw(this);
+    this.debugDraw = new DebugDraw(this, this.map);
     this.services.debugActions = this.createDebugActions();
     this.syncViews(0);
 
@@ -387,6 +388,20 @@ export class GameScene extends Phaser.Scene {
       },
       giveSmg: () => this.debugGiveWeapon('smg'),
       giveShotgun: () => this.debugGiveWeapon('shotgun'),
+      giveItems: () => {
+        const p = this.state.players[0];
+        if (p) debugGiveItems(this.state, p);
+      },
+      goToWand: () => {
+        const p = this.state.players[0];
+        const wand = this.state.groundItems.find((g) => g.item === 'worn_wand' && g.active);
+        if (!p || !wand) return;
+        // On the wand's own tile (always free and walkable): within reach at once. The camera jumps along.
+        p.x = p.prevX = wand.x;
+        p.y = p.prevY = wand.y;
+        p.teleports++;
+      },
+      toggleItemSpots: () => (this.debugDraw.showItemSpots = !this.debugDraw.showItemSpots),
     };
   }
 
