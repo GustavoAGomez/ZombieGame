@@ -667,3 +667,19 @@ Petición del usuario: diferenciar los puntos del dinero para comprar.
 - **Cantidades con `$`:** los costes del botón de acción (puertas y escaleras, y lo que falta), el `+10$` de reparar y los precios y el FALTAN de la tienda. Así no se confunden con los puntos.
 - **Botones de debug:** +1000 y +10000 dan dinero.
 - **Pantalla final:** muestra los puntos (la puntuación), como antes.
+
+## Marco rojo de vida con ruido de televisión
+
+Petición del usuario: un indicador de daño rojo alrededor de la pantalla que parpadee una vez con cada golpe y vaya creciendo, con ruido de televisión sin señal, cuanta menos vida quede. Leve, para no estorbar.
+
+- **Sustituye** al borde rojo pixelado de 200 ms. `PLAYER.hitFlashDuration` desaparece; los números van en `HURT_VIGNETTE` (`balance.ts`).
+- **Intensidad:** `hurtIntensity` = (vida perdida / vida máxima) ^ 1,6. A 90 PV apenas se ve (0,03), a 50 PV es leve (0,33), a 30 PV se nota (0,57) y a 10 PV es fuerte (0,85).
+- **Fundido:** una sombra interior roja en CSS. Su opacidad máxima es 0,6 y gana grosor con la intensidad.
+- **Ruido:** un lienzo pequeño (un píxel de ruido por cada 3 px) escalado en `pixelated`.
+  - Seis fotogramas pre-dibujados, ciclados a 12 fps. Motas de rojo oscuro a rosa pálido, en franjas horizontales como una tele sin señal.
+  - La máscara de borde (64 px, más fuerte en las esquinas) va en el alfa de los fotogramas, así que no hace falta `mask-image`.
+  - El bucle solo corre mientras el ruido se ve: con la vida llena se para. Los fotogramas se rehacen al cambiar el tamaño de la pantalla.
+- **Parpadeo:** con cada golpe del jugador local, las dos capas suben de golpe (+0,55 el fundido y +0,35 el ruido) y vuelven en 350 ms al nivel que marca la vida. Con la vida llena se ve como un brillo rojo fino con estática.
+- **Capas:** va al fondo del HUD. Los textos del HUD y los controles quedan encima y nunca bloquea toques.
+- **Curarse:** con un botiquín el marco se desvanece suavemente (la misma transición).
+- Sin assets nuevos: el ruido se genera en runtime.

@@ -154,19 +154,46 @@
 }
 
 /* Red pixel border for 200 ms when the player is hit (spec 01 §4.1). */
-.hud-damage {
+/*
+ * Red frame around the screen (HurtVignette.ts). --hurt (0 full health, 1 none)
+ * thickens the fade; --hurt-fade and --hurt-noise are the opacities, all set
+ * from HURT_VIGNETTE. .is-flashing is on for an instant on each hit: the
+ * layers jump up and ease back to the health's level (the single blink).
+ */
+.hud-hurt {
   position: absolute;
   inset: 0;
-  opacity: 0;
+  overflow: hidden;
   pointer-events: none;
-  box-shadow:
-    inset 0 0 0 4px var(--red),
-    inset 0 0 0 8px rgba(201, 58, 43, 0.55),
-    inset 0 0 0 12px rgba(58, 21, 17, 0.45);
 }
 
-.hud-damage.is-visible {
-  opacity: 1;
+.hud-hurt__fade,
+.hud-hurt__noise {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity var(--hurt-flash-ms) ease-out;
+}
+
+.hud-hurt__fade {
+  opacity: var(--hurt-fade);
+  box-shadow: inset 0 0 calc(36px + 64px * var(--hurt)) calc(2px + 22px * var(--hurt)) rgba(150, 14, 10, 0.9);
+}
+
+.hud-hurt__noise {
+  opacity: var(--hurt-noise);
+  image-rendering: pixelated;
+}
+
+.hud-hurt.is-flashing .hud-hurt__fade {
+  opacity: calc(var(--hurt-fade) + var(--hurt-flash-fade));
+  transition: none;
+}
+
+.hud-hurt.is-flashing .hud-hurt__noise {
+  opacity: calc(var(--hurt-noise) + var(--hurt-flash-noise));
+  transition: none;
 }
 
 .hud-dead {

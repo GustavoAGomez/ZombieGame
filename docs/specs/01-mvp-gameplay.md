@@ -99,7 +99,8 @@ Todos los valores de esta sección van a `balance.ts`. Los números son el punto
 | Hitbox | círculo de radio 6 en los pies |
 | Regeneración | ninguna: la vida solo se recupera con botiquines (los suelta a veces un zombie al morir) |
 
-- **Al recibir daño:** borde de pantalla rojo pixelado durante 200 ms, empuje de 6 px y vibración ligera (háptica). Por debajo de 30 PV, el corazón del HUD late y la barra cambia a `--red-low`.
+- **Al recibir daño:** el marco rojo de la pantalla parpadea una vez (350 ms), empuje de 6 px y vibración ligera (háptica). Por debajo de 30 PV, el corazón del HUD late y la barra cambia a `--red-low`.
+- **Marco de vida:** alrededor de la pantalla, un fundido rojo con ruido de televisión sin señal que crece cuanta menos vida queda. Con la vida llena no se ve. Es leve a propósito: enmarca el juego sin tapar el centro ni los controles. Sus números están en `HURT_VIGNETTE` (`balance.ts`).
 
 ### 4.2 Armas
 

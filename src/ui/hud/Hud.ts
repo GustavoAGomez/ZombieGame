@@ -1,4 +1,4 @@
-import { MERCHANT, PLAYER, POINTS, WAVES, type BoostKind } from '../../config/balance';
+import { MERCHANT, POINTS, WAVES, type BoostKind } from '../../config/balance';
 import { merchantDef } from '../../config/merchants';
 import { COLORS } from '../../config/theme';
 
@@ -7,6 +7,7 @@ const BOOST_COLORS: Record<BoostKind, string> = { speed: COLORS.amber, double_da
 import type { EventBus, GameEvents } from '../../core/EventBus';
 import { pixelIcon } from '../icons';
 import { STRINGS } from '../strings';
+import { HurtVignette } from './HurtVignette';
 import './hud.css';
 
 const HEALTH_SEGMENTS = 10;
@@ -37,12 +38,12 @@ export class Hud {
   private readonly floats: HTMLDivElement;
   private readonly floatPool: HTMLSpanElement[] = [];
   private nextFloat = 0;
-  private readonly damage: HTMLDivElement;
+  /** Red frame around the screen: health left and the blink of each hit. */
+  private readonly hurt = new HurtVignette();
   private readonly dead: HTMLDivElement;
   private readonly banner: HTMLDivElement;
   /** "EL MAGO AZUL SE HA MOVIDO" or "¡VELOCIDAD!" under the round banner (spec 03 §2, §5). */
   private readonly notice: HTMLDivElement;
-  private damageTimer = 0;
   private blinkTimer = 0;
   private readonly unsubscribers: (() => void)[] = [];
 
@@ -101,7 +102,6 @@ export class Hud {
     }
     right.append(pointsRow, this.money, this.floats);
 
-    this.damage = el('div', 'hud-damage');
     this.dead = el('div', 'hud-dead');
     this.dead.textContent = STRINGS.hud.dead;
     // "RONDA N" in the middle for a moment at the start of each round (spec 01 §4.8).
@@ -113,7 +113,7 @@ export class Hud {
     this.notice.style.animationDuration = `${MERCHANT.movedNoticeTime}s`;
     this.notice.addEventListener('animationend', () => this.notice.classList.remove('is-showing'));
 
-    this.root.append(this.damage, left, right, this.banner, this.notice, this.dead);
+    this.root.append(this.hurt.root, left, right, this.banner, this.notice, this.dead);
     parent.appendChild(this.root);
 
     this.unsubscribers.push(
@@ -132,7 +132,7 @@ export class Hud {
 
   destroy(): void {
     for (const off of this.unsubscribers) off();
-    window.clearTimeout(this.damageTimer);
+    this.hurt.destroy();
     window.clearTimeout(this.blinkTimer);
     this.root.remove();
   }
@@ -142,6 +142,7 @@ export class Hud {
     for (let i = 0; i < this.segments.length; i++) this.segments[i]?.classList.toggle('is-full', i < filled);
     this.hpValue.textContent = String(e.hp);
     this.healthRow.classList.toggle('is-low', e.low);
+    this.hurt.setHealth(e.hp, e.maxHp);
   };
 
   private readonly onPoints = (e: GameEvents['points:changed']): void => {
@@ -221,10 +222,8 @@ export class Hud {
     if (reloading) this.reloadFill.style.transform = `scaleX(${e.reloadProgress})`;
   };
 
-  private readonly onDamaged = (): void => {
-    this.damage.classList.add('is-visible');
-    window.clearTimeout(this.damageTimer);
-    this.damageTimer = window.setTimeout(() => this.damage.classList.remove('is-visible'), PLAYER.hitFlashDuration * 1000);
+  private readonly onDamaged = (e: GameEvents['player:damaged']): void => {
+    if (e.playerId === this.localPlayerId) this.hurt.flash();
   };
 
   private readonly onDied = (): void => {

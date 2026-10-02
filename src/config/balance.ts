@@ -19,7 +19,6 @@ export const PLAYER = {
   hitboxRadius: 6,
   /** No regeneration: health only comes back with health pickups (PICKUPS.healthAmount). */
   lowHpThreshold: 30,
-  hitFlashDuration: 0.2,
   hitKnockback: 6,
   /** Distance from the player's centre to the muzzle, where bullets spawn. */
   muzzleDistance: 9,
@@ -30,6 +29,28 @@ export const PLAYER = {
    * instead of running. 1 keeps the running speed.
    */
   shootingSpeedFactor: 0.5,
+} as const;
+
+/**
+ * Red frame around the screen that tells the health left (spec 01 §5): a
+ * fade with no-signal TV noise that grows as health drops, plus a single
+ * blink on every hit. Light on purpose: it frames the game, never covers it.
+ */
+export const HURT_VIGNETTE = {
+  /** Curve against the health lost: above 1 the first hits barely show and the last ones a lot. */
+  curve: 1.6,
+  /** Opacity of the red fade and of the noise with 0 health. */
+  maxFade: 0.6,
+  maxNoise: 0.4,
+  /** Extra opacity of the blink on each hit, which fades out in flashDuration seconds. */
+  flashFade: 0.55,
+  flashNoise: 0.35,
+  flashDuration: 0.35,
+  /** Noise: frames per second, pre-drawn frames, CSS px per noise pixel and depth in CSS px of the band at the edges. */
+  noiseFps: 12,
+  noiseFrames: 6,
+  noisePixel: 3,
+  noiseBand: 64,
 } as const;
 
 export type WeaponId = 'pistol' | 'smg';
