@@ -23,6 +23,11 @@ export interface WeaponSlotState {
   levels: Record<UpgradeKind, number>;
   /** The weapon's special from the gold merchant (pistol fan, SMG piercing). */
   special: boolean;
+  /** A beam weapon's battery (WeaponDef.battery; 0 for the others), and the seconds since it last fired. */
+  battery: number;
+  batteryIdle: number;
+  /** Seconds the beam weapon stays locked after running dry (spec 06 §2.1). */
+  overheat: number;
 }
 
 /**
@@ -71,6 +76,9 @@ export interface PlayerState {
   meleeTick: number;
   /** The last slash was a melee weapon's sweep (the katana): drawn wider than the knife's. */
   meleeWide: boolean;
+  /** A beam is firing this tick (the laser), `beamLength` px from the gun's muzzle along the aim to a wall or its range. */
+  beamOn: boolean;
+  beamLength: number;
   /** Fire held during the last tick. */
   firing: boolean;
   /** Seconds since this press of the fire button began (still counting while a tap's shot waits). */
@@ -250,6 +258,8 @@ export interface ZombieState {
   lostTimer: number;
   /** Burning (BurnSystem): fire on it, reusable by any weapon. */
   burn: BurnState;
+  /** Tick of the last hit of a continuous weapon (beam, cone) that scored on it: they score once per CONTINUOUS.scoreInterval. */
+  contactScoreTick: number;
 }
 
 /** A zombie on fire: damage every tick interval until `timer` runs out. */
@@ -358,7 +368,16 @@ export interface GameState extends RngState {
 
 export function createWeaponSlot(id: WeaponId): WeaponSlotState {
   const stats = WEAPONS[id];
-  return { id, magazine: stats.magazine, reserve: stats.startReserve, levels: { ammo: 0, fire_rate: 0, damage: 0 }, special: false };
+  return {
+    id,
+    magazine: stats.magazine,
+    reserve: stats.startReserve,
+    levels: { ammo: 0, fire_rate: 0, damage: 0 },
+    special: false,
+    battery: stats.battery?.capacity ?? 0,
+    batteryIdle: 0,
+    overheat: 0,
+  };
 }
 
 export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
@@ -386,6 +405,8 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     meleeAngle: 0,
     meleeTick: -1000,
     meleeWide: false,
+    beamOn: false,
+    beamLength: 0,
     firing: false,
     aimTime: 0,
     shotPending: false,
@@ -469,6 +490,7 @@ function createZombie(): ZombieState {
     portalLock: -1,
     lostTimer: 0,
     burn: { timer: 0, tickTimer: 0, perTick: 0, owner: -1 },
+    contactScoreTick: -1000,
   };
 }
 

@@ -8,8 +8,8 @@ Registro vivo de las **reglas del juego tal como están implementadas**: qué ha
 
 - **Categorías:**
   - `basic`: se compran en las vitrinas de armas. Pistola, SMG y escopeta.
-  - `special`: solo las da la Mano del Demonio (spec 06), nunca una vitrina. No tienen niveles del mago rojo (su tienda dice «NO MEJORABLE»), pero sí mejora especial del mago dorado. Hoy, la katana.
-- **Cómo atacan:** con balas (pistola, SMG, escopeta) o con un barrido cuerpo a cuerpo (katana).
+  - `special`: solo las da la Mano del Demonio (spec 06), nunca una vitrina. No tienen niveles del mago rojo (su tienda dice «NO MEJORABLE»), pero sí mejora especial del mago dorado. Hoy, la katana y el láser.
+- **Cómo atacan:** con balas (pistola, SMG, escopeta), con un barrido cuerpo a cuerpo (katana) o con un rayo continuo (láser).
 - **Cada arma tiene sus propias mejoras:** cuántos niveles admite de cada tipo de mejora (munición, cadencia y daño), que vende el mago rojo y que el jugador elige; y, si la tiene, una mejora especial única que vende el mago dorado. Nada supone que haya tres niveles: un arma especial futura podrá admitir menos tipos o menos niveles.
 - **Inventario de armas:** se empieza solo con la pistola y se llevan como mucho **3 armas**, una por hueco de la columna de armas. Tocar un hueco cambia de arma en 0,4 s.
 
@@ -28,6 +28,14 @@ El daño se cuenta en las mismas unidades que la vida de los zombis: una bala de
 - **Dirección:** la del arrastre del botón de disparo. Sin arrastre, hacia el zombi más cercano a su alcance, como el cuchillo.
 - **Bloqueos y puntos:** una pared entre medias protege al zombi (una ventana no). Puntúa como el cuchillo: 10 por cada zombi golpeado.
 - El cuchillo sigue en su botón, sin cambios.
+
+**Láser** (especial):
+- **Rayo continuo** mientras se mantiene pulsado, desde el cañón hasta 280 px. Atraviesa a todos los zombis de la línea; las paredes lo paran, las ventanas no.
+- **Daño:** 6 por segundo a cada zombi tocado, en golpes cada 0,1 s.
+- **Puntos:** un impacto (5) por zombi cada 0,5 s de contacto. Muere como siempre: 50 por la muerte.
+- **Batería de 100 en lugar de munición:** se gasta a 25 por segundo (4 s de rayo) y se recarga sola a 20 por segundo tras 0,8 s sin disparar, también enfundado. Ni la munición máxima ni los premios de munición le afectan.
+- **Sobrecalentamiento:** si se vacía, el arma se bloquea 3 s y luego recarga con normalidad. En el HUD, la barra de batería parpadea en rojo con «SOBRECALENTADO».
+- Respeta la espera del primer disparo y frena al jugador como las armas de fuego. Un toque más corto que la espera no dispara.
 
 - **Apuntar antes del primer disparo:** al pulsar el botón de disparo, la primera bala espera **0,3 s** (igual en las tres armas, ajustable por arma). Mientras tanto el jugador ya gira hacia donde apunta y se puede corregir arrastrando, por si el dedo cayó descentrado.
   - Manteniendo pulsado, después dispara a la cadencia del arma.

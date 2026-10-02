@@ -38,6 +38,7 @@ export const STRINGS = {
     giveSmg: 'DAR SMG',
     giveShotgun: 'DAR ESCOPETA',
     giveKatana: 'DAR KATANA',
+    giveLaser: 'DAR LÁSER',
     /** Spec 05 §8. */
     giveItems: 'DAR OBJETOS',
     goToWand: 'IR A LA VARITA',
@@ -56,8 +57,12 @@ export const STRINGS = {
     smg: 'SMG',
     shotgun: 'ESCOPETA',
     katana: 'KATANA',
+    laser: 'LÁSER',
   },
   hud: {
+    battery: 'Batería',
+    /** The laser ran dry (spec 06 §2.1): locked for a few seconds. */
+    overheated: 'SOBRECALENTADO',
     /** Points: everything earned this match (the score). */
     points: 'PUNTOS',
     /** Money to spend, and the floating gains and expenses. */

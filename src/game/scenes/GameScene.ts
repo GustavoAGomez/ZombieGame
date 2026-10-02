@@ -12,6 +12,7 @@ import { PauseButton, PauseMenu } from '../../ui/screens/Screens';
 import type { AssetLibrary } from '../assets/AssetLibrary';
 import { ASSET_KEYS } from '../assets/manifest';
 import { AimLine } from '../entities/AimLine';
+import { LaserBeam } from '../entities/LaserBeam';
 import { BloodViewPool } from '../entities/Blood';
 import { BloodSprayPool } from '../entities/BloodSpray';
 import { BulletViewPool } from '../entities/Bullet';
@@ -77,6 +78,7 @@ export class GameScene extends Phaser.Scene {
   private zombieViews!: ZombieViewPool;
   private bulletViews!: BulletViewPool;
   private aimLine!: AimLine;
+  private laserBeam!: LaserBeam;
   private muzzleFlash!: MuzzleFlash;
   private meleeSlash!: MeleeSlash;
   private worldTexts!: WorldTextPool;
@@ -170,6 +172,7 @@ export class GameScene extends Phaser.Scene {
     this.playerStains = new PlayerBloodStains(this, playerDef, events);
     this.bulletViews = new BulletViewPool(this, this.state.bullets.length, playerDef);
     this.aimLine = new AimLine(this, playerDef);
+    this.laserBeam = new LaserBeam(this, playerDef);
     this.muzzleFlash = new MuzzleFlash(this, playerDef);
     this.meleeSlash = new MeleeSlash(this, playerDef, manifest.objects[ASSET_KEYS.meleeSlash]);
     this.worldTexts = new WorldTextPool(this, events);
@@ -313,6 +316,7 @@ export class GameScene extends Phaser.Scene {
         this.cameras.main.centerOn(this.playerView.sprite.x, this.playerView.sprite.y);
       }
       this.aimLine.sync(player, alpha);
+      this.laserBeam.sync(player, alpha);
       this.muzzleFlash.sync(player, alpha, this.state.tick);
       this.meleeSlash.sync(player, alpha);
     }
@@ -393,6 +397,7 @@ export class GameScene extends Phaser.Scene {
       giveSmg: () => this.debugGiveWeapon('smg'),
       giveShotgun: () => this.debugGiveWeapon('shotgun'),
       giveKatana: () => this.debugGiveWeapon('katana'),
+      giveLaser: () => this.debugGiveWeapon('laser'),
       giveItems: () => {
         const p = this.state.players[0];
         if (p) debugGiveItems(this.state, p);

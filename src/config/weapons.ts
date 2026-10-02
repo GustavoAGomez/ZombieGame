@@ -6,7 +6,7 @@
  * assumes three levels. Names shown on screen live in STRINGS.weapons.
  */
 
-export type WeaponId = 'pistol' | 'smg' | 'shotgun' | 'katana';
+export type WeaponId = 'pistol' | 'smg' | 'shotgun' | 'katana' | 'laser';
 
 /** `basic`: bought at weapon cases. `special`: only from the Demon's Hand (spec 06), never at a case. */
 export type WeaponCategory = 'basic' | 'special';
@@ -32,9 +32,13 @@ export const UPGRADE_KINDS: readonly UpgradeKind[] = ['ammo', 'fire_rate', 'dama
 export type WeaponSpecialId = 'fan' | 'pierce' | 'fire';
 
 export interface WeaponStats {
-  /** Damage per bullet (per zombie for a sweep), in damage units (zombie HP is counted in the same units). */
+  /**
+   * Damage per bullet, in damage units (zombie HP is counted in the same
+   * units); per zombie for a sweep, and per damage tick to each zombie
+   * touched for a beam or a cone.
+   */
   damage: number;
-  /** Shots per second (sweeps per second for a melee weapon). */
+  /** Shots per second (sweeps for a melee weapon, damage ticks for a beam or a cone). */
   fireRate: number;
   magazine: number;
   startReserve: number;
@@ -51,6 +55,20 @@ export interface WeaponStats {
   bulletSpeed?: number;
   /** Melee and cone weapons: the total angle in degrees they reach, centred on the aim. */
   arc?: number;
+  /**
+   * A beam's battery (the laser): it drains while firing, refills by itself
+   * after a pause, and once empty the weapon overheats and stays locked.
+   */
+  battery?: {
+    capacity: number;
+    /** Spent per second of beam. */
+    drain: number;
+    /** Gained per second, once rechargeDelay seconds have passed without firing. */
+    recharge: number;
+    rechargeDelay: number;
+    /** Seconds locked after running dry; then it recharges as usual. */
+    overheatTime: number;
+  };
   /** Projectiles per round (a shotgun's pellets); 1 when missing. */
   pellets?: number;
   /** Random variation of each pellet around its even place in the cone (degrees, total). */
@@ -193,6 +211,25 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDef>> = {
     arc: 140,
     knockback: 6,
     firstShotDelay: 0,
+    upgrades: {},
+  },
+  // Laser (spec 06 §2.1): a continuous ray through every zombie in line, on a battery instead of ammo.
+  laser: {
+    id: 'laser',
+    category: 'special',
+    attack: 'beam',
+    /** 6 per second to each zombie touched, in ticks of 0.1 s. */
+    damage: 0.6,
+    fireRate: 10,
+    magazine: 0,
+    startReserve: 0,
+    maxReserve: 0,
+    reloadTime: 0,
+    /** Walls stop it; zombies do not. */
+    range: 280,
+    /** 4 s of beam on a full battery. */
+    battery: { capacity: 100, drain: 25, recharge: 20, rechargeDelay: 0.8, overheatTime: 3 },
+    firstShotDelay: FIRST_SHOT_DELAY,
     upgrades: {},
   },
 };

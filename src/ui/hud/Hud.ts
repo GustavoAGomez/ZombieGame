@@ -37,6 +37,8 @@ export class Hud {
   private shownLevels = '';
   private readonly magazine: HTMLSpanElement;
   private readonly reloadFill: HTMLDivElement;
+  /** A beam weapon's battery instead of the ammo (spec 06 §2.1). */
+  private readonly batteryFill: HTMLDivElement;
   private readonly reserve: HTMLSpanElement;
   private readonly floats: HTMLDivElement;
   private readonly floatPool: HTMLSpanElement[] = [];
@@ -92,7 +94,14 @@ export class Hud {
     bullet.classList.add('hud-ammo__bullet');
     const infinite = pixelIcon('infinity', 18);
     infinite.classList.add('hud-ammo__infinite');
-    ammoRow.append(bullet, infinite, this.magazine, reload, this.reserve);
+    // A beam weapon (the laser) shows its battery instead, blinking red with SOBRECALENTADO once overheated.
+    const battery = el('div', 'hud-battery');
+    battery.setAttribute('aria-label', STRINGS.hud.battery);
+    this.batteryFill = el('div', 'hud-battery__fill');
+    battery.appendChild(this.batteryFill);
+    const overheated = el('span', 'hud-battery__label');
+    overheated.textContent = STRINGS.hud.overheated;
+    ammoRow.append(bullet, infinite, battery, overheated, this.magazine, reload, this.reserve);
     this.weaponRow.append(nameRow, ammoRow);
     // An empty row kept for future stats and perks (spec 01 §5).
     left.append(this.healthRow, this.round, this.weaponRow, el('div', 'hud-reserved'));
@@ -258,6 +267,9 @@ export class Hud {
       );
     }
     this.weaponRow.classList.toggle('is-infinite', e.ammo === 'none');
+    this.weaponRow.classList.toggle('is-battery', e.ammo === 'battery');
+    this.weaponRow.classList.toggle('is-overheated', e.overheated);
+    this.batteryFill.style.transform = `scaleX(${e.battery})`;
     this.magazine.textContent = String(e.magazine);
     this.reserve.textContent = `/ ${e.reserve}`;
     const reloading = e.reloadProgress !== null;

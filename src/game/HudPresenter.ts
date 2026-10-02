@@ -8,6 +8,7 @@ import { repairPointsAvailable } from './systems/BarricadeSystem';
 import { doorTarget } from './systems/DoorSystem';
 import { portalTarget } from './systems/PortalSystem';
 import { isPerWeapon, itemPrice, shopItemStatus, upgradeKindOf } from './systems/ShopSystem';
+import { batteryLevel } from './systems/BeamSystem';
 import { ammoKind, magazineSize, maxUpgradeLevel, totalLevels } from './systems/weaponStats';
 import { caseOffer } from './systems/WeaponCaseSystem';
 import { hasItemRoom } from './systems/ItemSystem';
@@ -15,6 +16,8 @@ import { reloadProgress } from './systems/WeaponSystem';
 
 /** Steps used to quantise continuous values so the DOM updates rarely. */
 const RELOAD_STEPS = 20;
+/** The battery bar moves in steps of 1/40 (2.5 %). */
+const BATTERY_STEPS = 40;
 const COOLDOWN_STEPS = 64;
 
 /**
@@ -29,6 +32,8 @@ export class HudPresenter {
   private switching = false;
   private levels = '';
   private special = false;
+  private battery = -1;
+  private overheated = false;
   private cooldownStep = -1;
   private hp = -1;
   private round = -1;
@@ -192,12 +197,17 @@ export class HudPresenter {
       const progress = reloadProgress(p);
       const quantised = progress === null ? null : Math.floor(progress * RELOAD_STEPS) / RELOAD_STEPS;
       const switching = p.switchTimer > 0;
+      // A beam weapon's battery, in steps so the bar is not republished every tick (spec 06 §2.1).
+      const battery = Math.ceil(batteryLevel(slot) * BATTERY_STEPS) / BATTERY_STEPS;
+      const overheated = slot.overheat > 0;
       if (
         slot.id !== this.weapon ||
         slot.magazine !== this.magazine ||
         slot.reserve !== this.reserve ||
         quantised !== this.reload ||
         switching !== this.switching ||
+        battery !== this.battery ||
+        overheated !== this.overheated ||
         levelsKey(slot) !== this.levels ||
         slot.special !== this.special
       ) {
@@ -208,6 +218,8 @@ export class HudPresenter {
         this.reserve = slot.reserve;
         this.reload = quantised;
         this.switching = switching;
+        this.battery = battery;
+        this.overheated = overheated;
         this.events.emit('weapon:state', {
           weapon: slot.id,
           levels: { ...slot.levels },
@@ -219,6 +231,8 @@ export class HudPresenter {
           reserve: slot.reserve,
           reloadProgress: quantised,
           switching,
+          battery,
+          overheated,
         });
       }
     }

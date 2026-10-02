@@ -15,6 +15,7 @@ export type IconName =
   | 'rifle'
   | 'shotgun'
   | 'katana'
+  | 'laser'
   | 'hammer'
   | 'door'
   | 'stairs'
@@ -81,6 +82,11 @@ const ICONS: Record<IconName, IconDef> = {
   katana: {
     w: 16, h: 5, fill: 'var(--bone)',
     rects: [[0, 2, 4, 2, 'var(--amber-dark)'], [4, 1, 1, 3, 'var(--amber)'], [5, 2, 9, 1], [6, 1, 8, 1], [14, 1, 1, 1], [15, 0, 1, 1]],
+  },
+  // Laser: a chunky gun with a coil along the barrel and a red emitter.
+  laser: {
+    w: 14, h: 8, fill: 'var(--bone)',
+    rects: [[1, 1, 9, 3], [10, 2, 2, 1], [12, 1, 2, 3, 'var(--red)'], [3, 0, 5, 1, 'var(--muted)'], [2, 4, 3, 4, 'var(--amber-dark)'], [6, 4, 2, 1], [3, 2, 1, 1, 'var(--red)'], [5, 2, 1, 1, 'var(--red)'], [7, 2, 1, 1, 'var(--red)']],
   },
   rifle: {
     w: 16, h: 8, fill: 'var(--bone)',

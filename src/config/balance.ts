@@ -78,6 +78,12 @@ export const MELEE = {
   coneHalfAngle: 60,
 } as const;
 
+/** Weapons that hit continuously (the laser's beam, the flamethrower's cone, spec 06 §2). */
+export const CONTINUOUS = {
+  /** A zombie in contact scores one hit (POINTS.hit) per this many seconds, not one per damage tick. */
+  scoreInterval: 0.5,
+} as const;
+
 export const BULLETS = {
   poolSize: 64,
   /** Radius used for bullet vs zombie hits. */

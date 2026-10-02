@@ -86,6 +86,54 @@
   display: none;
 }
 
+/* A beam weapon's battery (the laser, spec 06 §2.1): a bar instead of the bullet and the numbers. */
+.hud-battery,
+.hud-battery__label {
+  display: none;
+}
+
+.hud-battery {
+  width: 56px;
+  height: 8px;
+  background: var(--red-dark);
+  box-shadow: 0 0 0 2px var(--ink);
+}
+
+.hud-battery__fill {
+  width: 100%;
+  height: 100%;
+  background: var(--amber);
+  transform-origin: 0 50%;
+}
+
+.hud-battery__label {
+  font-family: var(--font-display);
+  font-size: 8px;
+  color: var(--red);
+  text-shadow: 2px 2px 0 var(--ink);
+}
+
+.hud-weapon.is-battery .hud-battery {
+  display: block;
+}
+
+.hud-weapon.is-battery .hud-ammo__bullet,
+.hud-weapon.is-battery .hud-mag,
+.hud-weapon.is-battery .hud-reserve,
+.hud-weapon.is-battery .hud-reload {
+  display: none;
+}
+
+.hud-weapon.is-overheated .hud-battery {
+  background: var(--red);
+  animation: hud-blink 0.4s steps(1, end) infinite;
+}
+
+.hud-weapon.is-overheated .hud-battery__label {
+  display: inline;
+  animation: hud-blink 0.4s steps(1, end) infinite;
+}
+
 .hud-weapon.is-reloading .hud-reload {
   display: block;
 }

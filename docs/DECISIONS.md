@@ -1251,3 +1251,26 @@ Petición del usuario: no saber a qué sala lleva una puerta hasta abrirla. Al d
   - En la columna de armas, el hueco de la katana no muestra número y nunca sale vacío.
   - `weapon:state` y `weapons:loadout` llevan `ammo` (`rounds`, `battery` o `none`).
 - **Debug:** `DAR KATANA`.
+
+## Spec 06 · Fase H2 (láser)
+
+- **Golpes de daño:** son la cadencia del arma (`fireRate` 10, `damage` 0,6 por golpe a cada zombi: 6 por segundo) y van por el mismo enfriamiento de disparo que las balas. El primer golpe sale al empezar el rayo, después de la espera del primer disparo.
+- **Geometría, la de las balas:** el rayo sale del cañón dibujado y las paredes se miden por el suelo justo debajo, así que el rayo se ve terminar en la cara de la pared. Toca a un zombi si su cuerpo dibujado corta la línea.
+  - Un zombi pegado al jugador, entre el pecho y el cañón, también recibe, como con la pistola.
+  - El largo medido (`beamLength`) queda en el estado del jugador para la vista.
+- **Batería por arma** (`battery`, `batteryIdle`, `overheat` en el hueco del arma):
+  - Se gasta en cada tick de rayo.
+  - Fuera del rayo, el bloqueo por sobrecalentamiento corre hacia 0, y la recarga empieza tras `rechargeDelay` sin disparar.
+  - Como el reposo cuenta también durante el bloqueo, al acabar los 3 s la recarga empieza en el acto ("luego recarga con normalidad").
+  - Un láser enfundado también se recarga.
+- **Solo pulsado:** un toque más corto que la espera del primer disparo no da ningún destello de rayo. La regla del toque corto que dispara una vez al cumplirse la espera es solo para las armas de balas.
+- **Puntos cada 0,5 s:** cada zombi guarda el tick del último golpe continuo que puntuó (`contactScoreTick`), compartido con el lanzallamas.
+  - Los golpes intermedios no dan puntos ni sacan sangre.
+  - Un golpe que mata sí saca sangre y da la muerte.
+  - En multijugador, el tick sería por zombi, no por jugador: lo más simple por ahora.
+- **HUD:**
+  - Barra ámbar de batería de 56×8 px en lugar de la bala y los números, en pasos de 2,5 % para no publicarla cada tick.
+  - En sobrecalentamiento, la barra parpadea en rojo junto al texto `SOBRECALENTADO`.
+  - En la columna de armas, el hueco del láser no muestra número.
+- **Vista provisional (`LaserBeam`):** una línea de 2 px roja clara con un núcleo blanco de 1 px y un destello que parpadea al final, sobre todo lo demás, como las balas.
+- **Debug:** `DAR LÁSER`.

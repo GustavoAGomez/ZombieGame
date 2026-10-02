@@ -28,6 +28,8 @@ describe('HudPresenter', () => {
       reserve: 64,
       reloadProgress: null,
       switching: false,
+      battery: 1,
+      overheated: false,
     });
     expect(cooldown).toHaveBeenCalledTimes(1);
 

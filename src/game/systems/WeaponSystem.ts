@@ -9,6 +9,7 @@ import { damageFactor } from './BoostSystem';
 import { bodyHitPoint, damageZombie, findAutoAimTarget, findMeleeTarget, isZombieAlive, knockZombie } from './Combat';
 import { bodyCentre, bodyEntry, hurtboxOf, muzzleFor, type Hurtbox, type Vec2 } from './shotGeometry';
 import type { SimContext } from './SimContext';
+import { fireBeam, updateBatteries } from './BeamSystem';
 import { bulletHitsZombie } from './BulletSystem';
 import { ammoKind, bulletDamage, bulletLook, fireRate, magazineSize, reloadTime } from './weaponStats';
 
@@ -37,8 +38,10 @@ export function updateWeapons(ctx: SimContext, dt: number): void {
     handleReload(p, cmd, dt);
     updateTrigger(p, cmd, dt);
     updateAim(ctx, p, cmd);
+    p.beamOn = false;
     if (cmd.melee) handleMelee(ctx, p, true);
-    else if (cmd.fire || p.shotPending) handleFire(ctx, p, cmd.fire);
+    else if (cmd.fire || p.shotPending) handleFire(ctx, p, cmd.fire, dt);
+    updateBatteries(p, dt);
   }
 }
 
@@ -176,7 +179,7 @@ function freeBullet(state: GameState): BulletState | undefined {
  * is up (where it was last aimed), and none later: never a stray shot after
  * a reload. Out of ammo everywhere, it slashes with the knife at once.
  */
-function handleFire(ctx: SimContext, p: PlayerState, held: boolean): void {
+function handleFire(ctx: SimContext, p: PlayerState, held: boolean, dt: number): void {
   if (!hasAnyAmmo(p)) {
     p.shotPending = false;
     if (held && p.switchTimer <= 0) handleMelee(ctx, p, false);
@@ -185,8 +188,15 @@ function handleFire(ctx: SimContext, p: PlayerState, held: boolean): void {
   const slot = p.weapons[p.activeSlot];
   if (slot && p.aimTime < WEAPONS[slot.id].firstShotDelay) return;
   p.shotPending = false;
-  if (!slot || p.switchTimer > 0 || p.reloadTimer > 0 || p.fireCooldown > 0) return;
-  if (WEAPONS[slot.id].attack === 'melee') sweep(ctx, p, slot);
+  if (!slot || p.switchTimer > 0 || p.reloadTimer > 0) return;
+  const attack = WEAPONS[slot.id].attack;
+  // A beam fires only while held (a tap gives no flash of it), damaging at its own pace.
+  if (attack === 'beam') {
+    if (held) fireBeam(ctx, p, slot, dt);
+    return;
+  }
+  if (p.fireCooldown > 0) return;
+  if (attack === 'melee') sweep(ctx, p, slot);
   else if (slot.magazine > 0) shoot(ctx, p, slot);
 }
 
