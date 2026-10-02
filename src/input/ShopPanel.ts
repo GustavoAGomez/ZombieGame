@@ -1,5 +1,5 @@
 import type { BoostKind } from '../config/balance';
-import { WEAPONS } from '../config/weapons';
+import { UPGRADE_LEVELS, WEAPONS, type UpgradeKind } from '../config/weapons';
 import { WEAPON_ICONS } from './WeaponBar';
 import { merchantDef, type MerchantId, type MerchantItemId } from '../config/merchants';
 import type { EventBus, GameEvents } from '../core/EventBus';
@@ -14,9 +14,13 @@ type ShopRow = GameEvents['shop:state']['rows'][number];
 const ITEM_ICONS: Record<MerchantItemId, IconName> = {
   max_ammo: 'bullet',
   round_boost: 'bolt',
-  weapon_level: 'rifle',
-  weapon_special: 'crosshair',
+  upgrade_ammo: 'bullet',
+  upgrade_fire_rate: 'bolt',
+  upgrade_damage: 'crosshair',
+  weapon_special: 'star',
 };
+/** The red merchant's items, by the kind of upgrade they sell. */
+const UPGRADE_OF: Partial<Record<MerchantItemId, UpgradeKind>> = { upgrade_ammo: 'ammo', upgrade_fire_rate: 'fire_rate', upgrade_damage: 'damage' };
 /** The round boost row shows the boost drawn for this visit. */
 const BOOST_ICONS: Record<BoostKind, IconName> = { speed: 'bolt', double_damage: 'x2' };
 
@@ -131,7 +135,8 @@ export class ShopPanel {
       row.className = 'shop-row';
       const icon = document.createElement('span');
       icon.className = 'shop-row__icon';
-      const iconName = r.boost ? BOOST_ICONS[r.boost] : r.weapon ? WEAPON_ICONS[r.weapon] : ITEM_ICONS[r.item];
+      // An upgrade row shows its kind (the weapon is in its text); the special's rows, their weapon.
+      const iconName = r.boost ? BOOST_ICONS[r.boost] : UPGRADE_OF[r.item] ? ITEM_ICONS[r.item] : r.weapon ? WEAPON_ICONS[r.weapon] : ITEM_ICONS[r.item];
       icon.appendChild(pixelIcon(iconName, 18, color));
       const text = document.createElement('span');
       text.className = 'shop-row__text';
@@ -186,15 +191,17 @@ export class ShopPanel {
   }
 }
 
-/** What the row says under its name: the boost drawn, the weapon to level up, the weapon's special. */
+/** What the row says under its name: the boost drawn, the weapon to upgrade and the next level, the weapon's special. */
 function rowDescription(r: ShopRow): string {
   if (r.boost) return STRINGS.shop.boosts[r.boost];
-  if (r.item === 'weapon_level' && r.weapon) {
-    // Each weapon has its own list of levels (spec 04 §1): the row says what the next one does.
-    const upgrades = WEAPONS[r.weapon].upgrades;
+  const kind = UPGRADE_OF[r.item];
+  if (kind && r.weapon) {
+    // Each weapon takes its own number of levels of each kind (spec 04 §1): the row says what the next one gives.
+    const table = UPGRADE_LEVELS[kind];
+    const max = Math.min(WEAPONS[r.weapon].upgrades[kind] ?? 0, table.length);
     const level = r.level ?? 0;
-    const next = upgrades[level];
-    return STRINGS.shop.levelUp(STRINGS.weapons[r.weapon], level, upgrades.length, next ? STRINGS.shop.upgradeEffects[next] : null);
+    const next = level < max ? table[level] : undefined;
+    return STRINGS.shop.levelUp(STRINGS.weapons[r.weapon], level, max, next === undefined ? null : STRINGS.shop.upgradeEffect(kind, next));
   }
   if (r.item === 'weapon_special' && r.weapon) return WEAPONS[r.weapon].special ? STRINGS.shop.specials[r.weapon] : STRINGS.weapons[r.weapon];
   return STRINGS.shop.items[r.item].description;

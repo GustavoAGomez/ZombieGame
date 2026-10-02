@@ -11,7 +11,7 @@ Registro vivo de las **reglas del juego tal como están implementadas**: qué ha
   - `special`: las armas que lleguen más adelante, con menos niveles de mejora o ninguno.
 
   Hoy las tres armas son básicas.
-- **Cada arma tiene sus propias mejoras:** una lista de niveles que vende el mago rojo y, si la tiene, una mejora especial única que vende el mago dorado. Nada supone que haya tres niveles.
+- **Cada arma tiene sus propias mejoras:** cuántos niveles admite de cada tipo de mejora (munición, cadencia y daño), que vende el mago rojo y que el jugador elige; y, si la tiene, una mejora especial única que vende el mago dorado. Nada supone que haya tres niveles: un arma especial futura podrá admitir menos tipos o menos niveles.
 - **Inventario de armas:** se empieza solo con la pistola y se llevan como mucho **3 armas**, una por hueco de la columna de armas. Tocar un hueco cambia de arma en 0,4 s.
 
 | Arma | Daño por bala | Cadencia | Cargador | Reserva | Recarga | Alcance | Notas |
@@ -24,18 +24,22 @@ El daño se cuenta en las mismas unidades que la vida de los zombis: una bala de
 
 ### Mejoras por arma
 
-Un arma de nivel N tiene aplicados los N primeros efectos de su lista. Al comprar el nivel de munición, el arma se rellena hasta el nuevo máximo.
+Tres tipos de mejora, cada uno con sus niveles, que se compran por separado y en el orden que quiera el jugador. El factor de cada nivel es el total a ese nivel: los niveles de un tipo no se multiplican entre sí.
 
-| Arma | Nivel 1 | Nivel 2 | Nivel 3 | Especial (mago dorado) |
+| Tipo | Qué mejora | Nivel 1 | Nivel 2 | Nivel 3 |
 |---|---|---|---|---|
-| Pistola | Munición ×2 | Cadencia ×1,5 | Daño ×2 | **Abanico:** 3 balas por disparo, separadas 12°, por el gasto de una |
-| SMG | Munición ×2 | Cadencia ×1,5 | Daño ×2 | **Perforante:** cada bala atraviesa hasta 3 zombis (las paredes la siguen parando) |
-| Escopeta de caza | Munición ×2 | Cadencia ×1,5 (también acelera la recarga) | Daño ×2 | **Fuego:** cada perdigón que acierta prende al zombi, que arde 1,5 s y pierde en total el 40 % del daño del perdigón (no se acumula) |
+| Munición | Cargador y reserva máxima (al comprarla, el arma se rellena hasta el nuevo máximo) | ×1,5 | ×2 | ×2,5 |
+| Cadencia | Disparos por segundo (en la escopeta, también la recarga) | ×1,25 | ×1,5 | ×1,75 |
+| Daño | Daño por bala (se multiplica con la mejora temporal de doble daño) | ×1,5 | ×2 | ×2,5 |
 
-- **Munición ×2:** cargador y reserva máxima ×2.
-- **Cadencia ×1,5:** disparos por segundo ×1,5. La escopeta, con solo 2 cartuchos, recarga además 1,5 veces más rápido.
-- **Daño ×2:** se multiplica con la mejora temporal de doble daño, hasta ×4.
-- Las estrellas junto al nombre del arma en el HUD muestran su nivel; con la especial, el nombre se pone ámbar.
+| Arma | Munición | Cadencia | Daño | Especial (mago dorado) |
+|---|---|---|---|---|
+| Pistola | 3 niveles (8 → 12 → 16 → 20 balas) | 3 niveles | 3 niveles | **Abanico:** 3 balas por disparo, separadas 12°, por el gasto de una |
+| SMG | 3 niveles (30 → 45 → 60 → 75 balas) | 3 niveles | 3 niveles | **Perforante:** cada bala atraviesa hasta 3 zombis (las paredes la siguen parando) |
+| Escopeta de caza | 3 niveles (2 → 3 → 4 → 5 cartuchos) | 3 niveles (también acelera la recarga) | 3 niveles | **Fuego:** cada perdigón que acierta prende al zombi, que arde 1,5 s y pierde en total el 40 % del daño del perdigón (no se acumula) |
+
+- **HUD:** junto al nombre del arma hay una marca por tipo (bala, rayo y cruceta) con una casilla por nivel, que se rellena de ámbar al comprarlo. Con la especial, el nombre se pone ámbar.
+- Un arma con todo al máximo y el doble daño temporal hace ×5 de daño.
 
 ### Cuchillo
 
@@ -47,7 +51,7 @@ Botón propio, junto al disparo. Golpea en un cono delante del jugador.
 - **Cómo se compra:** desde el frente de la vitrina, a menos de 40 px, con el botón de acción. El precio se ve sobre la vitrina al acercarse.
   - **Con un hueco libre:** se paga, el arma entra en el inventario y pasa a la mano.
   - **Si ya llevas esa arma:** vende su munición a **mitad de precio** (llena cargador y reserva). Con el arma llena no se puede comprar.
-  - **Con los 3 huecos llenos:** el arma nueva sustituye a la que llevas en la mano. Si esa arma tiene mejoras o su especial, el botón pide confirmación («CAMBIAR PISTOLA ★★ POR SMG») y hace falta un segundo toque en menos de 3 s. Las mejoras se pierden con el arma.
+  - **Con los 3 huecos llenos:** el arma nueva sustituye a la que llevas en la mano. Si esa arma tiene mejoras o su especial, el botón pide confirmación («CAMBIAR PISTOLA ★★ POR SMG», una estrella por nivel comprado de cualquier tipo) y hace falta un segundo toque en menos de 3 s. Las mejoras se pierden con el arma.
   - Sin dinero suficiente, el botón dice cuánto falta.
 - **Orientación:** el frente mira al **sur, al este o al oeste, nunca al norte**, para que la cámara lo vea. Cada vitrina ocupa 1 casilla sólida, a 3 tiles o más de barricadas, puertas y puntos de mago.
 - **En la mansión:**
@@ -65,10 +69,10 @@ Magos con gabardina que venden munición y mejoras. Sus puntos de aparición son
 |---|---|---|---|
 | **Azul** | Desde la ronda 2, primero en la zona inicial | **Munición máxima:** llena cargadores y reservas de todas las armas | 750$ |
 | | | **Mejora de la ronda:** una mejora temporal sorteada en cada visita (velocidad ×1,5 o doble daño ×2). Se guarda en su botón y se activa cuando quieras; dura 10 s. Comprar otra sustituye a la guardada | 1000$ |
-| **Rojo** | Cuando se invoca en la piscina (ver *Objetos especiales*); desde la ronda siguiente se teletransporta como los demás | **Mejorar arma actual:** sube un nivel el arma en mano, según su propia lista. Una compra por visita. Al nivel máximo dice «NIVEL MÁXIMO» | 3000$ |
+| **Rojo** | Cuando se invoca en la piscina (ver *Objetos especiales*); desde la ronda siguiente se teletransporta como los demás | **Mejorar munición, cadencia o daño** del arma en mano, a elegir: una fila por tipo, con el nivel al que sube y lo que da. Una compra por visita, del tipo que sea. En el último nivel de un tipo dice «NIVEL MÁXIMO» | 1500$ el nivel 1, 3000$ el 2 y 5000$ el 3 |
 | **Dorado** | Todavía sin regla de aparición (solo con el panel de depuración) | **Mejora especial:** la especial de un arma que llevas, una fila por arma. Una vez comprada dice «YA TIENE ESPECIAL» | 10000$ |
 
-**Relación con las mejoras de arma:** el rojo vende los niveles de la lista de cada arma; el dorado, su especial. Las mejoras pertenecen al arma: si la cambias en una vitrina, se pierden.
+**Relación con las mejoras de arma:** el rojo vende los niveles de cada tipo que admite el arma; el dorado, su especial. Las mejoras pertenecen al arma: si la cambias en una vitrina, se pierden. Subir un tipo al máximo cuesta 9500$; las 9 mejoras de un arma, 28 500$.
 
 ## Objetos especiales y activaciones
 
@@ -120,7 +124,7 @@ Magos con gabardina que venden munición y mejoras. Sus puntos de aparición son
 | Puertas de la mansión | De 750$ a 1500$: recibidor–salón y recibidor–comedor 750$; salón–biblioteca y comedor–cocina 1000$; biblioteca–cocina, cocina–garaje y garaje–calle 1250$; recibidor–calle, cocina–jardín y biblioteca–jardín 1500$ |
 | Portales (se abren los dos extremos a la vez) | Cocina–sótano 1750$; jardín–azotea 2000$. Entradas secundarias (solo se pueden comprar cuando sus dos zonas ya están abiertas; mientras, dicen «BLOQUEADA»): jardín–sótano 1000$; calle–azotea 1250$ |
 | Vitrinas | SMG 1000$, escopeta 1500$; su munición, a mitad de precio |
-| Magos | Munición máxima 750$, mejora de la ronda 1000$, mejorar arma 3000$, mejora especial 10000$ |
+| Magos | Munición máxima 750$, mejora de la ronda 1000$, mejoras del rojo 1500$ / 3000$ / 5000$ por nivel, mejora especial 10000$ |
 
 ## Barricadas
 

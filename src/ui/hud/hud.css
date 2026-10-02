@@ -70,14 +70,37 @@
 }
 
 /* Upgrade stars next to the weapon's name, and the name in amber with the special (spec 03 §6). */
-.hud-stars {
+/* The weapon's upgrade marks: per kind its 7 px icon and a 3 px box per level, amber once bought. */
+.hud-marks {
   display: flex;
-  gap: 1px;
-  margin-left: -4px;
+  align-items: center;
+  gap: 5px;
+  margin-left: -2px;
 }
 
-.hud-stars:empty {
+.hud-marks:empty {
   display: none;
+}
+
+.hud-mark {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.hud-mark .pixel-icon {
+  margin-right: 1px;
+}
+
+.hud-mark__box {
+  width: 3px;
+  height: 3px;
+  background: var(--dim);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+.hud-mark__box.is-on {
+  background: var(--amber);
 }
 
 .hud-weapon__name.is-special {

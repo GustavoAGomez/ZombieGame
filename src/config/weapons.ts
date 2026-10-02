@@ -1,8 +1,9 @@
 /**
- * Weapon catalogue (spec 04 §1): every weapon is data. Each one lists its
- * own upgrade levels (sold by the red merchant) and its optional special
- * (sold by the gold merchant); nothing assumes three levels. Names shown on
- * screen live in STRINGS.weapons.
+ * Weapon catalogue (spec 04 §1): every weapon is data. Each one says how
+ * many levels of each kind of upgrade it takes (ammo, fire rate, damage;
+ * sold by the red merchant, the kind chosen by the player) and its optional
+ * special (sold by the gold merchant); nothing assumes three levels. Names
+ * shown on screen live in STRINGS.weapons.
  */
 
 export type WeaponId = 'pistol' | 'smg' | 'shotgun';
@@ -10,8 +11,9 @@ export type WeaponId = 'pistol' | 'smg' | 'shotgun';
 /** `basic`: bought at weapon cases. `special`: later weapons, with fewer levels or none. */
 export type WeaponCategory = 'basic' | 'special';
 
-/** What one upgrade level does (UPGRADE_EFFECTS has the factors). */
-export type UpgradeEffect = 'ammo_x2' | 'fire_rate' | 'damage_x2';
+/** What an upgrade improves; the red merchant sells each kind's levels separately (UPGRADE_LEVELS has the factors). */
+export type UpgradeKind = 'ammo' | 'fire_rate' | 'damage';
+export const UPGRADE_KINDS: readonly UpgradeKind[] = ['ammo', 'fire_rate', 'damage'];
 
 /** A weapon's unique upgrade from the gold merchant. */
 export type WeaponSpecialId = 'fan' | 'pierce' | 'fire';
@@ -49,22 +51,28 @@ export interface WeaponStats {
 export interface WeaponDef extends WeaponStats {
   id: WeaponId;
   category: WeaponCategory;
-  /** Upgrade levels in order: level N applies the first N of them. Empty: not upgradable. */
-  upgrades: readonly UpgradeEffect[];
+  /** Levels it takes of each kind of upgrade (up to UPGRADE_LEVELS' length); a kind missing or 0: not upgradable that way. */
+  upgrades: Readonly<Partial<Record<UpgradeKind, number>>>;
   special?: WeaponSpecialId;
   /** `fire_rate` also speeds up the reload (slow-reloading weapons, spec 04 §1). */
   fireRateSpeedsReload?: boolean;
 }
 
-/** The factor of each upgrade effect; several of the same kind multiply. */
-export const UPGRADE_EFFECTS = {
-  /** Magazine and maximum reserve multiplied by this; the weapon is refilled to the new maximum. */
-  ammo_x2: { capacityFactor: 2 },
-  /** Fire rate multiplied by this (and the reload sped up by `reloadFactor` where the weapon says so). */
-  fire_rate: { fireRateFactor: 1.5, reloadFactor: 1.5 },
-  /** Damage multiplied by this (stacks with the double damage boost: ×4). */
-  damage_x2: { damageFactor: 2 },
-} as const;
+/**
+ * The factor each level of each kind gives (index = level − 1). It is the
+ * total at that level: levels of one kind do not multiply each other.
+ *   ammo       magazine and maximum reserve (the weapon is refilled to the new maximum)
+ *   fire_rate  shots per second (and the reload, where the weapon says so)
+ *   damage     damage per bullet (it stacks with the double damage boost)
+ */
+export const UPGRADE_LEVELS: Readonly<Record<UpgradeKind, readonly number[]>> = {
+  ammo: [1.5, 2, 2.5],
+  fire_rate: [1.25, 1.5, 1.75],
+  damage: [1.5, 2, 2.5],
+};
+
+/** Every basic weapon takes the three kinds, three levels each. */
+const ALL_UPGRADES = { ammo: 3, fire_rate: 3, damage: 3 } as const;
 
 /** The specials' numbers. */
 export const WEAPON_SPECIALS = {
@@ -93,7 +101,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDef>> = {
     spread: 2,
     range: 340,
     bulletSpeed: 520,
-    upgrades: ['ammo_x2', 'fire_rate', 'damage_x2'],
+    upgrades: ALL_UPGRADES,
     special: 'fan',
   },
   smg: {
@@ -108,7 +116,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDef>> = {
     spread: 6,
     range: 300,
     bulletSpeed: 560,
-    upgrades: ['ammo_x2', 'fire_rate', 'damage_x2'],
+    upgrades: ALL_UPGRADES,
     special: 'pierce',
   },
   // Hunting shotgun (spec 04 §1): 6 pellets per shell, deadly up close.
@@ -131,7 +139,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDef>> = {
     knockback: 3,
     muzzleFlashScale: 1.6,
     recoil: 2,
-    upgrades: ['ammo_x2', 'fire_rate', 'damage_x2'],
+    upgrades: ALL_UPGRADES,
     special: 'fire',
     // With only 2 shells, the reload is most of its pace: the fire rate level speeds it up too.
     fireRateSpeedsReload: true,

@@ -1,13 +1,13 @@
 import { BARRICADES, BOOSTS, DASH, PLAYER } from '../config/balance';
-import { type WeaponId } from '../config/weapons';
+import { WEAPONS, type WeaponId } from '../config/weapons';
 import { merchantDef, type MerchantId } from '../config/merchants';
 import type { EventBus, GameEvents } from '../core/EventBus';
 import type { GameState } from '../core/GameState';
 import type { MapData } from './map/MapLoader';
 import { repairPointsAvailable } from './systems/BarricadeSystem';
 import { isPortalBuyable } from './systems/PortalSystem';
-import { isPerWeapon, shopItemStatus } from './systems/ShopSystem';
-import { magazineSize } from './systems/weaponStats';
+import { isPerWeapon, itemPrice, shopItemStatus, upgradeKindOf } from './systems/ShopSystem';
+import { magazineSize, maxUpgradeLevel, totalLevels } from './systems/weaponStats';
 import { caseOffer } from './systems/WeaponCaseSystem';
 import { hasItemRoom } from './systems/ItemSystem';
 import { reloadProgress } from './systems/WeaponSystem';
@@ -26,7 +26,7 @@ export class HudPresenter {
   private reserve = -1;
   private reload: number | null = -1;
   private switching = false;
-  private level = -1;
+  private levels = '';
   private special = false;
   private cooldownStep = -1;
   private hp = -1;
@@ -66,15 +66,16 @@ export class HudPresenter {
         if (isPerWeapon(item.id)) {
           return (p?.weapons ?? []).flatMap((weapon, slot) => {
             const status = shopItemStatus(state, merchant, playerIndex, index, slot);
-            return status.kind === 'hidden' ? [] : [{ index, item: item.id, price: item.price, status, slot, weapon: weapon.id }];
+            return status.kind === 'hidden' || !p ? [] : [{ index, item: item.id, price: itemPrice(p, item), status, slot, weapon: weapon.id }];
           });
         }
         const status = shopItemStatus(state, merchant, playerIndex, index);
-        if (status.kind === 'hidden') return [];
-        const row = { index, item: item.id, price: item.price, status };
+        if (status.kind === 'hidden' || !p) return [];
+        const row = { index, item: item.id, price: itemPrice(p, item), status };
         if (item.id === 'round_boost') return [{ ...row, boost: m.boost }];
-        const active = p?.weapons[p.activeSlot];
-        if (item.id === 'weapon_level' && active) return [{ ...row, weapon: active.id, level: active.level }];
+        const active = p.weapons[p.activeSlot];
+        const kind = upgradeKindOf(item.id);
+        if (kind && active) return [{ ...row, weapon: active.id, level: active.levels[kind] }];
         return [row];
       });
       shop = { merchant: m.id, rows };
@@ -131,7 +132,7 @@ export class HudPresenter {
         weaponCase = { weapon: offer.weapon, mode: offer.mode, full: offer.full };
         if (offer.mode === 'confirm' && offer.replaces) {
           weaponCase.replaces = offer.replaces.id;
-          weaponCase.replacesLevel = offer.replaces.level;
+          weaponCase.replacesLevel = totalLevels(offer.replaces);
         }
       }
     }
@@ -196,11 +197,11 @@ export class HudPresenter {
         slot.reserve !== this.reserve ||
         quantised !== this.reload ||
         switching !== this.switching ||
-        slot.level !== this.level ||
+        levelsKey(slot) !== this.levels ||
         slot.special !== this.special
       ) {
         this.weapon = slot.id;
-        this.level = slot.level;
+        this.levels = levelsKey(slot);
         this.special = slot.special;
         this.magazine = slot.magazine;
         this.reserve = slot.reserve;
@@ -208,7 +209,8 @@ export class HudPresenter {
         this.switching = switching;
         this.events.emit('weapon:state', {
           weapon: slot.id,
-          level: slot.level,
+          levels: { ...slot.levels },
+          maxLevels: { ammo: maxUpgradeLevel(WEAPONS[slot.id], 'ammo'), fire_rate: maxUpgradeLevel(WEAPONS[slot.id], 'fire_rate'), damage: maxUpgradeLevel(WEAPONS[slot.id], 'damage') },
           special: slot.special,
           magazine: slot.magazine,
           capacity: magazineSize(slot),
@@ -241,4 +243,9 @@ export class HudPresenter {
       this.events.emit('special:cooldown', { remaining: p.dashCooldown, total: DASH.cooldown });
     }
   }
+}
+
+/** A weapon's upgrade levels as one comparable value (the HUD's marks change only with them). */
+function levelsKey(slot: { levels: Record<string, number> }): string {
+  return `${slot.levels.ammo}:${slot.levels.fire_rate}:${slot.levels.damage}`;
 }

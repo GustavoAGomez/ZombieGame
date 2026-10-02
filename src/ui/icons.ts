@@ -20,7 +20,10 @@ export type IconName =
   | 'x2'
   | 'star'
   | 'living_heart'
-  | 'worn_wand';
+  | 'worn_wand'
+  | 'mark_ammo'
+  | 'mark_rate'
+  | 'mark_damage';
 
 export type IconRect = readonly [number, number, number, number, string?];
 type Rect = IconRect;
@@ -104,6 +107,19 @@ const ICONS: Record<IconName, IconDef> = {
   star: {
     w: 7, h: 7, fill: 'var(--amber)',
     rects: [[3, 0, 1, 2], [0, 2, 7, 1], [1, 3, 5, 1], [2, 4, 3, 1], [1, 5, 2, 1], [4, 5, 2, 1], [0, 6, 2, 1], [5, 6, 2, 1]],
+  },
+  // The weapon's upgrade marks on the HUD (7×7, one per kind: ammo, fire rate, damage), drawn at 1×.
+  mark_ammo: {
+    w: 7, h: 7, fill: 'var(--amber)',
+    rects: [[3, 0, 1, 1], [2, 1, 3, 4], [2, 5, 3, 2, 'var(--amber-dark)']],
+  },
+  mark_rate: {
+    w: 7, h: 7, fill: 'var(--amber)',
+    rects: [[4, 0, 2, 1], [3, 1, 2, 1], [2, 2, 4, 1], [3, 3, 2, 1], [2, 4, 2, 1], [1, 5, 2, 1], [1, 6, 1, 1]],
+  },
+  mark_damage: {
+    w: 7, h: 7, fill: 'var(--bone)',
+    rects: [[3, 0, 1, 2], [3, 5, 1, 2], [0, 3, 2, 1], [5, 3, 2, 1], [3, 3, 1, 1, 'var(--red)']],
   },
   // Provisional double damage: "x2".
   x2: {

@@ -1,12 +1,13 @@
 import { MERCHANT } from '../../config/balance';
 import { merchantDef, type MerchantItem, type MerchantItemId } from '../../config/merchants';
+import type { UpgradeKind } from '../../config/weapons';
 import type { GameState, MerchantState, PlayerState } from '../../core/GameState';
 import type { ShopItemStatus, ShopReason } from '../../core/shop';
 import { storeBoost } from './BoostSystem';
 import { isPlayerAlive } from './HealthSystem';
 import type { SimContext } from './SimContext';
 import { WEAPONS } from '../../config/weapons';
-import { isFullyLoaded, levelUp, levelUpReason, magazineSize, maxReserve, specialReason } from './weaponStats';
+import { isFullyLoaded, magazineSize, maxReserve, specialReason, upgradeReason, upgradeWeapon } from './weaponStats';
 
 /** The nearest active merchant within MERCHANT.interactRange of `p`, or -1. */
 export function nearestMerchant(state: GameState, p: PlayerState): number {
@@ -28,6 +29,19 @@ export function isPerWeapon(item: MerchantItemId): boolean {
   return EFFECTS[item]?.perWeapon === true;
 }
 
+/** The kind of upgrade a red merchant's item sells, or null for the other items. */
+export function upgradeKindOf(item: MerchantItemId): UpgradeKind | null {
+  return EFFECTS[item]?.upgrade ?? null;
+}
+
+/** What `item` costs player `p` now: its fixed price, or the price of the level it would buy for the weapon in hand. */
+export function itemPrice(p: PlayerState, item: MerchantItem): number {
+  if (typeof item.price === 'number') return item.price;
+  const kind = upgradeKindOf(item.id);
+  const level = kind ? (p.weapons[p.activeSlot]?.levels[kind] ?? 0) : 0;
+  return item.price[Math.min(level, item.price.length - 1)] ?? 0;
+}
+
 /**
  * Item `itemIndex` of merchant `merchantIndex`'s catalogue, for player
  * `playerIndex` (and weapon slot `slot` for items sold per weapon).
@@ -43,7 +57,8 @@ export function shopItemStatus(state: GameState, merchantIndex: number, playerIn
   if (def.maxPurchasesPerVisit !== undefined && (m.visitPurchases[playerIndex] ?? 0) >= def.maxPurchasesPerVisit) return { kind: 'limit' };
   const reason = effect.unavailable(p, slot);
   if (reason) return { kind: 'unavailable', reason };
-  if (p.money < item.price) return { kind: 'short', missing: item.price - p.money };
+  const price = itemPrice(p, item);
+  if (p.money < price) return { kind: 'short', missing: price - p.money };
   return { kind: 'buy' };
 }
 
@@ -77,15 +92,19 @@ export function buyItem(ctx: SimContext, playerIndex: number, merchantIndex: num
   const m = state.merchants[merchantIndex];
   const item: MerchantItem | undefined = m && merchantDef(m.id).items[itemIndex];
   if (!p || !m || !item) return false;
-  p.money -= item.price;
+  // Before the effect: an upgrade's price is the level it buys.
+  const price = itemPrice(p, item);
+  p.money -= price;
   m.visitPurchases[playerIndex] = (m.visitPurchases[playerIndex] ?? 0) + 1;
   EFFECTS[item.id]?.apply(p, m, slot);
-  ctx.events.emit('money:spent', { playerId: p.id, amount: item.price });
+  ctx.events.emit('money:spent', { playerId: p.id, amount: price });
   ctx.events.emit('merchant:purchase', { playerId: p.id, merchant: m.id, item: item.id });
   return true;
 }
 
 interface ItemEffect {
+  /** The red merchant's upgrades: which kind it sells a level of, for the weapon in hand. */
+  upgrade?: UpgradeKind;
   /** One row per weapon the player carries; `slot` says which (−1 for the other items). */
   perWeapon?: boolean;
   /** Why it would do nothing for this player, or null when it is worth buying. */
@@ -111,17 +130,10 @@ const EFFECTS: Partial<Record<MerchantItemId, ItemEffect>> = {
     unavailable: () => null,
     apply: (p, m) => storeBoost(p, m.boost),
   },
-  // Red merchant: the next level of the weapon in hand, from its own list (spec 04 §1).
-  weapon_level: {
-    unavailable: (p) => {
-      const weapon = p.weapons[p.activeSlot];
-      return weapon ? levelUpReason(WEAPONS[weapon.id], weapon.level) : 'notUpgradable';
-    },
-    apply: (p) => {
-      const weapon = p.weapons[p.activeSlot];
-      if (weapon) levelUp(weapon);
-    },
-  },
+  // Red merchant: one more level of a kind of upgrade, for the weapon in hand (spec 04 §1).
+  upgrade_ammo: upgradeEffect('ammo'),
+  upgrade_fire_rate: upgradeEffect('fire_rate'),
+  upgrade_damage: upgradeEffect('damage'),
   // Gold merchant: the special of the weapon chosen in the panel, if it has one (spec 04 §1).
   weapon_special: {
     perWeapon: true,
@@ -135,3 +147,18 @@ const EFFECTS: Partial<Record<MerchantItemId, ItemEffect>> = {
     },
   },
 };
+
+/** The red merchant's item for one kind of upgrade: the next level of it, while the weapon in hand takes more. */
+function upgradeEffect(kind: UpgradeKind): ItemEffect {
+  return {
+    upgrade: kind,
+    unavailable: (p) => {
+      const weapon = p.weapons[p.activeSlot];
+      return weapon ? upgradeReason(WEAPONS[weapon.id], kind, weapon.levels[kind]) : 'notUpgradable';
+    },
+    apply: (p) => {
+      const weapon = p.weapons[p.activeSlot];
+      if (weapon) upgradeWeapon(weapon, kind);
+    },
+  };
+}

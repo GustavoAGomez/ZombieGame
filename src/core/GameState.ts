@@ -1,5 +1,5 @@
 import { BOOSTS, BULLETS, LOADOUT, PICKUPS, PLAYER, POINTS, WAVES, ZOMBIES, type BoostKind, type PickupKind, type ZombieKind } from '../config/balance';
-import { WEAPON_SPECIALS, WEAPONS, type WeaponId } from '../config/weapons';
+import { WEAPON_SPECIALS, WEAPONS, type UpgradeKind, type WeaponId } from '../config/weapons';
 import { ACTIVATIONS } from '../config/activations';
 import { MERCHANTS, type MerchantId } from '../config/merchants';
 import { STARTING_ITEMS, type ItemId } from '../config/items';
@@ -18,8 +18,8 @@ export interface WeaponSlotState {
   id: WeaponId;
   magazine: number;
   reserve: number;
-  /** Upgrade levels bought: the first `level` effects of the weapon's own list (spec 04 §1). */
-  level: number;
+  /** Upgrade levels bought of each kind (spec 04 §1, chosen at the red merchant): 0 to the weapon's own maximum. */
+  levels: Record<UpgradeKind, number>;
   /** The weapon's special from the gold merchant (pistol fan, SMG piercing). */
   special: boolean;
 }
@@ -344,7 +344,7 @@ export interface GameState extends RngState {
 
 export function createWeaponSlot(id: WeaponId): WeaponSlotState {
   const stats = WEAPONS[id];
-  return { id, magazine: stats.magazine, reserve: stats.startReserve, level: 0, special: false };
+  return { id, magazine: stats.magazine, reserve: stats.startReserve, levels: { ammo: 0, fire_rate: 0, damage: 0 }, special: false };
 }
 
 export function createPlayerState(id: number, x = 0, y = 0): PlayerState {

@@ -1,21 +1,28 @@
-import { UPGRADE_EFFECTS, WEAPONS, type UpgradeEffect, type WeaponDef } from '../../config/weapons';
+import { UPGRADE_KINDS, UPGRADE_LEVELS, WEAPONS, type UpgradeKind, type WeaponDef } from '../../config/weapons';
 import type { BulletLook, WeaponSlotState } from '../../core/GameState';
 import type { ShopReason } from '../../core/shop';
 
 /**
- * What a weapon can do at an upgrade level (spec 04 §1). Level N applies the
- * first N effects of the weapon's own list, so each weapon decides its
- * levels; effects of the same kind multiply. One place for all of it, used
- * by the reload, the shots, the ammo pickups and the merchants. The `def`
- * functions are pure on the catalogue entry; the slot ones read WEAPONS.
+ * What a weapon can do with its upgrades (spec 04 §1, then a level per kind
+ * chosen at the red merchant). Each kind's level gives its factor from
+ * UPGRADE_LEVELS, and each weapon says how many levels of each kind it
+ * takes. One place for all of it, used by the reload, the shots, the ammo
+ * pickups and the merchants. The `def` functions are pure on the catalogue
+ * entry; the slot ones read WEAPONS.
  */
 
-/** How many of the first `level` upgrades of `def` are `effect`. */
-export function upgradeCount(def: WeaponDef, level: number, effect: UpgradeEffect): number {
-  let n = 0;
-  const reached = Math.min(level, def.upgrades.length);
-  for (let i = 0; i < reached; i++) if (def.upgrades[i] === effect) n++;
-  return n;
+export type UpgradeLevels = Readonly<Record<UpgradeKind, number>>;
+
+/** Levels a weapon takes of `kind` (0: not upgradable that way). */
+export function maxUpgradeLevel(def: WeaponDef, kind: UpgradeKind): number {
+  return Math.min(def.upgrades[kind] ?? 0, UPGRADE_LEVELS[kind].length);
+}
+
+/** The factor of `kind` at `level` (1 at level 0). */
+export function upgradeFactor(kind: UpgradeKind, level: number): number {
+  if (level <= 0) return 1;
+  const table = UPGRADE_LEVELS[kind];
+  return table[Math.min(level, table.length) - 1] ?? 1;
 }
 
 export interface LevelStats {
@@ -26,24 +33,25 @@ export interface LevelStats {
   reloadTime: number;
 }
 
-/** The weapon's numbers at `level`, before temporary boosts. */
-export function levelStats(def: WeaponDef, level: number): LevelStats {
-  const ammo = UPGRADE_EFFECTS.ammo_x2.capacityFactor ** upgradeCount(def, level, 'ammo_x2');
-  const rateLevels = upgradeCount(def, level, 'fire_rate');
-  const reload = def.fireRateSpeedsReload ? UPGRADE_EFFECTS.fire_rate.reloadFactor ** rateLevels : 1;
+/** The weapon's numbers with `levels`, before temporary boosts. */
+export function levelStats(def: WeaponDef, levels: UpgradeLevels): LevelStats {
+  const level = (kind: UpgradeKind): number => Math.min(levels[kind], maxUpgradeLevel(def, kind));
+  const ammo = upgradeFactor('ammo', level('ammo'));
+  const rate = upgradeFactor('fire_rate', level('fire_rate'));
   return {
-    magazine: def.magazine * ammo,
-    maxReserve: def.maxReserve * ammo,
-    fireRate: def.fireRate * UPGRADE_EFFECTS.fire_rate.fireRateFactor ** rateLevels,
-    damage: def.damage * UPGRADE_EFFECTS.damage_x2.damageFactor ** upgradeCount(def, level, 'damage_x2'),
-    reloadTime: def.reloadTime / reload,
+    magazine: Math.round(def.magazine * ammo),
+    maxReserve: Math.round(def.maxReserve * ammo),
+    fireRate: def.fireRate * rate,
+    damage: def.damage * upgradeFactor('damage', level('damage')),
+    reloadTime: def.fireRateSpeedsReload ? def.reloadTime / rate : def.reloadTime,
   };
 }
 
-/** Why the red merchant cannot sell `def` another level: no list at all, or already at its end. */
-export function levelUpReason(def: WeaponDef, level: number): ShopReason | null {
-  if (def.upgrades.length === 0) return 'notUpgradable';
-  return level >= def.upgrades.length ? 'maxLevel' : null;
+/** Why the red merchant cannot sell `def` another level of `kind`: it takes none, or it is at its maximum. */
+export function upgradeReason(def: WeaponDef, kind: UpgradeKind, level: number): ShopReason | null {
+  const max = maxUpgradeLevel(def, kind);
+  if (max === 0) return 'notUpgradable';
+  return level >= max ? 'maxLevel' : null;
 }
 
 /** Why the gold merchant cannot sell `def` its special: it has none, or the weapon already has it. */
@@ -53,7 +61,7 @@ export function specialReason(def: WeaponDef, hasSpecial: boolean): ShopReason |
 }
 
 function statsOf(slot: WeaponSlotState): LevelStats {
-  return levelStats(WEAPONS[slot.id], slot.level);
+  return levelStats(WEAPONS[slot.id], slot.levels);
 }
 
 export function magazineSize(slot: WeaponSlotState): number {
@@ -83,21 +91,16 @@ export function isFullyLoaded(slot: WeaponSlotState): boolean {
   return slot.magazine >= magazineSize(slot) && slot.reserve >= maxReserve(slot);
 }
 
-/** Levels the weapon can reach (the length of its own list). */
-export function maxLevel(slot: WeaponSlotState): number {
-  return WEAPONS[slot.id].upgrades.length;
+/** Levels bought, of every kind (the stars of a weapon a weapon case would replace). */
+export function totalLevels(slot: WeaponSlotState): number {
+  return UPGRADE_KINDS.reduce((sum, kind) => sum + slot.levels[kind], 0);
 }
 
-export function isMaxLevel(slot: WeaponSlotState): boolean {
-  return slot.level >= maxLevel(slot);
-}
-
-/** One level up (to the end of its list). An `ammo_x2` level refills the weapon to its new capacity. */
-export function levelUp(slot: WeaponSlotState): void {
-  if (isMaxLevel(slot)) return;
-  const effect = WEAPONS[slot.id].upgrades[slot.level];
-  slot.level++;
-  if (effect === 'ammo_x2') {
+/** One level of `kind` up, to the weapon's maximum. An ammo level refills the weapon to its new capacity. */
+export function upgradeWeapon(slot: WeaponSlotState, kind: UpgradeKind): void {
+  if (upgradeReason(WEAPONS[slot.id], kind, slot.levels[kind]) !== null) return;
+  slot.levels[kind]++;
+  if (kind === 'ammo') {
     slot.magazine = magazineSize(slot);
     slot.reserve = maxReserve(slot);
   }
@@ -107,5 +110,5 @@ export function levelUp(slot: WeaponSlotState): void {
 export function bulletLook(slot: WeaponSlotState, doubleDamage: boolean): BulletLook {
   if (slot.special) return WEAPONS[slot.id].special === 'fire' ? 'fire' : 'special';
   if (doubleDamage) return 'boosted';
-  return upgradeCount(WEAPONS[slot.id], slot.level, 'damage_x2') > 0 ? 'upgraded' : 'normal';
+  return slot.levels.damage > 0 ? 'upgraded' : 'normal';
 }

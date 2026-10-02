@@ -7,7 +7,7 @@ import type { CaseFacing, MapWeaponCase } from '../map/MapLoader';
 import { giveWeapon } from './InventorySystem';
 import { stepSimulation } from './Simulation';
 import { ammoPrice, caseFront, caseInReach, caseOffer, inFrontOf } from './WeaponCaseSystem';
-import { levelUp } from './weaponStats';
+import { upgradeWeapon } from './weaponStats';
 
 type Ctx = ReturnType<typeof createTestContext>;
 
@@ -135,8 +135,8 @@ describe('weapon cases (spec 04 §3)', () => {
     expect(p.weapons).toHaveLength(LOADOUT.maxWeapons);
     p.activeSlot = 1; // the SMG in hand, upgraded
     const smg = p.weapons[1]!;
-    levelUp(smg);
-    levelUp(smg);
+    upgradeWeapon(smg, 'ammo');
+    upgradeWeapon(smg, 'damage');
     // First tap: asks, buys nothing.
     tap(ctx);
     expect(p.swapConfirmCase).toBe(0);
@@ -145,7 +145,7 @@ describe('weapon cases (spec 04 §3)', () => {
     expect(p.money).toBe(10_000);
     // Second tap: the shotgun takes the SMG's place, fresh.
     tap(ctx);
-    expect(p.weapons[1]).toMatchObject({ id: 'shotgun', level: 0, special: false });
+    expect(p.weapons[1]).toMatchObject({ id: 'shotgun', levels: { ammo: 0, fire_rate: 0, damage: 0 }, special: false });
     expect(p.weapons.some((w) => w.id === 'smg')).toBe(false);
     expect(p.money).toBe(8500);
     expect(p.swapConfirmCase).toBe(-1);

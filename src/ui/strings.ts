@@ -89,14 +89,15 @@ export const STRINGS = {
     close: 'Cerrar tienda',
     /** The round boost row says which boost this visit sells. */
     boosts: { speed: 'Velocidad ×1,5 durante 10 s', double_damage: 'Doble daño durante 10 s' },
-    /** The red merchant's row: the weapon in hand, the level it goes to and what that level does. */
+    /** A red merchant's row: the weapon in hand, the level of that kind it goes to and what it gives then. */
     levelUp: (weapon: string, level: number, max: number, effect: string | null): string => {
       if (max === 0) return `${weapon}: no se puede mejorar`;
       if (level >= max || !effect) return `${weapon}: nivel máximo`;
       return `${weapon}: nivel ${level} → ${level + 1}, ${effect}`;
     },
-    /** What each upgrade level does, for the red merchant's row. */
-    upgradeEffects: { ammo_x2: 'munición ×2', fire_rate: 'cadencia ×1,5', damage_x2: 'daño ×2' },
+    /** What a kind of upgrade gives at a level: "munición ×1,5". */
+    upgradeEffect: (kind: 'ammo' | 'fire_rate' | 'damage', factor: number): string =>
+      `${{ ammo: 'munición', fire_rate: 'cadencia', damage: 'daño' }[kind]} ×${String(factor).replace('.', ',')}`,
     /** The gold merchant's rows, one per weapon. */
     specials: {
       pistol: 'Pistola: 3 balas en abanico por disparo',
@@ -106,7 +107,9 @@ export const STRINGS = {
     items: {
       max_ammo: { name: 'MUNICIÓN MÁXIMA', description: 'Llena cargadores y reservas' },
       round_boost: { name: 'MEJORA DE LA RONDA', description: 'Una mejora de 10 s, para cuando quieras' },
-      weapon_level: { name: 'MEJORAR ARMA ACTUAL', description: 'Sube un nivel el arma en mano' },
+      upgrade_ammo: { name: 'MEJORAR MUNICIÓN', description: 'Más cargador y reserva para el arma en mano' },
+      upgrade_fire_rate: { name: 'MEJORAR CADENCIA', description: 'El arma en mano dispara más rápido' },
+      upgrade_damage: { name: 'MEJORAR DAÑO', description: 'Más daño por bala para el arma en mano' },
       weapon_special: { name: 'MEJORA ESPECIAL', description: 'Una mejora única para un arma' },
     },
   },

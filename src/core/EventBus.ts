@@ -1,5 +1,5 @@
 import type { BoostKind, PickupKind, ZombieKind } from '../config/balance';
-import type { WeaponId } from '../config/weapons';
+import type { UpgradeKind, WeaponId } from '../config/weapons';
 import type { MerchantId, MerchantItemId } from '../config/merchants';
 import type { ActivationEffect, ActivationId } from '../config/activations';
 import type { ItemId } from '../config/items';
@@ -28,11 +28,16 @@ export interface GameEvents {
   'portal:opened': { portalId: string; playerId: number };
   'weapon:state': {
     weapon: WeaponId;
-    /** Upgrade level (stars, up to the weapon's own list) and whether it has its special (name in amber). */
-    level: number;
+    /**
+     * Upgrade levels bought of each kind and how many the weapon takes (the
+     * HUD's marks: a box per level, filled when bought), and whether it has
+     * its special (name in amber).
+     */
+    levels: Record<UpgradeKind, number>;
+    maxLevels: Record<UpgradeKind, number>;
     special: boolean;
     magazine: number;
-    /** Magazine size at its level (an ammo ×2 level doubles it): whether a reload has room. */
+    /** Magazine size with its ammo level: whether a reload has room. */
     capacity: number;
     reserve: number;
     /** 0..1 while reloading, null otherwise. */
@@ -101,8 +106,10 @@ export interface GameEvents {
     merchant: MerchantId | null;
     /**
      * `boost`: what the round boost row sells this visit. `weapon` and
-     * `level`: the weapon a level-up row upgrades; `slot` and `weapon`: the
-     * weapon of a row sold per weapon (the special).
+     * `level`: the weapon an upgrade row upgrades and its level of that
+     * kind; `slot` and `weapon`: the weapon of a row sold per weapon (the
+     * special). `price` is what the row costs this player now (an upgrade's,
+     * by the level it buys).
      */
     rows: {
       index: number;

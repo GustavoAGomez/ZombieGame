@@ -1,7 +1,7 @@
 import { LOADOUT } from '../../config/balance';
 import type { WeaponId } from '../../config/weapons';
 import { createWeaponSlot, type PlayerState, type WeaponSlotState } from '../../core/GameState';
-import { magazineSize, maxReserve } from './weaponStats';
+import { magazineSize, maxReserve, totalLevels } from './weaponStats';
 
 /**
  * The weapons a player carries (spec 04 §2): up to LOADOUT.maxWeapons. A new
@@ -40,7 +40,7 @@ export function weaponReplacedBy(p: PlayerState, id: WeaponId, slots: number = L
  */
 export function needsSwapConfirm(p: PlayerState, id: WeaponId, slots: number = LOADOUT.maxWeapons): boolean {
   const replaced = weaponReplacedBy(p, id, slots);
-  return replaced !== null && (replaced.level > 0 || replaced.special);
+  return replaced !== null && (totalLevels(replaced) > 0 || replaced.special);
 }
 
 /**

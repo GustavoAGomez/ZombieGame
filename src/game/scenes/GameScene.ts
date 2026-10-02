@@ -32,7 +32,6 @@ import { BurnFlames } from '../entities/BurnFlames';
 import { WeaponCaseViews } from '../entities/WeaponCase';
 import { findWeapon, giveWeapon, refillWeapon } from '../systems/InventorySystem';
 import { debugGiveItems } from '../systems/ItemSystem';
-import type { WeaponId } from '../../config/weapons';
 import { HudPresenter } from '../HudPresenter';
 import { buildCollisionGrid } from '../map/CollisionGrid';
 import type { MapData } from '../map/MapLoader';
@@ -46,7 +45,8 @@ import { stepSimulation } from '../systems/Simulation';
 import { roundsSurvived, startRound } from '../systems/WaveSystem';
 import { moveMerchant } from '../systems/MerchantSystem';
 import { storeBoost } from '../systems/BoostSystem';
-import { levelUp } from '../systems/weaponStats';
+import { upgradeReason, upgradeWeapon } from '../systems/weaponStats';
+import { UPGRADE_KINDS, WEAPONS, type WeaponId } from '../../config/weapons';
 import { DebugDraw } from '../../debug/DebugDraw';
 import type { DebugActions } from '../../debug/DebugOverlay';
 import type { MuzzleTable } from '../systems/shotGeometry';
@@ -343,9 +343,13 @@ export class GameScene extends Phaser.Scene {
       toggleHitboxes: () => (this.debugDraw.showHitboxes = !this.debugDraw.showHitboxes),
       toggleFlowField: () => (this.debugDraw.showFlowField = !this.debugDraw.showFlowField),
       levelUpWeapon: () => {
+        // One level of the kind with the fewest, among those still with room (ammo, fire rate, damage on a tie).
         const p = this.state.players[0];
         const weapon = p?.weapons[p.activeSlot];
-        if (weapon) levelUp(weapon);
+        if (!weapon) return;
+        const open = UPGRADE_KINDS.filter((k) => upgradeReason(WEAPONS[weapon.id], k, weapon.levels[k]) === null);
+        const kind = open.sort((a, b) => weapon.levels[a] - weapon.levels[b])[0];
+        if (kind) upgradeWeapon(weapon, kind);
       },
       toggleWeaponSpecial: () => {
         const p = this.state.players[0];

@@ -1,6 +1,7 @@
 import { ITEMS, MERCHANT, POINTS, WAVES, type BoostKind } from '../../config/balance';
 import { merchantDef } from '../../config/merchants';
 import { COLORS } from '../../config/theme';
+import { UPGRADE_KINDS, type UpgradeKind } from '../../config/weapons';
 
 /** Colour of each boost's notice: amber like the speed bolt, light blue like the double damage bullets. */
 const BOOST_COLORS: Record<BoostKind, string> = { speed: COLORS.amber, double_damage: COLORS.boostDamage };
@@ -11,6 +12,8 @@ import { HurtVignette } from './HurtVignette';
 import './hud.css';
 
 const HEALTH_SEGMENTS = 10;
+/** The weapon's upgrade marks: an icon per kind (ammo, fire rate, damage). */
+const MARK_ICONS: Record<UpgradeKind, 'mark_ammo' | 'mark_rate' | 'mark_damage'> = { ammo: 'mark_ammo', fire_rate: 'mark_rate', damage: 'mark_damage' };
 /** Floating "+N" texts alive at once; the oldest is reused when all are busy. */
 const FLOAT_POOL_SIZE = 8;
 
@@ -29,9 +32,9 @@ export class Hud {
   private readonly money: HTMLSpanElement;
   private readonly weaponRow: HTMLDivElement;
   private readonly weaponName: HTMLSpanElement;
-  /** One star per upgrade level, next to the weapon's name (spec 03 §6). */
-  private readonly stars: HTMLSpanElement;
-  private shownLevel = -1;
+  /** The weapon's upgrade marks: per kind, its icon and a box per level, filled when bought. */
+  private readonly marks: HTMLSpanElement;
+  private shownLevels = '';
   private readonly magazine: HTMLSpanElement;
   private readonly reloadFill: HTMLDivElement;
   private readonly reserve: HTMLSpanElement;
@@ -73,14 +76,14 @@ export class Hud {
     this.round = el('div', 'hud-round');
     this.weaponRow = el('div', 'hud-row hud-weapon');
     this.weaponName = el('span', 'hud-label hud-weapon__name');
-    this.stars = el('span', 'hud-stars');
+    this.marks = el('span', 'hud-marks');
     this.magazine = el('span', 'hud-mag');
     const reload = el('div', 'hud-reload');
     reload.setAttribute('aria-label', STRINGS.hud.reloading);
     this.reloadFill = el('div', 'hud-reload__fill');
     reload.appendChild(this.reloadFill);
     this.reserve = el('span', 'hud-reserve');
-    this.weaponRow.append(this.weaponName, this.stars, pixelIcon('bullet', 12), this.magazine, reload, this.reserve);
+    this.weaponRow.append(this.weaponName, this.marks, pixelIcon('bullet', 12), this.magazine, reload, this.reserve);
     // An empty row kept for future stats and perks (spec 01 §5).
     left.append(this.healthRow, this.round, this.weaponRow, el('div', 'hud-reserved'));
 
@@ -227,9 +230,16 @@ export class Hud {
     this.weaponName.textContent = STRINGS.weapons[e.weapon];
     // With its special the weapon's name turns amber.
     this.weaponName.classList.toggle('is-special', e.special);
-    if (e.level !== this.shownLevel) {
-      this.shownLevel = e.level;
-      this.stars.replaceChildren(...Array.from({ length: e.level }, () => pixelIcon('star', 7)));
+    const levelsKey = UPGRADE_KINDS.map((k) => `${e.levels[k]}/${e.maxLevels[k]}`).join(' ');
+    if (levelsKey !== this.shownLevels) {
+      this.shownLevels = levelsKey;
+      this.marks.replaceChildren(
+        ...UPGRADE_KINDS.filter((k) => e.maxLevels[k] > 0).map((k) => {
+          const mark = el('span', 'hud-mark');
+          mark.append(pixelIcon(MARK_ICONS[k], 7), ...Array.from({ length: e.maxLevels[k] }, (_, i) => el('span', i < e.levels[k] ? 'hud-mark__box is-on' : 'hud-mark__box')));
+          return mark;
+        }),
+      );
     }
     this.magazine.textContent = String(e.magazine);
     this.reserve.textContent = `/ ${e.reserve}`;

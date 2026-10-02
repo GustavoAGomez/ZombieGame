@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { BOOSTS } from '../../config/balance';
-import { UPGRADE_EFFECTS, WEAPON_SPECIALS, WEAPONS } from '../../config/weapons';
+import { UPGRADE_LEVELS, WEAPON_SPECIALS, WEAPONS } from '../../config/weapons';
 import { command, createTestContext, placeZombie, player, runTicks, withSmg } from '../../test/fixtures';
 import { HudPresenter } from '../HudPresenter';
 import { storeBoost } from './BoostSystem';
 import { moveMerchant } from './MerchantSystem';
 import { shopItemStatus } from './ShopSystem';
 import { stepSimulation } from './Simulation';
-import { bulletDamage, fireRate, levelUp, magazineSize, maxReserve } from './weaponStats';
+import { bulletDamage, fireRate, magazineSize, maxReserve, upgradeWeapon } from './weaponStats';
 
 type Ctx = ReturnType<typeof createTestContext>;
 
@@ -24,44 +24,48 @@ function fire(ctx: Ctx, ticks: number, aimX = 1, aimY = 0): void {
   cmd.fire = false;
 }
 
-describe('weapon levels', () => {
-  it('level 1 doubles magazine and reserve and refills the weapon; level 2 fires 1.5 times as fast; level 3 doubles the damage', () => {
+describe('weapon upgrades, a level per kind', () => {
+  it('ammo refills the weapon to its new capacity; fire rate and damage grow with their own level only', () => {
     const ctx = withSmg(createTestContext());
     const pistol = player(ctx).weapons[PISTOL]!;
     pistol.magazine = 1;
     pistol.reserve = 2;
-    levelUp(pistol);
-    expect([pistol.level, magazineSize(pistol), maxReserve(pistol)]).toEqual([1, WEAPONS.pistol.magazine * 2, WEAPONS.pistol.maxReserve * 2]);
-    expect([pistol.magazine, pistol.reserve]).toEqual([WEAPONS.pistol.magazine * 2, WEAPONS.pistol.maxReserve * 2]);
+    upgradeWeapon(pistol, 'ammo');
+    expect([pistol.levels.ammo, magazineSize(pistol), maxReserve(pistol)]).toEqual([1, WEAPONS.pistol.magazine * 1.5, WEAPONS.pistol.maxReserve * 1.5]);
+    expect([pistol.magazine, pistol.reserve]).toEqual([WEAPONS.pistol.magazine * 1.5, WEAPONS.pistol.maxReserve * 1.5]);
     expect(fireRate(pistol)).toBe(WEAPONS.pistol.fireRate);
-    levelUp(pistol);
-    expect(fireRate(pistol)).toBe(WEAPONS.pistol.fireRate * UPGRADE_EFFECTS.fire_rate.fireRateFactor);
+    upgradeWeapon(pistol, 'fire_rate');
+    upgradeWeapon(pistol, 'fire_rate');
+    expect(fireRate(pistol)).toBeCloseTo(WEAPONS.pistol.fireRate * UPGRADE_LEVELS.fire_rate[1]!);
     expect(bulletDamage(pistol)).toBe(WEAPONS.pistol.damage);
-    levelUp(pistol);
-    expect(bulletDamage(pistol)).toBe(WEAPONS.pistol.damage * UPGRADE_EFFECTS.damage_x2.damageFactor);
-    levelUp(pistol);
-    expect(pistol.level).toBe(WEAPONS.pistol.upgrades.length);
+    for (let i = 0; i < 5; i++) upgradeWeapon(pistol, 'damage');
+    // Three levels at most.
+    expect(pistol.levels).toEqual({ ammo: 1, fire_rate: 2, damage: 3 });
+    expect(bulletDamage(pistol)).toBeCloseTo(WEAPONS.pistol.damage * UPGRADE_LEVELS.damage[2]!);
   });
 
-  it('shoots faster at level 2: the SMG empties more rounds in the same time', () => {
+  it('shoots faster with fire rate levels: the SMG empties more rounds in the same time', () => {
     const shots = (level: number): number => {
       const ctx = withSmg(createTestContext());
       const p = player(ctx);
       p.activeSlot = SMG;
       const smg = p.weapons[SMG]!;
-      for (let i = 0; i < level; i++) levelUp(smg);
+      for (let i = 0; i < level; i++) upgradeWeapon(smg, 'fire_rate');
       const before = smg.magazine;
       fire(ctx, 60);
       return before - smg.magazine;
     };
-    expect(shots(2) / shots(1)).toBeCloseTo(UPGRADE_EFFECTS.fire_rate.fireRateFactor, 1);
+    // Whole shots in one second: about ×1.75 (11 shots against 19–20).
+    const ratio = shots(3) / shots(0);
+    expect(ratio).toBeGreaterThan(UPGRADE_LEVELS.fire_rate[2]! - 0.1);
+    expect(ratio).toBeLessThan(UPGRADE_LEVELS.fire_rate[2]! + 0.1);
   });
 
-  it('level 3 and double damage stack: ×4, and the bullets look lighter, light blue or gold', () => {
+  it('damage levels and double damage stack, and the bullets look lighter, light blue or gold', () => {
     const ctx = withSmg(createTestContext());
     const p = player(ctx);
     const pistol = p.weapons[PISTOL]!;
-    for (let i = 0; i < 3; i++) levelUp(pistol);
+    upgradeWeapon(pistol, 'damage');
     fire(ctx, 1);
     expect(ctx.state.bullets.find((b) => b.active)?.look).toBe('upgraded');
     for (const b of ctx.state.bullets) b.active = false;
@@ -72,7 +76,7 @@ describe('weapon levels', () => {
     runTicks(ctx, 30, stepSimulation);
     fire(ctx, 1);
     const boosted = ctx.state.bullets.find((b) => b.active);
-    expect(boosted?.damage).toBe(WEAPONS.pistol.damage * UPGRADE_EFFECTS.damage_x2.damageFactor * BOOSTS.damageFactor);
+    expect(boosted?.damage).toBeCloseTo(WEAPONS.pistol.damage * UPGRADE_LEVELS.damage[0]! * BOOSTS.damageFactor);
     expect(boosted?.look).toBe('boosted');
     pistol.special = true;
     for (const b of ctx.state.bullets) b.active = false;
@@ -145,6 +149,16 @@ describe('red and gold merchants', () => {
     return ctx;
   }
 
+  /** The red merchant teleports (a new visit) and the player walks up to it and opens its shop again. */
+  function revisit(ctx: Ctx): void {
+    moveMerchant(ctx, 1);
+    const m = ctx.state.merchants[1]!;
+    const p = player(ctx);
+    p.x = p.prevX = m.x + 20;
+    p.y = p.prevY = m.y;
+    p.shopMerchant = 1;
+  }
+
   function buy(ctx: Ctx, item: number, slot = -1): void {
     command(ctx).shopBuy = item;
     command(ctx).shopSlot = slot;
@@ -153,20 +167,46 @@ describe('red and gold merchants', () => {
     command(ctx).shopSlot = -1;
   }
 
-  it('red: one level for the weapon in hand, once per visit, and NIVEL MÁXIMO at level 3', () => {
+  it('red: one level of the kind the player picks, for the weapon in hand, once per visit, each level dearer', () => {
     const ctx = atMerchant(1);
     const p = player(ctx);
     const pistol = p.weapons[PISTOL]!;
-    expect(shopItemStatus(ctx.state, 1, 0, 0)).toEqual({ kind: 'buy' });
-    buy(ctx, 0);
-    expect([pistol.level, p.money]).toEqual([1, 47000]);
-    expect(shopItemStatus(ctx.state, 1, 0, 0)).toEqual({ kind: 'limit' });
-    buy(ctx, 0);
-    expect(pistol.level).toBe(1);
-    // A new visit; at level 3 there is nothing more.
-    moveMerchant(ctx, 1);
-    pistol.level = 3;
-    expect(shopItemStatus(ctx.state, 1, 0, 0)).toEqual({ kind: 'unavailable', reason: 'maxLevel' });
+    const AMMO = 0;
+    const RATE = 1;
+    const DAMAGE = 2;
+    expect(shopItemStatus(ctx.state, 1, 0, DAMAGE)).toEqual({ kind: 'buy' });
+    buy(ctx, DAMAGE);
+    expect([pistol.levels.damage, p.money]).toEqual([1, 50000 - 1500]);
+    // Once per visit, whatever the kind.
+    expect(shopItemStatus(ctx.state, 1, 0, AMMO)).toEqual({ kind: 'limit' });
+    buy(ctx, AMMO);
+    expect(pistol.levels.ammo).toBe(0);
+    // A new visit: the second damage level costs more.
+    revisit(ctx);
+    buy(ctx, DAMAGE);
+    expect([pistol.levels.damage, p.money]).toEqual([2, 50000 - 1500 - 3000]);
+    revisit(ctx);
+    buy(ctx, DAMAGE);
+    expect([pistol.levels.damage, p.money]).toEqual([3, 50000 - 1500 - 3000 - 5000]);
+    // At level 3 there is nothing more of that kind; the others are still on sale.
+    revisit(ctx);
+    expect(shopItemStatus(ctx.state, 1, 0, DAMAGE)).toEqual({ kind: 'unavailable', reason: 'maxLevel' });
+    expect(shopItemStatus(ctx.state, 1, 0, RATE)).toEqual({ kind: 'buy' });
+  });
+
+  it('red: its panel has a row per kind with the weapon, its level and the price of the next one', () => {
+    const ctx = atMerchant(1);
+    const p = player(ctx);
+    p.weapons[PISTOL]!.levels.fire_rate = 2;
+    const presenter = new HudPresenter(ctx.events, ctx.map);
+    const shops: { rows: { item: string; weapon?: string; level?: number; price: number }[] }[] = [];
+    ctx.events.on('shop:state', (e) => shops.push(e));
+    presenter.publish(ctx.state);
+    expect(shops.at(-1)?.rows.map((r) => [r.item, r.weapon, r.level, r.price])).toEqual([
+      ['upgrade_ammo', 'pistol', 0, 1500],
+      ['upgrade_fire_rate', 'pistol', 2, 5000],
+      ['upgrade_damage', 'pistol', 0, 1500],
+    ]);
   });
 
   it('gold: a row per weapon carried; it gives that weapon its special, and YA TIENE ESPECIAL after', () => {

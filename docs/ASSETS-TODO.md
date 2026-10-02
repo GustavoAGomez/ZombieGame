@@ -38,9 +38,10 @@ Iconos en píxeles provisionales en `src/ui/icons.ts` (rectángulos sobre una re
 | `hammer`, `door`, `stairs` | Botón de acción de la derecha: reparar, comprar puerta, abrir escalera o trampilla |
 | `reload`, `knife`, `bolt` | Recargar, cuchillo y especial |
 | `wizard` | Botón de acción junto a un mago (sombrero de su color) |
-| `star` | Nivel de mejora del arma: una estrella por nivel junto a su nombre |
+| `mark_ammo`, `mark_rate`, `mark_damage` | Marcas de mejora del arma junto a su nombre (7×7): munición, cadencia y daño, cada una con una casilla por nivel |
+| `star` | Estrellas del arma que una vitrina va a sustituir (una por nivel comprado) y fila de la mejora especial del mago dorado |
 | `bolt`, `x2` | Mejoras temporales (velocidad, doble daño): botón de la mejora y fila de la tienda |
-| `bullet`, `rifle`, `crosshair` | Iconos de los artículos de la tienda (munición máxima, mejorar arma, mejora especial), en el color del mago |
+| `bullet`, `bolt`, `crosshair`, `star` | Iconos de los artículos de la tienda, en el color del mago: munición máxima y mejora de munición; mejora de la ronda y de cadencia; mejora de daño; mejora especial |
 | `living_heart`, `worn_wand` | Objetos especiales (spec 05): inventario, botón de acción al recogerlos y fotogramas del sprite `item`. Colores fijos (no variables CSS) para poder dibujarlos también en el canvas |
 
 ## Tiles

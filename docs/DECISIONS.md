@@ -1125,3 +1125,25 @@ Antes de empezar se resolvieron dos choques con el usuario:
 - **`ASSETS-TODO.md`:** el sprite `item` (corazón y varita, a la espera de los diseños del usuario), la salpicadura, las burbujas de la piscina y los iconos del HUD de los dos objetos.
 - **`GAME-DESIGN.md`:** nueva sección de objetos especiales y activaciones.
 
+## Cambio de gameplay: el mago rojo vende 3 mejoras a elegir
+
+Petición del usuario: el mago rojo da 3 tipos de mejora a elegir (cadencia, munición y daño), con 3 niveles cada uno, y cada nivel más caro que el anterior. Antes cada arma tenía una sola cadena fija de 3 niveles (munición ×2, cadencia ×1,5, daño ×2) a 3000$ el nivel.
+
+Respuestas del usuario a las preguntas:
+- **Potencia por nivel, más fuerte que antes:** munición ×1,5/×2/×2,5; cadencia ×1,25/×1,5/×1,75; daño ×1,5/×2/×2,5. Es el total a cada nivel: los niveles de un tipo no se multiplican.
+- **Precios:** 1500$, 3000$ y 5000$ por nivel, iguales para los tres tipos (`UPGRADE_PRICES` en `merchants.ts`).
+- **Una compra por visita,** como antes, del tipo que sea.
+- **HUD:** una marca por tipo (icono de 7 px: bala, rayo, cruceta) con una casilla por nivel, en ámbar al comprarlo, en lugar de las estrellas.
+
+Cómo queda:
+- **Catálogo** (`weapons.ts`): cada arma dice cuántos niveles admite de cada tipo (`upgrades: { ammo: 3, fire_rate: 3, damage: 3 }` en las tres básicas). La tabla común `UPGRADE_LEVELS` da los factores. Sigue valiendo «cada arma tiene sus propias mejoras»: un arma especial futura podrá admitir menos tipos o menos niveles.
+- **Estado:** el `level` único del arma pasa a `levels` por tipo.
+  - Los cargadores y las reservas salen enteros en todos los niveles (se redondean por si acaso).
+  - La cadencia de la escopeta sigue acelerando también su recarga.
+- **Tienda:** tres artículos (`upgrade_ammo`, `upgrade_fire_rate`, `upgrade_damage`) para el arma en mano.
+  - El precio de un artículo puede ser fijo o uno por nivel; `itemPrice` da el del nivel que se compraría.
+  - Cada fila dice el arma, el nivel al que sube y lo que da («PISTOLA: nivel 1 → 2, cadencia ×1,5»), con el icono de su tipo.
+- **Vitrinas:** la confirmación para cambiar un arma mejorada sigue con una estrella por nivel comprado, sumando los tres tipos.
+- **Debug `+NIVEL ARMA`:** sube un nivel del tipo que menos tiene, entre los que admiten más.
+- **El icono de la mejora especial del mago dorado pasa a ser una estrella,** porque la cruceta es ahora la del daño.
+

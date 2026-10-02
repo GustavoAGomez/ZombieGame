@@ -5,7 +5,7 @@ import { command, createTestContext, player } from '../../test/fixtures';
 import { stepSimulation } from './Simulation';
 import { HudPresenter } from '../HudPresenter';
 import { giveWeapon, needsSwapConfirm, weaponReplacedBy } from './InventorySystem';
-import { levelUp, magazineSize } from './weaponStats';
+import { magazineSize, upgradeWeapon } from './weaponStats';
 
 /**
  * With only three basic weapons a player carrying all three never buys a
@@ -55,13 +55,13 @@ describe('inventory (spec 04 §2)', () => {
     const p = player(createTestContext());
     giveWeapon(p, 'smg'); // SMG in hand
     const smg = p.weapons[1]!;
-    levelUp(smg);
-    levelUp(smg);
+    upgradeWeapon(smg, 'ammo');
+    upgradeWeapon(smg, 'damage');
     smg.special = true;
     giveWeapon(p, 'shotgun', TWO_SLOTS);
     const bought = p.weapons[1]!;
     expect(bought.id).toBe('shotgun');
-    expect([bought.level, bought.special]).toEqual([0, false]);
+    expect([bought.levels, bought.special]).toEqual([{ ammo: 0, fire_rate: 0, damage: 0 }, false]);
     expect(bought.magazine).toBe(magazineSize(bought));
     expect(p.weapons.some((w) => w.id === 'smg')).toBe(false);
   });
@@ -71,9 +71,9 @@ describe('inventory (spec 04 §2)', () => {
     giveWeapon(p, 'smg'); // SMG in hand, every slot full with TWO_SLOTS
     const smg = p.weapons[1]!;
     expect(needsSwapConfirm(p, 'shotgun', TWO_SLOTS)).toBe(false);
-    levelUp(smg);
+    upgradeWeapon(smg, 'fire_rate');
     expect(needsSwapConfirm(p, 'shotgun', TWO_SLOTS)).toBe(true);
-    smg.level = 0;
+    smg.levels.fire_rate = 0;
     smg.special = true;
     expect(needsSwapConfirm(p, 'shotgun', TWO_SLOTS)).toBe(true);
     // With a free slot nothing goes away: never asks.

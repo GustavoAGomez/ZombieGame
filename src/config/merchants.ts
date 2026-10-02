@@ -8,13 +8,17 @@ import { COLORS } from './theme';
  */
 export type MerchantId = 'blue' | 'red' | 'gold';
 
-/** What merchants sell (spec 03 §4 and §6; the effects arrive in phases M2–M4). */
-export type MerchantItemId = 'max_ammo' | 'round_boost' | 'weapon_level' | 'weapon_special';
+/** What merchants sell (spec 03 §4 and §6, spec 04 §1). */
+export type MerchantItemId = 'max_ammo' | 'round_boost' | 'upgrade_ammo' | 'upgrade_fire_rate' | 'upgrade_damage' | 'weapon_special';
 
 export interface MerchantItem {
   id: MerchantItemId;
-  price: number;
+  /** A fixed price, or one per level for items sold in levels: [level 1, level 2, …], each dearer than the one before. */
+  price: number | readonly number[];
 }
+
+/** The red merchant's upgrades: the same three prices for each kind, by the level being bought. */
+export const UPGRADE_PRICES = [1500, 3000, 5000] as const;
 
 export interface MerchantDef {
   id: MerchantId;
@@ -49,7 +53,12 @@ export const MERCHANTS: readonly MerchantDef[] = [
     id: 'red',
     color: COLORS.red,
     appears: { by: 'activation', id: 'summon_red_merchant' },
-    items: [{ id: 'weapon_level', price: 3000 }],
+    // The weapon in hand, one level of the kind the player picks (ammo, fire rate or damage).
+    items: [
+      { id: 'upgrade_ammo', price: UPGRADE_PRICES },
+      { id: 'upgrade_fire_rate', price: UPGRADE_PRICES },
+      { id: 'upgrade_damage', price: UPGRADE_PRICES },
+    ],
     maxPurchasesPerVisit: 1,
   },
   {
