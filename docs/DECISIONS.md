@@ -1044,6 +1044,12 @@ Petición del usuario: subir la espera entre toques de reparar. Con 0,2 s se pod
 - **Los puntos por tablón no cambian:** +10, con el tope de 500 por ronda.
 - **El botón muestra la espera larga:** se atenúa, deja de parpadear y un toque lo sacude sin reparar nada. Cuando vuelve a valer un toque, se ilumina y parpadea. El +10 sigue en ámbar mientras espera: no es que falte dinero. Los 0,2 s de la reparación libre no se señalan, para que el botón no parpadee a cada toque.
 
+## Spec 04 · A5 (documento de diseño)
+
+- **`docs/GAME-DESIGN.md`:** registro vivo de las reglas, no del código. Enlazado desde `CLAUDE.md`, con la regla de actualizarlo en el mismo commit que cambie una regla o un precio.
+  - Además del mínimo de la spec (armas, mejoras por arma, vitrinas, magos y economía), recoge las barricadas y los zombis. Las reglas de esta sesión (ritmo de reparación, fuerza del grupo de zombis, 5 por bala) estaban repartidas por `DECISIONS.md`.
+- **Se hizo después de la spec 05** (O1–O3), así que ya refleja al mago rojo invocado en la piscina. Los objetos especiales y las activaciones se añaden en la O4.
+
 ## Spec 05 · Objetos especiales
 
 Antes de empezar se resolvieron dos choques con el usuario:
