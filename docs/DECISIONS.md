@@ -811,3 +811,30 @@ Resueltas sin preguntar, por ser solo nombres o huecos de la spec:
 - **Mago rojo:** el siguiente nivel de la lista del arma en mano. Su fila dice también qué hace ese nivel: «PISTOLA: nivel 1 → 2, cadencia ×1,5». Deshabilitado con NIVEL MÁXIMO al final de la lista, o con NO MEJORABLE si la lista está vacía.
 - **Mago dorado:** una fila por arma; deshabilitada con YA TIENE ESPECIAL o con SIN MEJORA ESPECIAL si el arma no tiene ninguna.
 - La pistola y la SMG no cambian: siguen pasando los tests de la spec 03.
+
+## Spec 04 · A2 (escopeta de caza y efecto de fuego)
+
+- **Escopeta** (`WEAPONS.shotgun`):
+  - 6 perdigones por cartucho, 0,9 de daño cada uno (ver las aclaraciones previas);
+  - 22° de apertura repartidos por igual, con ±1,5° de variación aleatoria por perdigón (`pelletJitter` 3). Con perdigones, el centro del abanico va justo al apuntado; el error aleatorio lo pone la variación;
+  - cadencia 1,4/s, cargador 2 y reserva 24, recarga 1,8 s, alcance 150 px y perdigón a 520 px/s;
+  - daño completo hasta 60 px del jugador y luego baja de forma lineal hasta el 40 % en el alcance (`falloff`; el perdigón lleva su recorrido);
+  - cada perdigón da los puntos de impacto habituales.
+- **Empuje de 3 px por perdigón**, solo a zombis que persiguen o atacan. A uno que está en una ventana, trepando o saliendo del suelo no se le mueve, para no sacarlo de su camino.
+- **Fogonazo un 60 % más grande y retroceso de 2 px**, solo de vista. El jugador dibujado retrocede por el apuntado y vuelve en unos 80 ms. Usa las animaciones de disparo de la pistola hasta que haya arte con escopeta.
+- **El nivel `fire_rate` de la escopeta acelera también la recarga** ×1,5 (`fireRateSpeedsReload`). Con 2 cartuchos, la recarga es casi todo su ritmo de disparo.
+- **Fuego (`BurnSystem`), reutilizable:**
+  - `igniteZombie(z, dañoDelImpacto, dueño)` y `updateBurns` después de las balas;
+  - la quemadura total es el 40 % del daño final del perdigón (tras caída, nivel 3 y doble daño), en 10 ticks de 0,15 s durante 1,5 s;
+  - un impacto nuevo reinicia la duración sin apilar fuegos y se queda con el mayor daño por tick; el ritmo de ticks de un zombi que ya ardía no se reinicia;
+  - los ticks no dan puntos de impacto (`damageZombie(…, hitPoints = false)`) ni sangre; si muere quemado, la baja es para quien lo prendió;
+  - los números están en `WEAPON_SPECIALS.fire` (`fireDamageFactor`, `fireTickInterval`, `fireDuration`).
+- **Aspecto del fuego:**
+  - perdigones naranjas (`BulletLook 'fire'`);
+  - el zombi en llamas parpadea entre dos naranjas (`COLORS.fire`, más intenso que el ámbar de los corredores), con prioridad sobre el tinte de su tipo; el destello blanco del impacto va por delante;
+  - suelta llamas pequeñas (`BurnFlames`, pool de 72 y objeto placeholder `flame`), que se congelan con la pausa.
+- **Inventario adelantado de A3** (`InventorySystem.giveWeapon`): un arma nueva va a un hueco libre y se equipa; con los tres llenos sustituye a la de la mano. Lo usan los botones de debug.
+- **Debug:**
+  - DAR SMG y DAR ESCOPETA (el arma en la mano, con munición llena);
+  - el botón de dinero pequeño pasa de +1000 a +5000$, y el grande se rotula +10000$.
+- **Corregido de paso:** el botón de recargar comparaba con el cargador base y se apagaba tras un nivel `ammo_x2` aunque se pudiera recargar. Ahora `weapon:state` lleva la capacidad del arma a su nivel (`capacity`).

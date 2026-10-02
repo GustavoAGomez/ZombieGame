@@ -128,6 +128,8 @@ export const ASSET_KEYS = {
   /** Merchant bodies are `merchant_<id>` (merchantTextureKey). */
   merchantGem: 'merchant_gem',
   smokePuff: 'smoke_puff',
+  /** A small flame rising off a burning zombie (the burn effect, spec 04). */
+  flame: 'flame',
   offscreenArrow: 'offscreen_arrow',
   mapRoom01: 'room01',
   mapMansion: 'mansion',

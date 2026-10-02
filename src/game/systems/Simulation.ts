@@ -1,5 +1,6 @@
 import { updateBoosts } from './BoostSystem';
 import { updateBullets } from './BulletSystem';
+import { updateBurns } from './BurnSystem';
 import { updateBlood } from './Combat';
 import { updateInteractions } from './InteractionSystem';
 import { blockPlayersByMerchants, updateMerchants } from './MerchantSystem';
@@ -34,6 +35,7 @@ export function stepSimulation(ctx: SimContext, dt: number): void {
   updateInteractions(ctx, dt);
   updateShops(ctx);
   updateBullets(ctx, dt);
+  updateBurns(ctx, dt);
   updateSpawns(ctx, dt);
   updateZombies(ctx, dt);
   updateZombiePortals(ctx);

@@ -314,8 +314,8 @@ export const MERCHANT = {
 } as const;
 
 export const DEBUG = {
-  /** The bigger points button of spec 03 §7. */
+  /** Money added by the bigger button (spec 03 §7). */
   bigPoints: 10000,
-  /** Points added by the +1000 button. */
-  points: 1000,
+  /** Money added by the smaller button (spec 04 §5: +5000$). */
+  points: 5000,
 } as const;

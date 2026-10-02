@@ -470,6 +470,22 @@ function drawGem(ctx: Ctx, ox: number, oy: number, w: number, h: number): void {
 }
 
 /** Smoke puff in light greys (tinted at runtime): blobs that spread out and thin away over the frames. */
+/** A small flame tongue: yellow core, orange body, dark red tip (3 shapes for the flicker). */
+function drawFlame(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number): void {
+  const lean = [0, 1, -1][frame % 3] ?? 0;
+  const cx = Math.floor(w / 2);
+  // From the bottom up: wide base, narrowing to a leaning tip.
+  for (let y = 0; y < h; y++) {
+    const t = y / (h - 1);
+    const half = Math.max(0, Math.round((w / 2) * (1 - t * 0.85)) - (y === h - 1 ? 1 : 0));
+    const shift = Math.round(lean * t * 1.5);
+    const row = oy + h - 1 - y;
+    const color = t < 0.35 ? COLORS.fireLight : t < 0.8 ? COLORS.fire : '#8a1f0e';
+    if (half > 0) rect(ctx, color, ox + cx - half + shift, row, half * 2, 1);
+    else rect(ctx, color, ox + cx + shift, row, 1, 1);
+  }
+}
+
 function drawSmokePuff(ctx: Ctx, frame: number, frames: number, ox: number, oy: number, w: number, h: number): void {
   const t = (frame + 1) / Math.max(1, frames);
   const cx = ox + w / 2;
@@ -554,6 +570,9 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
         break;
       case ASSET_KEYS.smokePuff:
         drawSmokePuff(ctx, col, def.frames, ox, oy, w, h);
+        break;
+      case ASSET_KEYS.flame:
+        drawFlame(ctx, col, ox, oy, w, h);
         break;
       case ASSET_KEYS.offscreenArrow:
         drawOffscreenArrow(ctx, ox, oy, w, h);

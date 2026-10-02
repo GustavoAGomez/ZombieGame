@@ -1,6 +1,7 @@
-import { BULLETS } from '../../config/balance';
+import { BULLETS, ZOMBIES } from '../../config/balance';
 import type { BulletState } from '../../core/GameState';
-import { BLOCK_BULLET, pointBlocksShaped, segmentHitShaped } from '../map/CollisionGrid';
+import { BLOCK_BULLET, BLOCK_ZOMBIE, moveCircle, pointBlocksShaped, segmentHitShaped } from '../map/CollisionGrid';
+import { igniteZombie } from './BurnSystem';
 import { damageZombie, isZombieAlive, type HitPoint } from './Combat';
 import { bodyEntry, hurtboxOf } from './shotGeometry';
 import type { SimContext } from './SimContext';
@@ -85,8 +86,22 @@ function hitZombieAlongSegment(ctx: SimContext, b: BulletState, step: number, wa
 }
 
 /**
- * Bullet `b` hits zombie `index`: damage and blood, and the bullet goes on
- * if it can still pierce (it carries on from the hit point next tick).
+ * How much of its damage a bullet still does after travelling `travelled`
+ * px: all of it up to `falloffFrom`, then down linearly to `falloffMin` at
+ * its range (the shotgun's pellets, spec 04 §1).
+ */
+export function falloffFactor(b: Pick<BulletState, 'range' | 'falloffFrom' | 'falloffMin'>, travelled: number): number {
+  if (b.falloffMin >= 1 || travelled <= b.falloffFrom) return 1;
+  const span = b.range - b.falloffFrom;
+  if (span <= 0) return b.falloffMin;
+  const t = Math.min(1, (travelled - b.falloffFrom) / span);
+  return 1 + (b.falloffMin - 1) * t;
+}
+
+/**
+ * Bullet `b` hits zombie `index`: damage (less with distance for pellets),
+ * blood, fire for the shotgun's special and a push for pellets; the bullet
+ * goes on if it can still pierce (it carries on from the hit point next tick).
  */
 export function bulletHitsZombie(ctx: SimContext, b: BulletState, index: number, hit: HitPoint): void {
   const z = ctx.state.zombies[index];
@@ -95,7 +110,14 @@ export function bulletHitsZombie(ctx: SimContext, b: BulletState, index: number,
   if (free >= 0) b.hits[free] = index;
   b.pierce--;
   if (b.pierce <= 0 || b.remaining <= 0) b.active = false;
-  damageZombie(ctx, z, b.damage, b.owner, hit);
+  const damage = b.damage * falloffFactor(b, b.range - b.remaining);
+  const killed = damageZombie(ctx, z, damage, b.owner, hit);
+  if (killed) return;
+  if (b.burns) igniteZombie(z, damage, b.owner);
+  // A push only for zombies moving freely: never off a window or a climb.
+  if (b.knockback > 0 && (z.ai === 'chasing' || z.ai === 'attacking')) {
+    moveCircle(ctx.grid, z, b.dirX * b.knockback, b.dirY * b.knockback, ZOMBIES.hitboxRadius, BLOCK_ZOMBIE);
+  }
 }
 
 export function activeBulletCount(bullets: readonly BulletState[]): number {

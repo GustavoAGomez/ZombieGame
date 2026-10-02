@@ -24,6 +24,9 @@ import { PickupViewPool } from '../entities/Pickup';
 import { PlayerView } from '../entities/Player';
 import { WorldTextPool } from '../entities/WorldText';
 import { ZombieViewPool } from '../entities/Zombie';
+import { BurnFlames } from '../entities/BurnFlames';
+import { findWeapon, giveWeapon, refillWeapon } from '../systems/InventorySystem';
+import type { WeaponId } from '../../config/weapons';
 import { HudPresenter } from '../HudPresenter';
 import { buildCollisionGrid } from '../map/CollisionGrid';
 import type { MapData } from '../map/MapLoader';
@@ -74,6 +77,7 @@ export class GameScene extends Phaser.Scene {
   private debugDraw!: DebugDraw;
   private bloodViews!: BloodViewPool;
   private bloodSpray!: BloodSprayPool;
+  private burnFlames!: BurnFlames;
   private pickupViews!: PickupViewPool;
   private merchantViews!: MerchantViewPool;
   private offscreenArrows!: OffscreenArrows;
@@ -143,6 +147,7 @@ export class GameScene extends Phaser.Scene {
     this.bloodSpray = new BloodSprayPool(this, events, this.isDark);
     this.pickupViews = new PickupViewPool(this, this.state.pickups.length);
     this.zombieViews = new ZombieViewPool(this, manifest, this.state.zombies.length);
+    this.burnFlames = new BurnFlames(this, this.state.zombies.length);
     this.merchantViews = new MerchantViewPool(this, this.map, this.state.merchants, manifest);
     this.offscreenArrows = new OffscreenArrows(this, this.state.merchants);
     this.playerView = new PlayerView(this, playerDef);
@@ -191,6 +196,7 @@ export class GameScene extends Phaser.Scene {
     // The blood of hits freezes with the match (pause, game over).
     const effectsDt = this.paused || this.overShown ? 0 : delta / 1000;
     this.bloodSpray.update(effectsDt);
+    this.burnFlames.update(this.state.zombies, effectsDt, (i) => this.zombieViews.isShown(i));
     const player = this.state.players[0];
     if (player) this.playerStains.sync(player, this.playerView.sprite, effectsDt);
     this.debugDraw.draw(this.state, this.sim.nav, this.sim.grid);
@@ -275,7 +281,7 @@ export class GameScene extends Phaser.Scene {
     this.merchantViews.sync(this.state.merchants, this.state.players, this.state.tick, this.state.time);
     this.syncOffscreenArrows();
     if (player) {
-      this.playerView.sync(player, alpha);
+      this.playerView.sync(player, alpha, this.state.tick);
       this.speedTrail.sync(player, now);
       if (player.teleports !== this.shownTeleports) {
         this.shownTeleports = player.teleports;
@@ -353,7 +359,18 @@ export class GameScene extends Phaser.Scene {
         const p = this.state.players[0];
         if (p) p.money += DEBUG.bigPoints;
       },
+      giveSmg: () => this.debugGiveWeapon('smg'),
+      giveShotgun: () => this.debugGiveWeapon('shotgun'),
     };
+  }
+
+  /** Debug: the weapon in hand, full of ammo (spec 04 §5). */
+  private debugGiveWeapon(id: WeaponId): void {
+    const p = this.state.players[0];
+    if (!p) return;
+    giveWeapon(p, id);
+    const slot = p.weapons[findWeapon(p, id)];
+    if (slot) refillWeapon(slot);
   }
 
   private updateStats(): void {

@@ -5,7 +5,7 @@
  * screen live in STRINGS.weapons.
  */
 
-export type WeaponId = 'pistol' | 'smg';
+export type WeaponId = 'pistol' | 'smg' | 'shotgun';
 
 /** `basic`: bought at weapon cases. `special`: later weapons, with fewer levels or none. */
 export type WeaponCategory = 'basic' | 'special';
@@ -14,7 +14,7 @@ export type WeaponCategory = 'basic' | 'special';
 export type UpgradeEffect = 'ammo_x2' | 'fire_rate' | 'damage_x2';
 
 /** A weapon's unique upgrade from the gold merchant. */
-export type WeaponSpecialId = 'fan' | 'pierce';
+export type WeaponSpecialId = 'fan' | 'pierce' | 'fire';
 
 export interface WeaponStats {
   /** Damage per bullet, in damage units (zombie HP is counted in the same units). */
@@ -26,10 +26,24 @@ export interface WeaponStats {
   /** Ammo pickups never raise the reserve above this. */
   maxReserve: number;
   reloadTime: number;
-  /** Total cone angle in degrees; each shot deviates up to ±spread/2. */
+  /**
+   * Total cone angle in degrees. One projectile per shot deviates up to
+   * ±spread/2; with several pellets, they are spread evenly across it.
+   */
   spread: number;
   range: number;
   bulletSpeed: number;
+  /** Projectiles per round (a shotgun's pellets); 1 when missing. */
+  pellets?: number;
+  /** Random variation of each pellet around its even place in the cone (degrees, total). */
+  pelletJitter?: number;
+  /** Full damage up to `fullUntil` px, then down linearly to `minFactor` at the weapon's range. */
+  falloff?: { fullUntil: number; minFactor: number };
+  /** Every hit pushes the zombie this many px along the shot. */
+  knockback?: number;
+  /** Size of its muzzle flash next to the pistol's, and how far the player is pushed back per shot (px). Look only. */
+  muzzleFlashScale?: number;
+  recoil?: number;
 }
 
 export interface WeaponDef extends WeaponStats {
@@ -58,6 +72,12 @@ export const WEAPON_SPECIALS = {
   fan: { projectiles: 3, angle: 12 },
   /** SMG: zombies one bullet can hit before it disappears (walls still stop it). */
   pierce: { hits: 3 },
+  /**
+   * Shotgun: each pellet that hits sets the zombie on fire (the reusable
+   * burn effect, BurnSystem). It burns for fireDamageFactor of the pellet's
+   * final damage in total, in ticks every fireTickInterval for fireDuration.
+   */
+  fire: { fireDamageFactor: 0.4, fireTickInterval: 0.15, fireDuration: 1.5 },
 } as const;
 
 export const WEAPONS: Readonly<Record<WeaponId, WeaponDef>> = {
@@ -90,6 +110,31 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDef>> = {
     bulletSpeed: 560,
     upgrades: ['ammo_x2', 'fire_rate', 'damage_x2'],
     special: 'pierce',
+  },
+  // Hunting shotgun (spec 04 §1): 6 pellets per shell, deadly up close.
+  shotgun: {
+    id: 'shotgun',
+    category: 'basic',
+    /** Per pellet: 18 in the old scale where the pistol did 20 (docs/DECISIONS.md). */
+    damage: 0.9,
+    fireRate: 1.4,
+    magazine: 2,
+    startReserve: 24,
+    maxReserve: 24,
+    reloadTime: 1.8,
+    spread: 22,
+    range: 150,
+    bulletSpeed: 520,
+    pellets: 6,
+    pelletJitter: 3,
+    falloff: { fullUntil: 60, minFactor: 0.4 },
+    knockback: 3,
+    muzzleFlashScale: 1.6,
+    recoil: 2,
+    upgrades: ['ammo_x2', 'fire_rate', 'damage_x2'],
+    special: 'fire',
+    // With only 2 shells, the reload is most of its pace: the fire rate level speeds it up too.
+    fireRateSpeedsReload: true,
   },
 };
 

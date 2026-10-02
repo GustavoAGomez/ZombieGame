@@ -26,6 +26,9 @@ export interface DebugActions {
   /** The red and gold merchants, off in a normal match, on (and on the map) or off again. */
   toggleRedGold(): boolean;
   addManyPoints(): void;
+  /** Spec 04 §5: the weapon into a free slot (or in place of the one in hand), full of ammo. */
+  giveSmg(): void;
+  giveShotgun(): void;
 }
 
 const TRIPLE_TAP_WINDOW_MS = 600;
@@ -81,6 +84,8 @@ export class DebugOverlay {
     button(STRINGS.debug.moveMerchants, (a) => a.moveMerchants());
     button(STRINGS.debug.redGold, (a) => a.toggleRedGold());
     button(STRINGS.debug.bigPoints, (a) => a.addManyPoints());
+    button(STRINGS.debug.giveSmg, (a) => a.giveSmg());
+    button(STRINGS.debug.giveShotgun, (a) => a.giveShotgun());
     this.panel.append(this.statsEl, buttons);
     this.statsEl.addEventListener('pointerdown', (e) => {
       e.preventDefault();

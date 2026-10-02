@@ -29,6 +29,12 @@ export const COLORS = {
    */
   zombieRunnerTint: '#ffc98a',
   zombieSprinterTint: '#ff8a7a',
+  /**
+   * Fire (the shotgun's special, spec 04): its pellets, the tint of a burning
+   * zombie and its flames. A deeper orange than the runners' amber tint.
+   */
+  fire: '#ff6a1a',
+  fireLight: '#ffd24a',
 } as const;
 
 export type ColorToken = keyof typeof COLORS;

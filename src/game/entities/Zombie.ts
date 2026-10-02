@@ -20,6 +20,11 @@ const KIND_TINT: Record<ZombieKind, number> = {
   sprinter: hexToInt(COLORS.zombieSprinterTint),
 };
 
+/** A burning zombie's tint (spec 04 §1), flickering between two oranges this often. */
+const BURN_TINT = hexToInt(COLORS.fire);
+const BURN_TINT_LIGHT = hexToInt('#ff9a3a');
+const BURN_FLICKER_MS = 90;
+
 const HIT_FLASH_MS = 80;
 /** How long a zombie takes to appear or vanish at the edge of the darkness. */
 const DARK_FADE_MS = 150;
@@ -127,9 +132,11 @@ export class ZombieViewPool {
 
       if (slot.lastHp > 0 && z.hp < slot.lastHp && z.hp > 0) slot.flashUntil = now + HIT_FLASH_MS;
       slot.lastHp = z.hp;
-      // A hit flashes white; otherwise the kind's tint (a pooled sprite may change kind).
+      // A hit flashes white; a burning zombie flickers orange; otherwise the kind's tint
+      // (a pooled sprite may change kind).
       const flashing = now < slot.flashUntil;
-      const tint = KIND_TINT[z.kind];
+      const burning = z.burn.timer > 0 && z.hp > 0;
+      const tint = burning ? (Math.floor(now / BURN_FLICKER_MS) % 2 === 0 ? BURN_TINT : BURN_TINT_LIGHT) : KIND_TINT[z.kind];
       if (flashing && sprite.tintMode !== Phaser.TintModes.FILL) {
         sprite.setTint(0xffffff).setTintMode(Phaser.TintModes.FILL);
         slot.tint = -1;
@@ -138,6 +145,12 @@ export class ZombieViewPool {
         slot.tint = tint;
       }
     }
+  }
+
+  /** Zombie `index` is on screen (not hidden in the dark): its fire's flames show too. */
+  isShown(index: number): boolean {
+    const slot = this.slots[index];
+    return slot !== undefined && slot.sprite.visible && slot.visibility > 0;
   }
 
   private animate(slot: Slot, character: string, z: ZombieState, pose: ZombiePose): void {

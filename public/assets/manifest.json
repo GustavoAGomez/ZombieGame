@@ -958,6 +958,13 @@
       "frameHeight": 32,
       "frames": 1,
       "placeholder": true
+    },
+    "flame": {
+      "file": "sprites/objects/flame.png",
+      "frameWidth": 6,
+      "frameHeight": 8,
+      "frames": 3,
+      "placeholder": true
     }
   },
   "maps": {

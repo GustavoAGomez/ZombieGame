@@ -12,6 +12,7 @@ export type IconName =
   | 'knife'
   | 'pistol'
   | 'rifle'
+  | 'shotgun'
   | 'hammer'
   | 'door'
   | 'stairs'
@@ -53,6 +54,14 @@ const ICONS: Record<IconName, IconDef> = {
   pistol: {
     w: 12, h: 9, fill: 'var(--bone)',
     rects: [[1, 1, 10, 3], [9, 0, 1, 1], [1, 4, 4, 1, 'var(--amber-dark)'], [1, 5, 3, 4, 'var(--amber-dark)'], [5, 4, 3, 1], [7, 5, 1, 1]],
+  },
+  // Hunting shotgun: long double barrel and a wooden stock.
+  shotgun: {
+    w: 16, h: 7, fill: 'var(--bone)',
+    rects: [
+      [0, 2, 4, 3, 'var(--amber-dark)'], [4, 2, 3, 2, 'var(--amber-dark)'], [7, 1, 9, 1], [7, 2, 9, 1],
+      [5, 4, 2, 2, 'var(--amber-dark)'], [8, 3, 3, 1, 'var(--amber-dark)'],
+    ],
   },
   rifle: {
     w: 16, h: 8, fill: 'var(--bone)',

@@ -7,6 +7,7 @@ import type { MapData } from './map/MapLoader';
 import { repairPointsAvailable } from './systems/BarricadeSystem';
 import { isPortalBuyable } from './systems/PortalSystem';
 import { isPerWeapon, shopItemStatus } from './systems/ShopSystem';
+import { magazineSize } from './systems/weaponStats';
 import { reloadProgress } from './systems/WeaponSystem';
 
 /** Steps used to quantise continuous values so the DOM updates rarely. */
@@ -175,6 +176,7 @@ export class HudPresenter {
           level: slot.level,
           special: slot.special,
           magazine: slot.magazine,
+          capacity: magazineSize(slot),
           reserve: slot.reserve,
           reloadProgress: quantised,
           switching,

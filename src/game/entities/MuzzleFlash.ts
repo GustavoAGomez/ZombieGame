@@ -1,5 +1,6 @@
 import type Phaser from 'phaser';
 import type { PlayerState } from '../../core/GameState';
+import { WEAPONS } from '../../config/weapons';
 import { lerp } from '../../core/math';
 import { ASSET_KEYS, objectTextureKey, type CharacterDef } from '../assets/manifest';
 import { DEPTH } from '../depth';
@@ -41,6 +42,9 @@ export class MuzzleFlash {
     muzzleOffset(this.def, player.facing, this.offset);
     const x = lerp(player.prevX, player.x, alpha) + this.offset.x;
     const y = lerp(player.prevY, player.y, alpha) + this.offset.y;
-    this.image.setVisible(true).setPosition(Math.round(x), Math.round(y));
+    // Each weapon's flash size next to the pistol's (the shotgun's is 60 % bigger).
+    const weapon = player.weapons[player.activeSlot];
+    const scale = weapon ? (WEAPONS[weapon.id].muzzleFlashScale ?? 1) : 1;
+    this.image.setVisible(true).setPosition(Math.round(x), Math.round(y)).setScale(scale);
   }
 }

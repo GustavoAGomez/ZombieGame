@@ -1,4 +1,3 @@
-import { WEAPONS } from '../config/weapons';
 import type { EventBus } from '../core/EventBus';
 import { STRINGS } from '../ui/strings';
 import { TapButton } from './TapButton';
@@ -56,13 +55,13 @@ export class ActionButtons {
         this.seconds.textContent = fraction > 0 ? String(Math.ceil(remaining)) : '';
         this.specialButton.el.classList.toggle('is-cooling', fraction > 0);
       }),
-      events.on('weapon:state', ({ weapon, magazine, reserve, reloadProgress, switching }) => {
+      events.on('weapon:state', ({ magazine, capacity, reserve, reloadProgress, switching }) => {
         const reloading = reloadProgress !== null;
         // The veil empties as the reload progresses.
         this.reloadVeil.style.transform = `scaleY(${reloading ? 1 - reloadProgress : 0})`;
         this.reloadVeil.style.display = reloading ? 'block' : 'none';
         this.reloadButton.el.classList.toggle('is-cooling', reloading);
-        const canReload = !reloading && !switching && magazine < WEAPONS[weapon].magazine && reserve > 0;
+        const canReload = !reloading && !switching && magazine < capacity && reserve > 0;
         this.reloadButton.el.classList.toggle('is-disabled', !reloading && !canReload);
       }),
     ];

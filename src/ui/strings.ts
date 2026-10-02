@@ -5,7 +5,7 @@ export const STRINGS = {
   rotateDeviceHint: 'Este juego se juega en horizontal',
   debug: {
     nextRound: 'RONDA +1',
-    points: '+1000',
+    points: '+5000$',
     god: 'DIOS',
     hitboxes: 'HITBOX',
     flowField: 'FLUJO',
@@ -14,7 +14,9 @@ export const STRINGS = {
     boost: 'DAR MEJORA',
     moveMerchants: 'MOVER MAGOS',
     redGold: 'ROJO/DORADO',
-    bigPoints: '+10000',
+    bigPoints: '+10000$',
+    giveSmg: 'DAR SMG',
+    giveShotgun: 'DAR ESCOPETA',
   },
   controls: {
     joystick: 'Joystick de movimiento',
@@ -27,6 +29,7 @@ export const STRINGS = {
   weapons: {
     pistol: 'PISTOLA',
     smg: 'SMG',
+    shotgun: 'ESCOPETA',
   },
   hud: {
     /** Points: everything earned this match (the score). */
@@ -89,7 +92,11 @@ export const STRINGS = {
     /** What each upgrade level does, for the red merchant's row. */
     upgradeEffects: { ammo_x2: 'munición ×2', fire_rate: 'cadencia ×1,5', damage_x2: 'daño ×2' },
     /** The gold merchant's rows, one per weapon. */
-    specials: { pistol: 'Pistola: 3 balas en abanico por disparo', smg: 'SMG: cada bala atraviesa 3 zombis' },
+    specials: {
+      pistol: 'Pistola: 3 balas en abanico por disparo',
+      smg: 'SMG: cada bala atraviesa 3 zombis',
+      shotgun: 'Escopeta: los perdigones prenden fuego',
+    },
     items: {
       max_ammo: { name: 'MUNICIÓN MÁXIMA', description: 'Llena cargadores y reservas' },
       round_boost: { name: 'MEJORA DE LA RONDA', description: 'Una mejora de 10 s, para cuando quieras' },

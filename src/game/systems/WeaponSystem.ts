@@ -162,7 +162,9 @@ function handleFire(ctx: SimContext, p: PlayerState): void {
 /**
  * One shot: a round of ammo and the fire cooldown of the weapon's level. The
  * `fan` special (pistol) fires WEAPON_SPECIALS.fan.projectiles bullets
- * (centre and ±angle) for that one round, each with the full damage.
+ * (centre and ±angle) for that one round, each with the full damage. A
+ * weapon with pellets (the shotgun) fires them all for one shell, spread
+ * evenly across its cone with a little random variation each.
  */
 function shoot(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
   const { state } = ctx;
@@ -174,16 +176,20 @@ function shoot(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
 
   const aim = Math.atan2(p.aimY, p.aimX);
   const half = degToRad(stats.spread) / 2;
-  const centre = aim + randomRange(state, -half, half);
+  const pellets = stats.pellets ?? 1;
   const special = slot.special ? (stats.special ?? null) : null;
-  const count = special === 'fan' ? WEAPON_SPECIALS.fan.projectiles : 1;
-  const between = degToRad(WEAPON_SPECIALS.fan.angle);
+  // One bullet deviates inside the cone; pellets fill it evenly instead.
+  const centre = pellets > 1 ? aim : aim + randomRange(state, -half, half);
+  const fan = special === 'fan' ? WEAPON_SPECIALS.fan.projectiles : 1;
+  const count = Math.max(fan, pellets);
+  const between = pellets > 1 ? degToRad(stats.spread) / (pellets - 1) : degToRad(WEAPON_SPECIALS.fan.angle);
+  const jitter = degToRad(stats.pelletJitter ?? 0) / 2;
   // Drawn from the gun's muzzle, along the same direction.
   const muzzle = muzzleFor(ctx.muzzles, aim);
   for (let i = 0; i < count; i++) {
     const bullet = freeBullet(state);
     if (!bullet) return; // pool exhausted: the shot is spent but not simulated
-    const angle = centre + (i - (count - 1) / 2) * between;
+    const angle = centre + (i - (count - 1) / 2) * between + (pellets > 1 ? randomRange(state, -jitter, jitter) : 0);
     bullet.active = true;
     bullet.owner = p.id;
     bullet.x = p.x + p.aimX * PLAYER.muzzleDistance;
@@ -198,6 +204,11 @@ function shoot(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
     bullet.pierce = special === 'pierce' ? WEAPON_SPECIALS.pierce.hits : 1;
     bullet.hits.fill(-1);
     bullet.remaining = stats.range - PLAYER.muzzleDistance;
+    bullet.range = bullet.remaining;
+    bullet.falloffFrom = stats.falloff ? Math.max(0, stats.falloff.fullUntil - PLAYER.muzzleDistance) : 0;
+    bullet.falloffMin = stats.falloff ? stats.falloff.minFactor : 1;
+    bullet.burns = special === 'fire';
+    bullet.knockback = stats.knockback ?? 0;
     bullet.drawX = muzzle.x - p.aimX * PLAYER.muzzleDistance;
     bullet.drawY = muzzle.y - p.aimY * PLAYER.muzzleDistance;
     pointBlank(ctx, p, bullet, muzzle);

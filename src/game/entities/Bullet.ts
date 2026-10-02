@@ -20,6 +20,7 @@ const TINTS: Readonly<Record<BulletLook, number | null>> = {
   upgraded: hexToInt(UPGRADED_BULLET),
   boosted: hexToInt(COLORS.boostDamage),
   special: hexToInt(COLORS.amber),
+  fire: hexToInt(COLORS.fire),
 };
 
 /**

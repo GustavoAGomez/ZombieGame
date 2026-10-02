@@ -103,9 +103,9 @@ export function levelUp(slot: WeaponSlotState): void {
   }
 }
 
-/** How its bullets look: the special (gold) over double damage (light blue) over a damage level (lighter). */
+/** How its bullets look: the special (gold, orange for fire) over double damage (light blue) over a damage level (lighter). */
 export function bulletLook(slot: WeaponSlotState, doubleDamage: boolean): BulletLook {
-  if (slot.special) return 'special';
+  if (slot.special) return WEAPONS[slot.id].special === 'fire' ? 'fire' : 'special';
   if (doubleDamage) return 'boosted';
   return upgradeCount(WEAPONS[slot.id], slot.level, 'damage_x2') > 0 ? 'upgraded' : 'normal';
 }

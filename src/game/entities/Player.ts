@@ -1,4 +1,5 @@
 import type Phaser from 'phaser';
+import { WEAPONS } from '../../config/weapons';
 import type { PlayerState } from '../../core/GameState';
 import { dir8FromAngle, lerp } from '../../core/math';
 import { ASSET_KEYS, animationKey, characterTextureKey, type CharacterDef } from '../assets/manifest';
@@ -9,6 +10,8 @@ export type PlayerAnimation = 'idle' | 'walk' | 'shoot' | 'shoot_walk' | 'dash' 
 
 /** Slowest pace of the movement animations, as a fraction of their frame rate. */
 const MIN_MOVE_TIME_SCALE = 0.5;
+/** Simulation ticks a shot's recoil takes to settle (5 at 60 Hz ≈ 80 ms). */
+const RECOIL_TICKS = 5;
 
 /** Player sprite. Reads PlayerState every frame and holds no game logic. */
 export class PlayerView {
@@ -28,10 +31,12 @@ export class PlayerView {
     this.hasMelee = def.animations.melee !== undefined;
   }
 
-  sync(player: PlayerState, alpha: number): void {
+  /** `tick` is the current simulation tick, for the recoil of weapons that kick (the shotgun). */
+  sync(player: PlayerState, alpha: number, tick = -1): void {
     const x = lerp(player.prevX, player.x, alpha);
     const y = lerp(player.prevY, player.y, alpha);
-    this.sprite.setPosition(x, y).setDepth(actorDepth(y));
+    const kick = recoilOffset(player, tick);
+    this.sprite.setPosition(x - player.aimX * kick, y - player.aimY * kick).setDepth(actorDepth(y));
 
     const animation = pickAnimation(player, this.hasShootWalk, this.hasMelee);
     // Retreating while shooting plays the walk cycle backwards.
@@ -61,6 +66,15 @@ export class PlayerView {
     const timeScale = moving ? Math.max(MIN_MOVE_TIME_SCALE, player.moveFactor) : 1;
     if (anims.timeScale !== timeScale) anims.timeScale = timeScale;
   }
+}
+
+/** How far back (px) the last shot still pushes the drawn player: the weapon's recoil, easing out. */
+export function recoilOffset(p: PlayerState, tick: number): number {
+  const weapon = p.weapons[p.activeSlot];
+  const recoil = weapon ? (WEAPONS[weapon.id].recoil ?? 0) : 0;
+  const age = tick - p.lastShotTick;
+  if (recoil <= 0 || tick < 0 || age < 0 || age >= RECOIL_TICKS || p.hp <= 0) return 0;
+  return recoil * (1 - age / RECOIL_TICKS);
 }
 
 export function pickAnimation(p: PlayerState, hasShootWalk = true, hasMelee = false): PlayerAnimation {

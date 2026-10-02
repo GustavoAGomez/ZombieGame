@@ -152,6 +152,8 @@ export function spawnZombie(ctx: SimContext, z: ZombieState, spawnIndex: number)
   z.stateTick = state.tick;
   z.actionTick = -1;
   z.portalLock = -1;
+  z.burn.timer = 0;
+  z.burn.perTick = 0;
   if (open) {
     z.ai = 'emerging';
     z.window = -1;

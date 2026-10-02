@@ -9,6 +9,7 @@ import { TapButton } from './TapButton';
 export const WEAPON_ICONS: Readonly<Record<WeaponId, IconName>> = {
   pistol: 'pistol',
   smg: 'rifle',
+  shotgun: 'shotgun',
 };
 
 /**

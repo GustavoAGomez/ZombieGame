@@ -26,10 +26,12 @@ export interface GameEvents {
   'portal:opened': { portalId: string; playerId: number };
   'weapon:state': {
     weapon: WeaponId;
-    /** Upgrade level 0–3 (stars) and whether it has its special (name in amber). */
+    /** Upgrade level (stars, up to the weapon's own list) and whether it has its special (name in amber). */
     level: number;
     special: boolean;
     magazine: number;
+    /** Magazine size at its level (an ammo ×2 level doubles it): whether a reload has room. */
+    capacity: number;
     reserve: number;
     /** 0..1 while reloading, null otherwise. */
     reloadProgress: number | null;

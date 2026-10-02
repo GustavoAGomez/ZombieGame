@@ -21,8 +21,11 @@ export interface WeaponSlotState {
   special: boolean;
 }
 
-/** How a bullet is drawn: plain, lighter from level 3, light blue with double damage, gold with the special. */
-export type BulletLook = 'normal' | 'upgraded' | 'boosted' | 'special';
+/**
+ * How a bullet is drawn: plain, lighter with a damage level, light blue with
+ * double damage, gold with the special, orange with the fire special.
+ */
+export type BulletLook = 'normal' | 'upgraded' | 'boosted' | 'special' | 'fire';
 
 /** What the contextual action chip would do for a player right now. */
 export type ContextAction = 'none' | 'repair' | 'door' | 'portal' | 'merchant';
@@ -128,8 +131,16 @@ export interface BulletState {
   pierce: number;
   /** Zombies (indices) it already hit, so going through one never hits it twice; -1 = free. */
   hits: number[];
-  /** Distance still allowed before the bullet expires. */
+  /** Distance still allowed before the bullet expires, and what it started with (for the damage falloff). */
   remaining: number;
+  range: number;
+  /** Full damage up to `falloffFrom` px travelled, then down linearly to `falloffMin` at `range`. 1 = no falloff. */
+  falloffFrom: number;
+  falloffMin: number;
+  /** Sets the zombies it hits on fire (the shotgun's special). */
+  burns: boolean;
+  /** Px each hit pushes the zombie along the shot. */
+  knockback: number;
   /**
    * Where it is drawn relative to (x, y): from the gun's drawn muzzle along
    * the same direction. Walls stop it on the ground (x, y); zombies are hit
@@ -176,6 +187,20 @@ export interface ZombieState {
   portalLock: number;
   /** Seconds spent chasing off the flow field (NAVIGATION.lostRespawnTime). */
   lostTimer: number;
+  /** Burning (BurnSystem): fire on it, reusable by any weapon. */
+  burn: BurnState;
+}
+
+/** A zombie on fire: damage every tick interval until `timer` runs out. */
+export interface BurnState {
+  /** Seconds of fire left; 0 = not burning. */
+  timer: number;
+  /** Seconds to the next damage tick. */
+  tickTimer: number;
+  /** Damage of each tick (the highest of the hits that lit it). */
+  perTick: number;
+  /** Who gets the kill if it dies burning (player id, -1 none). */
+  owner: number;
 }
 
 export interface BloodState {
@@ -338,6 +363,11 @@ function createBullet(): BulletState {
     pierce: 1,
     hits: new Array<number>(WEAPON_SPECIALS.pierce.hits).fill(-1),
     remaining: 0,
+    range: 0,
+    falloffFrom: 0,
+    falloffMin: 1,
+    burns: false,
+    knockback: 0,
     drawX: 0,
     drawY: 0,
   };
@@ -365,6 +395,7 @@ function createZombie(): ZombieState {
     actionTick: -1,
     portalLock: -1,
     lostTimer: 0,
+    burn: { timer: 0, tickTimer: 0, perTick: 0, owner: -1 },
   };
 }
 
