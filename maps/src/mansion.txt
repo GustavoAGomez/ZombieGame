@@ -153,7 +153,7 @@ ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
 | M10 | 42,28 | cocina | pared sur |
 | M11 | 60,34 | garaje | rincón noroeste |
 | M12 | 70,43 | garaje | junto a los neumáticos |
-| M13 | 12,3 | jardin | rincón noroeste, junto al árbol |
+| M13 | 45,10 | jardin | borde sur de la piscina: el mago rojo sale de ella (spec 05 §6) |
 | M14 | 70,6 | jardin | contra el cobertizo |
 | M15 | 22,43 | calle | jardín delantero, contra la fachada |
 | M16 | 78,45 | calle | contra la valla este |
@@ -190,6 +190,11 @@ ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
 | I17 | 104,30 | sotano | en el cuarto de calderas |
 | I18 | 93,13 | azotea | en el campamento, entre las cajas y los sacos de dormir |
 | I19 | 98,16 | azotea | junto al aparato de aire acondicionado |
+
+## Activaciones (lugares donde se usan los objetos especiales, spec 05 §6: un rectángulo de casillas, de esquina a esquina, con el id que nombra src/config/activations.ts)
+| id | casillas | zona | nota |
+|---|---|---|---|
+| pool | 40,7 50,9 | jardin | el agua de la piscina: el corazón y la varita invocan al mago rojo |
 
 ## Jugador (P)
 | casilla |

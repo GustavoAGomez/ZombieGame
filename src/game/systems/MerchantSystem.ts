@@ -19,7 +19,9 @@ export function updateMerchants(ctx: SimContext): void {
   if (wave.phase === 'over') return;
   for (let i = 0; i < state.merchants.length; i++) {
     const m = state.merchants[i];
-    if (!m?.enabled || m.round === wave.round || wave.round < merchantDef(m.id).firstRound) continue;
+    const appears = m ? merchantDef(m.id).appears : undefined;
+    // By round: not before its first round. By activation: enabled when it was brought out, then every round.
+    if (!m?.enabled || m.round === wave.round || (appears?.by === 'round' && wave.round < appears.round)) continue;
     m.round = wave.round;
     moveMerchant(ctx, i);
   }
@@ -35,8 +37,17 @@ export function moveMerchant(ctx: SimContext, index: number): boolean {
   const m = state.merchants[index];
   if (!m) return false;
   const spot = pickMerchantSpot(map, state, index);
+  if (!map.merchantSpots[spot] || (m.active && spot === m.spot)) return false;
+  placeMerchant(ctx, index, spot);
+  return true;
+}
+
+/** Merchant `index` appears (first time) or teleports to merchant spot `spot`, with its smoke. */
+function placeMerchant(ctx: SimContext, index: number, spot: number): void {
+  const { state, map } = ctx;
+  const m = state.merchants[index];
   const target = map.merchantSpots[spot];
-  if (!target || (m.active && spot === m.spot)) return false;
+  if (!m || !target) return;
   const first = !m.active;
   m.fromSpot = first ? -1 : m.spot;
   m.spot = spot;
@@ -48,6 +59,31 @@ export function moveMerchant(ctx: SimContext, index: number): boolean {
   m.visitPurchases.fill(0);
   m.boost = drawRoundBoost(state);
   ctx.events.emit('merchant:moved', { merchant: m.id, first });
+}
+
+/**
+ * An activation brings merchant `index` out (spec 05 §6): it appears at once,
+ * with its smoke, at the free merchant spot nearest to `near` (the pool) in
+ * that place's zone, or else the nearest free one anywhere. From the next
+ * round it teleports like the others. Returns false when no spot is free.
+ */
+export function summonMerchant(ctx: SimContext, index: number, near: { x: number; y: number }, zoneIndex: number): boolean {
+  const { state, map } = ctx;
+  const m = state.merchants[index];
+  if (!m) return false;
+  const taken = new Set(state.merchants.filter((o, j) => j !== index && o.active).map((o) => o.spot));
+  const distance = (i: number): number => {
+    const s = map.merchantSpots[i];
+    return s ? Math.hypot(s.x - near.x, s.y - near.y) : Infinity;
+  };
+  const free = map.merchantSpots.flatMap((_, i) => (taken.has(i) ? [] : [i]));
+  const inZone = free.filter((i) => map.merchantSpots[i]?.zoneIndex === zoneIndex);
+  const spot = (inZone.length > 0 ? inZone : free).sort((a, b) => distance(a) - distance(b))[0];
+  if (spot === undefined) return false;
+  m.enabled = true;
+  // Already this round's visit: it teleports from the next round on.
+  m.round = state.wave.round;
+  placeMerchant(ctx, index, spot);
   return true;
 }
 

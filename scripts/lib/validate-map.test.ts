@@ -178,6 +178,17 @@ describe('validateMap', () => {
       expect(errorsOf(moveSpot('I5', 25, 37))).toMatch(/punto de objeto 5 \(comedor\) no cae en su zona/);
     });
 
+    it('needs the place each activation names (spec 05 §6)', () => {
+      const noPool = variant((o) => o.splice(o.indexOf(byName(o, 'pool')), 1));
+      expect(errorsOf(noPool)).toMatch(/la activación summon_red_merchant necesita un activation_site "pool"/);
+    });
+
+    it('lets a merchant spot stand by the water as against a wall (M13, by the pool)', () => {
+      expect(errorsOf(base)).not.toMatch(/punto de mago 13/);
+      // One tile out from the water's edge it is in the open.
+      expect(errorsOf(variant((o) => Object.assign(byName(o, 'M13'), { x: 45.5 * 32, y: 11.5 * 32 })))).toMatch(/punto de mago 13 \(jardin\) no está pegado a una pared ni al agua/);
+    });
+
     it('never puts one in the water', () => {
       expect(errorsOf(moveSpot('I12', 45, 8))).toMatch(/punto de objeto 12 \(jardin\) está en una casilla bloqueada \(45,8\)/);
     });

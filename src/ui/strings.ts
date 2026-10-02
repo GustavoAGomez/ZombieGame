@@ -68,6 +68,8 @@ export const STRINGS = {
   merchants: {
     names: { blue: 'MAGO AZUL', red: 'MAGO ROJO', gold: 'MAGO DORADO' },
     moved: (name: string): string => `EL ${name} SE HA MOVIDO`,
+    /** Brought out by an activation (spec 05 §6). */
+    summoned: (name: string): string => `EL ${name} HA SIDO INVOCADO`,
   },
   shop: {
     buy: 'COMPRAR',

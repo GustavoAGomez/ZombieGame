@@ -1088,3 +1088,24 @@ Antes de empezar se resolvieron dos choques con el usuario:
   - Es un solo texto que sigue al jugador: un toque nuevo lo reinicia y no apila otro.
   - Va con el reloj de la escena, así que la pausa lo congela.
   - Un toque en un hueco vacío no hace nada.
+
+### O3 · Activaciones e invocación del mago rojo
+
+- **Catálogo por datos** (`src/config/activations.ts`): `summon_red_merchant`, que acepta el corazón y la varita en cualquier orden en el `site` `pool` y tiene como efecto `summon_merchant` del rojo. El estado es de la partida (`GameState.activations`, paralelo al catálogo): qué ha recibido, en qué orden, cuándo aterriza cada objeto, quién lo tiró y si está completa.
+- **Lugar en el mapa:** tabla `## Activaciones` del plano → `activation_site` `pool`, el rectángulo del agua (40,7)–(50,9). El validador exige el sitio de cada activación.
+- **Uso:** un objeto se acepta si el jugador está a menos de 40 px del borde del rectángulo (contando su hitbox), la activación no está completa, acepta ese objeto y aún no lo ha recibido; con `order: 'fixed'`, solo el que toca. Si no, sale `AQUÍ NO SE USA` como en la O2.
+- **Tirar:** el objeto sale del inventario (los demás se recolocan) y vuela en arco 0,4 s hasta el punto del agua más cercano al jugador, donde salpica (un aro y cuatro gotas).
+  - La piscina lo recuerda desde el toque, pero el agua solo cambia cuando el objeto ha caído.
+  - **La invocación ocurre cuando cae el segundo objeto**, no al tocarlo: así el mago no aparece mientras el objeto aún vuela.
+- **Agua** (`ActivationSiteViews`): con un objeto dentro, un tinte rojizo tenue (24 %) y cuatro burbujas lentas que se quedan. Al completarse, rojo al 50 % y catorce burbujas rápidas durante 1,5 s; luego, el agua normal para siempre.
+- **El mago rojo:**
+  - Sale en el punto de mago libre más cercano a la piscina dentro de su zona; si no hay, en el libre más cercano de cualquier zona. M13 se ha movido al borde sur de la piscina, (45,10), y el validador acepta el borde del agua como «pared» para los puntos de mago.
+  - Aparece al momento, con su humo, marcado como la visita de esta ronda: se teletransporta desde la ronda siguiente.
+  - Si ya estaba activo (por el botón de debug), se mueve a la piscina.
+- **`merchants.ts`:** `enabled`/`firstRound` pasan a una regla `appears`:
+  - azul, `{ by: 'round', round: 2 }`;
+  - rojo, `{ by: 'activation', id: 'summon_red_merchant' }`;
+  - dorado, sin regla (solo con el debug, que sigue funcionando y se salta el ritual).
+  - Un test de las mejoras del rojo lo activaba a mano sin marcar su ronda, y ahora se teletransportaba en el siguiente paso; se le marca la ronda, como hacen el debug y la invocación.
+- **Aviso** `EL MAGO ROJO HA SIDO INVOCADO` en el color del mago durante 2,5 s, para todos. Vibración fuerte para quien tiró el último objeto.
+- **Pausa:** el agua, el vuelo, la salpicadura y `AQUÍ NO SE USA` van con el reloj de la simulación y se congelan. Los avisos del HUD (animaciones CSS) se congelan con la clase `is-paused` en la raíz del HUD.

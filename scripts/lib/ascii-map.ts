@@ -132,6 +132,13 @@ export interface AsciiItemSpot {
   zone: string;
 }
 
+/** A place where special items are used (table "Activaciones", spec 05 §6): a rectangle of tiles and its zone. */
+export interface AsciiActivationSite {
+  id: string;
+  cells: Cell[];
+  zone: string;
+}
+
 /** A weapon case (table "Vitrinas", spec 04 §3): 1 tile, its weapon, price, facing and zone. */
 export interface AsciiWeaponCase {
   id: string;
@@ -164,6 +171,7 @@ export interface AsciiMap {
   merchantSpots: AsciiMerchantSpot[];
   weaponCases: AsciiWeaponCase[];
   itemSpots: AsciiItemSpot[];
+  activationSites: AsciiActivationSite[];
   props: AsciiProp[];
   player: Cell;
 }
@@ -323,6 +331,11 @@ export function parseAsciiMap(text: string): AsciiMap {
     cell: parseCells(r.casilla ?? '', problems, `objeto ${r.id}`)[0] ?? { x: -1, y: -1 },
     zone: r.zona ?? '',
   }));
+  const activationSites: AsciiActivationSite[] = rows('activaciones').map((r) => ({
+    id: r.id ?? '',
+    cells: parseArea(r.casillas ?? '', problems, `activación ${r.id}`),
+    zone: r.zona ?? '',
+  }));
   const player = parseCells(rows('jugador')[0]?.casilla ?? '', problems, 'jugador')[0] ?? { x: -1, y: -1 };
   const props: AsciiProp[] = rows('atrezo').map((r) => {
     const flip = normalize(r.volteo ?? '');
@@ -336,7 +349,7 @@ export function parseAsciiMap(text: string): AsciiMap {
     };
   });
 
-  const map: AsciiMap = { grid, width, height, zones, doors, windows, portals, openSpawns, merchantSpots, weaponCases, itemSpots, props, player };
+  const map: AsciiMap = { grid, width, height, zones, doors, windows, portals, openSpawns, merchantSpots, weaponCases, itemSpots, activationSites, props, player };
   checkMarkers(map, problems);
   checkProps(map, problems);
   checkMerchantSpots(map, problems);
@@ -922,6 +935,11 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
     knownZone(s.zone, `objeto ${s.id}`);
     if (zoneIndex.has(s.zone) && cellZone[s.cell.y * W + s.cell.x] !== zoneIndex.get(s.zone)) problems.push(`objeto ${s.id}: no cae en la zona ${s.zone}`);
     add({ name: s.id, type: 'item_spot', ...point(s.cell), properties: [p('zone', 'string', s.zone)] });
+  }
+  for (const a of map.activationSites) {
+    knownZone(a.zone, `activación ${a.id}`);
+    if (a.cells.length === 0) problems.push(`activación ${a.id}: sin casillas`);
+    add({ name: a.id, type: 'activation_site', ...cellsRect(a.cells), properties: [p('id', 'string', a.id), p('zone', 'string', a.zone)] });
   }
   for (const c of map.weaponCases) {
     knownZone(c.zone, `vitrina ${c.id}`);

@@ -1,3 +1,4 @@
+import type { ActivationId } from './activations';
 import { COLORS } from './theme';
 
 /**
@@ -19,40 +20,42 @@ export interface MerchantDef {
   id: MerchantId;
   /** '#rrggbb': placeholder body, smoke, off-screen arrow and HUD notice. */
   color: string;
-  /** A disabled merchant never appears in a normal match. */
-  enabled: boolean;
-  /** At the start of this round it first appears, in the player's starting zone. */
-  firstRound: number;
+  /**
+   * How it comes into the match (spec 05 §6): at the start of a round (first
+   * in the player's starting zone), or when an activation brings it out.
+   * Without a rule it never appears in a normal match (only from the debug
+   * panel).
+   */
+  appears?: MerchantAppearance;
   items: readonly MerchantItem[];
   /** Purchases allowed between two teleports; unlimited when missing. */
   maxPurchasesPerVisit?: number;
 }
 
+export type MerchantAppearance = { by: 'round'; round: number } | { by: 'activation'; id: ActivationId };
+
 export const MERCHANTS: readonly MerchantDef[] = [
   {
     id: 'blue',
     color: COLORS.merchantBlue,
-    enabled: true,
-    firstRound: 2,
+    appears: { by: 'round', round: 2 },
     items: [
       { id: 'max_ammo', price: 750 },
       { id: 'round_boost', price: 1000 },
     ],
   },
-  // Red and gold are defined but off: they will get their own rule to appear.
+  // Red comes out of the garden pool when the heart and the wand are thrown in (spec 05 §6).
   {
     id: 'red',
     color: COLORS.red,
-    enabled: false,
-    firstRound: 2,
+    appears: { by: 'activation', id: 'summon_red_merchant' },
     items: [{ id: 'weapon_level', price: 3000 }],
     maxPurchasesPerVisit: 1,
   },
   {
+    // No rule yet: only from the debug panel.
     id: 'gold',
     color: COLORS.amber,
-    enabled: false,
-    firstRound: 2,
     items: [{ id: 'weapon_special', price: 10000 }],
   },
 ];

@@ -6,7 +6,8 @@
  * Spanish; an empty list means the map is valid.
  */
 import { BLOCK_PLAYER, buildCollisionGrid } from '../../src/game/map/CollisionGrid';
-import { parseMap, type MapData } from '../../src/game/map/MapLoader';
+import { ACTIVATIONS } from '../../src/config/activations';
+import { parseMap, TILE_WATER, type MapData } from '../../src/game/map/MapLoader';
 import type { TiledMap, TiledSourceMap } from '../../src/game/map/tiled';
 
 export const MAP_RULES = {
@@ -216,6 +217,12 @@ export function validateMap(raw: TiledSourceMap | TiledMap): MapValidation {
   validateMerchantSpots(map, free, inOpenSquare, errors);
   validateWeaponCases(map, free, inOpenSquare, errors);
   validateItemSpots(map, free, (x, y) => seen[y * map.width + x] === 1, errors);
+  // Every activation needs its place on the map (spec 05 §6).
+  for (const a of ACTIVATIONS) {
+    const site = map.activationSites.find((s) => s.id === a.site);
+    if (!site) errors.push(`la activación ${a.id} necesita un activation_site "${a.site}" en el mapa`);
+    else if (site.width <= 0 || site.height <= 0) errors.push(`el activation_site ${site.id} no tiene superficie`);
+  }
   return { errors, map };
 }
 
@@ -317,7 +324,9 @@ const SIDES = [
 /**
  * Merchant spots (spec 03 §1): 1 or 2 per zone, each against a wall or in a
  * corner, farther than 3 tiles from barricades, doors, portals and spawns,
- * and never narrowing a pass under 2 tiles (the merchant is solid).
+ * and never narrowing a pass under 2 tiles (the merchant is solid). The edge
+ * of the water counts as a wall: the red merchant comes out of the pool and
+ * stands right by it (spec 05 §6).
  */
 function validateMerchantSpots(
   map: MapData,
@@ -351,8 +360,13 @@ function validateMerchantSpots(
       errors.push(`${who} está en una casilla bloqueada (${tx},${ty})`);
       return;
     }
-    const wall = (x: number, y: number): boolean => x >= 0 && y >= 0 && x < map.width && y < map.height && (map.walls[y * map.width + x] ?? 0) !== 0;
-    if (!SIDES.some(([dx, dy]) => wall(tx + dx, ty + dy))) errors.push(`${who} no está pegado a una pared (${tx},${ty})`);
+    const wall = (x: number, y: number): boolean =>
+      x >= 0 &&
+      y >= 0 &&
+      x < map.width &&
+      y < map.height &&
+      ((map.walls[y * map.width + x] ?? 0) !== 0 || ((map.gidFlags[map.floor[y * map.width + x] ?? 0] ?? 0) & TILE_WATER) !== 0);
+    if (!SIDES.some(([dx, dy]) => wall(tx + dx, ty + dy))) errors.push(`${who} no está pegado a una pared ni al agua (${tx},${ty})`);
     for (const k of keepAway) {
       const d = Math.min(...k.points.map((p) => Math.hypot(p.x - spot.x, p.y - spot.y))) / ts;
       if (d <= R.minMerchantClearanceTiles) errors.push(`${who} está a ${d.toFixed(1)} tiles de ${k.what}; debe estar a más de ${R.minMerchantClearanceTiles}`);

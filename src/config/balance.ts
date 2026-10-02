@@ -356,6 +356,12 @@ export const ITEMS = {
   cantUseTime: 1.2,
   /** Period of the glow pulsing under an item on the floor (s). */
   glowPeriod: 1.2,
+  /** An item thrown at an activation site flies in an arc and lands with a splash (s). */
+  throwTime: 0.4,
+  /** When an activation completes, its place reacts (the pool boils red) for this long (s). */
+  activationBurstTime: 1.5,
+  /** "EL MAGO ROJO HA SIDO INVOCADO" on the HUD (s). */
+  summonNoticeTime: 2.5,
 } as const;
 
 export const DEBUG = {

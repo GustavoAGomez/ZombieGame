@@ -1,6 +1,7 @@
 import type { BoostKind, PickupKind, ZombieKind } from '../config/balance';
 import type { WeaponId } from '../config/weapons';
 import type { MerchantId, MerchantItemId } from '../config/merchants';
+import type { ActivationEffect, ActivationId } from '../config/activations';
 import type { ItemId } from '../config/items';
 import type { ShopItemStatus } from './shop';
 
@@ -78,6 +79,14 @@ export interface GameEvents {
   'items:inventory': { items: ItemId[] };
   /** An item tapped where it does nothing (spec 05 §5): "AQUÍ NO SE USA", the slot shakes, light vibration. */
   'item:cantUse': { playerId: number; slot: number };
+  /**
+   * An item thrown at an activation site (spec 05 §6): it flies in an arc
+   * from the player to the site's nearest point, from simulated time `time`
+   * (s), and lands with a splash ITEMS.throwTime later.
+   */
+  'item:thrown': { playerId: number; item: ItemId; activation: ActivationId; fromX: number; fromY: number; toX: number; toY: number; time: number };
+  /** An activation got its last item, which has landed: its effect has happened. Strong vibration. */
+  'activation:completed': { playerId: number; activation: ActivationId; effect: ActivationEffect };
   'round:changed': { round: number };
   /** A merchant appeared (`first`) or teleported to another spot at the start of a round (spec 03 §2). */
   'merchant:moved': { merchant: MerchantId; first: boolean };

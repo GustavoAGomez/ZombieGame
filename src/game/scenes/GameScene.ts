@@ -22,6 +22,8 @@ import { PlayerBloodStains } from '../entities/PlayerBlood';
 import { MuzzleFlash } from '../entities/MuzzleFlash';
 import { PickupViewPool } from '../entities/Pickup';
 import { GroundItemViews } from '../entities/GroundItem';
+import { ThrownItemViews } from '../entities/ThrownItem';
+import { ActivationSiteViews } from '../entities/ActivationSite';
 import { PlayerView } from '../entities/Player';
 import { WorldTextPool } from '../entities/WorldText';
 import { CantUseText } from '../entities/CantUseText';
@@ -85,6 +87,8 @@ export class GameScene extends Phaser.Scene {
   private weaponCases!: WeaponCaseViews;
   private pickupViews!: PickupViewPool;
   private groundItemViews!: GroundItemViews;
+  private thrownItems!: ThrownItemViews;
+  private activationSites!: ActivationSiteViews;
   private merchantViews!: MerchantViewPool;
   private offscreenArrows!: OffscreenArrows;
   /** The HUD's safe-area margins, for the off-screen arrows (measured on resize). */
@@ -134,6 +138,7 @@ export class GameScene extends Phaser.Scene {
     };
     this.fixedStep.reset();
     this.paused = false;
+    hudRoot.classList.remove('is-paused');
     this.overFor = 0;
     this.overShown = false;
     this.shownTeleports = 0;
@@ -153,6 +158,7 @@ export class GameScene extends Phaser.Scene {
     this.bloodSpray = new BloodSprayPool(this, events, this.isDark);
     this.pickupViews = new PickupViewPool(this, this.state.pickups.length);
     this.groundItemViews = new GroundItemViews(this, this.state.groundItems);
+    this.activationSites = new ActivationSiteViews(this, this.map);
     this.zombieViews = new ZombieViewPool(this, manifest, this.state.zombies.length);
     this.burnFlames = new BurnFlames(this, this.state.zombies.length);
     this.weaponCases = new WeaponCaseViews(this, this.map);
@@ -167,6 +173,7 @@ export class GameScene extends Phaser.Scene {
     this.meleeSlash = new MeleeSlash(this, playerDef, manifest.objects[ASSET_KEYS.meleeSlash]);
     this.worldTexts = new WorldTextPool(this, events);
     this.cantUseText = new CantUseText(this, events);
+    this.thrownItems = new ThrownItemViews(this, events);
     this.debugDraw = new DebugDraw(this);
     this.services.debugActions = this.createDebugActions();
     this.syncViews(0);
@@ -186,6 +193,7 @@ export class GameScene extends Phaser.Scene {
       this.hud.destroy();
       this.worldTexts.destroy();
       this.cantUseText.destroy();
+      this.thrownItems.destroy();
       this.bloodSpray.destroy();
       this.playerStains.destroy();
       this.pauseMenu.destroy();
@@ -221,6 +229,8 @@ export class GameScene extends Phaser.Scene {
     this.paused = paused;
     this.pauseMenu[paused ? 'show' : 'hide']();
     this.pauseButton.visible = !paused;
+    // The HUD's notices freeze too (hud.css).
+    this.services.hudRoot.classList.toggle('is-paused', paused);
     if (paused) {
       // A finger held on a control would otherwise stay pressed after resuming.
       this.controls.resetAll();
@@ -288,6 +298,8 @@ export class GameScene extends Phaser.Scene {
     this.bloodViews.sync(this.state.blood);
     this.pickupViews.sync(this.state.pickups, this.state.time);
     this.groundItemViews.sync(this.state.groundItems, this.state.time);
+    this.activationSites.sync(this.state);
+    this.thrownItems.sync(this.state.time);
     this.zombieViews.sync(this.state.zombies, alpha, now, this.isDark);
     this.merchantViews.sync(this.state.merchants, this.state.players, this.state.tick, this.state.time);
     this.weaponCases.sync(this.state, player);
@@ -305,7 +317,8 @@ export class GameScene extends Phaser.Scene {
     }
     this.bulletViews.sync(this.state.bullets, this.state.players, alpha);
     this.worldTexts.sync(now);
-    this.cantUseText.sync(this.state.players[0] ? this.playerView.sprite : undefined, now);
+    // On simulated time: the pause freezes it.
+    this.cantUseText.sync(this.state.players[0] ? this.playerView.sprite : undefined, this.state.time * 1000);
   }
 
   /** Debug panel buttons (spec 01 §8). They change the state directly: they are tools, not gameplay. */

@@ -134,6 +134,8 @@ describe('red and gold merchants', () => {
     const ctx = withSmg(createTestContext());
     const m = ctx.state.merchants[index]!;
     m.enabled = true;
+    // This round's visit, as the debug button and the summoning do: it teleports from the next round.
+    m.round = ctx.state.wave.round;
     moveMerchant(ctx, index);
     const p = player(ctx);
     p.x = p.prevX = m.x + 20;

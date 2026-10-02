@@ -203,6 +203,17 @@ export function renderMap(mapPath: string): { image: Frame; map: MapData } {
       rect(image, Math.round(m.x) - half, Math.round(m.y) + i, half * 2 + 1, 1, [58, 111, 216]);
     }
   }
+  // Activation sites: a dashed violet frame (spec 05 §6).
+  for (const a of map.activationSites) {
+    for (let x = Math.round(a.x); x < a.x + a.width; x += 6) {
+      rect(image, x, Math.round(a.y), 3, 2, [190, 90, 235]);
+      rect(image, x, Math.round(a.y + a.height) - 2, 3, 2, [190, 90, 235]);
+    }
+    for (let y = Math.round(a.y); y < a.y + a.height; y += 6) {
+      rect(image, Math.round(a.x), y, 2, 3, [190, 90, 235]);
+      rect(image, Math.round(a.x + a.width) - 2, y, 2, 3, [190, 90, 235]);
+    }
+  }
   // Item spots: a violet four-pointed star with a dark outline (spec 05 §2).
   for (const s of map.itemSpots) {
     const cx = Math.round(s.x);

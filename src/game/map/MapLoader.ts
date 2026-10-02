@@ -238,6 +238,17 @@ export interface MapItemSpot {
   zoneIndex: number;
 }
 
+/** A place where special items are used (spec 05 §6): a rectangle in world px, named for activations.ts. */
+export interface MapActivationSite {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  zone: string;
+  zoneIndex: number;
+}
+
 export interface MapData {
   /** Size in tiles. */
   width: number;
@@ -274,6 +285,7 @@ export interface MapData {
   zoneMerchantSpots: number[][];
   weaponCases: MapWeaponCase[];
   itemSpots: MapItemSpot[];
+  activationSites: MapActivationSite[];
   /** Number of portal pairs (length of GameState.portalsOpen). */
   portalLinks: number;
   /** Portal end per cell (row-major), -1 where there is none. */
@@ -527,6 +539,7 @@ export function parseMap(json: unknown): MapData {
   const rawMerchantSpots: TiledObject[] = [];
   const rawWeaponCases: TiledObject[] = [];
   const rawItemSpots: TiledObject[] = [];
+  const rawActivationSites: TiledObject[] = [];
   let playerSpawn: Vec2 | undefined;
 
   for (const obj of objects) {
@@ -560,6 +573,9 @@ export function parseMap(json: unknown): MapData {
         break;
       case 'item_spot':
         rawItemSpots.push(obj);
+        break;
+      case 'activation_site':
+        rawActivationSites.push(obj);
         break;
       default:
         // Unknown objects are ignored so designers can annotate maps freely.
@@ -692,6 +708,13 @@ export function parseMap(json: unknown): MapData {
     if (zoneIndex < 0) fail(`item_spot ${obj.id} references unknown zone "${zone}"`);
     return { x: obj.x, y: obj.y, zone, zoneIndex };
   });
+  const activationSites: MapActivationSite[] = rawActivationSites.map((obj) => {
+    const id = stringProp(obj, 'id');
+    const zone = stringProp(obj, 'zone');
+    const zoneIndex = zones.findIndex((z) => z.id === zone);
+    if (zoneIndex < 0) fail(`activation_site ${id} references unknown zone "${zone}"`);
+    return { id, x: obj.x, y: obj.y, width: obj.width ?? 0, height: obj.height ?? 0, zone, zoneIndex };
+  });
 
   const portals = parsePortals(rawPortals, zones, tileSize);
   const cellPortal = new Int16Array(size).fill(-1);
@@ -728,6 +751,7 @@ export function parseMap(json: unknown): MapData {
     zoneMerchantSpots,
     weaponCases,
     itemSpots,
+    activationSites,
     portalLinks: portals.reduce((n, p) => Math.max(n, p.link + 1), 0),
     cellPortal,
     playerSpawn,

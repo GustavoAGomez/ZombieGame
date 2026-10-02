@@ -130,6 +130,7 @@ export class Hud {
       events.on('merchant:moved', this.onMerchantMoved),
       events.on('boost:activated', this.onBoostActivated),
       events.on('item:picked', this.onItemPicked),
+      events.on('activation:completed', this.onActivationCompleted),
     );
   }
 
@@ -204,6 +205,13 @@ export class Hud {
   /** A special item picked up: its name for a moment (spec 05 §3). */
   private readonly onItemPicked = (e: GameEvents['item:picked']): void => {
     if (e.playerId === this.localPlayerId) this.showNotice(STRINGS.items.names[e.item], 'var(--bone)', ITEMS.pickupNoticeTime);
+  };
+
+  /** An activation done (spec 05 §6): for everyone, in the summoned merchant's colour. */
+  private readonly onActivationCompleted = (e: GameEvents['activation:completed']): void => {
+    if (e.effect.kind !== 'summon_merchant') return;
+    const merchant = e.effect.merchant;
+    this.showNotice(STRINGS.merchants.summoned(STRINGS.merchants.names[merchant]), merchantDef(merchant).color, ITEMS.summonNoticeTime);
   };
 
   private showNotice(text: string, color: string, seconds: number = MERCHANT.movedNoticeTime): void {

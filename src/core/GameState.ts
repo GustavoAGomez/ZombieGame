@@ -1,5 +1,6 @@
 import { BOOSTS, BULLETS, LOADOUT, PICKUPS, PLAYER, POINTS, WAVES, ZOMBIES, type BoostKind, type PickupKind, type ZombieKind } from '../config/balance';
 import { WEAPON_SPECIALS, WEAPONS, type WeaponId } from '../config/weapons';
+import { ACTIVATIONS } from '../config/activations';
 import { MERCHANTS, type MerchantId } from '../config/merchants';
 import { STARTING_ITEMS, type ItemId } from '../config/items';
 import type { MapData } from '../game/map/MapLoader';
@@ -123,6 +124,24 @@ export interface PlayerState {
   portalLock: number;
   /** Times this player went through a portal (views snap the camera when it changes). */
   teleports: number;
+}
+
+/**
+ * An activation of activations.ts (spec 05 §6): what its place has received
+ * so far. It belongs to the match, not to a player: the items can be thrown
+ * at different moments, by anyone.
+ */
+export interface ActivationState {
+  /** Items received, in the order they were thrown. */
+  received: ItemId[];
+  /** Tick each of them lands (a throw takes ITEMS.throwTime). */
+  landsAt: number[];
+  /** Player who threw each of them. */
+  thrownBy: number[];
+  /** Complete: its effect has happened and it takes nothing more. */
+  done: boolean;
+  /** Tick it was completed, -1 before. */
+  doneTick: number;
 }
 
 /** A special item lying on the map (spec 05 §2–3) until someone picks it up. */
@@ -310,6 +329,8 @@ export interface GameState extends RngState {
   merchants: MerchantState[];
   /** Special items placed on the map this match (spec 05 §2): one entry each, kept once picked up (inactive). */
   groundItems: GroundItemState[];
+  /** Parallel to ACTIVATIONS (spec 05 §6). */
+  activations: ActivationState[];
   wave: WaveState;
   /** Parallel to MapData.doors. */
   doorsOpen: boolean[];
@@ -483,13 +504,14 @@ export function createGameState(map: MapData, options: GameOptions = {}): GameSt
     zombies: Array.from({ length: ZOMBIES.poolSize }, createZombie),
     blood: Array.from({ length: ZOMBIES.maxBloodDecals }, createBlood),
     pickups: Array.from({ length: PICKUPS.poolSize }, createPickup),
-    merchants: MERCHANTS.map((m) => createMerchant(m.id, m.enabled, players.length)),
+    merchants: MERCHANTS.map((m) => createMerchant(m.id, m.appears?.by === 'round', players.length)),
     wave: { round, phase: 'active', toSpawn, spawnTimer: WAVES.bannerDuration, restTimer: 0, auto: waveFlow },
     doorsOpen: map.doors.map(() => false),
     portalsOpen: Array.from({ length: map.portalLinks }, () => false),
     windowPlanks: map.windows.map((w) => w.planks),
     zonesUnlocked: map.zones.map((z) => z.startsUnlocked),
     groundItems: [],
+    activations: ACTIVATIONS.map(() => ({ received: [], landsAt: [], thrownBy: [], done: false, doneTick: -1 })),
   };
   // Drawn with the match's RNG as the match starts (spec 05 §2).
   state.groundItems = placeMatchItems(state, map);

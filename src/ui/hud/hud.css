@@ -367,3 +367,9 @@
 .hud-reserved {
   min-height: 16px;
 }
+
+/* Behind the pause menu the notices freeze with the match (spec 05 §7). */
+.is-paused .hud-notice,
+.is-paused .hud-banner {
+  animation-play-state: paused;
+}
