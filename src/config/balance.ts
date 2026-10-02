@@ -227,7 +227,10 @@ export const BARRICADES = {
 export const POINTS = {
   /** Money at the start of a match; points start at 0. */
   startMoney: 500,
-  hit: 10,
+  /** Per bullet that hits (each shotgun pellet counts). */
+  hit: 5,
+  /** Per knife hit. */
+  meleeHit: 10,
   kill: 50,
   floatingTextMs: 600,
 } as const;

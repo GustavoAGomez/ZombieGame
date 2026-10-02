@@ -2,6 +2,7 @@ import { NAVIGATION, PLAYER, ZOMBIES } from '../../config/balance';
 import type { PlayerState, ZombieAi, ZombieState } from '../../core/GameState';
 import { BLOCK_ZOMBIE, moveCircle, resolveCircle, segmentClear } from '../map/CollisionGrid';
 import { UNREACHABLE, computeFlowField, distanceAt, flowDirection, flowNextCell, sourcesChanged } from '../map/FlowField';
+import type { MapWindow } from '../map/MapLoader';
 import { isZombieAlive } from './Combat';
 import { damagePlayer, isPlayerAlive } from './HealthSystem';
 import type { SimContext } from './SimContext';
@@ -10,8 +11,14 @@ import { isDashing } from './SpecialSystem';
 /**
  * Zombie behaviour (spec 01 §4.4–4.5):
  *   toWindow  walk straight to the window's near side (the exterior point
- *             from a spawn, or whichever side the zombie is on)
- *   tearing   pull one plank every tearTime seconds while any are left
+ *             from a spawn, or whichever side the zombie is on); within
+ *             windowArriveRadius of it, straight up to the planks, keeping
+ *             its place along them so several can line up
+ *   tearing   pull one plank every tearTime seconds while any are left;
+ *             standing still against the planks: no zombie pushes it, and
+ *             it is never pushed out of a player's way (the player is
+ *             pushed out instead, MovementSystem), so it never swings while
+ *             sliding
  *   climbing  0.8 s to the far side; cannot move or be pushed
  *   emerging  0.6 s rising at an open spawn; can be shot, does not move (spec 02 §3.4)
  *   chasing   follow the flow field (straight line when close and visible)
@@ -38,6 +45,7 @@ import { isDashing } from './SpecialSystem';
 
 const sourceCells: number[] = [];
 const scratchDir = { x: 0, y: 0 };
+const scratchSpot = { x: 0, y: 0 };
 
 export function updateZombies(ctx: SimContext, dt: number): void {
   refreshFlowField(ctx, dt);
@@ -129,18 +137,39 @@ function updateToWindow(ctx: SimContext, z: ZombieState, dt: number): void {
   const w = ctx.map.windows[z.window];
   if (!w) return setState(ctx, z, 'chasing');
   const entry = z.crossOut ? w.interior : w.exterior;
-  const dx = entry.x - z.x;
-  const dy = entry.y - z.y;
+  // Close to the window: up to the planks, at its own place along them.
+  const target = Math.hypot(entry.x - z.x, entry.y - z.y) <= ZOMBIES.windowArriveRadius ? plankSpot(w, entry, z) : entry;
+  const dx = target.x - z.x;
+  const dy = target.y - z.y;
   const dist = Math.hypot(dx, dy);
-  if (dist <= ZOMBIES.windowArriveRadius) {
-    if ((ctx.state.windowPlanks[z.window] ?? 0) > 0) setState(ctx, z, 'tearing', ZOMBIES.kinds[z.kind].tearTime);
-    else startClimb(ctx, z);
+  const step = speedOf(z) * dt;
+  if (dist <= step) {
+    z.x = target.x;
+    z.y = target.y;
+    if ((ctx.state.windowPlanks[z.window] ?? 0) > 0) {
+      setState(ctx, z, 'tearing', ZOMBIES.kinds[z.kind].tearTime);
+      // A new run of swings: the first one plays even right after another strike.
+      z.actionTick = ctx.state.tick;
+    } else startClimb(ctx, z);
     return;
   }
-  const step = Math.min(dist, speedOf(z) * dt);
   z.x += (dx / dist) * step;
   z.y += (dy / dist) * step;
   z.facing = Math.atan2(dy, dx);
+}
+
+/**
+ * Where a zombie stands to tear window `w`: on the line through its entry
+ * point along the planks, at the zombie's own offset along them (up to
+ * windowArriveRadius), so two can stand side by side.
+ */
+function plankSpot(w: MapWindow, entry: { x: number; y: number }, z: ZombieState): { x: number; y: number } {
+  const alongX = -w.outward.y;
+  const alongY = w.outward.x;
+  const offset = Math.max(-ZOMBIES.windowArriveRadius, Math.min(ZOMBIES.windowArriveRadius, (z.x - entry.x) * alongX + (z.y - entry.y) * alongY));
+  scratchSpot.x = entry.x + alongX * offset;
+  scratchSpot.y = entry.y + alongY * offset;
+  return scratchSpot;
 }
 
 function updateTearing(ctx: SimContext, z: ZombieState, dt: number): void {
@@ -353,6 +382,11 @@ export function pushable(z: ZombieState): boolean {
   return isZombieAlive(z) && z.ai !== 'climbing';
 }
 
+/** Tearing planks: it pushes the crowd away but nothing moves it, so it only swings standing still. */
+function anchored(z: ZombieState): boolean {
+  return z.ai === 'tearing';
+}
+
 /**
  * Going to a window and tearing it ignore the map (the way from a spawn can
  * cross the void outside a grating): pushing those zombies out of blocked
@@ -387,11 +421,16 @@ function separateZombies(ctx: SimContext): void {
         dx /= dist;
         dy /= dist;
       }
-      const push = ((minDist - Math.min(dist, minDist)) / 2) * ZOMBIES.separationStrength;
-      a.x -= dx * push;
-      a.y -= dy * push;
-      b.x += dx * push;
-      b.y += dy * push;
+      // Each takes half the push; next to one tearing planks, the other takes all of it.
+      const aFixed = anchored(a);
+      const bFixed = anchored(b);
+      if (aFixed && bFixed) continue;
+      const push = (minDist - Math.min(dist, minDist)) * ZOMBIES.separationStrength;
+      const aShare = aFixed ? 0 : bFixed ? 1 : 0.5;
+      a.x -= dx * push * aShare;
+      a.y -= dy * push * aShare;
+      b.x += dx * push * (1 - aShare);
+      b.y += dy * push * (1 - aShare);
     }
   }
   for (let i = 0; i < zombies.length; i++) {
@@ -411,7 +450,7 @@ function pushZombiesOutOfPlayers(ctx: SimContext): void {
   for (const p of ctx.state.players) {
     if (!isPlayerAlive(p) || isDashing(p)) continue;
     for (const z of ctx.state.zombies) {
-      if (!pushable(z)) continue;
+      if (!pushable(z) || anchored(z)) continue;
       const dx = z.x - p.x;
       const dy = z.y - p.y;
       const distSq = dx * dx + dy * dy;

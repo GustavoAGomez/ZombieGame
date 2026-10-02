@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { ZOMBIES } from '../../config/balance';
 import type { ZombieState } from '../../core/GameState';
 import { createTestContext } from '../../test/fixtures';
-import { isStrike, swingId, zombiePose, type ZombieArt } from './zombieAnimation';
+import { isStrike, letsStrikeFinish, swingId, zombiePose, type ZombieArt } from './zombieAnimation';
 
 const FULL: ZombieArt = { climb: true, crawl: true, crawlAttack: true, death: true };
 const NONE: ZombieArt = { climb: false, crawl: false, crawlAttack: false, death: false };
@@ -60,5 +60,15 @@ describe('swingId', () => {
     expect(isStrike('attack')).toBe(true);
     expect(isStrike('crawl_attack')).toBe(true);
     expect(isStrike('walk')).toBe(false);
+  });
+});
+
+describe('letsStrikeFinish', () => {
+  it('lets a strike at a player finish while the zombie walks on, never a swing at planks', () => {
+    expect(letsStrikeFinish(zombie({ ai: 'chasing' }), false)).toBe(true);
+    expect(letsStrikeFinish(zombie({ ai: 'toWindow' }), false)).toBe(true);
+    // Left its window mid-swing: it walks at once.
+    expect(letsStrikeFinish(zombie({ ai: 'chasing' }), true)).toBe(false);
+    expect(letsStrikeFinish(zombie({ ai: 'tearing' }), false)).toBe(false);
   });
 });

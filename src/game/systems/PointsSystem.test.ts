@@ -11,7 +11,7 @@ describe('PointsSystem', () => {
     expect(player(createTestContext()).money).toBe(POINTS.startMoney);
   });
 
-  it('gives +10 per bullet hit to the shooter', () => {
+  it('gives +5 per bullet hit to the shooter', () => {
     const ctx = createTestContext();
     const p = player(ctx);
     placeZombie(ctx, 0, p.x + 60, p.y, 1000);
@@ -23,10 +23,10 @@ describe('PointsSystem', () => {
     cmd.fire = false;
     runTicks(ctx, 20, stepSimulation);
     expect(p.money).toBe(POINTS.startMoney + POINTS.hit);
-    expect(gained).toHaveBeenCalledWith({ playerId: 0, amount: 10, reason: 'hit' });
+    expect(gained).toHaveBeenCalledWith({ playerId: 0, amount: 5, reason: 'hit' });
   });
 
-  it('gives +10 for the killing hit and +50 for the kill (60 in total)', () => {
+  it('gives +5 for the killing bullet and +50 for the kill (55 in total)', () => {
     const ctx = createTestContext();
     const p = player(ctx);
     const z = placeZombie(ctx, 0, p.x + 60, p.y, WEAPONS.pistol.damage);
@@ -39,7 +39,7 @@ describe('PointsSystem', () => {
     expect(p.money).toBe(POINTS.startMoney + POINTS.hit + POINTS.kill);
   });
 
-  it('counts melee hits and kills too', () => {
+  it('counts knife hits (+10) and kills too', () => {
     const ctx = createTestContext();
     const p = player(ctx);
     for (const w of p.weapons) {
@@ -49,7 +49,8 @@ describe('PointsSystem', () => {
     placeZombie(ctx, 0, p.x + 18, p.y, MELEE.damage);
     command(ctx).fire = true;
     stepSimulation(ctx, 1 / 60);
-    expect(p.money).toBe(POINTS.startMoney + POINTS.hit + POINTS.kill);
+    expect(POINTS.meleeHit).toBe(10);
+    expect(p.money).toBe(POINTS.startMoney + POINTS.meleeHit + POINTS.kill);
   });
 
   it('gives nothing for damage without an attacker', () => {

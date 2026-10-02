@@ -989,3 +989,28 @@ El usuario pasó un kit más (`art-src/pixellab/hud/botones-2/`) con el hexágon
 - **El aro con engranaje de ese kit no se usa:** no se pidió.
 - **Capturas:** `maps/preview/hud/hud-poligonos.jpg`. Comprobado a 844×390 y a 640×360, sin solapes y sin que unos botones roben toques a otros.
 - **Disparo sin tinte rojo:** el usuario pidió quitar el borde rojo del botón de disparo, así que el aro grande se ve con su propio metal. Ya no se tiñe nada de rojo. Captura: `maps/preview/hud/hud-disparo-sin-tinte.jpg`.
+
+La rama `prueba-hud-pixellab` se unió a `main` (sin commit de merge) y después se borró.
+
+## Arreglos: golpes a los tablones y puntos por bala
+
+### Los zombis solo golpean los tablones pegados a ellos y quietos
+
+Petición del usuario: los zombis empezaban el golpe antes de llegar a los tablones, y a veces golpeaban mientras se movían, como si flotaran. Solo pasaba en las ventanas.
+
+- **Causas:**
+  - un zombi que arrancaba tablones se podía empujar como cualquier otro, y los que llegaban detrás lo desplazaban mientras golpeaba;
+  - empezaba a arrancarlos en cuanto estaba a 12 px (`windowArriveRadius`) del punto de entrada, que podía estar 12 px por delante de los tablones.
+- **Llegar a los tablones:** a menos de 12 px del punto de entrada, el zombi camina recto hasta la línea de los tablones (la recta que pasa por el punto de entrada a lo largo de la ventana). Conserva su posición a lo largo de ellos, hasta ±12 px, para que dos quepan uno al lado del otro. Solo empieza a arrancarlos al llegar a esa línea.
+- **Anclado mientras arranca tablones:** no lo empuja ningún zombi (el otro se lleva todo el empuje) y no se aparta del jugador. Si se solapan, es el jugador el que se aparta, como ya hacía `MovementSystem`. Así nunca se mueve mientras golpea.
+- **Si no hay sitio:** el zombi que llega detrás espera empujando hasta que el primero trepa. Los zombis que trepan no empujan. Se ha comprobado con un test que los dos acaban dentro.
+- **Primer golpe:** al llegar a los tablones se estrena un identificador de golpe (`actionTick`). Antes reutilizaba el del golpe anterior (o −1 recién salido del spawn), y la vista no animaba el primer tablón.
+- **Vista:** un golpe a un jugador sigue terminando aunque el zombi eche a andar; uno a los tablones, no. Si deja la ventana a medio golpe, camina al momento en vez de deslizarse con el brazo fuera (`letsStrikeFinish`).
+
+### 5 puntos por bala acertada
+
+Petición del usuario: cada bala que acierta da 5 de puntos y dinero, en vez de 10 (`POINTS.hit`). Cada perdigón de la escopeta cuenta como una bala.
+
+- El cuchillo sigue dando 10 (`POINTS.meleeHit`): el usuario solo habló de balas.
+- Las bajas (+50) y los tablones reparados (+10) no cambian.
+- `damageZombie` recibe ahora los puntos del impacto en lugar de un sí o no: los del arma por defecto, los del cuchillo o 0 para el fuego.

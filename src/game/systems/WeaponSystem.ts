@@ -1,4 +1,4 @@
-import { LOADOUT, MELEE, PLAYER } from '../../config/balance';
+import { LOADOUT, MELEE, PLAYER, POINTS } from '../../config/balance';
 import { WEAPON_SPECIALS, WEAPONS } from '../../config/weapons';
 import type { BulletState, GameState, PlayerState, WeaponSlotState } from '../../core/GameState';
 import type { InputCommand } from '../../core/InputCommand';
@@ -267,7 +267,7 @@ function handleMelee(ctx: SimContext, p: PlayerState, turn: boolean): void {
   p.meleeTimer = MELEE.swingTime;
   p.meleeTick = ctx.state.tick;
   p.facing = p.meleeAngle;
-  if (z) damageZombie(ctx, z, MELEE.damage * damageFactor(p), p.id, bodyHitPoint(z, dirX, dirY));
+  if (z) damageZombie(ctx, z, MELEE.damage * damageFactor(p), p.id, bodyHitPoint(z, dirX, dirY), POINTS.meleeHit);
 }
 
 /** 0..1 progress of the current reload, or null when not reloading. */

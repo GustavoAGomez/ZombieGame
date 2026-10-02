@@ -58,7 +58,7 @@ export function updateBurns(ctx: SimContext, dt: number): void {
     while (b.tickTimer <= EPS && b.timer >= -EPS) {
       b.tickTimer += BURN.fireTickInterval;
       // No blood and no hit points: only the kill counts.
-      if (damageZombie(ctx, z, b.perTick, b.owner, undefined, false)) break;
+      if (damageZombie(ctx, z, b.perTick, b.owner, undefined, 0)) break;
     }
     if (b.timer <= EPS || !isZombieAlive(z)) {
       b.timer = 0;

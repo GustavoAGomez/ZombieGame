@@ -61,3 +61,13 @@ export function swingId(z: ZombieState): number | null {
 export function isStrike(animation: string): boolean {
   return animation === 'attack' || animation === 'crawl_attack';
 }
+
+/**
+ * Whether a strike still playing finishes while the zombie walks or crawls
+ * on: yes after hitting at a player, never after a swing at planks. A zombie
+ * that leaves its window mid-swing walks at once instead of sliding along
+ * with its claw out.
+ */
+export function letsStrikeFinish(z: ZombieState, swingAtPlanks: boolean): boolean {
+  return !swingAtPlanks && (z.ai === 'chasing' || z.ai === 'toWindow');
+}

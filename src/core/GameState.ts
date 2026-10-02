@@ -188,7 +188,7 @@ export interface ZombieState {
   fromY: number;
   /** Tick when the current state started. */
   stateTick: number;
-  /** Tick of the last tear or strike (views restart the attack animation). */
+  /** Tick of the last tear or strike, or of reaching the planks (views start a swing when it changes). */
   actionTick: number;
   /** Portal end just arrived at, as for players. -1 = none. */
   portalLock: number;

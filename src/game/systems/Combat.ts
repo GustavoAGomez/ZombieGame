@@ -21,10 +21,9 @@ export interface HitPoint {
 
 /**
  * Applies damage; returns true if this hit killed the zombie. The attacker
- * (a player id, or -1 for none) gets +10 for the hit and +50 for the kill,
- * so the killing blow is worth 60 like in BO1. With `hit`, blood sprays
- * from there (zombie:hit). `hitPoints: false` (fire ticks) gives no points
- * for the hit, only for the kill.
+ * (a player id, or -1 for none) gets `hitPoints` for the hit (a bullet's
+ * POINTS.hit by default; the knife's POINTS.meleeHit; 0 for fire ticks) and
+ * POINTS.kill for the kill. With `hit`, blood sprays from there (zombie:hit).
  */
 export function damageZombie(
   ctx: SimContext,
@@ -32,11 +31,11 @@ export function damageZombie(
   amount: number,
   attacker = -1,
   hit?: HitPoint,
-  hitPoints = true,
+  hitPoints: number = POINTS.hit,
 ): boolean {
   if (!isZombieAlive(z)) return false;
   z.hp -= amount;
-  if (attacker >= 0 && hitPoints) awardPoints(ctx, attacker, POINTS.hit, 'hit');
+  if (attacker >= 0 && hitPoints > 0) awardPoints(ctx, attacker, hitPoints, 'hit');
   if (hit) ctx.events.emit('zombie:hit', { x: hit.x, y: hit.y, groundY: z.y, dirX: hit.dirX, dirY: hit.dirY, killed: z.hp <= 0 });
   if (z.hp > 0) return false;
   if (attacker >= 0) awardPoints(ctx, attacker, POINTS.kill, 'kill');

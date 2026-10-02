@@ -56,6 +56,65 @@ describe('ZombieSystem · window cycle', () => {
     expect(z.y).toBeCloseTo(w.interior.y);
   });
 
+  it('walks up to the planks before tearing: on the line through the entry point, at its own place along it', () => {
+    const ctx = createTestContext();
+    const w = ctx.map.windows[0]!;
+    const z = spawnAt(ctx, 0, 'walker');
+    // Coming in off-centre: it keeps that offset along the planks.
+    z.x = z.prevX = z.x + (-w.outward.y) * 8;
+    z.y = z.prevY = z.y + w.outward.x * 8;
+    ticksUntil(ctx, () => z.ai !== 'toWindow', 10);
+    expect(z.ai).toBe('tearing');
+    const depth = (z.x - w.exterior.x) * w.outward.x + (z.y - w.exterior.y) * w.outward.y;
+    const along = (z.x - w.exterior.x) * -w.outward.y + (z.y - w.exterior.y) * w.outward.x;
+    expect(depth).toBeCloseTo(0, 5);
+    expect(Math.abs(along)).toBeGreaterThan(0);
+    expect(Math.abs(along)).toBeLessThanOrEqual(ZOMBIES.windowArriveRadius);
+  });
+
+  it('stands still while tearing: neither the crowd nor the player moves it', () => {
+    const ctx = createTestContext();
+    const z = spawnAt(ctx, 0, 'walker');
+    ticksUntil(ctx, () => z.ai === 'tearing', 10);
+    const at = { x: z.x, y: z.y };
+    // Another zombie right on top of it, and the player pressed against it.
+    const other = placeZombie(ctx, 1, z.x + 2, z.y + 1, 100, 'toWindow');
+    other.window = 0;
+    const p = player(ctx);
+    p.x = p.prevX = z.x - 3;
+    p.y = p.prevY = z.y;
+    for (let t = 0; t < 60 && z.ai === 'tearing'; t++) {
+      stepSimulation(ctx, 1 / 60);
+      expect([z.x, z.y]).toEqual([at.x, at.y]);
+    }
+    // The other zombie took all the push.
+    expect(Math.hypot(other.x - z.x, other.y - z.y)).toBeGreaterThan(2);
+  });
+
+  it('a second zombie lines up beside the one tearing or waits behind it, never on top', () => {
+    const ctx = createTestContext();
+    const a = spawnAt(ctx, 0, 'walker', 0);
+    const b = spawnAt(ctx, 0, 'walker', 1);
+    const minDist = ZOMBIES.hitboxRadius * 2;
+    for (let t = 0; t < 8 * 60 && ctx.state.windowPlanks[0]! > 0; t++) {
+      stepSimulation(ctx, 1 / 60);
+      if (a.ai === 'tearing' && b.ai === 'tearing') expect(Math.hypot(a.x - b.x, a.y - b.y)).toBeGreaterThanOrEqual(minDist);
+    }
+    expect(ctx.state.windowPlanks[0]).toBeLessThan(5);
+    // No one gets stuck: both end up inside.
+    ticksUntil(ctx, () => [a, b].every((z) => z.ai === 'chasing' || z.ai === 'attacking'), 15);
+    expect([a.ai, b.ai].every((ai) => ai === 'chasing' || ai === 'attacking')).toBe(true);
+  });
+
+  it('starts a fresh run of swings on reaching the planks, even right after another strike', () => {
+    const ctx = createTestContext();
+    const z = spawnAt(ctx, 0, 'walker');
+    z.actionTick = 3; // a strike earlier on
+    ticksUntil(ctx, () => z.ai === 'tearing', 10);
+    expect(z.actionTick).toBe(z.stateTick);
+    expect(z.actionTick).not.toBe(3);
+  });
+
   it('runners tear a plank every 1.0 s', () => {
     const ctx = createTestContext();
     const z = spawnAt(ctx, 1, 'runner');

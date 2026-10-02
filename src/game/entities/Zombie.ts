@@ -5,7 +5,7 @@ import type { ZombieState } from '../../core/GameState';
 import { dir8FromAngle, lerp } from '../../core/math';
 import { ASSET_KEYS, animationKey, characterTextureKey, isAnimationPlaceholder, type Manifest } from '../assets/manifest';
 import { actorDepth, overFogDepth } from '../depth';
-import { isLegless, isStrike, swingId, zombiePose, type ZombieArt, type ZombieAnimation, type ZombiePose } from './zombieAnimation';
+import { isLegless, isStrike, letsStrikeFinish, swingId, zombiePose, type ZombieArt, type ZombieAnimation, type ZombiePose } from './zombieAnimation';
 
 const CHARACTER_BY_KIND: Record<ZombieKind, string> = {
   walker: ASSET_KEYS.zombieWalker,
@@ -37,6 +37,8 @@ interface Slot {
   animation: ZombieAnimation | '';
   /** swingId of the last strike started. */
   swing: number;
+  /** That strike was at a window's planks (it never finishes while walking away). */
+  swingAtPlanks: boolean;
   lastHp: number;
   flashUntil: number;
   /** Tearing planks or climbing in (the death animation keeps what it had). */
@@ -77,6 +79,7 @@ export class ZombieViewPool {
       anim: '',
       animation: '',
       swing: -1,
+      swingAtPlanks: false,
       lastHp: 0,
       flashUntil: 0,
       atWindow: false,
@@ -99,6 +102,7 @@ export class ZombieViewPool {
         slot.anim = '';
         slot.animation = '';
         slot.swing = -1;
+        slot.swingAtPlanks = false;
         slot.atWindow = false;
         slot.visibility = 0;
         continue;
@@ -158,9 +162,12 @@ export class ZombieViewPool {
     const anims = sprite.anims;
     const swing = swingId(z);
     const newSwing = swing !== null && swing !== slot.swing && isStrike(pose.animation);
-    if (newSwing) slot.swing = swing;
-    // A strike plays to the end even if the zombie walks on right after landing it.
-    const finishingStrike = isStrike(slot.animation) && anims.isPlaying && (z.ai === 'chasing' || z.ai === 'toWindow');
+    if (newSwing) {
+      slot.swing = swing;
+      slot.swingAtPlanks = z.ai === 'tearing';
+    }
+    // A strike at a player plays to the end even if the zombie walks on right after landing it.
+    const finishingStrike = isStrike(slot.animation) && anims.isPlaying && letsStrikeFinish(z, slot.swingAtPlanks);
     const animation = finishingStrike && !newSwing && slot.animation !== '' ? slot.animation : pose.animation;
     const key = animationKey(character, animation, dir8FromAngle(z.facing));
     if (key !== slot.anim || newSwing) {
