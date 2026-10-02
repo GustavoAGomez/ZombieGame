@@ -29,6 +29,8 @@ export interface DebugActions {
   /** Spec 04 §5: the weapon into a free slot (or in place of the one in hand), full of ammo. */
   giveSmg(): void;
   giveShotgun(): void;
+  /** Spec 06 §5: the special weapons, which only the Demon's Hand gives in a match. */
+  giveKatana(): void;
   /** Spec 05 §8: the heart and the wand into the inventory (off the floor: items are unique). */
   giveItems(): void;
   /** Spec 05 §8: the player next to the wand, while it is still on the floor. */
@@ -93,6 +95,7 @@ export class DebugOverlay {
     button(STRINGS.debug.bigPoints, (a) => a.addManyPoints());
     button(STRINGS.debug.giveSmg, (a) => a.giveSmg());
     button(STRINGS.debug.giveShotgun, (a) => a.giveShotgun());
+    button(STRINGS.debug.giveKatana, (a) => a.giveKatana());
     button(STRINGS.debug.giveItems, (a) => a.giveItems());
     button(STRINGS.debug.goToWand, (a) => a.goToWand());
     button(STRINGS.debug.itemSpots, (a) => a.toggleItemSpots());

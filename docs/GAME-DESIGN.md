@@ -7,10 +7,9 @@ Registro vivo de las **reglas del juego tal como están implementadas**: qué ha
 ## Armas
 
 - **Categorías:**
-  - `basic`: se compran en las vitrinas de armas.
-  - `special`: las armas que lleguen más adelante, con menos niveles de mejora o ninguno.
-
-  Hoy las tres armas son básicas.
+  - `basic`: se compran en las vitrinas de armas. Pistola, SMG y escopeta.
+  - `special`: solo las da la Mano del Demonio (spec 06), nunca una vitrina. No tienen niveles del mago rojo (su tienda dice «NO MEJORABLE»), pero sí mejora especial del mago dorado. Hoy, la katana.
+- **Cómo atacan:** con balas (pistola, SMG, escopeta) o con un barrido cuerpo a cuerpo (katana).
 - **Cada arma tiene sus propias mejoras:** cuántos niveles admite de cada tipo de mejora (munición, cadencia y daño), que vende el mago rojo y que el jugador elige; y, si la tiene, una mejora especial única que vende el mago dorado. Nada supone que haya tres niveles: un arma especial futura podrá admitir menos tipos o menos niveles.
 - **Inventario de armas:** se empieza solo con la pistola y se llevan como mucho **3 armas**, una por hueco de la columna de armas. Tocar un hueco cambia de arma en 0,4 s.
 
@@ -21,6 +20,14 @@ Registro vivo de las **reglas del juego tal como están implementadas**: qué ha
 | Escopeta de caza | 0,9 por perdigón | 1,4 disparos/s | 2 | 24 | 1,8 s | 150 px | 6 perdigones en un cono de 22°; daño completo hasta 60 px y luego baja hasta el 40 %; cada impacto empuja al zombi 3 px |
 
 El daño se cuenta en las mismas unidades que la vida de los zombis: una bala de pistola o de SMG quita 1.
+
+**Katana** (especial):
+- **Barrido:** 4 de daño a cada zombi dentro de un arco de 140° delante del jugador, hasta 34 px del borde de su cuerpo, cada 0,45 s mientras se mantiene pulsado. Empuja 6 px a cada uno.
+- **Sin munición ni recarga:** en el HUD, donde irían los números, sale ∞.
+- **Al pulsar:** el barrido sale sin la espera del primer disparo, y el jugador corre a su velocidad normal mientras ataca.
+- **Dirección:** la del arrastre del botón de disparo. Sin arrastre, hacia el zombi más cercano a su alcance, como el cuchillo.
+- **Bloqueos y puntos:** una pared entre medias protege al zombi (una ventana no). Puntúa como el cuchillo: 10 por cada zombi golpeado.
+- El cuchillo sigue en su botón, sin cambios.
 
 - **Apuntar antes del primer disparo:** al pulsar el botón de disparo, la primera bala espera **0,3 s** (igual en las tres armas, ajustable por arma). Mientras tanto el jugador ya gira hacia donde apunta y se puede corregir arrastrando, por si el dedo cayó descentrado.
   - Manteniendo pulsado, después dispara a la cadencia del arma.

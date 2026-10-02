@@ -87,7 +87,12 @@ export class Hud {
     const nameRow = el('div', 'hud-row hud-weapon__head');
     nameRow.append(this.weaponName, this.marks);
     const ammoRow = el('div', 'hud-row hud-ammo');
-    ammoRow.append(pixelIcon('bullet', 12), this.magazine, reload, this.reserve);
+    // A weapon without ammo (the katana) shows ∞ instead of the bullet and the numbers.
+    const bullet = pixelIcon('bullet', 12);
+    bullet.classList.add('hud-ammo__bullet');
+    const infinite = pixelIcon('infinity', 18);
+    infinite.classList.add('hud-ammo__infinite');
+    ammoRow.append(bullet, infinite, this.magazine, reload, this.reserve);
     this.weaponRow.append(nameRow, ammoRow);
     // An empty row kept for future stats and perks (spec 01 §5).
     left.append(this.healthRow, this.round, this.weaponRow, el('div', 'hud-reserved'));
@@ -252,6 +257,7 @@ export class Hud {
         }),
       );
     }
+    this.weaponRow.classList.toggle('is-infinite', e.ammo === 'none');
     this.magazine.textContent = String(e.magazine);
     this.reserve.textContent = `/ ${e.reserve}`;
     const reloading = e.reloadProgress !== null;

@@ -1,4 +1,4 @@
-import { UPGRADE_KINDS, UPGRADE_LEVELS, WEAPONS, type UpgradeKind, type WeaponDef } from '../../config/weapons';
+import { UPGRADE_KINDS, UPGRADE_LEVELS, WEAPONS, type AmmoKind, type UpgradeKind, type WeaponDef } from '../../config/weapons';
 import type { BulletLook, WeaponSlotState } from '../../core/GameState';
 import type { ShopReason } from '../../core/shop';
 
@@ -12,6 +12,13 @@ import type { ShopReason } from '../../core/shop';
  */
 
 export type UpgradeLevels = Readonly<Record<UpgradeKind, number>>;
+
+/** What `def` spends (spec 06 §1): a melee weapon nothing, a beam its battery, the rest rounds of ammo. */
+export function ammoKind(def: WeaponDef): AmmoKind {
+  if (def.attack === 'melee') return 'none';
+  if (def.attack === 'beam') return 'battery';
+  return 'rounds';
+}
 
 /** Levels a weapon takes of `kind` (0: not upgradable that way). */
 export function maxUpgradeLevel(def: WeaponDef, kind: UpgradeKind): number {

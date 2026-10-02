@@ -1,5 +1,5 @@
 import type { BoostKind, PickupKind, ZombieKind } from '../config/balance';
-import type { UpgradeKind, WeaponId } from '../config/weapons';
+import type { AmmoKind, UpgradeKind, WeaponId } from '../config/weapons';
 import type { MerchantId, MerchantItemId } from '../config/merchants';
 import type { ActivationEffect, ActivationId } from '../config/activations';
 import type { ItemId } from '../config/items';
@@ -38,6 +38,8 @@ export interface GameEvents {
     levels: Record<UpgradeKind, number>;
     maxLevels: Record<UpgradeKind, number>;
     special: boolean;
+    /** What it spends: rounds (magazine and reserve shown), its battery, or nothing (∞, spec 06 §2.2). */
+    ammo: AmmoKind;
     magazine: number;
     /** Magazine size with its ammo level: whether a reload has room. */
     capacity: number;
@@ -47,7 +49,7 @@ export interface GameEvents {
     switching: boolean;
   };
   /** The weapons the player carries (at most LOADOUT.maxWeapons), for the slots at the bottom of the HUD. */
-  'weapons:loadout': { slots: { weapon: WeaponId; magazine: number; reserve: number }[]; active: number };
+  'weapons:loadout': { slots: { weapon: WeaponId; ammo: AmmoKind; magazine: number; reserve: number }[]; active: number };
   'special:cooldown': { remaining: number; total: number };
   /** `points`: everything earned this match (the score); `money`: what is left to spend ($). */
   'points:changed': { points: number; money: number };

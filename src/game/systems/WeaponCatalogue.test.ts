@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { UPGRADE_PRICES } from '../../config/merchants';
-import { UPGRADE_LEVELS, WEAPONS, type WeaponDef } from '../../config/weapons';
+import { BASIC_WEAPON_IDS, UPGRADE_LEVELS, WEAPONS, type WeaponDef } from '../../config/weapons';
 import { createTestContext, player } from '../../test/fixtures';
 import { itemPrice, shopItemStatus } from './ShopSystem';
 import { moveMerchant } from './MerchantSystem';
@@ -39,11 +39,12 @@ describe('weapon catalogue: upgrade levels per kind (spec 04 §1, chosen at the 
     }
   });
 
-  it('every basic weapon takes three levels of each kind', () => {
+  it('every basic weapon takes three levels of each kind; the special ones none (spec 06 §1)', () => {
     for (const def of Object.values(WEAPONS)) {
-      expect(def.category).toBe('basic');
-      for (const kind of ['ammo', 'fire_rate', 'damage'] as const) expect(maxUpgradeLevel(def, kind), `${def.id} ${kind}`).toBe(3);
+      const levels = def.category === 'basic' ? 3 : 0;
+      for (const kind of ['ammo', 'fire_rate', 'damage'] as const) expect(maxUpgradeLevel(def, kind), `${def.id} ${kind}`).toBe(levels);
     }
+    expect(BASIC_WEAPON_IDS).toEqual(['pistol', 'smg', 'shotgun']);
   });
 
   it('a weapon applies only the levels it takes of each kind', () => {

@@ -1,3 +1,4 @@
+import type { WeaponId } from '../config/weapons';
 /** Rooms by zone id, with their gender for «COCINA DESBLOQUEADA» / «GARAJE DESBLOQUEADO». */
 const ZONES: Readonly<Record<string, { name: string; feminine: boolean }>> = {
   recibidor: { name: 'RECIBIDOR', feminine: false },
@@ -36,6 +37,7 @@ export const STRINGS = {
     bigPoints: '+10000$',
     giveSmg: 'DAR SMG',
     giveShotgun: 'DAR ESCOPETA',
+    giveKatana: 'DAR KATANA',
     /** Spec 05 §8. */
     giveItems: 'DAR OBJETOS',
     goToWand: 'IR A LA VARITA',
@@ -53,6 +55,7 @@ export const STRINGS = {
     pistol: 'PISTOLA',
     smg: 'SMG',
     shotgun: 'ESCOPETA',
+    katana: 'KATANA',
   },
   hud: {
     /** Points: everything earned this match (the score). */
@@ -118,11 +121,12 @@ export const STRINGS = {
     upgradeEffect: (kind: 'ammo' | 'fire_rate' | 'damage', factor: number): string =>
       `${{ ammo: 'munición', fire_rate: 'cadencia', damage: 'daño' }[kind]} ×${String(factor).replace('.', ',')}`,
     /** The gold merchant's rows, one per weapon. */
+    /** What each weapon's special does (only the weapons that have one). */
     specials: {
       pistol: 'Pistola: 3 balas en abanico por disparo',
       smg: 'SMG: cada bala atraviesa 3 zombis',
       shotgun: 'Escopeta: los perdigones prenden fuego',
-    },
+    } as Readonly<Partial<Record<WeaponId, string>>>,
     items: {
       max_ammo: { name: 'MUNICIÓN MÁXIMA', description: 'Llena cargadores y reservas' },
       round_boost: { name: 'MEJORA DE LA RONDA', description: 'Una mejora de 10 s, para cuando quieras' },

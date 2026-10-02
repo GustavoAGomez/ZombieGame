@@ -8,7 +8,7 @@ import { repairPointsAvailable } from './systems/BarricadeSystem';
 import { doorTarget } from './systems/DoorSystem';
 import { portalTarget } from './systems/PortalSystem';
 import { isPerWeapon, itemPrice, shopItemStatus, upgradeKindOf } from './systems/ShopSystem';
-import { magazineSize, maxUpgradeLevel, totalLevels } from './systems/weaponStats';
+import { ammoKind, magazineSize, maxUpgradeLevel, totalLevels } from './systems/weaponStats';
 import { caseOffer } from './systems/WeaponCaseSystem';
 import { hasItemRoom } from './systems/ItemSystem';
 import { reloadProgress } from './systems/WeaponSystem';
@@ -213,6 +213,7 @@ export class HudPresenter {
           levels: { ...slot.levels },
           maxLevels: { ammo: maxUpgradeLevel(WEAPONS[slot.id], 'ammo'), fire_rate: maxUpgradeLevel(WEAPONS[slot.id], 'fire_rate'), damage: maxUpgradeLevel(WEAPONS[slot.id], 'damage') },
           special: slot.special,
+          ammo: ammoKind(WEAPONS[slot.id]),
           magazine: slot.magazine,
           capacity: magazineSize(slot),
           reserve: slot.reserve,
@@ -233,7 +234,7 @@ export class HudPresenter {
       this.loadout.length = 0;
       for (const w of p.weapons) this.loadout.push(w.id, w.magazine, w.reserve);
       this.events.emit('weapons:loadout', {
-        slots: p.weapons.map((w) => ({ weapon: w.id, magazine: w.magazine, reserve: w.reserve })),
+        slots: p.weapons.map((w) => ({ weapon: w.id, ammo: ammoKind(WEAPONS[w.id]), magazine: w.magazine, reserve: w.reserve })),
         active: p.activeSlot,
       });
     }

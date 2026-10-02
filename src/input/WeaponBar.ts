@@ -10,6 +10,7 @@ export const WEAPON_ICONS: Readonly<Record<WeaponId, IconName>> = {
   pistol: 'pistol',
   smg: 'rifle',
   shotgun: 'shotgun',
+  katana: 'katana',
 };
 
 /**
@@ -66,9 +67,11 @@ export class WeaponBar {
         button.setIcon(WEAPON_ICONS[slot.weapon], iconSize(WEAPON_ICONS[slot.weapon], 1));
         button.el.setAttribute('aria-label', `${STRINGS.controls.weaponSlot(i + 1)}: ${STRINGS.weapons[slot.weapon]}`);
       }
-      button.setLabel(String(slot.magazine));
+      // A weapon without rounds (the katana) shows no count and is never empty.
+      const rounds = slot.ammo === 'rounds';
+      button.setLabel(rounds ? String(slot.magazine) : '');
       button.el.classList.toggle('is-active', i === active);
-      button.el.classList.toggle('is-empty', slot.magazine === 0 && slot.reserve === 0);
+      button.el.classList.toggle('is-empty', rounds && slot.magazine === 0 && slot.reserve === 0);
     });
   };
 }

@@ -1,8 +1,8 @@
-import { BULLETS, ZOMBIES } from '../../config/balance';
+import { BULLETS } from '../../config/balance';
 import type { BulletState } from '../../core/GameState';
-import { BLOCK_BULLET, BLOCK_ZOMBIE, moveCircle, pointBlocksShaped, segmentHitShaped } from '../map/CollisionGrid';
+import { BLOCK_BULLET, pointBlocksShaped, segmentHitShaped } from '../map/CollisionGrid';
 import { igniteZombie } from './BurnSystem';
-import { damageZombie, isZombieAlive, type HitPoint } from './Combat';
+import { damageZombie, isZombieAlive, knockZombie, type HitPoint } from './Combat';
 import { bodyEntry, hurtboxOf } from './shotGeometry';
 import type { SimContext } from './SimContext';
 
@@ -114,10 +114,7 @@ export function bulletHitsZombie(ctx: SimContext, b: BulletState, index: number,
   const killed = damageZombie(ctx, z, damage, b.owner, hit);
   if (killed) return;
   if (b.burns) igniteZombie(z, damage, b.owner);
-  // A push only for zombies moving freely: never off a window or a climb.
-  if (b.knockback > 0 && (z.ai === 'chasing' || z.ai === 'attacking')) {
-    moveCircle(ctx.grid, z, b.dirX * b.knockback, b.dirY * b.knockback, ZOMBIES.hitboxRadius, BLOCK_ZOMBIE);
-  }
+  knockZombie(ctx, z, b.dirX, b.dirY, b.knockback);
 }
 
 export function activeBulletCount(bullets: readonly BulletState[]): number {

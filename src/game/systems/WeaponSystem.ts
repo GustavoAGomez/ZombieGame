@@ -1,4 +1,4 @@
-import { LOADOUT, MELEE, PLAYER, POINTS } from '../../config/balance';
+import { LOADOUT, MELEE, PLAYER, POINTS, ZOMBIES } from '../../config/balance';
 import { WEAPON_SPECIALS, WEAPONS } from '../../config/weapons';
 import type { BulletState, GameState, PlayerState, WeaponSlotState } from '../../core/GameState';
 import type { InputCommand } from '../../core/InputCommand';
@@ -6,11 +6,11 @@ import { degToRad } from '../../core/math';
 import { randomRange } from '../../core/Rng';
 import { BLOCK_BULLET, segmentClearShaped } from '../map/CollisionGrid';
 import { damageFactor } from './BoostSystem';
-import { bodyHitPoint, damageZombie, findAutoAimTarget, findMeleeTarget, isZombieAlive } from './Combat';
+import { bodyHitPoint, damageZombie, findAutoAimTarget, findMeleeTarget, isZombieAlive, knockZombie } from './Combat';
 import { bodyCentre, bodyEntry, hurtboxOf, muzzleFor, type Hurtbox, type Vec2 } from './shotGeometry';
 import type { SimContext } from './SimContext';
 import { bulletHitsZombie } from './BulletSystem';
-import { bulletDamage, bulletLook, fireRate, magazineSize, reloadTime } from './weaponStats';
+import { ammoKind, bulletDamage, bulletLook, fireRate, magazineSize, reloadTime } from './weaponStats';
 
 const centre: Vec2 = { x: 0, y: 0 };
 /** Closer than this (px from the muzzle to the body centre), auto-aim points from the feet. */
@@ -110,11 +110,17 @@ function updateAim(ctx: SimContext, p: PlayerState, cmd: InputCommand): void {
     p.aimX = cmd.aimX;
     p.aimY = cmd.aimY;
   } else {
-    const slot = p.weapons[p.activeSlot];
-    const range = slot ? WEAPONS[slot.id].range : MELEE.range;
+    const def = p.weapons[p.activeSlot] ? WEAPONS[p.weapons[p.activeSlot]!.id] : undefined;
+    // A melee weapon turns to the nearest zombie in its reach, like the knife: straight at it, no muzzle.
+    const melee = def?.attack === 'melee';
+    const range = def ? def.range + (melee ? ZOMBIES.hitboxRadius : 0) : MELEE.range;
     const target = findAutoAimTarget(ctx, p.x, p.y, range);
     const z = target >= 0 ? ctx.state.zombies[target] : undefined;
-    if (z) aimAtBody(ctx, p, z.x, z.y, hurtboxOf(z));
+    if (z && melee) {
+      const len = Math.hypot(z.x - p.x, z.y - p.y) || 1;
+      p.aimX = (z.x - p.x) / len;
+      p.aimY = (z.y - p.y) / len;
+    } else if (z) aimAtBody(ctx, p, z.x, z.y, hurtboxOf(z));
     else {
       p.aimX = Math.cos(p.facing);
       p.aimY = Math.sin(p.facing);
@@ -147,10 +153,11 @@ export function aimAtBody(ctx: SimContext, p: PlayerState, zx: number, zy: numbe
   p.aimY = ay / len;
 }
 
+/** Something to attack with: rounds left in any weapon, or a weapon that spends none (the katana) or recharges (the laser). */
 export function hasAnyAmmo(p: PlayerState): boolean {
   for (let i = 0; i < p.weapons.length; i++) {
     const w = p.weapons[i];
-    if (w && (w.magazine > 0 || w.reserve > 0)) return true;
+    if (w && (ammoKind(WEAPONS[w.id]) !== 'rounds' || w.magazine > 0 || w.reserve > 0)) return true;
   }
   return false;
 }
@@ -178,8 +185,44 @@ function handleFire(ctx: SimContext, p: PlayerState, held: boolean): void {
   const slot = p.weapons[p.activeSlot];
   if (slot && p.aimTime < WEAPONS[slot.id].firstShotDelay) return;
   p.shotPending = false;
-  if (!slot || p.switchTimer > 0 || p.reloadTimer > 0 || slot.magazine <= 0 || p.fireCooldown > 0) return;
-  shoot(ctx, p, slot);
+  if (!slot || p.switchTimer > 0 || p.reloadTimer > 0 || p.fireCooldown > 0) return;
+  if (WEAPONS[slot.id].attack === 'melee') sweep(ctx, p, slot);
+  else if (slot.magazine > 0) shoot(ctx, p, slot);
+}
+
+/**
+ * A melee weapon's sweep (the katana, spec 06 §2.2): every living zombie
+ * whose hitbox edge is within the weapon's range and inside its arc around
+ * the aim takes its damage (with double damage) and a push away from the
+ * player, and scores like a knife hit. A wall in between protects it, as
+ * from a bullet; a window does not.
+ */
+function sweep(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
+  const { state } = ctx;
+  const def = WEAPONS[slot.id];
+  p.fireCooldown += 1 / fireRate(slot);
+  p.lastAttackTick = state.tick;
+  const minCos = Math.cos(degToRad(def.arc ?? 0) / 2);
+  const damage = bulletDamage(slot) * damageFactor(p);
+  for (let i = 0; i < state.zombies.length; i++) {
+    const z = state.zombies[i];
+    if (!z || !isZombieAlive(z)) continue;
+    const dx = z.x - p.x;
+    const dy = z.y - p.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist - ZOMBIES.hitboxRadius > def.range) continue;
+    const ux = dist > 0 ? dx / dist : p.aimX;
+    const uy = dist > 0 ? dy / dist : p.aimY;
+    if (ux * p.aimX + uy * p.aimY < minCos) continue;
+    if (!segmentClearShaped(ctx.grid, p.x, p.y, z.x, z.y, BLOCK_BULLET)) continue;
+    damageZombie(ctx, z, damage, p.id, bodyHitPoint(z, ux, uy), POINTS.meleeHit);
+    knockZombie(ctx, z, ux, uy, def.knockback ?? 0);
+  }
+  p.meleeAngle = Math.atan2(p.aimY, p.aimX);
+  p.meleeTimer = MELEE.swingTime;
+  p.meleeTick = state.tick;
+  p.meleeWide = true;
+  p.facing = p.meleeAngle;
 }
 
 /**
@@ -198,14 +241,15 @@ function shoot(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
   p.lastShotTick = state.tick;
 
   const aim = Math.atan2(p.aimY, p.aimX);
-  const half = degToRad(stats.spread) / 2;
+  const spread = stats.spread ?? 0;
+  const half = degToRad(spread) / 2;
   const pellets = stats.pellets ?? 1;
   const special = slot.special ? (stats.special ?? null) : null;
   // One bullet deviates inside the cone; pellets fill it evenly instead.
   const centre = pellets > 1 ? aim : aim + randomRange(state, -half, half);
   const fan = special === 'fan' ? WEAPON_SPECIALS.fan.projectiles : 1;
   const count = Math.max(fan, pellets);
-  const between = pellets > 1 ? degToRad(stats.spread) / (pellets - 1) : degToRad(WEAPON_SPECIALS.fan.angle);
+  const between = pellets > 1 ? degToRad(spread) / (pellets - 1) : degToRad(WEAPON_SPECIALS.fan.angle);
   const jitter = degToRad(stats.pelletJitter ?? 0) / 2;
   // Drawn from the gun's muzzle, along the same direction.
   const muzzle = muzzleFor(ctx.muzzles, aim);
@@ -221,7 +265,7 @@ function shoot(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
     bullet.prevY = bullet.y;
     bullet.dirX = Math.cos(angle);
     bullet.dirY = Math.sin(angle);
-    bullet.speed = stats.bulletSpeed;
+    bullet.speed = stats.bulletSpeed ?? 0;
     bullet.damage = bulletDamage(slot) * damageFactor(p);
     bullet.look = bulletLook(slot, p.boostActive === 'double_damage');
     bullet.pierce = special === 'pierce' ? WEAPON_SPECIALS.pierce.hits : 1;
@@ -289,6 +333,7 @@ function handleMelee(ctx: SimContext, p: PlayerState, turn: boolean): void {
   p.meleeAngle = Math.atan2(dirY, dirX);
   p.meleeTimer = MELEE.swingTime;
   p.meleeTick = ctx.state.tick;
+  p.meleeWide = false;
   p.facing = p.meleeAngle;
   if (z) damageZombie(ctx, z, MELEE.damage * damageFactor(p), p.id, bodyHitPoint(z, dirX, dirY), POINTS.meleeHit);
 }

@@ -69,6 +69,8 @@ export interface PlayerState {
   meleeAngle: number;
   /** Tick of the last knife slash (views restart its animation). */
   meleeTick: number;
+  /** The last slash was a melee weapon's sweep (the katana): drawn wider than the knife's. */
+  meleeWide: boolean;
   /** Fire held during the last tick. */
   firing: boolean;
   /** Seconds since this press of the fire button began (still counting while a tap's shot waits). */
@@ -383,6 +385,7 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     godMode: false,
     meleeAngle: 0,
     meleeTick: -1000,
+    meleeWide: false,
     firing: false,
     aimTime: 0,
     shotPending: false,

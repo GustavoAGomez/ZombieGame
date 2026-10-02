@@ -203,7 +203,7 @@ function rowDescription(r: ShopRow): string {
     const next = level < max ? table[level] : undefined;
     return STRINGS.shop.levelUp(STRINGS.weapons[r.weapon], level, max, next === undefined ? null : STRINGS.shop.upgradeEffect(kind, next));
   }
-  if (r.item === 'weapon_special' && r.weapon) return WEAPONS[r.weapon].special ? STRINGS.shop.specials[r.weapon] : STRINGS.weapons[r.weapon];
+  if (r.item === 'weapon_special' && r.weapon) return STRINGS.shop.specials[r.weapon] ?? STRINGS.weapons[r.weapon];
   return STRINGS.shop.items[r.item].description;
 }
 

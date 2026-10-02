@@ -5,6 +5,7 @@
 export type IconName =
   | 'heart'
   | 'bullet'
+  | 'infinity'
   | 'crosshair'
   | 'bolt'
   | 'pause'
@@ -13,6 +14,7 @@ export type IconName =
   | 'pistol'
   | 'rifle'
   | 'shotgun'
+  | 'katana'
   | 'hammer'
   | 'door'
   | 'stairs'
@@ -45,6 +47,11 @@ const ICONS: Record<IconName, IconDef> = {
     w: 12, h: 12, fill: 'var(--amber)',
     rects: [[5, 0, 2, 1], [4, 1, 4, 2], [4, 3, 4, 5], [3, 8, 6, 1, 'var(--amber-dark)'], [4, 9, 4, 3, 'var(--amber-dark)']],
   },
+  // Where the ammo would go for a weapon that spends none (the katana).
+  infinity: {
+    w: 9, h: 5, fill: 'var(--amber)',
+    rects: [[1, 0, 2, 1], [6, 0, 2, 1], [0, 1, 1, 3], [3, 1, 1, 1], [5, 1, 1, 1], [8, 1, 1, 3], [4, 2, 1, 1], [3, 3, 1, 1], [5, 3, 1, 1], [1, 4, 2, 1], [6, 4, 2, 1]],
+  },
   crosshair: {
     w: 12, h: 12, fill: 'var(--bone)',
     rects: [[5, 0, 2, 4], [5, 8, 2, 4], [0, 5, 4, 2], [8, 5, 4, 2], [5, 5, 2, 2, 'var(--red)']],
@@ -69,6 +76,11 @@ const ICONS: Record<IconName, IconDef> = {
       [0, 2, 4, 3, 'var(--amber-dark)'], [4, 2, 3, 2, 'var(--amber-dark)'], [7, 1, 9, 1], [7, 2, 9, 1],
       [5, 4, 2, 2, 'var(--amber-dark)'], [8, 3, 3, 1, 'var(--amber-dark)'],
     ],
+  },
+  // Katana: long slightly curved blade, round guard and a wrapped handle.
+  katana: {
+    w: 16, h: 5, fill: 'var(--bone)',
+    rects: [[0, 2, 4, 2, 'var(--amber-dark)'], [4, 1, 1, 3, 'var(--amber)'], [5, 2, 9, 1], [6, 1, 8, 1], [14, 1, 1, 1], [15, 0, 1, 1]],
   },
   rifle: {
     w: 16, h: 8, fill: 'var(--bone)',

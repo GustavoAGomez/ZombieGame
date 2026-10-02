@@ -1,15 +1,28 @@
 /**
- * Weapon catalogue (spec 04 §1): every weapon is data. Each one says how
- * many levels of each kind of upgrade it takes (ammo, fire rate, damage;
- * sold by the red merchant, the kind chosen by the player) and its optional
- * special (sold by the gold merchant); nothing assumes three levels. Names
- * shown on screen live in STRINGS.weapons.
+ * Weapon catalogue (spec 04 §1, spec 06 §1): every weapon is data. Each one
+ * says how it attacks, how many levels of each kind of upgrade it takes
+ * (ammo, fire rate, damage; sold by the red merchant, the kind chosen by
+ * the player) and its optional special (sold by the gold merchant); nothing
+ * assumes three levels. Names shown on screen live in STRINGS.weapons.
  */
 
-export type WeaponId = 'pistol' | 'smg' | 'shotgun';
+export type WeaponId = 'pistol' | 'smg' | 'shotgun' | 'katana';
 
-/** `basic`: bought at weapon cases. `special`: later weapons, with fewer levels or none. */
+/** `basic`: bought at weapon cases. `special`: only from the Demon's Hand (spec 06), never at a case. */
 export type WeaponCategory = 'basic' | 'special';
+
+/**
+ * How a weapon attacks (spec 06 §1):
+ *   bullets  projectiles, with rounds of ammo (pistol, SMG, shotgun)
+ *   beam     a continuous ray while held, on a battery (laser)
+ *   melee    a sweep in an arc ahead, no ammo (katana)
+ *   cone     a continuous jet in a cone while held, with rounds of ammo (flamethrower)
+ * A weapon without rounds keeps magazine, reserve and reload at 0.
+ */
+export type WeaponAttack = 'bullets' | 'beam' | 'melee' | 'cone';
+
+/** What a weapon spends: rounds (magazine and reserve), its battery (beam) or nothing (melee). */
+export type AmmoKind = 'rounds' | 'battery' | 'none';
 
 /** What an upgrade improves; the red merchant sells each kind's levels separately (UPGRADE_LEVELS has the factors). */
 export type UpgradeKind = 'ammo' | 'fire_rate' | 'damage';
@@ -19,9 +32,9 @@ export const UPGRADE_KINDS: readonly UpgradeKind[] = ['ammo', 'fire_rate', 'dama
 export type WeaponSpecialId = 'fan' | 'pierce' | 'fire';
 
 export interface WeaponStats {
-  /** Damage per bullet, in damage units (zombie HP is counted in the same units). */
+  /** Damage per bullet (per zombie for a sweep), in damage units (zombie HP is counted in the same units). */
   damage: number;
-  /** Shots per second. */
+  /** Shots per second (sweeps per second for a melee weapon). */
   fireRate: number;
   magazine: number;
   startReserve: number;
@@ -29,19 +42,22 @@ export interface WeaponStats {
   maxReserve: number;
   reloadTime: number;
   /**
-   * Total cone angle in degrees. One projectile per shot deviates up to
-   * ±spread/2; with several pellets, they are spread evenly across it.
+   * Bullets: total cone angle in degrees. One projectile per shot deviates
+   * up to ±spread/2; with several pellets, they are spread evenly across it.
    */
-  spread: number;
+  spread?: number;
+  /** Px; for a melee weapon, from the player to the edge of a zombie's hitbox. */
   range: number;
-  bulletSpeed: number;
+  bulletSpeed?: number;
+  /** Melee and cone weapons: the total angle in degrees they reach, centred on the aim. */
+  arc?: number;
   /** Projectiles per round (a shotgun's pellets); 1 when missing. */
   pellets?: number;
   /** Random variation of each pellet around its even place in the cone (degrees, total). */
   pelletJitter?: number;
   /** Full damage up to `fullUntil` px, then down linearly to `minFactor` at the weapon's range. */
   falloff?: { fullUntil: number; minFactor: number };
-  /** Every hit pushes the zombie this many px along the shot. */
+  /** Every hit pushes the zombie this many px along the shot (away from the player for a sweep). */
   knockback?: number;
   /** Size of its muzzle flash next to the pistol's, and how far the player is pushed back per shot (px). Look only. */
   muzzleFlashScale?: number;
@@ -58,6 +74,7 @@ export interface WeaponStats {
 export interface WeaponDef extends WeaponStats {
   id: WeaponId;
   category: WeaponCategory;
+  attack: WeaponAttack;
   /** Levels it takes of each kind of upgrade (up to UPGRADE_LEVELS' length); a kind missing or 0: not upgradable that way. */
   upgrades: Readonly<Partial<Record<UpgradeKind, number>>>;
   special?: WeaponSpecialId;
@@ -102,6 +119,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDef>> = {
   pistol: {
     id: 'pistol',
     category: 'basic',
+    attack: 'bullets',
     damage: 1,
     fireRate: 4,
     magazine: 8,
@@ -118,6 +136,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDef>> = {
   smg: {
     id: 'smg',
     category: 'basic',
+    attack: 'bullets',
     damage: 1,
     fireRate: 11,
     magazine: 30,
@@ -135,6 +154,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDef>> = {
   shotgun: {
     id: 'shotgun',
     category: 'basic',
+    attack: 'bullets',
     /** Per pellet: 18 in the old scale where the pistol did 20 (docs/DECISIONS.md). */
     damage: 0.9,
     fireRate: 1.4,
@@ -157,6 +177,27 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDef>> = {
     // With only 2 shells, the reload is most of its pace: the fire rate level speeds it up too.
     fireRateSpeedsReload: true,
   },
+  // Katana (spec 06 §2.2): a sweep that cuts every zombie in a wide arc. No ammo, no wait before the first.
+  katana: {
+    id: 'katana',
+    category: 'special',
+    attack: 'melee',
+    damage: 4,
+    /** One sweep every 0.45 s. */
+    fireRate: 1 / 0.45,
+    magazine: 0,
+    startReserve: 0,
+    maxReserve: 0,
+    reloadTime: 0,
+    range: 34,
+    arc: 140,
+    knockback: 6,
+    firstShotDelay: 0,
+    upgrades: {},
+  },
 };
 
 export const WEAPON_IDS = Object.keys(WEAPONS) as WeaponId[];
+
+/** The weapons weapon cases can sell (spec 06 §1: the special ones only come from the Demon's Hand). */
+export const BASIC_WEAPON_IDS = WEAPON_IDS.filter((id) => WEAPONS[id].category === 'basic');

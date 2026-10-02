@@ -1,7 +1,7 @@
 import { POINTS, ZOMBIES } from '../../config/balance';
 import type { BloodState, ZombieState } from '../../core/GameState';
 import { random } from '../../core/Rng';
-import { BLOCK_SIGHT, segmentClearShaped } from '../map/CollisionGrid';
+import { BLOCK_SIGHT, BLOCK_ZOMBIE, moveCircle, segmentClearShaped } from '../map/CollisionGrid';
 import { rollZombieDrop } from './PickupSystem';
 import { awardPoints } from './PointsSystem';
 import { hurtboxOf } from './shotGeometry';
@@ -47,6 +47,12 @@ export function damageZombie(
   rollZombieDrop(ctx, z);
   ctx.events.emit('zombie:killed', { x: z.x, y: z.y, kind: z.kind });
   return true;
+}
+
+/** Pushes `z` `px` along (dirX, dirY), sliding on walls; only zombies moving freely, never off a window or a climb. */
+export function knockZombie(ctx: SimContext, z: ZombieState, dirX: number, dirY: number, px: number): void {
+  if (px <= 0 || !isZombieAlive(z) || (z.ai !== 'chasing' && z.ai !== 'attacking')) return;
+  moveCircle(ctx.grid, z, dirX * px, dirY * px, ZOMBIES.hitboxRadius, BLOCK_ZOMBIE);
 }
 
 /** The middle of a zombie's drawn body (its hurtbox): where a hit without a drawn point sprays from. */

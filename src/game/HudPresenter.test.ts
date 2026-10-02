@@ -22,6 +22,7 @@ describe('HudPresenter', () => {
       levels: { ammo: 0, fire_rate: 0, damage: 0 },
       maxLevels: { ammo: 3, fire_rate: 3, damage: 3 },
       special: false,
+      ammo: 'rounds',
       magazine: 8,
       capacity: 8,
       reserve: 64,
@@ -48,8 +49,8 @@ describe('HudPresenter', () => {
     expect(loadout).toHaveBeenCalledTimes(1);
     expect(loadout).toHaveBeenLastCalledWith({
       slots: [
-        { weapon: 'pistol', magazine: 8, reserve: 64 },
-        { weapon: 'smg', magazine: 30, reserve: 120 },
+        { weapon: 'pistol', ammo: 'rounds', magazine: 8, reserve: 64 },
+        { weapon: 'smg', ammo: 'rounds', magazine: 30, reserve: 120 },
       ],
       active: 0,
     });

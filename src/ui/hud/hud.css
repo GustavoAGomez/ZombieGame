@@ -71,6 +71,21 @@
   display: none;
 }
 
+.hud-ammo__infinite {
+  display: none;
+}
+
+.hud-weapon.is-infinite .hud-ammo__infinite {
+  display: block;
+}
+
+.hud-weapon.is-infinite .hud-ammo__bullet,
+.hud-weapon.is-infinite .hud-mag,
+.hud-weapon.is-infinite .hud-reserve,
+.hud-weapon.is-infinite .hud-reload {
+  display: none;
+}
+
 .hud-weapon.is-reloading .hud-reload {
   display: block;
 }

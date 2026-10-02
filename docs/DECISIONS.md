@@ -1229,3 +1229,25 @@ Petición del usuario: no saber a qué sala lleva una puerta hasta abrirla. Al d
   - Se ve para todos los jugadores, porque abre el mapa a todos.
   - Las puertas que se abren solas no avisan: la sala de detrás ya estaba desbloqueada.
 - **Género:** «COCINA DESBLOQUEADA», «GARAJE DESBLOQUEADO». Cada sala lleva su género en `strings.ts`; una zona sin nombre dice «SALA DESBLOQUEADA». También tienen nombre las del mapa de pruebas (pasillo y almacén).
+
+## Spec 06 · Fase H1 (tipos de ataque y katana)
+
+- **Pregunta resuelta antes de empezar:** la mano empieza en el salón o el comedor, no en la calle. Desde el recibidor también se compra la calle (D8), pero el usuario prefiere que arranque dentro de la casa. La regla queda así: salas interiores que se compran desde la zona inicial.
+- **`attack` en el catálogo** (`bullets`, `beam`, `melee`, `cone`). Lo que gasta cada arma sale de ahí con `ammoKind`: las de cuerpo a cuerpo nada, el rayo su batería y el resto balas.
+  - Un arma sin balas deja cargador, reserva y recarga a 0. Así la recarga automática, los premios de munición y la munición máxima no le hacen nada sin código aparte.
+  - `spread` y `bulletSpeed` pasan a ser opcionales, porque solo los usan las balas. `arc` (grados) es el arco de las de cuerpo a cuerpo y de cono.
+  - Un arma especial en una vitrina hace fallar al cargador del mapa (`BASIC_WEAPON_IDS`).
+- **Katana:**
+  - Un barrido golpea a todos los zombis vivos cuyo borde está a 34 px o menos y dentro de ±70° del apuntado.
+  - Una pared entre medias lo protege, con la misma prueba que las balas, así que una ventana no lo protege.
+  - El empuje usa la regla de la escopeta: solo a zombis que andan libres. Pasa a `knockZombie`, compartido.
+  - **Dirección sin arrastre:** el zombi más cercano a su alcance, 34 px más el radio del zombi. Va directo a él, sin la corrección del cañón de las balas. Sin ninguno cerca, hacia donde mira el jugador.
+  - `firstShotDelay` 0: el barrido sale el primer tick de la pulsación, y luego cada 0,45 s mientras se mantiene, con el mismo enfriamiento que los disparos.
+  - El movimiento no frena con un arma de cuerpo a cuerpo en la mano.
+  - Con la katana en el inventario, el botón de disparo nunca saca el cuchillo por falta de munición (`hasAnyAmmo` cuenta las armas que no gastan balas).
+- **Vista provisional:** el arco del cuchillo, 1,8 veces más grande y más separado (`meleeWide` en el estado del jugador). El cuchillo pone `meleeWide` a falso.
+- **HUD:**
+  - La fuente pixel no tiene el carácter ∞, así que es un icono pixel ámbar de 9×5 en lugar de la bala y los números.
+  - En la columna de armas, el hueco de la katana no muestra número y nunca sale vacío.
+  - `weapon:state` y `weapons:loadout` llevan `ammo` (`rounds`, `battery` o `none`).
+- **Debug:** `DAR KATANA`.

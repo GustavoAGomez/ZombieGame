@@ -58,7 +58,7 @@ describe('WeaponSystem · firing', () => {
       for (const b of ctx.state.bullets) {
         if (!b.active) continue;
         const deviation = Math.abs(Math.atan2(b.dirY, b.dirX)) * (180 / Math.PI);
-        expect(deviation).toBeLessThanOrEqual(WEAPONS.smg.spread / 2 + 1e-6);
+        expect(deviation).toBeLessThanOrEqual(WEAPONS.smg.spread! / 2 + 1e-6);
       }
     }
   });

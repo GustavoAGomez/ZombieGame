@@ -1,5 +1,5 @@
 import { BARRICADES } from '../../config/balance';
-import { WEAPON_IDS, type WeaponId } from '../../config/weapons';
+import { BASIC_WEAPON_IDS, WEAPON_IDS, type WeaponId } from '../../config/weapons';
 import {
   LAYER_NAMES,
   type TiledLayer,
@@ -322,6 +322,7 @@ function parseWeaponCases(raw: readonly TiledObject[], zones: readonly MapZone[]
     const who = `weapon_case ${obj.id}`;
     const weapon = stringProp(obj, 'weapon');
     if (!(WEAPON_IDS as readonly string[]).includes(weapon)) fail(`${who} sells unknown weapon "${weapon}"`);
+    if (!(BASIC_WEAPON_IDS as readonly string[]).includes(weapon)) fail(`${who} sells "${weapon}": cases only sell basic weapons (spec 06 §1)`);
     const facing = stringProp(obj, 'facing');
     if (!(CASE_FACINGS as readonly string[]).includes(facing)) fail(`${who} faces "${facing}": it must be south, east or west (never north)`);
     const cost = numberProp(obj, 'cost');

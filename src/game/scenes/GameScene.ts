@@ -392,6 +392,7 @@ export class GameScene extends Phaser.Scene {
       },
       giveSmg: () => this.debugGiveWeapon('smg'),
       giveShotgun: () => this.debugGiveWeapon('shotgun'),
+      giveKatana: () => this.debugGiveWeapon('katana'),
       giveItems: () => {
         const p = this.state.players[0];
         if (p) debugGiveItems(this.state, p);

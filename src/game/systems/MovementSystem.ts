@@ -1,4 +1,5 @@
 import { PLAYER, ZOMBIES } from '../../config/balance';
+import { WEAPONS } from '../../config/weapons';
 import type { PlayerState, ZombieState } from '../../core/GameState';
 import { BLOCK_PLAYER, moveCircle, resolveCircle } from '../map/CollisionGrid';
 import type { SimContext } from './SimContext';
@@ -26,8 +27,10 @@ export function updateMovement(ctx: SimContext, dt: number): void {
     player.moveX = mx / Math.min(1, len);
     player.moveY = my / Math.min(1, len);
 
-    // Shooting slows the run down to a walk (the shoot_walk animation).
-    const speed = PLAYER.speed * (cmd.fire ? PLAYER.shootingSpeedFactor : 1) * speedFactor(player);
+    // Shooting slows the run down to a walk (the shoot_walk animation); a melee weapon does not (spec 06 §2.2).
+    const slot = player.weapons[player.activeSlot];
+    const slowed = cmd.fire && !(slot && WEAPONS[slot.id].attack === 'melee');
+    const speed = PLAYER.speed * (slowed ? PLAYER.shootingSpeedFactor : 1) * speedFactor(player);
     moveCircle(grid, player, mx * speed * dt, my * speed * dt, PLAYER.hitboxRadius, BLOCK_PLAYER);
     blockByZombies(ctx, player);
     // During a knife slash the player keeps facing the slash.

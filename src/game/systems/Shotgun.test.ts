@@ -50,9 +50,9 @@ describe('hunting shotgun (spec 04 §1)', () => {
       .sort((a, b) => a - b);
     const jitter = SHOTGUN.pelletJitter ?? 0;
     const width = angles[angles.length - 1]! - angles[0]!;
-    expect(width).toBeGreaterThan(SHOTGUN.spread - jitter - 1e-6);
-    expect(width).toBeLessThan(SHOTGUN.spread + jitter + 1e-6);
-    const step = SHOTGUN.spread / ((SHOTGUN.pellets ?? 2) - 1);
+    expect(width).toBeGreaterThan(SHOTGUN.spread! - jitter - 1e-6);
+    expect(width).toBeLessThan(SHOTGUN.spread! + jitter + 1e-6);
+    const step = SHOTGUN.spread! / ((SHOTGUN.pellets ?? 2) - 1);
     for (let i = 1; i < angles.length; i++) {
       const gap = angles[i]! - angles[i - 1]!;
       expect(gap).toBeGreaterThan(step - jitter - 1e-6);
