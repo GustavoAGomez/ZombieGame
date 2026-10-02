@@ -24,6 +24,7 @@ import { PickupViewPool } from '../entities/Pickup';
 import { GroundItemViews } from '../entities/GroundItem';
 import { PlayerView } from '../entities/Player';
 import { WorldTextPool } from '../entities/WorldText';
+import { CantUseText } from '../entities/CantUseText';
 import { ZombieViewPool } from '../entities/Zombie';
 import { BurnFlames } from '../entities/BurnFlames';
 import { WeaponCaseViews } from '../entities/WeaponCase';
@@ -76,6 +77,7 @@ export class GameScene extends Phaser.Scene {
   private muzzleFlash!: MuzzleFlash;
   private meleeSlash!: MeleeSlash;
   private worldTexts!: WorldTextPool;
+  private cantUseText!: CantUseText;
   private debugDraw!: DebugDraw;
   private bloodViews!: BloodViewPool;
   private bloodSpray!: BloodSprayPool;
@@ -164,6 +166,7 @@ export class GameScene extends Phaser.Scene {
     this.muzzleFlash = new MuzzleFlash(this, playerDef);
     this.meleeSlash = new MeleeSlash(this, playerDef, manifest.objects[ASSET_KEYS.meleeSlash]);
     this.worldTexts = new WorldTextPool(this, events);
+    this.cantUseText = new CantUseText(this, events);
     this.debugDraw = new DebugDraw(this);
     this.services.debugActions = this.createDebugActions();
     this.syncViews(0);
@@ -182,6 +185,7 @@ export class GameScene extends Phaser.Scene {
       this.controls.destroy();
       this.hud.destroy();
       this.worldTexts.destroy();
+      this.cantUseText.destroy();
       this.bloodSpray.destroy();
       this.playerStains.destroy();
       this.pauseMenu.destroy();
@@ -301,6 +305,7 @@ export class GameScene extends Phaser.Scene {
     }
     this.bulletViews.sync(this.state.bullets, this.state.players, alpha);
     this.worldTexts.sync(now);
+    this.cantUseText.sync(this.state.players[0] ? this.playerView.sprite : undefined, now);
   }
 
   /** Debug panel buttons (spec 01 §8). They change the state directly: they are tools, not gameplay. */

@@ -1,12 +1,29 @@
 import { ITEMS } from '../../config/balance';
 import type { GameState, PlayerState } from '../../core/GameState';
+import { isPlayerAlive } from './HealthSystem';
 import type { SimContext } from './SimContext';
 
 /**
  * Special items (spec 05): picking them up from the floor with the action
- * button. Where they lie is drawn when the match starts (itemSpawns.ts);
- * InteractionSystem offers the pickup when nothing else is at hand.
+ * button, and using them with a tap on their inventory slot. Where they lie
+ * is drawn when the match starts (itemSpawns.ts); InteractionSystem offers
+ * the pickup when nothing else is at hand.
  */
+
+/**
+ * The inventory taps of this tick (InputCommand.useItem): the item is used
+ * where it can be, and otherwise stays in the inventory with "AQUÍ NO SE
+ * USA" (spec 05 §5). Items can be used at any moment of the match.
+ */
+export function updateItems(ctx: SimContext): void {
+  const { state, commands } = ctx;
+  for (let i = 0; i < state.players.length; i++) {
+    const p = state.players[i];
+    const slot = commands[i]?.useItem ?? -1;
+    if (!p || slot < 0 || !p.items[slot] || !isPlayerAlive(p)) continue;
+    ctx.events.emit('item:cantUse', { playerId: p.id, slot });
+  }
+}
 
 /** Room for one more item in the player's inventory. */
 export function hasItemRoom(p: PlayerState): boolean {

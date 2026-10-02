@@ -542,15 +542,15 @@ function drawSmokePuff(ctx: Ctx, frame: number, frames: number, ox: number, oy: 
 }
 
 /**
- * A special item (spec 05 §3): its HUD icon (ui/icons.ts) at 1×, centred at
- * the bottom of the frame, frame `index` in ITEM_IDS order.
+ * A special item (spec 05 §3): its HUD icon (ui/icons.ts) at 1×, centred in
+ * the frame, frame `index` in ITEM_IDS order.
  */
 function drawItemIcon(ctx: Ctx, index: number, ox: number, oy: number, w: number, h: number): void {
   const id = ITEM_IDS[index];
   if (!id) return;
   const def = iconDef(id);
   const dx = ox + Math.floor((w - def.w) / 2);
-  const dy = oy + h - def.h;
+  const dy = oy + Math.floor((h - def.h) / 2);
   for (const [x, y, rw, rh, color] of def.rects) rect(ctx, color ?? def.fill, dx + x, dy + y, rw, rh);
 }
 

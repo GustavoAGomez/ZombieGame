@@ -4,6 +4,7 @@ import { ActionButtons } from './ActionButtons';
 import { BoostButton } from './BoostButton';
 import { ContextButton } from './ContextButton';
 import { FireStick } from './FireStick';
+import { ItemBar } from './ItemBar';
 import { KeyboardInput } from './KeyboardInput';
 import { ShopPanel } from './ShopPanel';
 import { VirtualJoystick } from './VirtualJoystick';
@@ -26,6 +27,7 @@ export class InputCollector {
   private readonly chip: ContextButton;
   private readonly shop: ShopPanel;
   private readonly boost: BoostButton;
+  private readonly items: ItemBar;
   private readonly keyboard = new KeyboardInput();
   private readonly axis = { x: 0, y: 0 };
 
@@ -40,6 +42,7 @@ export class InputCollector {
     this.chip = new ContextButton(this.root, events);
     this.shop = new ShopPanel(this.root, events);
     this.boost = new BoostButton(this.root, events);
+    this.items = new ItemBar(this.root, events);
 
     // A finger lifted while the app was hidden never sends pointerup.
     document.addEventListener('visibilitychange', this.onVisibility);
@@ -91,6 +94,7 @@ export class InputCollector {
     cmd.shopSlot = bought?.slot ?? -1;
     cmd.shopClose = this.shop.consumeClose();
     cmd.boost = this.boost.consume() || kb.consumePress('KeyB');
+    cmd.useItem = this.items.consumeUse();
     return cmd;
   }
 
@@ -107,6 +111,7 @@ export class InputCollector {
     this.chip.reset();
     this.shop.reset();
     this.boost.reset();
+    this.items.reset();
     this.keyboard.reset();
   };
 
@@ -120,6 +125,7 @@ export class InputCollector {
     this.chip.destroy();
     this.shop.destroy();
     this.boost.destroy();
+    this.items.destroy();
     this.keyboard.destroy();
     this.root.remove();
   }

@@ -236,10 +236,15 @@
  * Floating "+N$" texts that rise and fade (spec 01 §4.7), to the left of
  * the points and out of the column's flow, so the column never grows.
  */
+/*
+ * Under the money, left of the weapon slots: to the left of the points they
+ * would fall on the special items' row (controls.css) once the score has 5
+ * digits.
+ */
 .hud-floats {
   position: absolute;
-  top: 2px;
-  right: calc(100% + 10px);
+  top: calc(100% + 6px);
+  right: 44px;
   display: flex;
   flex-direction: column;
   align-items: flex-end;

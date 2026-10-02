@@ -73,7 +73,8 @@ describe('special items · picking them up (spec 05 §3)', () => {
     presenter.publish(ctx.state);
     expect(action).toHaveBeenLastCalledWith(expect.objectContaining({ kind: 'pickup', item: 'worn_wand', enabled: true }));
     tap(ctx);
-    expect(p.items).toEqual(['worn_wand']);
+    // After the heart carried from the start: the order they were picked up in.
+    expect(p.items).toEqual(['living_heart', 'worn_wand']);
     expect(g.active).toBe(false);
     expect(picked).toHaveBeenCalledWith({ playerId: p.id, item: 'worn_wand' });
     // Gone from the floor: the button no longer offers it.
@@ -99,5 +100,45 @@ describe('special items · picking them up (spec 05 §3)', () => {
     expect(p.items).toHaveLength(ITEMS.maxSlots);
     expect(g.active).toBe(true);
     expect(pickUpItem(ctx, p, ctx.state.groundItems.indexOf(g))).toBe(false);
+  });
+});
+
+describe('special items · the inventory and using them (spec 05 §4–5)', () => {
+  it('carries the living heart from the start, and tells the HUD what it carries', () => {
+    const ctx = createMansionContext();
+    const p = player(ctx);
+    expect(p.items).toEqual(['living_heart']);
+    const presenter = new HudPresenter(ctx.events, ctx.map);
+    const inventory = vi.fn();
+    ctx.events.on('items:inventory', inventory);
+    presenter.publish(ctx.state);
+    expect(inventory).toHaveBeenLastCalledWith({ items: ['living_heart'] });
+    // Only when it changes.
+    presenter.publish(ctx.state);
+    expect(inventory).toHaveBeenCalledTimes(1);
+  });
+
+  it('a tap far from any place that takes it says "AQUÍ NO SE USA" and keeps the item, every time', () => {
+    const ctx = createMansionContext();
+    const p = player(ctx);
+    const cantUse = vi.fn();
+    ctx.events.on('item:cantUse', cantUse);
+    for (let i = 0; i < 3; i++) {
+      command(ctx).useItem = 0;
+      stepSimulation(ctx, 1 / 60);
+      command(ctx).useItem = -1;
+    }
+    expect(cantUse).toHaveBeenCalledTimes(3);
+    expect(cantUse).toHaveBeenLastCalledWith({ playerId: p.id, slot: 0 });
+    expect(p.items).toEqual(['living_heart']);
+  });
+
+  it('ignores a tap on an empty slot', () => {
+    const ctx = createMansionContext();
+    const cantUse = vi.fn();
+    ctx.events.on('item:cantUse', cantUse);
+    command(ctx).useItem = 2;
+    stepSimulation(ctx, 1 / 60);
+    expect(cantUse).not.toHaveBeenCalled();
   });
 });

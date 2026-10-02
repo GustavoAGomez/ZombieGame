@@ -122,14 +122,10 @@ const ICONS: Record<IconName, IconDef> = {
       [2, 2, 2, 1, '#e8503a'], [2, 3, 1, 1, '#e8503a'], [7, 6, 2, 1, '#7a1f17'], [6, 7, 2, 1, '#7a1f17'],
     ],
   },
-  // A stick leaning to the right, its grip darker and its tip light.
+  // Provisional wand: a plain stick leaning to the right (the final design comes later).
   worn_wand: {
     w: 12, h: 12, fill: '#8a6a3f',
-    rects: [
-      [9, 2, 2, 1], [8, 3, 2, 1], [7, 4, 2, 1], [6, 5, 2, 1], [5, 6, 2, 1], [4, 7, 2, 1], [3, 8, 2, 1],
-      [2, 9, 2, 1, '#5a4636'], [1, 10, 2, 1, '#5a4636'], [0, 11, 2, 1, '#5a4636'],
-      [10, 0, 2, 2, '#efe6d2'], [9, 1, 1, 1, '#efe6d2'],
-    ],
+    rects: [[9, 1, 2, 1], [8, 2, 2, 1], [7, 3, 2, 1], [6, 4, 2, 1], [5, 5, 2, 1], [4, 6, 2, 1], [3, 7, 2, 1], [2, 8, 2, 1], [1, 9, 2, 1], [0, 10, 2, 1]],
   },
   // A ring open at the top right, with the arrow head pointing down into it.
   reload: {

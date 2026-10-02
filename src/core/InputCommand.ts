@@ -35,6 +35,8 @@ export interface InputCommand {
   shopClose: boolean;
   /** The stored boost's button was tapped (spec 03 §5). */
   boost: boolean;
+  /** Inventory slot tapped this tick to use its special item (spec 05 §5), -1 for none. */
+  useItem: number;
 }
 
 export function createInputCommand(): InputCommand {
@@ -57,6 +59,7 @@ export function createInputCommand(): InputCommand {
     shopSlot: -1,
     shopClose: false,
     boost: false,
+    useItem: -1,
   };
 }
 
@@ -78,5 +81,6 @@ export function resetInputCommand(cmd: InputCommand): InputCommand {
   cmd.shopSlot = -1;
   cmd.shopClose = false;
   cmd.boost = false;
+  cmd.useItem = -1;
   return cmd;
 }

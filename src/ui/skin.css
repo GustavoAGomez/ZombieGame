@@ -175,6 +175,16 @@
   box-shadow: none;
 }
 
+/* ── Special items' inventory: each slot a small square of the plate (9-slice, corners whole), the icon inside at 1×. ── */
+.has-ui-skin .item-bar .action-button {
+  border: 8px solid transparent;
+  border-image: var(--ui-plate) var(--ui-plate-slice) fill / var(--ui-plate-width) repeat;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  image-rendering: pixelated;
+}
+
 /* ── Health: the frame; its heart replaces the heart icon and beats under 30. ── */
 .has-ui-skin .hud-heart {
   display: none;

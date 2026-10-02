@@ -1,7 +1,7 @@
 import { BOOSTS, BULLETS, LOADOUT, PICKUPS, PLAYER, POINTS, WAVES, ZOMBIES, type BoostKind, type PickupKind, type ZombieKind } from '../config/balance';
 import { WEAPON_SPECIALS, WEAPONS, type WeaponId } from '../config/weapons';
 import { MERCHANTS, type MerchantId } from '../config/merchants';
-import type { ItemId } from '../config/items';
+import { STARTING_ITEMS, type ItemId } from '../config/items';
 import type { MapData } from '../game/map/MapLoader';
 import { placeMatchItems } from '../game/systems/itemSpawns';
 import { zombiesInRound } from '../game/systems/waveFormulas';
@@ -374,7 +374,7 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     boostStored: null,
     boostActive: null,
     boostTimer: 0,
-    items: [],
+    items: STARTING_ITEMS.slice(),
     portalLock: -1,
     teleports: 0,
   };

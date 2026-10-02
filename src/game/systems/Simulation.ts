@@ -3,6 +3,7 @@ import { updateBullets } from './BulletSystem';
 import { updateBurns } from './BurnSystem';
 import { updateBlood } from './Combat';
 import { updateInteractions } from './InteractionSystem';
+import { updateItems } from './ItemSystem';
 import { blockPlayersByMerchants, updateMerchants } from './MerchantSystem';
 import { updateShops } from './ShopSystem';
 import { updateMovement } from './MovementSystem';
@@ -33,6 +34,7 @@ export function stepSimulation(ctx: SimContext, dt: number): void {
   updatePlayerPortals(ctx);
   updateWeapons(ctx, dt);
   updateInteractions(ctx, dt);
+  updateItems(ctx);
   updateShops(ctx);
   updateBullets(ctx, dt);
   updateBurns(ctx, dt);

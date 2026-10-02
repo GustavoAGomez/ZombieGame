@@ -43,6 +43,7 @@ export class HapticFeedback {
       events.on('weaponCase:purchase', (e) => this.play(e.playerId, 'medium')),
       events.on('boost:activated', (e) => this.play(e.playerId, 'light')),
       events.on('item:picked', (e) => this.play(e.playerId, 'light')),
+      events.on('item:cantUse', (e) => this.play(e.playerId, 'light')),
     ];
   }
 

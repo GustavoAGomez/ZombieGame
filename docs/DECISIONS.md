@@ -1067,6 +1067,24 @@ Antes de empezar se resolvieron dos choques con el usuario:
   - El orden de las demás no cambia: mago, vitrina, puerta o portal, reparar. La spec lo da distinto, pero los puntos guardan distancia entre sí y no coinciden.
   - El botón dice `RECOGER VARITA DESGASTADA` con el icono del objeto. Con el inventario lleno dice `INVENTARIO LLENO` y se sacude.
   - Al recoger, evento `item:picked`: vibración ligera y el nombre en el aviso del HUD durante 1,5 s.
-- **En el suelo:** el icono de 12×12 del objeto (el mismo que el del HUD, con colores fijos para poder dibujarlo en el canvas), una sombra pequeña y un brillo claro en modo aditivo que late cada 1,2 s.
-  - El brillo en el color del objeto no se veía sobre la madera, así que es claro y se suma al suelo.
+- **En el suelo**, a petición del usuario, un foco circular como los marcadores de misión de GTA San Andreas: un círculo de luz ámbar que se suma al suelo y late cada 1,2 s, con su borde, y el objeto dentro.
+  - La varita es, de momento, un palo sin detalles. El usuario dará más adelante el diseño de la varita y del corazón.
+  - El icono es el mismo que el del HUD, con colores fijos para poder dibujarlo en el canvas.
   - Se dibuja con los pickups, por debajo de la oscuridad de las zonas cerradas: allí se ve como el resto de cosas de la habitación, sin indicador.
+
+### O2 · Inventario, corazón desde el inicio y uso
+
+- **El corazón vivo se lleva desde el inicio** (`STARTING_ITEMS`, en `createPlayerState`).
+- **Inventario** (`src/input/ItemBar.ts`, `controls.css`): una fila a la izquierda de los puntos, a su altura.
+  - Está anclada a la distancia que ocupan los puntos con 6 cifras (141 px), así que los huecos no se mueven cuando sube la puntuación. Con pocas cifras queda un hueco entre la fila y los puntos.
+  - Crece hacia la izquierda: el primer objeto recogido queda junto a los puntos y uno nuevo no mueve a los demás. El orden de recogida va, por tanto, de derecha a izquierda.
+  - Solo se dibujan los huecos ocupados.
+  - Cada hueco mide 28 px, un cuadrado de la placa del kit (9-slice) con el icono a 1×. Se toca en 44×44 (8 px de margen invisible) y hay 16 px entre huecos, para que los márgenes se junten sin pisarse.
+- **La pausa se mueve a la izquierda solo cuando hace falta:** `left: min(50%, …)` calcula el borde de la fila con 4 objetos y 6 cifras. En 844×390 y 800×360 sigue centrada; en 640×360 pasa 49 px a la izquierda, sin tocar la fila de la vida.
+  - Comprobado con 1, 2 y 4 objetos y con 0 y 999999 puntos: sin solapes con la pausa, los puntos ni la vida.
+- **Los «+N$» flotantes pasan debajo del dinero,** a la izquierda de los huecos de arma. A la izquierda de los puntos caían sobre el primer hueco en cuanto la puntuación tenía 5 cifras.
+- **Uso:** el toque viaja como `InputCommand.useItem` (índice del hueco) y lo resuelve `ItemSystem.updateItems`.
+  - En la O2 no hay ningún lugar donde usarlos: siempre sale `item:cantUse`. El objeto no se gasta, el hueco se sacude, hay vibración ligera y sale `AQUÍ NO SE USA` sobre el jugador durante 1,2 s.
+  - Es un solo texto que sigue al jugador: un toque nuevo lo reinicia y no apila otro.
+  - Va con el reloj de la escena, así que la pausa lo congela.
+  - Un toque en un hueco vacío no hace nada.

@@ -115,10 +115,15 @@
   padding: 16px 28px;
 }
 
-/* Pause button: 32×32 at the top centre (spec 01 §2.5), tappable 14 px around it. */
+/*
+ * Pause button: 32×32 at the top centre (spec 01 §2.5), tappable 14 px
+ * around it. Centred, unless the special items' row (four slots to the left
+ * of the points, controls.css) would reach its tap area: on the narrowest
+ * screens (640 px) it moves left as far as needed, clear of the health row.
+ */
 .pause-button {
   position: absolute;
-  left: 50%;
+  left: min(50%, calc(100% - var(--pad-x) - 141px - 12px - 4 * 44px - 14px - 16px - 4px));
   top: calc(var(--pad-top) + 10px);
   width: 32px;
   height: 32px;

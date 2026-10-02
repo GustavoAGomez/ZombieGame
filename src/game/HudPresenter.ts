@@ -41,6 +41,7 @@ export class HudPresenter {
   private shopKey = '';
   /** Last published boost slot, as a comparable string. */
   private boostKey = '';
+  private itemsKey: string | null = null;
   private actionAmount = -1;
   private actionEnabled = false;
   private actionLocked = false;
@@ -162,6 +163,13 @@ export class HudPresenter {
     }
 
     this.publishShop(state, playerIndex);
+
+    // The inventory (spec 05 §4), only when it changes.
+    const itemsKey = p.items.join(',');
+    if (itemsKey !== this.itemsKey) {
+      this.itemsKey = itemsKey;
+      this.events.emit('items:inventory', { items: p.items.slice() });
+    }
 
     // The ring empties in COOLDOWN_STEPS steps; the seconds count down whole.
     const progress = p.boostActive ? Math.ceil((p.boostTimer / BOOSTS.duration) * COOLDOWN_STEPS) / COOLDOWN_STEPS : 0;

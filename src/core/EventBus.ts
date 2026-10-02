@@ -74,6 +74,10 @@ export interface GameEvents {
   };
   /** A special item picked up (spec 05 §3): light vibration and its name on the HUD. */
   'item:picked': { playerId: number; item: ItemId };
+  /** The local player's special items, in inventory order (spec 05 §4). */
+  'items:inventory': { items: ItemId[] };
+  /** An item tapped where it does nothing (spec 05 §5): "AQUÍ NO SE USA", the slot shakes, light vibration. */
+  'item:cantUse': { playerId: number; slot: number };
   'round:changed': { round: number };
   /** A merchant appeared (`first`) or teleported to another spot at the start of a round (spec 03 §2). */
   'merchant:moved': { merchant: MerchantId; first: boolean };

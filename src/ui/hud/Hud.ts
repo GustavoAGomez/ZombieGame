@@ -85,7 +85,7 @@ export class Hud {
     left.append(this.healthRow, this.round, this.weaponRow, el('div', 'hud-reserved'));
 
     // Top-right: the points (everything earned), the money to spend in green, and the floating "+N$"
-    // beside the points. The weapon slots hang right under it (controls.css).
+    // under them. The weapon slots hang right under it and the special items sit to its left (controls.css).
     const right = el('div', 'hud-right');
     const pointsRow = el('div', 'hud-row hud-points');
     const pointsLabel = el('span', 'hud-label');
@@ -93,7 +93,7 @@ export class Hud {
     this.points = el('span', 'hud-points__value');
     pointsRow.append(pointsLabel, this.points);
     this.money = el('span', 'hud-money');
-    // Floating "+N$" texts, pooled (CLAUDE.md rule 7), drawn to the left of the points (hud.css).
+    // Floating "+N$" texts, pooled (CLAUDE.md rule 7), drawn under the money (hud.css).
     this.floats = el('div', 'hud-floats');
     for (let i = 0; i < FLOAT_POOL_SIZE; i++) {
       const span = el('span', 'hud-float');
