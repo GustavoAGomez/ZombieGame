@@ -263,6 +263,33 @@
           "loop": false
         }
       }
+    },
+    "merchant_blue": {
+      "frameWidth": 68,
+      "frameHeight": 68,
+      "anchor": {
+        "x": 0.5,
+        "y": 0.8
+      },
+      "hitbox": {
+        "radius": 8
+      },
+      "directions": 1,
+      "placeholder": false,
+      "animations": {
+        "idle": {
+          "file": "sprites/merchant_blue/idle.png",
+          "frames": 9,
+          "fps": 6,
+          "loop": true
+        },
+        "open_coat": {
+          "file": "sprites/merchant_blue/open_coat.png",
+          "frames": 9,
+          "fps": 14,
+          "loop": false
+        }
+      }
     }
   },
   "tilesets": {

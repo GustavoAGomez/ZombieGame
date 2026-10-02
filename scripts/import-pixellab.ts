@@ -12,6 +12,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import type { Directions } from '../src/game/assets/manifest';
 import { decodePng, encodePng, parsePaletteHex } from './lib/png';
 import { directionRows, parsePixelLabMetadata, selectAnimations, type ExportAnimation, type TakeOverrides } from './lib/pixellab';
 import { binarizeAlpha, buildSheet, centerIn, croppedPixels, opaqueBounds, quantize, scaleAbout, type Frame } from './lib/sheet';
@@ -28,6 +29,7 @@ const ANIMATION_DEFAULTS: Record<string, { fps: number; loop: boolean }> = {
   climb: { fps: 6, loop: false },
   crawl: { fps: 8, loop: true },
   crawl_attack: { fps: 15, loop: false },
+  open_coat: { fps: 14, loop: false },
 };
 
 type Json = Record<string, unknown>;
@@ -35,7 +37,7 @@ type Json = Record<string, unknown>;
 export interface ImportedAnimation {
   name: string;
   frames: number;
-  directions: 4 | 8;
+  directions: Directions;
   file: string;
 }
 
@@ -57,7 +59,7 @@ export function applyImport(manifest: Json, asset: string, imported: ImportedAni
     : (characters[asset] = { frameWidth: 48, frameHeight: 48, anchor: { x: 0.5, y: 0.8 }, hitbox: { radius: 6 }, animations: {} });
   const animations = isRecord(character.animations) ? character.animations : (character.animations = {});
   const wasPlaceholder = character.placeholder === true;
-  const characterDirections = character.directions === 4 ? 4 : 8;
+  const characterDirections = character.directions === 4 || character.directions === 1 ? character.directions : 8;
 
   const existing = animations[imported.name];
   const previous: Json = isRecord(existing) ? existing : {};
@@ -82,7 +84,7 @@ export function applyImport(manifest: Json, asset: string, imported: ImportedAni
   }
 
   const all = Object.values(animations).filter(isRecord);
-  character.directions = all.some((a) => a.directions === 8) ? 8 : imported.directions;
+  character.directions = Math.max(imported.directions, ...all.map((a) => (typeof a.directions === 'number' ? a.directions : 0)));
   for (const anim of all) if (anim.directions === character.directions) delete anim.directions;
 }
 
@@ -151,7 +153,7 @@ function importAnimation(
   const anchorY = typeof anchorRaw.y === 'number' ? anchorRaw.y : 0.8;
 
   for (const note of anim.notes ?? []) log(`  · ${anim.sourceName}: ${note}`);
-  const { directions, rows: sourceRows, filled } = directionRows(anim.frames);
+  const { directions, rows: sourceRows, filled } = directionRows(anim.frames, character.directions === 1);
   if (filled.length > 0) log(`  · ${anim.sourceName}: direcciones que faltan con la más cercana (${filled.join(', ')})`);
   // A sheet needs the same frame count in every row: stretch the shorter directions (or
   // squeeze all to the count chosen in import.json, better for a loop where most rows are shorter).
@@ -300,7 +302,7 @@ export function importAssets(root: string, only: readonly string[], log: (line: 
     for (const exportDir of exports) {
       const parsed = parsePixelLabMetadata(JSON.parse(readFileSync(join(exportDir, 'metadata.json'), 'utf8')), options.takes);
       for (const w of parsed.warnings) log(`  ⚠ ${w}`);
-      const { selected, skipped } = selectAnimations(parsed.animations);
+      const { selected, skipped } = selectAnimations(parsed.animations, character.directions === 1);
       for (const line of skipped) log(`  ⚠ ${line}`);
       for (const anim of selected) {
         const previous = seen.get(anim.name);

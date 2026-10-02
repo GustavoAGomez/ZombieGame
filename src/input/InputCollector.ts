@@ -94,6 +94,11 @@ export class InputCollector {
     return cmd;
   }
 
+  /** Bottom edge of the shop panel on screen (CSS px) while it is open, else null. */
+  shopPanelBottom(): number | null {
+    return this.shop.bottom();
+  }
+
   readonly resetAll = (): void => {
     this.joystick.reset();
     this.fireStick.reset();

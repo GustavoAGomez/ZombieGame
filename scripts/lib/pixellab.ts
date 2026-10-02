@@ -10,7 +10,7 @@
  * Direction names are the 8 PixelLab names in our row order: south, south-east, east, …
  * PNGs are 8-bit RGBA with a transparent background.
  */
-import { DIRECTIONS_4, DIRECTIONS_8 } from '../../src/game/assets/manifest';
+import { DIRECTIONS_4, DIRECTIONS_8, type Directions } from '../../src/game/assets/manifest';
 
 export interface ExportAnimation {
   /** Animation name normalised to the manifest vocabulary (idle, walk, …). */
@@ -202,9 +202,15 @@ export function nearestDirection(missing: string, available: readonly string[]):
  * Orders an animation's directions into sheet rows. Returns the direction
  * count (8, or 4 when only south/east/north/west exist) and the rows. With
  * at least MIN_DIRECTIONS_TO_FILL directions, the missing ones reuse the
- * nearest exported one (`filled` says which).
+ * nearest exported one (`filled` says which). A character that always faces
+ * the camera (`single`, manifest `"directions": 1`) keeps only the south row.
  */
-export function directionRows(frames: Map<string, string[]>): { directions: 4 | 8; rows: string[][]; filled: string[] } {
+export function directionRows(
+  frames: Map<string, string[]>,
+  single = false,
+): { directions: Directions; rows: string[][]; filled: string[] } {
+  const south = frames.get('south');
+  if (single && south) return { directions: 1, rows: [south], filled: [] };
   const has8 = DIRECTIONS_8.every((d) => frames.has(d));
   if (has8) return { directions: 8, rows: DIRECTIONS_8.map((d) => frames.get(d) ?? []), filled: [] };
   const has4 = DIRECTIONS_4.every((d) => frames.has(d));
@@ -227,9 +233,9 @@ export interface Selection {
   skipped: string[];
 }
 
-function isComplete(anim: ExportAnimation): boolean {
+function isComplete(anim: ExportAnimation, single: boolean): boolean {
   try {
-    directionRows(anim.frames);
+    directionRows(anim.frames, single);
     return true;
   } catch {
     return false;
@@ -246,11 +252,11 @@ function priority(anim: ExportAnimation): number {
  * directions are skipped; among complete ones for the same name, a run
  * wins over a walk, then the first one found.
  */
-export function selectAnimations(animations: readonly ExportAnimation[]): Selection {
+export function selectAnimations(animations: readonly ExportAnimation[], single = false): Selection {
   const skipped: string[] = [];
   const byName = new Map<string, ExportAnimation>();
   for (const anim of animations) {
-    if (!isComplete(anim)) {
+    if (!isComplete(anim, single)) {
       skipped.push(`"${anim.sourceName}": solo tiene ${[...anim.frames.keys()].join(', ')}; se omite`);
       continue;
     }

@@ -8,7 +8,7 @@
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { PLAYER, ZOMBIES } from '../src/config/balance';
+import { MERCHANT, PLAYER, ZOMBIES } from '../src/config/balance';
 import { REQUIRED_ANIMATIONS, REQUIRED_OBJECTS, animationDirections, isAnimationPlaceholder, parseManifest, type Manifest } from '../src/game/assets/manifest';
 import { parseMap } from '../src/game/map/MapLoader';
 import { colorsOutsidePalette, decodePng, parsePaletteHex, readPngInfo } from './lib/png';
@@ -77,7 +77,7 @@ export function checkAssets(root: string): CheckReport {
 
   for (const [key, def] of Object.entries(manifest.characters)) {
     if (!SNAKE.test(key)) report.errors.push(`Nombre de personaje no válido "${key}" (usa snake_case)`);
-    const expectedRadius = key === 'player' ? PLAYER.hitboxRadius : ZOMBIES.hitboxRadius;
+    const expectedRadius = key === 'player' ? PLAYER.hitboxRadius : key.startsWith('merchant_') ? MERCHANT.radius : ZOMBIES.hitboxRadius;
     if (def.hitbox.radius !== expectedRadius) {
       report.warnings.push(`${key}: hitbox.radius ${def.hitbox.radius} ≠ balance.ts (${expectedRadius}); el juego usa balance.ts`);
     }

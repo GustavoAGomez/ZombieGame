@@ -46,6 +46,8 @@ public/assets/
 
 **Muerte del zombi sin arte:** mientras no haya `death`, el zombi cae al suelo con el primer fotograma de `crawl` y se desvanece durante `ZOMBIES.corpseTime`.
 
+**Magos (`merchant_<color>`):** personajes de **1 dirección** (`"directions": 1`, siempre miran a cámara; el importador toma solo la fila `south`) en 68×68 con el ancla en los pies (0,8). Animaciones: `idle` (respirar, en bucle) y `open_coat` (abrir la gabardina al abrir su tienda, sin bucle; al cerrarla se reproduce al revés). Mientras un mago no tenga personaje, se dibuja su objeto `merchant_<color>` (rectángulo) con el rombo `merchant_gem` encima.
+
 **Direcciones por animación:** una animación puede tener otras filas que el personaje (`"directions": 4` en el climb de un zombi de 8 direcciones); el importador lo anota solo cuando difiere.
 
 **Arte compartido:** varios personajes pueden usar las mismas hojas (los corredores y sprinters usan las del caminante). Sus animaciones apuntan a `sprites/<otro>/<animacion>.png` y cada uno conserva sus `fps`, para que el ritmo vaya con su velocidad.

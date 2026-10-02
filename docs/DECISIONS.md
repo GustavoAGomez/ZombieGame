@@ -741,3 +741,24 @@ Petición del usuario: el zombi sin piernas se veía más grande que de pie, y l
   - Se usa con la misma regla con la que se arrastra (vida ≤ `crawlAtHp`): `hurtboxOf(z)`.
   - La usan las balas, el disparo a quemarropa, el autoapuntado (apunta al centro de la caja), el punto del que sale la sangre y el dibujo de hitboxes del debug.
 - Efecto en el juego: de pie es más fácil acertar (la caja es más grande). Sin piernas, un disparo a la altura del pecho de uno de pie le pasa por encima, como se ve.
+
+## Mago azul con arte (respirar y abrir la gabardina)
+
+Petición del usuario: incluir al mago azul con su animación de respirar de pie y la de abrir la gabardina al abrir la tienda.
+
+- **Personaje de 1 dirección.** El export trae 8 rotaciones quietas, pero las dos animaciones solo miran al sur, y el mago no se mueve: siempre mira a cámara.
+  - El manifiesto admite ahora `"directions": 1`, además de 4 y 8. Con 1, el importador toma solo la fila `south` y todas las direcciones del juego usan esa fila.
+  - El mago pasa a ser el personaje `merchant_blue`, en 68×68 (el lienzo de sus animaciones), con los pies en y = 54 (ancla 0,8) y la hitbox `MERCHANT.radius`.
+  - El objeto `merchant_blue` se queda en el manifiesto como reserva, por si el personaje faltara.
+- **Animaciones:**
+  - `idle` = respirar, 9 fotogramas a 6 fps (1,5 s por ciclo, lento);
+  - `open_coat` = 9 fotogramas a 14 fps (0,64 s).
+- **La gabardina** sigue a la tienda de ese mago (`shopMerchant` de algún jugador), con un pequeño autómata puro (`merchantCoat.ts`):
+  - cerrada (respira) → abriéndose → abierta (último fotograma quieto) → cerrándose (la misma animación al revés) → respira;
+  - si la tienda se cierra a medio abrir, o se reabre a medio cerrar, se da la vuelta desde el fotograma que se ve;
+  - si el mago se teletransporta con la tienda abierta, la tienda se cierra sola y la gabardina también.
+- **Sin rombo para los magos con arte.** El dibujo ya dice quién es (sombrero y gabardina azules). El rojo y el dorado siguen con rectángulo y rombo hasta que tengan arte.
+- **La cámara baja con la tienda abierta.** El panel va centrado arriba (spec 03 §3) y el mago, que está a menos de 40 px del jugador en el centro de la pantalla, quedaba justo debajo, así que no se veía abrir la gabardina.
+  - Mientras la tienda está abierta, la cámara desplaza la vista hacia abajo lo justo para que la cabeza del mago quede 8 px por debajo del panel. El seguimiento suave de la cámara hace el movimiento, a la ida y a la vuelta.
+  - Nunca baja más del 30 % de la vista, para que el jugador siga en pantalla, y no se mueve si el mago ya se ve.
+  - Es solo vista (`followOffset`); el cálculo es una función pura (`shopCamera.ts`).

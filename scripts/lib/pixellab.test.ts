@@ -134,6 +134,18 @@ describe('directionRows', () => {
     expect(() => directionRows(all(['south', 'east']))).toThrow(/north/);
   });
 
+  it('keeps only the south row for a character that always faces the camera (the merchants)', () => {
+    const { directions, rows } = directionRows(all(['south']), true);
+    expect(directions).toBe(1);
+    expect(rows).toEqual([['south.png']]);
+    // An 8-way export of a 1-direction character also keeps just south.
+    expect(directionRows(all(['south', 'south-east', 'east', 'north-east', 'north', 'north-west', 'west', 'south-west']), true).rows).toEqual([
+      ['south.png'],
+    ]);
+    // A south-only animation is incomplete for any other character.
+    expect(() => directionRows(all(['south']))).toThrow(/Faltan/);
+  });
+
   it('fills the missing directions of a partial export with the nearest one, on the same side', () => {
     const { directions, rows, filled } = directionRows(all(['south', 'east', 'west']));
     expect(directions).toBe(8);

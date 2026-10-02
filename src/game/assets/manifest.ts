@@ -3,6 +3,16 @@
  * file paths live in public/assets/manifest.json (CLAUDE.md rule 5).
  */
 
+/**
+ * Rows of a character sheet: 8 or 4 directions, or 1 for a character that
+ * always faces the camera (the merchants).
+ */
+export type Directions = 1 | 4 | 8;
+
+function isDirections(value: unknown): value is Directions {
+  return value === 1 || value === 4 || value === 8;
+}
+
 export interface AnimationDef {
   file: string;
   frames: number;
@@ -11,7 +21,7 @@ export interface AnimationDef {
   /** This animation has no art yet (the character may have others). */
   placeholder?: boolean;
   /** Rows of this sheet when they differ from the character's (a 4-way climb in an 8-way zombie). */
-  directions?: 4 | 8;
+  directions?: Directions;
 }
 
 export interface CharacterDef {
@@ -19,7 +29,7 @@ export interface CharacterDef {
   frameHeight: number;
   anchor: { x: number; y: number };
   hitbox: { radius: number };
-  directions: 4 | 8;
+  directions: Directions;
   placeholder?: boolean;
   animations: Record<string, AnimationDef>;
   /**
@@ -164,13 +174,13 @@ export function parseManifest(json: unknown): Manifest {
     const anchor = isRecord(raw.anchor) ? raw.anchor : {};
     const hitbox = isRecord(raw.hitbox) ? raw.hitbox : {};
     const directions = raw.directions ?? 8;
-    if (directions !== 4 && directions !== 8) throw new ManifestError(`${where}.directions must be 4 or 8`);
+    if (!isDirections(directions)) throw new ManifestError(`${where}.directions must be 1, 4 or 8`);
     const animations: Record<string, AnimationDef> = {};
     for (const [anim, a] of Object.entries(section(raw.animations, `${where}.animations`))) {
       const aw = `${where}.animations.${anim}`;
       if (!isRecord(a)) throw new ManifestError(`${aw} must be an object`);
-      if (a.directions !== undefined && a.directions !== 4 && a.directions !== 8) {
-        throw new ManifestError(`${aw}.directions must be 4 or 8`);
+      if (a.directions !== undefined && !isDirections(a.directions)) {
+        throw new ManifestError(`${aw}.directions must be 1, 4 or 8`);
       }
       animations[anim] = {
         file: text(a.file, `${aw}.file`),
@@ -244,16 +254,17 @@ export function parseManifest(json: unknown): Manifest {
  * east, north, west). With 4-direction sheets, diagonals use the nearest
  * horizontal row (docs/DECISIONS.md).
  */
-export function directionRow(dir8: number, directions: 4 | 8): number {
+export function directionRow(dir8: number, directions: Directions): number {
   const d = ((dir8 % 8) + 8) % 8;
   if (directions === 8) return d;
+  if (directions === 1) return 0;
   // DIRECTIONS_4 = south, east, north, west
   const map4 = [0, 1, 1, 1, 2, 3, 3, 3] as const;
   return map4[d] ?? 0;
 }
 
 /** Direction rows of an animation's sheet: its own if declared, else the character's. */
-export function animationDirections(def: CharacterDef, animation: string): 4 | 8 {
+export function animationDirections(def: CharacterDef, animation: string): Directions {
   return def.animations[animation]?.directions ?? def.directions;
 }
 

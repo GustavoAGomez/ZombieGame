@@ -44,6 +44,7 @@ import type { MuzzleTable } from '../systems/shotGeometry';
 import { angleFromDir8 } from '../../core/math';
 import { muzzleOffset } from '../entities/muzzle';
 import { measureSafePadding, type SafePadding } from '../../ui/safeArea';
+import { shopCameraOffset } from '../shopCamera';
 import { SCENE_KEYS, type GameSceneData } from './BootScene';
 import type { GameOverData } from './GameOverScene';
 
@@ -142,7 +143,7 @@ export class GameScene extends Phaser.Scene {
     this.bloodSpray = new BloodSprayPool(this, events, this.isDark);
     this.pickupViews = new PickupViewPool(this, this.state.pickups.length);
     this.zombieViews = new ZombieViewPool(this, manifest, this.state.zombies.length);
-    this.merchantViews = new MerchantViewPool(this, this.map, this.state.merchants, manifest.objects[ASSET_KEYS.smokePuff]);
+    this.merchantViews = new MerchantViewPool(this, this.map, this.state.merchants, manifest);
     this.offscreenArrows = new OffscreenArrows(this, this.state.merchants);
     this.playerView = new PlayerView(this, playerDef);
     this.speedTrail = new SpeedTrail(this, this.playerView.sprite);
@@ -185,6 +186,7 @@ export class GameScene extends Phaser.Scene {
     if (!this.paused && !this.overShown) this.fixedStep.advance(delta, (dt) => this.step(dt));
     // Before the views: a teleport snaps the camera, which must already be inside the new level.
     this.updateLevel();
+    this.updateShopCamera();
     this.syncViews(this.fixedStep.alpha, time);
     // The blood of hits freezes with the match (pause, game over).
     const effectsDt = this.paused || this.overShown ? 0 : delta / 1000;
@@ -270,7 +272,7 @@ export class GameScene extends Phaser.Scene {
     this.bloodViews.sync(this.state.blood);
     this.pickupViews.sync(this.state.pickups, this.state.time);
     this.zombieViews.sync(this.state.zombies, alpha, now, this.isDark);
-    this.merchantViews.sync(this.state.merchants, this.state.tick, this.state.time);
+    this.merchantViews.sync(this.state.merchants, this.state.players, this.state.tick, this.state.time);
     this.syncOffscreenArrows();
     if (player) {
       this.playerView.sync(player, alpha);
@@ -394,6 +396,33 @@ export class GameScene extends Phaser.Scene {
         return zone >= 0 && this.levels?.zoneLevel[zone] === this.currentLevel;
       },
     );
+  }
+
+  /**
+   * While a shop is open the view moves down just enough for the merchant,
+   * opening its coat, to show under the panel; back when it closes.
+   */
+  private updateShopCamera(): void {
+    const camera = this.cameras.main;
+    const p = this.state.players[0];
+    const index = p?.shopMerchant ?? -1;
+    const m = index >= 0 ? this.state.merchants[index] : undefined;
+    const panelBottom = this.controls.shopPanelBottom();
+    let offset = 0;
+    if (p && m?.active && panelBottom !== null) {
+      const canvas = this.game.canvas.getBoundingClientRect();
+      const cssWidth = canvas.width || this.scale.width;
+      offset = shopCameraOffset({
+        merchantTop: this.merchantViews.bodyTop(index, m),
+        targetY: this.playerView.sprite.y,
+        viewHeight: camera.height / camera.zoom,
+        cssPerWorld: (cssWidth / this.scale.width) * camera.zoom,
+        canvasTop: canvas.top,
+        panelBottom,
+      });
+    }
+    // The follow lerp eases the move both ways.
+    if (camera.followOffset.y !== offset) camera.setFollowOffset(0, offset);
   }
 
   /** Follows the player into another level (through a portal) and fits the camera to it. */

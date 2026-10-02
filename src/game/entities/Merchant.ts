@@ -2,36 +2,51 @@ import type Phaser from 'phaser';
 import { MERCHANT, SIM } from '../../config/balance';
 import { merchantDef, type MerchantId } from '../../config/merchants';
 import { hexToInt } from '../../config/theme';
-import type { MerchantState } from '../../core/GameState';
-import { ASSET_KEYS, objectTextureKey, type ObjectDef } from '../assets/manifest';
+import type { MerchantState, PlayerState } from '../../core/GameState';
+import { ASSET_KEYS, animationKey, characterTextureKey, isAnimationPlaceholder, objectTextureKey, type Manifest } from '../assets/manifest';
 import { actorDepth, DEPTH } from '../depth';
 import type { MapData } from '../map/MapLoader';
+import { nextCoat, type CoatState } from './merchantCoat';
 
 /** Placeholder diamond over the merchant: floats 2 px up and down every 1.2 s (spec 03 §2). */
 const GEM_BOB = 2;
 const GEM_PERIOD = 1.2;
 /** Gap between the top of the body and the diamond (px). */
 const GEM_GAP = 3;
-/** The body's bottom edge sits this far below the merchant's feet point, like other actors. */
+/** The placeholder body's bottom edge sits this far below the merchant's feet point, like other actors. */
 const FEET_OFFSET = 4;
+/** Height of the drawn merchant over its feet, measured on the PixelLab wizard (hat included). */
+const ART_BODY_HEIGHT = 44;
 
 export function merchantTextureKey(id: MerchantId): string {
   return objectTextureKey(`merchant_${id}`);
 }
 
+/** Character key of a merchant drawn with animated art (manifest characters). */
+export function merchantCharacterKey(id: MerchantId): string {
+  return `merchant_${id}`;
+}
+
 interface MerchantSprites {
-  body: Phaser.GameObjects.Image;
+  body: Phaser.GameObjects.Sprite;
   gem: Phaser.GameObjects.Image;
   /** Smoke where it arrived and where it left. */
   arrival: Phaser.GameObjects.Image;
   departure: Phaser.GameObjects.Image;
+  /** Animated art (breathing, opening the coat), or null for the placeholder rectangle. */
+  character: string | null;
+  coat: CoatState;
+  /** Height of the drawn body over the feet: where the diamond and the smoke go. */
+  bodyHeight: number;
 }
 
 /**
  * Merchants on the map (spec 03 §2): a body y-sorted with the other actors,
  * a floating diamond and a smoke puff of its colour for MERCHANT.puffTime
- * where it appears and where it left. Render only: positions and timing
- * come from the state, so the puff also freezes with the pause.
+ * where it appears and where it left. A merchant with art breathes and opens
+ * its coat while its shop is open (merchantCoat.ts); its art says who it is,
+ * so it needs no diamond. Render only: positions and timing come from the
+ * state, so the puff also freezes with the pause.
  */
 export class MerchantViewPool {
   private readonly sprites: MerchantSprites[];
@@ -41,23 +56,32 @@ export class MerchantViewPool {
     scene: Phaser.Scene,
     private readonly map: MapData,
     merchants: readonly MerchantState[],
-    puff: ObjectDef | undefined,
+    manifest: Manifest,
   ) {
-    this.puffFrames = Math.max(1, puff?.frames ?? 1);
+    this.puffFrames = Math.max(1, manifest.objects[ASSET_KEYS.smokePuff]?.frames ?? 1);
     this.sprites = merchants.map((m) => {
       const tint = hexToInt(merchantDef(m.id).color);
       const puffImage = (): Phaser.GameObjects.Image =>
         scene.add.image(0, 0, objectTextureKey(ASSET_KEYS.smokePuff), 0).setTint(tint).setVisible(false);
+      const key = merchantCharacterKey(m.id);
+      const def = manifest.characters[key];
+      const animated = def !== undefined && !isAnimationPlaceholder(def, 'idle') && def.animations.open_coat !== undefined;
+      const body = animated
+        ? scene.add.sprite(0, 0, characterTextureKey(key, 'idle'), 0).setOrigin(def.anchor.x, def.anchor.y)
+        : scene.add.sprite(0, 0, merchantTextureKey(m.id)).setOrigin(0.5, 1);
       return {
-        body: scene.add.image(0, 0, merchantTextureKey(m.id)).setOrigin(0.5, 1).setVisible(false),
+        body: body.setVisible(false),
         gem: scene.add.image(0, 0, objectTextureKey(ASSET_KEYS.merchantGem)).setOrigin(0.5, 1).setTint(tint).setVisible(false),
         arrival: puffImage(),
         departure: puffImage(),
+        character: animated ? key : null,
+        coat: 'closed',
+        bodyHeight: animated ? ART_BODY_HEIGHT : body.height,
       };
     });
   }
 
-  sync(merchants: readonly MerchantState[], tick: number, time: number): void {
+  sync(merchants: readonly MerchantState[], players: readonly PlayerState[], tick: number, time: number): void {
     for (let i = 0; i < this.sprites.length; i++) {
       const s = this.sprites[i];
       const m = merchants[i];
@@ -66,22 +90,54 @@ export class MerchantViewPool {
         for (const img of [s.body, s.gem, s.arrival, s.departure]) if (img.visible) img.setVisible(false);
         continue;
       }
-      const bottom = m.y + FEET_OFFSET;
-      s.body.setVisible(true).setPosition(m.x, bottom).setDepth(actorDepth(m.y));
-      const bob = Math.round(Math.sin((time / GEM_PERIOD) * Math.PI * 2) * GEM_BOB);
-      s.gem
-        .setVisible(true)
-        .setPosition(m.x, bottom - s.body.height - GEM_GAP + bob)
-        .setDepth(actorDepth(m.y) + 0.0001);
+      // The art stands on its anchor (the feet); the placeholder on its bottom edge, a little lower.
+      const feet = s.character ? m.y : m.y + FEET_OFFSET;
+      s.body.setVisible(true).setPosition(m.x, feet).setDepth(actorDepth(m.y));
+      if (s.character) {
+        this.animateCoat(s, players.some((p) => p.shopMerchant === i));
+        if (s.gem.visible) s.gem.setVisible(false);
+      } else {
+        const bob = Math.round(Math.sin((time / GEM_PERIOD) * Math.PI * 2) * GEM_BOB);
+        s.gem
+          .setVisible(true)
+          .setPosition(m.x, feet - s.bodyHeight - GEM_GAP + bob)
+          .setDepth(actorDepth(m.y) + 0.0001);
+      }
 
       const elapsed = (tick - m.moveTick) / SIM.hz;
       const puffing = elapsed >= 0 && elapsed < MERCHANT.puffTime;
       const frame = Math.min(this.puffFrames - 1, Math.floor((elapsed / MERCHANT.puffTime) * this.puffFrames));
-      const centre = bottom - s.body.height / 2;
+      const centre = feet - s.bodyHeight / 2;
       this.syncPuff(s.arrival, puffing, frame, m.x, centre, actorDepth(m.y) + 0.0002);
       const from = this.map.merchantSpots[m.fromSpot];
-      this.syncPuff(s.departure, puffing && from !== undefined, frame, from?.x ?? 0, (from?.y ?? 0) + FEET_OFFSET - s.body.height / 2, actorDepth(from?.y ?? 0) + 0.0002);
+      const fromFeet = (from?.y ?? 0) + (s.character ? 0 : FEET_OFFSET);
+      this.syncPuff(s.departure, puffing && from !== undefined, frame, from?.x ?? 0, fromFeet - s.bodyHeight / 2, actorDepth(from?.y ?? 0) + 0.0002);
     }
+  }
+
+  /** Top of merchant `index`'s drawn body (world y), to keep it in view while its shop is open. */
+  bodyTop(index: number, m: MerchantState): number {
+    const s = this.sprites[index];
+    if (!s) return m.y;
+    return (s.character ? m.y : m.y + FEET_OFFSET) - s.bodyHeight;
+  }
+
+  /** Breathing, or the coat opening, held open or closing, from where it is now. */
+  private animateCoat(s: MerchantSprites, shopOpen: boolean): void {
+    const character = s.character;
+    if (!character) return;
+    const anims = s.body.anims;
+    const coatKey = animationKey(character, 'open_coat', 0);
+    const playing = anims.currentAnim !== null && anims.currentAnim !== undefined;
+    const done = playing && anims.currentAnim?.key === coatKey && !anims.isPlaying;
+    const next = nextCoat(s.coat, shopOpen, done);
+    if (next === s.coat && playing) return;
+    // Turning back halfway starts from the frame on screen.
+    const from = anims.currentAnim?.key === coatKey ? (anims.currentFrame?.index ?? 1) - 1 : -1;
+    s.coat = next;
+    if (next === 'opening') s.body.play({ key: coatKey, startFrame: Math.max(0, from) });
+    else if (next === 'closing') s.body.playReverse(from >= 0 ? { key: coatKey, startFrame: from } : coatKey);
+    else if (next === 'closed' || !playing) s.body.play(animationKey(character, 'idle', 0));
   }
 
   private syncPuff(img: Phaser.GameObjects.Image, show: boolean, frame: number, x: number, y: number, depth: number): void {

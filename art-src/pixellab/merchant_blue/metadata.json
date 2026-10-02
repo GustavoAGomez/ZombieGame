@@ -1,0 +1,63 @@
+{
+  "group_id": "b6962e1d-720e-4944-94a8-b556583abeed",
+  "states": [
+    {
+      "character": {
+        "id": "a536b914-20fe-4f2c-948a-32599a60fe33",
+        "name": "Idle",
+        "prompt": "shady wizard merchant who survived the apocalypse, old man with a long scruffy grey beard and a sly grin, tall crooked pointed wizard hat in deep saturated blue with a patched tip and a worn leather band, round welding goggles pushed up on the hat brim, long heavy trench coat in the same deep saturated blue reaching down to the boots with a turned-up collar, the coat is held closed with both hands gripping the lapels, bulging pockets and lumpy shapes under the coat, a few small glass vials and bullet cartridges hanging from the belt, fingerless gloves, heavy brown survivor boots, a faint pale glow leaking from inside the coat at the chest, neutral grey and brown for everything except the blue hat and coat, dark 1px outline, light coming from top-left, clear readable silhouette, game sprite",
+        "size": {
+          "width": 48,
+          "height": 48
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-10-02T00:30:41.812933+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {
+          "open_coat": {
+            "south": [
+              "Idle/animations/open_coat/south/frame_000.png",
+              "Idle/animations/open_coat/south/frame_001.png",
+              "Idle/animations/open_coat/south/frame_002.png",
+              "Idle/animations/open_coat/south/frame_003.png",
+              "Idle/animations/open_coat/south/frame_004.png",
+              "Idle/animations/open_coat/south/frame_005.png",
+              "Idle/animations/open_coat/south/frame_006.png",
+              "Idle/animations/open_coat/south/frame_007.png",
+              "Idle/animations/open_coat/south/frame_008.png"
+            ]
+          },
+          "Perform_a_slow_rhythmic_breathing_cycle_by_slightl": {
+            "south": [
+              "Idle/animations/Perform_a_slow_rhythmic_breathing_cycle_by_slightl/south/frame_000.png",
+              "Idle/animations/Perform_a_slow_rhythmic_breathing_cycle_by_slightl/south/frame_001.png",
+              "Idle/animations/Perform_a_slow_rhythmic_breathing_cycle_by_slightl/south/frame_002.png",
+              "Idle/animations/Perform_a_slow_rhythmic_breathing_cycle_by_slightl/south/frame_003.png",
+              "Idle/animations/Perform_a_slow_rhythmic_breathing_cycle_by_slightl/south/frame_004.png",
+              "Idle/animations/Perform_a_slow_rhythmic_breathing_cycle_by_slightl/south/frame_005.png",
+              "Idle/animations/Perform_a_slow_rhythmic_breathing_cycle_by_slightl/south/frame_006.png",
+              "Idle/animations/Perform_a_slow_rhythmic_breathing_cycle_by_slightl/south/frame_007.png",
+              "Idle/animations/Perform_a_slow_rhythmic_breathing_cycle_by_slightl/south/frame_008.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-10-02T00:44:23.199721"
+}

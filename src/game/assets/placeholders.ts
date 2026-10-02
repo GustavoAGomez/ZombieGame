@@ -143,7 +143,8 @@ export function createCharacterPlaceholder(
   const anim = def.animations[animation];
   if (!anim) return;
   const look = characterLook(character);
-  const names = animationDirections(def, animation) === 8 ? DIRECTIONS_8 : DIRECTIONS_4;
+  const rows = animationDirections(def, animation);
+  const names = rows === 8 ? DIRECTIONS_8 : rows === 4 ? DIRECTIONS_4 : (['south'] as const);
   const anchorX = Math.round(def.frameWidth * def.anchor.x);
   const anchorY = Math.round(def.frameHeight * def.anchor.y);
 

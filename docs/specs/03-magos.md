@@ -51,6 +51,10 @@
   - Rectángulo de 14×20 px del color del mago, con contorno de 1 px más oscuro.
   - Encima, un rombo de 6 px del mismo color que flota (oscila 2 px, período de 1,2 s).
   - Colores: azul `#3a6fd8`, rojo `#c93a2b` (`--red`), dorado `#e8b04a` (`--amber`).
+- **Con arte** (de momento, el mago azul):
+  - El mago respira de pie mientras espera y abre la gabardina, enseñando sus pociones, cuando se abre su tienda. La mantiene abierta mientras la tienda siga abierta y la cierra al cerrarse.
+  - No lleva rombo: el propio dibujo dice quién es.
+  - Mientras su tienda está abierta, la cámara baja lo justo para que se le vea debajo del panel.
 
 ## 3. Tienda (panel)
 
