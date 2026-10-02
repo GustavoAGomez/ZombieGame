@@ -34,6 +34,7 @@ import { ZombieViewPool } from '../entities/Zombie';
 import { BurnFlames } from '../entities/BurnFlames';
 import { WeaponCaseViews } from '../entities/WeaponCase';
 import { findWeapon, giveWeapon, refillWeapon } from '../systems/InventorySystem';
+import { moveHand } from '../systems/HandSystem';
 import { debugGiveItems } from '../systems/ItemSystem';
 import { HudPresenter } from '../HudPresenter';
 import { buildCollisionGrid } from '../map/CollisionGrid';
@@ -423,6 +424,12 @@ export class GameScene extends Phaser.Scene {
         p.teleports++;
       },
       toggleItemSpots: () => (this.debugDraw.showItemSpots = !this.debugDraw.showItemSpots),
+      toggleFreeHand: () => (this.state.hand.debugFree = !this.state.hand.debugFree),
+      moveHand: () => moveHand(this.sim),
+      forceMock: () => {
+        this.state.hand.usesLeft = 0;
+      },
+      toggleHandSpots: () => (this.debugDraw.showHandSpots = !this.debugDraw.showHandSpots),
     };
   }
 
@@ -474,6 +481,23 @@ export class GameScene extends Phaser.Scene {
         const zone = this.map.merchantSpots[spot]?.zoneIndex ?? -1;
         return zone >= 0 && this.levels?.zoneLevel[zone] === this.currentLevel;
       },
+    );
+    // The Demon's Hand (spec 06 §3.2): only once its room is unlocked, and on the level shown.
+    const handZone = this.map.handSpots[this.state.hand.spot]?.zoneIndex ?? -1;
+    const showHand = handZone >= 0 && this.state.zonesUnlocked[handZone] === true && this.levels?.zoneLevel[handZone] === this.currentLevel;
+    this.handView.syncArrow(
+      this.state.hand,
+      {
+        x: view.x,
+        y: view.y,
+        width: view.width,
+        height: view.height,
+        insetX: pad.x * worldPerCssPx,
+        insetTop: pad.top * worldPerCssPx,
+        insetBottom: pad.bottom * worldPerCssPx,
+      },
+      worldPerCssPx,
+      showHand,
     );
   }
 

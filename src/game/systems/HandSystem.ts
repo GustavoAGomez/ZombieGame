@@ -2,7 +2,7 @@ import { HAND, WEAPON_CASES } from '../../config/balance';
 import { WEAPONS, type WeaponId } from '../../config/weapons';
 import type { GameState, HandPhase, PlayerState, WeaponSlotState } from '../../core/GameState';
 import type { MapData } from '../map/MapLoader';
-import { drawHandOffer } from './handSpawn';
+import { drawHandOffer, drawUses, nextHandSpot } from './handSpawn';
 import { findWeapon, giveWeapon, needsSwapConfirm, refillWeapon, weaponReplacedBy } from './InventorySystem';
 import { spendMoney } from './PointsSystem';
 import type { SimContext } from './SimContext';
@@ -21,6 +21,11 @@ import type { SimContext } from './SimContext';
  * that one is upgraded, like a weapon case), full of ammo. Not taken in
  * time, it sinks with the weapon. While a sequence is under way it takes no
  * other payment. The game goes on all along.
+ *
+ * It tires (spec 06 §3.6): in each spot it takes usesLeft payments (4 to 8);
+ * the next one gets the mocking gesture instead of a draw, the payment
+ * back, and the hand sinks; moveDelay s later it comes up in the spot of
+ * another zone, with its uses drawn again.
  */
 
 /** What the action button offers a player at the hand, and what a tap does. */
@@ -73,19 +78,29 @@ export function tapHand(ctx: SimContext, p: PlayerState): void {
 function pay(ctx: SimContext, p: PlayerState, blood: boolean): void {
   const { state } = ctx;
   const hand = state.hand;
-  if (blood) {
+  if (hand.debugFree) {
+    hand.paid = null;
+  } else if (blood) {
     p.hp -= HAND.bloodCost;
+    hand.paid = 'blood';
     // Like a hit (the red frame and the player's blood), but from nowhere: no push.
     ctx.events.emit('player:damaged', { playerId: p.id, hp: p.hp, maxHp: p.maxHp, x: p.x, y: p.y, fromX: p.x, fromY: p.y });
   } else {
     if (!spendMoney(p, HAND.price)) return;
+    hand.paid = 'money';
     ctx.events.emit('money:spent', { playerId: p.id, amount: HAND.price });
   }
   hand.payer = p.id;
-  hand.paid = blood ? 'blood' : 'money';
   hand.taken = false;
-  hand.offer = drawHandOffer(state, p.weapons.map((w) => w.id), hand.lastOffered);
-  if (hand.offer) hand.lastOffered = hand.offer;
+  // Tired: no draw, the mocking gesture (the payment comes back).
+  hand.mock = hand.usesLeft <= 0;
+  if (hand.mock) {
+    hand.offer = null;
+  } else {
+    hand.usesLeft--;
+    hand.offer = drawHandOffer(state, p.weapons.map((w) => w.id), hand.lastOffered);
+    if (hand.offer) hand.lastOffered = hand.offer;
+  }
   setPhase(state, 'rising', HAND.risingTime);
   ctx.events.emit('hand:paid', { playerId: p.id, blood });
 }
@@ -128,7 +143,12 @@ export function updateHand(ctx: SimContext, dt: number): void {
   if (hand.timer > 0) return;
   switch (hand.phase) {
     case 'rising':
-      setPhase(state, 'rolling', HAND.rollingTime);
+      if (hand.mock) setPhase(state, 'mocking', HAND.mockTime);
+      else setPhase(state, 'rolling', HAND.rollingTime);
+      break;
+    case 'mocking':
+      refund(ctx);
+      setPhase(state, 'sinking', HAND.sinkingTime);
       break;
     case 'rolling':
       if (hand.offer) {
@@ -143,11 +163,45 @@ export function updateHand(ctx: SimContext, dt: number): void {
       setPhase(state, 'sinking', HAND.sinkingTime);
       break;
     case 'sinking':
-      setPhase(state, 'idle', 0);
+      if (hand.mock) setPhase(state, 'away', HAND.moveDelay);
+      else setPhase(state, 'idle', 0);
       hand.payer = -1;
       hand.paid = null;
       hand.offer = null;
       hand.taken = false;
       break;
+    case 'away':
+      moveHand(ctx);
+      break;
   }
+}
+
+/** The tired hand gives the payment back to the one who paid: the money, or the health of the blood pact. */
+function refund(ctx: SimContext): void {
+  const hand = ctx.state.hand;
+  const p = ctx.state.players.find((q) => q.id === hand.payer);
+  if (!p || !hand.paid) return;
+  if (hand.paid === 'money') p.money += HAND.price;
+  else p.hp = Math.min(p.maxHp, p.hp + HAND.bloodCost);
+  ctx.events.emit('hand:refunded', { playerId: p.id, blood: hand.paid === 'blood', amount: hand.paid === 'money' ? HAND.price : HAND.bloodCost });
+}
+
+/**
+ * The hand comes up in the spot of another zone (not its current one nor a
+ * starting one), waiting, with its uses drawn again; announced to everyone.
+ * Also the debug's MOVER MANO, at any moment.
+ */
+export function moveHand(ctx: SimContext): void {
+  const { state, map } = ctx;
+  const hand = state.hand;
+  const spot = nextHandSpot(state, map, hand.spot);
+  if (spot >= 0) hand.spot = spot;
+  hand.usesLeft = drawUses(state);
+  hand.mock = false;
+  hand.payer = -1;
+  hand.paid = null;
+  hand.offer = null;
+  hand.taken = false;
+  setPhase(state, 'idle', 0);
+  ctx.events.emit('hand:moved', { zone: map.handSpots[hand.spot]?.zone ?? '' });
 }

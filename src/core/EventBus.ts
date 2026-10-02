@@ -32,6 +32,10 @@ export interface GameEvents {
   'hand:offer': { weapon: WeaponId; special: boolean };
   /** The one who paid took the hand's weapon. */
   'hand:taken': { playerId: number; weapon: WeaponId };
+  /** The tired hand mocked the payer and gave the payment back (spec 06 §3.6): money, or the blood pact's health. */
+  'hand:refunded': { playerId: number; blood: boolean; amount: number };
+  /** The tired hand came up in another zone (spec 06 §3.6): «LA MANO SE HA MOVIDO». */
+  'hand:moved': { zone: string };
   /** A hellfire burst went off (spec 06 §2.3): the flamethrower's flames burst out there. */
   'fire:blast': { x: number; y: number };
   /** A room was unlocked (its zone id): only now does the HUD say which one, «COCINA DESBLOQUEADA». */

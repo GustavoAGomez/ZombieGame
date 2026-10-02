@@ -40,6 +40,10 @@ export const STRINGS = {
     giveKatana: 'DAR KATANA',
     giveLaser: 'DAR LÁSER',
     giveFlamethrower: 'DAR LANZALLAMAS',
+    freeHand: 'MANO GRATIS',
+    moveHand: 'MOVER MANO',
+    forceMock: 'FORZAR BURLA',
+    handSpots: 'MOSTRAR PUNTOS DE MANO',
     /** Spec 05 §8. */
     giveItems: 'DAR OBJETOS',
     goToWand: 'IR A LA VARITA',
@@ -176,6 +180,10 @@ export const STRINGS = {
   zoneUnlocked: (zone: string): string => {
     const room = ZONES[zone] ?? ROOM;
     return `${room.name} ${room.feminine ? 'DESBLOQUEADA' : 'DESBLOQUEADO'}`;
+  },
+  /** The Demon's Hand (spec 06 §3.6). */
+  hand: {
+    moved: 'LA MANO SE HA MOVIDO',
   },
   /** Special items (spec 05), by id. */
   items: {

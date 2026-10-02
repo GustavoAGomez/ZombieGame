@@ -1363,3 +1363,19 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - Las siluetas pasan cada vez más despacio y nunca adelantan el resultado. Son los iconos del HUD a ×1,5 (`weapon_icon`, generados desde `ui/icons.ts`).
   - Todo queda bajo la niebla de una sala bloqueada. La columna de brasas que se ve por encima llega en la H5.
 - **`WEAPON_ICONS`** pasa de la barra de armas a `ui/icons.ts`, para que los placeholders lo usen sin depender de la entrada.
+
+## Spec 06 · Fase H5 (cansancio y mudanza, columna de brasas, flecha y debug)
+
+- **Cansancio:**
+  - En cada sitio, `usesLeft` (de 4 a 8, sorteado) baja con cada pago normal. Una tirada sin arma también cuenta, como pidió el usuario.
+  - El pago que la encuentra a 0 no sortea: la mano sube, pasa a `mocking` (1,5 s), devuelve el pago al terminar la burla (el dinero, o los 40 de vida sin pasar del máximo), se hunde y queda en `away` 2 s.
+  - Después, `moveHand` la lleva al punto de otra zona, distinta de la actual y de las iniciales, abierta o no. Sortea sus usos de nuevo y emite `hand:moved`, que muestra «LA MANO SE HA MOVIDO» en rojo 2 s.
+  - El HUD enseña la devolución del dinero como un «+950$» flotante.
+  - Mientras está fuera, no se ve la grieta, ni las brasas, ni la flecha.
+- **Columna de brasas:** 22 cuadraditos rojos y naranjas que suben 48 px desde la grieta, se balancean y se desvanecen, a una profundidad propia (`DEPTH.handEmbers`) por encima de la niebla y por debajo de las balas. La primera versión, de 16 brasas de 1-2 px, apenas se veía sobre la oscuridad; ahora son 22 de 2-3 px.
+- **Flecha:** la misma de los magos (`edgeArrow`, la textura `offscreen_arrow`), teñida de rojo oscuro. Solo con la sala de la mano desbloqueada y en el nivel que enseña la cámara.
+- **Debug:**
+  - `MANO GRATIS`: activa y desactiva `hand.debugFree`. Los pagos no cobran, y una burla no devuelve nada porque no se pagó.
+  - `MOVER MANO`: la muda en el acto.
+  - `FORZAR BURLA`: pone sus usos a 0, así que el siguiente pago es la burla.
+  - `MOSTRAR PUNTOS DE MANO`: una cruz roja en cada punto y un aro en el actual.

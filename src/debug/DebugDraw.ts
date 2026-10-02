@@ -21,6 +21,7 @@ export class DebugDraw {
   showHitboxes = false;
   showFlowField = false;
   showItemSpots = false;
+  showHandSpots = false;
   private readonly g: Phaser.GameObjects.Graphics;
 
   constructor(
@@ -35,6 +36,7 @@ export class DebugDraw {
     g.clear();
     if (this.showFlowField) this.drawFlowField(nav);
     if (this.showItemSpots) this.drawItemSpots(state);
+    if (this.showHandSpots) this.drawHandSpots(state);
     if (!this.showHitboxes) return;
     this.drawBulletBlockers(grid);
     g.lineStyle(1, 0x5fd0ff, 1);
@@ -65,6 +67,18 @@ export class DebugDraw {
     for (const item of state.groundItems) if (item.active) g.strokeCircle(item.x, item.y, 14);
     g.lineStyle(1, 0xbe5aeb, 1);
     for (const a of this.map.activationSites) g.strokeRect(a.x, a.y, a.width, a.height);
+  }
+
+  /** The Demon's Hand's spots (spec 06 §5): a red cross each, the one it is at ringed. */
+  private drawHandSpots(state: GameState): void {
+    const g = this.g;
+    g.lineStyle(2, 0xd23a2a, 1);
+    for (const s of this.map.handSpots) {
+      g.lineBetween(s.x - 6, s.y - 6, s.x + 6, s.y + 6);
+      g.lineBetween(s.x - 6, s.y + 6, s.x + 6, s.y - 6);
+    }
+    const here = this.map.handSpots[state.hand.spot];
+    if (here) g.strokeCircle(here.x, here.y, 16);
   }
 
   /**

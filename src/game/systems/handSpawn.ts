@@ -13,7 +13,7 @@ import type { MapData } from '../map/MapLoader';
 
 /** A hand at no spot, waiting: the state before the match places it. */
 export function emptyHand(): HandState {
-  return { spot: -1, phase: 'idle', timer: 0, phaseTick: 0, usesLeft: 0, offer: null, taken: false, lastOffered: null, payer: -1, paid: null };
+  return { spot: -1, phase: 'idle', timer: 0, phaseTick: 0, usesLeft: 0, offer: null, taken: false, lastOffered: null, payer: -1, paid: null, mock: false, debugFree: false };
 }
 
 /**
@@ -40,6 +40,18 @@ export function startingHandZones(map: MapData): number[] {
   if (interior.length > 0) return interior.sort((a, b) => a - b);
   if (withSpot.length > 0) return withSpot.sort((a, b) => a - b);
   return map.zones.flatMap((z, i) => (!z.startsUnlocked && map.handSpots.some((s) => s.zoneIndex === i) ? [i] : []));
+}
+
+/**
+ * The spot the tired hand moves to (spec 06 §3.6): one of a zone other
+ * than its current one and the starting ones, unlocked or not, drawn with
+ * the match's RNG; -1 when there is none.
+ */
+export function nextHandSpot(rng: RngState, map: MapData, current: number): number {
+  const here = map.handSpots[current]?.zoneIndex ?? -1;
+  const candidates = map.handSpots.flatMap((s, i) => (s.zoneIndex !== here && !map.zones[s.zoneIndex]?.startsUnlocked ? [i] : []));
+  if (candidates.length === 0) return -1;
+  return candidates[Math.floor(random(rng) * candidates.length)] ?? -1;
 }
 
 /** Uses the hand takes in a new spot: from usesMin to usesMax, all as likely. */

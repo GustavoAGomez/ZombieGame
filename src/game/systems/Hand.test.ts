@@ -8,8 +8,8 @@ import { command, createMansionContext, createTestContext, player, runTicks, zon
 import { HudPresenter } from '../HudPresenter';
 import { parseMap } from '../map/MapLoader';
 import type { TiledObjectLayer } from '../map/tiled';
-import { createHandState, drawHandOffer, startingHandZones } from './handSpawn';
-import { handOffer } from './HandSystem';
+import { createHandState, drawHandOffer, nextHandSpot, startingHandZones } from './handSpawn';
+import { handOffer, moveHand } from './HandSystem';
 import type { SimContext } from './SimContext';
 import { stepSimulation } from './Simulation';
 
@@ -227,6 +227,83 @@ describe('the sequence', () => {
     stepSimulation(ctx, DT);
     presenter.publish(ctx.state);
     expect(action).toHaveBeenLastCalledWith({ kind: 'hand', amount: HAND.bloodCost, enabled: true, hand: { mode: 'blood' } });
+  });
+});
+
+describe('the hand tires (spec 06 §3.6)', () => {
+  it('takes 4 to 8 payments in a spot, one less each time', () => {
+    const ctx = atTheHand();
+    const uses = ctx.state.hand.usesLeft;
+    expect(uses).toBeGreaterThanOrEqual(HAND.usesMin);
+    expect(uses).toBeLessThanOrEqual(HAND.usesMax);
+    tap(ctx);
+    expect(ctx.state.hand.usesLeft).toBe(uses - 1);
+    expect(ctx.state.hand.mock).toBe(false);
+  });
+
+  it('then mocks the payer, gives the money back, sinks, and 2 s later comes up in another room', () => {
+    const ctx = atTheHand(2000);
+    const before = ctx.map.handSpots[ctx.state.hand.spot]!.zone;
+    ctx.state.hand.usesLeft = 0;
+    const refunded = vi.fn();
+    const moved = vi.fn();
+    ctx.events.on('hand:refunded', refunded);
+    ctx.events.on('hand:moved', moved);
+    tap(ctx);
+    expect(player(ctx).money).toBe(2000 - HAND.price);
+    seconds(ctx, HAND.risingTime);
+    expect(ctx.state.hand.phase).toBe('mocking');
+    expect(handOffer(ctx.map, ctx.state, player(ctx))).toBeNull();
+    seconds(ctx, HAND.mockTime);
+    expect(ctx.state.hand.phase).toBe('sinking');
+    expect(player(ctx).money).toBe(2000);
+    expect(refunded).toHaveBeenCalledWith({ playerId: 0, blood: false, amount: HAND.price });
+    seconds(ctx, HAND.sinkingTime);
+    expect(ctx.state.hand.phase).toBe('away');
+    seconds(ctx, HAND.moveDelay);
+    expect(ctx.state.hand.phase).toBe('idle');
+    const after = ctx.map.handSpots[ctx.state.hand.spot]!.zone;
+    expect(after).not.toBe(before);
+    expect(moved).toHaveBeenCalledWith({ zone: after });
+    expect(ctx.state.hand.usesLeft).toBeGreaterThanOrEqual(HAND.usesMin);
+    expect(ctx.state.hand.usesLeft).toBeLessThanOrEqual(HAND.usesMax);
+  });
+
+  it('gives the blood pact back too', () => {
+    const ctx = atTheHand(100);
+    ctx.state.hand.usesLeft = 0;
+    tap(ctx);
+    expect(player(ctx).hp).toBe(100 - HAND.bloodCost);
+    seconds(ctx, HAND.risingTime + HAND.mockTime);
+    expect(player(ctx).hp).toBe(100);
+  });
+
+  it('moves to a spot of another room, never the one it was in nor the starting one, locked or not', () => {
+    const ctx = createMansionContext();
+    const map = ctx.map;
+    const rng = { rng: 3 };
+    for (let from = 0; from < map.handSpots.length; from++) {
+      for (let i = 0; i < 50; i++) {
+        const to = map.handSpots[nextHandSpot(rng, map, from)]!;
+        expect(to.zoneIndex).not.toBe(map.handSpots[from]!.zoneIndex);
+        expect(map.zones[to.zoneIndex]!.startsUnlocked).toBe(false);
+      }
+    }
+    const seen = new Set<string>();
+    for (let i = 0; i < 200; i++) {
+      moveHand(ctx);
+      seen.add(map.handSpots[ctx.state.hand.spot]!.zone);
+    }
+    expect(seen.size).toBe(map.handSpots.length);
+  });
+
+  it('debug, MANO GRATIS: payments cost nothing (and a mocking gives nothing back)', () => {
+    const ctx = atTheHand(2000);
+    ctx.state.hand.debugFree = true;
+    tap(ctx);
+    expect(player(ctx).money).toBe(2000);
+    expect(ctx.state.hand.phase).toBe('rising');
+    expect(ctx.state.hand.paid).toBeNull();
   });
 });
 

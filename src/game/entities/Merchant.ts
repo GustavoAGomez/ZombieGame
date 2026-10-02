@@ -150,7 +150,7 @@ export class MerchantViewPool {
 }
 
 /** Gap between an off-screen arrow and the safe edge of the screen (CSS px). */
-const ARROW_EDGE_GAP = 6;
+export const ARROW_EDGE_GAP = 6;
 
 export interface ViewEdges {
   /** Visible world rectangle. */

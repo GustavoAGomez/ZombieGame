@@ -145,7 +145,8 @@ Magos con gabardina que venden munición y mejoras. Sus puntos de aparición son
 | Acción | Puntos y dinero |
 |---|---|
 | Bala que acierta (cada perdigón de la escopeta cuenta como una) | +5 |
-| Golpe de cuchillo que acierta | +10 |
+| Golpe de cuchillo que acierta, y cada zombi que alcanza un barrido de la katana | +10 |
+| Rayo del láser o chorro del lanzallamas (una vez cada 0,5 s por zombi) | +5 |
 | Baja (se suma a lo del golpe que la causa) | +50 |
 | Tablón reparado (como mucho 500 por ronda; después se repara sin ganar nada) | +10 |
 
@@ -156,6 +157,39 @@ Magos con gabardina que venden munición y mejoras. Sus puntos de aparición son
 | Salas (el mismo precio por cualquiera de sus puertas o escaleras principales) | Salón y comedor 750$; biblioteca y cocina 1000$; garaje y calle 1250$; jardín 1500$; sótano 1750$; azotea 2000$ |
 | Vitrinas | SMG 1000$, escopeta 1500$; su munición, a mitad de precio |
 | Magos | Munición máxima 750$, mejora de la ronda 1000$, mejoras del rojo 1500$ / 3000$ / 5000$ por nivel, mejora especial 10000$ |
+| Mano del Demonio | 950$, o 40 de vida con el pacto de sangre |
+
+## Mano del Demonio
+
+Una grieta con brasas en el suelo de la que sale una mano que, por dinero o por sangre, ofrece un arma al azar. Es la única forma de conseguir las armas especiales. Solo hay una en la partida.
+
+- **Dónde está:**
+  - Hay un punto posible por sala, salvo en el recibidor.
+  - Al empezar está en el salón o en el comedor (al azar), que son las salas interiores que se compran desde el recibidor.
+  - Sobre la grieta sube una columna de brasas que se ve aunque la sala siga bloqueada y a oscuras.
+  - Con su sala desbloqueada y fuera de la vista, una flecha roja oscura en el borde de la pantalla la señala, como la de los magos (nunca si está en otro nivel). En una sala bloqueada no hay flecha: hay que abrir salas hasta dar con ella.
+  - No es sólida: se pasa por encima.
+- **Pagar**, a menos de 40 px, con el botón de acción:
+  - Con 950$ o más: «MANO DEL DEMONIO · 950$».
+  - Con menos, si tienes más de 40 de vida: «PACTO DE SANGRE · 40 VIDA», en rojo. Cuesta 40 de vida, con el marco rojo y la sangre de un golpe; nunca mata.
+  - Si no llega ni lo uno ni lo otro: «FALTAN X$», atenuado.
+  - Mientras está ocupada con una oferta, no acepta otro pago.
+- **Qué sale:** se sortea al pagar.
+  - 10 % nada; 20 % un arma especial (láser, katana o lanzallamas); 70 % un arma básica (pistola, SMG o escopeta).
+  - Nunca un arma que ya llevas, y no repite la última que ofreció si hay otra.
+  - Si un grupo no tiene ninguna disponible, su parte pasa al otro.
+- **La secuencia** (el juego sigue mientras tanto):
+  1. Sale con el puño cerrado (0,6 s).
+  2. Pasan siluetas de armas, cada vez más despacio (2 s).
+  3. Se abre con el arma flotando 8 s, que parpadea los 3 últimos. Si sale un arma especial, hay un destello y su nombre aparece en el centro de la pantalla 1,5 s. Si no sale nada, se abre vacía y el pago se pierde.
+  4. Se hunde (0,6 s).
+- **Coger el arma:** solo quien pagó, con «COGER LÁSER» (o el arma que sea). Llega con la munición completa.
+  - Con un hueco libre, entra y pasa a la mano.
+  - Con los tres llenos, sustituye al arma en mano. Si esa arma tiene mejoras o su especial, pide un segundo toque, como en las vitrinas.
+  - Si no la coges a tiempo, se hunde con ella y el pago se pierde.
+- **Se cansa:** en cada sitio acepta de 4 a 8 usos, al azar. Una tirada que no da nada también cuenta.
+  - Al pago siguiente sale, hace un gesto de burla (un dedo diciendo que no) durante 1,5 s, devuelve el pago (dinero o vida) y se hunde.
+  - 2 s después reaparece en el punto de otra sala, distinta de la actual y del recibidor, esté abierta o no. Sale el aviso «LA MANO SE HA MOVIDO» y se sortean sus usos de nuevo.
 
 ## Salas
 

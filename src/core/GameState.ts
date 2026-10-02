@@ -46,9 +46,11 @@ export type ContextAction = 'none' | 'repair' | 'door' | 'portal' | 'merchant' |
  * Where the Demon's Hand is in its sequence (spec 06 §3.4): waiting in its
  * crack, rising with its fist closed after a payment, weapon outlines
  * rolling over it, open with the weapon drawn (or empty: the draw gave
- * nothing), and sinking back.
+ * nothing), and sinking back. Tired, it mocks the payer instead of
+ * rolling, and once sunk it is away for a moment before it comes up in
+ * another spot (spec 06 §3.6).
  */
-export type HandPhase = 'idle' | 'rising' | 'rolling' | 'offering' | 'empty' | 'sinking';
+export type HandPhase = 'idle' | 'rising' | 'rolling' | 'offering' | 'empty' | 'mocking' | 'sinking' | 'away';
 
 /** The Demon's Hand (spec 06 §3): one in the match, shared by every player (the offer is only for the one who paid). */
 export interface HandState {
@@ -69,8 +71,12 @@ export interface HandState {
   lastOffered: WeaponId | null;
   /** Player id of who paid for the sequence under way (only they can take the weapon), -1 none. */
   payer: number;
-  /** How the sequence under way was paid. */
+  /** How the sequence under way was paid (refunded if it ends in mockery; null when it was free, debug). */
   paid: 'money' | 'blood' | null;
+  /** The payment under way found it tired: it mocks, gives the payment back and moves (spec 06 §3.6). */
+  mock: boolean;
+  /** Debug (MANO GRATIS): payments cost nothing. */
+  debugFree: boolean;
 }
 
 export interface PlayerState {

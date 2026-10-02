@@ -33,6 +33,11 @@ export interface DebugActions {
   giveKatana(): void;
   giveLaser(): void;
   giveFlamethrower(): void;
+  /** Spec 06 §5: the Demon's Hand takes no payment (on/off), moves now, mocks at the next payment, and its spots drawn. */
+  toggleFreeHand(): boolean;
+  moveHand(): void;
+  forceMock(): void;
+  toggleHandSpots(): boolean;
   /** Spec 05 §8: the heart and the wand into the inventory (off the floor: items are unique). */
   giveItems(): void;
   /** Spec 05 §8: the player next to the wand, while it is still on the floor. */
@@ -100,6 +105,10 @@ export class DebugOverlay {
     button(STRINGS.debug.giveKatana, (a) => a.giveKatana());
     button(STRINGS.debug.giveLaser, (a) => a.giveLaser());
     button(STRINGS.debug.giveFlamethrower, (a) => a.giveFlamethrower());
+    button(STRINGS.debug.freeHand, (a) => a.toggleFreeHand());
+    button(STRINGS.debug.moveHand, (a) => a.moveHand());
+    button(STRINGS.debug.forceMock, (a) => a.forceMock());
+    button(STRINGS.debug.handSpots, (a) => a.toggleHandSpots());
     button(STRINGS.debug.giveItems, (a) => a.giveItems());
     button(STRINGS.debug.goToWand, (a) => a.goToWand());
     button(STRINGS.debug.itemSpots, (a) => a.toggleItemSpots());

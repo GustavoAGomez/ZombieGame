@@ -27,7 +27,7 @@ El juego toma como referencia el modo Zombies de Black Ops 1. Lo que lo hacía a
 |---|---|---|
 | Rondas 1–2 | Sobrevivir, reparar ventanas, abrir la primera sala | Hecho |
 | Ronda 2 | Aparece el **mago azul**: munición y mejoras temporales | Hecho |
-| Inicio–medio | Buscar la **Mano del Demonio** y probar suerte | Spec 06 |
+| Inicio–medio | Buscar la **Mano del Demonio** y probar suerte | Hecho (spec 06) |
 | Medio | **Encender la caldera** del sótano: luz y altares | Pendiente |
 | Medio | Ritual de la piscina: **mago rojo**, mejoras de arma | Hecho |
 | Medio–largo | Comprar **ventajas permanentes** en los altares | Pendiente |
@@ -36,7 +36,10 @@ El juego toma como referencia el modo Zombies de Black Ops 1. Lo que lo hacía a
 
 ## 3. Lista de trabajo, por orden
 
-### 3.1 La Mano del Demonio y las armas especiales — *spec 06*
+### 3.1 La Mano del Demonio y las armas especiales — *spec 06, hecho*
+
+Implementado. Las reglas definitivas están en `GAME-DESIGN.md` (*Mano del Demonio* y *Armas*). Cambios respecto a lo previsto: la mano da 10 % nada, 20 % especial y 70 % básica; la katana alcanza 102 px y se enfría 5 s entre barridos; el lanzallamas llega a 135 px.
+
 
 - Una grieta con brasas en el suelo. Por 950$, una mano sale y ofrece un arma al azar.
 - Da armas básicas y **armas especiales**, que solo se consiguen aquí: láser, katana y lanzallamas infernal.
@@ -95,5 +98,5 @@ Hay que revisar que no pisen lo que vende el mago azul (munición máxima y mejo
 ## 4. Preguntas abiertas
 
 - ¿Cómo se consigue el **corazón vivo**? Hoy se lleva desde el inicio de forma provisional.
-- ¿El pacto de sangre de la mano debe ofrecerse también cuando sí hay dinero?
+- ¿El pacto de sangre de la mano debe ofrecerse también cuando sí hay dinero? (Hoy solo cuando falta dinero.)
 - ¿Las armas especiales tendrán algún día niveles del mago rojo, o solo la mejora dorada?

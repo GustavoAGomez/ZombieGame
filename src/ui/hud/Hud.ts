@@ -155,6 +155,8 @@ export class Hud {
       events.on('activation:completed', this.onActivationCompleted),
       events.on('zone:unlocked', this.onZoneUnlocked),
       events.on('hand:offer', this.onHandOffer),
+      events.on('hand:moved', this.onHandMoved),
+      events.on('hand:refunded', this.onHandRefunded),
     );
   }
 
@@ -241,6 +243,16 @@ export class Hud {
   /** The Demon's Hand opened with a special weapon (spec 06 §3.4): its name, for a moment. */
   private readonly onHandOffer = (e: GameEvents['hand:offer']): void => {
     if (e.special) this.showNotice(STRINGS.weapons[e.weapon], 'var(--red)', HAND.specialNoticeTime);
+  };
+
+  /** The tired hand came up elsewhere (spec 06 §3.6), for everyone. */
+  private readonly onHandMoved = (): void => {
+    this.showNotice(STRINGS.hand.moved, 'var(--red)', HAND.movedNoticeTime);
+  };
+
+  /** The tired hand gave the payment back: "+950$" (the blood pact's health shows on the bar). */
+  private readonly onHandRefunded = (e: GameEvents['hand:refunded']): void => {
+    if (e.playerId === this.localPlayerId && !e.blood) this.float(STRINGS.hud.moneyGained(e.amount), false);
   };
 
   /** A room unlocked: only now is it told which one, for everyone. */

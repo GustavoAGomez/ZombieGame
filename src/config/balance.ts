@@ -379,9 +379,17 @@ export const HAND = {
    * with none left gives its share to the other.
    */
   chances: { nothing: 0.1, special: 0.2, basic: 0.7 },
-  /** Uses it takes in one spot before it tires and moves (spec 06 §3.6, drawn at each new spot). */
+  /**
+   * Uses it takes in one spot before it tires (spec 06 §3.6, drawn at each
+   * new spot): the payment after them gets the mocking gesture for mockTime
+   * s, back, and the hand sinks; moveDelay s later it comes up in another
+   * zone's spot, announced for movedNoticeTime s.
+   */
   usesMin: 4,
   usesMax: 8,
+  mockTime: 1.5,
+  moveDelay: 2,
+  movedNoticeTime: 2,
 } as const;
 
 /** Special items (spec 05): items.ts has the catalogue, activations.ts what they open. */
