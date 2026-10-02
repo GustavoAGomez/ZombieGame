@@ -766,3 +766,15 @@ Petición del usuario: incluir al mago azul con su animación de respirar de pie
 - **Segundo ajuste (pedido por el usuario):** a 0,8, el zombi del suelo mirando hacia abajo (sur, sureste y suroeste) se veía más grande que de pie; hacia arriba, bien. Mirando a cámara enseña la cara de frente, que abulta más que la nuca o el perfil.
   - `"scale"` admite ahora un factor por dirección. Esas tres filas bajan a **0,7**; el resto sigue en 0,8.
   - La hurtbox sin piernas se queda en 28×28: mirando al sur mide unos 22×27 px, y por los lados, más.
+
+## Tinte para corredores y sprinters
+
+Petición del usuario: como los tres tipos de zombi comparten el dibujo, distinguir corredores y sprinters con un tinte.
+
+- **Tinte multiplicado sobre el arte del caminante:**
+  - corredor `#ffc98a` (en el zombi gris verdoso queda ocre);
+  - sprinter `#ff8a7a` (rojizo, más peligroso a la vista);
+  - el caminante no lleva tinte.
+- Los colores son tokens en `theme.ts` (`COLORS.zombieRunnerTint` y `zombieSprinterTint`).
+- El destello blanco al recibir un disparo tiene prioridad; al acabar, vuelve el tinte del tipo. Un sprite del pool que pasa a otro tipo cambia de tinte.
+- Si llegan dibujos propios para corredor y sprinter, se quita el tinte (`KIND_TINT` en `Zombie.ts`).

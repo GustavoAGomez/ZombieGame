@@ -23,6 +23,12 @@ export const COLORS = {
   boostDamage: '#8ec9ff',
   /** Money ($): the HUD's money and every "+N$". */
   money: '#62d26f',
+  /**
+   * Tints (multiplied) of the zombie kinds sharing the walker's art, so they
+   * read at a glance: runners amber, sprinters red. Walkers keep their colours.
+   */
+  zombieRunnerTint: '#ffc98a',
+  zombieSprinterTint: '#ff8a7a',
 } as const;
 
 export type ColorToken = keyof typeof COLORS;

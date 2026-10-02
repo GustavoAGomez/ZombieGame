@@ -141,6 +141,8 @@ Se empieza con las dos para poder probar el cambio de arma. Más adelante habrá
 | Corredor | 58 px/s | 1,0 s |
 | Sprinter | 84 px/s | 1,0 s |
 
+Los tres usan el mismo dibujo. Para distinguirlos, el corredor lleva un tinte ocre y el sprinter uno rojizo; el caminante conserva sus colores.
+
 **Mezcla por ronda:**
 
 | Rondas | Mezcla |

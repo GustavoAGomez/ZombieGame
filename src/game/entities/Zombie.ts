@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { ZOMBIES, type ZombieKind } from '../../config/balance';
+import { COLORS, hexToInt } from '../../config/theme';
 import type { ZombieState } from '../../core/GameState';
 import { dir8FromAngle, lerp } from '../../core/math';
 import { ASSET_KEYS, animationKey, characterTextureKey, isAnimationPlaceholder, type Manifest } from '../assets/manifest';
@@ -10,6 +11,13 @@ const CHARACTER_BY_KIND: Record<ZombieKind, string> = {
   walker: ASSET_KEYS.zombieWalker,
   runner: ASSET_KEYS.zombieRunner,
   sprinter: ASSET_KEYS.zombieSprinter,
+};
+
+/** Multiplied over the shared art so each kind reads at a glance (white = untouched). */
+const KIND_TINT: Record<ZombieKind, number> = {
+  walker: 0xffffff,
+  runner: hexToInt(COLORS.zombieRunnerTint),
+  sprinter: hexToInt(COLORS.zombieSprinterTint),
 };
 
 const HIT_FLASH_MS = 80;
@@ -30,6 +38,8 @@ interface Slot {
   atWindow: boolean;
   /** 0..1, fading in and out at the edge of the darkness. */
   visibility: number;
+  /** Kind tint applied (-1 none yet), so it is set again only when it changes. */
+  tint: number;
 }
 
 /**
@@ -66,6 +76,7 @@ export class ZombieViewPool {
       flashUntil: 0,
       atWindow: false,
       visibility: 0,
+      tint: -1,
     }));
   }
 
@@ -116,11 +127,15 @@ export class ZombieViewPool {
 
       if (slot.lastHp > 0 && z.hp < slot.lastHp && z.hp > 0) slot.flashUntil = now + HIT_FLASH_MS;
       slot.lastHp = z.hp;
+      // A hit flashes white; otherwise the kind's tint (a pooled sprite may change kind).
       const flashing = now < slot.flashUntil;
+      const tint = KIND_TINT[z.kind];
       if (flashing && sprite.tintMode !== Phaser.TintModes.FILL) {
         sprite.setTint(0xffffff).setTintMode(Phaser.TintModes.FILL);
-      } else if (!flashing && sprite.tintMode === Phaser.TintModes.FILL) {
-        sprite.clearTint().setTintMode(Phaser.TintModes.MULTIPLY);
+        slot.tint = -1;
+      } else if (!flashing && slot.tint !== tint) {
+        sprite.setTint(tint).setTintMode(Phaser.TintModes.MULTIPLY);
+        slot.tint = tint;
       }
     }
   }
