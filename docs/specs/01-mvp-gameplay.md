@@ -128,10 +128,10 @@ Se empieza con las dos para poder probar el cambio de arma. Más adelante habrá
 
 ### 4.4 Zombies
 
-**Vida por ronda:**
+**Vida por ronda** (en unidades de daño: una bala de pistola hace 1):
 
-- Rondas 1 a 9: `50 + 25 × (r − 1)`
-- Desde la ronda 10: `vida(9) × 1,1^(r − 9)`
+- `3 + ⌊(r − 1) / 3⌋`: 3 en las rondas 1 a 3, 4 en las 4 a 6, 5 en las 7 a 9… (9 en la ronda 20).
+- El cuchillo (3) mata de un golpe en las rondas 1 a 3.
 
 **Tipos por velocidad:**
 
@@ -229,7 +229,7 @@ La referencia es un iPhone en horizontal de 844×390 CSS px. Todo se posiciona r
 
 **Arriba a la izquierda** (`left: var(--pad-x)`, `top: 14px`), en columna con 10 px de separación:
 
-- **Fila 1:** corazón de 21×18, luego la barra de vida de 176×14 px (10 segmentos, 2 px de separación, marco `--wall`) y después el valor en Press Start 2P a 10 px.
+- **Fila 1:** corazón de 14×12, luego la barra de vida de 112×10 px (10 segmentos de 9 px, 2 px de separación, marco `--wall`) y después el valor en Press Start 2P a 8 px.
 - **Fila 2:** `RONDA N` en Press Start 2P a 16 px, color `--red`.
 - **Fila 3:** nombre del arma (Silkscreen 11 px, `--muted`), icono de bala, cargador (Press Start 2P 14 px, `--amber`) y `/ reserva` (10 px, `--dim`). Durante la recarga, el cargador muestra una barra de progreso.
 

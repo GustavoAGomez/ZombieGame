@@ -117,8 +117,9 @@
 }
 
 .hud-bar {
-  width: 176px;
-  height: 14px;
+  /* 10 segments of 9 px with 2 px gaps inside a 2 px padding. */
+  width: 112px;
+  height: 10px;
   padding: 2px;
   display: flex;
   gap: 2px;
@@ -141,8 +142,8 @@
 
 .hud-hp {
   font-family: var(--font-display);
-  font-size: 10px;
-  min-width: 30px;
+  font-size: 8px;
+  min-width: 24px;
   text-shadow: 2px 2px 0 var(--ink);
 }
 

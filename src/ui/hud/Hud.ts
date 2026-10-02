@@ -58,7 +58,7 @@ export class Hud {
     const left = el('div', 'hud-left');
     this.healthRow = el('div', 'hud-row hud-health');
     this.healthRow.setAttribute('aria-label', STRINGS.hud.health);
-    const heart = pixelIcon('heart', 21);
+    const heart = pixelIcon('heart', 14);
     heart.classList.add('hud-heart');
     const bar = el('div', 'hud-bar');
     for (let i = 0; i < HEALTH_SEGMENTS; i++) {

@@ -164,10 +164,10 @@ export const ZOMBIES = {
   hitboxRadius: 6,
   /**
    * HP in damage units (a bullet of the pistol or the rifle is 1): 3 in
-   * round 1, then one more pistol shot every round survived.
+   * rounds 1–3, then one more pistol shot every 3 rounds (4 in 4–6, 5 in 7–9…).
    */
   hpBase: 3,
-  hpRoundsPerExtraHit: 1,
+  hpRoundsPerExtraHit: 3,
   hpPerExtraHit: 1,
   /**
    * With this much HP left or less a zombie drags itself along: it moves

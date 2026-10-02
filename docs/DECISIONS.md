@@ -683,3 +683,15 @@ Petición del usuario: un indicador de daño rojo alrededor de la pantalla que p
 - **Capas:** va al fondo del HUD. Los textos del HUD y los controles quedan encima y nunca bloquea toques.
 - **Curarse:** con un botiquín el marco se desvanece suavemente (la misma transición).
 - Sin assets nuevos: el ruido se genera en runtime.
+
+## Vida de los zombies cada 3 rondas y fila de vida más pequeña
+
+Petición del usuario.
+
+- **Vida de los zombies:** sube 1 unidad de daño cada 3 rondas, no cada ronda (`ZOMBIES.hpRoundsPerExtraHit` = 3). Queda en 3 en las rondas 1 a 3, 4 en las 4 a 6, 5 en las 7 a 9… y 9 en la ronda 20 (antes, 22).
+  - El cuchillo, con 3, vuelve a matar de un golpe en las tres primeras rondas.
+  - La spec 01 §4.4 conservaba la fórmula original (50 + 25 por ronda); se reescribe con la vigente.
+- **Fila de vida más pequeña.** La vida sigue en 100; solo cambia el tamaño:
+  - el corazón pasa de 21 a 14 px (escala ×2 del icono de 7×6, nítido);
+  - la barra, de 176×14 a 112×10 px (10 segmentos de 9 px exactos);
+  - el valor, de 10 a 8 px (el tamaño nativo de Press Start 2P).
