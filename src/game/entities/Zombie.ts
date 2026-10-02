@@ -2,8 +2,9 @@ import Phaser from 'phaser';
 import { ZOMBIES, type ZombieKind } from '../../config/balance';
 import type { ZombieState } from '../../core/GameState';
 import { dir8FromAngle, lerp } from '../../core/math';
-import { ASSET_KEYS, animationKey, characterTextureKey, type Manifest } from '../assets/manifest';
+import { ASSET_KEYS, animationKey, characterTextureKey, isAnimationPlaceholder, type Manifest } from '../assets/manifest';
 import { actorDepth, overFogDepth } from '../depth';
+import { isLegless, isStrike, swingId, zombiePose, type ZombieArt, type ZombieAnimation, type ZombiePose } from './zombieAnimation';
 
 const CHARACTER_BY_KIND: Record<ZombieKind, string> = {
   walker: ASSET_KEYS.zombieWalker,
@@ -15,17 +16,20 @@ const HIT_FLASH_MS = 80;
 /** How long a zombie takes to appear or vanish at the edge of the darkness. */
 const DARK_FADE_MS = 150;
 
-type ZombieAnimation = 'walk' | 'attack' | 'climb' | 'death';
-
 interface Slot {
   sprite: Phaser.GameObjects.Sprite;
+  /** Animation key playing (character, animation and direction). */
   anim: string;
-  /** actionTick last used to (re)start the attack animation. */
-  action: number;
+  /** Animation name playing, to tell a turn from a change of animation. */
+  animation: ZombieAnimation | '';
+  /** swingId of the last strike started. */
+  swing: number;
   lastHp: number;
   flashUntil: number;
   /** Tearing planks or climbing in (the death animation keeps what it had). */
   atWindow: boolean;
+  /** 0..1, fading in and out at the edge of the darkness. */
+  visibility: number;
 }
 
 /**
@@ -37,10 +41,18 @@ interface Slot {
  */
 export class ZombieViewPool {
   private readonly slots: Slot[];
+  private readonly art: Record<string, ZombieArt>;
   private lastNow = 0;
 
-  constructor(scene: Phaser.Scene, private readonly manifest: Manifest, poolSize: number) {
+  constructor(scene: Phaser.Scene, manifest: Manifest, poolSize: number) {
     const def = manifest.characters[ASSET_KEYS.zombieWalker];
+    this.art = Object.fromEntries(
+      Object.values(CHARACTER_BY_KIND).map((key) => {
+        const c = manifest.characters[key];
+        const real = (anim: string): boolean => c !== undefined && c.animations[anim] !== undefined && !isAnimationPlaceholder(c, anim);
+        return [key, { climb: real('climb'), crawl: real('crawl'), crawlAttack: real('crawl_attack'), death: real('death') }];
+      }),
+    );
     this.slots = Array.from({ length: poolSize }, () => ({
       sprite: scene.add
         .sprite(0, 0, characterTextureKey(ASSET_KEYS.zombieWalker, 'walk'), 0)
@@ -48,10 +60,12 @@ export class ZombieViewPool {
         .setVisible(false)
         .setAlpha(0),
       anim: '',
-      action: -1,
+      animation: '',
+      swing: -1,
       lastHp: 0,
       flashUntil: 0,
       atWindow: false,
+      visibility: 0,
     }));
   }
 
@@ -67,35 +81,37 @@ export class ZombieViewPool {
         if (sprite.visible) sprite.setVisible(false).setAlpha(0);
         slot.lastHp = 0;
         slot.anim = '';
+        slot.animation = '';
+        slot.swing = -1;
         slot.atWindow = false;
+        slot.visibility = 0;
         continue;
       }
       const x = lerp(z.prevX, z.x, alpha);
       const y = lerp(z.prevY, z.y, alpha);
       if (z.ai !== 'dead') slot.atWindow = z.ai === 'tearing' || z.ai === 'climbing';
       const dark = isDark(x, y);
-      const opacity = Phaser.Math.Clamp(sprite.alpha + (slot.atWindow || !dark ? fade : -fade), 0, 1);
-      if (opacity === 0) {
+      slot.visibility = Phaser.Math.Clamp(slot.visibility + (slot.atWindow || !dark ? fade : -fade), 0, 1);
+      if (slot.visibility === 0) {
         if (sprite.visible) sprite.setVisible(false).setAlpha(0);
         continue;
       }
+
+      const character = CHARACTER_BY_KIND[z.kind];
+      const art = this.art[character] ?? NO_ART;
+      const pose = zombiePose(z, art);
+      // Without death art the body drops and fades out over the corpse time.
+      const corpseFade = pose.corpse ? Phaser.Math.Clamp(z.timer / ZOMBIES.corpseTime, 0, 1) : 1;
       sprite
         .setVisible(true)
-        .setAlpha(opacity)
+        .setAlpha(slot.visibility * corpseFade)
         .setPosition(x, y)
         .setDepth(slot.atWindow && dark ? overFogDepth(y) : actorDepth(y));
 
-      const character = CHARACTER_BY_KIND[z.kind];
-      const key = animationKey(character, this.animationFor(character, z), dir8FromAngle(z.facing));
-      const restartAttack = (z.ai === 'tearing' || z.ai === 'attacking') && z.actionTick !== slot.action;
-      if (key !== slot.anim || restartAttack) {
-        slot.anim = key;
-        slot.action = z.actionTick;
-        sprite.play(key);
-      }
-      // A crawling zombie (little HP left) walks slower, and so does its animation, so its feet do not slide.
-      const crawling = z.hp > 0 && z.hp <= ZOMBIES.crawlAtHp && (z.ai === 'chasing' || z.ai === 'toWindow');
-      const timeScale = crawling ? ZOMBIES.crawlSpeedFactor : 1;
+      this.animate(slot, character, z, pose);
+      // Crawling without crawl art: the walk slows down with the zombie, so its feet do not slide.
+      const slowWalk = isLegless(z) && !art.crawl && (z.ai === 'chasing' || z.ai === 'toWindow');
+      const timeScale = slowWalk ? ZOMBIES.crawlSpeedFactor : 1;
       if (sprite.anims.timeScale !== timeScale) sprite.anims.timeScale = timeScale;
 
       if (slot.lastHp > 0 && z.hp < slot.lastHp && z.hp > 0) slot.flashUntil = now + HIT_FLASH_MS;
@@ -109,19 +125,34 @@ export class ZombieViewPool {
     }
   }
 
-  private animationFor(character: string, z: ZombieState): ZombieAnimation {
-    switch (z.ai) {
-      case 'dead':
-        return 'death';
-      case 'tearing':
-      case 'attacking':
-        return 'attack';
-      case 'climbing':
-      case 'emerging':
-        // `climb` is optional in the asset contract; fall back to walking.
-        return this.manifest.characters[character]?.animations.climb ? 'climb' : 'walk';
-      default:
-        return 'walk';
+  private animate(slot: Slot, character: string, z: ZombieState, pose: ZombiePose): void {
+    const { sprite } = slot;
+    const anims = sprite.anims;
+    const swing = swingId(z);
+    const newSwing = swing !== null && swing !== slot.swing && isStrike(pose.animation);
+    if (newSwing) slot.swing = swing;
+    // A strike plays to the end even if the zombie walks on right after landing it.
+    const finishingStrike = isStrike(slot.animation) && anims.isPlaying && (z.ai === 'chasing' || z.ai === 'toWindow');
+    const animation = finishingStrike && !newSwing && slot.animation !== '' ? slot.animation : pose.animation;
+    const key = animationKey(character, animation, dir8FromAngle(z.facing));
+    if (key !== slot.anim || newSwing) {
+      // Turning keeps the step of the animation instead of restarting it, and so does a
+      // strike that switches between standing and on the ground (legs shot off mid-swing).
+      const same = animation === slot.animation || (isStrike(animation) && isStrike(slot.animation));
+      const progress = same && !newSwing ? anims.getProgress() : 0;
+      const wasPlaying = anims.isPlaying;
+      slot.anim = key;
+      slot.animation = animation;
+      sprite.play(key);
+      if (progress > 0) anims.setProgress(progress);
+      // A strike that is not swinging holds its pose (tearing, until the next plank).
+      if (isStrike(animation) && !newSwing && !(same && wasPlaying)) anims.stop();
+    }
+    if (pose.corpse && anims.isPlaying) {
+      anims.setProgress(0);
+      anims.stop();
     }
   }
 }
+
+const NO_ART: ZombieArt = { climb: false, crawl: false, crawlAttack: false, death: false };

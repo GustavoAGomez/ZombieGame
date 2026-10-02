@@ -10,7 +10,7 @@ Este documento lo siguen tanto la persona que genera el arte (PixelLab + Aseprit
 - **Paleta:** 32 colores, guardada en `art-src/palette.hex` (un hex por línea). Todos los PNG finales se reducen a esa paleta en Aseprite.
 - **Densidad:** 1 píxel de arte = 1 píxel de mundo. No se escalan sprites en el motor.
 - **Tile:** 32×32.
-- **Personajes:** lienzo de **48×48** con el cuerpo ocupando unos 32 px, para dejar sitio a brazos extendidos y armas.
+- **Personajes:** lienzo de **48×48** con el cuerpo ocupando unos 32 px, para dejar sitio a brazos extendidos y armas. Los **zombies usan 68×68**: arrastrándose sin piernas el cuerpo mide hasta 52 px de ancho y el zarpazo se sale más (PixelLab los exporta en lienzos de 60, 64 y 68).
 
 ## 2. Carpetas
 
@@ -40,7 +40,15 @@ public/assets/
 | Asset | Animaciones |
 |---|---|
 | `player` | `idle`, `walk`, `shoot`, `dash`, `death`. Opcionales: `shoot_walk` (disparar andando; al retroceder mientras dispara se reproduce al revés) y `melee` (cuchillada; dura `MELEE.swingTime`, 0,25 s, y mientras no exista se dibuja el tajo provisional `melee_slash`) |
-| `zombie_walker`, `zombie_runner` | `walk`, `attack` (también se usa para arrancar tablones), `climb` (opcional; si falta, se usa `walk`), `death` |
+| `zombie_walker`, `zombie_runner` | `walk`, `attack` (también se usa para arrancar tablones), `death`. Opcionales: `climb` (el pequeño dash al entrar por la ventana; si falta, `walk`), `crawl` y `crawl_attack` (sin piernas: arrastrarse y el zarpazo desde el suelo; si faltan, `walk` más lento y `attack`) |
+
+**Sincronía de los zarpazos:** el golpe hace daño `ZOMBIES.attackWindup` (0,35 s) después de empezar, así que los `fps` de `attack` y `crawl_attack` se eligen para que el fotograma del impacto caiga ahí: 12 fps con el impacto en el fotograma 4 y 15 fps con el impacto en el 5. Al arrancar tablones, el zarpazo empieza ese mismo tiempo antes de que caiga el tablón. Un zarpazo se termina de reproducir aunque el zombi eche a andar justo después.
+
+**Muerte del zombi sin arte:** mientras no haya `death`, el zombi cae al suelo con el primer fotograma de `crawl` y se desvanece durante `ZOMBIES.corpseTime`.
+
+**Direcciones por animación:** una animación puede tener otras filas que el personaje (`"directions": 4` en el climb de un zombi de 8 direcciones); el importador lo anota solo cuando difiere.
+
+**Arte compartido:** varios personajes pueden usar las mismas hojas (los corredores y sprinters usan las del caminante). Sus animaciones apuntan a `sprites/<otro>/<animacion>.png` y cada uno conserva sus `fps`, para que el ritmo vaya con su velocidad.
 
 ## 4. Manifiesto (`public/assets/manifest.json`)
 
@@ -147,11 +155,14 @@ Detectado con el primer export (jugador, septiembre de 2026):
 - **Las `rotations`** de un estado se importan como una animación de 1 frame con el nombre del estado normalizado (`Idle` → `idle`), tenga o no animaciones, salvo que una de sus animaciones ya vaya a ese nombre.
 - **Lienzos de otro tamaño:** PixelLab puede generar alguna dirección en 56×56 en vez de 48×48 (visto en la dirección sur de `Running` y `Walking`), con el personaje centrado y 4 px de margen extra por lado. El importador centra esos frames en el lienzo declarado y avisa si al hacerlo se recortaría algún píxel del personaje.
 - **Lienzos de 60×60 y 68×68** en las animaciones de disparo: también se centran en 48×48 (en ese export no se recorta nada del personaje).
+- **Export del zombi** (octubre de 2026): un estado `Idle` con `walking`, el zarpazo (`a_vicious_claw_swipe…`) y `climb` (solo sur, este, norte y oeste), y un estado `the same zombie craw` (el nombre truncado de «crawling») con `dragging_itself_forward` y `ground-level_claw`. Andar, zarpazo y climb vienen en 60×60; arrastrarse, en 64×64 y 68×68. Todo se centra en el lienzo de 68×68 del zombi, con los pies en y ≈ 54 (ancla 0,8).
+- **Direcciones que faltan:** una animación con al menos 3 direcciones (la muerte del jugador llega en sur, este y oeste) se completa a 8 con la más cercana en el círculo. En caso de empate gana la del mismo lado (sureste → este), luego la que tiene lado (norte → este u oeste) y después la primera en el orden de filas. Con menos de 3 se omite, como antes.
 - **Tomas duplicadas:** si una dirección se regeneró, PixelLab la exporta dos veces con un sufijo (`north-36c131c0`, `north-e16e1c8c`). Por defecto se usa la primera; la elección se puede fijar en `art-src/pixellab/<asset>/import.json`: `{ "takes": { "shoot_walk": { "north": "north-36c131c0" } } }`.
-- **Distinto número de frames por dirección** (11 o 13 en los disparos): las direcciones cortas se estiran repitiendo frames de forma uniforme hasta igualar a la más larga, porque el sheet necesita las mismas columnas en todas las filas.
+- **Distinto número de frames por dirección** (11 o 13 en los disparos): las direcciones cortas se estiran repitiendo frames de forma uniforme hasta igualar a la más larga, porque el sheet necesita las mismas columnas en todas las filas. En un bucle donde casi todas las filas son cortas conviene lo contrario: `import.json` puede fijar los frames, `{ "frames": { "walk": 9 } }`, y las dos diagonales de 11 del zombi se reducen a 9 en vez de meter tirones en las otras seis.
+- **Arte compartido:** `import.json` con `{ "alsoFor": ["zombie_runner", "zombie_sprinter"] }` copia al manifiesto de esos personajes las hojas, el lienzo, el ancla y las filas del importado; cada uno conserva sus `fps` y `loop`.
 - **Nombres truncados:** PixelLab corta los nombres de animación a 50 caracteres, así que el importador mira también el nombre del estado. Una animación de andar dentro de un estado de disparo (`standing in a firing`) se importa como `shoot_walk`.
 - **Animaciones incompletas:** una animación a la que le faltan direcciones (por ejemplo, `Walking` solo con `south`) se omite con un aviso.
-- **Animaciones:** se aceptan como `{ <dirección>: [rutas] }` o `{ <dirección>: { frames: [rutas] } }`. Los nombres se normalizan al vocabulario del manifiesto (`Running`/`Walking` → `walk`, que es el bucle de movimiento; si llegan las dos completas, gana `Running` porque el jugador corre; `Shoot…` → `shoot`, `Bite`/`Attack` → `attack`, `Dash`/`Roll` → `dash`, `Death`/`Dying` → `death`, `Climb` → `climb`, `Knife`/`Stab`/`Slash`/`Melee` → `melee`); el resto pasa a `snake_case`. Si un export trae otra estructura, el importador avisa y muestra un extracto.
+- **Animaciones:** se aceptan como `{ <dirección>: [rutas] }` o `{ <dirección>: { frames: [rutas] } }`. Los nombres se normalizan al vocabulario del manifiesto (`Running`/`Walking` → `walk`, que es el bucle de movimiento; si llegan las dos completas, gana `Running` porque el jugador corre; `Shoot…` → `shoot`, `Bite`/`Attack`/`Swipe`/`Claw` → `attack`, `Dash`/`Roll` → `dash`, `Death`/`Dying`/`Staggers` → `death`, `Climb` → `climb`, `Knife`/`Stab`/`Slash`/`Melee` → `melee`, `Crawl`/`Dragging` → `crawl`, y un ataque dentro de un estado de arrastrarse → `crawl_attack`); el resto pasa a `snake_case`. La muerte se reconoce antes que el disparo, para que «…drops the handgun» no se lea como disparar. Si un export trae otra estructura, el importador avisa y muestra un extracto.
 - **Qué hace el importador:** construye un sheet por animación (fila por dirección, columna por frame), alinea cada frame por el `anchor` del manifiesto si el lienzo no mide lo declarado, fuerza el alfa a 0/255, cuantiza a `palette.hex` si existe (si no, avisa) y actualiza el manifiesto (`frames`, `directions`, `placeholder`). Conserva `fps` y `loop` si ya estaban declarados.
 
 ## 7. Tiles, kits y decals del mapa definitivo (spec 02)

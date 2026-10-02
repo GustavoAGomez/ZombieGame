@@ -1,18 +1,20 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { directionRows, normaliseAnimationName, parsePixelLabMetadata, resolveTakes, selectAnimations, type ExportAnimation } from './pixellab';
+import { directionRows, nearestDirection, normaliseAnimationName, parsePixelLabMetadata, resolveTakes, selectAnimations, type ExportAnimation } from './pixellab';
 
 const realMetadata: unknown = JSON.parse(
   readFileSync(resolve(import.meta.dirname, '../../art-src/pixellab/player/metadata.json'), 'utf8'),
 );
 
 describe('parsePixelLabMetadata', () => {
-  it('reads the real player export: run, idle, shooting standing and walking', () => {
+  it('reads the real player export: death, run, idle, shooting standing and walking', () => {
     const parsed = parsePixelLabMetadata(realMetadata, { shoot_walk: { north: 'north-36c131c0', 'south-east': 'south-east-805cba59' } });
     expect(parsed.version).toBe('3.1');
     expect(parsed.warnings).toEqual([]);
-    expect(parsed.animations.map((a) => a.name)).toEqual(['walk', 'walk', 'idle', 'shoot', 'shoot_walk']);
+    expect(parsed.animations.map((a) => a.name)).toEqual(['death', 'walk', 'idle', 'shoot', 'shoot_walk']);
+    // The death comes in south, west and two takes of east; the rest is filled in when importing.
+    expect([...(parsed.animations[0]?.frames.keys() ?? [])].sort()).toEqual(['east', 'south', 'west']);
     const idle = parsed.animations[2]!;
     expect(idle.frames.get('south')).toEqual(['Idle/rotations/south.png']);
     const shootWalk = parsed.animations[4]!;
@@ -24,8 +26,8 @@ describe('parsePixelLabMetadata', () => {
     expect(shootWalk.notes).toHaveLength(2);
 
     const { selected, skipped } = selectAnimations(parsed.animations);
-    expect(selected.map((a) => a.name)).toEqual(['walk', 'idle', 'shoot', 'shoot_walk']);
-    expect(skipped).toEqual(['"Walking": solo tiene south; se omite']);
+    expect(selected.map((a) => a.name)).toEqual(['death', 'walk', 'idle', 'shoot', 'shoot_walk']);
+    expect(skipped).toEqual([]);
   });
 
   it('turns a rotations-only state into a 1-frame animation named after it', () => {
@@ -90,6 +92,20 @@ describe('normaliseAnimationName', () => {
     expect(normaliseAnimationName('Walking and shooting')).toBe('shoot_walk');
     expect(normaliseAnimationName('standing in a firing')).toBe('shoot');
     expect(normaliseAnimationName('Running', 'Idle')).toBe('walk');
+    expect(normaliseAnimationName('Soldier firing')).toBe('shoot');
+  });
+
+  it('reads the zombie and death exports: crawling, claws on the ground, staggering to death', () => {
+    expect(normaliseAnimationName('walking', 'Idle')).toBe('walk');
+    expect(normaliseAnimationName('a_vicious_claw_swipe_in_the_exact_direction_the_ch', 'Idle')).toBe('attack');
+    expect(normaliseAnimationName('climb', 'Idle')).toBe('climb');
+    expect(normaliseAnimationName('dragging_itself_forward', 'the same zombie craw')).toBe('crawl');
+    expect(normaliseAnimationName('ground-level_claw', 'the same zombie craw')).toBe('crawl_attack');
+    expect(normaliseAnimationName('the same zombie craw')).toBe('crawl');
+    // "…drops the handgun" must not become a shot.
+    expect(normaliseAnimationName('the_character_is_hit_staggers_and_drops_the_handgu', 'Idle')).toBe('death');
+    expect(normaliseAnimationName('the character is hit and drops the handgun', 'Idle')).not.toBe('death');
+    expect(normaliseAnimationName('Zombie dies')).toBe('death');
   });
 });
 
@@ -116,6 +132,24 @@ describe('directionRows', () => {
   it('accepts 4-direction exports and rejects incomplete ones', () => {
     expect(directionRows(all(['south', 'east', 'north', 'west'])).directions).toBe(4);
     expect(() => directionRows(all(['south', 'east']))).toThrow(/north/);
+  });
+
+  it('fills the missing directions of a partial export with the nearest one, on the same side', () => {
+    const { directions, rows, filled } = directionRows(all(['south', 'east', 'west']));
+    expect(directions).toBe(8);
+    expect(rows.map((r) => r[0])).toEqual([
+      'south.png',
+      'east.png', // south-east: as near as south, but on the east side
+      'east.png',
+      'east.png', // north-east
+      'east.png', // north: east and west tie, east comes first
+      'west.png', // north-west
+      'west.png',
+      'west.png', // south-west
+    ]);
+    expect(filled).toContain('north ← east');
+    expect(nearestDirection('north', ['south', 'west'])).toBe('west');
+    expect(nearestDirection('south-east', ['south', 'north'])).toBe('south');
   });
 });
 

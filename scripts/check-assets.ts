@@ -9,7 +9,7 @@ import { existsSync, readFileSync, statSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { PLAYER, ZOMBIES } from '../src/config/balance';
-import { REQUIRED_ANIMATIONS, REQUIRED_OBJECTS, isAnimationPlaceholder, parseManifest, type Manifest } from '../src/game/assets/manifest';
+import { REQUIRED_ANIMATIONS, REQUIRED_OBJECTS, animationDirections, isAnimationPlaceholder, parseManifest, type Manifest } from '../src/game/assets/manifest';
 import { parseMap } from '../src/game/map/MapLoader';
 import { colorsOutsidePalette, decodePng, parsePaletteHex, readPngInfo } from './lib/png';
 import { validateMap } from './lib/validate-map';
@@ -84,13 +84,15 @@ export function checkAssets(root: string): CheckReport {
     for (const [anim, a] of Object.entries(def.animations)) {
       if (!SNAKE.test(anim)) report.errors.push(`${key}: nombre de animación no válido "${anim}"`);
       const expectedFile = `sprites/${key}/${anim}.png`;
-      if (a.file !== expectedFile) report.warnings.push(`${key}.${anim}: la ruta debería ser ${expectedFile} (es ${a.file})`);
+      // Characters that share art (import.json "alsoFor") point at another character's sheet.
+      const shared = Object.keys(manifest.characters).some((other) => a.file === `sprites/${other}/${anim}.png`);
+      if (!shared) report.warnings.push(`${key}.${anim}: la ruta debería ser ${expectedFile} (es ${a.file})`);
       sheets.push({
         label: `${key}.${anim}`,
         file: a.file,
         placeholder: isAnimationPlaceholder(def, anim),
         width: def.frameWidth * a.frames,
-        height: def.frameHeight * def.directions,
+        height: def.frameHeight * animationDirections(def, anim),
         frameWidth: def.frameWidth,
         frameHeight: def.frameHeight,
         needsTransparency: true,

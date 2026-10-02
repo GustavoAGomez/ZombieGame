@@ -695,3 +695,35 @@ Petición del usuario.
   - el corazón pasa de 21 a 14 px (escala ×2 del icono de 7×6, nítido);
   - la barra, de 176×14 a 112×10 px (10 segmentos de 9 px exactos);
   - el valor, de 10 a 8 px (el tamaño nativo de Press Start 2P).
+
+## Animaciones del zombi y del jugador (PixelLab)
+
+Petición del usuario: integrar las animaciones del zombi y nuevas del jugador.
+- **Zombi:** andar, gatear sin piernas, zarpazo de pie, zarpazo sin piernas y un pequeño dash al entrar por las ventanas (`climb`).
+- **Jugador:** la muerte en varias direcciones y una carrera hacia el norte que sustituye a la anterior.
+
+- **Fuentes.** El export del jugador sustituye al anterior en `art-src/pixellab/player/`: es el mismo personaje y solo cambian la carrera al norte y la muerte, que es nueva. El del zombi va en `art-src/pixellab/zombie_walker/`.
+- **Un solo zombi para los tres tipos.** Corredores y sprinters usan las hojas del caminante (`alsoFor` en `import.json`, sin duplicar PNG). Su ritmo va con su velocidad:
+  - andar a 9, 15 y 21 fps (caminante, corredor y sprinter: unos 3,7 px de avance por fotograma);
+  - gatear a 8, 14 y 20 fps.
+- **Lienzo de 68×68 para los zombies.** El cuerpo arrastrándose mide hasta 52 px y el zarpazo se sale más, así que 48 recortaba hasta 249 píxeles por dirección. El jugador sigue en 48×48: su export no pierde nada. El ancla del zombi (0,8) ya cae en sus pies (y ≈ 54).
+- **Direcciones por animación** (`AnimationDef.directions`): el climb llega en 4 direcciones y el resto en 8. Antes el manifiesto tenía una sola cifra por personaje y la última animación importada la pisaba.
+- **Muerte del jugador en 3 direcciones** (sur, este y oeste). El importador completa las demás con la más cercana (§6 de ASSETS.md):
+  - norte y noreste → este;
+  - noroeste y suroeste → oeste;
+  - sureste → este.
+
+  De las dos tomas del este se usa la que suelta la pistola, como el nombre de la animación. Dura 11 fotogramas a 8 fps (1,4 s), antes de los 2 s de la pantalla final.
+- **Caminata del zombi en 9 fotogramas.** Seis direcciones traen 9 y las dos diagonales del norte 11. En vez de estirar las seis (dos fotogramas repetidos por ciclo, tirones visibles), se reducen las dos diagonales (`"frames": { "walk": 9 }` en `import.json`).
+- **Zarpazos sincronizados:**
+  - el daño llega a los 0,35 s (`attackWindup`). El zarpazo de pie va a 12 fps (impacto en el fotograma 4) y el del suelo a 15 fps (impacto en el 5); medido en partida: el golpe cae en esos fotogramas;
+  - al arrancar tablones, el zarpazo empieza ese mismo tiempo antes de que caiga el tablón, y entre tablón y tablón se queda en la pose inicial;
+  - el zarpazo se termina de ver aunque el zombi eche a andar al acabar el golpe;
+  - si le quitan las piernas a mitad, sigue desde el mismo punto en el suelo.
+- **Sin piernas** (vida ≤ `crawlAtHp`): se arrastra (`crawl`), ataca y arranca tablones con `crawl_attack` y cruza las ventanas arrastrándose en vez de con el dash.
+- **Muerte del zombi:** no venía en el export. Mientras no llegue, cae al suelo con el primer fotograma de `crawl` y se desvanece durante `ZOMBIES.corpseTime` (0,6 s). Queda en `ASSETS-TODO.md`.
+- **Importador:**
+  - nombres nuevos: `claw` y `swipe` → `attack`; `crawl` y `dragging` → `crawl`; un ataque dentro del estado de arrastrarse → `crawl_attack`; `staggers` y `collapse` → `death`;
+  - la muerte se comprueba antes que el disparo, porque «drops the handgun» contiene «gun»;
+  - `assets:check` acepta el arte compartido y mide cada hoja con sus propias filas.
+- **Pendiente** (`ASSETS-TODO.md`): la muerte del zombi, la del jugador al norte y en diagonal, el dash del jugador y, si se quiere, un aspecto propio para corredores y sprinters.

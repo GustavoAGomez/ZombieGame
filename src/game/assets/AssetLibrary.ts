@@ -3,6 +3,7 @@ import { parseMap, type MapData } from '../map/MapLoader';
 import {
   ASSET_KEYS,
   ASSETS_BASE_URL,
+  animationDirections,
   animationKey,
   characterTextureKey,
   directionRow,
@@ -129,7 +130,7 @@ export class AssetLibrary {
         for (let dir = 0; dir < 8; dir++) {
           const animKey = animationKey(key, anim, dir);
           if (scene.anims.exists(animKey)) scene.anims.remove(animKey);
-          const row = directionRow(dir, def.directions);
+          const row = directionRow(dir, animationDirections(def, borrowed ?? anim));
           const start = row * frames;
           scene.anims.create({
             key: animKey,

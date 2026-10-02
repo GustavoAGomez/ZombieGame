@@ -10,6 +10,8 @@ export interface AnimationDef {
   loop: boolean;
   /** This animation has no art yet (the character may have others). */
   placeholder?: boolean;
+  /** Rows of this sheet when they differ from the character's (a 4-way climb in an 8-way zombie). */
+  directions?: 4 | 8;
 }
 
 export interface CharacterDef {
@@ -167,12 +169,16 @@ export function parseManifest(json: unknown): Manifest {
     for (const [anim, a] of Object.entries(section(raw.animations, `${where}.animations`))) {
       const aw = `${where}.animations.${anim}`;
       if (!isRecord(a)) throw new ManifestError(`${aw} must be an object`);
+      if (a.directions !== undefined && a.directions !== 4 && a.directions !== 8) {
+        throw new ManifestError(`${aw}.directions must be 4 or 8`);
+      }
       animations[anim] = {
         file: text(a.file, `${aw}.file`),
         frames: positive(a.frames, `${aw}.frames`),
         fps: positive(a.fps, `${aw}.fps`),
         loop: a.loop === true,
         placeholder: a.placeholder === true,
+        ...(a.directions !== undefined ? { directions: a.directions } : {}),
       };
     }
     let muzzle: [number, number][] | undefined;
@@ -244,6 +250,11 @@ export function directionRow(dir8: number, directions: 4 | 8): number {
   // DIRECTIONS_4 = south, east, north, west
   const map4 = [0, 1, 1, 1, 2, 3, 3, 3] as const;
   return map4[d] ?? 0;
+}
+
+/** Direction rows of an animation's sheet: its own if declared, else the character's. */
+export function animationDirections(def: CharacterDef, animation: string): 4 | 8 {
+  return def.animations[animation]?.directions ?? def.directions;
 }
 
 /** True when this animation must be generated (no art for it or its character). */

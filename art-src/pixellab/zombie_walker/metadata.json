@@ -1,0 +1,477 @@
+{
+  "group_id": "e465eafc-0308-425e-a88e-6f04ed5a6366",
+  "states": [
+    {
+      "character": {
+        "id": "59408f3c-bb26-4926-a167-ca8e76f98b3f",
+        "name": "Idle",
+        "prompt": "shambling zombie, former suburban office worker, hunched posture with the head tilted to one side, both arms raised and reaching forward with clawed empty hands, pale sickly grey-green skin, sunken dark eye sockets with small glowing pale-yellow eyes, open jaw, patchy thin dark hair, torn dirty light blue-grey button shirt with dark dried stains and one ripped sleeve, ragged dark charcoal trousers torn at the knees, one bare foot and one worn shoe, desaturated cold palette of pale grey-green, blue-grey and charcoal with dark red-brown stains, dark 1px outline, light coming from top-left, clear readable silhouette, game sprite",
+        "size": {
+          "width": 48,
+          "height": 48
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-10-01T22:42:01.735116+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {
+          "a_vicious_claw_swipe_in_the_exact_direction_the_ch": {
+            "east": [
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/east/frame_000.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/east/frame_001.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/east/frame_002.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/east/frame_003.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/east/frame_004.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/east/frame_005.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/east/frame_006.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/east/frame_007.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/east/frame_008.png"
+            ],
+            "west": [
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/west/frame_000.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/west/frame_001.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/west/frame_002.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/west/frame_003.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/west/frame_004.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/west/frame_005.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/west/frame_006.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/west/frame_007.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/west/frame_008.png"
+            ],
+            "north-west": [
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north-west/frame_000.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north-west/frame_001.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north-west/frame_002.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north-west/frame_003.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north-west/frame_004.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north-west/frame_005.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north-west/frame_006.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north-west/frame_007.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north-west/frame_008.png"
+            ],
+            "south-west": [
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south-west/frame_000.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south-west/frame_001.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south-west/frame_002.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south-west/frame_003.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south-west/frame_004.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south-west/frame_005.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south-west/frame_006.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south-west/frame_007.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south-west/frame_008.png"
+            ],
+            "south": [
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south/frame_000.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south/frame_001.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south/frame_002.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south/frame_003.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south/frame_004.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south/frame_005.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south/frame_006.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south/frame_007.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south/frame_008.png"
+            ],
+            "north-east": [
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north-east/frame_000.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north-east/frame_001.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north-east/frame_002.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north-east/frame_003.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north-east/frame_004.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north-east/frame_005.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north-east/frame_006.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north-east/frame_007.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north-east/frame_008.png"
+            ],
+            "south-east": [
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south-east/frame_000.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south-east/frame_001.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south-east/frame_002.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south-east/frame_003.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south-east/frame_004.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south-east/frame_005.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south-east/frame_006.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south-east/frame_007.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/south-east/frame_008.png"
+            ],
+            "north": [
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north/frame_000.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north/frame_001.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north/frame_002.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north/frame_003.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north/frame_004.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north/frame_005.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north/frame_006.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north/frame_007.png",
+              "Idle/animations/a_vicious_claw_swipe_in_the_exact_direction_the_ch/north/frame_008.png"
+            ]
+          },
+          "climb": {
+            "south": [
+              "Idle/animations/climb/south/frame_000.png",
+              "Idle/animations/climb/south/frame_001.png",
+              "Idle/animations/climb/south/frame_002.png",
+              "Idle/animations/climb/south/frame_003.png",
+              "Idle/animations/climb/south/frame_004.png",
+              "Idle/animations/climb/south/frame_005.png",
+              "Idle/animations/climb/south/frame_006.png",
+              "Idle/animations/climb/south/frame_007.png",
+              "Idle/animations/climb/south/frame_008.png"
+            ],
+            "west": [
+              "Idle/animations/climb/west/frame_000.png",
+              "Idle/animations/climb/west/frame_001.png",
+              "Idle/animations/climb/west/frame_002.png",
+              "Idle/animations/climb/west/frame_003.png",
+              "Idle/animations/climb/west/frame_004.png",
+              "Idle/animations/climb/west/frame_005.png",
+              "Idle/animations/climb/west/frame_006.png",
+              "Idle/animations/climb/west/frame_007.png",
+              "Idle/animations/climb/west/frame_008.png"
+            ],
+            "east": [
+              "Idle/animations/climb/east/frame_000.png",
+              "Idle/animations/climb/east/frame_001.png",
+              "Idle/animations/climb/east/frame_002.png",
+              "Idle/animations/climb/east/frame_003.png",
+              "Idle/animations/climb/east/frame_004.png",
+              "Idle/animations/climb/east/frame_005.png",
+              "Idle/animations/climb/east/frame_006.png",
+              "Idle/animations/climb/east/frame_007.png",
+              "Idle/animations/climb/east/frame_008.png"
+            ],
+            "north": [
+              "Idle/animations/climb/north/frame_000.png",
+              "Idle/animations/climb/north/frame_001.png",
+              "Idle/animations/climb/north/frame_002.png",
+              "Idle/animations/climb/north/frame_003.png",
+              "Idle/animations/climb/north/frame_004.png",
+              "Idle/animations/climb/north/frame_005.png",
+              "Idle/animations/climb/north/frame_006.png",
+              "Idle/animations/climb/north/frame_007.png",
+              "Idle/animations/climb/north/frame_008.png"
+            ]
+          },
+          "walking": {
+            "south": [
+              "Idle/animations/walking/south/frame_000.png",
+              "Idle/animations/walking/south/frame_001.png",
+              "Idle/animations/walking/south/frame_002.png",
+              "Idle/animations/walking/south/frame_003.png",
+              "Idle/animations/walking/south/frame_004.png",
+              "Idle/animations/walking/south/frame_005.png",
+              "Idle/animations/walking/south/frame_006.png",
+              "Idle/animations/walking/south/frame_007.png",
+              "Idle/animations/walking/south/frame_008.png"
+            ],
+            "north-east": [
+              "Idle/animations/walking/north-east/frame_000.png",
+              "Idle/animations/walking/north-east/frame_001.png",
+              "Idle/animations/walking/north-east/frame_002.png",
+              "Idle/animations/walking/north-east/frame_003.png",
+              "Idle/animations/walking/north-east/frame_004.png",
+              "Idle/animations/walking/north-east/frame_005.png",
+              "Idle/animations/walking/north-east/frame_006.png",
+              "Idle/animations/walking/north-east/frame_007.png",
+              "Idle/animations/walking/north-east/frame_008.png",
+              "Idle/animations/walking/north-east/frame_009.png",
+              "Idle/animations/walking/north-east/frame_010.png"
+            ],
+            "south-west": [
+              "Idle/animations/walking/south-west/frame_000.png",
+              "Idle/animations/walking/south-west/frame_001.png",
+              "Idle/animations/walking/south-west/frame_002.png",
+              "Idle/animations/walking/south-west/frame_003.png",
+              "Idle/animations/walking/south-west/frame_004.png",
+              "Idle/animations/walking/south-west/frame_005.png",
+              "Idle/animations/walking/south-west/frame_006.png",
+              "Idle/animations/walking/south-west/frame_007.png",
+              "Idle/animations/walking/south-west/frame_008.png"
+            ],
+            "north-west": [
+              "Idle/animations/walking/north-west/frame_000.png",
+              "Idle/animations/walking/north-west/frame_001.png",
+              "Idle/animations/walking/north-west/frame_002.png",
+              "Idle/animations/walking/north-west/frame_003.png",
+              "Idle/animations/walking/north-west/frame_004.png",
+              "Idle/animations/walking/north-west/frame_005.png",
+              "Idle/animations/walking/north-west/frame_006.png",
+              "Idle/animations/walking/north-west/frame_007.png",
+              "Idle/animations/walking/north-west/frame_008.png",
+              "Idle/animations/walking/north-west/frame_009.png",
+              "Idle/animations/walking/north-west/frame_010.png"
+            ],
+            "south-east": [
+              "Idle/animations/walking/south-east/frame_000.png",
+              "Idle/animations/walking/south-east/frame_001.png",
+              "Idle/animations/walking/south-east/frame_002.png",
+              "Idle/animations/walking/south-east/frame_003.png",
+              "Idle/animations/walking/south-east/frame_004.png",
+              "Idle/animations/walking/south-east/frame_005.png",
+              "Idle/animations/walking/south-east/frame_006.png",
+              "Idle/animations/walking/south-east/frame_007.png",
+              "Idle/animations/walking/south-east/frame_008.png"
+            ],
+            "east": [
+              "Idle/animations/walking/east/frame_000.png",
+              "Idle/animations/walking/east/frame_001.png",
+              "Idle/animations/walking/east/frame_002.png",
+              "Idle/animations/walking/east/frame_003.png",
+              "Idle/animations/walking/east/frame_004.png",
+              "Idle/animations/walking/east/frame_005.png",
+              "Idle/animations/walking/east/frame_006.png",
+              "Idle/animations/walking/east/frame_007.png",
+              "Idle/animations/walking/east/frame_008.png"
+            ],
+            "north": [
+              "Idle/animations/walking/north/frame_000.png",
+              "Idle/animations/walking/north/frame_001.png",
+              "Idle/animations/walking/north/frame_002.png",
+              "Idle/animations/walking/north/frame_003.png",
+              "Idle/animations/walking/north/frame_004.png",
+              "Idle/animations/walking/north/frame_005.png",
+              "Idle/animations/walking/north/frame_006.png",
+              "Idle/animations/walking/north/frame_007.png",
+              "Idle/animations/walking/north/frame_008.png"
+            ],
+            "west": [
+              "Idle/animations/walking/west/frame_000.png",
+              "Idle/animations/walking/west/frame_001.png",
+              "Idle/animations/walking/west/frame_002.png",
+              "Idle/animations/walking/west/frame_003.png",
+              "Idle/animations/walking/west/frame_004.png",
+              "Idle/animations/walking/west/frame_005.png",
+              "Idle/animations/walking/west/frame_006.png",
+              "Idle/animations/walking/west/frame_007.png",
+              "Idle/animations/walking/west/frame_008.png"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "character": {
+        "id": "7636b403-4a6c-4bb3-8750-a8e91abe1565",
+        "name": "the same zombie craw",
+        "prompt": "shambling zombie, former suburban office worker, hunched posture with the head tilted to one side, both arms raised and reaching forward with clawed empty hands, pale sickly grey-green skin, sunken dark eye sockets with small glowing pale-yellow eyes, open jaw, patchy thin dark hair, torn dirty light blue-grey button shirt with dark dried stains and one ripped sleeve, ragged dark charcoal trousers torn at the knees, one bare foot and one worn shoe, desaturated cold palette of pale grey-green, blue-grey and charcoal with dark red-brown stains, dark 1px outline, light coming from top-left, clear readable silhouette, game sprite",
+        "size": {
+          "width": 48,
+          "height": 48
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-10-01T23:05:26.761715+00:00"
+      },
+      "folder": "the_same_zombie_craw",
+      "frames": {
+        "rotations": {
+          "south": "the_same_zombie_craw/rotations/south.png",
+          "south-east": "the_same_zombie_craw/rotations/south-east.png",
+          "east": "the_same_zombie_craw/rotations/east.png",
+          "north-east": "the_same_zombie_craw/rotations/north-east.png",
+          "north": "the_same_zombie_craw/rotations/north.png",
+          "north-west": "the_same_zombie_craw/rotations/north-west.png",
+          "west": "the_same_zombie_craw/rotations/west.png",
+          "south-west": "the_same_zombie_craw/rotations/south-west.png"
+        },
+        "animations": {
+          "dragging_itself_forward": {
+            "north": [
+              "the_same_zombie_craw/animations/dragging_itself_forward/north/frame_000.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north/frame_001.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north/frame_002.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north/frame_003.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north/frame_004.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north/frame_005.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north/frame_006.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north/frame_007.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north/frame_008.png"
+            ],
+            "south-east": [
+              "the_same_zombie_craw/animations/dragging_itself_forward/south-east/frame_000.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south-east/frame_001.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south-east/frame_002.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south-east/frame_003.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south-east/frame_004.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south-east/frame_005.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south-east/frame_006.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south-east/frame_007.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south-east/frame_008.png"
+            ],
+            "north-west": [
+              "the_same_zombie_craw/animations/dragging_itself_forward/north-west/frame_000.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north-west/frame_001.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north-west/frame_002.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north-west/frame_003.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north-west/frame_004.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north-west/frame_005.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north-west/frame_006.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north-west/frame_007.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north-west/frame_008.png"
+            ],
+            "west": [
+              "the_same_zombie_craw/animations/dragging_itself_forward/west/frame_000.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/west/frame_001.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/west/frame_002.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/west/frame_003.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/west/frame_004.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/west/frame_005.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/west/frame_006.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/west/frame_007.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/west/frame_008.png"
+            ],
+            "south-west": [
+              "the_same_zombie_craw/animations/dragging_itself_forward/south-west/frame_000.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south-west/frame_001.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south-west/frame_002.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south-west/frame_003.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south-west/frame_004.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south-west/frame_005.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south-west/frame_006.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south-west/frame_007.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south-west/frame_008.png"
+            ],
+            "east": [
+              "the_same_zombie_craw/animations/dragging_itself_forward/east/frame_000.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/east/frame_001.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/east/frame_002.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/east/frame_003.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/east/frame_004.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/east/frame_005.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/east/frame_006.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/east/frame_007.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/east/frame_008.png"
+            ],
+            "south": [
+              "the_same_zombie_craw/animations/dragging_itself_forward/south/frame_000.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south/frame_001.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south/frame_002.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south/frame_003.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south/frame_004.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south/frame_005.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south/frame_006.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south/frame_007.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/south/frame_008.png"
+            ],
+            "north-east": [
+              "the_same_zombie_craw/animations/dragging_itself_forward/north-east/frame_000.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north-east/frame_001.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north-east/frame_002.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north-east/frame_003.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north-east/frame_004.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north-east/frame_005.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north-east/frame_006.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north-east/frame_007.png",
+              "the_same_zombie_craw/animations/dragging_itself_forward/north-east/frame_008.png"
+            ]
+          },
+          "ground-level_claw": {
+            "south": [
+              "the_same_zombie_craw/animations/ground-level_claw/south/frame_000.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south/frame_001.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south/frame_002.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south/frame_003.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south/frame_004.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south/frame_005.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south/frame_006.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south/frame_007.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south/frame_008.png"
+            ],
+            "south-west": [
+              "the_same_zombie_craw/animations/ground-level_claw/south-west/frame_000.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south-west/frame_001.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south-west/frame_002.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south-west/frame_003.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south-west/frame_004.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south-west/frame_005.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south-west/frame_006.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south-west/frame_007.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south-west/frame_008.png"
+            ],
+            "south-east": [
+              "the_same_zombie_craw/animations/ground-level_claw/south-east/frame_000.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south-east/frame_001.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south-east/frame_002.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south-east/frame_003.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south-east/frame_004.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south-east/frame_005.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south-east/frame_006.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south-east/frame_007.png",
+              "the_same_zombie_craw/animations/ground-level_claw/south-east/frame_008.png"
+            ],
+            "north-west": [
+              "the_same_zombie_craw/animations/ground-level_claw/north-west/frame_000.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north-west/frame_001.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north-west/frame_002.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north-west/frame_003.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north-west/frame_004.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north-west/frame_005.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north-west/frame_006.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north-west/frame_007.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north-west/frame_008.png"
+            ],
+            "north": [
+              "the_same_zombie_craw/animations/ground-level_claw/north/frame_000.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north/frame_001.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north/frame_002.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north/frame_003.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north/frame_004.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north/frame_005.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north/frame_006.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north/frame_007.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north/frame_008.png"
+            ],
+            "east": [
+              "the_same_zombie_craw/animations/ground-level_claw/east/frame_000.png",
+              "the_same_zombie_craw/animations/ground-level_claw/east/frame_001.png",
+              "the_same_zombie_craw/animations/ground-level_claw/east/frame_002.png",
+              "the_same_zombie_craw/animations/ground-level_claw/east/frame_003.png",
+              "the_same_zombie_craw/animations/ground-level_claw/east/frame_004.png",
+              "the_same_zombie_craw/animations/ground-level_claw/east/frame_005.png",
+              "the_same_zombie_craw/animations/ground-level_claw/east/frame_006.png",
+              "the_same_zombie_craw/animations/ground-level_claw/east/frame_007.png",
+              "the_same_zombie_craw/animations/ground-level_claw/east/frame_008.png"
+            ],
+            "north-east": [
+              "the_same_zombie_craw/animations/ground-level_claw/north-east/frame_000.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north-east/frame_001.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north-east/frame_002.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north-east/frame_003.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north-east/frame_004.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north-east/frame_005.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north-east/frame_006.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north-east/frame_007.png",
+              "the_same_zombie_craw/animations/ground-level_claw/north-east/frame_008.png"
+            ],
+            "west": [
+              "the_same_zombie_craw/animations/ground-level_claw/west/frame_000.png",
+              "the_same_zombie_craw/animations/ground-level_claw/west/frame_001.png",
+              "the_same_zombie_craw/animations/ground-level_claw/west/frame_002.png",
+              "the_same_zombie_craw/animations/ground-level_claw/west/frame_003.png",
+              "the_same_zombie_craw/animations/ground-level_claw/west/frame_004.png",
+              "the_same_zombie_craw/animations/ground-level_claw/west/frame_005.png",
+              "the_same_zombie_craw/animations/ground-level_claw/west/frame_006.png",
+              "the_same_zombie_craw/animations/ground-level_claw/west/frame_007.png",
+              "the_same_zombie_craw/animations/ground-level_claw/west/frame_008.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-10-02T00:17:41.823601"
+}

@@ -1,0 +1,4 @@
+{
+  "frames": { "walk": 9 },
+  "alsoFor": ["zombie_runner", "zombie_sprinter"]
+}

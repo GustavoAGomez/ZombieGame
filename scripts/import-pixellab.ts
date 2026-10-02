@@ -26,6 +26,8 @@ const ANIMATION_DEFAULTS: Record<string, { fps: number; loop: boolean }> = {
   dash: { fps: 20, loop: false },
   death: { fps: 8, loop: false },
   climb: { fps: 6, loop: false },
+  crawl: { fps: 8, loop: true },
+  crawl_attack: { fps: 15, loop: false },
 };
 
 type Json = Record<string, unknown>;
@@ -45,6 +47,8 @@ function isRecord(value: unknown): value is Json {
  * Updates the raw manifest JSON for one imported animation. The character
  * stops being a placeholder; its other animations without art are marked
  * `"placeholder": true` individually so they keep being generated.
+ * The character's `directions` is 8 if any animation has 8 rows; an
+ * animation with a different count declares its own (a 4-way climb).
  */
 export function applyImport(manifest: Json, asset: string, imported: ImportedAnimation, hasFile: (file: string) => boolean): void {
   const characters = isRecord(manifest.characters) ? manifest.characters : (manifest.characters = {});
@@ -52,6 +56,8 @@ export function applyImport(manifest: Json, asset: string, imported: ImportedAni
     ? characters[asset]
     : (characters[asset] = { frameWidth: 48, frameHeight: 48, anchor: { x: 0.5, y: 0.8 }, hitbox: { radius: 6 }, animations: {} });
   const animations = isRecord(character.animations) ? character.animations : (character.animations = {});
+  const wasPlaceholder = character.placeholder === true;
+  const characterDirections = character.directions === 4 ? 4 : 8;
 
   const existing = animations[imported.name];
   const previous: Json = isRecord(existing) ? existing : {};
@@ -61,15 +67,51 @@ export function applyImport(manifest: Json, asset: string, imported: ImportedAni
     frames: imported.frames,
     fps: typeof previous.fps === 'number' ? previous.fps : defaults.fps,
     loop: typeof previous.loop === 'boolean' ? previous.loop : defaults.loop,
+    directions: imported.directions,
   };
-  character.directions = imported.directions;
   character.placeholder = false;
 
   for (const [name, anim] of Object.entries(animations)) {
     if (name === imported.name || !isRecord(anim)) continue;
-    if (hasFile(typeof anim.file === 'string' ? anim.file : '')) delete anim.placeholder;
+    const real = hasFile(typeof anim.file === 'string' ? anim.file : '');
+    if (real) delete anim.placeholder;
     else anim.placeholder = true;
+    // Art imported before keeps the rows it was built with; a placeholder follows the character.
+    if (real && !wasPlaceholder && anim.directions === undefined) anim.directions = characterDirections;
+    if (!real) delete anim.directions;
   }
+
+  const all = Object.values(animations).filter(isRecord);
+  character.directions = all.some((a) => a.directions === 8) ? 8 : imported.directions;
+  for (const anim of all) if (anim.directions === character.directions) delete anim.directions;
+}
+
+/**
+ * Copies an imported character's art to other characters that share it
+ * (import.json `"alsoFor"`): same sheets, frame size, anchor and rows; each
+ * keeps its own fps and loop if it declared them (a runner walks faster).
+ */
+export function shareArt(manifest: Json, from: string, to: string): void {
+  const characters = isRecord(manifest.characters) ? manifest.characters : {};
+  const source = characters[from];
+  if (!isRecord(source) || !isRecord(source.animations)) return;
+  const target = isRecord(characters[to]) ? characters[to] : (characters[to] = {});
+  const targetAnims = isRecord(target.animations) ? target.animations : {};
+  const animations: Json = {};
+  for (const [name, anim] of Object.entries(source.animations)) {
+    if (!isRecord(anim)) continue;
+    const own = isRecord(targetAnims[name]) ? targetAnims[name] : {};
+    animations[name] = {
+      ...anim,
+      ...(typeof own.fps === 'number' ? { fps: own.fps } : {}),
+      ...(typeof own.loop === 'boolean' ? { loop: own.loop } : {}),
+    };
+  }
+  for (const key of ['frameWidth', 'frameHeight', 'anchor', 'directions', 'placeholder'] as const) {
+    if (source[key] !== undefined) target[key] = structuredClone(source[key]);
+  }
+  if (target.hitbox === undefined && source.hitbox !== undefined) target.hitbox = structuredClone(source.hitbox);
+  target.animations = animations;
 }
 
 /** Stretches (or shrinks) a frame list to `count` frames, keeping its timing even. */
@@ -100,6 +142,7 @@ function importAnimation(
   character: Json,
   palette: number[] | null,
   log: (line: string) => void,
+  frameCount?: number,
 ): ImportedAnimation {
   const frameWidth = typeof character.frameWidth === 'number' ? character.frameWidth : anim.width || 48;
   const frameHeight = typeof character.frameHeight === 'number' ? character.frameHeight : anim.height || 48;
@@ -107,12 +150,16 @@ function importAnimation(
   const anchorY = typeof anchorRaw.y === 'number' ? anchorRaw.y : 0.8;
 
   for (const note of anim.notes ?? []) log(`  · ${anim.sourceName}: ${note}`);
-  const { directions, rows: sourceRows } = directionRows(anim.frames);
-  const frames = Math.max(...sourceRows.map((r) => r.length));
+  const { directions, rows: sourceRows, filled } = directionRows(anim.frames);
+  if (filled.length > 0) log(`  · ${anim.sourceName}: direcciones que faltan con la más cercana (${filled.join(', ')})`);
+  // A sheet needs the same frame count in every row: stretch the shorter directions (or
+  // squeeze all to the count chosen in import.json, better for a loop where most rows are shorter).
+  const frames = frameCount ?? Math.max(...sourceRows.map((r) => r.length));
   if (frames === 0) throw new Error(`${anim.sourceName}: sin frames`);
-  // A sheet needs the same frame count in every row: stretch the shorter directions.
   const counts = new Set(sourceRows.map((r) => r.length));
-  if (counts.size > 1) log(`  · ${anim.sourceName}: direcciones con ${[...counts].join(' y ')} frames; se remuestrean a ${frames}`);
+  if (counts.size > 1 || !counts.has(frames)) {
+    log(`  · ${anim.sourceName}: direcciones con ${[...counts].join(' y ')} frames; se remuestrean a ${frames}${frameCount ? ' (import.json)' : ''}`);
+  }
   const rows = sourceRows.map((r) => resampleFrames(r, frames));
 
   const decoded = rows.map((row) => row.map((rel) => readFrame(join(sourceDir, rel))));
@@ -155,13 +202,22 @@ function importAnimation(
   return { name: anim.name, frames, directions, file };
 }
 
+interface ImportOptions {
+  takes: TakeOverrides;
+  /** Frames per row of an animation, instead of its longest direction. */
+  frames: Record<string, number>;
+  /** Other characters that use this art (zombie kinds sharing one zombie). */
+  alsoFor: string[];
+}
+
 /**
  * Optional art-src/pixellab/<asset>/import.json with artist choices:
- * { "takes": { "<animation>": { "<direction>": "<take folder>" } } }
+ * { "takes": { "<animation>": { "<direction>": "<take folder>" } },
+ *   "frames": { "<animation>": <frames per row> }, "alsoFor": ["<asset>", …] }
  */
-function readOverrides(assetDir: string, log: (line: string) => void): TakeOverrides {
+function readOptions(assetDir: string, log: (line: string) => void): ImportOptions {
   const path = join(assetDir, 'import.json');
-  if (!existsSync(path)) return {};
+  if (!existsSync(path)) return { takes: {}, frames: {}, alsoFor: [] };
   const json: unknown = JSON.parse(readFileSync(path, 'utf8'));
   const takes = isRecord(json) && isRecord(json.takes) ? json.takes : {};
   const out: TakeOverrides = {};
@@ -169,8 +225,13 @@ function readOverrides(assetDir: string, log: (line: string) => void): TakeOverr
     if (!isRecord(dirs)) continue;
     out[anim] = Object.fromEntries(Object.entries(dirs).filter((e): e is [string, string] => typeof e[1] === 'string'));
   }
-  log(`  · import.json: elecciones de tomas para ${Object.keys(out).join(', ') || 'nada'}`);
-  return out;
+  const framesRaw = isRecord(json) && isRecord(json.frames) ? json.frames : {};
+  const frames = Object.fromEntries(
+    Object.entries(framesRaw).filter((e): e is [string, number] => typeof e[1] === 'number' && Number.isInteger(e[1]) && e[1] > 0),
+  );
+  const alsoFor = isRecord(json) && Array.isArray(json.alsoFor) ? json.alsoFor.filter((a): a is string => typeof a === 'string') : [];
+  log(`  · import.json: elecciones de tomas para ${Object.keys(out).join(', ') || 'nada'}${alsoFor.length ? `; arte compartido con ${alsoFor.join(', ')}` : ''}`);
+  return { takes: out, frames, alsoFor };
 }
 
 /**
@@ -216,10 +277,10 @@ export function importAssets(root: string, only: readonly string[], log: (line: 
       continue;
     }
     const character = isRecord(characters[asset]) ? characters[asset] : {};
-    const overrides = readOverrides(dir, log);
+    const options = readOptions(dir, log);
     const seen = new Map<string, string>();
     for (const exportDir of exports) {
-      const parsed = parsePixelLabMetadata(JSON.parse(readFileSync(join(exportDir, 'metadata.json'), 'utf8')), overrides);
+      const parsed = parsePixelLabMetadata(JSON.parse(readFileSync(join(exportDir, 'metadata.json'), 'utf8')), options.takes);
       for (const w of parsed.warnings) log(`  ⚠ ${w}`);
       const { selected, skipped } = selectAnimations(parsed.animations);
       for (const line of skipped) log(`  ⚠ ${line}`);
@@ -227,10 +288,14 @@ export function importAssets(root: string, only: readonly string[], log: (line: 
         const previous = seen.get(anim.name);
         if (previous) log(`  ⚠ "${anim.name}" aparece en ${previous} y en ${exportDir}; se usa el último`);
         seen.set(anim.name, exportDir);
-        const result = importAnimation(root, asset, exportDir, anim, character, palette, log);
+        const result = importAnimation(root, asset, exportDir, anim, character, palette, log, options.frames[anim.name]);
         applyImport(manifest, asset, result, hasFile);
         imported++;
       }
+    }
+    for (const other of options.alsoFor) {
+      shareArt(manifest, asset, other);
+      log(`  ✓ ${other} usa el arte de ${asset}`);
     }
   }
 

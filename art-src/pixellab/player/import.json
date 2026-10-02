@@ -3,6 +3,9 @@
     "shoot_walk": {
       "north": "north-36c131c0",
       "south-east": "south-east-805cba59"
+    },
+    "death": {
+      "east": "east-a2a6ab35"
     }
   }
 }

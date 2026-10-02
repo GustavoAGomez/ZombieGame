@@ -28,6 +28,58 @@
           "south-west": "Idle/rotations/south-west.png"
         },
         "animations": {
+          "the_character_is_hit_staggers_and_drops_the_handgu": {
+            "south": [
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/south/frame_000.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/south/frame_001.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/south/frame_002.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/south/frame_003.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/south/frame_004.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/south/frame_005.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/south/frame_006.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/south/frame_007.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/south/frame_008.png"
+            ],
+            "west": [
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/west/frame_000.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/west/frame_001.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/west/frame_002.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/west/frame_003.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/west/frame_004.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/west/frame_005.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/west/frame_006.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/west/frame_007.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/west/frame_008.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/west/frame_009.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/west/frame_010.png"
+            ],
+            "east-a2a6ab35": [
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/east-a2a6ab35/frame_000.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/east-a2a6ab35/frame_001.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/east-a2a6ab35/frame_002.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/east-a2a6ab35/frame_003.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/east-a2a6ab35/frame_004.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/east-a2a6ab35/frame_005.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/east-a2a6ab35/frame_006.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/east-a2a6ab35/frame_007.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/east-a2a6ab35/frame_008.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/east-a2a6ab35/frame_009.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/east-a2a6ab35/frame_010.png"
+            ],
+            "east-ac91d92f": [
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/east-ac91d92f/frame_000.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/east-ac91d92f/frame_001.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/east-ac91d92f/frame_002.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/east-ac91d92f/frame_003.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/east-ac91d92f/frame_004.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/east-ac91d92f/frame_005.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/east-ac91d92f/frame_006.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/east-ac91d92f/frame_007.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/east-ac91d92f/frame_008.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/east-ac91d92f/frame_009.png",
+              "Idle/animations/the_character_is_hit_staggers_and_drops_the_handgu/east-ac91d92f/frame_010.png"
+            ]
+          },
           "Running": {
             "east": [
               "Idle/animations/Running/east/frame_000.png",
@@ -45,14 +97,6 @@
               "Idle/animations/Running/west/frame_004.png",
               "Idle/animations/Running/west/frame_005.png"
             ],
-            "north": [
-              "Idle/animations/Running/north/frame_000.png",
-              "Idle/animations/Running/north/frame_001.png",
-              "Idle/animations/Running/north/frame_002.png",
-              "Idle/animations/Running/north/frame_003.png",
-              "Idle/animations/Running/north/frame_004.png",
-              "Idle/animations/Running/north/frame_005.png"
-            ],
             "north-west": [
               "Idle/animations/Running/north-west/frame_000.png",
               "Idle/animations/Running/north-west/frame_001.png",
@@ -60,6 +104,14 @@
               "Idle/animations/Running/north-west/frame_003.png",
               "Idle/animations/Running/north-west/frame_004.png",
               "Idle/animations/Running/north-west/frame_005.png"
+            ],
+            "north": [
+              "Idle/animations/Running/north/frame_000.png",
+              "Idle/animations/Running/north/frame_001.png",
+              "Idle/animations/Running/north/frame_002.png",
+              "Idle/animations/Running/north/frame_003.png",
+              "Idle/animations/Running/north/frame_004.png",
+              "Idle/animations/Running/north/frame_005.png"
             ],
             "north-east": [
               "Idle/animations/Running/north-east/frame_000.png",
@@ -92,16 +144,6 @@
               "Idle/animations/Running/south/frame_003.png",
               "Idle/animations/Running/south/frame_004.png",
               "Idle/animations/Running/south/frame_005.png"
-            ]
-          },
-          "Walking": {
-            "south": [
-              "Idle/animations/Walking/south/frame_000.png",
-              "Idle/animations/Walking/south/frame_001.png",
-              "Idle/animations/Walking/south/frame_002.png",
-              "Idle/animations/Walking/south/frame_003.png",
-              "Idle/animations/Walking/south/frame_004.png",
-              "Idle/animations/Walking/south/frame_005.png"
             ]
           }
         }
@@ -395,5 +437,5 @@
     }
   ],
   "export_version": "3.1",
-  "export_date": "2026-09-30T22:52:35.539987"
+  "export_date": "2026-10-01T22:26:41.711961"
 }

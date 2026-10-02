@@ -24,7 +24,8 @@ Las piezas de los kits no siguen una rejilla fija: detecta cada pieza por
 su caja delimitadora sobre el fondo transparente.
 
 ## Personajes (export con metadata.json)
-- player: export completo de PixelLab (rotaciones y animaciones); formato en `docs/ASSETS.md` §6.
+- player: export completo de PixelLab (rotaciones, carrera, disparo, disparo andando y muerte en sur, este y oeste); formato en `docs/ASSETS.md` §6.
+- zombie_walker: el zombi (andar, zarpazo, climb de 4 direcciones, y en el estado sin piernas gatear y zarpazo en el suelo). Corredores y sprinters usan este arte (`alsoFor` en `import.json`).
 
 ---
 

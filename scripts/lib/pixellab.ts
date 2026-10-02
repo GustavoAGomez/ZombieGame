@@ -37,16 +37,20 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 const FIRING = /shoot|fir(e|ing)|gun/;
 const MOVING = /walk|run|jog|sprint/;
+/** A legless zombie ("the same zombie crawling" arrives truncated to "craw"). */
+const CRAWLING = /craw|drag|legless/;
+/** Before the firing check: "is hit, staggers and drops the handgun" is a death, not a shot. */
+const DYING = /death|dying|dead|(^|[^a-z])dies?([^a-z]|$)|stagger|collaps/;
 
 const ALIASES: readonly (readonly [RegExp, string])[] = [
   [/idle|breath|stand|rotation/, 'idle'],
+  [CRAWLING, 'crawl'],
   // `walk` is the movement loop; for the player it is a run.
   [MOVING, 'walk'],
   // The player's knife (before `attack`, so "knife attack" is a knife).
   [/knife|stab|slash|melee|cuchill/, 'melee'],
-  [/attack|punch|bite|swipe|tear/, 'attack'],
+  [/attack|punch|bite|swipe|tear|claw/, 'attack'],
   [/dash|roll|dodge/, 'dash'],
-  [/death|die|dying|dead/, 'death'],
   [/climb|vault/, 'climb'],
 ];
 
@@ -54,14 +58,19 @@ const ALIASES: readonly (readonly [RegExp, string])[] = [
  * Maps export names like "Idle" or "Walking 6 frames" to manifest names.
  * `context` is the state name: PixelLab truncates animation names to 50
  * characters, so "walking forward …" inside a "standing in a firing" state
- * is recognised as walking while shooting (`shoot_walk`).
+ * is recognised as walking while shooting (`shoot_walk`), and an attack
+ * inside a crawling state as the legless zombie's attack (`crawl_attack`).
  */
 export function normaliseAnimationName(name: string, context = ''): string {
   const lower = name.toLowerCase();
+  if (DYING.test(lower)) return 'death';
   const firing = FIRING.test(lower) || FIRING.test(context.toLowerCase());
   if (MOVING.test(lower) && firing) return 'shoot_walk';
   if (FIRING.test(lower)) return 'shoot';
-  for (const [pattern, alias] of ALIASES) if (pattern.test(lower)) return alias;
+  for (const [pattern, alias] of ALIASES) {
+    if (!pattern.test(lower)) continue;
+    return alias === 'attack' && CRAWLING.test(context.toLowerCase()) ? 'crawl_attack' : alias;
+  }
   return lower.replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'anim';
 }
 
@@ -157,17 +166,60 @@ export function parsePixelLabMetadata(json: unknown, overrides: TakeOverrides = 
   return { version, animations, warnings };
 }
 
+/** Fewest directions an animation needs for the rest to be filled in (death in south, east and west). */
+export const MIN_DIRECTIONS_TO_FILL = 3;
+
+/** Horizontal side of each direction of DIRECTIONS_8: -1 west, 0 none, 1 east. */
+const SIDE_8 = [0, 1, 1, 1, 0, -1, -1, -1] as const;
+
+/**
+ * The exported direction drawn in place of a missing one: the nearest on the
+ * 8-way ring. On a tie the one on the same side wins (south-east takes east
+ * rather than south), then the one with a side at all (north takes east or
+ * west, whose falls read better than south's), then the first in row order.
+ */
+export function nearestDirection(missing: string, available: readonly string[]): string | undefined {
+  const index = (d: string): number => DIRECTIONS_8.indexOf(d as (typeof DIRECTIONS_8)[number]);
+  const m = index(missing);
+  let best: string | undefined;
+  let bestScore = Infinity;
+  for (const d of DIRECTIONS_8) {
+    if (!available.includes(d)) continue;
+    const i = index(d);
+    const ring = Math.min(Math.abs(i - m), 8 - Math.abs(i - m));
+    const side = SIDE_8[i] ?? 0;
+    const sameSide = side !== 0 && side === SIDE_8[m];
+    const score = ring * 4 + (sameSide ? 0 : side !== 0 ? 1 : 2);
+    if (score < bestScore) {
+      bestScore = score;
+      best = d;
+    }
+  }
+  return best;
+}
+
 /**
  * Orders an animation's directions into sheet rows. Returns the direction
- * count (8, or 4 when only south/east/north/west exist) and the rows.
+ * count (8, or 4 when only south/east/north/west exist) and the rows. With
+ * at least MIN_DIRECTIONS_TO_FILL directions, the missing ones reuse the
+ * nearest exported one (`filled` says which).
  */
-export function directionRows(frames: Map<string, string[]>): { directions: 4 | 8; rows: string[][] } {
+export function directionRows(frames: Map<string, string[]>): { directions: 4 | 8; rows: string[][]; filled: string[] } {
   const has8 = DIRECTIONS_8.every((d) => frames.has(d));
-  if (has8) return { directions: 8, rows: DIRECTIONS_8.map((d) => frames.get(d) ?? []) };
+  if (has8) return { directions: 8, rows: DIRECTIONS_8.map((d) => frames.get(d) ?? []), filled: [] };
   const has4 = DIRECTIONS_4.every((d) => frames.has(d));
-  if (has4) return { directions: 4, rows: DIRECTIONS_4.map((d) => frames.get(d) ?? []) };
+  if (has4) return { directions: 4, rows: DIRECTIONS_4.map((d) => frames.get(d) ?? []), filled: [] };
+  const available = DIRECTIONS_8.filter((d) => frames.has(d));
   const missing = DIRECTIONS_8.filter((d) => !frames.has(d));
-  throw new Error(`Faltan direcciones: ${missing.join(', ')}`);
+  if (available.length < MIN_DIRECTIONS_TO_FILL) throw new Error(`Faltan direcciones: ${missing.join(', ')}`);
+  const filled: string[] = [];
+  const rows = DIRECTIONS_8.map((d) => {
+    if (frames.has(d)) return frames.get(d) ?? [];
+    const source = nearestDirection(d, available) ?? available[0] ?? d;
+    filled.push(`${d} ← ${source}`);
+    return frames.get(source) ?? [];
+  });
+  return { directions: 8, rows, filled };
 }
 
 export interface Selection {

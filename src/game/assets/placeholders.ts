@@ -8,6 +8,7 @@ import {
   ASSET_KEYS,
   DIRECTIONS_4,
   DIRECTIONS_8,
+  animationDirections,
   characterTextureKey,
   objectTextureKey,
   tilesetTextureKey,
@@ -142,7 +143,7 @@ export function createCharacterPlaceholder(
   const anim = def.animations[animation];
   if (!anim) return;
   const look = characterLook(character);
-  const names = def.directions === 8 ? DIRECTIONS_8 : DIRECTIONS_4;
+  const names = animationDirections(def, animation) === 8 ? DIRECTIONS_8 : DIRECTIONS_4;
   const anchorX = Math.round(def.frameWidth * def.anchor.x);
   const anchorY = Math.round(def.frameHeight * def.anchor.y);
 

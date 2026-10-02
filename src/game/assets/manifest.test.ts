@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { ManifestError, REQUIRED_ANIMATIONS, REQUIRED_OBJECTS, directionRow, parseManifest } from './manifest';
+import { ManifestError, REQUIRED_ANIMATIONS, REQUIRED_OBJECTS, animationDirections, directionRow, parseManifest } from './manifest';
 
 const raw: unknown = JSON.parse(readFileSync(new URL('../../../public/assets/manifest.json', import.meta.url), 'utf8'));
 
@@ -41,6 +41,16 @@ describe('muzzle points', () => {
   it('rejects muzzle lists that do not match the directions', () => {
     const bad = { tileSize: 32, characters: { x: { frameWidth: 48, frameHeight: 48, directions: 8, muzzle: [[1, 2]], animations: {} } } };
     expect(() => parseManifest(bad)).toThrow(/muzzle/);
+  });
+
+  it('lets an animation declare its own rows (the zombie climb has 4 in an 8-way zombie)', () => {
+    const zombie = parseManifest(raw).characters.zombie_walker;
+    if (!zombie) throw new Error('zombie_walker missing');
+    expect(zombie.directions).toBe(8);
+    expect(animationDirections(zombie, 'climb')).toBe(4);
+    expect(animationDirections(zombie, 'walk')).toBe(8);
+    const bad = { tileSize: 32, characters: { x: { frameWidth: 48, frameHeight: 48, animations: { a: { file: 'a.png', frames: 1, fps: 1, directions: 3 } } } } };
+    expect(() => parseManifest(bad)).toThrow(/directions/);
   });
 });
 
