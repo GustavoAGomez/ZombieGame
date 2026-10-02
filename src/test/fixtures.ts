@@ -1,7 +1,7 @@
 import { buildRoom01Map } from '../../scripts/gen-placeholder-map';
 import { embeddedMansion } from '../../scripts/lib/mansion-fixture';
 import { EventBus } from '../core/EventBus';
-import { createGameState, type ZombieState } from '../core/GameState';
+import { createGameState, createWeaponSlot, type ZombieState } from '../core/GameState';
 import { createInputCommand } from '../core/InputCommand';
 import { buildCollisionGrid } from '../game/map/CollisionGrid';
 import { parseMap, type MapData } from '../game/map/MapLoader';
@@ -95,4 +95,14 @@ export function command(ctx: SimContext) {
   const c = ctx.commands[0];
   if (!c) throw new Error('No command');
   return c;
+}
+
+/**
+ * The player as it started before spec 04: pistol in hand and the SMG in
+ * the second slot, for tests about switching, the SMG or several weapons.
+ */
+export function withSmg(ctx: SimContext): SimContext {
+  const p = ctx.state.players[0];
+  if (p && !p.weapons.some((w) => w.id === 'smg')) p.weapons.push(createWeaponSlot('smg'));
+  return ctx;
 }

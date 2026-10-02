@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { LOADOUT, MELEE } from '../../config/balance';
 import { WEAPONS } from '../../config/weapons';
-import { command, createTestContext, placeZombie, player, runTicks } from '../../test/fixtures';
+import { command, createTestContext, placeZombie, player, runTicks, withSmg } from '../../test/fixtures';
 import { stepSimulation } from './Simulation';
 import { hasAnyAmmo, reloadProgress } from './WeaponSystem';
 
 describe('WeaponSystem · firing', () => {
   it('fires the pistol at 4 shots/s while held', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     command(ctx).fire = true;
     runTicks(ctx, 60, stepSimulation); // 1 s: shots at 0, .25, .5, .75 (+1 at t=1 boundary)
@@ -17,7 +17,7 @@ describe('WeaponSystem · firing', () => {
   });
 
   it('fires the SMG at 11 shots/s on average', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     p.activeSlot = 1;
     command(ctx).fire = true;
@@ -28,7 +28,7 @@ describe('WeaponSystem · firing', () => {
   });
 
   it('records the tick of every bullet for the muzzle flash', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     command(ctx).fire = true;
     stepSimulation(ctx, 1 / 60);
@@ -38,14 +38,14 @@ describe('WeaponSystem · firing', () => {
   });
 
   it('does not fire without the trigger', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     runTicks(ctx, 60, stepSimulation);
     expect(player(ctx).weapons[0]?.magazine).toBe(WEAPONS.pistol.magazine);
     expect(ctx.state.bullets.some((b) => b.active)).toBe(false);
   });
 
   it('spawns bullets at the muzzle, within the spread cone', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     const cmd = command(ctx);
     cmd.fire = true;
@@ -66,7 +66,7 @@ describe('WeaponSystem · firing', () => {
 
 describe('WeaponSystem · reload and switch', () => {
   it('reloads automatically when the magazine empties, taking 1.6 s', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     const slot = p.weapons[0]!;
     slot.magazine = 1;
@@ -86,7 +86,7 @@ describe('WeaponSystem · reload and switch', () => {
   });
 
   it('keeps its rate after a reload with the trigger held: no burst of the shots missed while reloading', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     p.activeSlot = 1; // SMG, the fastest
     const slot = p.weapons[1]!;
@@ -105,7 +105,7 @@ describe('WeaponSystem · reload and switch', () => {
   });
 
   it('reloads on demand with room in the magazine and bullets in reserve, not otherwise', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     const slot = p.weapons[0]!;
     const cmd = command(ctx);
@@ -131,7 +131,7 @@ describe('WeaponSystem · reload and switch', () => {
   });
 
   it('reloads only what is left in reserve', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     const slot = p.weapons[0]!;
     slot.magazine = 0;
@@ -142,7 +142,7 @@ describe('WeaponSystem · reload and switch', () => {
   });
 
   it('switches weapon in 0.4 s, cannot fire meanwhile, and cancels a reload', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     const cmd = command(ctx);
     p.weapons[0]!.magazine = 0;
@@ -164,7 +164,7 @@ describe('WeaponSystem · reload and switch', () => {
   });
 
   it('picks the weapon of the HUD slot tapped, with the switch time; the same or a missing slot does nothing', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     const cmd = command(ctx);
     cmd.selectWeapon = 1;
@@ -186,11 +186,11 @@ describe('WeaponSystem · reload and switch', () => {
   });
 
   it('never carries more than LOADOUT.maxWeapons weapons', () => {
-    expect(player(createTestContext()).weapons.length).toBeLessThanOrEqual(LOADOUT.maxWeapons);
+    expect(player(withSmg(createTestContext())).weapons.length).toBeLessThanOrEqual(LOADOUT.maxWeapons);
   });
 
   it('toggles back to the first slot', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     const cmd = command(ctx);
     cmd.switchWeapon = true;
@@ -202,7 +202,7 @@ describe('WeaponSystem · reload and switch', () => {
 
 describe('WeaponSystem · aiming', () => {
   it('auto-aims at the nearest living zombie in range', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     placeZombie(ctx, 0, p.x + 100, p.y);
     placeZombie(ctx, 1, p.x, p.y - 60);
@@ -214,7 +214,7 @@ describe('WeaponSystem · aiming', () => {
   });
 
   it('ignores zombies out of range or behind walls, then uses the facing', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     placeZombie(ctx, 0, p.x + WEAPONS.pistol.range + 20, p.y); // too far
     const d1 = ctx.map.doors[0]!;
@@ -227,7 +227,7 @@ describe('WeaponSystem · aiming', () => {
   });
 
   it('sees through windows', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     const w1 = ctx.map.windows[0]!;
     p.x = w1.center.x;
@@ -239,7 +239,7 @@ describe('WeaponSystem · aiming', () => {
   });
 
   it('uses the drag direction when aiming manually and faces it', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     placeZombie(ctx, 0, p.x, p.y - 50);
     const cmd = command(ctx);
@@ -257,7 +257,7 @@ describe('WeaponSystem · aiming', () => {
 
 describe('WeaponSystem · melee', () => {
   it('knifes from its own button at any time, turning to the nearest zombie in reach, even behind', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     p.facing = 0; // facing east…
     const z = placeZombie(ctx, 0, p.x - 18, p.y, 500); // …with a zombie right behind
@@ -273,7 +273,7 @@ describe('WeaponSystem · melee', () => {
   });
 
   it('sprays blood from the knifed zombie\'s body, away from the player', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     const z = placeZombie(ctx, 0, p.x + 18, p.y, 500);
     const hits: { x: number; y: number; dirX: number; groundY: number }[] = [];
@@ -288,7 +288,7 @@ describe('WeaponSystem · melee', () => {
   });
 
   it('waits its cooldown between slashes and swings even when nothing is in reach', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     const z = placeZombie(ctx, 0, p.x + 18, p.y, 500);
     const cmd = command(ctx);
@@ -308,7 +308,7 @@ describe('WeaponSystem · melee', () => {
   });
 
   it('knifes with the fire button when every weapon is empty, every 0.6 s', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     for (const w of p.weapons) {
       w.magazine = 0;
@@ -326,7 +326,7 @@ describe('WeaponSystem · melee', () => {
   });
 
   it('misses zombies beyond 20 px from their hitbox edge', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     for (const w of p.weapons) {
       w.magazine = 0;
@@ -353,7 +353,7 @@ describe('shots from the drawn muzzle', () => {
   ];
 
   function autoFireAt(dx: number, dy: number): number {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     ctx.muzzles = ART_MUZZLES;
     const p = player(ctx);
     const z = placeZombie(ctx, 0, p.x + dx, p.y + dy, 1000);
@@ -380,7 +380,7 @@ describe('shots from the drawn muzzle', () => {
   });
 
   it('hits a zombie right in front even when the gun is drawn beyond it (point-blank)', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     ctx.muzzles = ART_MUZZLES;
     const p = player(ctx);
     // Facing north the muzzle is drawn 41 px up, above this zombie's head.
@@ -392,7 +392,7 @@ describe('shots from the drawn muzzle', () => {
   });
 
   it('draws each bullet from the muzzle of its direction', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     ctx.muzzles = ART_MUZZLES;
     const p = player(ctx);
     const cmd = command(ctx);

@@ -838,3 +838,17 @@ Resueltas sin preguntar, por ser solo nombres o huecos de la spec:
   - DAR SMG y DAR ESCOPETA (el arma en la mano, con munición llena);
   - el botón de dinero pequeño pasa de +1000 a +5000$, y el grande se rotula +10000$.
 - **Corregido de paso:** el botón de recargar comparaba con el cargador base y se apagaba tras un nivel `ammo_x2` aunque se pudiera recargar. Ahora `weapon:state` lleva la capacidad del arma a su nivel (`capacity`).
+
+## Spec 04 · A3 (inventario)
+
+- **Se empieza solo con la pistola** (`LOADOUT.startingWeapons`).
+  - Los tests que daban por hecha la SMG en el segundo hueco usan el fixture `withSmg`, que la añade sin equiparla, como antes.
+- **Tres huecos y la columna de armas** (decisión previa con el usuario).
+  - La columna muestra un hueco por arma: con una sola, solo el suyo, y tocarlo no hace nada.
+  - Con dos o tres se toca la que se quiere; en el teclado, el cambio rota en orden.
+- **Comprar un arma** (`InventorySystem.giveWeapon`):
+  - con un hueco libre, se añade y se equipa, con el tiempo normal de cambio de arma;
+  - con los tres llenos, sustituye a la de la mano y se pierden sus niveles y su especial;
+  - si ya se lleva, solo se equipa.
+- **Confirmación** (`needsSwapConfirm`): solo si el arma que se va tiene algún nivel o la especial. El botón de acción la pide en la vitrina (A4).
+- **Tests de sustitución.** Con solo tres armas básicas nunca hay una cuarta que comprar con los tres huecos llenos, así que las funciones de inventario aceptan el número de huecos (3 por defecto) y los tests de sustitución usan 2.

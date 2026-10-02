@@ -24,24 +24,37 @@ export function equipSlot(p: PlayerState, index: number): void {
   p.fireCooldown = Math.max(p.fireCooldown, 0);
 }
 
-/** The weapon that buying `id` would replace (the one in hand with every slot full), or null. */
-export function weaponReplacedBy(p: PlayerState, id: WeaponId): WeaponSlotState | null {
-  if (findWeapon(p, id) >= 0 || p.weapons.length < LOADOUT.maxWeapons) return null;
+/**
+ * The weapon that buying `id` would replace (the one in hand with every slot
+ * full), or null. `slots` is LOADOUT.maxWeapons; tests pass fewer, since
+ * with only three basic weapons there is never a fourth to buy.
+ */
+export function weaponReplacedBy(p: PlayerState, id: WeaponId, slots: number = LOADOUT.maxWeapons): WeaponSlotState | null {
+  if (findWeapon(p, id) >= 0 || p.weapons.length < slots) return null;
   return p.weapons[p.activeSlot] ?? null;
+}
+
+/**
+ * Buying `id` would throw away an upgraded weapon (levels or special): the
+ * action button asks to confirm first (spec 04 §2).
+ */
+export function needsSwapConfirm(p: PlayerState, id: WeaponId, slots: number = LOADOUT.maxWeapons): boolean {
+  const replaced = weaponReplacedBy(p, id, slots);
+  return replaced !== null && (replaced.level > 0 || replaced.special);
 }
 
 /**
  * Gives weapon `id`: into a free slot, or in place of the weapon in hand when
  * every slot is full. Already carried, it is only taken in hand.
  */
-export function giveWeapon(p: PlayerState, id: WeaponId): 'added' | 'replaced' | 'owned' {
+export function giveWeapon(p: PlayerState, id: WeaponId, slots: number = LOADOUT.maxWeapons): 'added' | 'replaced' | 'owned' {
   const owned = findWeapon(p, id);
   if (owned >= 0) {
     if (owned !== p.activeSlot) equipSlot(p, owned);
     return 'owned';
   }
   const slot = createWeaponSlot(id);
-  if (p.weapons.length < LOADOUT.maxWeapons) {
+  if (p.weapons.length < slots) {
     p.weapons.push(slot);
     equipSlot(p, p.weapons.length - 1);
     return 'added';

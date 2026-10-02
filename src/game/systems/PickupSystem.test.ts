@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { PICKUPS, PLAYER } from '../../config/balance';
 import { WEAPONS } from '../../config/weapons';
-import { createTestContext, placeZombie, player, runTicks } from '../../test/fixtures';
+import { createTestContext, placeZombie, player, runTicks, withSmg } from '../../test/fixtures';
 import { damageZombie } from './Combat';
 import { applyPickup, dropKindFor, spawnPickup } from './PickupSystem';
 import { stepSimulation } from './Simulation';
@@ -55,7 +55,7 @@ describe('drops from killed zombies', () => {
 
 describe('collecting pickups', () => {
   it('heals 50 HP on touch and emits pickup:collected', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     p.hp = 30;
     const onCollected = vi.fn();
@@ -68,7 +68,7 @@ describe('collecting pickups', () => {
   });
 
   it('adds PICKUPS.ammoMagazines magazines to each reserve, capped at the maximum', () => {
-    const p = player(createTestContext());
+    const p = player(withSmg(createTestContext()));
     p.weapons[0]!.reserve = 10;
     p.weapons[1]!.reserve = WEAPONS.smg.maxReserve - 5;
     expect(applyPickup(p, 'ammo')).toBe(true);
@@ -77,7 +77,7 @@ describe('collecting pickups', () => {
   });
 
   it('stays on the floor when it would be wasted', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     spawnPickup(ctx, 'health', p.x, p.y);
     spawnPickup(ctx, 'ammo', p.x, p.y);
@@ -86,7 +86,7 @@ describe('collecting pickups', () => {
   });
 
   it('is not collected from afar', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     p.hp = 10;
     spawnPickup(ctx, 'health', p.x + PLAYER.hitboxRadius + PICKUPS.radius + 2, p.y);
@@ -95,7 +95,7 @@ describe('collecting pickups', () => {
   });
 
   it('disappears after 15 s', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const pickup = spawnPickup(ctx, 'ammo', 5 * 32, 6 * 32)!;
     runTicks(ctx, PICKUPS.lifetime * 60 - 2, stepSimulation);
     expect(pickup.active).toBe(true);
@@ -104,7 +104,7 @@ describe('collecting pickups', () => {
   });
 
   it('replaces the oldest pickup when the pool is full', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     for (let i = 0; i < PICKUPS.poolSize; i++) {
       spawnPickup(ctx, 'ammo', 100 + i, 200);
       stepSimulation(ctx, 1 / 60);

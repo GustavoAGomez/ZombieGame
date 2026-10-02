@@ -104,7 +104,7 @@ Todos los valores de esta sección van a `balance.ts`. Los números son el punto
 
 ### 4.2 Armas
 
-Se empieza con las dos para poder probar el cambio de arma. Más adelante habrá armas de pared.
+Se empezaba con las dos para poder probar el cambio de arma. **Desde la spec 04 se empieza solo con la pistola**, y la SMG y la escopeta se compran en vitrinas (ver `docs/specs/04-armas-y-vitrinas.md`).
 
 | | Pistola | SMG |
 |---|---|---|

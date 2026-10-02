@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { BOOSTS } from '../../config/balance';
 import { UPGRADE_EFFECTS, WEAPON_SPECIALS, WEAPONS } from '../../config/weapons';
-import { command, createTestContext, placeZombie, player, runTicks } from '../../test/fixtures';
+import { command, createTestContext, placeZombie, player, runTicks, withSmg } from '../../test/fixtures';
 import { HudPresenter } from '../HudPresenter';
 import { storeBoost } from './BoostSystem';
 import { moveMerchant } from './MerchantSystem';
@@ -26,7 +26,7 @@ function fire(ctx: Ctx, ticks: number, aimX = 1, aimY = 0): void {
 
 describe('weapon levels', () => {
   it('level 1 doubles magazine and reserve and refills the weapon; level 2 fires 1.5 times as fast; level 3 doubles the damage', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const pistol = player(ctx).weapons[PISTOL]!;
     pistol.magazine = 1;
     pistol.reserve = 2;
@@ -45,7 +45,7 @@ describe('weapon levels', () => {
 
   it('shoots faster at level 2: the SMG empties more rounds in the same time', () => {
     const shots = (level: number): number => {
-      const ctx = createTestContext();
+      const ctx = withSmg(createTestContext());
       const p = player(ctx);
       p.activeSlot = SMG;
       const smg = p.weapons[SMG]!;
@@ -58,7 +58,7 @@ describe('weapon levels', () => {
   });
 
   it('level 3 and double damage stack: ×4, and the bullets look lighter, light blue or gold', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     const pistol = p.weapons[PISTOL]!;
     for (let i = 0; i < 3; i++) levelUp(pistol);
@@ -84,7 +84,7 @@ describe('weapon levels', () => {
 
 describe('weapon specials', () => {
   it('pistol: three bullets in a fan (centre, ±12°) for one round, each with the full damage', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     const pistol = p.weapons[PISTOL]!;
     pistol.special = true;
@@ -100,7 +100,7 @@ describe('weapon specials', () => {
   });
 
   it('SMG: a bullet goes through up to 3 zombies, never twice the same one', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     p.activeSlot = SMG;
     p.weapons[SMG]!.special = true;
@@ -113,7 +113,7 @@ describe('weapon specials', () => {
   });
 
   it('SMG: a wall still stops a piercing bullet', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const p = player(ctx);
     p.activeSlot = SMG;
     p.weapons[SMG]!.special = true;
@@ -131,7 +131,7 @@ describe('weapon specials', () => {
 describe('red and gold merchants', () => {
   /** The red (1) or gold (2) merchant switched on and placed, with the player at its shop. */
   function atMerchant(index: number): Ctx {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const m = ctx.state.merchants[index]!;
     m.enabled = true;
     moveMerchant(ctx, index);

@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
-import { command, createTestContext, player } from '../test/fixtures';
+import { command, createTestContext, player, withSmg } from '../test/fixtures';
 import { HudPresenter } from './HudPresenter';
 import { stepSimulation } from './systems/Simulation';
 
 describe('HudPresenter', () => {
   it('emits weapon and cooldown state once, then only on change', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const presenter = new HudPresenter(ctx.events, ctx.map);
     const weapon = vi.fn();
     const cooldown = vi.fn();
@@ -29,7 +29,7 @@ describe('HudPresenter', () => {
   });
 
   it('publishes the weapon slots for the bottom bar, then only when a weapon, the active one or its ammo changes', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const presenter = new HudPresenter(ctx.events, ctx.map);
     const loadout = vi.fn();
     ctx.events.on('weapons:loadout', loadout);
@@ -53,7 +53,7 @@ describe('HudPresenter', () => {
 
 describe('HudPresenter · action chip and points', () => {
   it('shows the repair chip with +10, then +0 once the round limit is reached', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const presenter = new HudPresenter(ctx.events, ctx.map);
     const action = vi.fn();
     const points = vi.fn();
@@ -84,7 +84,7 @@ describe('HudPresenter · action chip and points', () => {
 
 describe('HudPresenter · door chip', () => {
   it('shows the cost when affordable and the missing points otherwise', () => {
-    const ctx = createTestContext();
+    const ctx = withSmg(createTestContext());
     const presenter = new HudPresenter(ctx.events, ctx.map);
     const action = vi.fn();
     ctx.events.on('action:context', action);

@@ -55,9 +55,9 @@ export const HURT_VIGNETTE = {
 } as const;
 
 export const LOADOUT = {
-  /** Both weapons from the start so switching can be tested (spec 01 §4.2). */
-  startingWeapons: ['pistol', 'smg'] as const satisfies readonly WeaponId[],
-  /** A player carries at most this many weapons (one icon each at the bottom of the HUD). */
+  /** Only the pistol: the other basic weapons are bought at weapon cases (spec 04 §2). */
+  startingWeapons: ['pistol'] as const satisfies readonly WeaponId[],
+  /** A player carries at most this many weapons (one slot each in the HUD's weapon column). */
   maxWeapons: 3,
   switchTime: 0.4,
 } as const;
