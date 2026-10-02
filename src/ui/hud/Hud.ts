@@ -269,7 +269,9 @@ export class Hud {
     this.weaponRow.classList.toggle('is-infinite', e.ammo === 'none');
     this.weaponRow.classList.toggle('is-battery', e.ammo === 'battery');
     this.weaponRow.classList.toggle('is-overheated', e.overheated);
-    this.batteryFill.style.transform = `scaleX(${e.battery})`;
+    // The katana's cooldown fills the same bar back up, in place of the ∞, until it can sweep again.
+    this.weaponRow.classList.toggle('is-recharging', e.cooldown > 0);
+    this.batteryFill.style.transform = `scaleX(${e.cooldown > 0 ? 1 - e.cooldown : e.battery})`;
     this.magazine.textContent = String(e.magazine);
     this.reserve.textContent = `/ ${e.reserve}`;
     const reloading = e.reloadProgress !== null;

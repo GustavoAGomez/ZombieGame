@@ -215,8 +215,8 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDef>> = {
     category: 'special',
     attack: 'melee',
     damage: 4,
-    /** One sweep every 0.45 s. */
-    fireRate: 1 / 0.45,
+    /** One sweep every 5 s: the weapon's own cooldown, running in the holster too, so a swap does not skip it. */
+    fireRate: 1 / 5,
     magazine: 0,
     startReserve: 0,
     maxReserve: 0,

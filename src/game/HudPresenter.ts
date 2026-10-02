@@ -9,7 +9,7 @@ import { doorTarget } from './systems/DoorSystem';
 import { portalTarget } from './systems/PortalSystem';
 import { isPerWeapon, itemPrice, shopItemStatus, upgradeKindOf } from './systems/ShopSystem';
 import { batteryLevel } from './systems/BeamSystem';
-import { ammoKind, magazineSize, maxUpgradeLevel, totalLevels } from './systems/weaponStats';
+import { ammoKind, fireRate, magazineSize, maxUpgradeLevel, totalLevels } from './systems/weaponStats';
 import { caseOffer } from './systems/WeaponCaseSystem';
 import { hasItemRoom } from './systems/ItemSystem';
 import { reloadProgress } from './systems/WeaponSystem';
@@ -34,6 +34,7 @@ export class HudPresenter {
   private special = false;
   private battery = -1;
   private overheated = false;
+  private cooldown = -1;
   private cooldownStep = -1;
   private hp = -1;
   private round = -1;
@@ -200,6 +201,8 @@ export class HudPresenter {
       // A beam weapon's battery, in steps so the bar is not republished every tick (spec 06 §2.1).
       const battery = Math.ceil(batteryLevel(slot) * BATTERY_STEPS) / BATTERY_STEPS;
       const overheated = slot.overheat > 0;
+      // A melee weapon's cooldown (the katana), as the part still to run, in the same steps.
+      const cooldown = Math.ceil(slot.cooldown * fireRate(slot) * BATTERY_STEPS) / BATTERY_STEPS;
       if (
         slot.id !== this.weapon ||
         slot.magazine !== this.magazine ||
@@ -208,6 +211,7 @@ export class HudPresenter {
         switching !== this.switching ||
         battery !== this.battery ||
         overheated !== this.overheated ||
+        cooldown !== this.cooldown ||
         levelsKey(slot) !== this.levels ||
         slot.special !== this.special
       ) {
@@ -220,6 +224,7 @@ export class HudPresenter {
         this.switching = switching;
         this.battery = battery;
         this.overheated = overheated;
+        this.cooldown = cooldown;
         this.events.emit('weapon:state', {
           weapon: slot.id,
           levels: { ...slot.levels },
@@ -233,6 +238,7 @@ export class HudPresenter {
           switching,
           battery,
           overheated,
+          cooldown,
         });
       }
     }

@@ -1308,3 +1308,16 @@ Petición del usuario: no saber a qué sala lleva una puerta hasta abrirla. Al d
   - El tajo dibujado se escala con el alcance. `meleeRange` sustituye a la marca `meleeWide`: el arco del cuchillo, escalado por `meleeRange / MELEE.range`.
   - Al apuntar sola, la katana busca el zombi más cercano a 102 px más su radio.
 - **Lanzallamas, alcance ×1,5:** de 90 a 135 px. El chorro dibujado lo sigue solo, porque lee el alcance del catálogo.
+
+## Katana con enfriamiento de 5 s y cambios en el sorteo de la mano
+
+Petición del usuario tras probar las armas especiales: el láser y el lanzallamas están bien, pero la katana necesita un enfriamiento de 5 s. Además, las armas especiales deben salir poco, la mano debe dar también las básicas, y a veces no debe dar nada.
+
+- **Katana:** 5 s entre barridos (respuesta del usuario: «sí, 5 s entre barridos»).
+  - El enfriamiento es del arma (`cooldown` en su hueco) y no del jugador. Corre también enfundada: cambiar a la pistola no lo salta, y la pistola dispara al momento sin esperar a la katana.
+  - `fireRate` pasa a 1/5. El barrido usa el enfriamiento del arma, no el de disparo del jugador.
+  - **HUD:** mientras se enfría, en el sitio del ∞ se ve la barra de la batería del láser, llenándose. `weapon:state` lleva `cooldown`, la parte que falta de 0 a 1, en pasos de 2,5 %.
+- **Sorteo de la mano** (respuestas del usuario; cambia el §3.5 de la spec 06, que daba 35 % de especiales y 65 % de básicas):
+  - 20 % arma especial, 70 % arma básica y 10 % nada.
+  - Si no da nada, la mano se abre vacía tras las siluetas, se hunde y el pago (dinero o vida) se pierde. Cuenta como un uso para el cansancio.
+  - Si un grupo de armas no tiene ninguna disponible (las lleva todas), su parte pasa al otro grupo. La de «nada» no cambia.

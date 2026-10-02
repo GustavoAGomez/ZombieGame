@@ -69,6 +69,11 @@ function tickTimers(p: PlayerState, cmd: InputCommand, dt: number): void {
   // not pile up shots that would all come out at once afterwards. A fresh
   // press never gets a free shot.
   p.fireCooldown = Math.max(p.fireCooldown - dt, cmd.fire ? -dt : 0);
+  // A melee weapon's own cooldown runs down whether it is in hand or not.
+  for (let i = 0; i < p.weapons.length; i++) {
+    const slot = p.weapons[i];
+    if (slot && slot.cooldown > 0) slot.cooldown = Math.max(0, slot.cooldown - dt);
+  }
 }
 
 /** Picks the weapon of a HUD slot (or the next one with the keyboard), taking the switch time. */
@@ -200,9 +205,13 @@ function handleFire(ctx: SimContext, p: PlayerState, held: boolean, dt: number):
     else if (held) fireCone(ctx, p, slot, dt);
     return;
   }
+  // A melee weapon waits for its own cooldown, not the player's: a swap neither skips it nor blocks the guns.
+  if (attack === 'melee') {
+    if (slot.cooldown <= 0) sweep(ctx, p, slot);
+    return;
+  }
   if (p.fireCooldown > 0) return;
-  if (attack === 'melee') sweep(ctx, p, slot);
-  else if (slot.magazine > 0) shoot(ctx, p, slot);
+  if (slot.magazine > 0) shoot(ctx, p, slot);
 }
 
 /**
@@ -215,7 +224,7 @@ function handleFire(ctx: SimContext, p: PlayerState, held: boolean, dt: number):
 function sweep(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
   const { state } = ctx;
   const def = WEAPONS[slot.id];
-  p.fireCooldown += 1 / fireRate(slot);
+  slot.cooldown = 1 / fireRate(slot);
   p.lastAttackTick = state.tick;
   const minCos = Math.cos(degToRad(def.arc ?? 0) / 2);
   const damage = bulletDamage(slot) * damageFactor(p);

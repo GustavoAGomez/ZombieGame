@@ -22,8 +22,9 @@ Registro vivo de las **reglas del juego tal como están implementadas**: qué ha
 El daño se cuenta en las mismas unidades que la vida de los zombis: una bala de pistola o de SMG quita 1.
 
 **Katana** (especial):
-- **Barrido:** 4 de daño a cada zombi dentro de un arco de 140° delante del jugador, hasta 102 px del borde de su cuerpo, cada 0,45 s mientras se mantiene pulsado. Empuja 6 px a cada uno.
-- **Sin munición ni recarga:** en el HUD, donde irían los números, sale ∞.
+- **Barrido:** 4 de daño a cada zombi dentro de un arco de 140° delante del jugador, hasta 102 px del borde de su cuerpo. Empuja 6 px a cada uno.
+- **Enfriamiento de 5 s entre barridos:** manteniendo pulsado, barre en cuanto puede. El enfriamiento es del arma y corre también enfundada: cambiar de arma no lo salta ni bloquea a las demás.
+- **Sin munición ni recarga:** en el HUD, donde irían los números, sale ∞. Mientras se enfría, una barra que se va llenando ocupa su sitio.
 - **Al pulsar:** el barrido sale sin la espera del primer disparo, y el jugador corre a su velocidad normal mientras ataca.
 - **Dirección:** la del arrastre del botón de disparo. Sin arrastre, hacia el zombi más cercano a su alcance, como el cuchillo.
 - **Bloqueos y puntos:** una pared entre medias protege al zombi (una ventana no). Puntúa como el cuchillo: 10 por cada zombi golpeado.

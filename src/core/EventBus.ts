@@ -52,6 +52,8 @@ export interface GameEvents {
     /** A beam weapon's battery, 0..1 in steps (1 for the others), and whether it is overheated (spec 06 §2.1). */
     battery: number;
     overheated: boolean;
+    /** 0..1 of a melee weapon's cooldown still to run, in steps (0: ready to sweep). */
+    cooldown: number;
   };
   /** The weapons the player carries (at most LOADOUT.maxWeapons), for the slots at the bottom of the HUD. */
   'weapons:loadout': { slots: { weapon: WeaponId; ammo: AmmoKind; magazine: number; reserve: number }[]; active: number };

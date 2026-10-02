@@ -28,6 +28,8 @@ export interface WeaponSlotState {
   batteryIdle: number;
   /** Seconds the beam weapon stays locked after running dry (spec 06 §2.1). */
   overheat: number;
+  /** Seconds until a melee weapon can sweep again (the katana's cooldown); it runs down in the holster too. */
+  cooldown: number;
 }
 
 /**
@@ -393,6 +395,7 @@ export function createWeaponSlot(id: WeaponId): WeaponSlotState {
     battery: stats.battery?.capacity ?? 0,
     batteryIdle: 0,
     overheat: 0,
+    cooldown: 0,
   };
 }
 

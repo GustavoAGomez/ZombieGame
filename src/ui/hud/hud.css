@@ -113,8 +113,13 @@
   text-shadow: 2px 2px 0 var(--ink);
 }
 
-.hud-weapon.is-battery .hud-battery {
+.hud-weapon.is-battery .hud-battery,
+.hud-weapon.is-recharging .hud-battery {
   display: block;
+}
+
+.hud-weapon.is-infinite.is-recharging .hud-ammo__infinite {
+  display: none;
 }
 
 .hud-weapon.is-battery .hud-ammo__bullet,

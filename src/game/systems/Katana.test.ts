@@ -57,18 +57,65 @@ describe('katana', () => {
     expect(p.money).toBe(money + 2 * POINTS.meleeHit);
   });
 
-  it('needs no ammo, sweeps at once on the press and then every 0.45 s while held', () => {
+  it('needs no ammo, sweeps at once on the press and then every 5 s while held', () => {
     const ctx = withKatana();
     const p = player(ctx);
     const z = placeZombie(ctx, 0, p.x + 25, p.y, 1000);
     swingEast(ctx); // the very first tick: no wait before it
     expect(z.hp).toBe(1000 - KATANA.damage);
-    for (let t = 1; t < 120; t++) updateWeapons(ctx, DT); // 2 s held
-    // Sweeps at 0, 0.45, 0.9, 1.35 and 1.8 s.
-    expect(z.hp).toBe(1000 - 5 * KATANA.damage);
+    for (let t = 1; t < 60 * 11; t++) updateWeapons(ctx, DT); // 11 s held
+    // Sweeps at 0, 5 and 10 s.
+    expect(z.hp).toBe(1000 - 3 * KATANA.damage);
     expect(p.weapons[0]).toMatchObject({ magazine: 0, reserve: 0 });
     expect(p.reloadTimer).toBe(0);
     expect(p.meleeCooldown).toBe(0); // never the knife instead
+  });
+
+  it('keeps its cooldown in the holster: a swap neither skips it nor blocks the guns', () => {
+    const ctx = withKatana();
+    const p = player(ctx);
+    p.weapons.push(createWeaponSlot('pistol'));
+    const z = placeZombie(ctx, 0, p.x + 25, p.y, 1000);
+    swingEast(ctx);
+    expect(p.weapons[0]!.cooldown).toBeCloseTo(5, 1);
+    // To the pistol: it fires at once, the katana's cooldown does not hold it.
+    command(ctx).fire = false;
+    command(ctx).selectWeapon = 1;
+    updateWeapons(ctx, DT);
+    command(ctx).selectWeapon = -1;
+    for (let t = 0; t < 60; t++) updateWeapons(ctx, DT);
+    p.firing = true;
+    p.aimTime = 1;
+    command(ctx).fire = true;
+    updateWeapons(ctx, DT);
+    expect(p.weapons[1]!.magazine).toBe(WEAPONS.pistol.magazine - 1);
+    // Back to the katana after 1 s or so: still cooling down, no sweep.
+    command(ctx).fire = false;
+    command(ctx).selectWeapon = 0;
+    updateWeapons(ctx, DT);
+    command(ctx).selectWeapon = -1;
+    for (let t = 0; t < 30; t++) updateWeapons(ctx, DT);
+    const hp = z.hp;
+    swingEast(ctx);
+    expect(z.hp).toBe(hp);
+    expect(p.weapons[0]!.cooldown).toBeGreaterThan(3);
+  });
+
+  it('shows its cooldown on the HUD, filling back up in place of the ∞', () => {
+    const ctx = withKatana();
+    const presenter = new HudPresenter(ctx.events, ctx.map);
+    const weapon = vi.fn();
+    ctx.events.on('weapon:state', weapon);
+    presenter.publish(ctx.state);
+    expect(weapon).toHaveBeenLastCalledWith(expect.objectContaining({ cooldown: 0 }));
+    swingEast(ctx);
+    presenter.publish(ctx.state);
+    expect(weapon).toHaveBeenLastCalledWith(expect.objectContaining({ cooldown: 1 }));
+    for (let t = 0; t < 150; t++) updateWeapons(ctx, DT); // half of the 5 s
+    presenter.publish(ctx.state);
+    const last = weapon.mock.lastCall?.[0] as { cooldown: number } | undefined;
+    expect(last?.cooldown).toBeGreaterThan(0.45);
+    expect(last?.cooldown).toBeLessThan(0.55);
   });
 
   it('hits twice as hard with double damage', () => {
