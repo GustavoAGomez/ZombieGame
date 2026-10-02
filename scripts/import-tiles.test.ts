@@ -15,7 +15,8 @@ afterEach(() => {
 });
 
 describe('importTiles (end to end on a copy of the repo)', () => {
-  it('writes sheets, .tsj tilesets with wangsets and properties, and registers them', () => {
+  // End to end on a copy of the repo: slow next to the rest of the suite.
+  it('writes sheets, .tsj tilesets with wangsets and properties, and registers them', { timeout: 30_000 }, () => {
     tmp = mkdtempSync(join(tmpdir(), 'zombies-tiles-'));
     cpSync(join(repo, 'public/assets'), join(tmp, 'public/assets'), { recursive: true });
     cpSync(join(repo, 'art-src/pixellab'), join(tmp, 'art-src/pixellab'), { recursive: true });

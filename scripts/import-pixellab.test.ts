@@ -7,6 +7,8 @@ import { applyImport, importAssets, resampleFrames, rowScale, shareArt } from '.
 import { decodePng } from './lib/png';
 
 const repo = resolve(import.meta.dirname, '..');
+/** End-to-end imports copy every asset and decode real sheets: slow next to the rest of the suite. */
+const E2E = { timeout: 30_000 };
 let tmp = '';
 
 afterEach(() => {
@@ -88,7 +90,7 @@ describe('shareArt', () => {
 });
 
 describe('importAssets (end to end on a copy of the repo assets)', () => {
-  it('writes the player idle, run, shooting and death sheets and a manifest that passes assets:check', () => {
+  it('writes the player idle, run, shooting and death sheets and a manifest that passes assets:check', E2E, () => {
     tmp = mkdtempSync(join(tmpdir(), 'zombies-import-'));
     cpSync(join(repo, 'public/assets'), join(tmp, 'public/assets'), { recursive: true });
     cpSync(join(repo, 'art-src/pixellab/player'), join(tmp, 'art-src/pixellab/player'), { recursive: true });
@@ -126,7 +128,7 @@ describe('importAssets (end to end on a copy of the repo assets)', () => {
 });
 
 describe('importAssets (the zombie export)', () => {
-  it('imports walk, strikes, the 4-way climb and the crawl, and shares them with the other kinds', () => {
+  it('imports walk, strikes, the 4-way climb and the crawl, and shares them with the other kinds', E2E, () => {
     tmp = mkdtempSync(join(tmpdir(), 'zombies-import-'));
     cpSync(join(repo, 'public/assets'), join(tmp, 'public/assets'), { recursive: true });
     cpSync(join(repo, 'art-src/pixellab/zombie_walker'), join(tmp, 'art-src/pixellab/zombie_walker'), { recursive: true });
@@ -160,7 +162,7 @@ describe('importAssets (the zombie export)', () => {
 });
 
 describe('importAssets with one export per subfolder', () => {
-  it('imports every export of an asset without them overwriting each other', () => {
+  it('imports every export of an asset without them overwriting each other', E2E, () => {
     tmp = mkdtempSync(join(tmpdir(), 'zombies-import-'));
     cpSync(join(repo, 'public/assets'), join(tmp, 'public/assets'), { recursive: true });
     // idle export in a subfolder, plus a fake "walk" export reusing the same PNGs.
