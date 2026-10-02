@@ -39,6 +39,8 @@ export function damageZombie(
   if (hit) ctx.events.emit('zombie:hit', { x: hit.x, y: hit.y, groundY: z.y, dirX: hit.dirX, dirY: hit.dirY, killed: z.hp <= 0 });
   if (z.hp > 0) return false;
   if (attacker >= 0) awardPoints(ctx, attacker, POINTS.kill, 'kill');
+  // Dying in hellfire, it bursts (spec 06 §2.3): set off by BurnSystem this same tick.
+  if (z.burn.timer > 0 && z.burn.hellfire) queueBlast(ctx, z.x, z.y, z.burn.owner);
   z.hp = 0;
   z.ai = 'dead';
   z.timer = ZOMBIES.corpseTime;
@@ -47,6 +49,16 @@ export function damageZombie(
   rollZombieDrop(ctx, z);
   ctx.events.emit('zombie:killed', { x: z.x, y: z.y, kind: z.kind });
   return true;
+}
+
+/** Queues a hellfire burst at (x, y); with the pool full (a horde in one blast), it is dropped. */
+function queueBlast(ctx: SimContext, x: number, y: number, owner: number): void {
+  const blast = ctx.state.blasts.find((b) => !b.active);
+  if (!blast) return;
+  blast.active = true;
+  blast.x = x;
+  blast.y = y;
+  blast.owner = owner;
 }
 
 /** Pushes `z` `px` along (dirX, dirY), sliding on walls; only zombies moving freely, never off a window or a climb. */

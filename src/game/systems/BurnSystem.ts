@@ -1,5 +1,7 @@
-import { WEAPON_SPECIALS } from '../../config/weapons';
+import { ZOMBIES } from '../../config/balance';
+import { WEAPON_SPECIALS, WEAPONS } from '../../config/weapons';
 import type { ZombieState } from '../../core/GameState';
+import { BLOCK_BULLET, segmentClearShaped } from '../map/CollisionGrid';
 import { damageZombie, isZombieAlive } from './Combat';
 import type { SimContext } from './SimContext';
 
@@ -7,40 +9,50 @@ import type { SimContext } from './SimContext';
 const EPS = 1e-6;
 
 /**
- * Fire on zombies (spec 04 §1), reusable by any weapon. A burning zombie
- * takes `perTick` damage every fireTickInterval until its fire runs out.
- * Hits while it burns do not stack fires: each one restarts the duration and
- * the fire keeps the highest damage per tick it was given. Fire ticks give
- * no hit points; a zombie that dies burning gives the kill to `owner`.
+ * Fire on zombies (spec 04 §1, spec 06 §2.3), reusable by any weapon: the
+ * one that lights it says how much it burns in total and for how long. A
+ * burning zombie takes its share every fireTickInterval until its fire runs
+ * out. Hits while it burns do not stack fires: each one restarts the
+ * duration (the longer one wins) and the fire keeps the highest damage per
+ * tick it was given. Fire ticks give no hit points; a zombie that dies
+ * burning gives the kill to `owner`.
+ *
+ * Hellfire (the flamethrower's special): a zombie that dies burning from it
+ * bursts (Combat queues the burst, this system sets it off the same tick),
+ * hitting and lighting every zombie around, which can burst in turn.
  */
 export const BURN = WEAPON_SPECIALS.fire;
+const HELLFIRE = WEAPON_SPECIALS.hellfire;
 
-/** Ticks in one full fire: 10 with 1.5 s at a tick every 0.15 s. */
-export const BURN_TICKS = Math.round(BURN.fireDuration / BURN.fireTickInterval);
-
-/** Damage per tick for a hit of `hitDamage`: fireDamageFactor of it in total, over the whole fire. */
-export function burnPerTick(hitDamage: number): number {
-  return (hitDamage * BURN.fireDamageFactor) / BURN_TICKS;
+/** Damage ticks in a fire of `duration` s (10 for the shotgun's 1.5 s at a tick every 0.15 s). */
+export function burnTicks(duration: number): number {
+  return Math.max(1, Math.round(duration / BURN.fireTickInterval));
 }
 
 export function isBurning(z: ZombieState): boolean {
   return z.burn.timer > 0;
 }
 
-/** Sets `z` on fire from a hit of `hitDamage` (the final damage, after falloff and boosts). */
-export function igniteZombie(z: ZombieState, hitDamage: number, owner: number): void {
+/**
+ * Sets `z` on fire: `total` damage over `duration` seconds, the kill for
+ * `owner`; `hellfire` when lit by a flamethrower with its special. The
+ * shotgun's pellets burn fireDamageFactor of their hit for fireDuration.
+ */
+export function igniteZombie(z: ZombieState, total: number, duration: number, owner: number, hellfire = false): void {
   if (!isZombieAlive(z)) return;
   const b = z.burn;
-  const perTick = burnPerTick(hitDamage);
+  const perTick = total / burnTicks(duration);
   // A fresh fire starts its tick clock; a burning zombie keeps its rhythm.
   if (b.timer <= 0) {
     b.tickTimer = BURN.fireTickInterval;
     b.perTick = perTick;
+    b.hellfire = false;
   } else {
     b.perTick = Math.max(b.perTick, perTick);
   }
-  b.timer = BURN.fireDuration;
+  b.timer = Math.max(b.timer, duration);
   b.owner = owner;
+  b.hellfire ||= hellfire;
 }
 
 export function updateBurns(ctx: SimContext, dt: number): void {
@@ -64,5 +76,39 @@ export function updateBurns(ctx: SimContext, dt: number): void {
       b.timer = 0;
       b.perTick = 0;
     }
+  }
+  setOffBlasts(ctx);
+}
+
+/**
+ * Sets off the hellfire bursts queued this tick: every living zombie whose
+ * hitbox edge is within HELLFIRE.radius, with no wall in between, takes
+ * HELLFIRE.damage (no hit points, the kill for its owner) and catches the
+ * flamethrower's fire with hellfire. Those it kills while they burn queue
+ * their own bursts, set off in the same pass: a chain ends because each
+ * zombie dies only once.
+ */
+export function setOffBlasts(ctx: SimContext): void {
+  const { blasts, zombies } = ctx.state;
+  const fire = WEAPONS.flamethrower.burn ?? { damage: 0, duration: 0 };
+  for (let pass = 0; pass < blasts.length; pass++) {
+    let any = false;
+    for (const blast of blasts) {
+      if (!blast.active) continue;
+      any = true;
+      const { x, y, owner } = blast;
+      ctx.events.emit('fire:blast', { x, y });
+      for (const z of zombies) {
+        if (!isZombieAlive(z)) continue;
+        if (Math.hypot(z.x - x, z.y - y) - ZOMBIES.hitboxRadius > HELLFIRE.radius) continue;
+        if (!segmentClearShaped(ctx.grid, x, y, z.x, z.y, BLOCK_BULLET)) continue;
+        // Lit first, so a zombie the burst kills dies burning and bursts too.
+        igniteZombie(z, fire.damage, fire.duration, owner, true);
+        damageZombie(ctx, z, HELLFIRE.damage, owner, undefined, 0);
+      }
+      // Freed only now: the bursts this one causes take other slots, never this one mid-way.
+      blast.active = false;
+    }
+    if (!any) return;
   }
 }

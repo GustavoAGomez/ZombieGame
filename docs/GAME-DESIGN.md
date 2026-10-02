@@ -8,8 +8,8 @@ Registro vivo de las **reglas del juego tal como están implementadas**: qué ha
 
 - **Categorías:**
   - `basic`: se compran en las vitrinas de armas. Pistola, SMG y escopeta.
-  - `special`: solo las da la Mano del Demonio (spec 06), nunca una vitrina. No tienen niveles del mago rojo (su tienda dice «NO MEJORABLE»), pero sí mejora especial del mago dorado. Hoy, la katana y el láser.
-- **Cómo atacan:** con balas (pistola, SMG, escopeta), con un barrido cuerpo a cuerpo (katana) o con un rayo continuo (láser).
+  - `special`: solo las da la Mano del Demonio (spec 06), nunca una vitrina. No tienen niveles del mago rojo (su tienda dice «NO MEJORABLE»), pero sí mejora especial del mago dorado. La katana, el láser y el lanzallamas infernal.
+- **Cómo atacan:** con balas (pistola, SMG, escopeta), con un barrido cuerpo a cuerpo (katana), con un rayo continuo (láser) o con un chorro en cono (lanzallamas).
 - **Cada arma tiene sus propias mejoras:** cuántos niveles admite de cada tipo de mejora (munición, cadencia y daño), que vende el mago rojo y que el jugador elige; y, si la tiene, una mejora especial única que vende el mago dorado. Nada supone que haya tres niveles: un arma especial futura podrá admitir menos tipos o menos niveles.
 - **Inventario de armas:** se empieza solo con la pistola y se llevan como mucho **3 armas**, una por hueco de la columna de armas. Tocar un hueco cambia de arma en 0,4 s.
 
@@ -37,6 +37,14 @@ El daño se cuenta en las mismas unidades que la vida de los zombis: una bala de
 - **Sobrecalentamiento:** si se vacía, el arma se bloquea 3 s y luego recarga con normalidad. En el HUD, la barra de batería parpadea en rojo con «SOBRECALENTADO».
 - Respeta la espera del primer disparo y frena al jugador como las armas de fuego. Un toque más corto que la espera no dispara.
 
+**Lanzallamas infernal** (especial):
+- **Chorro** mientras se mantiene pulsado, en un cono de 40° hasta 90 px. Las paredes lo paran: un zombi sin línea de visión no se quema.
+- **Daño directo:** 4 por segundo a cada zombi del cono, en golpes cada 0,1 s.
+- **Quemadura:** cada zombi tocado arde 2 s y pierde 2 en total. No se apila: cada toque la reinicia.
+- **Munición:** depósito de 60 y reserva de 180. Gasta 12 por segundo (5 s por depósito) y recarga en 2,5 s. La rellenan la munición máxima del mago azul y los premios de munición.
+- **Puntos:** un impacto por zombi cada 0,5 s. Los golpes de la quemadura no puntúan; la muerte sí.
+- Respeta la espera del primer disparo y frena al jugador. Un toque más corto que la espera no dispara.
+
 - **Apuntar antes del primer disparo:** al pulsar el botón de disparo, la primera bala espera **0,3 s** (igual en las tres armas, ajustable por arma). Mientras tanto el jugador ya gira hacia donde apunta y se puede corregir arrastrando, por si el dedo cayó descentrado.
   - Manteniendo pulsado, después dispara a la cadencia del arma.
   - Un toque más corto que esa espera dispara una vez al cumplirse, hacia donde apuntaba al soltar. Si en ese momento no puede (recargando, cambiando de arma), el disparo se pierde: nunca sale una bala suelta después.
@@ -57,6 +65,9 @@ Tres tipos de mejora, cada uno con sus niveles, que se compran por separado y en
 | Pistola | 3 niveles (8 → 12 → 16 → 20 balas) | 3 niveles | 3 niveles | **Abanico:** 3 balas por disparo, separadas 12°, por el gasto de una |
 | SMG | 3 niveles (30 → 45 → 60 → 75 balas) | 3 niveles | 3 niveles | **Perforante:** cada bala atraviesa hasta 3 zombis (las paredes la siguen parando) |
 | Escopeta de caza | 3 niveles (2 → 3 → 4 → 5 cartuchos) | 3 niveles (también acelera la recarga) | 3 niveles | **Fuego:** cada perdigón que acierta prende al zombi, que arde 1,5 s y pierde en total el 40 % del daño del perdigón (no se acumula) |
+| Katana | — | — | — | **Filo de sangre:** cada zombi que mata cura 2 de vida, hasta 10 por barrido |
+| Láser | — | — | — | **Sobrecarga:** daño ×2 y la batería dura el doble |
+| Lanzallamas infernal | — | — | — | **Fuego infernal:** un zombi que muere ardiendo estalla: 2 de daño a los que estén a 40 px (sin pared en medio), que también prenden. Las explosiones se encadenan |
 
 - **HUD:** junto al nombre del arma hay una marca por tipo (bala, rayo y cruceta) con una casilla por nivel, que se rellena de ámbar al comprarlo. Con la especial, el nombre se pone ámbar.
 - Un arma con todo al máximo y el doble daño temporal hace ×5 de daño.

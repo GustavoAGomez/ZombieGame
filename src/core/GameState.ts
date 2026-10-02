@@ -79,6 +79,9 @@ export interface PlayerState {
   /** A beam is firing this tick (the laser), `beamLength` px from the gun's muzzle along the aim to a wall or its range. */
   beamOn: boolean;
   beamLength: number;
+  /** A cone weapon's jet is firing this tick (the flamethrower), and the seconds until it spends its next round. */
+  coneOn: boolean;
+  fuelTimer: number;
   /** Fire held during the last tick. */
   firing: boolean;
   /** Seconds since this press of the fire button began (still counting while a tap's shot waits). */
@@ -272,6 +275,17 @@ export interface BurnState {
   perTick: number;
   /** Who gets the kill if it dies burning (player id, -1 none). */
   owner: number;
+  /** Lit by a flamethrower with "Fuego infernal": if it dies burning, it bursts (spec 06 §2.3). */
+  hellfire: boolean;
+}
+
+/** A burst of hellfire waiting to go off this tick (spec 06 §2.3): queued when a hellfire-burning zombie dies. */
+export interface BlastState {
+  active: boolean;
+  x: number;
+  y: number;
+  /** Who gets the kills (player id, -1 none). */
+  owner: number;
 }
 
 export interface BloodState {
@@ -347,6 +361,8 @@ export interface GameState extends RngState {
   players: PlayerState[];
   bullets: BulletState[];
   zombies: ZombieState[];
+  /** Hellfire bursts queued this tick, set off by BurnSystem (pooled). */
+  blasts: BlastState[];
   blood: BloodState[];
   pickups: PickupState[];
   /** One per merchant in merchants.ts, enabled or not. */
@@ -407,6 +423,8 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     meleeWide: false,
     beamOn: false,
     beamLength: 0,
+    coneOn: false,
+    fuelTimer: 0,
     firing: false,
     aimTime: 0,
     shotPending: false,
@@ -489,7 +507,7 @@ function createZombie(): ZombieState {
     tearRate: 1,
     portalLock: -1,
     lostTimer: 0,
-    burn: { timer: 0, tickTimer: 0, perTick: 0, owner: -1 },
+    burn: { timer: 0, tickTimer: 0, perTick: 0, owner: -1, hellfire: false },
     contactScoreTick: -1000,
   };
 }
@@ -542,6 +560,7 @@ export function createGameState(map: MapData, options: GameOptions = {}): GameSt
     players,
     bullets: Array.from({ length: BULLETS.poolSize }, createBullet),
     zombies: Array.from({ length: ZOMBIES.poolSize }, createZombie),
+    blasts: Array.from({ length: ZOMBIES.poolSize }, () => ({ active: false, x: 0, y: 0, owner: -1 })),
     blood: Array.from({ length: ZOMBIES.maxBloodDecals }, createBlood),
     pickups: Array.from({ length: PICKUPS.poolSize }, createPickup),
     merchants: MERCHANTS.map((m) => createMerchant(m.id, m.appears?.by === 'round', players.length)),

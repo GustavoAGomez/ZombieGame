@@ -1,7 +1,7 @@
 import { BULLETS } from '../../config/balance';
 import type { BulletState } from '../../core/GameState';
 import { BLOCK_BULLET, pointBlocksShaped, segmentHitShaped } from '../map/CollisionGrid';
-import { igniteZombie } from './BurnSystem';
+import { BURN, igniteZombie } from './BurnSystem';
 import { damageZombie, isZombieAlive, knockZombie, type HitPoint } from './Combat';
 import { bodyEntry, hurtboxOf } from './shotGeometry';
 import type { SimContext } from './SimContext';
@@ -113,7 +113,7 @@ export function bulletHitsZombie(ctx: SimContext, b: BulletState, index: number,
   const damage = b.damage * falloffFactor(b, b.range - b.remaining);
   const killed = damageZombie(ctx, z, damage, b.owner, hit);
   if (killed) return;
-  if (b.burns) igniteZombie(z, damage, b.owner);
+  if (b.burns) igniteZombie(z, damage * BURN.fireDamageFactor, BURN.fireDuration, b.owner);
   knockZombie(ctx, z, b.dirX, b.dirY, b.knockback);
 }
 

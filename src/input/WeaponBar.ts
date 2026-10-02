@@ -12,6 +12,7 @@ export const WEAPON_ICONS: Readonly<Record<WeaponId, IconName>> = {
   shotgun: 'shotgun',
   katana: 'katana',
   laser: 'laser',
+  flamethrower: 'flamethrower',
 };
 
 /**

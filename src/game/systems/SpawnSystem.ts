@@ -170,6 +170,7 @@ export function spawnZombie(ctx: SimContext, z: ZombieState, spawnIndex: number)
   z.portalLock = -1;
   z.burn.timer = 0;
   z.burn.perTick = 0;
+  z.burn.hellfire = false;
   z.contactScoreTick = -1000;
   if (open) {
     z.ai = 'entering';

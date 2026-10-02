@@ -1274,3 +1274,30 @@ Petición del usuario: no saber a qué sala lleva una puerta hasta abrirla. Al d
   - En la columna de armas, el hueco del láser no muestra número.
 - **Vista provisional (`LaserBeam`):** una línea de 2 px roja clara con un núcleo blanco de 1 px y un destello que parpadea al final, sobre todo lo demás, como las balas.
 - **Debug:** `DAR LÁSER`.
+
+## Spec 06 · Fase H3 (lanzallamas, quemadura generalizada y mejoras doradas)
+
+- **Quemadura generalizada:** `igniteZombie(z, total, duración, dueño, infernal)`. Quien prende dice el daño total y la duración; el reparto por golpe es el total entre los golpes que caben en la duración, cada 0,15 s para todos.
+  - La escopeta prende con el 40 % de su impacto durante 1,5 s, como antes. El lanzallamas, con 2 durante 2 s.
+  - **Volver a prender un zombi que arde:** se queda la duración más larga y el mayor daño por golpe. Con la misma arma eso es reiniciar, sin apilar.
+- **Lanzallamas:**
+  - Dos ritmos aparte: los golpes de daño usan la cadencia y el enfriamiento de disparo, como el láser (`fireRate` 10, `damage` 0,4); el gasto de munición va con su propio contador, `fuelTimer`.
+  - Gasta 12 por segundo: una unidad al empezar el chorro y luego una cada 1/12 s. Un chorro que para gasta una nueva al volver a empezar.
+  - **Cono:** desde los pies del jugador, como la katana, a 90 px del borde del zombi, dentro de ±20° del apuntado y sin pared en medio.
+  - Cada golpe prende primero y daña después, así que un zombi que muere por el chorro muere ardiendo.
+  - Solo dispara mientras se mantiene pulsado, como el láser.
+- **Fuego infernal, en dos pasos:**
+  - Al matar a un zombi que arde con fuego infernal, `damageZombie` deja una explosión en la cola de la partida (`blasts`, del tamaño del pool de zombis).
+  - `BurnSystem` las hace estallar ese mismo tick: daño 2, que no puntúa, y prende con el fuego del lanzallamas a todo zombi a 40 px de su borde y sin pared en medio.
+  - Las explosiones que eso provoca se procesan en la misma pasada. La cadena termina porque cada zombi muere una vez.
+  - Así el combate no depende de la quemadura (no hay dependencia circular), y no hay estado fuera de la partida.
+  - **Error encontrado en los tests:** liberar el hueco de una explosión antes de terminarla dejaba que la explosión encadenada lo reutilizara a medias, cambiándole la posición. Ahora la posición se copia antes y el hueco se libera al final.
+  - El evento `fire:blast` saca un anillo de llamas en la vista.
+- **Sobrecarga** (láser): daño ×2 y gasto de batería ×0,5.
+- **Filo de sangre** (katana): suma 2 de vida por cada zombi que mata el barrido, con un máximo de 10 por barrido y sin pasar de la vida máxima.
+- **Magos:**
+  - El rojo dice `NO MEJORABLE` con un arma especial, porque admite 0 niveles.
+  - El dorado vende la especial de las tres.
+  - La munición máxima del azul rellena el lanzallamas y no cuenta el láser ni la katana para «MUNICIÓN COMPLETA», porque un arma sin balas siempre está llena.
+- **Vista provisional (`FlameJet`):** llamas del efecto de quemadura lanzadas desde el cañón en abanico sobre el cono, que vuelan hasta el alcance creciendo y desvaneciéndose, y un anillo de llamas por cada explosión.
+- **Debug:** `DAR LANZALLAMAS`. La especial se activa con `ESPECIAL ARMA`, que ya existía.

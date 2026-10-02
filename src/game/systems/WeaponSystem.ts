@@ -10,6 +10,7 @@ import { bodyHitPoint, damageZombie, findAutoAimTarget, findMeleeTarget, isZombi
 import { bodyCentre, bodyEntry, hurtboxOf, muzzleFor, type Hurtbox, type Vec2 } from './shotGeometry';
 import type { SimContext } from './SimContext';
 import { fireBeam, updateBatteries } from './BeamSystem';
+import { fireCone } from './ConeSystem';
 import { bulletHitsZombie } from './BulletSystem';
 import { ammoKind, bulletDamage, bulletLook, fireRate, magazineSize, reloadTime } from './weaponStats';
 
@@ -39,9 +40,12 @@ export function updateWeapons(ctx: SimContext, dt: number): void {
     updateTrigger(p, cmd, dt);
     updateAim(ctx, p, cmd);
     p.beamOn = false;
+    p.coneOn = false;
     if (cmd.melee) handleMelee(ctx, p, true);
     else if (cmd.fire || p.shotPending) handleFire(ctx, p, cmd.fire, dt);
     updateBatteries(p, dt);
+    // A jet that stops spends a fresh round when it starts again.
+    if (!p.coneOn) p.fuelTimer = 0;
   }
 }
 
@@ -190,9 +194,10 @@ function handleFire(ctx: SimContext, p: PlayerState, held: boolean, dt: number):
   p.shotPending = false;
   if (!slot || p.switchTimer > 0 || p.reloadTimer > 0) return;
   const attack = WEAPONS[slot.id].attack;
-  // A beam fires only while held (a tap gives no flash of it), damaging at its own pace.
-  if (attack === 'beam') {
-    if (held) fireBeam(ctx, p, slot, dt);
+  // A beam or a jet fires only while held (a tap gives no flash of it), damaging at its own pace.
+  if (attack === 'beam' || attack === 'cone') {
+    if (held && attack === 'beam') fireBeam(ctx, p, slot, dt);
+    else if (held) fireCone(ctx, p, slot, dt);
     return;
   }
   if (p.fireCooldown > 0) return;
@@ -214,6 +219,7 @@ function sweep(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
   p.lastAttackTick = state.tick;
   const minCos = Math.cos(degToRad(def.arc ?? 0) / 2);
   const damage = bulletDamage(slot) * damageFactor(p);
+  let kills = 0;
   for (let i = 0; i < state.zombies.length; i++) {
     const z = state.zombies[i];
     if (!z || !isZombieAlive(z)) continue;
@@ -225,8 +231,13 @@ function sweep(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
     const uy = dist > 0 ? dy / dist : p.aimY;
     if (ux * p.aimX + uy * p.aimY < minCos) continue;
     if (!segmentClearShaped(ctx.grid, p.x, p.y, z.x, z.y, BLOCK_BULLET)) continue;
-    damageZombie(ctx, z, damage, p.id, bodyHitPoint(z, ux, uy), POINTS.meleeHit);
-    knockZombie(ctx, z, ux, uy, def.knockback ?? 0);
+    if (damageZombie(ctx, z, damage, p.id, bodyHitPoint(z, ux, uy), POINTS.meleeHit)) kills++;
+    else knockZombie(ctx, z, ux, uy, def.knockback ?? 0);
+  }
+  // "Filo de sangre" (the katana's special): each kill heals, up to a cap per sweep.
+  if (slot.special && def.special === 'blood_edge' && kills > 0) {
+    const edge = WEAPON_SPECIALS.blood_edge;
+    p.hp = Math.min(p.maxHp, p.hp + Math.min(edge.maxHealPerSweep, kills * edge.healPerKill));
   }
   p.meleeAngle = Math.atan2(p.aimY, p.aimX);
   p.meleeTimer = MELEE.swingTime;

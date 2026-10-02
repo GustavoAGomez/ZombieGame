@@ -39,6 +39,7 @@ export const STRINGS = {
     giveShotgun: 'DAR ESCOPETA',
     giveKatana: 'DAR KATANA',
     giveLaser: 'DAR LÁSER',
+    giveFlamethrower: 'DAR LANZALLAMAS',
     /** Spec 05 §8. */
     giveItems: 'DAR OBJETOS',
     goToWand: 'IR A LA VARITA',
@@ -58,6 +59,7 @@ export const STRINGS = {
     shotgun: 'ESCOPETA',
     katana: 'KATANA',
     laser: 'LÁSER',
+    flamethrower: 'LANZALLAMAS',
   },
   hud: {
     battery: 'Batería',
@@ -131,6 +133,9 @@ export const STRINGS = {
       pistol: 'Pistola: 3 balas en abanico por disparo',
       smg: 'SMG: cada bala atraviesa 3 zombis',
       shotgun: 'Escopeta: los perdigones prenden fuego',
+      katana: 'Katana: cada zombi que mata te cura 2 de vida',
+      laser: 'Láser: doble daño y la batería dura el doble',
+      flamethrower: 'Lanzallamas: los que mueren ardiendo estallan',
     } as Readonly<Partial<Record<WeaponId, string>>>,
     items: {
       max_ammo: { name: 'MUNICIÓN MÁXIMA', description: 'Llena cargadores y reservas' },

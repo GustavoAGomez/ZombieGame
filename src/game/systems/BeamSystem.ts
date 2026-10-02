@@ -1,5 +1,5 @@
 import { BULLETS, CONTINUOUS, PLAYER, SIM } from '../../config/balance';
-import { WEAPONS } from '../../config/weapons';
+import { WEAPON_SPECIALS, WEAPONS } from '../../config/weapons';
 import type { PlayerState, WeaponSlotState, ZombieState } from '../../core/GameState';
 import { BLOCK_BULLET, pointBlocksShaped, segmentClearShaped, segmentHitShaped } from '../map/CollisionGrid';
 import { damageFactor } from './BoostSystem';
@@ -28,10 +28,12 @@ export function fireBeam(ctx: SimContext, p: PlayerState, slot: WeaponSlotState,
   const def = WEAPONS[slot.id];
   const battery = def.battery;
   if (!battery || slot.battery <= 0 || slot.overheat > 0) return;
+  // "Sobrecarga" (the laser's special): twice the damage, and the battery lasts twice as long.
+  const overcharge = slot.special && def.special === 'overcharge' ? WEAPON_SPECIALS.overcharge : null;
   p.beamOn = true;
   p.lastAttackTick = ctx.state.tick;
   slot.batteryIdle = 0;
-  slot.battery -= battery.drain * dt;
+  slot.battery -= battery.drain * (overcharge?.drainFactor ?? 1) * dt;
   if (slot.battery <= 0) {
     slot.battery = 0;
     slot.overheat = battery.overheatTime;
@@ -43,7 +45,7 @@ export function fireBeam(ctx: SimContext, p: PlayerState, slot: WeaponSlotState,
   p.beamLength = beamLength(ctx, sx, sy, p.aimX, p.aimY, def.range);
   if (p.fireCooldown > 0) return;
   p.fireCooldown += 1 / fireRate(slot);
-  const damage = bulletDamage(slot) * damageFactor(p);
+  const damage = bulletDamage(slot) * damageFactor(p) * (overcharge?.damageFactor ?? 1);
   const { zombies } = ctx.state;
   for (let i = 0; i < zombies.length; i++) {
     const z = zombies[i];

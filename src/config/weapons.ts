@@ -6,7 +6,7 @@
  * assumes three levels. Names shown on screen live in STRINGS.weapons.
  */
 
-export type WeaponId = 'pistol' | 'smg' | 'shotgun' | 'katana' | 'laser';
+export type WeaponId = 'pistol' | 'smg' | 'shotgun' | 'katana' | 'laser' | 'flamethrower';
 
 /** `basic`: bought at weapon cases. `special`: only from the Demon's Hand (spec 06), never at a case. */
 export type WeaponCategory = 'basic' | 'special';
@@ -29,7 +29,7 @@ export type UpgradeKind = 'ammo' | 'fire_rate' | 'damage';
 export const UPGRADE_KINDS: readonly UpgradeKind[] = ['ammo', 'fire_rate', 'damage'];
 
 /** A weapon's unique upgrade from the gold merchant. */
-export type WeaponSpecialId = 'fan' | 'pierce' | 'fire';
+export type WeaponSpecialId = 'fan' | 'pierce' | 'fire' | 'blood_edge' | 'overcharge' | 'hellfire';
 
 export interface WeaponStats {
   /**
@@ -69,6 +69,10 @@ export interface WeaponStats {
     /** Seconds locked after running dry; then it recharges as usual. */
     overheatTime: number;
   };
+  /** A cone weapon (the flamethrower): rounds of ammo spent per second of jet. */
+  fuelPerSecond?: number;
+  /** A cone weapon: every zombie it touches burns this much in total over `duration` s (BurnSystem). */
+  burn?: { damage: number; duration: number };
   /** Projectiles per round (a shotgun's pellets); 1 when missing. */
   pellets?: number;
   /** Random variation of each pellet around its even place in the cone (degrees, total). */
@@ -131,6 +135,16 @@ export const WEAPON_SPECIALS = {
    * final damage in total, in ticks every fireTickInterval for fireDuration.
    */
   fire: { fireDamageFactor: 0.4, fireTickInterval: 0.15, fireDuration: 1.5 },
+  /** Katana, "Filo de sangre" (spec 06 §2.2): each zombie it kills heals the player, up to a cap per sweep. */
+  blood_edge: { healPerKill: 2, maxHealPerSweep: 10 },
+  /** Laser, "Sobrecarga" (spec 06 §2.1): damage ×2 and the battery lasts twice as long. */
+  overcharge: { damageFactor: 2, drainFactor: 0.5 },
+  /**
+   * Flamethrower, "Fuego infernal" (spec 06 §2.3): a zombie that dies burning
+   * from it bursts, hitting every zombie within `radius` px for `damage` and
+   * setting them on fire the same way, so the bursts can chain.
+   */
+  hellfire: { damage: 2, radius: 40 },
 } as const;
 
 export const WEAPONS: Readonly<Record<WeaponId, WeaponDef>> = {
@@ -212,6 +226,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDef>> = {
     knockback: 6,
     firstShotDelay: 0,
     upgrades: {},
+    special: 'blood_edge',
   },
   // Laser (spec 06 §2.1): a continuous ray through every zombie in line, on a battery instead of ammo.
   laser: {
@@ -231,6 +246,31 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDef>> = {
     battery: { capacity: 100, drain: 25, recharge: 20, rechargeDelay: 0.8, overheatTime: 3 },
     firstShotDelay: FIRST_SHOT_DELAY,
     upgrades: {},
+    special: 'overcharge',
+  },
+  // Infernal flamethrower (spec 06 §2.3): a short jet in a cone that sets on fire everyone it touches.
+  flamethrower: {
+    id: 'flamethrower',
+    category: 'special',
+    attack: 'cone',
+    /** 4 per second to each zombie in the cone, in ticks of 0.1 s. */
+    damage: 0.4,
+    fireRate: 10,
+    /** Tank and reserve, in rounds: the blue merchant's max ammo and the ammo drops refill them. */
+    magazine: 60,
+    startReserve: 180,
+    maxReserve: 180,
+    reloadTime: 2.5,
+    /** Walls stop it: a zombie out of sight does not burn. */
+    range: 90,
+    arc: 40,
+    /** 5 s of jet per tank. */
+    fuelPerSecond: 12,
+    /** It does not stack: every touch restarts it. */
+    burn: { damage: 2, duration: 2 },
+    firstShotDelay: FIRST_SHOT_DELAY,
+    upgrades: {},
+    special: 'hellfire',
   },
 };
 

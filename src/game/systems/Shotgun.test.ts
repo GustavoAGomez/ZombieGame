@@ -4,7 +4,7 @@ import { WEAPON_SPECIALS, WEAPONS } from '../../config/weapons';
 import { createWeaponSlot } from '../../core/GameState';
 import { createTestContext, holdFire, placeZombie, player, runTicks } from '../../test/fixtures';
 import { falloffFactor, updateBullets } from './BulletSystem';
-import { BURN_TICKS, burnPerTick, igniteZombie, isBurning, updateBurns } from './BurnSystem';
+import { burnTicks, igniteZombie, isBurning, updateBurns } from './BurnSystem';
 import { stepSimulation } from './Simulation';
 
 type Ctx = ReturnType<typeof createTestContext>;
@@ -116,11 +116,15 @@ describe('hunting shotgun (spec 04 §1)', () => {
 
 describe('burn effect (spec 04 §1)', () => {
   const FIRE = WEAPON_SPECIALS.fire;
+  /** The shotgun's fire for a pellet hit of `hit`: 40 % of it over 1.5 s. */
+  const shotgunFire = (z: Parameters<typeof igniteZombie>[0], hit: number, owner: number): void =>
+    igniteZombie(z, hit * FIRE.fireDamageFactor, FIRE.fireDuration, owner);
+  const burnPerTick = (hit: number): number => (hit * FIRE.fireDamageFactor) / burnTicks(FIRE.fireDuration);
 
   it('burns for 40 % of the hit in total, a tick every 0.15 s for 1.5 s', () => {
     const ctx = createTestContext();
     const z = placeZombie(ctx, 0, 100, 100, 1000, 'idle');
-    igniteZombie(z, 1, 0);
+    shotgunFire(z, 1, 0);
     const changes: number[] = [];
     let hp = z.hp;
     for (let t = 1; t <= 120; t++) {
@@ -130,7 +134,7 @@ describe('burn effect (spec 04 §1)', () => {
         hp = z.hp;
       }
     }
-    expect(BURN_TICKS).toBe(10);
+    expect(burnTicks(FIRE.fireDuration)).toBe(10);
     expect(changes).toHaveLength(10);
     // Every 9 sim ticks = 0.15 s.
     expect(changes).toEqual([9, 18, 27, 36, 45, 54, 63, 72, 81, 90]);
@@ -141,16 +145,16 @@ describe('burn effect (spec 04 §1)', () => {
   it('a new hit restarts the duration without stacking, keeping the highest damage per tick', () => {
     const ctx = createTestContext();
     const z = placeZombie(ctx, 0, 100, 100, 1000, 'idle');
-    igniteZombie(z, 1, 0);
+    shotgunFire(z, 1, 0);
     runTicks(ctx, 36, (c, dt) => updateBurns(c, dt)); // 4 ticks
     expect(1000 - z.hp).toBeCloseTo(4 * burnPerTick(1));
-    igniteZombie(z, 0.5, 0); // weaker: the per-tick damage stays
+    shotgunFire(z, 0.5, 0); // weaker: the per-tick damage stays
     expect(z.burn.perTick).toBeCloseTo(burnPerTick(1));
     expect(z.burn.timer).toBeCloseTo(FIRE.fireDuration);
     runTicks(ctx, 120, (c, dt) => updateBurns(c, dt));
     // 4 ticks before the new hit and a full fire of 10 after it: one fire, not two.
     expect(1000 - z.hp).toBeCloseTo(14 * burnPerTick(1));
-    igniteZombie(z, 2, 0); // stronger: takes over
+    shotgunFire(z, 2, 0); // stronger: takes over
     expect(z.burn.perTick).toBeCloseTo(burnPerTick(2));
   });
 
@@ -159,12 +163,12 @@ describe('burn effect (spec 04 §1)', () => {
     const p = player(ctx);
     const z = placeZombie(ctx, 0, 100, 100, 1000, 'idle');
     const money = p.money;
-    igniteZombie(z, 1, p.id);
+    shotgunFire(z, 1, p.id);
     runTicks(ctx, 100, (c, dt) => updateBurns(c, dt));
     expect(p.money).toBe(money);
     // Now one that dies to the fire.
     const weak = placeZombie(ctx, 1, 140, 100, burnPerTick(1) * 2.5, 'idle');
-    igniteZombie(weak, 1, p.id);
+    shotgunFire(weak, 1, p.id);
     runTicks(ctx, 100, (c, dt) => updateBurns(c, dt));
     expect(weak.ai).toBe('dead');
     expect(p.money).toBe(money + POINTS.kill);
@@ -173,7 +177,7 @@ describe('burn effect (spec 04 §1)', () => {
   it('can turn a zombie into a crawler on a fire tick', () => {
     const ctx = createTestContext();
     const z = placeZombie(ctx, 0, 100, 100, 1 + burnPerTick(1) / 2, 'chasing');
-    igniteZombie(z, 1, 0);
+    shotgunFire(z, 1, 0);
     runTicks(ctx, 9, (c, dt) => updateBurns(c, dt));
     expect(z.hp).toBeLessThanOrEqual(1);
     expect(z.hp).toBeGreaterThan(0);

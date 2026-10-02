@@ -12,6 +12,7 @@ import { PauseButton, PauseMenu } from '../../ui/screens/Screens';
 import type { AssetLibrary } from '../assets/AssetLibrary';
 import { ASSET_KEYS } from '../assets/manifest';
 import { AimLine } from '../entities/AimLine';
+import { FlameJet } from '../entities/FlameJet';
 import { LaserBeam } from '../entities/LaserBeam';
 import { BloodViewPool } from '../entities/Blood';
 import { BloodSprayPool } from '../entities/BloodSpray';
@@ -79,6 +80,7 @@ export class GameScene extends Phaser.Scene {
   private bulletViews!: BulletViewPool;
   private aimLine!: AimLine;
   private laserBeam!: LaserBeam;
+  private flameJet!: FlameJet;
   private muzzleFlash!: MuzzleFlash;
   private meleeSlash!: MeleeSlash;
   private worldTexts!: WorldTextPool;
@@ -173,6 +175,7 @@ export class GameScene extends Phaser.Scene {
     this.bulletViews = new BulletViewPool(this, this.state.bullets.length, playerDef);
     this.aimLine = new AimLine(this, playerDef);
     this.laserBeam = new LaserBeam(this, playerDef);
+    this.flameJet = new FlameJet(this, playerDef, events);
     this.muzzleFlash = new MuzzleFlash(this, playerDef);
     this.meleeSlash = new MeleeSlash(this, playerDef, manifest.objects[ASSET_KEYS.meleeSlash]);
     this.worldTexts = new WorldTextPool(this, events);
@@ -196,6 +199,7 @@ export class GameScene extends Phaser.Scene {
       this.controls.destroy();
       this.hud.destroy();
       this.worldTexts.destroy();
+      this.flameJet.destroy();
       this.cantUseText.destroy();
       this.thrownItems.destroy();
       this.bloodSpray.destroy();
@@ -220,6 +224,7 @@ export class GameScene extends Phaser.Scene {
     this.bloodSpray.update(effectsDt);
     this.burnFlames.update(this.state.zombies, effectsDt, (i) => this.zombieViews.isShown(i));
     const player = this.state.players[0];
+    this.flameJet.update(player, effectsDt);
     if (player) this.playerStains.sync(player, this.playerView.sprite, effectsDt);
     this.debugDraw.draw(this.state, this.sim.nav, this.sim.grid);
     this.presenter.publish(this.state);
@@ -398,6 +403,7 @@ export class GameScene extends Phaser.Scene {
       giveShotgun: () => this.debugGiveWeapon('shotgun'),
       giveKatana: () => this.debugGiveWeapon('katana'),
       giveLaser: () => this.debugGiveWeapon('laser'),
+      giveFlamethrower: () => this.debugGiveWeapon('flamethrower'),
       giveItems: () => {
         const p = this.state.players[0];
         if (p) debugGiveItems(this.state, p);

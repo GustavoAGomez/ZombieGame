@@ -26,6 +26,8 @@ export interface GameEvents {
   'door:opened': { doorId: string; playerId: number };
   /** A portal (stairs, ladder, hatch) was bought. */
   'portal:opened': { portalId: string; playerId: number };
+  /** A hellfire burst went off (spec 06 §2.3): the flamethrower's flames burst out there. */
+  'fire:blast': { x: number; y: number };
   /** A room was unlocked (its zone id): only now does the HUD say which one, «COCINA DESBLOQUEADA». */
   'zone:unlocked': { zone: string };
   'weapon:state': {
