@@ -2,7 +2,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { healthPadding } from '../src/ui/skin';
-import { cropToBounds, measureHealthBar, namePieces, splitSheet } from './import-hud';
+import { cropToBounds, halve, measureHealthBar, namePieces, splitSheet } from './import-hud';
 import { decodePng } from './lib/png';
 import { blank, paste, type Frame } from './lib/sheet';
 
@@ -43,6 +43,29 @@ describe('HUD kit from PixelLab (npm run hud:import)', () => {
     expect(trough).toEqual({ x: 22, y: 4, width: 118, height: 9 });
     expect(heart.x + heart.width).toBeLessThan(trough.x);
     expect([heart.width, heart.height]).toEqual([12, 11]);
+  });
+
+  it('halves a piece exactly: commonest colour of each 2×2 block, the lighter on a tie', () => {
+    const src = blank(3, 3);
+    const put = (x: number, y: number, v: number): void => src.pixels.set([v, v, v, 255], (y * 3 + x) * 4);
+    // Top-left block: two dark, two light → light. Top-right column: one light pixel alone → light.
+    put(0, 0, 20);
+    put(1, 0, 20);
+    put(0, 1, 230);
+    put(1, 1, 230);
+    put(2, 0, 230);
+    // Bottom-left: only one row of the block exists (odd size); one dark, one empty → the dark one. Bottom-right: empty.
+    put(0, 2, 20);
+    const half = halve(src);
+    expect([half.width, half.height]).toEqual([2, 2]);
+    const at = (x: number, y: number): number[] => Array.from(half.pixels.slice((y * 2 + x) * 4, (y * 2 + x) * 4 + 4));
+    expect(at(0, 0)).toEqual([230, 230, 230, 255]);
+    expect(at(1, 0)).toEqual([230, 230, 230, 255]);
+    expect(at(0, 1)).toEqual([20, 20, 20, 255]);
+    expect(at(1, 1)[3]).toBe(0);
+    // The medium ring becomes the 33 px small one.
+    const small = halve(namePieces(ELEMENTS.map(read)).ringMedium);
+    expect([small.width, small.height]).toEqual([33, 33]);
   });
 
   it('puts 10 whole-pixel segments inside the trough', () => {

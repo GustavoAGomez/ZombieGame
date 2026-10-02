@@ -12,7 +12,9 @@
  *
  * Nothing is repainted: the rings are tinted at runtime (src/ui/skin.ts), the
  * panel and the plate are drawn with 9-slice, and the game draws the health
- * segments inside the bar's trough and makes the heart beat.
+ * segments inside the bar's trough and makes the heart beat. The only new
+ * image is the small ring: the medium one halved exactly (2:1), so the small
+ * buttons are drawn at 1× too.
  */
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -50,10 +52,12 @@ export interface UiPiece {
 }
 
 type PieceName = 'ringLarge' | 'ringMedium' | 'panel' | 'plate' | 'healthFrame';
+type OutputName = PieceName | 'ringSmall';
 
-const LABELS: Record<PieceName, string> = {
+const LABELS: Record<OutputName, string> = {
   ringLarge: 'ARO GRANDE',
   ringMedium: 'ARO MEDIANO',
+  ringSmall: 'ARO PEQUENO (MITAD)',
   panel: 'PANEL',
   plate: 'PLACA',
   healthFrame: 'BARRA DE VIDA',
@@ -189,6 +193,40 @@ export function measureHealthBar(f: Frame): { trough: Rect; heart: Rect } {
   return { trough, heart: { x: hx0, y: hy0, width: hx1 - hx0 + 1, height: hy1 - hy0 + 1 } };
 }
 
+/**
+ * Exactly half the size: each pixel takes the commonest colour of its 2×2
+ * block; on a tie the lighter one wins, so the thin bone-white border of a
+ * ring survives. An odd size rounds up (the last row and column count alone).
+ */
+export function halve(src: Frame): Frame {
+  const w = Math.ceil(src.width / 2);
+  const h = Math.ceil(src.height / 2);
+  const out: Frame = { width: w, height: h, pixels: new Uint8Array(w * h * 4) };
+  const keyAt = (x: number, y: number): number => {
+    if (alpha(src, x, y) === 0) return -1;
+    const [r, g, b] = rgb(src, x, y);
+    return (r << 16) | (g << 8) | b;
+  };
+  const light = (k: number): number => (k < 0 ? -1 : luma([(k >> 16) & 0xff, (k >> 8) & 0xff, k & 0xff]));
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const counts = new Map<number, number>();
+      for (let dy = 0; dy < 2; dy++) {
+        for (let dx = 0; dx < 2; dx++) {
+          const sx = x * 2 + dx;
+          const sy = y * 2 + dy;
+          if (sx < src.width && sy < src.height) counts.set(keyAt(sx, sy), (counts.get(keyAt(sx, sy)) ?? 0) + 1);
+        }
+      }
+      let best = -1;
+      let bestCount = -1;
+      for (const [key, n] of counts) if (n > bestCount || (n === bestCount && light(key) > light(best))) [best, bestCount] = [key, n];
+      if (best >= 0) out.pixels.set([(best >> 16) & 0xff, (best >> 8) & 0xff, best & 0xff, 255], (y * w + x) * 4);
+    }
+  }
+  return out;
+}
+
 /** The kit's pieces: elements/ of a PixelLab export, or else the one PNG sheet in the folder. */
 function readKit(dir: string): Frame[] {
   for (const name of readdirSync(dir)) {
@@ -207,25 +245,27 @@ function readKit(dir: string): Frame[] {
 }
 
 export function importHud(root: string, log: (line: string) => void): Record<string, UiPiece> {
-  const kit = namePieces(readKit(resolve(root, 'art-src/pixellab/hud')));
+  const named = namePieces(readKit(resolve(root, 'art-src/pixellab/hud')));
+  const kit: Record<OutputName, Frame> = { ...named, ringSmall: halve(named.ringMedium) };
   const outDir = resolve(root, 'public/assets/ui');
   mkdirSync(outDir, { recursive: true });
-  const files: Record<PieceName, string> = {
+  const files: Record<OutputName, string> = {
     ringLarge: 'ring_large.png',
     ringMedium: 'ring_medium.png',
+    ringSmall: 'ring_small.png',
     panel: 'panel.png',
     plate: 'plate.png',
     healthFrame: 'health_frame.png',
   };
   const bar = measureHealthBar(kit.healthFrame);
-  const extra: Partial<Record<PieceName, Partial<UiPiece>>> = {
+  const extra: Partial<Record<OutputName, Partial<UiPiece>>> = {
     panel: { slice: PANEL_SLICE },
     plate: { slice: PLATE_SLICE },
     healthFrame: { trough: bar.trough, heart: bar.heart },
   };
   const pieces: Record<string, UiPiece> = {};
   const review: SheetEntry[] = [];
-  for (const name of Object.keys(files) as PieceName[]) {
+  for (const name of Object.keys(files) as OutputName[]) {
     const frame = kit[name];
     writeFileSync(join(outDir, files[name]), encodePng(frame.width, frame.height, frame.pixels));
     pieces[name] = { file: `ui/${files[name]}`, width: frame.width, height: frame.height, ...extra[name] };

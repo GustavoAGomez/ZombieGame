@@ -996,6 +996,11 @@
       "width": 65,
       "height": 65
     },
+    "ringSmall": {
+      "file": "ui/ring_small.png",
+      "width": 33,
+      "height": 33
+    },
     "panel": {
       "file": "ui/panel.png",
       "width": 145,

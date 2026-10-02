@@ -2,7 +2,7 @@ import type { UiPieceDef, UiRect } from '../game/assets/manifest';
 import './skin.css';
 
 /** The pieces the skin needs; without any of them the HUD keeps its CSS-only look. */
-const REQUIRED = ['ringLarge', 'ringMedium', 'panel', 'plate', 'healthFrame'] as const;
+const REQUIRED = ['ringLarge', 'ringSmall', 'panel', 'plate', 'healthFrame'] as const;
 /** The health bar's segments (as in Hud.ts) and the gap between them (px). */
 const SEGMENTS = 10;
 const SEGMENT_GAP = 2;
@@ -23,26 +23,26 @@ const TINT_STRENGTH = 0.7;
 export async function applyUiSkin(ui: Readonly<Record<string, UiPieceDef>>, assetsBase: string, root: HTMLElement = document.documentElement): Promise<boolean> {
   if (!REQUIRED.every((key) => ui[key])) return false;
   const ringLarge = ui.ringLarge;
-  const ringMedium = ui.ringMedium;
+  const ringSmall = ui.ringSmall;
   const panel = ui.panel;
   const plate = ui.plate;
   const health = ui.healthFrame;
-  if (!ringLarge || !ringMedium || !panel || !plate || !health) return false;
+  if (!ringLarge || !ringSmall || !panel || !plate || !health) return false;
   // Absolute URLs: a relative url() inside a custom property may resolve against the stylesheet.
   const href = (piece: UiPieceDef): string => new URL(assetsBase + piece.file, document.baseURI).href;
   const url = (src: string): string => `url("${src}")`;
   const px = (n: number): string => `${n}px`;
 
-  const [large, medium] = await Promise.all([loadImage(href(ringLarge)), loadImage(href(ringMedium))]);
+  const [large, small] = await Promise.all([loadImage(href(ringLarge)), loadImage(href(ringSmall))]);
   const style = root.style;
   style.setProperty('--ui-ring-large', url(large ? tinted(large, RED) ?? href(ringLarge) : href(ringLarge)));
   style.setProperty('--ui-ring-large-size', px(ringLarge.width));
-  style.setProperty('--ui-ring-medium', url(href(ringMedium)));
-  style.setProperty('--ui-ring-medium-amber', url(medium ? tinted(medium, AMBER) ?? href(ringMedium) : href(ringMedium)));
-  style.setProperty('--ui-ring-medium-size', px(ringMedium.width));
-  // The veil that empties while reloading covers only the medium ring's face.
-  const face = medium ? faceRadius(medium) : ringMedium.width / 2 - 8;
-  style.setProperty('--ui-ring-medium-face-inset', px(Math.ceil(ringMedium.width / 2 - face)));
+  style.setProperty('--ui-ring-small', url(href(ringSmall)));
+  style.setProperty('--ui-ring-small-amber', url(small ? tinted(small, AMBER) ?? href(ringSmall) : href(ringSmall)));
+  style.setProperty('--ui-ring-small-size', px(ringSmall.width));
+  // The veil that empties while reloading covers only the small ring's face.
+  const face = small ? faceRadius(small) : ringSmall.width / 2 - 4;
+  style.setProperty('--ui-ring-small-face-inset', px(Math.ceil(ringSmall.width / 2 - face)));
 
   style.setProperty('--ui-panel', url(href(panel)));
   style.setProperty('--ui-panel-slice', sliceNumbers(panel));

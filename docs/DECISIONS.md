@@ -924,3 +924,13 @@ Petición del usuario: un kit nuevo de PixelLab que ya viene vacío (aro grande,
   - Los demás iconos del HUD (armas, martillo, puerta, escalera, sombrero) también se dibujan a múltiplos enteros de su rejilla (`iconSize`).
 - **Estados:** tinte rojo en el aro de disparo y ámbar en el especial y el arma en mano, en un canvas al cargar, sin tocar la cara del aro; huecos no equipados al 60 % de opacidad; pulsado a 0,94 durante 60 ms en aros, chip y COMPRAR.
 - **Capturas sobre suelo claro y oscuro:** `maps/preview/hud/hud-suelo-claro.jpg` y `hud-suelo-oscuro.jpg`.
+
+### Botones pequeños con el aro pequeño (misma rama)
+
+Petición del usuario: los botones que no son joysticks, más pequeños, con el aro pequeño del kit. Opción elegida: la mitad exacta, 33 px.
+
+- **El kit no trae un aro pequeño propio:** se saca del mediano reducido 2:1 al importar (`halve`: cada píxel toma el color más repetido de su bloque de 2×2 y, en los empates, gana el claro para que el borde hueso no se pierda). `npm run hud:import` escribe `ui/ring_small.png` (33×33) y lo registra como `ringSmall`. Es la misma técnica del primer kit.
+- **Especial, recargar, cuchillo y huecos de arma** usan el aro pequeño a 1× (33 px), con los iconos a 1× de su rejilla (12 px). Vuelven a sus posiciones de antes del kit: el arco de `controls.css` y la columna de armas bajo el dinero. El aro mediano (65 px) queda en el manifiesto, sin usar.
+- **Huecos de arma de 45 px al tocar** (se pedían 44): margen invisible de 6 px y 12 px de separación entre huecos, para que los márgenes se junten sin que un hueco robe toques al aro del vecino. La columna mide 123 px.
+  - En pantallas de 360 px de alto la columna baja hasta el especial y el margen de 14 px del especial tapaba los 3 px de abajo del último hueco. La columna se pinta por encima del especial (`z-index` 21): los huecos ganan donde se cruzan los márgenes, y su margen de 6 px no llega al aro del especial.
+  - Comprobado a 844×390 y a 640×360, sin solapes. Captura: `maps/preview/hud/hud-aros-pequenos.jpg`.

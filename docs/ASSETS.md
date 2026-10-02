@@ -109,6 +109,7 @@ Identifica las piezas por su forma, las recorta a su contorno y las escribe en `
 "ui": {
   "ringLarge":   { "file": "ui/ring_large.png", "width": 97, "height": 97 },
   "ringMedium":  { "file": "ui/ring_medium.png", "width": 65, "height": 65 },
+  "ringSmall":   { "file": "ui/ring_small.png", "width": 33, "height": 33 },
   "panel":       { "file": "ui/panel.png", "width": 145, "height": 105, "slice": [35, 45, 35, 45] },
   "plate":       { "file": "ui/plate.png", "width": 96, "height": 25, "slice": [8, 8, 8, 8] },
   "healthFrame": { "file": "ui/health_frame.png", "width": 145, "height": 17,
@@ -117,7 +118,7 @@ Identifica las piezas por su forma, las recorta a su contorno y las escribe en `
 }
 ```
 
-- **Aros:** a escala entera, `pixelated`. El grande es el botón de disparo; el mediano, el especial, recargar, cuchillo y los huecos de arma.
+- **Aros:** a escala entera, `pixelated`. El grande es el botón de disparo. El pequeño (`ringSmall`) es el especial, recargar, cuchillo y los huecos de arma: no viene en el kit; el importador lo saca del mediano reducido exactamente a la mitad (cada píxel, el color más repetido de su bloque de 2×2; en los empates, el más claro, para conservar el borde). El mediano se importa pero no se usa.
 - **Panel y placa:** 9-slice, con las esquinas enteras y los bordes repetidos píxel a píxel.
   - El panel es el fondo de la tienda. Sus cortes son anchos para que las esquinas incluyan los extremos inclinados de las pletinas del centro de cada lado.
   - La placa es el botón de comprar y el chip de acción contextual.

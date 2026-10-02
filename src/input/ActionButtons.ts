@@ -25,8 +25,8 @@ function addVeil(button: HTMLElement): HTMLDivElement {
 }
 
 /** Icons of the 34 px buttons of the arc. */
-/** Their 12×12 symbols at 2× (whole pixels). */
-const ICON_SIZE = 24;
+/** Their 12×12 symbols at 1× (whole pixels), inside the small ring's face. */
+const ICON_SIZE = 12;
 
 export class ActionButtons {
   private readonly specialButton: TapButton;

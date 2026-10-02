@@ -1,9 +1,10 @@
 /*
  * HUD skin from PixelLab (src/ui/skin.ts, npm run hud:import). Only with
  * `.has-ui-skin` on <html>: without the pieces the HUD keeps its CSS look.
- * Rings at 1× (their 97 and 65 px), symbols at 2× their 12×12 grid; the
- * panel and the plate with 9-slice: corners whole, edges repeated pixel
- * for pixel. Always pixelated.
+ * Rings at 1× (the big one, 97 px; the small one, 33 px: the medium halved
+ * at import), symbols at whole multiples of their 12×12 grid; the panel and
+ * the plate with 9-slice: corners whole, edges repeated pixel for pixel.
+ * Always pixelated.
  */
 
 /* ── Fire button: the big ring, tinted red, on the 96 px button (the ring is 97). ── */
@@ -25,52 +26,25 @@
   pointer-events: none;
 }
 
-/* ── Special, reload and knife: the medium ring (65 px), in an arc around the fire button. ── */
-.has-ui-skin .action-button {
-  width: var(--ui-ring-medium-size);
-  height: var(--ui-ring-medium-size);
-  background: var(--ui-ring-medium) 0 0 / 100% 100% no-repeat;
+/* ── Special, reload, knife and weapon slots: the small ring (33 px, the medium one halved), where they always were. ── */
+.has-ui-skin .action-button,
+.has-ui-skin .weapon-column .action-button {
+  width: var(--ui-ring-small-size);
+  height: var(--ui-ring-small-size);
+  background: var(--ui-ring-small) 0 0 / 100% 100% no-repeat;
   box-shadow: none;
   image-rendering: pixelated;
 }
 
-/* Fire centre at (pad + 60, pad-bottom + 64) from the corner; the ring centres 89 px from it. */
-.has-ui-skin .action-button--special {
-  right: calc(var(--pad-x) + 28px);
-  bottom: calc(var(--pad-bottom) + 120px);
-  background-image: var(--ui-ring-medium-amber);
-}
-
-.has-ui-skin .action-button--reload {
-  right: calc(var(--pad-x) + 90px);
-  bottom: calc(var(--pad-bottom) + 94px);
-}
-
-.has-ui-skin .action-button--melee {
-  right: calc(var(--pad-x) + 116px);
-  bottom: calc(var(--pad-bottom) + 32px);
+.has-ui-skin .action-button--special,
+.has-ui-skin .weapon-slot.is-active {
+  background-image: var(--ui-ring-small-amber);
+  box-shadow: none;
 }
 
 /* The reload veil empties over the ring's face only. */
 .has-ui-skin .action-button__clip {
-  inset: var(--ui-ring-medium-face-inset);
-}
-
-/* ── Weapon slots: the medium ring (65 px, at least 44); in a row under the money. ── */
-.has-ui-skin .weapon-column {
-  flex-direction: row;
-  top: calc(var(--pad-top) + 56px);
-  gap: 4px;
-}
-
-.has-ui-skin .weapon-column .action-button {
-  width: var(--ui-ring-medium-size);
-  height: var(--ui-ring-medium-size);
-}
-
-.has-ui-skin .weapon-slot.is-active {
-  background-image: var(--ui-ring-medium-amber);
-  box-shadow: none;
+  inset: var(--ui-ring-small-face-inset);
 }
 
 /* Not in hand: dimmed to 60 %. */
@@ -78,8 +52,21 @@
   opacity: 0.6;
 }
 
-.has-ui-skin .weapon-slot .action-button__label {
-  bottom: 6px;
+/*
+ * Drawn at 33 px, tapped as at least 44: a 6 px invisible margin makes each
+ * slot 45 px, and the 12 px gap lets the margins meet without one slot
+ * taking taps from its neighbour's ring. On short screens (360 px) the
+ * column comes down to the special: on top of it, so the special's wider
+ * margin never takes the last slot's ring (the slots' 6 px stop short of
+ * the special's).
+ */
+.has-ui-skin .weapon-column {
+  z-index: 21;
+  gap: 12px;
+}
+
+.has-ui-skin .weapon-column .action-button {
+  --hit-slop: 6px;
 }
 
 /* ── Context action: the plate with 9-slice, icon and text side by side. ── */
