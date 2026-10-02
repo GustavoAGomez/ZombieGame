@@ -14,7 +14,10 @@ import { isDashing } from './SpecialSystem';
  *             from a spawn, or whichever side the zombie is on); within
  *             windowArriveRadius of it, straight up to the planks, keeping
  *             its place along them so several can line up
- *   tearing   pull one plank every tearTime seconds while any are left;
+ *   tearing   pull one plank every tearTime seconds while any are left,
+ *             faster with a crowd at the window: every zombie tearing it or
+ *             waiting close by adds its strength (up to maxTearCrowd),
+ *             shared among those tearing;
  *             standing still against the planks: no zombie pushes it, and
  *             it is never pushed out of a player's way (the player is
  *             pushed out instead, MovementSystem), so it never swings while
@@ -46,9 +49,13 @@ import { isDashing } from './SpecialSystem';
 const sourceCells: number[] = [];
 const scratchDir = { x: 0, y: 0 };
 const scratchSpot = { x: 0, y: 0 };
+/** Per window, this tick: zombies crowding it, and how many of them are tearing it. */
+const crowdAt: number[] = [];
+const tearersAt: number[] = [];
 
 export function updateZombies(ctx: SimContext, dt: number): void {
   refreshFlowField(ctx, dt);
+  countWindowCrowds(ctx);
   const { zombies } = ctx.state;
   for (let i = 0; i < zombies.length; i++) {
     const z = zombies[i];
@@ -172,6 +179,32 @@ function plankSpot(w: MapWindow, entry: { x: number; y: number }, z: ZombieState
   return scratchSpot;
 }
 
+/**
+ * Zombies crowding each window: those tearing it, and those on their way
+ * that are already within tearCrowdRadius of their entry point, waiting
+ * their turn behind or beside them.
+ */
+function countWindowCrowds(ctx: SimContext): void {
+  const { map, state } = ctx;
+  crowdAt.length = 0;
+  tearersAt.length = 0;
+  for (let i = 0; i < map.windows.length; i++) {
+    crowdAt.push(0);
+    tearersAt.push(0);
+  }
+  for (const z of state.zombies) {
+    if (!z.active || z.window < 0 || z.window >= map.windows.length) continue;
+    if (z.ai === 'tearing') {
+      crowdAt[z.window] = (crowdAt[z.window] ?? 0) + 1;
+      tearersAt[z.window] = (tearersAt[z.window] ?? 0) + 1;
+    } else if (z.ai === 'toWindow') {
+      const w = map.windows[z.window];
+      const entry = w && (z.crossOut ? w.interior : w.exterior);
+      if (entry && Math.hypot(entry.x - z.x, entry.y - z.y) <= ZOMBIES.tearCrowdRadius) crowdAt[z.window] = (crowdAt[z.window] ?? 0) + 1;
+    }
+  }
+}
+
 function updateTearing(ctx: SimContext, z: ZombieState, dt: number): void {
   const w = ctx.map.windows[z.window];
   if (!w) return setState(ctx, z, 'chasing');
@@ -181,7 +214,9 @@ function updateTearing(ctx: SimContext, z: ZombieState, dt: number): void {
     startClimb(ctx, z);
     return;
   }
-  z.timer -= dt;
+  // The crowd's strength (up to maxTearCrowd), shared among the zombies tearing this window.
+  z.tearRate = Math.min(crowdAt[z.window] ?? 1, ZOMBIES.maxTearCrowd) / Math.max(1, tearersAt[z.window] ?? 1);
+  z.timer -= dt * z.tearRate;
   if (z.timer > 0) return;
   planks[z.window] = Math.max(0, (planks[z.window] ?? 0) - 1);
   z.actionTick = ctx.state.tick;

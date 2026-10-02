@@ -130,8 +130,9 @@ export class ZombieViewPool {
 
       this.animate(slot, character, z, pose);
       // Crawling without crawl art: the walk slows down with the zombie, so its feet do not slide.
+      // Tearing with a crowd at the window: the swing speeds up with the tearing.
       const slowWalk = isLegless(z) && !art.crawl && (z.ai === 'chasing' || z.ai === 'toWindow');
-      const timeScale = slowWalk ? ZOMBIES.crawlSpeedFactor : 1;
+      const timeScale = slowWalk ? ZOMBIES.crawlSpeedFactor : z.ai === 'tearing' ? z.tearRate : 1;
       if (sprite.anims.timeScale !== timeScale) sprite.anims.timeScale = timeScale;
 
       if (slot.lastHp > 0 && z.hp < slot.lastHp && z.hp > 0) slot.flashUntil = now + HIT_FLASH_MS;

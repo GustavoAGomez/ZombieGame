@@ -151,6 +151,7 @@ export function spawnZombie(ctx: SimContext, z: ZombieState, spawnIndex: number)
   z.attackCooldown = 0;
   z.stateTick = state.tick;
   z.actionTick = -1;
+  z.tearRate = 1;
   z.portalLock = -1;
   z.burn.timer = 0;
   z.burn.perTick = 0;

@@ -1014,3 +1014,17 @@ Petición del usuario: cada bala que acierta da 5 de puntos y dinero, en vez de 
 - El cuchillo sigue dando 10 (`POINTS.meleeHit`): el usuario solo habló de balas.
 - Las bajas (+50) y los tablones reparados (+10) no cambian.
 - `damageZombie` recibe ahora los puntos del impacto en lugar de un sí o no: los del arma por defecto, los del cuchillo o 0 para el fuego.
+
+### Un grupo de zombis arranca los tablones más rápido
+
+Petición del usuario: si hay muchos zombis apelotonados en una ventana, que los tablones salgan más rápido. Así el jugador no puede contenerlos para siempre reparando. La velocidad depende de cuántos haya, hasta un máximo de 4 zombis de fuerza.
+
+- **Quién cuenta:** los que arrancan tablones de esa ventana y los que van hacia ella y ya están a menos de 48 px de su punto de entrada (`ZOMBIES.tearCrowdRadius`), esperando detrás o al lado. Se cuentan una vez por tick, antes de mover a nadie.
+- **Ritmo:** la fuerza del grupo (como mucho `ZOMBIES.maxTearCrowd` = 4) se reparte entre los que arrancan tablones.
+  - Uno solo con tres esperando va 4 veces más rápido.
+  - Dos al lado y nadie esperando van 1× cada uno, como antes.
+  - Con más de 4, el total sigue siendo 4×. Es rápido, pero nunca instantáneo.
+- **Animación:** el golpe se reproduce a esa misma velocidad (`tearRate`), así el zarpazo sigue cayendo cuando sale el tablón.
+- **Frente a la reparación:** el jugador repone un tablón por toque, como mucho uno cada 0,2 s (5 por segundo).
+  - Con 4 de fuerza, los caminantes arrancan 2,9 tablones por segundo y los corredores 4.
+  - Quien toque muy rápido aún aguanta. Si hace falta, el ajuste está en `BARRICADES.repairTapCooldown`.

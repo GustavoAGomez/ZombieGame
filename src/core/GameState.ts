@@ -190,6 +190,12 @@ export interface ZombieState {
   stateTick: number;
   /** Tick of the last tear or strike, or of reaching the planks (views start a swing when it changes). */
   actionTick: number;
+  /**
+   * How fast it tears planks: the crowd at its window (ZOMBIES.maxTearCrowd
+   * at most) shared among the zombies tearing it; 1 alone. Views play its
+   * swing that much faster, so the claw still lands as the plank comes off.
+   */
+  tearRate: number;
   /** Portal end just arrived at, as for players. -1 = none. */
   portalLock: number;
   /** Seconds spent chasing off the flow field (NAVIGATION.lostRespawnTime). */
@@ -402,6 +408,7 @@ function createZombie(): ZombieState {
     fromY: 0,
     stateTick: 0,
     actionTick: -1,
+    tearRate: 1,
     portalLock: -1,
     lostTimer: 0,
     burn: { timer: 0, tickTimer: 0, perTick: 0, owner: -1 },

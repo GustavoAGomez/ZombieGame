@@ -115,6 +115,59 @@ describe('ZombieSystem · window cycle', () => {
     expect(z.actionTick).not.toBe(3);
   });
 
+  describe('a crowd at the window tears it faster', () => {
+    /** A walker tearing window 0, and `waiting` more on their way to it, `behind` px out from its entry point. */
+    function crowd(waiting: number, behind = 24): { ctx: Ctx; z: ZombieState } {
+      const ctx = createTestContext();
+      const z = spawnAt(ctx, 0, 'walker');
+      ticksUntil(ctx, () => z.ai === 'tearing', 10);
+      const w = ctx.map.windows[0]!;
+      for (let i = 0; i < waiting; i++) {
+        const along = (i % 3) - 1;
+        const other = placeZombie(ctx, i + 1, w.exterior.x + w.outward.x * behind - w.outward.y * along * 14, w.exterior.y + w.outward.y * behind + w.outward.x * along * 14, 100, 'toWindow');
+        other.kind = 'walker';
+        other.window = 0;
+      }
+      return { ctx, z };
+    }
+
+    function secondsFor(ctx: Ctx, planks: number): number {
+      const from = ctx.state.windowPlanks[0]!;
+      const t0 = ctx.state.time;
+      ticksUntil(ctx, () => ctx.state.windowPlanks[0]! <= from - planks, 10);
+      return ctx.state.time - t0;
+    }
+
+    const tear = ZOMBIES.kinds.walker.tearTime;
+
+    it('one alone tears at its own pace', () => {
+      const { ctx, z } = crowd(0);
+      expect(secondsFor(ctx, 2)).toBeCloseTo(2 * tear, 1);
+      expect(z.tearRate).toBe(1);
+    });
+
+    it('four together tear four planks in the time one tears one', () => {
+      const { ctx } = crowd(3);
+      const seconds = secondsFor(ctx, 4);
+      expect(seconds).toBeGreaterThan(0.9 * tear);
+      expect(seconds).toBeLessThan(1.5 * tear);
+    });
+
+    it('never more than four zombies of strength, however many crowd it', () => {
+      const { ctx } = crowd(7);
+      expect(secondsFor(ctx, 4)).toBeGreaterThan(0.9 * tear);
+      const tearing = ctx.state.zombies.filter((z) => z.active && z.ai === 'tearing');
+      const strength = tearing.reduce((sum, z) => sum + z.tearRate, 0);
+      expect(strength).toBeLessThanOrEqual(ZOMBIES.maxTearCrowd + 1e-9);
+    });
+
+    it('only counts zombies close to the window', () => {
+      const { ctx, z } = crowd(1, ZOMBIES.tearCrowdRadius + 40);
+      stepSimulation(ctx, 1 / 60);
+      expect(z.tearRate).toBe(1);
+    });
+  });
+
   it('runners tear a plank every 1.0 s', () => {
     const ctx = createTestContext();
     const z = spawnAt(ctx, 1, 'runner');

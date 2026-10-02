@@ -158,6 +158,13 @@ export const ZOMBIES = {
   directChaseTiles: 2,
   /** How close to the window's exterior point counts as "arrived". */
   windowArriveRadius: 12,
+  /**
+   * Zombies crowding a window tear it faster: each one tearing it or waiting
+   * its turn within tearCrowdRadius px of its entry point adds one zombie's
+   * strength, up to maxTearCrowd (so a horde is quick, never instant).
+   */
+  tearCrowdRadius: 48,
+  maxTearCrowd: 4,
   /** Seconds a dead zombie stays on screen for its death animation. */
   corpseTime: 0.6,
   /** Extra gap kept between two zombie hitboxes. */
