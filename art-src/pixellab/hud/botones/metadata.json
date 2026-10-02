@@ -1,0 +1,100 @@
+{
+  "ui_assets": [
+    {
+      "id": "068a65e9-a4b3-401d-a180-856558863bba",
+      "name": null,
+      "prompt": "gritty post-apocalyptic survival game HUD, dark worn gunmetal and charcoal surfaces with scratched edges and small rivets, thin bone-white inner border, subtle rust stains, flat plain empty faces ready for icons to be placed on top, chunky readable pixel art with dark 1px outlines, muted palette of charcoal, dark brown and bone white with amber accents",
+      "kind": "template",
+      "file": "gritty_post-apocalyptic_survival_game_HUD_dark_wor/gritty_post-apocalyptic_survival_game_HUD_dark_wor.png",
+      "size": {
+        "width": 256,
+        "height": 256
+      },
+      "group_id": "068a65e9-a4b3-401d-a180-856558863bba"
+    },
+    {
+      "id": "0cd86bc1-ba5a-4666-be8f-ab74c660c86d",
+      "name": "Icon button",
+      "prompt": "gritty post-apocalyptic survival game HUD, dark worn gunmetal and charcoal surfaces with scratched edges and small rivets, thin bone-white inner border, subtle rust stains, flat plain empty faces ready for icons to be placed on top, chunky readable pixel art with dark 1px outlines, muted palette of charcoal, dark brown and bone white with amber accents",
+      "kind": "element",
+      "file": "gritty_post-apocalyptic_survival_game_HUD_dark_wor/elements/Icon_button.png",
+      "size": {
+        "width": 100,
+        "height": 100
+      },
+      "group_id": "068a65e9-a4b3-401d-a180-856558863bba"
+    },
+    {
+      "id": "9e89317c-4baa-48c8-a09a-3a4adb0f93ae",
+      "name": "Icon button",
+      "prompt": "gritty post-apocalyptic survival game HUD, dark worn gunmetal and charcoal surfaces with scratched edges and small rivets, thin bone-white inner border, subtle rust stains, flat plain empty faces ready for icons to be placed on top, chunky readable pixel art with dark 1px outlines, muted palette of charcoal, dark brown and bone white with amber accents",
+      "kind": "element",
+      "file": "gritty_post-apocalyptic_survival_game_HUD_dark_wor/elements/Icon_button-2.png",
+      "size": {
+        "width": 38,
+        "height": 38
+      },
+      "group_id": "068a65e9-a4b3-401d-a180-856558863bba"
+    },
+    {
+      "id": "a907a9dc-c618-4b13-9f09-c737c9babfa4",
+      "name": "Panel",
+      "prompt": "gritty post-apocalyptic survival game HUD, dark worn gunmetal and charcoal surfaces with scratched edges and small rivets, thin bone-white inner border, subtle rust stains, flat plain empty faces ready for icons to be placed on top, chunky readable pixel art with dark 1px outlines, muted palette of charcoal, dark brown and bone white with amber accents",
+      "kind": "element",
+      "file": "gritty_post-apocalyptic_survival_game_HUD_dark_wor/elements/Panel.png",
+      "size": {
+        "width": 158,
+        "height": 118
+      },
+      "group_id": "068a65e9-a4b3-401d-a180-856558863bba"
+    },
+    {
+      "id": "66c48b69-cca3-40fb-b325-918beb107e06",
+      "name": "Button",
+      "prompt": "gritty post-apocalyptic survival game HUD, dark worn gunmetal and charcoal surfaces with scratched edges and small rivets, thin bone-white inner border, subtle rust stains, flat plain empty faces ready for icons to be placed on top, chunky readable pixel art with dark 1px outlines, muted palette of charcoal, dark brown and bone white with amber accents",
+      "kind": "element",
+      "file": "gritty_post-apocalyptic_survival_game_HUD_dark_wor/elements/Button.png",
+      "size": {
+        "width": 102,
+        "height": 30
+      },
+      "group_id": "068a65e9-a4b3-401d-a180-856558863bba"
+    },
+    {
+      "id": "53ba8611-c6dc-4085-a13a-a4e760e69d47",
+      "name": "Health bar",
+      "prompt": "gritty post-apocalyptic survival game HUD, dark worn gunmetal and charcoal surfaces with scratched edges and small rivets, thin bone-white inner border, subtle rust stains, flat plain empty faces ready for icons to be placed on top, chunky readable pixel art with dark 1px outlines, muted palette of charcoal, dark brown and bone white with amber accents",
+      "kind": "element",
+      "file": "gritty_post-apocalyptic_survival_game_HUD_dark_wor/elements/Health_bar.png",
+      "size": {
+        "width": 150,
+        "height": 22
+      },
+      "group_id": "068a65e9-a4b3-401d-a180-856558863bba"
+    },
+    {
+      "id": "c16d7c2b-4534-4e1c-a01a-51e10bd19f69",
+      "name": "element 6",
+      "prompt": "gritty post-apocalyptic survival game HUD, dark worn gunmetal and charcoal surfaces with scratched edges and small rivets, thin bone-white inner border, subtle rust stains, flat plain empty faces ready for icons to be placed on top, chunky readable pixel art with dark 1px outlines, muted palette of charcoal, dark brown and bone white with amber accents",
+      "kind": "element",
+      "file": "gritty_post-apocalyptic_survival_game_HUD_dark_wor/elements/element_6.png",
+      "size": {
+        "width": 72,
+        "height": 72
+      },
+      "group_id": "068a65e9-a4b3-401d-a180-856558863bba"
+    },
+    {
+      "id": "7d63e40c-4cf1-4041-8064-126c7d8259a4",
+      "name": "element 7",
+      "prompt": "gritty post-apocalyptic survival game HUD, dark worn gunmetal and charcoal surfaces with scratched edges and small rivets, thin bone-white inner border, subtle rust stains, flat plain empty faces ready for icons to be placed on top, chunky readable pixel art with dark 1px outlines, muted palette of charcoal, dark brown and bone white with amber accents",
+      "kind": "element",
+      "file": "gritty_post-apocalyptic_survival_game_HUD_dark_wor/elements/element_7.png",
+      "size": {
+        "width": 92,
+        "height": 92
+      },
+      "group_id": "068a65e9-a4b3-401d-a180-856558863bba"
+    }
+  ]
+}

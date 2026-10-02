@@ -1,14 +1,15 @@
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { healthPadding } from '../src/ui/skin';
-import { cropToBounds, halve, measureHealthBar, namePieces, splitSheet } from './import-hud';
+import { cropToBounds, halve, measureHealthBar, namePieces, readExtraPieces, splitSheet } from './import-hud';
 import { decodePng } from './lib/png';
 import { blank, paste, type Frame } from './lib/sheet';
 
 const root = resolve(import.meta.dirname, '..');
 const hudDir = resolve(root, 'art-src/pixellab/hud');
-const elements = join(hudDir, readdirSync(hudDir).find((n) => !n.endsWith('.json')) ?? '', 'elements');
+// The base kit: the export folder with elements/ right inside (later kits live in subfolders, see import.json).
+const elements = join(hudDir, readdirSync(hudDir).find((n) => existsSync(join(hudDir, n, 'elements'))) ?? '', 'elements');
 const read = (name: string): Frame => {
   const png = decodePng(readFileSync(join(elements, name)));
   return cropToBounds({ width: png.width, height: png.height, pixels: png.pixels });
@@ -66,6 +67,14 @@ describe('HUD kit from PixelLab (npm run hud:import)', () => {
     // The medium ring becomes the 33 px small one.
     const small = halve(namePieces(ELEMENTS.map(read)).ringMedium);
     expect([small.width, small.height]).toEqual([33, 33]);
+  });
+
+  it('takes the native small ring and the polygon buttons from import.json', () => {
+    const extra = readExtraPieces(hudDir);
+    // The small ring comes drawn at its size (no reduction), 33 px like the buttons.
+    expect([extra.ringSmall?.width, extra.ringSmall?.height]).toEqual([33, 33]);
+    expect([extra.hexagon?.width, extra.hexagon?.height]).toEqual([56, 65]);
+    expect([extra.octagon?.width, extra.octagon?.height]).toEqual([74, 74]);
   });
 
   it('puts 10 whole-pixel segments inside the trough', () => {

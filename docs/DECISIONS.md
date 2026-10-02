@@ -957,3 +957,13 @@ Petición del usuario: la placa también en REINTENTAR, la pausa, CONTINUAR, REI
   - Mientras la mejora está activa, el aro va sin teñir y la cuenta atrás azul se vacía sobre su metal, con los segundos en el centro.
   - Sin la skin, el símbolo también pasa a 1×, como en los demás botones de acción.
 - **Capturas:** `maps/preview/hud/hud-pausa.jpg`, `hud-fin.jpg`, `hud-tienda-azul.jpg`, `hud-mejora-guardada.jpg` y `hud-mejora-activa.jpg`.
+
+### Aro pequeño nativo y piezas con más lados (misma rama)
+
+El usuario vio irregulares los botones pequeños. El CSS los dibujaba a 1:1, pero su imagen era el aro mediano reducido al importar (65 → 33 px, ×0,508), y una línea de 1 px de pixel art no aguanta ninguna reducción. Pasó un kit nuevo de PixelLab con un aro pequeño dibujado a su tamaño, un hexágono y un octógono.
+
+- **Aro pequeño:** el nuevo, a 1×. El usuario lo pidió de 32×32, pero su contorno real mide 33×33, así que no se mueve nada del layout ni de las zonas de toque. El velo de recarga y los tintes se ajustan solos a su cara (se mide al cargar).
+- **Aro grande:** se queda el antiguo (97 px). El nuevo viene cortado por la izquierda y por arriba (87×95 de contorno), así que no se puede usar.
+- **El panel, la placa y la barra de vida del kit nuevo no se usan:** el usuario solo pasó el kit por los botones.
+- **Importación:** el kit nuevo se guarda en `art-src/pixellab/hud/botones/`. `art-src/pixellab/hud/import.json` dice qué piezas se toman de él: aro pequeño, hexágono y octógono. Se nombran a mano porque detectarlas por su forma no es fiable con un aro cortado y dos polígonos casi cuadrados.
+- **Hexágono (56×65) y octógono (74×74):** se importan, pero de momento no se usan. Miden de 1,7 a 2,2 veces el aro pequeño, y reducirlos los estropearía igual que al aro. Falta que el usuario decida cómo usarlos.

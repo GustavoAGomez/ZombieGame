@@ -10,11 +10,16 @@
  * by its bounding box over the alpha channel (connected opaque pixels) and
  * told apart by shape. Each piece is cropped to its bounding box.
  *
+ * Pieces from other exports (a later kit with a native small ring and the
+ * hexagon and octagon buttons) are named in art-src/pixellab/hud/import.json:
+ * `{ "pieces": { "<name>": "<PNG path from art-src/pixellab/hud/>" } }`.
+ * They are cropped the same way and replace or add to the kit's pieces.
+ *
  * Nothing is repainted: the rings are tinted at runtime (src/ui/skin.ts), the
  * panel and the plate are drawn with 9-slice, and the game draws the health
- * segments inside the bar's trough and makes the heart beat. The only new
- * image is the small ring: the medium one halved exactly (2:1), so the small
- * buttons are drawn at 1× too.
+ * segments inside the bar's trough and makes the heart beat. Without a small
+ * ring in import.json, the medium one is halved (2:1) to make one; pixel art
+ * does not survive a reduction cleanly, so a native piece is better.
  */
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -52,15 +57,31 @@ export interface UiPiece {
 }
 
 type PieceName = 'ringLarge' | 'ringMedium' | 'panel' | 'plate' | 'healthFrame';
-type OutputName = PieceName | 'ringSmall';
+/** Pieces that only come from import.json: the polygon buttons. */
+type ExtraName = 'hexagon' | 'octagon';
+type OutputName = PieceName | 'ringSmall' | ExtraName;
+const OUTPUT_NAMES: readonly OutputName[] = ['ringLarge', 'ringMedium', 'ringSmall', 'hexagon', 'octagon', 'panel', 'plate', 'healthFrame'];
 
 const LABELS: Record<OutputName, string> = {
   ringLarge: 'ARO GRANDE',
   ringMedium: 'ARO MEDIANO',
-  ringSmall: 'ARO PEQUENO (MITAD)',
+  ringSmall: 'ARO PEQUENO',
+  hexagon: 'HEXAGONO',
+  octagon: 'OCTOGONO',
   panel: 'PANEL',
   plate: 'PLACA',
   healthFrame: 'BARRA DE VIDA',
+};
+
+const FILES: Record<OutputName, string> = {
+  ringLarge: 'ring_large.png',
+  ringMedium: 'ring_medium.png',
+  ringSmall: 'ring_small.png',
+  hexagon: 'hexagon.png',
+  octagon: 'octagon.png',
+  panel: 'panel.png',
+  plate: 'plate.png',
+  healthFrame: 'health_frame.png',
 };
 
 const at = (f: Frame, x: number, y: number): number => (y * f.width + x) * 4;
@@ -244,39 +265,50 @@ function readKit(dir: string): Frame[] {
   return splitSheet(readFrame(join(dir, sheet)));
 }
 
+/** The pieces named in import.json (next to the kit), cropped; none without the file. */
+export function readExtraPieces(dir: string): Partial<Record<OutputName, Frame>> {
+  const configPath = join(dir, 'import.json');
+  if (!existsSync(configPath)) return {};
+  const config = JSON.parse(readFileSync(configPath, 'utf8')) as { pieces?: Record<string, string> };
+  const pieces: Partial<Record<OutputName, Frame>> = {};
+  for (const [name, file] of Object.entries(config.pieces ?? {})) {
+    if (!(OUTPUT_NAMES as readonly string[]).includes(name)) throw new Error(`import.json: pieza desconocida "${name}" (válidas: ${OUTPUT_NAMES.join(', ')})`);
+    const path = join(dir, file);
+    if (!existsSync(path)) throw new Error(`import.json: no existe ${file}`);
+    pieces[name as OutputName] = cropToBounds(readFrame(path));
+  }
+  return pieces;
+}
+
 export function importHud(root: string, log: (line: string) => void): Record<string, UiPiece> {
-  const named = namePieces(readKit(resolve(root, 'art-src/pixellab/hud')));
-  const kit: Record<OutputName, Frame> = { ...named, ringSmall: halve(named.ringMedium) };
+  const dir = resolve(root, 'art-src/pixellab/hud');
+  const named = namePieces(readKit(dir));
+  const extra = readExtraPieces(dir);
+  const kit: Partial<Record<OutputName, Frame>> = { ...named, ringSmall: extra.ringSmall ?? halve(named.ringMedium), ...extra };
+  if (!extra.ringSmall) log('  · sin aro pequeño en import.json: se reduce el mediano a la mitad');
   const outDir = resolve(root, 'public/assets/ui');
   mkdirSync(outDir, { recursive: true });
-  const files: Record<OutputName, string> = {
-    ringLarge: 'ring_large.png',
-    ringMedium: 'ring_medium.png',
-    ringSmall: 'ring_small.png',
-    panel: 'panel.png',
-    plate: 'plate.png',
-    healthFrame: 'health_frame.png',
-  };
-  const bar = measureHealthBar(kit.healthFrame);
-  const extra: Partial<Record<OutputName, Partial<UiPiece>>> = {
+  const bar = measureHealthBar(named.healthFrame);
+  const props: Partial<Record<OutputName, Partial<UiPiece>>> = {
     panel: { slice: PANEL_SLICE },
     plate: { slice: PLATE_SLICE },
     healthFrame: { trough: bar.trough, heart: bar.heart },
   };
   const pieces: Record<string, UiPiece> = {};
   const review: SheetEntry[] = [];
-  for (const name of Object.keys(files) as OutputName[]) {
+  for (const name of OUTPUT_NAMES) {
     const frame = kit[name];
-    writeFileSync(join(outDir, files[name]), encodePng(frame.width, frame.height, frame.pixels));
-    pieces[name] = { file: `ui/${files[name]}`, width: frame.width, height: frame.height, ...extra[name] };
+    if (!frame) continue;
+    writeFileSync(join(outDir, FILES[name]), encodePng(frame.width, frame.height, frame.pixels));
+    pieces[name] = { file: `ui/${FILES[name]}`, width: frame.width, height: frame.height, ...props[name] };
     review.push({ frame, caption: [LABELS[name], `${frame.width}X${frame.height}`] });
-    log(`  ✓ ${LABELS[name]} → ui/${files[name]} (${frame.width}×${frame.height})`);
+    log(`  ✓ ${LABELS[name]} → ui/${FILES[name]} (${frame.width}×${frame.height})`);
   }
   log(`  · barra: hueco x ${bar.trough.x}, y ${bar.trough.y}, ${bar.trough.width}×${bar.trough.height}; corazón x ${bar.heart.x}, y ${bar.heart.y}, ${bar.heart.width}×${bar.heart.height}`);
 
   const previewDir = resolve(root, 'maps/preview/hud');
   mkdirSync(previewDir, { recursive: true });
-  const sheet = contactSheet(review, { columns: 3, scale: 3, title: 'KIT DEL HUD' });
+  const sheet = contactSheet(review, { columns: 4, scale: 3, title: 'KIT DEL HUD' });
   writeFileSync(join(previewDir, 'hud-kit.png'), encodePng(sheet.width, sheet.height, sheet.pixels));
   log('  ✓ hoja de contactos → maps/preview/hud/hud-kit.png');
 

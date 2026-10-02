@@ -103,13 +103,25 @@ public/assets/
 
 El HUD es DOM, así que sus imágenes no pasan por Phaser. `npm run hud:import` lee el kit de PixelLab de `art-src/pixellab/hud/`: un export con `elements/` (un PNG por pieza) o una hoja única, que se recorta por las cajas delimitadoras sobre el canal alfa.
 
-Identifica las piezas por su forma, las recorta a su contorno y las escribe en `public/assets/ui/`. También deja una hoja de contactos con nombres y tamaños en `maps/preview/hud/hud-kit.png` y registra la sección `ui` del manifiesto:
+Identifica las piezas por su forma, las recorta a su contorno y las escribe en `public/assets/ui/`. También deja una hoja de contactos con nombres y tamaños en `maps/preview/hud/hud-kit.png` y registra la sección `ui` del manifiesto.
+
+Las piezas que vienen de otros exports (kits posteriores, guardados en subcarpetas como `art-src/pixellab/hud/botones/`) se nombran a mano en `art-src/pixellab/hud/import.json`. Se recortan igual y sustituyen o se suman a las del kit:
+
+```json
+{ "pieces": { "ringSmall": "botones/<export>/elements/Icon_button-2.png",
+              "hexagon": "botones/<export>/elements/element_6.png",
+              "octagon": "botones/<export>/elements/element_7.png" } }
+```
+
+Nombres válidos: `ringLarge`, `ringMedium`, `ringSmall`, `hexagon`, `octagon`, `panel`, `plate` y `healthFrame`. La sección `ui` queda así:
 
 ```json
 "ui": {
   "ringLarge":   { "file": "ui/ring_large.png", "width": 97, "height": 97 },
   "ringMedium":  { "file": "ui/ring_medium.png", "width": 65, "height": 65 },
   "ringSmall":   { "file": "ui/ring_small.png", "width": 33, "height": 33 },
+  "hexagon":     { "file": "ui/hexagon.png", "width": 56, "height": 65 },
+  "octagon":     { "file": "ui/octagon.png", "width": 74, "height": 74 },
   "panel":       { "file": "ui/panel.png", "width": 145, "height": 105, "slice": [35, 45, 35, 45] },
   "plate":       { "file": "ui/plate.png", "width": 96, "height": 25, "slice": [8, 8, 8, 8] },
   "healthFrame": { "file": "ui/health_frame.png", "width": 145, "height": 17,
@@ -118,7 +130,12 @@ Identifica las piezas por su forma, las recorta a su contorno y las escribe en `
 }
 ```
 
-- **Aros:** a escala entera, `pixelated`. El grande es el botón de disparo. El pequeño (`ringSmall`) es el especial, recargar, cuchillo, los huecos de arma, la pausa y la mejora de la ronda (teñido de azul): no viene en el kit; el importador lo saca del mediano reducido exactamente a la mitad (cada píxel, el color más repetido de su bloque de 2×2; en los empates, el más claro, para conservar el borde). El mediano se importa pero no se usa.
+- **Aros:** siempre a escala entera, `pixelated`; el pixel art nunca se reduce.
+  - El grande es el botón de disparo.
+  - El pequeño (`ringSmall`, 33 px) es el especial, recargar, cuchillo, los huecos de arma, la pausa y la mejora de la ronda (teñido de azul). Viene dibujado a su tamaño en el kit de `botones/`.
+  - Si `import.json` no lo trae, el importador lo saca del mediano reducido a la mitad. Como alternativa vale, pero sale irregular.
+  - El mediano se importa, pero no se usa.
+- **Hexágono y octógono** (`hexagon`, `octagon`): botones con otra forma, para distinguir armas y habilidades de los botones redondos. Se importan, pero todavía no se usan.
 - **Panel y placa:** 9-slice, con las esquinas enteras y los bordes repetidos píxel a píxel.
   - El panel es el fondo de la tienda. Sus cortes son anchos para que las esquinas incluyan los extremos inclinados de las pletinas del centro de cada lado.
   - La placa es el chip de acción contextual, los botones de la tienda (también los de los artículos que no se pueden comprar, oscurecidos) y los de los menús: JUGAR, REINTENTAR, CONTINUAR y REINICIAR a 2× y el interruptor de vibración a 1×.

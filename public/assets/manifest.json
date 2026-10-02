@@ -1001,6 +1001,16 @@
       "width": 33,
       "height": 33
     },
+    "hexagon": {
+      "file": "ui/hexagon.png",
+      "width": 56,
+      "height": 65
+    },
+    "octagon": {
+      "file": "ui/octagon.png",
+      "width": 74,
+      "height": 74
+    },
     "panel": {
       "file": "ui/panel.png",
       "width": 145,
