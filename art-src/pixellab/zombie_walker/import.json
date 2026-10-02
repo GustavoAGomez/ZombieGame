@@ -1,5 +1,5 @@
 {
   "frames": { "walk": 9 },
-  "scale": { "crawl": 0.667, "crawl_attack": 0.667 },
+  "scale": { "crawl": 0.8, "crawl_attack": 0.8 },
   "alsoFor": ["zombie_runner", "zombie_sprinter"]
 }

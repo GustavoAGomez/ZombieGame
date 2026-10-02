@@ -189,8 +189,8 @@ export const ZOMBIES = {
    * body without the tips of the arms. The placeholder is drawn this size.
    */
   hurtbox: { width: 20, height: 40 },
-  /** Legless (crawlAtHp or less) it lies on the ground: about 24 px tall and 21–30 px wide. */
-  crawlHurtbox: { width: 24, height: 24 },
+  /** Legless (crawlAtHp or less) it lies on the ground: about 28–34 px tall and 25–36 px wide. */
+  crawlHurtbox: { width: 28, height: 28 },
   attackWindup: 0.35,
   attackDamage: 40,
   attackCooldown: 1.1,

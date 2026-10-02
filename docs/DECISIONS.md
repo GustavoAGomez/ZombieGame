@@ -762,3 +762,4 @@ Petición del usuario: incluir al mago azul con su animación de respirar de pie
   - Mientras la tienda está abierta, la cámara desplaza la vista hacia abajo lo justo para que la cabeza del mago quede 8 px por debajo del panel. El seguimiento suave de la cámara hace el movimiento, a la ida y a la vuelta.
   - Nunca baja más del 30 % de la vista, para que el jugador siga en pantalla, y no se mueve si el mago ya se ve.
   - Es solo vista (`followOffset`); el cálculo es una función pura (`shopCamera.ts`).
+- **Cambio posterior (pedido por el usuario):** a 2/3 el zombi del suelo se veía más pequeño que de pie. Con la cabeza igual, el cuerpo tumbado tiene menos masa visible. Se sube a **0,8**: la cabeza queda un poco mayor que de pie y el conjunto se percibe del mismo tamaño. La hurtbox sin piernas pasa a **28×28**, medida de nuevo (28–34 px de alto y 25–36 de ancho).
