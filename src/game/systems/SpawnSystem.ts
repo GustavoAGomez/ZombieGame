@@ -1,4 +1,4 @@
-import { WAVES, ZOMBIES } from '../../config/balance';
+import { WAVES } from '../../config/balance';
 import type { ZombieState } from '../../core/GameState';
 import { random } from '../../core/Rng';
 import { UNREACHABLE, distanceAt } from '../map/FlowField';
@@ -10,6 +10,11 @@ import { pickZombieKind, spawnInterval, zombieHp } from './waveFormulas';
  * Spawns zombies at the spawn points of unlocked zones (spec 01 §4.8): one
  * every spawnInterval(round) seconds while fewer than 20 are alive, picking
  * the spawn at random, weighted towards the ones closer to a player.
+ *
+ * A zombie never appears where players walk (docs/DECISIONS.md): a window
+ * spawn inside an unlocked zone (the garden or the street, once bought) is
+ * off, and open spawns lie off the map, so their zombies walk in from
+ * beyond the edge.
  *
  * Closeness is the walking distance (flow field), not the straight line: a
  * window on the other side of a wall can be far away. On a big map, spawns
@@ -85,11 +90,11 @@ export function pickSpawn(ctx: SimContext): number {
 
 /**
  * Walking distance in tiles from spawn `spawnIndex` to the nearest player,
- * along the flow field. A window spawn outside, in a zone the player can
- * walk to, counts from the spawn itself (that zombie chases at once, spec 02
- * §3.5); otherwise from the window's inner side plus the way to the window.
- * Falls back to the straight line where the field does not reach (not
- * computed yet, or a zone that just unlocked).
+ * along the flow field. An open spawn counts from the tile it comes in at,
+ * plus the walk in. A window spawn the field reaches counts from the spawn
+ * itself; otherwise from the window's inner side plus the way to the
+ * window. Falls back to the straight line where the field does not reach
+ * (not computed yet, or a zone that just unlocked).
  */
 export function spawnPathTiles(ctx: SimContext, spawnIndex: number): number {
   const { map, nav } = ctx;
@@ -97,9 +102,14 @@ export function spawnPathTiles(ctx: SimContext, spawnIndex: number): number {
   const open = map.openSpawns[openSpawnIndex(ctx, spawnIndex)];
   const spawn = open ?? map.zombieSpawns[spawnIndex];
   if (!spawn) return Infinity;
+  if (open) {
+    const walkIn = Math.hypot(open.entry.x - open.x, open.entry.y - open.y) / ts;
+    const inside = distanceAt(nav, open.entry.x, open.entry.y);
+    return walkIn + (inside !== UNREACHABLE ? inside : nearestPlayerDistance(ctx, open.entry.x, open.entry.y) / ts);
+  }
   const direct = distanceAt(nav, spawn.x, spawn.y);
   if (direct !== UNREACHABLE) return direct;
-  const window = open ? undefined : map.windows[map.zombieSpawns[spawnIndex]?.windowIndex ?? -1];
+  const window = map.windows[map.zombieSpawns[spawnIndex]?.windowIndex ?? -1];
   const inside = window ? distanceAt(nav, window.interior.x, window.interior.y) : UNREACHABLE;
   if (!window || inside === UNREACHABLE) return nearestPlayerDistance(ctx, spawn.x, spawn.y) / ts;
   return inside + Math.hypot(window.exterior.x - spawn.x, window.exterior.y - spawn.y) / ts + 1;
@@ -121,18 +131,23 @@ export function openSpawnIndex(ctx: SimContext, spawnIndex: number): number {
 }
 
 /**
- * 0 for spawns of locked zones, and for open spawns with a live player
- * closer than openSpawnMinDistanceTiles (straight line); otherwise
- * 1 / (1 + pathTiles / falloff). The distance cut-off is applied in pickSpawn.
+ * 0 for spawns of locked zones, for window spawns lying in an unlocked zone
+ * (players walk there: the zombie would appear in front of them), and for
+ * open spawns with a live player closer than openSpawnMinDistanceTiles to
+ * where they come in (straight line); otherwise 1 / (1 + pathTiles /
+ * falloff). The distance cut-off is applied in pickSpawn.
  */
 export function spawnWeight(ctx: SimContext, spawnIndex: number): number {
   const { map, state } = ctx;
   const open = map.openSpawns[openSpawnIndex(ctx, spawnIndex)];
-  const spawn = open ?? map.zombieSpawns[spawnIndex];
-  if (!spawn) return 0;
-  const zone = open ? open.zoneIndex : (map.windows[map.zombieSpawns[spawnIndex]?.windowIndex ?? -1]?.zoneIndex ?? -1);
-  if (!state.zonesUnlocked[zone]) return 0;
-  if (open && nearestPlayerDistance(ctx, spawn.x, spawn.y) < WAVES.openSpawnMinDistanceTiles * map.tileSize) return 0;
+  if (open) {
+    if (!state.zonesUnlocked[open.zoneIndex]) return 0;
+    if (nearestPlayerDistance(ctx, open.entry.x, open.entry.y) < WAVES.openSpawnMinDistanceTiles * map.tileSize) return 0;
+  } else {
+    const spawn = map.zombieSpawns[spawnIndex];
+    if (!spawn || !state.zonesUnlocked[map.windows[spawn.windowIndex]?.zoneIndex ?? -1]) return 0;
+    if (state.zonesUnlocked[spawn.zoneIndex]) return 0;
+  }
   return 1 / (1 + spawnPathTiles(ctx, spawnIndex) / WAVES.spawnFalloffTiles);
 }
 
@@ -156,32 +171,19 @@ export function spawnZombie(ctx: SimContext, z: ZombieState, spawnIndex: number)
   z.burn.timer = 0;
   z.burn.perTick = 0;
   if (open) {
-    z.ai = 'emerging';
+    z.ai = 'entering';
+    z.entry = openSpawnIndex(ctx, spawnIndex);
     z.window = -1;
     z.crossOut = false;
-    z.timer = ZOMBIES.emergeTime;
-    const target = nearestPlayer(ctx, z.x, z.y);
-    z.facing = target ? Math.atan2(target.y - z.y, target.x - z.x) : Math.PI / 2;
+    z.timer = 0;
+    z.facing = Math.atan2(open.entry.y - z.y, open.entry.x - z.x);
     return;
   }
   z.ai = 'toWindow';
+  z.entry = -1;
   z.window = map.zombieSpawns[spawnIndex]?.windowIndex ?? -1;
   z.crossOut = false;
   z.timer = 0;
   const w = map.windows[z.window];
   z.facing = w ? Math.atan2(w.exterior.y - z.y, w.exterior.x - z.x) : 0;
-}
-
-function nearestPlayer(ctx: SimContext, x: number, y: number): { x: number; y: number } | undefined {
-  let best: { x: number; y: number } | undefined;
-  let bestDistSq = Infinity;
-  for (const p of ctx.state.players) {
-    if (p.hp <= 0) continue;
-    const d = (p.x - x) ** 2 + (p.y - y) ** 2;
-    if (d < bestDistSq) {
-      best = p;
-      bestDistSq = d;
-    }
-  }
-  return best;
 }

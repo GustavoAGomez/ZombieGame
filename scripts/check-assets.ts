@@ -205,7 +205,7 @@ export function checkAssets(root: string): CheckReport {
       }
       report.info.push(
         `maps.${key}: ${map.width}×${map.height} tiles, ${map.zones.length} zonas, ${map.windows.length} ventanas, ` +
-          `${map.doors.length} puertas, ${map.portals.length / 2} portales, ${map.openSpawns.length} spawns abiertos.`,
+          `${map.doors.length} puertas, ${map.portals.length / 2} portales, ${map.openSpawns.length} spawns de entrada.`,
       );
     } catch (err) {
       report.errors.push(`maps.${key}: ${(err as Error).message}`);

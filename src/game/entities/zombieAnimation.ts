@@ -36,7 +36,6 @@ export function zombiePose(z: ZombieState, art: ZombieArt): ZombiePose {
     case 'attacking':
       return { animation: isLegless(z) && art.crawlAttack ? 'crawl_attack' : 'attack', corpse: false };
     case 'climbing':
-    case 'emerging':
       // Breaking in is a short lunge (`climb`); a legless one drags itself through.
       if (crawling) return { animation: 'crawl', corpse: false };
       return { animation: art.climb ? 'climb' : 'walk', corpse: false };

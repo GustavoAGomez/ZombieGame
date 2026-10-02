@@ -89,6 +89,11 @@ export function validateMap(raw: TiledSourceMap | TiledMap): MapValidation {
       errors.push(`el jugador aparece a ${d.toFixed(1)} tiles de ${w.id}; debe estar a más de ${R.minPlayerBarricadeTiles}`);
     }
   }
+  // A window spawn inside a zone is off once that zone is unlocked (players walk there): with the whole map
+  // unlocked, the zombies still need somewhere to come from.
+  if (map.openSpawns.length === 0 && map.zombieSpawns.every((s) => s.zoneIndex >= 0)) {
+    errors.push('con todo desbloqueado no queda ningún spawn: hace falta un spawn de barricada fuera de toda zona o un spawn de entrada');
+  }
 
   // Rooms are unlocked, not doors: every zone the match does not start with has a price, and a door or a
   // main staircase to buy it through (secondary ones open by themselves, never sold).
@@ -301,7 +306,7 @@ function validateItemSpots(
     ...map.doors.map((d) => ({ what: `la puerta ${d.id}`, points: d.tiles.map(centre) })),
     ...map.portals.map((p) => ({ what: `el portal ${p.id}`, points: p.tiles.map(centre) })),
     ...map.zombieSpawns.map((s) => ({ what: `el spawn de ${s.window}`, points: [s] })),
-    ...map.openSpawns.map((s, i) => ({ what: `el spawn abierto ${i + 1}`, points: [s] })),
+    ...map.openSpawns.map((s, i) => ({ what: `la entrada del spawn ${i + 1}`, points: [s.entry] })),
     { what: 'el spawn del jugador', points: [map.playerSpawn] },
     ...map.merchantSpots.map((s, i) => ({ what: `el punto de mago ${i + 1} (${s.zone})`, points: [s] })),
     ...map.weaponCases.map((c) => ({ what: `la vitrina ${c.id}`, points: [c] })),
@@ -357,7 +362,7 @@ function validateMerchantSpots(
     ...map.doors.map((d) => ({ what: `la puerta ${d.id}`, points: d.tiles.map(centre) })),
     ...map.portals.map((p) => ({ what: `el portal ${p.id}`, points: p.tiles.map(centre) })),
     ...map.zombieSpawns.map((s) => ({ what: `el spawn de ${s.window}`, points: [s] })),
-    ...map.openSpawns.map((s, i) => ({ what: `el spawn abierto ${i + 1}`, points: [s] })),
+    ...map.openSpawns.map((s, i) => ({ what: `la entrada del spawn ${i + 1}`, points: [s.entry] })),
     { what: 'el spawn del jugador', points: [map.playerSpawn] },
   ];
   map.merchantSpots.forEach((spot, i) => {

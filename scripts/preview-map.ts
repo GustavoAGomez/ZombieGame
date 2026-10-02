@@ -187,10 +187,14 @@ export function renderMap(mapPath: string): { image: Frame; map: MapData } {
     }
   };
   for (const s of map.zombieSpawns) cross(s.x, s.y, [200, 40, 40]);
+  // Entrances from off the map: on the tile they come in at, with a bar on the side they come from.
   for (const s of map.openSpawns) {
-    cross(s.x, s.y, [255, 60, 60]);
-    rect(image, Math.round(s.x) - 9, Math.round(s.y) - 9, 18, 2, [255, 60, 60]);
-    rect(image, Math.round(s.x) - 9, Math.round(s.y) + 7, 18, 2, [255, 60, 60]);
+    const { x, y } = s.entry;
+    cross(x, y, [255, 60, 60]);
+    const dx = Math.sign(Math.round(s.x - x));
+    const dy = Math.sign(Math.round(s.y - y));
+    if (dx !== 0) rect(image, Math.round(x) + dx * 12 - 1, Math.round(y) - 9, 3, 18, [255, 60, 60]);
+    else rect(image, Math.round(x) - 9, Math.round(y) + dy * 12 - 1, 18, 3, [255, 60, 60]);
   }
   // Merchant spots: a blue diamond with a dark outline (spec 03 §1).
   for (const m of map.merchantSpots) {

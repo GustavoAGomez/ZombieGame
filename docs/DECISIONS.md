@@ -1167,3 +1167,24 @@ Petición del usuario: comprar una puerta desbloquea la sala, y entonces todos s
 - `door:opened` y `portal:opened` (vibración media) solo salen por el acceso comprado; los que se abren solos no vibran.
 - `openDoor` y `openPortal` (usados por los tests y el debug) desbloquean las dos salas y aplican la misma regla.
 
+
+## Los zombis nunca aparecen donde puede andar el jugador: entran desde fuera del mapa
+
+Petición del usuario: fuera de la casa, a veces aparecían zombis de la nada a su lado. Eran los spawns de las ventanas, 2 casillas por fuera, ya dentro de la calle o el jardín desbloqueados, y los spawns abiertos, que surgían del suelo en mitad de la calle. Dentro de la primera sala aparecen fuera de ella, y eso le parece bien.
+
+- **Regla:** un zombi nunca aparece donde puede andar el jugador.
+  - **Spawns de ventana:** el cargador guarda la zona en la que cae cada uno. Si esa zona está desbloqueada, el spawn se apaga.
+    - Dentro de la casa no cambia nada: sus spawns caen en exteriores aún cerrados.
+    - Al desbloquear el jardín o la calle se apagan los spawns de las ventanas que dan a ellos. Los zombis llegan a esas ventanas cruzando el exterior desde fuera del mapa.
+  - **Spawns abiertos → spawns de entrada:** ya no van en el dibujo (`Z` desaparece de la leyenda). Van solo en la tabla `## Spawns de entrada`, con una casilla fuera del mapa o en el vacío.
+    - El zombi aparece allí y entra andando en línea recta hasta la primera casilla de su zona. Es el estado `entering`, que sustituye a `emerging`: surgir del suelo era justo el «de la nada».
+    - El cargador busca esa casilla en las 4 direcciones, a 3 casillas o menos y solo con vacío entre medias. Si no la encuentra, el mapa no carga.
+  - **Vallas en el borde del mapa** (F1 y F2): su spawn caía en la fila 0, que la cámara enseña. El compilador lo pone una casilla más allá, fuera del mapa.
+- **A 2 casillas del borde:** a una casilla, el sprite quedaba a 2 px de verse por los lados. Por abajo asomaba la cabeza, porque el sprite se ancla en los pies.
+- **Entradas de la mansión:**
+  - Calle, 8 entradas: los dos extremos de la calle lateral (E1, E2), su borde oeste (E3–E6) y el final de la calle de abajo (E7, E8). E7 y E8 caen en el vacío pasada la columna 81, donde termina la cámara.
+  - Azotea: norte y este (E9–E11), desde el vacío.
+- **Distancia:** una entrada no se usa con un jugador a menos de 8 casillas (`WAVES.openSpawnMinDistanceTiles`) de la casilla por donde entra. Así nadie le entra encima a quien espera en el borde. El peso por distancia andando cuenta desde esa casilla más el paseo de entrada.
+- **Validador:** con todo desbloqueado tiene que quedar algún spawn: uno de ventana fuera de toda zona, o una entrada.
+- **Ritmo:** en mitad de la calle de abajo, las entradas más cercanas están a unas 40 casillas. Un caminante tarda unos 40 s, un corredor unos 22 s.
+  - Si se hace lento, la opción más simple es abrir huecos en las vallas de los vecinos del sur, con entradas por el borde de abajo (a unas 10 casillas de la calle).

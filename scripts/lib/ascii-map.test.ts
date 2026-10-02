@@ -71,7 +71,7 @@ describe('parseAsciiMap', () => {
       'P1a:stairs:false', 'P1b:stairs:false', 'P2a:ladder:false', 'P2b:ladder:false',
       'P3a:hatch:true', 'P3b:hatch:true', 'P4a:ladder:true', 'P4b:ladder:true',
     ]);
-    expect(plan.openSpawns).toHaveLength(5);
+    expect(plan.openSpawns).toHaveLength(11);
     expect(plan.merchantSpots).toHaveLength(20);
     for (const zone of plan.zones) expect(plan.merchantSpots.filter((m) => m.zone === zone.id).length, zone.id).toBe(2);
     // Item spots (spec 05 §2): 1 or 2 per zone, the cellar and the roof included.
@@ -166,6 +166,17 @@ describe('compileAsciiMap', () => {
     expect(objects.find((o) => o.type === 'player_spawn')).toMatchObject({ x: 2.5 * 32, y: 3.5 * 32 });
   });
 
+  it('writes entrances off the map with their zone, and rejects them on the map', () => {
+    const withEntrance = (row: string): string =>
+      TINY.replace('| fuera | Fuera | no | no | no |', '| fuera | Fuera | no | no | sí |') + `\n## Spawns de entrada\n| id | casilla | zona |\n|---|---|---|\n${row}\n`;
+    const source = compileAsciiMap(parseAsciiMap(withEntrance('| E1 | -1,8 | fuera |')), tilesets, 'tiny.txt');
+    const objects = (source.layers.find((l) => l.name === 'objects') as { objects: { name: string; x: number; y: number; properties?: TiledProperty[] }[] }).objects;
+    const e1 = objects.find((o) => o.name === 'E1');
+    expect([e1?.x, e1?.y]).toEqual([-0.5 * 32, 8.5 * 32]);
+    expect(e1?.properties?.find((q) => q.name === 'zone')?.value).toBe('fuera');
+    expect(() => compileAsciiMap(parseAsciiMap(withEntrance('| E1 | 3,7 | fuera |')), tilesets, 't')).toThrow(/spawn E1: 3,7 debe quedar fuera del mapa/);
+  });
+
   it('stores a hash of its content to detect edits made in Tiled', () => {
     const props = (tiny as TiledSourceMap & { properties?: TiledProperty[] }).properties ?? [];
     expect(props.find((q) => q.name === COMPILED_HASH)?.value).toBe(contentHash(tiny));
@@ -190,6 +201,14 @@ describe('compileAsciiMap', () => {
 
     it('passes the map validator', () => {
       expect(validateMap(raw).errors).toEqual([]);
+    });
+
+    it('brings zombies in from off the map: the entrances, and the fence spawns on the edge', () => {
+      // Off the map, or on the void past the end of the street (the camera stops at the street's last tile).
+      const ground = map.openSpawns.filter((o) => map.zones[o.zoneIndex]?.id === 'calle');
+      expect(ground).toHaveLength(8);
+      for (const s of ground) expect(s.x < 0 || s.y < 0 || s.y >= map.heightPx || s.x >= 82 * 32, `${s.x},${s.y}`).toBe(true);
+      for (const id of ['F1', 'F2']) expect(map.zombieSpawns.find((s) => s.window === id)?.y).toBe(-0.5 * 32);
     });
 
     it('merges the rectangles of each zone into the 10 zones', () => {

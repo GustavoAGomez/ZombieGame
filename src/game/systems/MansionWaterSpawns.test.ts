@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { WAVES, ZOMBIES } from '../../config/balance';
+import { WAVES } from '../../config/balance';
 import { WEAPONS } from '../../config/weapons';
 import {
   command,
@@ -20,7 +20,7 @@ import { openSpawnIndex, pickSpawn, spawnCount, spawnPathTiles, spawnWeight, spa
 import { stepSimulation } from './Simulation';
 import { updateZombies } from './ZombieSystem';
 
-/** Spec 02 Fase M4: water, void and open spawns on the generated mansion. */
+/** Spec 02 Fase M4: water, void and open spawns (entrances from off the map) on the generated mansion. */
 
 const openSpawnAt = (ctx: SimContext, x: number, y: number): number =>
   ctx.map.zombieSpawns.length + ctx.map.openSpawns.findIndex((s) => Math.floor(s.x / 32) === x && Math.floor(s.y / 32) === y);
@@ -59,42 +59,71 @@ describe('open spawns', () => {
     const ctx = createMansionContext();
     for (let i = ctx.map.zombieSpawns.length; i < spawnCount(ctx); i++) expect(spawnWeight(ctx, i)).toBe(0);
     unlock(ctx, 'calle');
-    expect(spawnWeight(ctx, openSpawnAt(ctx, 3, 40))).toBeGreaterThan(0);
-    expect(spawnWeight(ctx, openSpawnAt(ctx, 93, 4))).toBe(0); // the roof is still locked
+    expect(spawnWeight(ctx, openSpawnAt(ctx, -2, 30))).toBeGreaterThan(0);
+    expect(spawnWeight(ctx, openSpawnAt(ctx, 93, 1))).toBe(0); // the roof is still locked
   });
 
-  it('never spawn closer than 8 tiles to a live player', () => {
+  it('never bring a zombie in closer than 8 tiles to a live player', () => {
     const ctx = createMansionContext();
     unlock(ctx, 'calle');
-    movePlayer(ctx, 5, 44);
-    expect(spawnWeight(ctx, openSpawnAt(ctx, 3, 40))).toBe(0);
-    expect(spawnWeight(ctx, openSpawnAt(ctx, 69, 62))).toBeGreaterThan(0);
-    // 11 tiles from the open spawn on the side street: close enough to be picked, never closer than 8.
-    movePlayer(ctx, 12, 46);
+    movePlayer(ctx, 2, 30);
+    expect(spawnWeight(ctx, openSpawnAt(ctx, -2, 30))).toBe(0);
+    expect(spawnWeight(ctx, openSpawnAt(ctx, 83, 56))).toBeGreaterThan(0);
+    movePlayer(ctx, 9, 40);
     const p = player(ctx);
     let open = 0;
     for (let i = 0; i < 400; i++) {
       const spawn = ctx.map.openSpawns[openSpawnIndex(ctx, pickSpawn(ctx))];
       if (!spawn) continue;
       open++;
-      expect(Math.hypot(spawn.x - p.x, spawn.y - p.y)).toBeGreaterThanOrEqual(WAVES.openSpawnMinDistanceTiles * 32);
+      expect(Math.hypot(spawn.entry.x - p.x, spawn.entry.y - p.y)).toBeGreaterThanOrEqual(WAVES.openSpawnMinDistanceTiles * 32);
     }
     expect(open).toBeGreaterThan(0);
   });
 
-  it('raise an emerging zombie that waits, can be shot and then chases', () => {
+  it('walk a zombie in from off the map, that can be shot, and then chase', () => {
     const ctx = createMansionContext();
     unlock(ctx, 'calle');
     const z = ctx.state.zombies[0]!;
-    spawnZombie(ctx, z, openSpawnAt(ctx, 69, 62));
-    expect(z).toMatchObject({ active: true, ai: 'emerging', window: -1 });
+    const index = openSpawnAt(ctx, 83, 56);
+    spawnZombie(ctx, z, index);
+    expect(z).toMatchObject({ active: true, ai: 'entering', window: -1 });
+    expect(z.x).toBe(83.5 * 32); // past the end of the street, where the camera stops
     expect(isZombieAlive(z)).toBe(true);
-    const start = { x: z.x, y: z.y };
-    runTicks(ctx, Math.floor(ZOMBIES.emergeTime * 60) - 2, updateZombies);
-    expect(z.ai).toBe('emerging');
-    expect({ x: z.x, y: z.y }).toEqual(start);
-    runTicks(ctx, 4, updateZombies);
+    runTicks(ctx, 20, updateZombies);
+    expect(z.ai).toBe('entering');
+    expect(z.x).toBeLessThan(83.5 * 32);
+    expect(z.y).toBe(56.5 * 32); // straight in
+    runTicks(ctx, 180, updateZombies);
     expect(z.ai).toBe('chasing');
+    expect(z.x).toBeLessThanOrEqual(81.5 * 32);
+  });
+});
+
+describe('window spawns where players walk', () => {
+  const spawnOf = (ctx: SimContext, window: string): number => ctx.map.zombieSpawns.findIndex((s) => s.window === window);
+
+  it('are off once that zone is unlocked: no zombie appears in front of the player', () => {
+    const ctx = createMansionContext();
+    unlock(ctx, 'cocina');
+    // W11's zombies appear in the garden: fine while it is locked, never once players can walk there.
+    expect(spawnWeight(ctx, spawnOf(ctx, 'W11'))).toBeGreaterThan(0);
+    unlock(ctx, 'jardin');
+    expect(spawnWeight(ctx, spawnOf(ctx, 'W11'))).toBe(0);
+    // The garden fences' zombies come from off the map: they stay on.
+    expect(spawnWeight(ctx, spawnOf(ctx, 'F2'))).toBeGreaterThan(0);
+  });
+
+  it('leave zombies to come from off the map with everything unlocked', () => {
+    const ctx = createMansionContext();
+    for (const z of ctx.map.zones) unlock(ctx, z.id);
+    movePlayer(ctx, 40, 57); // in the street
+    for (let i = 0; i < 300; i++) {
+      const s = pickSpawn(ctx);
+      const open = ctx.map.openSpawns[openSpawnIndex(ctx, s)];
+      const spawn = open ?? ctx.map.zombieSpawns[s]!;
+      expect(open !== undefined || spawn.zoneIndex === -1, `${spawn.x},${spawn.y}`).toBe(true);
+    }
   });
 });
 
@@ -208,18 +237,9 @@ describe('spawn distance on the big map (Fase M7)', () => {
     expect(spawnWeight(ctx, w9)).toBeLessThan(spawnWeight(ctx, spawnOf(ctx, 'W1')));
   });
 
-  it('counts a window spawn on an open exterior from where it appears', () => {
-    const ctx = createMansionContext();
-    unlock(ctx, 'jardin');
-    movePlayer(ctx, 51, 16);
-    withField(ctx);
-    // W11's zombies appear in the garden at (51, 20): 4 tiles from the player, who can walk there.
-    expect(spawnPathTiles(ctx, spawnOf(ctx, 'W11'))).toBe(4);
-  });
-
   it('skips far spawns while closer ones exist', () => {
     const ctx = createMansionContext();
-    for (const door of ctx.map.doors) openDoor(ctx, ctx.map.doors.indexOf(door));
+    for (const id of ['D1', 'D2', 'D3', 'D4', 'D5', 'D6']) openDoor(ctx, ctx.map.doors.findIndex((d) => d.id === id));
     movePlayer(ctx, 38, 38);
     withField(ctx);
     for (let i = 0; i < 500; i++) expect(spawnPathTiles(ctx, pickSpawn(ctx))).toBeLessThanOrEqual(WAVES.spawnMaxPathTiles);

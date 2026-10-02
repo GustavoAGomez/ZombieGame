@@ -23,7 +23,8 @@ import { isDashing } from './SpecialSystem';
  *             pushed out instead, MovementSystem), so it never swings while
  *             sliding
  *   climbing  0.8 s to the far side; cannot move or be pushed
- *   emerging  0.6 s rising at an open spawn; can be shot, does not move (spec 02 §3.4)
+ *   entering  from an open spawn off the map, walk straight in to the first
+ *             tile of its zone, then chase (spec 02 §3.4, docs/DECISIONS.md)
  *   chasing   follow the flow field (straight line when close and visible)
  *
  * The flow field goes through barricaded windows at the cost of their
@@ -38,8 +39,9 @@ import { isDashing } from './SpecialSystem';
  * than half its speed (tearing, climbing and attacking are unchanged).
  *   dead      corpse for the death animation, then the slot is freed
  *
- * Going to a window and tearing it happen off the map's collision on
- * purpose (the way in from a spawn can cross the void outside a grating):
+ * Going to a window, tearing it and walking in from off the map happen off
+ * the map's collision on purpose (the way in from a spawn can cross the
+ * void outside a grating, or the outside of the map):
  * those zombies are never pushed out of blocked tiles. A chasing zombie that
  * ends up off the flow field (shoved out through a window by the crowd)
  * goes back in through the nearest window; with none near, after
@@ -72,9 +74,8 @@ export function updateZombies(ctx: SimContext, dt: number): void {
         if (betterWayThanWindow(ctx, z)) setState(ctx, z, 'chasing');
         else updateTearing(ctx, z, dt);
         break;
-      case 'emerging':
-        z.timer -= dt;
-        if (z.timer <= 0) setState(ctx, z, 'chasing');
+      case 'entering':
+        updateEntering(ctx, z, dt);
         break;
       case 'climbing':
         updateClimbing(ctx, z, dt);
@@ -158,6 +159,26 @@ function updateToWindow(ctx: SimContext, z: ZombieState, dt: number): void {
       // A new run of swings: the first one plays even right after another strike.
       z.actionTick = ctx.state.tick;
     } else startClimb(ctx, z);
+    return;
+  }
+  z.x += (dx / dist) * step;
+  z.y += (dy / dist) * step;
+  z.facing = Math.atan2(dy, dx);
+}
+
+/** Straight in from beyond the edge to the first tile of the zone, then after the player. */
+function updateEntering(ctx: SimContext, z: ZombieState, dt: number): void {
+  const target = ctx.map.openSpawns[z.entry]?.entry;
+  if (!target) return setState(ctx, z, 'chasing');
+  const dx = target.x - z.x;
+  const dy = target.y - z.y;
+  const dist = Math.hypot(dx, dy);
+  const step = speedOf(z) * dt;
+  if (dist <= step) {
+    z.x = target.x;
+    z.y = target.y;
+    z.entry = -1;
+    setState(ctx, z, 'chasing');
     return;
   }
   z.x += (dx / dist) * step;
@@ -430,12 +451,13 @@ function anchored(z: ZombieState): boolean {
 }
 
 /**
- * Going to a window and tearing it ignore the map (the way from a spawn can
- * cross the void outside a grating): pushing those zombies out of blocked
- * tiles threw them a tile away every tick, and they never reached the window.
+ * Going to a window, tearing it and walking in from off the map ignore the
+ * map (the way from a spawn can cross the void outside a grating, or the
+ * outside of the map): pushing those zombies out of blocked tiles threw
+ * them a tile away every tick, and they never reached the window.
  */
 function followsMap(z: ZombieState): boolean {
-  return z.ai !== 'toWindow' && z.ai !== 'tearing';
+  return z.ai !== 'toWindow' && z.ai !== 'tearing' && z.ai !== 'entering';
 }
 
 /** Zombies push each other softly so they never stack on one spot. */

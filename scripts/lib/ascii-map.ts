@@ -1,8 +1,8 @@
 /**
  * ASCII map sources (skill level-design): maps/src/<map>.txt holds the plan,
  * one character per tile, followed by Markdown tables with the ids and
- * properties of the zones, doors, barricades, portals, open spawns, merchant
- * spots and the player. compileAsciiMap turns it into a Tiled map (.tmj) with external
+ * properties of the zones, doors, barricades, portals, open spawns (only in
+ * their table: off the map), merchant spots and the player. compileAsciiMap turns it into a Tiled map (.tmj) with external
  * tilesets, ready for `map:build` to embed and validate.
  *
  * Legend (skill §6):
@@ -11,7 +11,7 @@
  *   g  grass              p  patio              d  dirt       a  asphalt   s  sidewalk
  *   w  pool water         e  pool deck          r  roof       _  void
  *   W  barricade          D  paid door          o  open gap   <  portal
- *   P  player spawn       Z  open zombie spawn
+ *   P  player spawn
  */
 import { createHash } from 'node:crypto';
 import { BARRICADES } from '../../src/config/balance';
@@ -25,11 +25,11 @@ import { ARM_BASE, E, FACE_BASE, FACE_SOLID, N, S, SOLID_BASE, SOLID_NORTH_OPEN,
 
 const TILE = 32;
 
-export const LEGEND = '#HF.kbcgpdsawer_WDo<PZ';
+export const LEGEND = '#HF.kbcgpdsawer_WDo<P';
 const WALLS = '#HF';
 /** Cells that close a zone: walls, fences, paid doors, barricades and void. */
 const ZONE_BARRIERS = '#HFDW_';
-const MARKERS = 'WDo<PZ';
+const MARKERS = 'WDo<P';
 const INDOOR = '.kbcr';
 
 /** Tilesets in GID order, as written in the .tmj. */
@@ -227,7 +227,7 @@ function readTables(text: string): Map<string, Row[]> {
 function parseCells(text: string, problems: string[], what: string): Cell[] {
   const cells: Cell[] = [];
   for (const token of text.split(/\s+/).filter(Boolean)) {
-    const m = /^(\d+),(\d+)$/.exec(token);
+    const m = /^(-?\d+),(-?\d+)$/.exec(token);
     if (m) cells.push({ x: Number(m[1]), y: Number(m[2]) });
     else problems.push(`${what}: casilla "${token}" no válida (formato x,y)`);
   }
@@ -371,11 +371,10 @@ function checkMarkers(map: AsciiMap, problems: string[]): void {
   for (const d of map.doors) d.cells.forEach((c) => claim(c, 'D', `puerta ${d.id}`));
   for (const w of map.windows) claim(w.cell, 'W', `barricada ${w.id}`);
   for (const p of map.portals) p.cells.forEach((c) => claim(c, '<', `portal ${p.id}`));
-  for (const s of map.openSpawns) claim(s.cell, 'Z', `spawn ${s.id}`);
   claim(map.player, 'P', 'jugador');
   map.grid.forEach((row, y) =>
     [...row].forEach((ch, x) => {
-      if ('DW<ZP'.includes(ch) && !listed.has(`${x},${y}`)) problems.push(`"${ch}" en ${x},${y} no está en ninguna tabla`);
+      if ('DW<P'.includes(ch) && !listed.has(`${x},${y}`)) problems.push(`"${ch}" en ${x},${y} no está en ninguna tabla`);
     }),
   );
 }
@@ -399,7 +398,7 @@ function checkProps(map: AsciiMap, problems: string[]): void {
     if (prop.cells.length === 0) problems.push(`atrezo ${prop.id}: sin casillas`);
     for (const c of prop.cells) {
       const ch = map.grid[c.y]?.[c.x] ?? '_';
-      if ('#HFWD<PZ_w'.includes(ch)) problems.push(`atrezo ${prop.id}: la casilla ${c.x},${c.y} es "${ch}"; el atrezo va sobre suelo`);
+      if ('#HFWD<P_w'.includes(ch)) problems.push(`atrezo ${prop.id}: la casilla ${c.x},${c.y} es "${ch}"; el atrezo va sobre suelo`);
       const key = `${c.x},${c.y}`;
       if (taken.has(key)) problems.push(`atrezo ${prop.id}: la casilla ${key} ya es de ${taken.get(key)}`);
       taken.set(key, prop.id);
@@ -420,7 +419,7 @@ function checkMerchantSpots(map: AsciiMap, problems: string[]): void {
     if (ids.has(spot.id)) problems.push(`${who}: id repetido`);
     ids.add(spot.id);
     const ch = map.grid[spot.cell.y]?.[spot.cell.x] ?? '_';
-    if ('#HFWDo<PZ_w'.includes(ch)) problems.push(`${who}: la casilla ${spot.cell.x},${spot.cell.y} es "${ch}"; el mago va sobre suelo`);
+    if ('#HFWDo<P_w'.includes(ch)) problems.push(`${who}: la casilla ${spot.cell.x},${spot.cell.y} es "${ch}"; el mago va sobre suelo`);
     if (solid.has(`${spot.cell.x},${spot.cell.y}`)) problems.push(`${who}: la casilla ${spot.cell.x},${spot.cell.y} está bajo atrezo con colisión`);
   }
 }
@@ -439,7 +438,7 @@ function checkItemSpots(map: AsciiMap, problems: string[]): void {
     if (ids.has(spot.id)) problems.push(`${who}: id repetido`);
     ids.add(spot.id);
     const ch = map.grid[spot.cell.y]?.[spot.cell.x] ?? '_';
-    if ('#HFWDo<PZ_w'.includes(ch)) problems.push(`${who}: la casilla ${spot.cell.x},${spot.cell.y} es "${ch}"; el objeto va sobre suelo`);
+    if ('#HFWDo<P_w'.includes(ch)) problems.push(`${who}: la casilla ${spot.cell.x},${spot.cell.y} es "${ch}"; el objeto va sobre suelo`);
     if (covered.has(`${spot.cell.x},${spot.cell.y}`)) problems.push(`${who}: la casilla ${spot.cell.x},${spot.cell.y} está tapada por atrezo`);
   }
 }
@@ -458,7 +457,7 @@ function checkWeaponCases(map: AsciiMap, problems: string[]): void {
     if (ids.has(c.id)) problems.push(`${who}: id repetido`);
     ids.add(c.id);
     const ch = map.grid[c.cell.y]?.[c.cell.x] ?? '_';
-    if ('#HFWDo<PZ_w'.includes(ch)) problems.push(`${who}: la casilla ${c.cell.x},${c.cell.y} es "${ch}"; la vitrina va sobre suelo`);
+    if ('#HFWDo<P_w'.includes(ch)) problems.push(`${who}: la casilla ${c.cell.x},${c.cell.y} es "${ch}"; la vitrina va sobre suelo`);
     if (solid.has(`${c.cell.x},${c.cell.y}`)) problems.push(`${who}: la casilla ${c.cell.x},${c.cell.y} está bajo atrezo con colisión`);
     if (!(WEAPON_IDS as readonly string[]).includes(c.weapon)) problems.push(`${who}: el arma "${c.weapon}" no existe (${WEAPON_IDS.join(', ')})`);
     if (!(c.cost > 0)) problems.push(`${who}: el coste debe ser un número positivo`);
@@ -919,12 +918,19 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
       ...cellsRect([w.cell]),
       properties: [p('id', 'string', w.id), p('zone', 'string', w.zone), p('planks', 'int', BARRICADES.planksPerWindow), p('kind', 'string', w.kind)],
     });
-    add({ name: `spawn_${w.id}`, type: 'zombie_spawn', ...point({ x: w.cell.x - dx * 2, y: w.cell.y - dy * 2 }), properties: [p('window', 'string', w.id)] });
+    // Two tiles out; on the map's outer edge the camera would show it appear, so one more, off the map.
+    const spawn = { x: w.cell.x - dx * 2, y: w.cell.y - dy * 2 };
+    if (spawn.x === 0 || spawn.y === 0 || spawn.x === W - 1 || spawn.y === H - 1) {
+      spawn.x -= dx;
+      spawn.y -= dy;
+    }
+    add({ name: `spawn_${w.id}`, type: 'zombie_spawn', ...point(spawn), properties: [p('window', 'string', w.id)] });
   }
+  // Entrances from off the map: zombies walk in from there (MapLoader finds the first tile of the zone).
   for (const s of map.openSpawns) {
     knownZone(s.zone, `spawn ${s.id}`);
-    if (cellZone[s.cell.y * W + s.cell.x] !== zoneIndex.get(s.zone)) problems.push(`spawn ${s.id}: no cae en la zona ${s.zone}`);
-    add({ name: s.id, type: 'zombie_spawn', ...point(s.cell) });
+    if (at(s.cell.x, s.cell.y) !== '_') problems.push(`spawn ${s.id}: ${s.cell.x},${s.cell.y} debe quedar fuera del mapa o en el vacío`);
+    add({ name: s.id, type: 'zombie_spawn', ...point(s.cell), properties: [p('zone', 'string', s.zone)] });
   }
   for (const m of map.merchantSpots) {
     knownZone(m.zone, `mago ${m.id}`);

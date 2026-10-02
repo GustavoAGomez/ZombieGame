@@ -168,14 +168,25 @@ export interface MapZombieSpawn {
   window: string;
   /** Index into MapData.windows. */
   windowIndex: number;
+  /** Zone the spawn point lies in, -1 outside every zone. Once it is unlocked, players walk there: the spawn is off. */
+  zoneIndex: number;
 }
 
-/** A zombie_spawn without a window: zombies appear right there (spec 02 §3.4). */
+/**
+ * A zombie_spawn without a window: an entrance from beyond the map's edge,
+ * or from the void round an island (spec 02 §3.4, docs/DECISIONS.md). The
+ * zombie appears at (x, y), where the camera never reaches, and walks
+ * straight in to `entry`, the centre of the first tile of its zone.
+ */
 export interface MapOpenSpawn {
   x: number;
   y: number;
   zoneIndex: number;
+  entry: Vec2;
 }
+
+/** How far an open spawn may lie from the first tile of its zone, in tiles (straight, over void or off the map). */
+export const OPEN_SPAWN_MAX_STEPS = 3;
 
 /** Stairs and ladders show "ABRIR ESCALERA"; the hatch shows "ABRIR TRAMPILLA". */
 export type PortalKind = 'stairs' | 'ladder' | 'hatch';
@@ -559,7 +570,7 @@ export function parseMap(json: unknown): MapData {
         break;
       case 'zombie_spawn': {
         const window = stringProp(obj, 'window', false);
-        if (window) zombieSpawns.push({ x: obj.x, y: obj.y, window, windowIndex: -1 });
+        if (window) zombieSpawns.push({ x: obj.x, y: obj.y, window, windowIndex: -1, zoneIndex: -1 });
         else rawOpenSpawns.push(obj);
         break;
       }
@@ -690,11 +701,31 @@ export function parseMap(json: unknown): MapData {
     const ty = Math.floor(y / tileSize);
     return tx >= 0 && ty >= 0 && tx < width && ty < height ? (cellZone[ty * width + tx] ?? -1) : -1;
   };
+  for (const s of zombieSpawns) s.zoneIndex = zoneAt(s.x, s.y);
+  /** Nothing there: off the map, or a void floor without walls (levels.ts shows the same). */
+  const isVoid = (tx: number, ty: number): boolean => {
+    if (tx < 0 || ty < 0 || tx >= width || ty >= height) return true;
+    const gid = floor[ty * width + tx] ?? 0;
+    return (gid === 0 || ((gidFlags[gid] ?? 0) & TILE_VOID) !== 0) && (walls[ty * width + tx] ?? 0) === 0;
+  };
   const openSpawns: MapOpenSpawn[] = rawOpenSpawns.map((obj) => {
-    const zoneIndex = zoneAt(obj.x, obj.y);
-    const zone = zones[zoneIndex];
-    if (!zone?.openSpawns) fail(`Open zombie_spawn ${obj.id} must lie in a zone with openSpawns = true`);
-    return { x: obj.x, y: obj.y, zoneIndex };
+    const zoneIndex = zones.findIndex((z) => z.id === stringProp(obj, 'zone'));
+    if (!zones[zoneIndex]?.openSpawns) fail(`Open zombie_spawn ${obj.id} must name a zone with openSpawns = true`);
+    const tx = Math.floor(obj.x / tileSize);
+    const ty = Math.floor(obj.y / tileSize);
+    if (!isVoid(tx, ty)) fail(`Open zombie_spawn ${obj.id} must lie off the map or on the void`);
+    // The first tile of its zone straight ahead, with only void (or the outside of the map) between.
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as const) {
+      for (let step = 1; step <= OPEN_SPAWN_MAX_STEPS; step++) {
+        const x = tx + dx * step;
+        const y = ty + dy * step;
+        if (x >= 0 && y >= 0 && x < width && y < height && cellZone[y * width + x] === zoneIndex && !isVoid(x, y)) {
+          return { x: obj.x, y: obj.y, zoneIndex, entry: { x: (x + 0.5) * tileSize, y: (y + 0.5) * tileSize } };
+        }
+        if (!isVoid(x, y)) break;
+      }
+    }
+    return fail(`Open zombie_spawn ${obj.id} needs a tile of its zone within ${OPEN_SPAWN_MAX_STEPS} tiles in a straight line`);
   });
 
   const merchantSpots: MapMerchantSpot[] = rawMerchantSpots.map((obj) => {

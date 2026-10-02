@@ -2,7 +2,7 @@ ssaaaaasgssFdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
 ssaaaaasgssFddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd___________________________
 ssaaaaasgssFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFFg___________________________
 ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggFg__________rrrrrrrrrr_______
-ssaaaaasgssFgggggggggggggggggggggggggggggeeeeeeeeggggggggggggggggggggggggggggggFg__________rrZrrrrrZr_______
+ssaaaaasgssFgggggggggggggggggggggggggggggeeeeeeeeggggggggggggggggggggggggggggggFg__________rrrrrrrrrr_______
 ssaaaaasgssFgggggggggggggggggggggggggggeeeeeeeeeeeeeeggggggggggggggggggHHHHHgggFg__________rrrrrrrrrr_______
 ssaaaaasgssFgdggggggggggggggggggggggeeeeeeeeeeeeeeeeeegggggggggggggggggHHHHHgggFg__________rrrrrrrrrr_______
 ssaaaaasgssFgddgggggggggggggggggggggeeeewwwwwwwwwwweeegggggggggggggggggHHHHHgggFg__________rrrrrrrrrr_______
@@ -10,7 +10,7 @@ ssaaaaasgssFgdggggggggggggggggggggggeeeewwwwwwwwwwweeegggdddddgggggggggHHHHHgggF
 ssaaaaasgssFgddgggggggggggggggggggggeeeewwwwwwwwwwweeedddgdggdddddddddddgggggggFg__________rrrHHrrrrrrrrrrr_
 ssaaaaasgssWgddggggggggggggggggggggggeeeeeeeeeeeeeeeeedddggggggdgggdgdddgggggggFg__________rrrrrrrrrrrrrrrr_
 ssaaaaasgssFgddggggggggppppppppgggddggeeeeeeeeeeeeeeeggggggggggggggggggggggggggFg__________rrrrrrHHHrrrrrrr_
-ssaaaaasgssFgddggggppppppppppppgdddgggggggeeeeeeeegggggggggggggggggggggggggggggFg__________rrrrrrHHHrrrrrZr_
+ssaaaaasgssFgddggggppppppppppppgdddgggggggeeeeeeeegggggggggggggggggggggggggggggFg__________rrrrrrHHHrrrrrrr_
 ssaaaaasgssFgdgggggppppppppppppddgdggggggggeeeeegggggggggggggggggggggggggggggggFg__________rrrrrrrrrrrrrrrr_
 ssaaaaasgssFgddgggggdppppppppppggggggggggeeeeeeeeeeggggggggggggggggggggggggggggFg__________rrrrrrrrrrHHrrrr_
 ssaaaaasgssFddggggddddpppppppggggggggggggeeeeeeeeeeggggggggggggggggggggggggggggFg__________rrrrrrrrrrHHrrrr_
@@ -38,7 +38,7 @@ ssaaaaasgssFgggW................#.........######...........#ccccccccccccHggggggF
 ssaaaaasgssFgggH................#.........obbbb#...........#ccccccccccccHggggggFg_________Hcccccc######oo###
 ssaaaaasgssFFFFHHHHH............D.........obbbb#...........#ccccccccccccWggggggFg_________Hcccccc#ccccccccc#
 ssaaaaasgssgggggg<<H............D.........#bbbb#...........#ccccccccccccHggggggFg_________Hccccccoccccccccc#
-ssaZaaasgssggggggggH............#.........HHWHHHHHH.....HWHHccccccccccccHggggggFg_________Hccccccoccccccccc#
+ssaaaaasgssggggggggH............#.........HHWHHHHHH.....HWHHccccccccccccHggggggFg_________Hccccccoccccccccc#
 ssaaaaasgssggggggggH............HHDDHHHWHHHgggdddgH.....HggHccccccccccccHggggggFg_________Hcccccc#ccccccccc#
 ssaaaaasgssggggggggHHHHHHHHHWHHHssssssssssgggdddddHHHWHHHggHccccccccccccHggggggFg_________Hcccccc#ccccccccc#
 ssaaaaasgssggggggggdddddddddddggHsssssssssHgggddddgggggggggHccccccccccccHggggggFg_________Hc<<ccc#ccccccccc#
@@ -60,7 +60,7 @@ aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa__________________________
 ssaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss__________________________
 ssaaaaassssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg__________________________
-ssaaaaassssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssZssssssssssss__________________________
+ssaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss__________________________
 ssaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss__________________________
 ssaaaaasgssFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF__________________________
 ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg__________________________
@@ -129,14 +129,20 @@ ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
 | P4a | 17,39 18,39 | calle | P4b | sí | escalera de mano |
 | P4b | 104,19 105,19 | azotea | P4a | sí | escalera de mano |
 
-## Spawns abiertos (Z)
+## Spawns de entrada (fuera del mapa, a 2 casillas del borde para que no asome ni la cabeza: el zombi aparece donde la cámara no llega y entra andando hasta la primera casilla de su zona, en línea recta; solo en zonas con spawns abiertos)
 | id | casilla | zona |
 |---|---|---|
-| O1 | 3,40 | calle |
-| O2 | 69,62 | calle |
-| O3 | 93,4 | azotea |
-| O4 | 99,4 | azotea |
-| O5 | 105,12 | azotea |
+| E1 | 4,-2 | calle |
+| E2 | 4,69 | calle |
+| E3 | -2,14 | calle |
+| E4 | -2,30 | calle |
+| E5 | -2,44 | calle |
+| E6 | -2,56 | calle |
+| E7 | 83,52 | calle |
+| E8 | 83,56 | calle |
+| E9 | 93,1 | azotea |
+| E10 | 99,1 | azotea |
+| E11 | 108,13 | azotea |
 
 ## Magos (puntos de aparición de los magos vendedores, spec 03 §1: pegados a una pared o en un rincón, a más de 3 tiles de barricadas, puertas, portales y spawns; la casilla conserva su suelo)
 | id | casilla | zona | nota |

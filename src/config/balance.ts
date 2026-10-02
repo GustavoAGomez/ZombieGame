@@ -153,8 +153,6 @@ export const ZOMBIES = {
   attackDamage: 40,
   attackCooldown: 1.1,
   climbTime: 0.8,
-  /** Seconds a zombie from an open spawn takes to rise before it moves (spec 02 §3.4). */
-  emergeTime: 0.6,
   directChaseTiles: 2,
   /** How close to the window's exterior point counts as "arrived". */
   windowArriveRadius: 12,
@@ -275,7 +273,11 @@ export const WAVES = {
   spawnFalloffTiles: 8,
   /** Spawns farther than this (walking, in tiles) are skipped while any spawn is closer. */
   spawnMaxPathTiles: 28,
-  /** Open spawns (street, roof) stay off while a live player is closer than this (spec 02 §3.4). */
+  /**
+   * Entrances from off the map (street, roof) stay off while a live player
+   * is closer than this to the tile where they come in, so no zombie walks
+   * in on top of a player standing at the edge (spec 02 §3.4).
+   */
   openSpawnMinDistanceTiles: 8,
   restTime: 8,
 } as const;

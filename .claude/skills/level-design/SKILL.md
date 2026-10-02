@@ -112,10 +112,12 @@ d  tierra                a  asfalto                      s  acera
 w  agua de piscina       e  cubierta de piscina          r  tejado
 _  vacío (no transitable)
 W  ventana / barricada   D  puerta de pago               o  hueco abierto (sin puerta)
-<  portal o escalera     P  spawn del jugador            Z  spawn de zombie abierto
+<  portal o escalera     P  spawn del jugador
 ```
 
 Cada `W`, `D` y `<` lleva su id y sus propiedades en una tabla debajo del plano, con id, zonas y destino. El precio va por sala, en la columna `precio` de la tabla de zonas: se desbloquean salas, no puertas.
+
+Un zombi nunca aparece donde puede andar el jugador. Los **spawns de entrada** de las zonas con spawns abiertos (calle, azotea) no van en el dibujo: solo en su tabla. Cada uno lleva una casilla fuera del mapa o en el vacío, a 2 casillas del borde para que no asome ni la cabeza del zombi, desde la que el zombi entra andando en línea recta hasta la primera casilla de su zona.
 
 ## 8. Checklist de revisión (sobre las imágenes de vista previa)
 

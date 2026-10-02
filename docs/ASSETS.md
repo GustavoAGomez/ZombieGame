@@ -179,7 +179,7 @@ Los tilesets deben ir **embebidos** en el `.tmj` que carga el juego (`public/ass
 | `zone` | rectángulo | `id` (string), `name`, `startsUnlocked` (bool), `interior` (bool), `openSpawns` (bool), `cost` (int): precio para desbloquear la sala, el mismo por cualquiera de sus puertas o escaleras principales (0 en las que están abiertas desde el inicio) |
 | `player_spawn` | punto | — |
 | `window` | rectángulo de 1 tile | `id`, `zone`, `planks` (int, 5 por defecto), `kind` (`window` o `fence`) |
-| `zombie_spawn` | punto | `window` (id de la ventana a la que va); sin `window` es un spawn abierto y debe caer en una zona con `openSpawns` |
+| `zombie_spawn` | punto | `window` (id de la ventana a la que va). Sin `window` es un spawn de entrada: lleva `zone` (una zona con `openSpawns`), cae fuera del mapa o en el vacío, y a 3 casillas o menos en línea recta (solo vacío entre medias) de una casilla de su zona, hasta la que el zombi entra andando. Un spawn de ventana que cae dentro de una zona se apaga cuando esa zona se desbloquea |
 | `door` | rectángulo (1–2 tiles) | `id`, `fromZone`, `toZone`. Vende la sala cerrada del otro lado al precio de la sala, y se abre sola en cuanto sus dos zonas están desbloqueadas |
 | `portal` | rectángulo (1–2 tiles) | `id`, `pair` (id del otro extremo), `zone`, `secondary` (bool), `kind` (`stairs`, `ladder` o `hatch`). Uno principal vende la sala cerrada del otro extremo al precio de la sala; uno secundario no se compra y se abre solo cuando sus dos zonas están desbloqueadas |
 | `weapon_case` | rectángulo de 1 tile | `weapon` (string, id de `weapons.ts`), `cost` (int, precio en $), `facing` (`south`, `east` o `west`; **nunca `north`**: el frente se tiene que ver desde la cámara), `zone` (string). Vitrina de un arma básica (spec 04 §3): sólida para cuerpos y balas, no para la vista. Se compra desde el frente, a menos de 40 px. En el plano ASCII va en la tabla `## Vitrinas` (id, casilla, arma, coste, orientación, zona). El validador exige una casilla libre delante, 3 tiles o más hasta las barricadas, puertas y puntos de mago de su zona, y ningún paso de menos de 2 tiles |
@@ -242,7 +242,7 @@ Los exports están en `art-src/pixellab/<grupo>/<grupo>.png`, con un `README.md`
 - **Objetos nuevos en la capa `objects`:**
   - `portal`: rectángulo de 1–2 tiles con `id`, `pair`, `cost`, `zone` y `secondary`.
   - `window` con `kind: "fence"` para huecos de valla.
-  - `zombie_spawn` sin `window` para spawns abiertos.
+  - `zombie_spawn` sin `window` (con `zone`) para los spawns de entrada, fuera del mapa.
   - Zonas con `interior` y `openSpawns`.
 - **Tilesets externos:** se usan para editar en Tiled (`.tsj`); el mapa que carga el juego los lleva embebidos (`npm run map:build`).
 
@@ -399,7 +399,7 @@ npm run map:preview     maps/preview/: el mapa completo a 1:4, cada zona a 1:1 y
   - suelos interiores con la variante limpia de cada material al 70 % y las manchadas repartidas, nunca dos iguales juntas (§7.4), cada baldosa en uno de sus 4 volteos;
   - decals agrupados: escombros, astillas, sangre y un rastro hacia dentro en cada barricada; suciedad y pisadas en puertas y huecos; polvo en las esquinas; y racimos de ruido hasta cubrir el 20 % de cada zona (contando el atrezo);
   - sombras al pie de paredes, vallas, puertas, barricadas y muebles con colisión.
-- **Objetos:** tabla `## Objetos` del plano (`id`, `casilla`, `zona`, `nota`), con ids `I1`, `I2`… (las `O` son de los spawns abiertos). La casilla conserva su suelo; `map:build` escribe un `item_spot` en su centro y `map:preview` lo marca con una estrella violeta.
+- **Objetos:** tabla `## Objetos` del plano (`id`, `casilla`, `zona`, `nota`), con ids `I1`, `I2`… (las `E` son de los spawns de entrada). La casilla conserva su suelo; `map:build` escribe un `item_spot` en su centro y `map:preview` lo marca con una estrella violeta.
 - **Activaciones:** tabla `## Activaciones` del plano (`id`, `casillas` de esquina a esquina, `zona`, `nota`). `map:build` escribe un `activation_site` con ese rectángulo y `map:preview` lo marca con un marco violeta discontinuo.
 - **Magos:** tabla `## Magos` del plano (`id`, `casilla`, `zona`, `nota`). La casilla conserva su suelo en el plano; `map:build` escribe un `merchant_spot` en su centro y `map:preview` lo marca con un rombo azul.
 - **Atrezo:** tabla `## Atrezo` del plano (`id`, `objeto`, `casillas` como una casilla o dos esquinas, `colisión`, `volteo`). Cada clave tiene un solo tamaño; `map:build` registra en el manifiesto los objetos que falten como placeholder del tamaño de su huella, y el arte pendiente se apunta en `docs/ASSETS-TODO.md`.

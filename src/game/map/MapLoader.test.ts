@@ -178,16 +178,32 @@ describe('parseMap: zones flags, fences, open spawns and portals (spec 02)', () 
     expect(() => parseMap(raw)).toThrow(/unknown kind "door"/);
   });
 
-  it('turns a zombie_spawn without window into an open spawn of its zone', () => {
+  it('turns a zombie_spawn without window into an entrance from off the map to its zone', () => {
     const raw = clone();
     const objects = objectsOf(raw);
     objects.find((o) => o.name === 'pasillo')?.properties?.push(prop('openSpawns', true));
-    const open = { id: 800, name: 'O1', type: 'zombie_spawn', point: true, x: 8 * 32, y: 16 * 32, width: 0, height: 0, rotation: 0, visible: true };
+    // A gap in the pasillo's west wall (3,16) onto the void: from (1,16) the zombie walks in to (4,16).
+    const gap = 16 * raw.width + 3;
+    for (const name of ['floor', 'walls']) {
+      const layer = raw.layers.find((l) => l.name === name);
+      if (layer && 'data' in layer && Array.isArray(layer.data)) layer.data[gap] = 0;
+    }
+    const zone = [prop('zone', 'pasillo')];
+    const open = { id: 800, name: 'E1', type: 'zombie_spawn', point: true, x: 1.5 * 32, y: 16.5 * 32, width: 0, height: 0, rotation: 0, visible: true, properties: zone };
     objects.push(open);
-    expect(parseMap(raw).openSpawns).toEqual([{ x: 8 * 32, y: 16 * 32, zoneIndex: 1 }]);
-    open.x = 8 * 32;
-    open.y = 6 * 32; // inicio has no openSpawns
+    expect(parseMap(raw).openSpawns).toEqual([{ x: 1.5 * 32, y: 16.5 * 32, zoneIndex: 1, entry: { x: 4.5 * 32, y: 16.5 * 32 } }]);
+    open.x = 0.5 * 32; // four tiles out: too far
+    expect(() => parseMap(raw)).toThrow(/within 3 tiles/);
+    open.x = 8.5 * 32; // on the pasillo's floor: zombies would appear in front of the player
+    expect(() => parseMap(raw)).toThrow(/off the map or on the void/);
+    open.x = 1.5 * 32;
+    zone[0] = prop('zone', 'inicio'); // inicio has no openSpawns
     expect(() => parseMap(raw)).toThrow(/openSpawns/);
+  });
+
+  it('knows the zone each window spawn lies in', () => {
+    const map = parseMap(clone());
+    expect(map.zombieSpawns.every((s) => s.zoneIndex === -1)).toBe(true); // all outside the house
   });
 
   it('pairs portal ends, shares the link and arrives at the other centre', () => {

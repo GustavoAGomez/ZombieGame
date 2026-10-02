@@ -53,18 +53,18 @@ Cada zona de juego agrupa varias habitaciones. Dentro de una zona, las habitacio
 ## Islas
 
 - **Sótano** (16 tiles de ancho, para dejar sitio a la calle lateral): sala principal en L, cuarto de calderas (llegada de la trampilla, P3), trastero y bodega, unidos por huecos que forman varios anillos. Rejillas S1 (norte) y S2 (sur; al este ya no hay sitio en el mapa). Llegada de la escalera de la cocina (P1) en la esquina suroeste.
-- **Azotea** (16 tiles de ancho): forma de L, dos chimeneas y una caseta de máquinas. Llegada de las dos escaleras de mano (P2 y P4) y 3 spawns abiertos (O3–O5).
+- **Azotea** (16 tiles de ancho): forma de L, dos chimeneas y una caseta de máquinas. Llegada de las dos escaleras de mano (P2 y P4) y 3 spawns de entrada desde el vacío (E9–E11).
 
 ## Lo que se conserva del mapa actual
 
-Las 10 zonas con sus propiedades, las 10 puertas con sus costes y zonas, las 18 barricadas con su zona, los 4 portales con su par, coste, `secondary` y tipo, los 5 spawns abiertos y el jugador en la zona inicial. Solo cambian las posiciones. La lista de ids y coordenadas está en las tablas de `mansion.txt`.
+Las 10 zonas con sus propiedades, las 10 puertas con sus costes y zonas, las 18 barricadas con su zona, los 4 portales con su par, coste, `secondary` y tipo, los spawns de entrada y el jugador en la zona inicial. Solo cambian las posiciones. La lista de ids y coordenadas está en las tablas de `mansion.txt`.
 
 ## Decisiones
 
 - **El salón y el hall son más grandes que en la tabla de la skill** (salón hasta 12×10, recibidor hasta 6×5) porque son zonas de combate: la zona inicial tiene que aguantar las primeras rondas y la escalera da una ruta circular. El salón es salón y zona de estar, separados por la columna.
 - **Las zonas se calculan rellenando desde una semilla:** el compilador las convierte en rectángulos con el mismo id (las zonas en L necesitan varios). El `MapLoader` tendrá que unir los rectángulos que comparten id.
 - **Lo construido es recto y lo natural no:** la calzada, las aceras, la entrada de coches y el porche son obra; el césped, los patios, la cubierta de la piscina y la tierra tienen bordes irregulares. La línea entre el césped delantero y la acera es la linde de la parcela; la romperé con atrezo (setos, buzón, árboles) al decorar.
-- **Spawns abiertos de la calle:** O1 en la calzada de la calle lateral, a la altura del jardín delantero, y O2 en la acera de enfrente de la calle horizontal. Están más cerca de la casa que en el mapa actual, así entran dentro del corte de distancia de la Fase M7.
+- **Spawns de entrada de la calle:** fuera del mapa, a 2 casillas del borde. E1 y E2 por los extremos de la calle lateral, E3–E6 a lo largo de su borde oeste y E7–E8 por el final de la calle de abajo. Los zombis entran andando: nunca aparecen donde puede andar el jugador.
 - **Calle lateral:** ocupa las 11 primeras columnas. Para que quepa en los 100 tiles de ancho, la parcela se desplaza 9 tiles a la derecha y las islas pasan de 21 a 16 tiles de ancho.
 - **Pendiente de arte:** la tierra (`d`) no tiene tileset; mientras tanto se pinta con un suelo provisional y se apunta en `docs/ASSETS-TODO.md`. La azotea (`r`) usa hormigón.
 

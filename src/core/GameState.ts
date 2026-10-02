@@ -194,10 +194,11 @@ export interface BulletState {
 
 /**
  * Zombie behaviour (spec 01 §4.4): toWindow → tearing → climbing →
- * chasing ⇄ attacking → dead. Open spawns start with emerging → chasing
- * (spec 02 §3.4). 'idle' stands still (tests and debug tools).
+ * chasing ⇄ attacking → dead. Open spawns start with entering → chasing:
+ * they walk in from off the map (spec 02 §3.4, docs/DECISIONS.md). 'idle'
+ * stands still (tests and debug tools).
  */
-export type ZombieAi = 'toWindow' | 'tearing' | 'climbing' | 'emerging' | 'chasing' | 'attacking' | 'dead' | 'idle';
+export type ZombieAi = 'toWindow' | 'tearing' | 'climbing' | 'entering' | 'chasing' | 'attacking' | 'dead' | 'idle';
 
 export interface ZombieState {
   active: boolean;
@@ -221,6 +222,8 @@ export interface ZombieState {
   /** Where the climb started, to interpolate to the window's interior point. */
   fromX: number;
   fromY: number;
+  /** Index into MapData.openSpawns of the entrance it is walking in from, -1 when none. */
+  entry: number;
   /** Tick when the current state started. */
   stateTick: number;
   /** Tick of the last tear or strike, or of reaching the planks (views start a swing when it changes). */
@@ -446,6 +449,7 @@ function createZombie(): ZombieState {
     attackCooldown: 0,
     fromX: 0,
     fromY: 0,
+    entry: -1,
     stateTick: 0,
     actionTick: -1,
     tearRate: 1,
