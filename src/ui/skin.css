@@ -9,7 +9,7 @@
  * pixel. Always pixelated.
  */
 
-/* ── Fire button: the big ring, tinted red, on the 96 px button (the ring is 97). ── */
+/* ── Fire button: the big ring, untinted, on the 96 px button (the ring is 97). ── */
 .has-ui-skin .fire-stick {
   background: none;
   box-shadow: none;

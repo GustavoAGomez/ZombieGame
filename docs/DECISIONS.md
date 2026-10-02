@@ -988,3 +988,4 @@ El usuario pasó un kit más (`art-src/pixellab/hud/botones-2/`) con el hexágon
   - Si el hueco mide un número impar de píxeles, el margen derecho se queda el píxel sobrante, para que los segmentos sigan siendo enteros.
 - **El aro con engranaje de ese kit no se usa:** no se pidió.
 - **Capturas:** `maps/preview/hud/hud-poligonos.jpg`. Comprobado a 844×390 y a 640×360, sin solapes y sin que unos botones roben toques a otros.
+- **Disparo sin tinte rojo:** el usuario pidió quitar el borde rojo del botón de disparo, así que el aro grande se ve con su propio metal. Ya no se tiñe nada de rojo. Captura: `maps/preview/hud/hud-disparo-sin-tinte.jpg`.

@@ -147,7 +147,7 @@ Nombres válidos: `ringLarge`, `ringMedium`, `ringSmall`, `hexagon`, `octagon`, 
   - Si el hueco tiene un borde claro, PixelLab lo entrega medio lleno, como una barra en uso. El importador lo vacía fila a fila con el color de su extremo vacío.
   - En ese caso, el corazón es la mancha de color más grande a la izquierda del hueco, con su contorno.
 - **Estados, por código y sin más arte** (`src/ui/skin.ts` + `skin.css`, solo con `.has-ui-skin`):
-  - tinte rojo del aro de disparo, ámbar del especial y del arma en mano y azul de la mejora guardada. Se hacen en un canvas al cargar y no tocan la cara, que es todo lo que encierra el borde claro, sea redonda o poligonal;
+  - tinte ámbar del especial y del arma en mano y azul de la mejora guardada. El aro de disparo va sin teñir. Los tintes se hacen en un canvas al cargar y no tocan la cara, que es todo lo que encierra el borde claro, sea redonda o poligonal;
   - huecos de arma no equipados al 60 %;
   - pulsado a 0,94 durante 60 ms;
   - reparar: un borde ámbar de 2 px alrededor de la placa que parpadea.

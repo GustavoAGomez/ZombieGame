@@ -7,11 +7,11 @@ const REQUIRED = ['ringLarge', 'ringSmall', 'panel', 'plate', 'healthFrame'] as 
 const SEGMENTS = 10;
 const SEGMENT_GAP = 2;
 /**
- * State tints, by code (no extra art): the fire button red, the special and
- * the weapon in hand amber, the stored boost in the blue merchant's colour.
+ * State tints, by code (no extra art): the special and the weapon in hand
+ * amber, the stored boost in the blue merchant's colour. The fire button
+ * keeps the ring's own metal.
  */
 type Rgb = readonly [number, number, number];
-const RED: Rgb = [201, 58, 43];
 const AMBER: Rgb = [232, 176, 74];
 const BLUE: Rgb = [58, 111, 216];
 /** Share of the tint over the metal's own colour: its light, scratches and rivets stay readable. */
@@ -41,10 +41,10 @@ export async function applyUiSkin(ui: Readonly<Record<string, UiPieceDef>>, asse
   // Weapon slots and abilities on their own shapes; without them, on the small ring like the rest.
   const hexagon = ui.hexagon ?? ringSmall;
   const octagon = ui.octagon ?? ringSmall;
-  const [large, small, hex, oct] = await Promise.all([ringLarge, ringSmall, hexagon, octagon].map((piece) => loadImage(href(piece))));
+  const [small, hex, oct] = await Promise.all([ringSmall, hexagon, octagon].map((piece) => loadImage(href(piece))));
   const style = root.style;
   const tintedUrl = (img: HTMLImageElement | null | undefined, piece: UiPieceDef, tint: Rgb): string => url(img ? tinted(img, tint) ?? href(piece) : href(piece));
-  style.setProperty('--ui-ring-large', tintedUrl(large, ringLarge, RED));
+  style.setProperty('--ui-ring-large', url(href(ringLarge)));
   style.setProperty('--ui-ring-large-size', px(ringLarge.width));
   style.setProperty('--ui-ring-small', url(href(ringSmall)));
   style.setProperty('--ui-ring-small-size', px(ringSmall.width));
