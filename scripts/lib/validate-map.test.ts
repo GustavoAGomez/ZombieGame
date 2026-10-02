@@ -54,10 +54,19 @@ describe('validateMap', () => {
     expect(errorsOf(variant((o) => Object.assign(byName(o, 'player'), { x: 39.5 * 32, y: 38.5 * 32 })))).toMatch(/a 3\.0 tiles de W1/);
   });
 
-  it('checks costs and sizes of doors and portals', () => {
-    expect(errorsOf(variant((o) => setProp(byName(o, 'D1'), 'cost', 500)))).toMatch(/puerta D1 cuesta 500/);
+  it('checks room prices and the sizes of doors and portals', () => {
+    const zoneObjects = (o: TiledObject[], id: string) => o.filter((x) => x.type === 'zone' && x.properties?.some((pr) => pr.name === 'id' && pr.value === id));
+    expect(errorsOf(variant((o) => zoneObjects(o, 'salon').forEach((z) => setProp(z, 'cost', 500))))).toMatch(/la zona salon cuesta 500/);
+    expect(errorsOf(variant((o) => zoneObjects(o, 'azotea').forEach((z) => setProp(z, 'cost', 2500))))).toMatch(/la zona azotea cuesta 2500/);
     expect(errorsOf(variant((o) => Object.assign(byName(o, 'D1'), { height: 32 })))).toMatch(/puerta D1 mide 1 tile/);
-    expect(errorsOf(variant((o) => setProp(byName(o, 'P2a'), 'cost', 2500)))).toMatch(/portal P2a cuesta 2500/);
+  });
+
+  it('needs every locked room to be sold through a door or a main staircase', () => {
+    // The basement only through secondary stairs: nothing sells it.
+    const map = variant((o) => {
+      for (const id of ['P1a', 'P1b']) setProp(byName(o, id), 'secondary', true);
+    });
+    expect(errorsOf(map)).toMatch(/la zona sotano no tiene ninguna puerta ni escalera principal/);
   });
 
   it('needs doors that touch both of their zones', () => {
@@ -76,9 +85,8 @@ describe('validateMap', () => {
     expect(errorsOf(map)).toMatch(/azotea no es alcanzable/);
   });
 
-  it('needs both portal ends to agree on cost and secondary', () => {
-    expect(errorsOf(variant((o) => setProp(byName(o, 'P1b'), 'cost', 1500)))).toMatch(/P1a y P1b deben tener el mismo coste/);
-    expect(errorsOf(variant((o) => setProp(byName(o, 'P3b'), 'secondary', false)))).toMatch(/P3a y P3b/);
+  it('needs both portal ends to agree on secondary', () => {
+    expect(errorsOf(variant((o) => setProp(byName(o, 'P3b'), 'secondary', false)))).toMatch(/P3a y P3b deben tener el mismo valor de secondary/);
   });
 
   it('keeps portals inside their zone', () => {

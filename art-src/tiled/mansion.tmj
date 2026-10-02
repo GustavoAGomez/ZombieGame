@@ -55949,6 +55949,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 0
       }
      ]
     },
@@ -55987,6 +55992,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 0
       }
      ]
     },
@@ -56025,6 +56035,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 0
       }
      ]
     },
@@ -56063,6 +56078,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 0
       }
      ]
     },
@@ -56101,6 +56121,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 0
       }
      ]
     },
@@ -56139,6 +56164,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 0
       }
      ]
     },
@@ -56177,6 +56207,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 0
       }
      ]
     },
@@ -56215,6 +56250,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 0
       }
      ]
     },
@@ -56253,6 +56293,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 750
       }
      ]
     },
@@ -56291,6 +56336,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 750
       }
      ]
     },
@@ -56329,6 +56379,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 750
       }
      ]
     },
@@ -56367,6 +56422,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 750
       }
      ]
     },
@@ -56405,6 +56465,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 750
       }
      ]
     },
@@ -56443,6 +56508,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 750
       }
      ]
     },
@@ -56481,6 +56551,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 750
       }
      ]
     },
@@ -56519,6 +56594,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 750
       }
      ]
     },
@@ -56557,6 +56637,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1000
       }
      ]
     },
@@ -56595,6 +56680,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1000
       }
      ]
     },
@@ -56633,6 +56723,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1000
       }
      ]
     },
@@ -56671,6 +56766,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1000
       }
      ]
     },
@@ -56709,6 +56809,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1000
       }
      ]
     },
@@ -56747,6 +56852,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1000
       }
      ]
     },
@@ -56785,6 +56895,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1000
       }
      ]
     },
@@ -56823,6 +56938,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1000
       }
      ]
     },
@@ -56861,6 +56981,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1000
       }
      ]
     },
@@ -56899,6 +57024,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1000
       }
      ]
     },
@@ -56937,6 +57067,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1000
       }
      ]
     },
@@ -56975,6 +57110,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1000
       }
      ]
     },
@@ -57013,6 +57153,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1000
       }
      ]
     },
@@ -57051,6 +57196,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1000
       }
      ]
     },
@@ -57089,6 +57239,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1000
       }
      ]
     },
@@ -57127,6 +57282,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1000
       }
      ]
     },
@@ -57165,6 +57325,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1000
       }
      ]
     },
@@ -57203,6 +57368,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1250
       }
      ]
     },
@@ -57241,6 +57411,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1250
       }
      ]
     },
@@ -57279,6 +57454,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1250
       }
      ]
     },
@@ -57317,6 +57497,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1250
       }
      ]
     },
@@ -57355,6 +57540,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1500
       }
      ]
     },
@@ -57393,6 +57583,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1500
       }
      ]
     },
@@ -57431,6 +57626,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1500
       }
      ]
     },
@@ -57469,6 +57669,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1500
       }
      ]
     },
@@ -57507,6 +57712,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1500
       }
      ]
     },
@@ -57545,6 +57755,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1500
       }
      ]
     },
@@ -57583,6 +57798,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1500
       }
      ]
     },
@@ -57621,6 +57841,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1500
       }
      ]
     },
@@ -57659,6 +57884,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1500
       }
      ]
     },
@@ -57697,6 +57927,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1500
       }
      ]
     },
@@ -57735,6 +57970,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1500
       }
      ]
     },
@@ -57773,6 +58013,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1500
       }
      ]
     },
@@ -57811,6 +58056,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1500
       }
      ]
     },
@@ -57849,6 +58099,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1500
       }
      ]
     },
@@ -57887,6 +58142,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1500
       }
      ]
     },
@@ -57925,6 +58185,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1250
       }
      ]
     },
@@ -57963,6 +58228,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1250
       }
      ]
     },
@@ -58001,6 +58271,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1250
       }
      ]
     },
@@ -58039,6 +58314,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1250
       }
      ]
     },
@@ -58077,6 +58357,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1250
       }
      ]
     },
@@ -58115,6 +58400,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1250
       }
      ]
     },
@@ -58153,6 +58443,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1250
       }
      ]
     },
@@ -58191,6 +58486,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1250
       }
      ]
     },
@@ -58229,6 +58529,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1250
       }
      ]
     },
@@ -58267,6 +58572,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1250
       }
      ]
     },
@@ -58305,6 +58615,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1250
       }
      ]
     },
@@ -58343,6 +58658,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1250
       }
      ]
     },
@@ -58381,6 +58701,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1250
       }
      ]
     },
@@ -58419,6 +58744,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1750
       }
      ]
     },
@@ -58457,6 +58787,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1750
       }
      ]
     },
@@ -58495,6 +58830,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1750
       }
      ]
     },
@@ -58533,6 +58873,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1750
       }
      ]
     },
@@ -58571,6 +58916,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1750
       }
      ]
     },
@@ -58609,6 +58959,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1750
       }
      ]
     },
@@ -58647,6 +59002,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1750
       }
      ]
     },
@@ -58685,6 +59045,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1750
       }
      ]
     },
@@ -58723,6 +59088,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1750
       }
      ]
     },
@@ -58761,6 +59131,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1750
       }
      ]
     },
@@ -58799,6 +59174,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1750
       }
      ]
     },
@@ -58837,6 +59217,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1750
       }
      ]
     },
@@ -58875,6 +59260,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 2000
       }
      ]
     },
@@ -58913,6 +59303,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 2000
       }
      ]
     },
@@ -58951,6 +59346,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 2000
       }
      ]
     },
@@ -58989,6 +59389,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 2000
       }
      ]
     },
@@ -59027,6 +59432,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 2000
       }
      ]
     },
@@ -59065,6 +59475,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 2000
       }
      ]
     },
@@ -59103,6 +59518,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 2000
       }
      ]
     },
@@ -59141,6 +59561,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 2000
       }
      ]
     },
@@ -59179,6 +59604,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 2000
       }
      ]
     },
@@ -59217,6 +59647,11 @@
        "name": "openSpawns",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 2000
       }
      ]
     },
@@ -61075,11 +61510,6 @@
        "value": "D1"
       },
       {
-       "name": "cost",
-       "type": "int",
-       "value": 750
-      },
-      {
        "name": "fromZone",
        "type": "string",
        "value": "recibidor"
@@ -61106,11 +61536,6 @@
        "name": "id",
        "type": "string",
        "value": "D2"
-      },
-      {
-       "name": "cost",
-       "type": "int",
-       "value": 750
       },
       {
        "name": "fromZone",
@@ -61141,11 +61566,6 @@
        "value": "D3"
       },
       {
-       "name": "cost",
-       "type": "int",
-       "value": 1000
-      },
-      {
        "name": "fromZone",
        "type": "string",
        "value": "salon"
@@ -61172,11 +61592,6 @@
        "name": "id",
        "type": "string",
        "value": "D4"
-      },
-      {
-       "name": "cost",
-       "type": "int",
-       "value": 1000
       },
       {
        "name": "fromZone",
@@ -61207,11 +61622,6 @@
        "value": "D5"
       },
       {
-       "name": "cost",
-       "type": "int",
-       "value": 1250
-      },
-      {
        "name": "fromZone",
        "type": "string",
        "value": "biblioteca"
@@ -61238,11 +61648,6 @@
        "name": "id",
        "type": "string",
        "value": "D6"
-      },
-      {
-       "name": "cost",
-       "type": "int",
-       "value": 1250
       },
       {
        "name": "fromZone",
@@ -61273,11 +61678,6 @@
        "value": "D7"
       },
       {
-       "name": "cost",
-       "type": "int",
-       "value": 1250
-      },
-      {
        "name": "fromZone",
        "type": "string",
        "value": "garaje"
@@ -61304,11 +61704,6 @@
        "name": "id",
        "type": "string",
        "value": "D8"
-      },
-      {
-       "name": "cost",
-       "type": "int",
-       "value": 1500
       },
       {
        "name": "fromZone",
@@ -61339,11 +61734,6 @@
        "value": "D9"
       },
       {
-       "name": "cost",
-       "type": "int",
-       "value": 1500
-      },
-      {
        "name": "fromZone",
        "type": "string",
        "value": "cocina"
@@ -61370,11 +61760,6 @@
        "name": "id",
        "type": "string",
        "value": "D10"
-      },
-      {
-       "name": "cost",
-       "type": "int",
-       "value": 1500
       },
       {
        "name": "fromZone",
@@ -61408,11 +61793,6 @@
        "name": "pair",
        "type": "string",
        "value": "P1b"
-      },
-      {
-       "name": "cost",
-       "type": "int",
-       "value": 1750
       },
       {
        "name": "zone",
@@ -61453,11 +61833,6 @@
        "value": "P1a"
       },
       {
-       "name": "cost",
-       "type": "int",
-       "value": 1750
-      },
-      {
        "name": "zone",
        "type": "string",
        "value": "sotano"
@@ -61494,11 +61869,6 @@
        "name": "pair",
        "type": "string",
        "value": "P2b"
-      },
-      {
-       "name": "cost",
-       "type": "int",
-       "value": 2000
       },
       {
        "name": "zone",
@@ -61539,11 +61909,6 @@
        "value": "P2a"
       },
       {
-       "name": "cost",
-       "type": "int",
-       "value": 2000
-      },
-      {
        "name": "zone",
        "type": "string",
        "value": "azotea"
@@ -61580,11 +61945,6 @@
        "name": "pair",
        "type": "string",
        "value": "P3b"
-      },
-      {
-       "name": "cost",
-       "type": "int",
-       "value": 1000
       },
       {
        "name": "zone",
@@ -61625,11 +61985,6 @@
        "value": "P3a"
       },
       {
-       "name": "cost",
-       "type": "int",
-       "value": 1000
-      },
-      {
        "name": "zone",
        "type": "string",
        "value": "sotano"
@@ -61668,11 +62023,6 @@
        "value": "P4b"
       },
       {
-       "name": "cost",
-       "type": "int",
-       "value": 1250
-      },
-      {
        "name": "zone",
        "type": "string",
        "value": "calle"
@@ -61709,11 +62059,6 @@
        "name": "pair",
        "type": "string",
        "value": "P4a"
-      },
-      {
-       "name": "cost",
-       "type": "int",
-       "value": 1250
       },
       {
        "name": "zone",
@@ -61802,7 +62147,7 @@
   {
    "name": "compiledHash",
    "type": "string",
-   "value": "ff12aad8457ce0af"
+   "value": "88815a0a720e844d"
   }
  ]
 }

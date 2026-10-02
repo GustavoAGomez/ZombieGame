@@ -5,6 +5,7 @@ import { MERCHANTS, type MerchantId } from '../config/merchants';
 import { STARTING_ITEMS, type ItemId } from '../config/items';
 import type { MapData } from '../game/map/MapLoader';
 import { placeMatchItems } from '../game/systems/itemSpawns';
+import { initialAccesses } from '../game/systems/ZoneSystem';
 import { zombiesInRound } from '../game/systems/waveFormulas';
 import type { RngState } from './Rng';
 
@@ -506,8 +507,9 @@ export function createGameState(map: MapData, options: GameOptions = {}): GameSt
     pickups: Array.from({ length: PICKUPS.poolSize }, createPickup),
     merchants: MERCHANTS.map((m) => createMerchant(m.id, m.appears?.by === 'round', players.length)),
     wave: { round, phase: 'active', toSpawn, spawnTimer: WAVES.bannerDuration, restTimer: 0, auto: waveFlow },
-    doorsOpen: map.doors.map(() => false),
-    portalsOpen: Array.from({ length: map.portalLinks }, () => false),
+    // Open from the start only between the zones the match starts with (rooms are unlocked, not doors).
+    doorsOpen: initialAccesses(map).doors,
+    portalsOpen: initialAccesses(map).portals,
     windowPlanks: map.windows.map((w) => w.planks),
     zonesUnlocked: map.zones.map((z) => z.startsUnlocked),
     groundItems: [],

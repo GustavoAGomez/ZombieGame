@@ -93,7 +93,7 @@ describe('HudPresenter · action chip and points', () => {
 });
 
 describe('HudPresenter · door chip', () => {
-  it('shows the cost when affordable and the missing points otherwise', () => {
+  it('names the room the door unlocks, with its price when affordable and the missing money otherwise', () => {
     const ctx = withSmg(createTestContext());
     const presenter = new HudPresenter(ctx.events, ctx.map);
     const action = vi.fn();
@@ -104,9 +104,9 @@ describe('HudPresenter · door chip', () => {
     p.y = d1.y - 10;
     stepSimulation(ctx, 1 / 60);
     presenter.publish(ctx.state);
-    expect(action).toHaveBeenLastCalledWith({ kind: 'door', amount: 250, enabled: false });
+    expect(action).toHaveBeenLastCalledWith({ kind: 'door', amount: 250, enabled: false, room: 'pasillo' });
     p.money = 900;
     presenter.publish(ctx.state);
-    expect(action).toHaveBeenLastCalledWith({ kind: 'door', amount: 750, enabled: true });
+    expect(action).toHaveBeenLastCalledWith({ kind: 'door', amount: 750, enabled: true, room: 'pasillo' });
   });
 });

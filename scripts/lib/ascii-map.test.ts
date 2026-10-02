@@ -59,9 +59,11 @@ describe('parseAsciiMap', () => {
     expect(plan.zones.map((z) => z.id)).toEqual(['recibidor', 'salon', 'comedor', 'biblioteca', 'cocina', 'garaje', 'jardin', 'calle', 'sotano', 'azotea']);
     expect(plan.zones.filter((z) => z.startsUnlocked).map((z) => z.id)).toEqual(['recibidor']);
     expect(plan.zones.find((z) => z.id === 'sotano')?.wallKit).toBe('kit_basement');
-    expect(plan.doors.map((d) => [d.id, d.cost])).toEqual([
-      ['D1', 750], ['D2', 750], ['D3', 1000], ['D4', 1000], ['D5', 1250],
-      ['D6', 1250], ['D7', 1250], ['D8', 1500], ['D9', 1500], ['D10', 1500],
+    expect(plan.doors.map((d) => d.id)).toEqual(['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8', 'D9', 'D10']);
+    // Rooms are unlocked, not doors: a price per room, the same from any door.
+    expect(plan.zones.map((z) => [z.id, z.cost])).toEqual([
+      ['recibidor', 0], ['salon', 750], ['comedor', 750], ['biblioteca', 1000], ['cocina', 1000],
+      ['garaje', 1250], ['jardin', 1500], ['calle', 1250], ['sotano', 1750], ['azotea', 2000],
     ]);
     expect(plan.windows).toHaveLength(18);
     expect(plan.windows.filter((w) => w.kind === 'fence').map((w) => w.id)).toEqual(['F1', 'F2', 'F3']);

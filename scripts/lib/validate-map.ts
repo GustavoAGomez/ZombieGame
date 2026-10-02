@@ -90,15 +90,24 @@ export function validateMap(raw: TiledSourceMap | TiledMap): MapValidation {
     }
   }
 
+  // Rooms are unlocked, not doors: every zone the match does not start with has a price, and a door or a
+  // main staircase to buy it through (secondary ones open by themselves, never sold).
+  map.zones.forEach((zone, i) => {
+    if (zone.startsUnlocked) return;
+    if (zone.cost < R.minCost || zone.cost > R.maxCost) errors.push(`la zona ${zone.id} cuesta ${zone.cost}; debe costar de ${R.minCost} a ${R.maxCost}`);
+    const byDoor = map.doors.some((d) => d.fromZoneIndex === i || d.toZoneIndex === i);
+    const byStairs = map.portals.some((p) => !p.secondary && (p.zoneIndex === i || map.portals[p.other]?.zoneIndex === i));
+    if (!byDoor && !byStairs) errors.push(`la zona ${zone.id} no tiene ninguna puerta ni escalera principal por la que desbloquearla`);
+  });
+
   // Doors and portals.
-  const checkPassage = (kind: string, id: string, cost: number, tiles: number): void => {
-    if (cost < R.minCost || cost > R.maxCost) errors.push(`${kind} ${id} cuesta ${cost}; debe costar de ${R.minCost} a ${R.maxCost}`);
+  const checkPassage = (kind: string, id: string, tiles: number): void => {
     if (tiles < R.minPassageTiles) errors.push(`${kind} ${id} mide ${tiles} tile; debe medir al menos ${R.minPassageTiles}`);
   };
   const zoneOfCell = (x: number, y: number): number =>
     x >= 0 && y >= 0 && x < map.width && y < map.height ? (map.cellZone[y * map.width + x] ?? -1) : -1;
   for (const door of map.doors) {
-    checkPassage('la puerta', door.id, door.cost, door.tiles.length);
+    checkPassage('la puerta', door.id, door.tiles.length);
     for (const zone of [door.fromZoneIndex, door.toZoneIndex]) {
       const touches = door.tiles.some(
         (t) =>
@@ -112,13 +121,13 @@ export function validateMap(raw: TiledSourceMap | TiledMap): MapValidation {
     }
   }
   for (const portal of map.portals) {
-    checkPassage('el portal', portal.id, portal.cost, portal.tiles.length);
+    checkPassage('el portal', portal.id, portal.tiles.length);
     if (portal.tiles.some((t) => zoneOfCell(t.x, t.y) !== portal.zoneIndex)) {
       errors.push(`el portal ${portal.id} se sale de su zona ${portal.zone}`);
     }
     const other = map.portals[portal.other];
-    if (other && (other.cost !== portal.cost || other.secondary !== portal.secondary)) {
-      errors.push(`los extremos ${portal.id} y ${other.id} deben tener el mismo coste y el mismo valor de secondary`);
+    if (other && other.secondary !== portal.secondary) {
+      errors.push(`los extremos ${portal.id} y ${other.id} deben tener el mismo valor de secondary`);
     }
   }
 

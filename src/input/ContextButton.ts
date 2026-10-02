@@ -11,10 +11,11 @@ import { PointerControl } from './PointerControl';
  * Contextual action button in the bottom row of the screen (spec 01 §2.4, a
  * round button as in Wild Rift): it only shows up when the game says an
  * action is available (via the EventBus), with a hammer to repair a
- * barricade, a door or stairs to buy one, a wizard hat to open a merchant's
- * shop, and a badge with the points per plank, the cost (or what is
- * missing) or the merchant's name. One tap repairs one plank, buys the door
- * or opens and closes the shop. No game logic.
+ * barricade, a door or stairs to unlock the room behind them, a wizard hat
+ * to open a merchant's shop, and a text with the points per plank, the room
+ * and its price (or what is missing) or the merchant's name. One tap
+ * repairs one plank, unlocks the room or opens and closes the shop. No game
+ * logic.
  */
 export class ContextButton extends PointerControl {
   private readonly icons: Record<'repair' | 'door' | 'portal', SVGSVGElement>;
@@ -132,13 +133,12 @@ export class ContextButton extends PointerControl {
     } else if (e.kind === 'repair') {
       this.value.textContent = e.amount > 0 ? STRINGS.hud.moneyGained(e.amount) : '';
       button.setAttribute('aria-label', STRINGS.actions.repair);
-    } else if (e.kind === 'door') {
-      this.value.textContent = e.enabled ? STRINGS.hud.money(e.amount) : STRINGS.hud.moneySpent(e.amount);
-      button.setAttribute('aria-label', e.enabled ? STRINGS.actions.openDoor : STRINGS.actions.missing);
-    } else if (e.kind === 'portal') {
-      const open = e.portal === 'hatch' ? STRINGS.actions.openHatch : STRINGS.actions.openStairs;
-      this.value.textContent = e.locked ? '' : e.enabled ? STRINGS.hud.money(e.amount) : STRINGS.hud.moneySpent(e.amount);
-      button.setAttribute('aria-label', e.locked ? STRINGS.actions.locked : e.enabled ? open : STRINGS.actions.missing);
+    } else if (e.kind === 'door' || e.kind === 'portal') {
+      // Rooms are unlocked, not doors: "DESBLOQUEAR COCINA · 1000$" (or what is missing). A secondary staircase is locked.
+      const room = (e.room && STRINGS.zones[e.room]) || STRINGS.room;
+      if (e.locked) this.value.textContent = STRINGS.actions.locked;
+      else this.value.textContent = e.enabled ? STRINGS.actions.unlockRoom(room, STRINGS.hud.money(e.amount)) : STRINGS.actions.unlockRoomMissing(room, STRINGS.hud.money(e.amount));
+      button.setAttribute('aria-label', e.locked ? STRINGS.actions.locked : STRINGS.actions.unlockRoomLabel(room));
     } else if (this.active) {
       this.reset();
     }

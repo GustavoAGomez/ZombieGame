@@ -32,6 +32,8 @@ interface Room {
   w: number;
   h: number;
   startsUnlocked: boolean;
+  /** Price to unlock the room through any of its doors (0 for the starting room). */
+  cost: number;
 }
 
 interface WindowDef {
@@ -45,16 +47,15 @@ interface WindowDef {
 
 interface DoorDef {
   id: string;
-  cost: number;
   fromZone: string;
   toZone: string;
   tiles: [number, number][];
 }
 
 const ROOMS: Room[] = [
-  { id: 'inicio', name: 'Inicio', x: 4, y: 4, w: 14, h: 9, startsUnlocked: true },
-  { id: 'pasillo', name: 'Pasillo', x: 4, y: 14, w: 16, h: 5, startsUnlocked: false },
-  { id: 'almacen', name: 'Almacén', x: 21, y: 17, w: 8, h: 8, startsUnlocked: false },
+  { id: 'inicio', name: 'Inicio', x: 4, y: 4, w: 14, h: 9, startsUnlocked: true, cost: 0 },
+  { id: 'pasillo', name: 'Pasillo', x: 4, y: 14, w: 16, h: 5, startsUnlocked: false, cost: 750 },
+  { id: 'almacen', name: 'Almacén', x: 21, y: 17, w: 8, h: 8, startsUnlocked: false, cost: 1000 },
 ];
 
 const WINDOWS: WindowDef[] = [
@@ -67,8 +68,8 @@ const WINDOWS: WindowDef[] = [
 ];
 
 const DOORS: DoorDef[] = [
-  { id: 'D1', cost: 750, fromZone: 'inicio', toZone: 'pasillo', tiles: [[10, 13], [11, 13]] },
-  { id: 'D2', cost: 1000, fromZone: 'pasillo', toZone: 'almacen', tiles: [[20, 17], [20, 18]] },
+  { id: 'D1', fromZone: 'inicio', toZone: 'pasillo', tiles: [[10, 13], [11, 13]] },
+  { id: 'D2', fromZone: 'pasillo', toZone: 'almacen', tiles: [[20, 17], [20, 18]] },
 ];
 
 /** Merchant spots: tile and zone. */
@@ -127,7 +128,7 @@ export function buildRoom01Map(): TiledMap {
       y: room.y * TILE,
       width: room.w * TILE,
       height: room.h * TILE,
-      properties: [p('id', 'string', room.id), p('name', 'string', room.name), p('startsUnlocked', 'bool', room.startsUnlocked)],
+      properties: [p('id', 'string', room.id), p('name', 'string', room.name), p('startsUnlocked', 'bool', room.startsUnlocked), p('cost', 'int', room.cost)],
     });
   }
 
@@ -179,7 +180,6 @@ export function buildRoom01Map(): TiledMap {
       height: (Math.max(...ys) - y0 + 1) * TILE,
       properties: [
         p('id', 'string', d.id),
-        p('cost', 'int', d.cost),
         p('fromZone', 'string', d.fromZone),
         p('toZone', 'string', d.toZone),
       ],

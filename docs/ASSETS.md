@@ -176,12 +176,12 @@ Los tilesets deben ir **embebidos** en el `.tmj` que carga el juego (`public/ass
 
 | Tipo | Forma | Propiedades |
 |---|---|---|
-| `zone` | rectángulo | `id` (string), `name`, `startsUnlocked` (bool), `interior` (bool), `openSpawns` (bool) |
+| `zone` | rectángulo | `id` (string), `name`, `startsUnlocked` (bool), `interior` (bool), `openSpawns` (bool), `cost` (int): precio para desbloquear la sala, el mismo por cualquiera de sus puertas o escaleras principales (0 en las que están abiertas desde el inicio) |
 | `player_spawn` | punto | — |
 | `window` | rectángulo de 1 tile | `id`, `zone`, `planks` (int, 5 por defecto), `kind` (`window` o `fence`) |
 | `zombie_spawn` | punto | `window` (id de la ventana a la que va); sin `window` es un spawn abierto y debe caer en una zona con `openSpawns` |
-| `door` | rectángulo (1–2 tiles) | `id`, `cost` (int), `fromZone`, `toZone` |
-| `portal` | rectángulo (1–2 tiles) | `id`, `pair` (id del otro extremo), `cost`, `zone`, `secondary` (bool), `kind` (`stairs`, `ladder` o `hatch`) |
+| `door` | rectángulo (1–2 tiles) | `id`, `fromZone`, `toZone`. Vende la sala cerrada del otro lado al precio de la sala, y se abre sola en cuanto sus dos zonas están desbloqueadas |
+| `portal` | rectángulo (1–2 tiles) | `id`, `pair` (id del otro extremo), `zone`, `secondary` (bool), `kind` (`stairs`, `ladder` o `hatch`). Uno principal vende la sala cerrada del otro extremo al precio de la sala; uno secundario no se compra y se abre solo cuando sus dos zonas están desbloqueadas |
 | `weapon_case` | rectángulo de 1 tile | `weapon` (string, id de `weapons.ts`), `cost` (int, precio en $), `facing` (`south`, `east` o `west`; **nunca `north`**: el frente se tiene que ver desde la cámara), `zone` (string). Vitrina de un arma básica (spec 04 §3): sólida para cuerpos y balas, no para la vista. Se compra desde el frente, a menos de 40 px. En el plano ASCII va en la tabla `## Vitrinas` (id, casilla, arma, coste, orientación, zona). El validador exige una casilla libre delante, 3 tiles o más hasta las barricadas, puertas y puntos de mago de su zona, y ningún paso de menos de 2 tiles |
 | `activation_site` | rectángulo | `id` (string) y `zone` (string): un lugar donde se usan objetos especiales (spec 05 §6). El `id` es el `site` que nombra una activación de `src/config/activations.ts`; el validador exige que cada activación tenga el suyo. El jugador está «en el lugar» si su hitbox queda a menos de `ITEMS.useRange` (40 px) del borde del rectángulo. En la mansión, `pool`: el agua de la piscina del jardín |
 | `item_spot` | punto | `zone` (string): dónde puede aparecer un objeto especial (spec 05 §2). Entre 1 y 2 por zona, incluidos el sótano y la azotea; en el centro de una casilla de suelo a la que se llega a pie, nunca sobre agua, vacío o atrezo, y a 2 tiles o más de barricadas, puertas, portales, spawns, puntos de mago y vitrinas. El validador comprueba todas estas reglas; que el sitio sea creíble (junto a un mueble, en un rincón, no en mitad de un pasillo) se revisa en la vista previa |

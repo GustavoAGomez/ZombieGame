@@ -1,14 +1,16 @@
 import { DOORS } from '../../config/balance';
-import type { PlayerState } from '../../core/GameState';
-import { setDoorBlocking } from '../map/CollisionGrid';
+import type { GameState, PlayerState } from '../../core/GameState';
+import type { MapData } from '../map/MapLoader';
 import { spendMoney } from './PointsSystem';
 import type { SimContext } from './SimContext';
+import { unlockZone, zoneToUnlock } from './ZoneSystem';
 
 /**
- * Doors (spec 01 §4.7). A closed door within 48 px offers the chip; a tap
- * buys it if the player can afford it. Buying opens it for good: its tiles
- * become walkable floor and the zones on both sides unlock, which also
- * turns on their zombie spawns.
+ * Doors (spec 01 §4.7, then rooms instead of doors): a closed door within
+ * 48 px offers the chip to unlock the room on its other side, at that
+ * room's price. Unlocking it opens this door and every other one between
+ * that room and the rooms already open (ZoneSystem), and turns on its
+ * zombie spawns.
  */
 
 export interface DoorQuery {
@@ -42,24 +44,28 @@ export function nearestClosedDoor(ctx: SimContext, p: PlayerState): Readonly<Doo
   return query;
 }
 
-/** Tries to buy door `index` for player `p`. Returns true if it opened. */
+/** The room closed door `index` would unlock (its locked side), or -1. */
+export function doorTarget(map: MapData, state: GameState, index: number): number {
+  const door = map.doors[index];
+  if (!door || state.doorsOpen[index]) return -1;
+  return zoneToUnlock(state, door.fromZoneIndex, door.toZoneIndex);
+}
+
+/** Tries to unlock the room behind door `index` for player `p`, at the room's price. Returns true if it did. */
 export function tryBuyDoor(ctx: SimContext, p: PlayerState, index: number): boolean {
   const door = ctx.map.doors[index];
-  if (!door || ctx.state.doorsOpen[index]) return false;
-  if (!spendMoney(p, door.cost)) return false;
-  openDoor(ctx, index);
+  const target = doorTarget(ctx.map, ctx.state, index);
+  const room = ctx.map.zones[target];
+  if (!door || !room || !spendMoney(p, room.cost)) return false;
+  unlockZone(ctx, target);
   ctx.events.emit('door:opened', { doorId: door.id, playerId: p.id });
   return true;
 }
 
+/** Opens door `index` for free (tests, debug): both its rooms unlock, with every access between open rooms. */
 export function openDoor(ctx: SimContext, index: number): void {
-  const { map, state, grid, nav } = ctx;
-  const door = map.doors[index];
+  const door = ctx.map.doors[index];
   if (!door) return;
-  state.doorsOpen[index] = true;
-  setDoorBlocking(grid, door, false);
-  if (door.toZoneIndex >= 0) state.zonesUnlocked[door.toZoneIndex] = true;
-  if (door.fromZoneIndex >= 0) state.zonesUnlocked[door.fromZoneIndex] = true;
-  // Zombies must learn the new way in right away.
-  nav.age = Infinity;
+  ctx.state.zonesUnlocked[door.fromZoneIndex] = true;
+  unlockZone(ctx, door.toZoneIndex);
 }

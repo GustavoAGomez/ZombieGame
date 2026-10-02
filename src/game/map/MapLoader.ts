@@ -101,6 +101,12 @@ export interface MapZone {
   interior: boolean;
   /** Zombies may also appear at open spawns inside this zone (street, roof). */
   openSpawns: boolean;
+  /**
+   * Price to unlock it: the same through any of its doors or main stairs
+   * (0 for the zones the match starts with). Once unlocked, every door and
+   * portal between it and another unlocked zone opens by itself.
+   */
+  cost: number;
   /** Bounding box in world px. */
   x: number;
   y: number;
@@ -141,7 +147,6 @@ export interface MapWindow {
 
 export interface MapDoor {
   id: string;
-  cost: number;
   fromZone: string;
   toZone: string;
   /** Indices into MapData.zones. */
@@ -184,7 +189,6 @@ export interface MapPortal {
   other: number;
   /** Shared by both ends: index into GameState.portalsOpen. */
   link: number;
-  cost: number;
   zone: string;
   zoneIndex: number;
   /** Second entrance to an island: only buyable once the island is unlocked. */
@@ -665,7 +669,6 @@ export function parseMap(json: unknown): MapData {
     else axis = isFloor(first.x, first.y - 1) || isFloor(first.x, first.y + 1) ? 'horizontal' : 'vertical';
     return {
       id,
-      cost: numberProp(obj, 'cost'),
       fromZone,
       toZone,
       fromZoneIndex: zones.findIndex((z) => z.id === fromZone),
@@ -774,12 +777,14 @@ function addZoneRect(zones: MapZone[], obj: TiledObject): void {
       startsUnlocked: boolProp(obj, 'startsUnlocked', false),
       interior: boolProp(obj, 'interior', false),
       openSpawns: boolProp(obj, 'openSpawns', false),
+      cost: numberProp(obj, 'cost', 0),
       ...rect,
       rects: [rect],
     });
     return;
   }
   zone.rects.push(rect);
+  zone.cost = Math.max(zone.cost, numberProp(obj, 'cost', 0));
   zone.startsUnlocked ||= boolProp(obj, 'startsUnlocked', false);
   zone.interior ||= boolProp(obj, 'interior', false);
   zone.openSpawns ||= boolProp(obj, 'openSpawns', false);
@@ -806,7 +811,6 @@ function parsePortals(raw: readonly TiledObject[], zones: readonly MapZone[], ti
       pairId: stringProp(obj, 'pair'),
       other: -1,
       link: -1,
-      cost: numberProp(obj, 'cost'),
       zone,
       zoneIndex,
       secondary: boolProp(obj, 'secondary', false),

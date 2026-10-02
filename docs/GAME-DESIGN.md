@@ -100,13 +100,13 @@ Magos con gabardina que venden munición y mejoras. Sus puntos de aparición son
   - Con uno dentro, el agua se queda con un tinte rojizo y burbujas lentas.
   - Al caer el segundo, el agua hierve en rojo 1,5 s, sale el aviso «EL MAGO ROJO HA SIDO INVOCADO» y el mago aparece con su humo en el punto de mago del borde de la piscina (si está ocupado, en el siguiente más cercano del jardín).
   - Desde la ronda siguiente se teletransporta como los demás.
-  - El jardín empieza cerrado: para completar el ritual hay que abrir antes una de sus puertas (desde la cocina o la biblioteca, 1500$).
+  - El jardín empieza cerrado: para completar el ritual hay que desbloquearlo antes (1500$, por la puerta de la cocina o la de la biblioteca).
 
 ## Economía
 
 - **Puntos y dinero:** cada ganancia suma lo mismo a los dos.
   - Los **puntos** solo suben: son la puntuación de la partida.
-  - El **dinero** ($) es lo que se gasta: puertas, portales, vitrinas y magos.
+  - El **dinero** ($) es lo que se gasta: salas, vitrinas y magos.
   - Se empieza con 0 puntos y 500$. Los precios se escriben «1000$».
 - **Ganancias:**
 
@@ -121,10 +121,18 @@ Magos con gabardina que venden munición y mejoras. Sus puntos de aparición son
 
 | Compra | Precio |
 |---|---|
-| Puertas de la mansión | De 750$ a 1500$: recibidor–salón y recibidor–comedor 750$; salón–biblioteca y comedor–cocina 1000$; biblioteca–cocina, cocina–garaje y garaje–calle 1250$; recibidor–calle, cocina–jardín y biblioteca–jardín 1500$ |
-| Portales (se abren los dos extremos a la vez) | Cocina–sótano 1750$; jardín–azotea 2000$. Entradas secundarias (solo se pueden comprar cuando sus dos zonas ya están abiertas; mientras, dicen «BLOQUEADA»): jardín–sótano 1000$; calle–azotea 1250$ |
+| Salas (el mismo precio por cualquiera de sus puertas o escaleras principales) | Salón y comedor 750$; biblioteca y cocina 1000$; garaje y calle 1250$; jardín 1500$; sótano 1750$; azotea 2000$ |
 | Vitrinas | SMG 1000$, escopeta 1500$; su munición, a mitad de precio |
 | Magos | Munición máxima 750$, mejora de la ronda 1000$, mejoras del rojo 1500$ / 3000$ / 5000$ por nivel, mejora especial 10000$ |
+
+## Salas
+
+- **Se desbloquean salas, no puertas.** Junto a una puerta cerrada, el botón de acción ofrece la sala del otro lado: «DESBLOQUEAR COCINA · 1000$». Cada sala tiene un solo precio, el mismo por cualquiera de sus puertas.
+- **Al desbloquear una sala, se abren todas las puertas entre ella y las salas ya desbloqueadas:** se puede llegar a ella desde cualquier sala abierta. Las puertas hacia salas aún cerradas siguen cerradas: son las que las venden. Desbloquear una sala nunca abre gratis la siguiente.
+- **Portales:**
+  - Las escaleras principales (cocina–sótano, jardín–azotea) venden la sala del otro extremo, a su precio.
+  - Las entradas secundarias (la trampilla jardín–sótano y la escalera de mano calle–azotea) no se compran: se abren solas cuando sus dos salas están desbloqueadas. Mientras, dicen «BLOQUEADA».
+- Al desbloquear una sala se activan sus spawns de zombis.
 
 ## Barricadas
 

@@ -77,6 +77,8 @@ export interface GameEvents {
     weaponCase?: { weapon: WeaponId; mode: 'buy' | 'ammo' | 'confirm'; full: boolean; replaces?: WeaponId; replacesLevel?: number };
     /** With kind 'pickup' (spec 05 §3): the special item on the floor; not enabled with the inventory full. */
     item?: ItemId;
+    /** With kind 'door' or 'portal': the zone id of the room it unlocks (`amount` is its price, or what is missing). */
+    room?: string;
   };
   /** A special item picked up (spec 05 §3): light vibration and its name on the HUD. */
   'item:picked': { playerId: number; item: ItemId };

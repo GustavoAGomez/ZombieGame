@@ -115,9 +115,11 @@ export const STRINGS = {
   },
   actions: {
     repair: 'REPARAR',
-    openDoor: 'ABRIR PUERTA',
-    openStairs: 'ABRIR ESCALERA',
-    openHatch: 'ABRIR TRAMPILLA',
+    /** Doors and main stairs sell the room behind them: "DESBLOQUEAR COCINA · 1000$", or what is missing. */
+    unlockRoom: (room: string, price: string): string => `DESBLOQUEAR ${room} · ${price}`,
+    unlockRoomMissing: (room: string, missing: string): string => `DESBLOQUEAR ${room} · FALTAN ${missing}`,
+    unlockRoomLabel: (room: string): string => `Desbloquear ${room}`,
+    /** A secondary staircase or hatch: it opens by itself once both its rooms are unlocked. */
     locked: 'BLOQUEADA',
     missing: 'FALTAN',
     /** Weapon cases (spec 04 §3), money with the "1000$" format like everywhere else. */
@@ -132,6 +134,20 @@ export const STRINGS = {
     pickUp: (item: string): string => `RECOGER ${item}`,
     inventoryFull: 'INVENTARIO LLENO',
   },
+  /** Rooms of the mansion, by zone id (the action button names the one a door unlocks); others say SALA. */
+  zones: {
+    recibidor: 'RECIBIDOR',
+    salon: 'SALÓN',
+    comedor: 'COMEDOR',
+    biblioteca: 'BIBLIOTECA',
+    cocina: 'COCINA',
+    garaje: 'GARAJE',
+    jardin: 'JARDÍN',
+    calle: 'CALLE',
+    sotano: 'SÓTANO',
+    azotea: 'AZOTEA',
+  } as Readonly<Record<string, string>>,
+  room: 'SALA',
   /** Special items (spec 05), by id. */
   items: {
     names: { living_heart: 'CORAZÓN VIVO', worn_wand: 'VARITA DESGASTADA' },

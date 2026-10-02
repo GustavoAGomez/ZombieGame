@@ -57,10 +57,15 @@ describe('parseMap (room01 placeholder)', () => {
     }
   });
 
-  it('reads doors D1 and D2 with cost, zones and axis', () => {
-    expect(map.doors.map((d) => [d.id, d.cost, d.fromZone, d.toZone, d.tiles.length, d.axis])).toEqual([
-      ['D1', 750, 'inicio', 'pasillo', 2, 'horizontal'],
-      ['D2', 1000, 'pasillo', 'almacen', 2, 'vertical'],
+  it('reads doors D1 and D2 with zones and axis, and the price of each room', () => {
+    expect(map.doors.map((d) => [d.id, d.fromZone, d.toZone, d.tiles.length, d.axis])).toEqual([
+      ['D1', 'inicio', 'pasillo', 2, 'horizontal'],
+      ['D2', 'pasillo', 'almacen', 2, 'vertical'],
+    ]);
+    expect(map.zones.map((z) => [z.id, z.cost])).toEqual([
+      ['inicio', 0],
+      ['pasillo', 750],
+      ['almacen', 1000],
     ]);
   });
 
@@ -145,7 +150,7 @@ describe('parseMap: zones flags, fences, open spawns and portals (spec 02)', () 
     height: 32,
     rotation: 0,
     visible: true,
-    properties: [prop('id', id), prop('pair', pair), prop('cost', 1000), prop('zone', zone), ...extra],
+    properties: [prop('id', id), prop('pair', pair), prop('zone', zone), ...extra],
   });
 
   it('defaults the new properties for older maps', () => {
@@ -194,7 +199,7 @@ describe('parseMap: zones flags, fences, open spawns and portals (spec 02)', () 
     const map = parseMap(raw);
     const [a, b] = map.portals;
     expect(map.portalLinks).toBe(1);
-    expect(a).toMatchObject({ id: 'Aa', other: 1, link: 0, zone: 'inicio', kind: 'hatch', secondary: true, cost: 1000 });
+    expect(a).toMatchObject({ id: 'Aa', other: 1, link: 0, zone: 'inicio', kind: 'hatch', secondary: true });
     expect(b).toMatchObject({ id: 'Ab', other: 0, link: 0, kind: 'stairs', secondary: false });
     expect(a?.tiles).toEqual([
       { x: 5, y: 5 },

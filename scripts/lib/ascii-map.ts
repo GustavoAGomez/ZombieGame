@@ -82,6 +82,8 @@ export interface AsciiZone {
   startsUnlocked: boolean;
   interior: boolean;
   openSpawns: boolean;
+  /** Price to unlock it through any of its doors or main stairs (0 for the zones the match starts with). */
+  cost: number;
   seed: Cell;
   /** Wall kit for the zone's walls instead of interior / exterior. */
   wallKit?: Kit;
@@ -92,7 +94,6 @@ export interface AsciiDoor {
   cells: Cell[];
   from: string;
   to: string;
-  cost: number;
 }
 
 export interface AsciiWindow {
@@ -107,7 +108,6 @@ export interface AsciiPortal {
   cells: Cell[];
   zone: string;
   pair: string;
-  cost: number;
   secondary: boolean;
   kind: PortalKind;
 }
@@ -277,6 +277,7 @@ export function parseAsciiMap(text: string): AsciiMap {
       startsUnlocked: yes(r.inicial),
       interior: yes(r.interior),
       openSpawns: yes(r['spawns abiertos']),
+      cost: Number(r.precio) || 0,
       seed,
       ...(kit ? { wallKit: kit } : {}),
     };
@@ -286,7 +287,6 @@ export function parseAsciiMap(text: string): AsciiMap {
     cells: parseCells(r.casillas ?? '', problems, `puerta ${r.id}`),
     from: r.de ?? '',
     to: r.a ?? '',
-    cost: Number(r.coste),
   }));
   const windows: AsciiWindow[] = rows('barricadas').map((r) => ({
     id: r.id ?? '',
@@ -302,7 +302,6 @@ export function parseAsciiMap(text: string): AsciiMap {
       cells: parseCells(r.casillas ?? '', problems, `portal ${r.id}`),
       zone: r.zona ?? '',
       pair: r.par ?? '',
-      cost: Number(r.coste),
       secondary: yes(r.secundario),
       kind: kind ?? 'stairs',
     };
@@ -894,6 +893,7 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
           p('startsUnlocked', 'bool', zone.startsUnlocked),
           p('interior', 'bool', zone.interior),
           p('openSpawns', 'bool', zone.openSpawns),
+          p('cost', 'int', zone.cost),
         ],
       });
     }
@@ -958,7 +958,7 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
       name: d.id,
       type: 'door',
       ...cellsRect(d.cells),
-      properties: [p('id', 'string', d.id), p('cost', 'int', d.cost), p('fromZone', 'string', d.from), p('toZone', 'string', d.to)],
+      properties: [p('id', 'string', d.id), p('fromZone', 'string', d.from), p('toZone', 'string', d.to)],
     });
   }
   for (const pt of map.portals) {
@@ -970,7 +970,6 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
       properties: [
         p('id', 'string', pt.id),
         p('pair', 'string', pt.pair),
-        p('cost', 'int', pt.cost),
         p('zone', 'string', pt.zone),
         p('secondary', 'bool', pt.secondary),
         p('kind', 'string', pt.kind),

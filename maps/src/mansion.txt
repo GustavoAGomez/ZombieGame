@@ -68,32 +68,32 @@ ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
 ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg__________________________
 
 ## Zonas (cada zona es la región que se rellena desde su semilla; las paredes, vallas, D y W la cierran. "paredes" cambia el kit; el suelo interior sale del material: docs/ASSETS.md §7.4)
-| id | nombre | inicial | interior | spawns abiertos | semilla | paredes | contiene |
-|---|---|---|---|---|---|---|---|
-| recibidor | Recibidor | sí | sí | no | 37,31 | — | hall, pasillo, guardarropa, aseo |
-| salon | Salón | no | sí | no | 23,37 | — | salón en L con chimenea y columna |
-| comedor | Comedor | no | sí | no | 53,35 | — | comedor con mirador |
-| biblioteca | Biblioteca | no | sí | no | 26,23 | — | biblioteca, mirador, estudio, rincón de lectura |
-| cocina | Cocina | no | sí | no | 39,24 | — | cocina en L, office, despensa, lavadero |
-| garaje | Garaje | no | sí | no | 65,38 | — | garaje doble y taller (L) |
-| jardin | Jardín trasero | no | no | no | 29,6 | — | patios, piscina, cobertizo, pasillos laterales |
-| calle | Calle delantera | no | no | sí | 40,57 | — | porche, jardín delantero, entrada de coches, las dos calles |
-| sotano | Sótano | no | sí | no | 94,30 | sótano | sala en L, calderas, trastero, bodega |
-| azotea | Azotea | no | no | sí | 96,6 | sótano | azotea en L con chimeneas |
+| id | nombre | inicial | precio | interior | spawns abiertos | semilla | paredes | contiene |
+|---|---|---|---|---|---|---|---|---|
+| recibidor | Recibidor | sí | — | sí | no | 37,31 | — | hall, pasillo, guardarropa, aseo |
+| salon | Salón | no | 750 | sí | no | 23,37 | — | salón en L con chimenea y columna |
+| comedor | Comedor | no | 750 | sí | no | 53,35 | — | comedor con mirador |
+| biblioteca | Biblioteca | no | 1000 | sí | no | 26,23 | — | biblioteca, mirador, estudio, rincón de lectura |
+| cocina | Cocina | no | 1000 | sí | no | 39,24 | — | cocina en L, office, despensa, lavadero |
+| garaje | Garaje | no | 1250 | sí | no | 65,38 | — | garaje doble y taller (L) |
+| jardin | Jardín trasero | no | 1500 | no | no | 29,6 | — | patios, piscina, cobertizo, pasillos laterales |
+| calle | Calle delantera | no | 1250 | no | sí | 40,57 | — | porche, jardín delantero, entrada de coches, las dos calles |
+| sotano | Sótano | no | 1750 | sí | no | 94,30 | sótano | sala en L, calderas, trastero, bodega |
+| azotea | Azotea | no | 2000 | no | sí | 96,6 | sótano | azotea en L con chimeneas |
 
-## Puertas de pago (D)
-| id | casillas | de | a | coste |
-|---|---|---|---|---|
-| D1 | 32,38 32,39 | recibidor | salon | 750 |
-| D2 | 47,30 47,31 | recibidor | comedor | 750 |
-| D3 | 17,29 18,29 | salon | biblioteca | 1000 |
-| D4 | 49,29 50,29 | comedor | cocina | 1000 |
-| D5 | 32,25 32,26 | biblioteca | cocina | 1250 |
-| D6 | 59,27 59,28 | cocina | garaje | 1250 |
-| D7 | 62,44 63,44 | garaje | calle | 1250 |
-| D8 | 34,41 35,41 | recibidor | calle | 1500 |
-| D9 | 43,19 44,19 | cocina | jardin | 1500 |
-| D10 | 24,16 25,16 | biblioteca | jardin | 1500 |
+## Puertas (D): se compra la sala del otro lado, al precio de esa sala (tabla Zonas); una puerta entre dos salas desbloqueadas se abre sola
+| id | casillas | de | a |
+|---|---|---|---|
+| D1 | 32,38 32,39 | recibidor | salon |
+| D2 | 47,30 47,31 | recibidor | comedor |
+| D3 | 17,29 18,29 | salon | biblioteca |
+| D4 | 49,29 50,29 | comedor | cocina |
+| D5 | 32,25 32,26 | biblioteca | cocina |
+| D6 | 59,27 59,28 | cocina | garaje |
+| D7 | 62,44 63,44 | garaje | calle |
+| D8 | 34,41 35,41 | recibidor | calle |
+| D9 | 43,19 44,19 | cocina | jardin |
+| D10 | 24,16 25,16 | biblioteca | jardin |
 
 ## Barricadas (W): ventanas, huecos de valla (F*) y rejillas del sótano (S*)
 | id | casilla | zona | tipo |
@@ -117,17 +117,17 @@ ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
 | S1 | 95,25 | sotano | ventana |
 | S2 | 103,44 | sotano | ventana |
 
-## Portales (<)
-| id | casillas | zona | par | coste | secundario | tipo |
-|---|---|---|---|---|---|---|
-| P1a | 57,19 58,19 | cocina | P1b | 1750 | no | escalera |
-| P1b | 92,43 93,43 | sotano | P1a | 1750 | no | escalera |
-| P2a | 67,26 67,27 | jardin | P2b | 2000 | no | escalera de mano |
-| P2b | 92,19 93,19 | azotea | P2a | 2000 | no | escalera de mano |
-| P3a | 17,17 18,17 | jardin | P3b | 1000 | sí | trampilla |
-| P3b | 104,26 105,26 | sotano | P3a | 1000 | sí | trampilla |
-| P4a | 17,39 18,39 | calle | P4b | 1250 | sí | escalera de mano |
-| P4b | 104,19 105,19 | azotea | P4a | 1250 | sí | escalera de mano |
+## Portales (<): los principales venden la sala del otro extremo, a su precio; los secundarios no se compran, se abren solos cuando sus dos salas están desbloqueadas
+| id | casillas | zona | par | secundario | tipo |
+|---|---|---|---|---|---|
+| P1a | 57,19 58,19 | cocina | P1b | no | escalera |
+| P1b | 92,43 93,43 | sotano | P1a | no | escalera |
+| P2a | 67,26 67,27 | jardin | P2b | no | escalera de mano |
+| P2b | 92,19 93,19 | azotea | P2a | no | escalera de mano |
+| P3a | 17,17 18,17 | jardin | P3b | sí | trampilla |
+| P3b | 104,26 105,26 | sotano | P3a | sí | trampilla |
+| P4a | 17,39 18,39 | calle | P4b | sí | escalera de mano |
+| P4b | 104,19 105,19 | azotea | P4a | sí | escalera de mano |
 
 ## Spawns abiertos (Z)
 | id | casilla | zona |

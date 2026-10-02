@@ -5,7 +5,8 @@ import type { EventBus, GameEvents } from '../core/EventBus';
 import type { GameState } from '../core/GameState';
 import type { MapData } from './map/MapLoader';
 import { repairPointsAvailable } from './systems/BarricadeSystem';
-import { isPortalBuyable } from './systems/PortalSystem';
+import { doorTarget } from './systems/DoorSystem';
+import { portalTarget } from './systems/PortalSystem';
 import { isPerWeapon, itemPrice, shopItemStatus, upgradeKindOf } from './systems/ShopSystem';
 import { magazineSize, maxUpgradeLevel, totalLevels } from './systems/weaponStats';
 import { caseOffer } from './systems/WeaponCaseSystem';
@@ -107,18 +108,20 @@ export class HudPresenter {
     let enabled = kind !== null;
     let locked = false;
     let portalKind: 'stairs' | 'hatch' | undefined;
+    let room: string | undefined;
     if (kind === 'repair') {
       amount = repairPointsAvailable(p);
       // Only the long wait under attack shows: the chip dims (a tap shakes it); ready again, it blinks.
       enabled = p.repairCooldown <= BARRICADES.repairTapCooldown;
     } else if (kind === 'door' || kind === 'portal') {
-      // Affordable: show the cost. Otherwise: how many points are missing.
+      // The room it unlocks and its price; affordable: the price, otherwise what is missing.
       const portal = kind === 'portal' ? this.map.portals[p.contextTarget] : undefined;
-      const cost = (portal ?? this.map.doors[p.contextTarget])?.cost ?? 0;
-      if (portal) {
-        portalKind = portal.kind === 'hatch' ? 'hatch' : 'stairs';
-        locked = !isPortalBuyable(this.map, state, p.contextTarget);
-      }
+      if (portal) portalKind = portal.kind === 'hatch' ? 'hatch' : 'stairs';
+      const target = portal ? portalTarget(this.map, state, p.contextTarget) : doorTarget(this.map, state, p.contextTarget);
+      const zone = this.map.zones[target];
+      locked = !zone;
+      room = zone?.id;
+      const cost = zone?.cost ?? 0;
       enabled = !locked && p.money >= cost;
       amount = locked ? 0 : enabled ? cost : cost - p.money;
     }
@@ -139,7 +142,7 @@ export class HudPresenter {
     // A special item on the floor (spec 05 §3): picked up while there is room.
     const item = kind === 'pickup' ? state.groundItems[p.contextTarget]?.item : undefined;
     if (kind === 'pickup') enabled = hasItemRoom(p);
-    const caseKey = weaponCase ? JSON.stringify(weaponCase) : item ?? '';
+    const caseKey = weaponCase ? JSON.stringify(weaponCase) : (item ?? room ?? '');
     if (
       kind !== this.actionKind ||
       merchant !== this.actionMerchant ||
@@ -156,7 +159,8 @@ export class HudPresenter {
       this.actionPortal = portalKind;
       this.actionMerchant = merchant;
       this.actionCase = caseKey;
-      if (kind === 'portal') this.events.emit('action:context', { kind, amount, enabled, portal: portalKind, locked });
+      if (kind === 'portal') this.events.emit('action:context', { kind, amount, enabled, portal: portalKind, locked, ...(room ? { room } : {}) });
+      else if (kind === 'door') this.events.emit('action:context', { kind, amount, enabled, ...(room ? { room } : {}) });
       else if (weaponCase) this.events.emit('action:context', { kind, amount, enabled, weaponCase });
       else if (merchant) this.events.emit('action:context', { kind, amount, enabled, merchant });
       else if (item) this.events.emit('action:context', { kind, amount, enabled, item });

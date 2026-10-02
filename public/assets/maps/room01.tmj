@@ -2858,6 +2858,11 @@
        "name": "startsUnlocked",
        "type": "bool",
        "value": true
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 0
       }
      ]
     },
@@ -2886,6 +2891,11 @@
        "name": "startsUnlocked",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 750
       }
      ]
     },
@@ -2914,6 +2924,11 @@
        "name": "startsUnlocked",
        "type": "bool",
        "value": false
+      },
+      {
+       "name": "cost",
+       "type": "int",
+       "value": 1000
       }
      ]
     },
@@ -3228,11 +3243,6 @@
        "value": "D1"
       },
       {
-       "name": "cost",
-       "type": "int",
-       "value": 750
-      },
-      {
        "name": "fromZone",
        "type": "string",
        "value": "inicio"
@@ -3259,11 +3269,6 @@
        "name": "id",
        "type": "string",
        "value": "D2"
-      },
-      {
-       "name": "cost",
-       "type": "int",
-       "value": 1000
       },
       {
        "name": "fromZone",

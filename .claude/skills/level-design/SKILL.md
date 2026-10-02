@@ -115,7 +115,7 @@ W  ventana / barricada   D  puerta de pago               o  hueco abierto (sin p
 <  portal o escalera     P  spawn del jugador            Z  spawn de zombie abierto
 ```
 
-Cada `W`, `D` y `<` lleva su id y sus propiedades en una tabla debajo del plano, con id, coste, zonas y destino.
+Cada `W`, `D` y `<` lleva su id y sus propiedades en una tabla debajo del plano, con id, zonas y destino. El precio va por sala, en la columna `precio` de la tabla de zonas: se desbloquean salas, no puertas.
 
 ## 8. Checklist de revisión (sobre las imágenes de vista previa)
 

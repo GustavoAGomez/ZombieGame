@@ -6,6 +6,7 @@ import { isZombieAlive } from './Combat';
 import { isPlayerAlive } from './HealthSystem';
 import { spendMoney } from './PointsSystem';
 import type { SimContext } from './SimContext';
+import { unlockZone, zoneToUnlock } from './ZoneSystem';
 
 /**
  * Portals between islands (spec 02 §3.6): stairs, ladders and a hatch that
@@ -32,14 +33,21 @@ export function isPortalOpen(ctx: SimContext, index: number): boolean {
   return portal !== undefined && ctx.state.portalsOpen[portal.link] === true;
 }
 
-/** False for a secondary portal while either of its zones is still locked. */
+/**
+ * A main staircase sells the locked room at its other end. A secondary one
+ * is never bought: it opens by itself once both its rooms are unlocked
+ * (ZoneSystem), and until then it is locked.
+ */
 export function isPortalBuyable(map: MapData, state: GameState, index: number): boolean {
+  return portalTarget(map, state, index) >= 0;
+}
+
+/** The room closed main portal `index` would unlock (the locked end), or -1 (secondary, open, or nothing to unlock). */
+export function portalTarget(map: MapData, state: GameState, index: number): number {
   const portal = map.portals[index];
-  if (!portal) return false;
-  if (!portal.secondary) return true;
-  const other = map.portals[portal.other];
-  const { zonesUnlocked } = state;
-  return zonesUnlocked[portal.zoneIndex] === true && zonesUnlocked[other?.zoneIndex ?? -1] === true;
+  const other = portal ? map.portals[portal.other] : undefined;
+  if (!portal || !other || portal.secondary || state.portalsOpen[portal.link]) return -1;
+  return zoneToUnlock(state, portal.zoneIndex, other.zoneIndex);
 }
 
 /**
@@ -67,22 +75,22 @@ export function nearestClosedPortal(ctx: SimContext, p: PlayerState): Readonly<P
 /** Tries to buy portal end `index` for player `p`. Returns true if it opened. */
 export function tryBuyPortal(ctx: SimContext, p: PlayerState, index: number): boolean {
   const portal = ctx.map.portals[index];
-  if (!portal || isPortalOpen(ctx, index) || !isPortalBuyable(ctx.map, ctx.state, index)) return false;
-  if (!spendMoney(p, portal.cost)) return false;
-  openPortal(ctx, index);
+  const target = portalTarget(ctx.map, ctx.state, index);
+  const room = ctx.map.zones[target];
+  if (!portal || !room || !spendMoney(p, room.cost)) return false;
+  unlockZone(ctx, target);
   ctx.events.emit('portal:opened', { portalId: portal.id, playerId: p.id });
   return true;
 }
 
+/** Opens portal `index` for free (tests, debug): both its rooms unlock, with every access between open rooms. */
 export function openPortal(ctx: SimContext, index: number): void {
-  const { map, state, nav } = ctx;
+  const { map, state } = ctx;
   const portal = map.portals[index];
-  if (!portal) return;
-  state.portalsOpen[portal.link] = true;
+  const other = portal ? map.portals[portal.other] : undefined;
+  if (!portal || !other) return;
   state.zonesUnlocked[portal.zoneIndex] = true;
-  const other = map.portals[portal.other];
-  if (other) state.zonesUnlocked[other.zoneIndex] = true;
-  nav.age = Infinity;
+  unlockZone(ctx, other.zoneIndex);
 }
 
 /** Portal end under world point (x, y), or -1. */

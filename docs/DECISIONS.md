@@ -1147,3 +1147,23 @@ Cómo queda:
 - **Debug `+NIVEL ARMA`:** sube un nivel del tipo que menos tiene, entre los que admiten más.
 - **El icono de la mejora especial del mago dorado pasa a ser una estrella,** porque la cruceta es ahora la del daño.
 
+## Cambio de gameplay: se desbloquean salas, no puertas
+
+Petición del usuario: comprar una puerta desbloquea la sala, y entonces todos sus accesos están abiertos. No tenía sentido abrir A→B, entrar en C y encontrar cerrada la puerta de C a B: desde cualquier sala abierta se debe poder ir a una sala desbloqueada.
+
+- **Regla** (`ZoneSystem`): una puerta o un portal está abierto en cuanto sus dos salas están desbloqueadas.
+  - Al desbloquear una sala se abren sus accesos a las salas ya abiertas.
+  - Las puertas hacia salas aún cerradas siguen cerradas y las venden: desbloquear una sala nunca abre gratis la siguiente, en cadena.
+  - Al empezar la partida solo están abiertos los accesos entre salas iniciales (en la mansión, ninguno).
+- **Respuestas del usuario:**
+  - **Portales, igual que las puertas.** Las escaleras principales venden la sala del otro extremo. Las entradas secundarias (trampilla jardín–sótano, escalera de mano calle–azotea), que antes se compraban por 1000$ y 1250$ con las dos salas abiertas, pasan a ser atajos gratis que se abren solos; hasta entonces dicen «BLOQUEADA».
+  - **Un precio por sala:** el de su acceso principal más barato. Salón y comedor 750$; biblioteca y cocina 1000$; garaje y calle 1250$; jardín 1500$; sótano 1750$; azotea 2000$.
+    - Cambian dos compras: la calle desde el recibidor, de 1500$ a 1250$, y la biblioteca desde la cocina, de 1250$ a 1000$.
+- **Mapa:** el precio pasa a la columna `precio` de la tabla `## Zonas` del plano (propiedad `cost` de las zonas en Tiled). Puertas y portales pierden su coste.
+  - El validador exige un precio de 750$ a 2000$ a cada sala que empieza cerrada.
+  - También exige que cada una tenga al menos una puerta o una escalera principal por la que comprarla.
+  - El mapa de pruebas (`room01`) pasa a tener precio por sala: pasillo 750$, almacén 1000$.
+- **Botón de acción:** «DESBLOQUEAR COCINA · 1000$», o «… · FALTAN 250$». Los nombres de las salas van en `STRINGS.zones`, por id; una zona sin nombre allí dice SALA. El evento `action:context` lleva la sala (`room`).
+- `door:opened` y `portal:opened` (vibración media) solo salen por el acceso comprado; los que se abren solos no vibran.
+- `openDoor` y `openPortal` (usados por los tests y el debug) desbloquean las dos salas y aplican la misma regla.
+

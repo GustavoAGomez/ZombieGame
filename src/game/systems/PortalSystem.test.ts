@@ -54,16 +54,17 @@ function pressAction(ctx: SimContext): void {
 }
 
 describe('buying portals', () => {
-  it('opens the basement with P1 and only then lets you buy the hatch (P3)', () => {
+  it('sells the basement through the kitchen stairs; the hatch (P3) is never sold and opens by itself', () => {
     const ctx = createMansionContext();
     const p = player(ctx);
     p.money = 10_000;
-    unlockZones(ctx, 'jardin');
+    // The player came into the kitchen and the garden (the basement is still locked).
+    unlockZones(ctx, 'jardin', 'cocina');
     const events = new HudPresenter(ctx.events, ctx.map);
     const chip = vi.fn();
     ctx.events.on('action:context', chip);
 
-    // Next to the hatch in the garden: the chip says BLOQUEADA and buying does nothing.
+    // Next to the hatch in the garden: a secondary entrance is never sold; the chip says BLOQUEADA.
     standNextTo(ctx, 'P3a');
     updateInteractions(ctx, 1 / 60);
     expect(p.contextAction).toBe('portal');
@@ -74,23 +75,21 @@ describe('buying portals', () => {
     expect(isPortalOpen(ctx, portalIndex(ctx, 'P3a'))).toBe(false);
     expect(p.money).toBe(10_000);
 
-    // Kitchen stairs: buying P1 opens both ends and unlocks the basement.
+    // Kitchen stairs: they sell the basement at its price.
     standNextTo(ctx, 'P1a');
     updateInteractions(ctx, 1 / 60);
     events.publish(ctx.state);
-    expect(chip).toHaveBeenLastCalledWith({ kind: 'portal', amount: 1750, enabled: true, portal: 'stairs', locked: false });
+    expect(chip).toHaveBeenLastCalledWith({ kind: 'portal', amount: 1750, enabled: true, portal: 'stairs', locked: false, room: 'sotano' });
     pressAction(ctx);
     expect(isPortalOpen(ctx, portalIndex(ctx, 'P1a'))).toBe(true);
     expect(isPortalOpen(ctx, portalIndex(ctx, 'P1b'))).toBe(true);
     expect(ctx.state.zonesUnlocked[zoneIndex(ctx, 'sotano')]).toBe(true);
     expect(p.money).toBe(10_000 - 1750);
 
-    // Now the hatch can be bought, and it is cheaper.
-    expect(isPortalBuyable(ctx.map, ctx.state, portalIndex(ctx, 'P3a'))).toBe(true);
-    standNextTo(ctx, 'P3a');
-    pressAction(ctx);
-    expect(isPortalOpen(ctx, portalIndex(ctx, 'P3b'))).toBe(true);
-    expect(p.money).toBe(10_000 - 1750 - 1000);
+    // The basement and the garden are both unlocked now: the hatch between them opened by itself, for free.
+    expect(isPortalOpen(ctx, portalIndex(ctx, 'P3a'))).toBe(true);
+    expect(isPortalBuyable(ctx.map, ctx.state, portalIndex(ctx, 'P3a'))).toBe(false);
+    expect(p.money).toBe(10_000 - 1750);
   });
 
   it('shows the missing points when the portal is not affordable', () => {
@@ -99,10 +98,11 @@ describe('buying portals', () => {
     const chip = vi.fn();
     ctx.events.on('action:context', chip);
     player(ctx).money = 500;
+    unlockZones(ctx, 'cocina');
     standNextTo(ctx, 'P1a');
     updateInteractions(ctx, 1 / 60);
     presenter.publish(ctx.state);
-    expect(chip).toHaveBeenLastCalledWith({ kind: 'portal', amount: 1250, enabled: false, portal: 'stairs', locked: false });
+    expect(chip).toHaveBeenLastCalledWith({ kind: 'portal', amount: 1250, enabled: false, portal: 'stairs', locked: false, room: 'sotano' });
   });
 });
 
