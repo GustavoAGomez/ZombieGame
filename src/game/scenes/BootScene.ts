@@ -38,7 +38,7 @@ export class BootScene extends Phaser.Scene {
   create(): void {
     const manifest = parseManifest(this.cache.json.get(MANIFEST_KEY));
     // The HUD skin is DOM: its pieces go to CSS straight away (no Phaser texture).
-    applyUiSkin(manifest.ui, ASSETS_BASE_URL);
+    void applyUiSkin(manifest.ui, ASSETS_BASE_URL);
     const assets = new AssetLibrary(manifest);
     assets.queue(this);
     this.load.once(Phaser.Loader.Events.COMPLETE, () => {

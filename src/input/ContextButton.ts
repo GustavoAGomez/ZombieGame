@@ -2,7 +2,7 @@ import { merchantDef, type MerchantId } from '../config/merchants';
 import type { WeaponId } from '../config/weapons';
 import { WEAPON_ICONS } from './WeaponBar';
 import type { EventBus, GameEvents } from '../core/EventBus';
-import { pixelIcon } from '../ui/icons';
+import { iconSize, pixelIcon } from '../ui/icons';
 import { STRINGS } from '../ui/strings';
 import { PointerControl } from './PointerControl';
 
@@ -36,7 +36,8 @@ export class ContextButton extends PointerControl {
     const face = document.createElement('span');
     face.className = 'context-button__face';
     this.face = face;
-    this.icons = { repair: pixelIcon('hammer', 19), door: pixelIcon('door', 17), portal: pixelIcon('stairs', 17) };
+    // Whole pixels: every 12-unit icon at 2×.
+    this.icons = { repair: pixelIcon('hammer', iconSize('hammer', 2)), door: pixelIcon('door', iconSize('door', 2)), portal: pixelIcon('stairs', iconSize('stairs', 2)) };
     face.append(this.icons.repair, this.icons.door, this.icons.portal);
     this.value = document.createElement('span');
     this.value.className = 'context-button__value';
@@ -136,7 +137,7 @@ export class ContextButton extends PointerControl {
   private weaponIconFor(id: WeaponId): SVGSVGElement {
     let icon = this.weaponIcons.get(id);
     if (!icon) {
-      icon = pixelIcon(WEAPON_ICONS[id], 22);
+      icon = pixelIcon(WEAPON_ICONS[id], iconSize(WEAPON_ICONS[id], 2));
       this.weaponIcons.set(id, icon);
       this.face.appendChild(icon);
     }
@@ -146,7 +147,7 @@ export class ContextButton extends PointerControl {
   private hatFor(id: MerchantId): SVGSVGElement {
     let hat = this.hats.get(id);
     if (!hat) {
-      hat = pixelIcon('wizard', 19, merchantDef(id).color);
+      hat = pixelIcon('wizard', iconSize('wizard', 2), merchantDef(id).color);
       this.hats.set(id, hat);
       this.face.appendChild(hat);
     }

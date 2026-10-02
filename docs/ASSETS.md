@@ -101,24 +101,33 @@ public/assets/
 
 ### Piezas del HUD (`ui`)
 
-El HUD es DOM, así que sus imágenes no pasan por Phaser. `npm run hud:import` limpia las piezas de PixelLab (`art-src/pixellab/hud/`), las recorta a su contorno y las escribe en `public/assets/ui/`. También deja la hoja del antes y el después en `maps/preview/hud/` y registra la sección `ui` del manifiesto:
+El HUD es DOM, así que sus imágenes no pasan por Phaser. `npm run hud:import` lee el kit de PixelLab de `art-src/pixellab/hud/`: un export con `elements/` (un PNG por pieza) o una hoja única, que se recorta por las cajas delimitadoras sobre el canal alfa.
+
+Identifica las piezas por su forma, las recorta a su contorno y las escribe en `public/assets/ui/`. También deja una hoja de contactos con nombres y tamaños en `maps/preview/hud/hud-kit.png` y registra la sección `ui` del manifiesto:
 
 ```json
 "ui": {
-  "ringLargeRed":    { "file": "ui/ring_large_red.png", "width": 97, "height": 97 },
-  "ringMedium":      { "file": "ui/ring_medium.png", "width": 33, "height": 33 },
-  "ringMediumAmber": { "file": "ui/ring_medium_amber.png", "width": 33, "height": 33 },
-  "button":          { "file": "ui/button.png", "width": 97, "height": 33, "slice": 12 },
-  "healthFrame":     { "file": "ui/health_frame.png", "width": 145, "height": 17, "trough": { "x": 22, "y": 5, "width": 116, "height": 8 } },
-  "panel":           { "file": "ui/panel.png", "width": 144, "height": 97, "slice": 20 }
+  "ringLarge":   { "file": "ui/ring_large.png", "width": 97, "height": 97 },
+  "ringMedium":  { "file": "ui/ring_medium.png", "width": 65, "height": 65 },
+  "panel":       { "file": "ui/panel.png", "width": 145, "height": 105, "slice": [35, 45, 35, 45] },
+  "plate":       { "file": "ui/plate.png", "width": 96, "height": 25, "slice": [8, 8, 8, 8] },
+  "healthFrame": { "file": "ui/health_frame.png", "width": 145, "height": 17,
+                   "trough": { "x": 22, "y": 4, "width": 118, "height": 9 },
+                   "heart": { "x": 5, "y": 3, "width": 12, "height": 11 } }
 }
 ```
 
-- **Aros redondos:** se conservan el metal y su borde hueso; el interior pasa al color oscuro del botón. El mediano se reduce exactamente a la mitad para los botones pequeños.
-- **Botón rectangular:** se pinta su texto con el color de su fondo. Se usa con 9-slice (`slice`).
-- **Barra de vida:** se vacía el canal y se conserva la cruz. `trough` dice dónde dibuja el juego los segmentos.
-- **Panel:** va tal cual, con 9-slice.
-- **Cómo se aplican:** `src/ui/skin.ts` pasa las piezas a variables CSS y activa `.has-ui-skin` (`skin.css`). Todo se dibuja a escala 1 con `pixelated`. Si falta alguna pieza, el HUD conserva su aspecto solo con CSS.
+- **Aros:** a escala entera, `pixelated`. El grande es el botón de disparo; el mediano, el especial, recargar, cuchillo y los huecos de arma.
+- **Panel y placa:** 9-slice, con las esquinas enteras y los bordes repetidos píxel a píxel.
+  - El panel es el fondo de la tienda. Sus cortes son anchos para que las esquinas incluyan los extremos inclinados de las pletinas del centro de cada lado.
+  - La placa es el botón de comprar y el chip de acción contextual.
+- **Barra de vida:** marco con un corazón a la izquierda. El juego dibuja los segmentos en `trough`, y una copia de `heart` encima late por debajo de 30 de vida.
+- **Estados, por código y sin más arte** (`src/ui/skin.ts` + `skin.css`, solo con `.has-ui-skin`):
+  - tinte rojo del aro de disparo y ámbar del especial y del arma en mano, hechos en un canvas al cargar y sin tocar la cara;
+  - huecos de arma no equipados al 60 %;
+  - pulsado a 0,94 durante 60 ms.
+
+  Si falta alguna pieza, el HUD conserva su aspecto solo con CSS.
 
 ## 5. Mapas (Tiled JSON, `.tmj`)
 

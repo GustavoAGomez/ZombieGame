@@ -2,70 +2,55 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { healthPadding } from '../src/ui/skin';
-import { cleanButton, cleanHealthBar, cleanRing, halve } from './import-hud';
+import { cropToBounds, measureHealthBar, namePieces, splitSheet } from './import-hud';
 import { decodePng } from './lib/png';
-import type { Frame } from './lib/sheet';
+import { blank, paste, type Frame } from './lib/sheet';
 
 const root = resolve(import.meta.dirname, '..');
 const hudDir = resolve(root, 'art-src/pixellab/hud');
 const elements = join(hudDir, readdirSync(hudDir).find((n) => !n.endsWith('.json')) ?? '', 'elements');
 const read = (name: string): Frame => {
   const png = decodePng(readFileSync(join(elements, name)));
-  return { width: png.width, height: png.height, pixels: png.pixels };
+  return cropToBounds({ width: png.width, height: png.height, pixels: png.pixels });
 };
-const isOrange = (f: Frame, x: number, y: number): boolean => {
-  const i = (y * f.width + x) * 4;
-  const [r = 0, g = 0, b = 0, a = 0] = f.pixels.subarray(i, i + 4);
-  return a > 0 && r > 140 && g > 70 && r - b > 70;
-};
-const countOrange = (f: Frame, x0 = 0, y0 = 0, x1 = f.width, y1 = f.height): number => {
-  let n = 0;
-  for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) if (isOrange(f, x, y)) n++;
-  return n;
-};
+const ELEMENTS = ['Icon_button.png', 'Icon_button-2.png', 'Panel.png', 'Button.png', 'Health_bar.png'];
 
-describe('HUD pieces from PixelLab (npm run hud:import)', () => {
-  it('round buttons lose their icons and keep the ring', () => {
-    for (const name of ['Icon_button.png', 'Icon_button-2.png']) {
-      const raw = read(name);
-      expect(countOrange(raw)).toBeGreaterThan(50);
-      const { ring, face } = cleanRing(raw);
-      expect(countOrange(ring), name).toBe(0);
-      // The face is a single flat colour.
-      const colours = new Set<number>();
-      for (let i = 0; i < face.length; i++) if (face[i]) colours.add(ring.pixels[i * 4]! * 65536 + ring.pixels[i * 4 + 1]! * 256 + ring.pixels[i * 4 + 2]!);
-      expect(colours.size).toBe(1);
-      // The ring around it is still there: bone-white pixels near the edge.
-      let bone = 0;
-      for (let i = 0; i < face.length; i++) if (!face[i] && ring.pixels[i * 4]! > 200 && ring.pixels[i * 4 + 2]! > 190) bone++;
-      expect(bone).toBeGreaterThan(40);
+describe('HUD kit from PixelLab (npm run hud:import)', () => {
+  it('names the five pieces by shape, cropped to their bounding box', () => {
+    const kit = namePieces(ELEMENTS.map(read));
+    expect([kit.ringLarge.width, kit.ringLarge.height]).toEqual([97, 97]);
+    expect([kit.ringMedium.width, kit.ringMedium.height]).toEqual([65, 65]);
+    expect([kit.panel.width, kit.panel.height]).toEqual([145, 105]);
+    expect([kit.plate.width, kit.plate.height]).toEqual([96, 25]);
+    expect([kit.healthFrame.width, kit.healthFrame.height]).toEqual([145, 17]);
+  });
+
+  it('cuts a single sheet by the alpha channel into the same pieces', () => {
+    const pieces = ELEMENTS.map(read);
+    const sheet = blank(160, 340);
+    let y = 0;
+    for (const p of pieces) {
+      paste(sheet, p, 4, y);
+      y += p.height + 3;
+      if (y > sheet.height) throw new Error('sheet too small for the test');
     }
+    const cut = namePieces(splitSheet(sheet));
+    expect([cut.ringMedium.width, cut.plate.width, cut.healthFrame.height]).toEqual([65, 96, 17]);
   });
 
-  it('halves the medium ring exactly to fit the HUD buttons', () => {
-    const { ring, face } = cleanRing(read('Icon_button-2.png'));
-    const half = halve(ring, face);
-    expect([half.frame.width, half.frame.height]).toEqual([Math.ceil(ring.width / 2), Math.ceil(ring.height / 2)]);
-  });
-
-  it('the rectangular button loses its CRAFT text', () => {
-    expect(countOrange(read('Button.png'))).toBeGreaterThan(30);
-    expect(countOrange(cleanButton(read('Button.png')))).toBe(0);
-  });
-
-  it('the health bar keeps its cross and empties the fill to the black trough', () => {
-    const { frame, trough } = cleanHealthBar(read('Health_bar.png'));
-    expect(countOrange(frame, trough.x, trough.y, trough.x + trough.width, trough.y + trough.height)).toBe(0);
-    // The cross, left of the trough, is still orange.
-    expect(countOrange(frame, 0, 0, trough.x, frame.height)).toBeGreaterThan(20);
-    expect(trough.width).toBeGreaterThan(100);
+  it('finds the health bar trough and the heart left of it', () => {
+    const { trough, heart } = measureHealthBar(read('Health_bar.png'));
+    expect(trough).toEqual({ x: 22, y: 4, width: 118, height: 9 });
+    expect(heart.x + heart.width).toBeLessThan(trough.x);
+    expect([heart.width, heart.height]).toEqual([12, 11]);
   });
 
   it('puts 10 whole-pixel segments inside the trough', () => {
-    const health = { file: '', width: 145, height: 17, trough: { x: 22, y: 5, width: 116, height: 8 } };
+    const health = { file: '', width: 145, height: 17, trough: { x: 22, y: 4, width: 118, height: 9 } };
     const [top, right, bottom, left] = healthPadding(health).split(' ').map((v) => Number.parseInt(v, 10));
     const inner = health.width - (left ?? 0) - (right ?? 0);
     expect((inner - 9 * 2) % 10).toBe(0);
-    expect(health.height - (top ?? 0) - (bottom ?? 0)).toBe(6);
+    expect(left).toBeGreaterThanOrEqual(health.trough.x + 2);
+    expect(health.height - (top ?? 0) - (bottom ?? 0)).toBe(health.trough.height - 2);
   });
 });

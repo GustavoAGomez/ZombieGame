@@ -34,9 +34,10 @@ const ICONS: Record<IconName, IconDef> = {
     w: 7, h: 6, fill: 'var(--red)',
     rects: [[1, 0, 2, 1], [4, 0, 2, 1], [0, 1, 7, 2], [1, 3, 5, 1], [2, 4, 3, 1], [3, 5, 1, 1]],
   },
+  // The HUD symbols (bullet, crosshair, bolt, pause, reload) share a 12×12 grid and a 2-unit stroke.
   bullet: {
-    w: 3, h: 7, fill: 'var(--amber)',
-    rects: [[1, 0, 1, 1], [0, 1, 3, 3], [0, 4, 3, 3, 'var(--amber-dark)']],
+    w: 12, h: 12, fill: 'var(--amber)',
+    rects: [[5, 0, 2, 1], [4, 1, 4, 2], [4, 3, 4, 5], [3, 8, 6, 1, 'var(--amber-dark)'], [4, 9, 4, 3, 'var(--amber-dark)']],
   },
   crosshair: {
     w: 12, h: 12, fill: 'var(--bone)',
@@ -44,11 +45,11 @@ const ICONS: Record<IconName, IconDef> = {
   },
   bolt: {
     w: 12, h: 12, fill: 'var(--amber)',
-    rects: [[6, 0, 3, 2], [5, 2, 3, 2], [4, 4, 3, 1], [3, 5, 6, 2], [5, 7, 3, 1], [4, 8, 3, 2], [3, 10, 3, 2]],
+    rects: [[7, 0, 3, 2], [5, 2, 3, 2], [3, 4, 7, 2], [5, 6, 3, 2], [3, 8, 3, 2], [2, 10, 2, 2]],
   },
   pause: {
-    w: 8, h: 8, fill: 'var(--bone)',
-    rects: [[1, 1, 2, 6], [5, 1, 2, 6]],
+    w: 12, h: 12, fill: 'var(--bone)',
+    rects: [[3, 2, 2, 8], [7, 2, 2, 8]],
   },
   // Provisional weapon and action icons (final art later): side views pointing right.
   pistol: {
@@ -113,8 +114,8 @@ const ICONS: Record<IconName, IconDef> = {
   reload: {
     w: 12, h: 12, fill: 'var(--bone)',
     rects: [
-      [3, 0, 5, 2], [1, 1, 2, 2], [0, 3, 2, 6], [1, 9, 2, 2], [3, 10, 6, 2], [9, 9, 2, 2], [10, 6, 2, 3],
-      [8, 2, 4, 1], [9, 3, 2, 1, 'var(--amber)'], [9, 4, 2, 1], [10, 5, 1, 1],
+      [3, 0, 6, 2], [1, 1, 2, 2], [0, 3, 2, 6], [1, 9, 2, 2], [3, 10, 6, 2], [9, 9, 2, 2], [10, 6, 2, 3],
+      [7, 2, 5, 1, 'var(--amber)'], [8, 3, 3, 1, 'var(--amber)'], [9, 4, 1, 1, 'var(--amber)'],
     ],
   },
 };
@@ -122,6 +123,12 @@ const ICONS: Record<IconName, IconDef> = {
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 /** Creates an icon whose longest side measures `size` CSS px; `fill` replaces its main colour. */
+/** The size (px of its longest side) that draws icon `name` at `scale`× its grid: whole pixels. */
+export function iconSize(name: IconName, scale: number): number {
+  const def = ICONS[name];
+  return Math.max(def.w, def.h) * scale;
+}
+
 export function pixelIcon(name: IconName, size: number, fill?: string): SVGSVGElement {
   const def = ICONS[name];
   const scale = size / Math.max(def.w, def.h);

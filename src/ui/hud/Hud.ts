@@ -61,6 +61,8 @@ export class Hud {
     const heart = pixelIcon('heart', 14);
     heart.classList.add('hud-heart');
     const bar = el('div', 'hud-bar');
+    // The skin's frame brings its own heart (hud.css hides this copy without it): it beats below 30.
+    bar.appendChild(el('span', 'hud-bar__heart'));
     for (let i = 0; i < HEALTH_SEGMENTS; i++) {
       const seg = el('div', 'hud-bar__seg');
       this.segments.push(seg);
@@ -78,7 +80,7 @@ export class Hud {
     this.reloadFill = el('div', 'hud-reload__fill');
     reload.appendChild(this.reloadFill);
     this.reserve = el('span', 'hud-reserve');
-    this.weaponRow.append(this.weaponName, this.stars, pixelIcon('bullet', 21), this.magazine, reload, this.reserve);
+    this.weaponRow.append(this.weaponName, this.stars, pixelIcon('bullet', 12), this.magazine, reload, this.reserve);
     // An empty row kept for future stats and perks (spec 01 §5).
     left.append(this.healthRow, this.round, this.weaponRow, el('div', 'hud-reserved'));
 

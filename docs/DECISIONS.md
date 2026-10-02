@@ -904,3 +904,23 @@ Petición del usuario, de prueba: si no le gusta, se vuelve al HUD de antes (`ma
 - **Tienda:** el panel con 9-slice (20 px), con los bordes y el centro repetidos píxel a píxel (`repeat`), nunca escalados.
 - **Botón rectangular:** se usa en los botones COMPRAR de la tienda y en los de las pantallas de título, pausa y fin de partida, con 9-slice (12 px).
 - **Rutas por manifiesto** (regla 5): nueva sección `ui`. `applyUiSkin` las pasa al CSS como variables con URL absoluta. Si falta alguna pieza, no se activa y el HUD queda como antes.
+
+### Segundo kit del HUD (sustituye al primero, en la misma rama)
+
+Petición del usuario: un kit nuevo de PixelLab que ya viene vacío (aro grande, aro mediano, panel, placa y marco de vida con corazón).
+
+- **Fuente:** el zip del export (`art-src/pixellab/hud/`). El usuario también pasó la hoja `botones.png`: tiene las mismas piezas, del mismo tamaño, con unos pocos píxeles de color distintos. El importador acepta las dos formas (la hoja se recorta por componentes conexos del alfa) y nombra las piezas por su forma.
+  - Hoja de contactos con nombres y tamaños: `maps/preview/hud/hud-kit.png`.
+  - Los tintes, el pulsado y la atenuación son por código; ya no se genera arte (desaparecen los aros teñidos y la reducción a la mitad del primer kit).
+- **Aros a 1×** (97 y 65 px), solo escalas enteras.
+  - El mediano mide 65 px, así que el especial, recargar y cuchillo pasan de 33 a 65 px y se recolocan en arco alrededor del disparo: centros a 89 px del suyo, a 90°, 135° y 180°, con los círculos sin tocarse.
+  - **Los huecos de arma** (65 px, más de los 44 pedidos) pasan de columna a **fila bajo el dinero**: tres en columna (205 px) no caben en una pantalla de 390 px de alto junto al arco. Se ha comprobado a 844×390 y a 640×360.
+- **Placa** (9-slice, cortes de 8 px): el botón COMPRAR de la tienda y el chip de acción contextual, que pasa de botón redondo con etiqueta encima a placa con el icono y el texto al lado (44 px de alto, el texto puede ocupar dos líneas).
+  - El chip queda centrado abajo (50 % − 60 px) y la mejora a su izquierda, para no pisar el cuchillo en pantallas estrechas.
+  - Los botones de las pantallas (JUGAR…) vuelven a su aspecto anterior: el usuario no los pidió con la placa.
+- **Panel** (9-slice, cortes 35/45/35/45). Sus bordes no tienen tramos lisos (óxido y arañazos) y lleva pletinas en el centro de cada lado. Con esos cortes, las esquinas incluyen los extremos inclinados de las pletinas y entre medias se repite su parte plana, sin deformar nada.
+- **Barra de vida:** el corazón del marco sustituye al icono. Una copia del propio recorte del corazón, superpuesta, late por debajo de 30 PV. Los segmentos se ajustan al hueco interior: 10 de 9 px con 2 de separación, 5 px de margen en los extremos redondos y 1 px arriba y abajo.
+- **Símbolos** (recargar, rayo, cruceta, pausa y bala) en una rejilla de 12×12 con trazo de 2 unidades, dibujados a 2× (24 px) sobre los aros y la pausa, y la bala a 1× (12 px) en la fila del arma.
+  - Los demás iconos del HUD (armas, martillo, puerta, escalera, sombrero) también se dibujan a múltiplos enteros de su rejilla (`iconSize`).
+- **Estados:** tinte rojo en el aro de disparo y ámbar en el especial y el arma en mano, en un canvas al cargar, sin tocar la cara del aro; huecos no equipados al 60 % de opacidad; pulsado a 0,94 durante 60 ms en aros, chip y COMPRAR.
+- **Capturas sobre suelo claro y oscuro:** `maps/preview/hud/hud-suelo-claro.jpg` y `hud-suelo-oscuro.jpg`.

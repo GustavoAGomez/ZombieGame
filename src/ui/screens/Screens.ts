@@ -130,7 +130,7 @@ export class PauseButton {
     this.root = el('button', 'pause-button');
     this.root.type = 'button';
     this.root.setAttribute('aria-label', STRINGS.pause.button);
-    this.root.appendChild(pixelIcon('pause', 14));
+    this.root.appendChild(pixelIcon('pause', 24));
     this.root.addEventListener('click', onPause);
     parent.appendChild(this.root);
   }

@@ -57,9 +57,10 @@ describe('muzzle points', () => {
 describe('HUD skin pieces', () => {
   it('are in the manifest with their sizes, slices and the health trough', () => {
     const { ui } = parseManifest(raw);
-    for (const key of ['ringLargeRed', 'ringMedium', 'ringMediumAmber', 'button', 'healthFrame', 'panel']) expect(ui[key], key).toBeDefined();
-    expect(ui.button?.slice).toBeGreaterThan(0);
-    expect(ui.panel?.slice).toBeGreaterThan(0);
+    for (const key of ['ringLarge', 'ringMedium', 'plate', 'healthFrame', 'panel']) expect(ui[key], key).toBeDefined();
+    expect(ui.plate?.slice).toHaveLength(4);
+    expect(ui.panel?.slice).toHaveLength(4);
+    expect(ui.healthFrame?.heart?.width).toBeGreaterThan(0);
     expect(ui.healthFrame?.trough?.width).toBeGreaterThan(0);
   });
 });

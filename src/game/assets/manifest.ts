@@ -58,12 +58,27 @@ export interface ObjectDef {
  * A piece of the HUD skin (DOM, drawn by CSS): its image and size, the
  * 9-slice inset for stretchable frames, and where the health bar's trough is.
  */
+export interface UiRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface UiPieceDef {
   file: string;
   width: number;
   height: number;
-  slice?: number;
-  trough?: { x: number; y: number; width: number; height: number };
+  /** 9-slice insets [top, right, bottom, left]. */
+  slice?: [number, number, number, number];
+  /** The health bar's trough (where the segments go) and its heart (px of the image). */
+  trough?: UiRect;
+  heart?: UiRect;
+}
+
+function uiRect(value: unknown, where: string): UiRect | undefined {
+  if (!isRecord(value)) return undefined;
+  return { x: Number(value.x) || 0, y: Number(value.y) || 0, width: positive(value.width, `${where}.width`), height: positive(value.height, `${where}.height`) };
 }
 
 export interface Manifest {
@@ -273,22 +288,19 @@ export function parseManifest(json: unknown): Manifest {
   for (const [key, raw] of Object.entries(section(json.ui, 'ui'))) {
     const where = `ui.${key}`;
     if (!isRecord(raw)) throw new ManifestError(`${where} must be an object`);
-    const t = isRecord(raw.trough) ? raw.trough : undefined;
+    const slice = typeof raw.slice === 'number' ? [raw.slice, raw.slice, raw.slice, raw.slice] : raw.slice;
+    if (slice !== undefined && !(Array.isArray(slice) && slice.length === 4 && slice.every((n) => typeof n === 'number' && n >= 0))) {
+      throw new ManifestError(`${where}.slice must be [top, right, bottom, left]`);
+    }
+    const trough = uiRect(raw.trough, `${where}.trough`);
+    const heart = uiRect(raw.heart, `${where}.heart`);
     ui[key] = {
       file: text(raw.file, `${where}.file`),
       width: positive(raw.width, `${where}.width`),
       height: positive(raw.height, `${where}.height`),
-      ...(typeof raw.slice === 'number' ? { slice: raw.slice } : {}),
-      ...(t
-        ? {
-            trough: {
-              x: Number(t.x) || 0,
-              y: Number(t.y) || 0,
-              width: positive(t.width, `${where}.trough.width`),
-              height: positive(t.height, `${where}.trough.height`),
-            },
-          }
-        : {}),
+      ...(slice ? { slice: slice as [number, number, number, number] } : {}),
+      ...(trough ? { trough } : {}),
+      ...(heart ? { heart } : {}),
     };
   }
 

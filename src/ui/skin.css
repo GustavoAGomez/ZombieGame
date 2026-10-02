@@ -1,10 +1,12 @@
 /*
  * HUD skin from PixelLab (src/ui/skin.ts, npm run hud:import). Only with
  * `.has-ui-skin` on <html>: without the pieces the HUD keeps its CSS look.
- * Every image at 1×, pixelated: whole art pixels, never a fractional scale.
+ * Rings at 1× (their 97 and 65 px), symbols at 2× their 12×12 grid; the
+ * panel and the plate with 9-slice: corners whole, edges repeated pixel
+ * for pixel. Always pixelated.
  */
 
-/* Fire button: the big ring, tinted red, centred on the 96 px button (the ring is 97). */
+/* ── Fire button: the big ring, tinted red, on the 96 px button (the ring is 97). ── */
 .has-ui-skin .fire-stick {
   background: none;
   box-shadow: none;
@@ -23,7 +25,7 @@
   pointer-events: none;
 }
 
-/* Special, reload, knife and weapon slots: the medium ring; the special and the weapon in hand in amber. */
+/* ── Special, reload and knife: the medium ring (65 px), in an arc around the fire button. ── */
 .has-ui-skin .action-button {
   width: var(--ui-ring-medium-size);
   height: var(--ui-ring-medium-size);
@@ -32,28 +34,112 @@
   image-rendering: pixelated;
 }
 
+/* Fire centre at (pad + 60, pad-bottom + 64) from the corner; the ring centres 89 px from it. */
+.has-ui-skin .action-button--special {
+  right: calc(var(--pad-x) + 28px);
+  bottom: calc(var(--pad-bottom) + 120px);
+  background-image: var(--ui-ring-medium-amber);
+}
+
+.has-ui-skin .action-button--reload {
+  right: calc(var(--pad-x) + 90px);
+  bottom: calc(var(--pad-bottom) + 94px);
+}
+
+.has-ui-skin .action-button--melee {
+  right: calc(var(--pad-x) + 116px);
+  bottom: calc(var(--pad-bottom) + 32px);
+}
+
+/* The reload veil empties over the ring's face only. */
+.has-ui-skin .action-button__clip {
+  inset: var(--ui-ring-medium-face-inset);
+}
+
+/* ── Weapon slots: the medium ring (65 px, at least 44); in a row under the money. ── */
+.has-ui-skin .weapon-column {
+  flex-direction: row;
+  top: calc(var(--pad-top) + 56px);
+  gap: 4px;
+}
+
 .has-ui-skin .weapon-column .action-button {
   width: var(--ui-ring-medium-size);
   height: var(--ui-ring-medium-size);
 }
 
-.has-ui-skin .action-button--special,
 .has-ui-skin .weapon-slot.is-active {
   background-image: var(--ui-ring-medium-amber);
   box-shadow: none;
 }
 
-/* The reload and special veils fill only the ring's dark face. */
-.has-ui-skin .action-button__clip {
-  inset: 4px;
+/* Not in hand: dimmed to 60 %. */
+.has-ui-skin .weapon-slot:not(.is-active) {
+  opacity: 0.6;
 }
 
-/* Health: the frame with the cross replaces the heart; the segments sit in its trough. */
+.has-ui-skin .weapon-slot .action-button__label {
+  bottom: 6px;
+}
+
+/* ── Context action: the plate with 9-slice, icon and text side by side. ── */
+.has-ui-skin .context-button {
+  left: calc(50% - 60px);
+  bottom: calc(var(--pad-bottom) + 12px);
+  width: auto;
+  min-width: 96px;
+  max-width: 190px;
+  height: auto;
+  min-height: 44px;
+  gap: 6px;
+  padding: 0 4px;
+  border-radius: 0;
+  border: 8px solid transparent;
+  border-image: var(--ui-plate) var(--ui-plate-slice) fill / var(--ui-plate-width) repeat;
+  background: none;
+  box-shadow: none;
+  image-rendering: pixelated;
+}
+
+.has-ui-skin .context-button__value {
+  position: static;
+  transform: none;
+  padding: 0;
+  background: none;
+  white-space: normal;
+  line-height: 1.4;
+}
+
+.has-ui-skin .context-button.is-confirming .context-button__face {
+  animation: none;
+}
+
+.has-ui-skin .context-button.is-confirming {
+  animation: skin-confirm 0.6s steps(2, jump-none) infinite;
+}
+
+@keyframes skin-confirm {
+  50% {
+    filter: brightness(1.35);
+  }
+}
+
+/* The boost button keeps its own look, to the left of the plate. */
+.has-ui-skin .action-button--boost {
+  left: calc(50% - 112px);
+  width: 40px;
+  height: 40px;
+  background: rgba(15, 14, 12, 0.45);
+  box-shadow: inset 0 0 0 2px rgba(239, 230, 210, 0.45);
+}
+
+/* ── Health: the frame; its heart replaces the heart icon and beats under 30. ── */
 .has-ui-skin .hud-heart {
   display: none;
 }
 
 .has-ui-skin .hud-bar {
+  position: relative;
   width: var(--ui-health-w);
   height: var(--ui-health-h);
   padding: var(--ui-health-pad);
@@ -62,27 +148,55 @@
   image-rendering: pixelated;
 }
 
-/* Merchant shop: the panel with 9-slice; whole art pixels on the edges (repeat, never scaled). */
+.hud-bar__heart {
+  display: none;
+}
+
+/* A copy of the frame's own heart over it: scaling it makes the heart beat. */
+.has-ui-skin .hud-bar__heart {
+  display: block;
+  position: absolute;
+  left: var(--ui-heart-x);
+  top: var(--ui-heart-y);
+  width: var(--ui-heart-w);
+  height: var(--ui-heart-h);
+  background: var(--ui-health) calc(-1 * var(--ui-heart-x)) calc(-1 * var(--ui-heart-y)) / var(--ui-health-w) var(--ui-health-h) no-repeat;
+  image-rendering: pixelated;
+}
+
+.has-ui-skin .hud-health.is-low .hud-bar__heart {
+  animation: hud-heartbeat 0.6s steps(2, jump-none) infinite;
+}
+
+/* ── Merchant shop: the panel with 9-slice; the plate for its buy buttons. ── */
 .has-ui-skin .shop-panel {
-  border: var(--ui-panel-border) solid transparent;
-  border-image: var(--ui-panel) var(--ui-panel-slice) fill / var(--ui-panel-border) repeat;
+  border-style: solid;
+  border-color: transparent;
+  border-width: 10px 12px;
+  border-image: var(--ui-panel) var(--ui-panel-slice) fill / var(--ui-panel-width) repeat;
   background: none;
   box-shadow: 3px 3px 0 rgba(15, 14, 12, 0.6);
-  padding: 0 0 2px 2px;
+  padding: 2px 4px 4px 6px;
   image-rendering: pixelated;
 }
 
-/* Rectangular buttons (shop and menus): the button with 9-slice instead of the flat box. */
-.has-ui-skin .shop-row__buy:not([data-status='unavailable']):not([data-status='limit']),
-.has-ui-skin .screen-button {
-  border: var(--ui-button-border) solid transparent;
-  border-image: var(--ui-button) var(--ui-button-slice) fill / var(--ui-button-border) repeat;
+.has-ui-skin .shop-row__buy:not([data-status='unavailable']):not([data-status='limit']) {
+  border: 8px solid transparent;
+  border-image: var(--ui-plate) var(--ui-plate-slice) fill / var(--ui-plate-width) repeat;
   background: none;
   box-shadow: none;
-  padding: 0 4px;
+  padding: 0 2px;
   image-rendering: pixelated;
 }
 
-.has-ui-skin .screen-button--primary {
-  color: var(--amber);
+/* ── Pressed: 0.94 for 60 ms, everywhere. ── */
+.has-ui-skin .fire-stick.is-pressed,
+.has-ui-skin .action-button.is-pressed,
+.has-ui-skin .context-button.is-pressed,
+.has-ui-skin .shop-row__buy.is-pressed {
+  transform: scale(0.94);
+}
+
+.has-ui-skin .shop-row__buy {
+  transition: transform 60ms ease-out;
 }
