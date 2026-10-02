@@ -71,7 +71,7 @@ describe('parseAsciiMap', () => {
       'P1a:stairs:false', 'P1b:stairs:false', 'P2a:ladder:false', 'P2b:ladder:false',
       'P3a:hatch:true', 'P3b:hatch:true', 'P4a:ladder:true', 'P4b:ladder:true',
     ]);
-    expect(plan.openSpawns).toHaveLength(11);
+    expect(plan.openSpawns).toHaveLength(16);
     expect(plan.merchantSpots).toHaveLength(20);
     for (const zone of plan.zones) expect(plan.merchantSpots.filter((m) => m.zone === zone.id).length, zone.id).toBe(2);
     // Item spots (spec 05 §2): 1 or 2 per zone, the cellar and the roof included.
@@ -206,7 +206,9 @@ describe('compileAsciiMap', () => {
     it('brings zombies in from off the map: the entrances, and the fence spawns on the edge', () => {
       // Off the map, or on the void past the end of the street (the camera stops at the street's last tile).
       const ground = map.openSpawns.filter((o) => map.zones[o.zoneIndex]?.id === 'calle');
-      expect(ground).toHaveLength(8);
+      expect(ground).toHaveLength(13);
+      // Five of them up the neighbours' front walks, through the gaps in their fences.
+      expect(ground.filter((o) => o.y >= map.heightPx && o.x > 11 * 32)).toHaveLength(5);
       for (const s of ground) expect(s.x < 0 || s.y < 0 || s.y >= map.heightPx || s.x >= 82 * 32, `${s.x},${s.y}`).toBe(true);
       for (const id of ['F1', 'F2']) expect(map.zombieSpawns.find((s) => s.window === id)?.y).toBe(-0.5 * 32);
     });

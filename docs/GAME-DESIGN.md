@@ -154,7 +154,9 @@ Magos con gabardina que venden munición y mejoras. Sus puntos de aparición son
 - **Botín al morir:** munición (22 %, dos cargadores para cada arma) o vida (6 %, +50). Dura 15 s en el suelo.
 - **De dónde salen:** nunca aparecen donde puede andar el jugador.
   - Los de cada ventana aparecen 2 casillas por fuera, mientras ese exterior esté cerrado. En cuanto se desbloquea el jardín o la calle, se apagan los spawns de las ventanas que dan a ellos.
-  - En la calle y en la azotea entran andando desde fuera del mapa, a 2 casillas del borde, donde la cámara no llega: por los dos extremos de la calle lateral, a lo largo de su borde oeste (4 entradas) y por los dos lados del final de la calle de abajo (calle, 8 entradas); y por el norte y el este de la azotea (3).
+  - En la calle y en la azotea entran andando desde fuera del mapa, a 2 casillas del borde, donde la cámara no llega. Hay 16 entradas:
+    - **Calle (13):** los dos extremos de la calle lateral y su borde oeste (4); los dos lados del final de la calle de abajo; y las 5 parcelas vecinas del sur, subiendo por sus senderos, su entrada de coches y el tramo de valla reventado.
+    - **Azotea (3):** por el norte y el este.
   - Los de las vallas del jardín (F1, F2) también aparecen fuera del mapa, por el norte.
   - Una entrada no se usa con un jugador a menos de 8 casillas del punto por donde entra.
   - Se elige el spawn al azar, con más peso cuanto más cerca está del jugador andando. Mientras quede alguno a 28 casillas o menos, los más lejanos no se usan.

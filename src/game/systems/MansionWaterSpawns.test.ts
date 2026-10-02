@@ -245,6 +245,16 @@ describe('spawn distance on the big map (Fase M7)', () => {
     for (let i = 0; i < 500; i++) expect(spawnPathTiles(ctx, pickSpawn(ctx))).toBeLessThanOrEqual(WAVES.spawnMaxPathTiles);
   });
 
+  it('brings zombies to the middle of the street through the neighbours\' fences, not 40 tiles down the road', () => {
+    const ctx = createMansionContext();
+    for (const z of ctx.map.zones) unlock(ctx, z.id);
+    movePlayer(ctx, 40, 57);
+    withField(ctx);
+    let nearest = Infinity;
+    for (let i = ctx.map.zombieSpawns.length; i < spawnCount(ctx); i++) if (spawnWeight(ctx, i) > 0) nearest = Math.min(nearest, spawnPathTiles(ctx, i));
+    expect(nearest).toBeLessThan(20);
+  });
+
   it('still spawns when every spawn is far', () => {
     const ctx = createMansionContext();
     openPortal(ctx, ctx.map.portals.findIndex((p) => p.id === 'P1a'));

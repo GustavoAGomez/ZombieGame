@@ -62,10 +62,10 @@ ssaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 ssaaaaassssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg__________________________
 ssaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss__________________________
 ssaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss__________________________
-ssaaaaasgssFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF__________________________
-ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg__________________________
-ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg__________________________
-ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg__________________________
+ssaaaaasgssFFFFFFFFFFssFFFFFFFdddFFFFFFFFFFFsssFFFFFFFFFFFFFssFFFFFFFFFFFssFFFFFFF__________________________
+ssaaaaasgssFgggggggggssggFgggddddgggggggFgggsssggggggggggFggssggggggggFggssggggggg__________________________
+ssaaaaasgssFgggggggggssggFggggdddgggggggFgggsssggggggggggFggssggggggggFggssggggggg__________________________
+ssaaaaasgssFgggggggggssggFgggggddgggggggFgggsssggggggggggFggssggggggggFggssggggggg__________________________
 
 ## Zonas (cada zona es la región que se rellena desde su semilla; las paredes, vallas, D y W la cierran. "paredes" cambia el kit; el suelo interior sale del material: docs/ASSETS.md §7.4)
 | id | nombre | inicial | precio | interior | spawns abiertos | semilla | paredes | contiene |
@@ -143,6 +143,11 @@ ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
 | E9 | 93,1 | azotea |
 | E10 | 99,1 | azotea |
 | E11 | 108,13 | azotea |
+| E12 | 21,69 | calle |
+| E13 | 31,69 | calle |
+| E14 | 45,69 | calle |
+| E15 | 60,69 | calle |
+| E16 | 73,69 | calle |
 
 ## Magos (puntos de aparición de los magos vendedores, spec 03 §1: pegados a una pared o en un rincón, a más de 3 tiles de barricadas, puertas, portales y spawns; la casilla conserva su suelo)
 | id | casilla | zona | nota |
@@ -285,6 +290,15 @@ ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
 | T14 | prop_seto | 38,50 41,50 | sí | — | Calle. Seto en la linde, con huecos |
 | T15 | prop_seto | 70,50 73,50 | sí | — | Calle. Seto en la linde, con huecos |
 | T16 | prop_seto_lateral | 12,42 12,45 | sí | — | Calle. Seto hacia la calle lateral |
+| T17 | prop_buzon | 20,65 | sí | — | Calle. Buzón del vecino junto a su cancela |
+| T18 | prop_cubo_basura | 24,65 | sí | h | Calle. Cubo del vecino en el rincón de la parcela |
+| T19 | prop_escombros | 33,65 | no | — | Calle. Astillas de la valla que la horda reventó a empujones |
+| T20 | prop_escombros | 29,66 | no | v | Calle. Más astillas del tramo reventado |
+| T21 | prop_neumaticos | 56,65 | sí | — | Calle. Neumáticos en el rincón, junto a la entrada de coches del vecino |
+| T22 | prop_bidon | 41,65 | sí | — | Calle. Bidón en el rincón de la parcela |
+| T23 | prop_cubo_basura | 62,65 | sí | — | Calle. Cubo del vecino junto a su cancela |
+| T24 | prop_farola_caida | 66,67 67,67 | no | — | Calle. Farola caída dentro de la parcela |
+| T25 | prop_barbacoa_volcada | 71,65 | sí | — | Calle. Barbacoa volcada: el vecino huyó a mitad de la comida |
 | X1 | prop_caldera | 102,29 103,30 | sí | — | Sótano. Caldera en el cuarto de calderas |
 | X2 | prop_botellero | 106,40 106,43 | sí | — | Sótano. Botellero de la bodega |
 | X3 | prop_botellero_bajo | 100,38 102,38 | sí | — | Sótano. Botellero de la bodega |

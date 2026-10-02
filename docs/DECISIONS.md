@@ -1186,5 +1186,21 @@ Petición del usuario: fuera de la casa, a veces aparecían zombis de la nada a 
   - Azotea: norte y este (E9–E11), desde el vacío.
 - **Distancia:** una entrada no se usa con un jugador a menos de 8 casillas (`WAVES.openSpawnMinDistanceTiles`) de la casilla por donde entra. Así nadie le entra encima a quien espera en el borde. El peso por distancia andando cuenta desde esa casilla más el paseo de entrada.
 - **Validador:** con todo desbloqueado tiene que quedar algún spawn: uno de ventana fuera de toda zona, o una entrada.
-- **Ritmo:** en mitad de la calle de abajo, las entradas más cercanas están a unas 40 casillas. Un caminante tarda unos 40 s, un corredor unos 22 s.
-  - Si se hace lento, la opción más simple es abrir huecos en las vallas de los vecinos del sur, con entradas por el borde de abajo (a unas 10 casillas de la calle).
+- **Ritmo:** en mitad de la calle de abajo, las entradas más cercanas estaban a unas 40 casillas. Un caminante tardaba unos 40 s, un corredor unos 22 s. Se resolvió abriendo las vallas de los vecinos del sur (sección siguiente).
+
+## Huecos en las vallas de los vecinos del sur
+
+Petición del usuario, tras la anterior: abrir huecos en las vallas de los vecinos para que los zombis lleguen antes al centro de la calle de abajo.
+
+- **Plano:** la franja de los vecinos (filas 65-67, solo 3 casillas de fondo) pasa a ser 5 parcelas de 13, 14, 16, 12 y 11 casillas.
+  - Las separan vallas que llegan hasta el borde del mapa.
+  - Cada una se abre a la acera por un hueco descentrado de su valla del frente:
+    - tres cancelas de 2 casillas, cada una con el sendero de acera hacia la casa del vecino, que queda fuera del mapa;
+    - una entrada de coches de 3 casillas;
+    - un tramo de 3 casillas reventado por la horda, con un rastro de tierra pisoteada desde el borde.
+- **Zona:** las parcelas pasan a ser de la calle: el jugador puede entrar en ellas.
+- **Entradas:** E12–E16, una bajo cada hueco, a 2 casillas del borde de abajo.
+  - En mitad de la calle, la entrada más cercana queda a 17 casillas andando (antes, 41). Delante del porche, a 27.
+- **Atrezo:** buzón, cubos, neumáticos, bidón, barbacoa volcada, astillas de la valla rota y una farola caída.
+  - Con 3 casillas de fondo, los sólidos van pegados a la valla del frente o en los rincones; en la fila central dejarían un paso de 1 casilla.
+  - Por eso no hay árboles: con 2×2, siempre dejan un paso de 1 casilla.
