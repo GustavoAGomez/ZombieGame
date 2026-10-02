@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { WEAPONS } from '../../config/balance';
+import { WEAPONS } from '../../config/weapons';
 import { pickZombieKind, spawnInterval, zombieHp, zombieMix, zombiesInRound } from './waveFormulas';
 
 describe('zombieHp', () => {

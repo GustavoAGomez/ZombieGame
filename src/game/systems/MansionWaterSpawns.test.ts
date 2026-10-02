@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { WAVES, WEAPONS, ZOMBIES } from '../../config/balance';
+import { WAVES, ZOMBIES } from '../../config/balance';
+import { WEAPONS } from '../../config/weapons';
 import {
   command,
   createMansionContext,

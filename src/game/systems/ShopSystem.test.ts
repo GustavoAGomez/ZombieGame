@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { MERCHANT, WEAPONS } from '../../config/balance';
+import { MERCHANT } from '../../config/balance';
+import { WEAPONS } from '../../config/weapons';
 import { merchantDef } from '../../config/merchants';
 import { command, createTestContext, player } from '../../test/fixtures';
 import { HudPresenter } from '../HudPresenter';

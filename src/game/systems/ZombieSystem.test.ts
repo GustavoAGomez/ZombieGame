@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { PLAYER, WEAPONS, ZOMBIES } from '../../config/balance';
+import { PLAYER, ZOMBIES } from '../../config/balance';
+import { WEAPONS } from '../../config/weapons';
 import type { ZombieState } from '../../core/GameState';
 import { createTestContext, placeZombie, player, runTicks } from '../../test/fixtures';
 import { setDoorBlocking } from '../map/CollisionGrid';

@@ -1,4 +1,5 @@
-import { BOOSTS, DASH, PLAYER, type WeaponId } from '../config/balance';
+import { BOOSTS, DASH, PLAYER } from '../config/balance';
+import { type WeaponId } from '../config/weapons';
 import { merchantDef, type MerchantId } from '../config/merchants';
 import type { EventBus, GameEvents } from '../core/EventBus';
 import type { GameState } from '../core/GameState';

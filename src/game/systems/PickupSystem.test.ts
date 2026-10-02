@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { PICKUPS, PLAYER, WEAPONS } from '../../config/balance';
+import { PICKUPS, PLAYER } from '../../config/balance';
+import { WEAPONS } from '../../config/weapons';
 import { createTestContext, placeZombie, player, runTicks } from '../../test/fixtures';
 import { damageZombie } from './Combat';
 import { applyPickup, dropKindFor, spawnPickup } from './PickupSystem';

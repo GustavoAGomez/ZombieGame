@@ -634,7 +634,7 @@ Petición del usuario: la vida ya no se recupera con el tiempo, por ahora solo c
 
 ## Spec 03 · Fase M4 (mejoras de arma, magos rojo y dorado, debug)
 
-- **Estado:** cada arma lleva `level` (0–3) y `special`. Todas las capacidades salen de `weaponStats.ts` (`magazineSize`, `maxReserve`, `fireRate`, `bulletDamage`), con los factores en `WEAPON_UPGRADES` de `balance.ts`. La especial de cada arma está en `WEAPON_SPECIALS` (pistola `fan`, SMG `pierce`).
+- **Estado:** cada arma lleva `level` (0–3) y `special`. Todas las capacidades salen de `weaponStats.ts` (`magazineSize`, `maxReserve`, `fireRate`, `bulletDamage`), con los factores en `WEAPON_UPGRADES` de `balance.ts`. La especial de cada arma está en `WEAPON_SPECIALS` (pistola `fan`, SMG `pierce`). *(Desde la spec 04, A1: catálogo en `weapons.ts`, con las mejoras propias de cada arma.)*
 - **Nivel 1:** el arma se rellena solo al llegar a ese nivel, que es cuando cambia la capacidad («al subir de nivel» está en la fila del nivel 1). Los niveles 2 y 3 no rellenan.
 - **Daño:** nivel 3 por doble daño da ×4; se calcula al disparar cada bala.
 - **Abanico de la pistola:** 3 balas (centro y ±12°) a partir del ángulo con la dispersión normal. Gastan una sola bala del cargador y cada una hace el daño completo, también a quemarropa.
@@ -778,3 +778,36 @@ Petición del usuario: como los tres tipos de zombi comparten el dibujo, disting
 - Los colores son tokens en `theme.ts` (`COLORS.zombieRunnerTint` y `zombieSprinterTint`).
 - El destello blanco al recibir un disparo tiene prioridad; al acabar, vuelve el tinte del tipo. Un sprite del pool que pasa a otro tipo cambia de tinte.
 - Si llegan dibujos propios para corredor y sprinter, se quita el tinte (`KIND_TINT` en `Zombie.ts`).
+
+## Spec 04 · Aclaraciones previas con el usuario
+
+Antes de empezar se aclararon las contradicciones con el estado actual del juego:
+
+- **Daño de la escopeta: 0,9 por perdigón.** La spec decía 18, en la escala antigua en la que la pistola hacía 20. Ahora la vida se cuenta en unidades de daño (pistola 1), así que se mantiene la proporción. Un disparo completo a quemarropa hace 5,4.
+- **Cambio de arma: se mantiene la columna de huecos** bajo los puntos, uno por arma (1, 2 o 3), y se toca el que se quiere. No vuelve el botón de rotar. Con una sola arma solo se ve su hueco.
+- **Precios con el formato «1000$»**, como en el resto del juego, no «$1000»: «SMG 1000$», «FALTAN 500$», «-1000$».
+- **Vitrina del comedor centrada en la pared norte.** El punto de mago M6, que estaba en esa pared, se mueve a otra que cumpla sus reglas.
+- **Salón:** el «mueble central» es la columna del centro (casillas 24–25, 33–34); la vitrina va justo al sur, mirando al sur.
+
+Resueltas sin preguntar, por ser solo nombres o huecos de la spec:
+
+- **`walk_aim`** es la animación que ya existe como `shoot_walk`.
+- **`weaponSlots`** es `LOADOUT.maxWeapons` (3).
+- **Los magos rojo y dorado** siguen sin aparecer en partida normal (spec 03); se prueban desde el debug.
+- **El nombre de cada arma** sigue en `STRINGS.weapons`, no en `weapons.ts`: los textos visibles van en `strings.ts` (CLAUDE.md).
+
+## Spec 04 · A1 (catálogo de armas por datos)
+
+- **`src/config/weapons.ts`** reúne:
+  - `WEAPONS` (estadísticas, `category`, `upgrades` y `special` de cada arma);
+  - `UPGRADE_EFFECTS` (factores de `ammo_x2`, `fire_rate` y `damage_x2`);
+  - `WEAPON_SPECIALS` (números del abanico y de atravesar).
+
+  Desaparecen `WEAPON_UPGRADES` y la tabla común de especiales de `balance.ts`. `LOADOUT` sigue en `balance.ts`.
+- **Niveles por arma.** El nivel N aplica los N primeros efectos de la lista del arma; si un efecto se repite, se multiplica. `levelStats(def, nivel)` es pura y sirve también para armas ficticias en los tests. Ninguna parte supone 3 niveles: el máximo es la longitud de la lista.
+- **`ammo_x2` rellena** el arma hasta el nuevo máximo en el nivel en que esté, no solo si es el nivel 1.
+- **`fire_rate` acelera la recarga** solo si el arma lo indica (`fireRateSpeedsReload`). Ni la pistola ni la SMG lo llevan.
+- **Tinte claro de las balas:** desde que el arma tiene un nivel de `damage_x2`, en vez de «nivel 3». Con las listas de la pistola y la SMG es lo mismo.
+- **Mago rojo:** el siguiente nivel de la lista del arma en mano. Su fila dice también qué hace ese nivel: «PISTOLA: nivel 1 → 2, cadencia ×1,5». Deshabilitado con NIVEL MÁXIMO al final de la lista, o con NO MEJORABLE si la lista está vacía.
+- **Mago dorado:** una fila por arma; deshabilitada con YA TIENE ESPECIAL o con SIN MEJORA ESPECIAL si el arma no tiene ninguna.
+- La pistola y la SMG no cambian: siguen pasando los tests de la spec 03.

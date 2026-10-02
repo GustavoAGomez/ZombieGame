@@ -1,4 +1,5 @@
-import { LOADOUT, MELEE, PLAYER, WEAPON_SPECIALS, WEAPON_UPGRADES, WEAPONS } from '../../config/balance';
+import { LOADOUT, MELEE, PLAYER } from '../../config/balance';
+import { WEAPON_SPECIALS, WEAPONS } from '../../config/weapons';
 import type { BulletState, GameState, PlayerState, WeaponSlotState } from '../../core/GameState';
 import type { InputCommand } from '../../core/InputCommand';
 import { degToRad } from '../../core/math';
@@ -9,7 +10,7 @@ import { bodyHitPoint, damageZombie, findAutoAimTarget, findMeleeTarget, isZombi
 import { bodyCentre, bodyEntry, hurtboxOf, muzzleFor, type Hurtbox, type Vec2 } from './shotGeometry';
 import type { SimContext } from './SimContext';
 import { bulletHitsZombie } from './BulletSystem';
-import { bulletDamage, bulletLook, fireRate, magazineSize } from './weaponStats';
+import { bulletDamage, bulletLook, fireRate, magazineSize, reloadTime } from './weaponStats';
 
 const centre: Vec2 = { x: 0, y: 0 };
 /** Closer than this (px from the muzzle to the body centre), auto-aim points from the feet. */
@@ -65,7 +66,7 @@ function handleReload(p: PlayerState, cmd: InputCommand, dt: number): void {
   if (!slot) return;
   // Manual reload: only with room in the magazine and bullets in reserve.
   if (cmd.reload && p.reloadTimer <= 0 && p.switchTimer <= 0 && slot.magazine < magazineSize(slot) && slot.reserve > 0) {
-    p.reloadTimer = WEAPONS[slot.id].reloadTime;
+    p.reloadTimer = reloadTime(slot);
     return;
   }
   if (p.reloadTimer > 0) {
@@ -81,7 +82,7 @@ function handleReload(p: PlayerState, cmd: InputCommand, dt: number): void {
   }
   // Automatic reload as soon as the magazine is empty (not during a switch).
   if (slot.magazine === 0 && slot.reserve > 0 && p.switchTimer <= 0) {
-    p.reloadTimer = WEAPONS[slot.id].reloadTime;
+    p.reloadTimer = reloadTime(slot);
   }
 }
 
@@ -160,8 +161,8 @@ function handleFire(ctx: SimContext, p: PlayerState): void {
 
 /**
  * One shot: a round of ammo and the fire cooldown of the weapon's level. The
- * pistol's special fires a fan of WEAPON_UPGRADES.fanProjectiles bullets
- * (centre and ±fanAngle) for that one round, each with the full damage.
+ * `fan` special (pistol) fires WEAPON_SPECIALS.fan.projectiles bullets
+ * (centre and ±angle) for that one round, each with the full damage.
  */
 function shoot(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
   const { state } = ctx;
@@ -174,9 +175,9 @@ function shoot(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
   const aim = Math.atan2(p.aimY, p.aimX);
   const half = degToRad(stats.spread) / 2;
   const centre = aim + randomRange(state, -half, half);
-  const special = slot.special ? WEAPON_SPECIALS[slot.id] : null;
-  const count = special === 'fan' ? WEAPON_UPGRADES.fanProjectiles : 1;
-  const between = degToRad(WEAPON_UPGRADES.fanAngle);
+  const special = slot.special ? (stats.special ?? null) : null;
+  const count = special === 'fan' ? WEAPON_SPECIALS.fan.projectiles : 1;
+  const between = degToRad(WEAPON_SPECIALS.fan.angle);
   // Drawn from the gun's muzzle, along the same direction.
   const muzzle = muzzleFor(ctx.muzzles, aim);
   for (let i = 0; i < count; i++) {
@@ -194,7 +195,7 @@ function shoot(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
     bullet.speed = stats.bulletSpeed;
     bullet.damage = bulletDamage(slot) * damageFactor(p);
     bullet.look = bulletLook(slot, p.boostActive === 'double_damage');
-    bullet.pierce = special === 'pierce' ? WEAPON_UPGRADES.pierceHits : 1;
+    bullet.pierce = special === 'pierce' ? WEAPON_SPECIALS.pierce.hits : 1;
     bullet.hits.fill(-1);
     bullet.remaining = stats.range - PLAYER.muzzleDistance;
     bullet.drawX = muzzle.x - p.aimX * PLAYER.muzzleDistance;
@@ -262,6 +263,5 @@ function handleMelee(ctx: SimContext, p: PlayerState, turn: boolean): void {
 export function reloadProgress(p: PlayerState): number | null {
   const slot = p.weapons[p.activeSlot];
   if (!slot || p.reloadTimer <= 0) return null;
-  const total = WEAPONS[slot.id].reloadTime;
-  return 1 - p.reloadTimer / total;
+  return 1 - p.reloadTimer / reloadTime(slot);
 }

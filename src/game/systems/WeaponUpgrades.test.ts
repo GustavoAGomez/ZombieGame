@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { BOOSTS, WEAPON_UPGRADES, WEAPONS } from '../../config/balance';
+import { BOOSTS } from '../../config/balance';
+import { UPGRADE_EFFECTS, WEAPON_SPECIALS, WEAPONS } from '../../config/weapons';
 import { command, createTestContext, placeZombie, player, runTicks } from '../../test/fixtures';
 import { HudPresenter } from '../HudPresenter';
 import { storeBoost } from './BoostSystem';
@@ -34,12 +35,12 @@ describe('weapon levels', () => {
     expect([pistol.magazine, pistol.reserve]).toEqual([WEAPONS.pistol.magazine * 2, WEAPONS.pistol.maxReserve * 2]);
     expect(fireRate(pistol)).toBe(WEAPONS.pistol.fireRate);
     levelUp(pistol);
-    expect(fireRate(pistol)).toBe(WEAPONS.pistol.fireRate * WEAPON_UPGRADES.fireRateFactor);
+    expect(fireRate(pistol)).toBe(WEAPONS.pistol.fireRate * UPGRADE_EFFECTS.fire_rate.fireRateFactor);
     expect(bulletDamage(pistol)).toBe(WEAPONS.pistol.damage);
     levelUp(pistol);
-    expect(bulletDamage(pistol)).toBe(WEAPONS.pistol.damage * WEAPON_UPGRADES.damageFactor);
+    expect(bulletDamage(pistol)).toBe(WEAPONS.pistol.damage * UPGRADE_EFFECTS.damage_x2.damageFactor);
     levelUp(pistol);
-    expect(pistol.level).toBe(WEAPON_UPGRADES.maxLevel);
+    expect(pistol.level).toBe(WEAPONS.pistol.upgrades.length);
   });
 
   it('shoots faster at level 2: the SMG empties more rounds in the same time', () => {
@@ -53,7 +54,7 @@ describe('weapon levels', () => {
       fire(ctx, 60);
       return before - smg.magazine;
     };
-    expect(shots(2) / shots(1)).toBeCloseTo(WEAPON_UPGRADES.fireRateFactor, 1);
+    expect(shots(2) / shots(1)).toBeCloseTo(UPGRADE_EFFECTS.fire_rate.fireRateFactor, 1);
   });
 
   it('level 3 and double damage stack: ×4, and the bullets look lighter, light blue or gold', () => {
@@ -71,7 +72,7 @@ describe('weapon levels', () => {
     runTicks(ctx, 30, stepSimulation);
     fire(ctx, 1);
     const boosted = ctx.state.bullets.find((b) => b.active);
-    expect(boosted?.damage).toBe(WEAPONS.pistol.damage * WEAPON_UPGRADES.damageFactor * BOOSTS.damageFactor);
+    expect(boosted?.damage).toBe(WEAPONS.pistol.damage * UPGRADE_EFFECTS.damage_x2.damageFactor * BOOSTS.damageFactor);
     expect(boosted?.look).toBe('boosted');
     pistol.special = true;
     for (const b of ctx.state.bullets) b.active = false;
@@ -90,11 +91,11 @@ describe('weapon specials', () => {
     const before = pistol.magazine;
     fire(ctx, 1);
     const bullets = ctx.state.bullets.filter((b) => b.active);
-    expect(bullets).toHaveLength(WEAPON_UPGRADES.fanProjectiles);
+    expect(bullets).toHaveLength(WEAPON_SPECIALS.fan.projectiles);
     expect(pistol.magazine).toBe(before - 1);
     const angles = bullets.map((b) => (Math.atan2(b.dirY, b.dirX) * 180) / Math.PI).sort((a, b) => a - b);
-    expect(angles[1]! - angles[0]!).toBeCloseTo(WEAPON_UPGRADES.fanAngle);
-    expect(angles[2]! - angles[1]!).toBeCloseTo(WEAPON_UPGRADES.fanAngle);
+    expect(angles[1]! - angles[0]!).toBeCloseTo(WEAPON_SPECIALS.fan.angle);
+    expect(angles[2]! - angles[1]!).toBeCloseTo(WEAPON_SPECIALS.fan.angle);
     for (const b of bullets) expect(b.damage).toBe(WEAPONS.pistol.damage);
   });
 

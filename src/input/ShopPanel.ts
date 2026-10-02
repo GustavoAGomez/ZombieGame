@@ -1,4 +1,5 @@
 import type { BoostKind } from '../config/balance';
+import { WEAPONS } from '../config/weapons';
 import { WEAPON_ICONS } from './WeaponBar';
 import { merchantDef, type MerchantId, type MerchantItemId } from '../config/merchants';
 import type { EventBus, GameEvents } from '../core/EventBus';
@@ -188,8 +189,14 @@ export class ShopPanel {
 /** What the row says under its name: the boost drawn, the weapon to level up, the weapon's special. */
 function rowDescription(r: ShopRow): string {
   if (r.boost) return STRINGS.shop.boosts[r.boost];
-  if (r.item === 'weapon_level' && r.weapon) return STRINGS.shop.levelUp(STRINGS.weapons[r.weapon], r.level ?? 0);
-  if (r.item === 'weapon_special' && r.weapon) return STRINGS.shop.specials[r.weapon];
+  if (r.item === 'weapon_level' && r.weapon) {
+    // Each weapon has its own list of levels (spec 04 §1): the row says what the next one does.
+    const upgrades = WEAPONS[r.weapon].upgrades;
+    const level = r.level ?? 0;
+    const next = upgrades[level];
+    return STRINGS.shop.levelUp(STRINGS.weapons[r.weapon], level, upgrades.length, next ? STRINGS.shop.upgradeEffects[next] : null);
+  }
+  if (r.item === 'weapon_special' && r.weapon) return WEAPONS[r.weapon].special ? STRINGS.shop.specials[r.weapon] : STRINGS.weapons[r.weapon];
   return STRINGS.shop.items[r.item].description;
 }
 

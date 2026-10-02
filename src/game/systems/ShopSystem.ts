@@ -5,7 +5,8 @@ import type { ShopItemStatus, ShopReason } from '../../core/shop';
 import { storeBoost } from './BoostSystem';
 import { isPlayerAlive } from './HealthSystem';
 import type { SimContext } from './SimContext';
-import { isFullyLoaded, isMaxLevel, levelUp, magazineSize, maxReserve } from './weaponStats';
+import { WEAPONS } from '../../config/weapons';
+import { isFullyLoaded, levelUp, levelUpReason, magazineSize, maxReserve, specialReason } from './weaponStats';
 
 /** The nearest active merchant within MERCHANT.interactRange of `p`, or -1. */
 export function nearestMerchant(state: GameState, p: PlayerState): number {
@@ -110,21 +111,24 @@ const EFFECTS: Partial<Record<MerchantItemId, ItemEffect>> = {
     unavailable: () => null,
     apply: (p, m) => storeBoost(p, m.boost),
   },
-  // Red merchant: one level up for the weapon in hand (spec 03 §6).
+  // Red merchant: the next level of the weapon in hand, from its own list (spec 04 §1).
   weapon_level: {
     unavailable: (p) => {
       const weapon = p.weapons[p.activeSlot];
-      return !weapon || isMaxLevel(weapon) ? 'maxLevel' : null;
+      return weapon ? levelUpReason(WEAPONS[weapon.id], weapon.level) : 'notUpgradable';
     },
     apply: (p) => {
       const weapon = p.weapons[p.activeSlot];
       if (weapon) levelUp(weapon);
     },
   },
-  // Gold merchant: the special of the weapon chosen in the panel.
+  // Gold merchant: the special of the weapon chosen in the panel, if it has one (spec 04 §1).
   weapon_special: {
     perWeapon: true,
-    unavailable: (p, slot) => (p.weapons[slot]?.special ? 'hasSpecial' : null),
+    unavailable: (p, slot) => {
+      const weapon = p.weapons[slot];
+      return weapon ? specialReason(WEAPONS[weapon.id], weapon.special) : 'noSpecial';
+    },
     apply: (p, _m, slot) => {
       const weapon = p.weapons[slot];
       if (weapon) weapon.special = true;

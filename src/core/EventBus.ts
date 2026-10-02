@@ -1,4 +1,5 @@
-import type { BoostKind, PickupKind, WeaponId, ZombieKind } from '../config/balance';
+import type { BoostKind, PickupKind, ZombieKind } from '../config/balance';
+import type { WeaponId } from '../config/weapons';
 import type { MerchantId, MerchantItemId } from '../config/merchants';
 import type { ShopItemStatus } from './shop';
 

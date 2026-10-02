@@ -48,6 +48,7 @@ src/
   main.ts                 arranque de Phaser + HUD
   config/
     balance.ts            todos los números de juego
+    weapons.ts            catálogo de armas: estadísticas, mejoras propias de cada arma y especiales
     display.ts            resolución, zoom, safe areas
     theme.ts              colores y fuentes (tokens de la Propuesta A)
   core/

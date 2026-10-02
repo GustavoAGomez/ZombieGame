@@ -1,19 +1,5 @@
-import {
-  BOOSTS,
-  BULLETS,
-  LOADOUT,
-  PICKUPS,
-  PLAYER,
-  POINTS,
-  WAVES,
-  WEAPON_UPGRADES,
-  WEAPONS,
-  ZOMBIES,
-  type BoostKind,
-  type PickupKind,
-  type WeaponId,
-  type ZombieKind,
-} from '../config/balance';
+import { BOOSTS, BULLETS, LOADOUT, PICKUPS, PLAYER, POINTS, WAVES, ZOMBIES, type BoostKind, type PickupKind, type ZombieKind } from '../config/balance';
+import { WEAPON_SPECIALS, WEAPONS, type WeaponId } from '../config/weapons';
 import { MERCHANTS, type MerchantId } from '../config/merchants';
 import type { MapData } from '../game/map/MapLoader';
 import { zombiesInRound } from '../game/systems/waveFormulas';
@@ -29,9 +15,9 @@ export interface WeaponSlotState {
   id: WeaponId;
   magazine: number;
   reserve: number;
-  /** Upgrade level 0–3 (spec 03 §6): capacity, then fire rate, then damage. */
+  /** Upgrade levels bought: the first `level` effects of the weapon's own list (spec 04 §1). */
   level: number;
-  /** The weapon's special (pistol fan, SMG piercing). */
+  /** The weapon's special from the gold merchant (pistol fan, SMG piercing). */
   special: boolean;
 }
 
@@ -350,7 +336,7 @@ function createBullet(): BulletState {
     damage: 0,
     look: 'normal',
     pierce: 1,
-    hits: new Array<number>(WEAPON_UPGRADES.pierceHits).fill(-1),
+    hits: new Array<number>(WEAPON_SPECIALS.pierce.hits).fill(-1),
     remaining: 0,
     drawX: 0,
     drawY: 0,

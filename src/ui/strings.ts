@@ -69,13 +69,25 @@ export const STRINGS = {
   shop: {
     buy: 'COMPRAR',
     missing: (money: number): string => `FALTAN ${money}$`,
-    reasons: { ammoFull: 'MUNICIÓN COMPLETA', maxLevel: 'NIVEL MÁXIMO', hasSpecial: 'YA TIENE ESPECIAL' },
+    reasons: {
+      ammoFull: 'MUNICIÓN COMPLETA',
+      maxLevel: 'NIVEL MÁXIMO',
+      notUpgradable: 'NO MEJORABLE',
+      hasSpecial: 'YA TIENE ESPECIAL',
+      noSpecial: 'SIN MEJORA ESPECIAL',
+    },
     comeBack: 'VUELVE EN OTRA RONDA',
     close: 'Cerrar tienda',
     /** The round boost row says which boost this visit sells. */
     boosts: { speed: 'Velocidad ×1,5 durante 10 s', double_damage: 'Doble daño durante 10 s' },
-    /** The red merchant's row: the weapon in hand and the level it goes to. */
-    levelUp: (weapon: string, level: number): string => (level >= 3 ? `${weapon}: nivel máximo` : `${weapon}: nivel ${level} → ${level + 1}`),
+    /** The red merchant's row: the weapon in hand, the level it goes to and what that level does. */
+    levelUp: (weapon: string, level: number, max: number, effect: string | null): string => {
+      if (max === 0) return `${weapon}: no se puede mejorar`;
+      if (level >= max || !effect) return `${weapon}: nivel máximo`;
+      return `${weapon}: nivel ${level} → ${level + 1}, ${effect}`;
+    },
+    /** What each upgrade level does, for the red merchant's row. */
+    upgradeEffects: { ammo_x2: 'munición ×2', fire_rate: 'cadencia ×1,5', damage_x2: 'daño ×2' },
     /** The gold merchant's rows, one per weapon. */
     specials: { pistol: 'Pistola: 3 balas en abanico por disparo', smg: 'SMG: cada bala atraviesa 3 zombis' },
     items: {

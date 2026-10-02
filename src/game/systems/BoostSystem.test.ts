@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { BOOSTS, MELEE, PLAYER, WEAPONS } from '../../config/balance';
+import { BOOSTS, MELEE, PLAYER } from '../../config/balance';
+import { WEAPONS } from '../../config/weapons';
 import { command, createTestContext, placeZombie, player, runTicks } from '../../test/fixtures';
 import { HudPresenter } from '../HudPresenter';
 import { drawRoundBoost, storeBoost } from './BoostSystem';

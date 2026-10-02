@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { MELEE, POINTS, WEAPONS } from '../../config/balance';
+import { MELEE, POINTS } from '../../config/balance';
+import { WEAPONS } from '../../config/weapons';
 import { command, createTestContext, placeZombie, player, runTicks } from '../../test/fixtures';
 import { damageZombie } from './Combat';
 import { spendMoney } from './PointsSystem';

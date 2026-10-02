@@ -1,4 +1,5 @@
-import { LOADOUT, type WeaponId } from '../config/balance';
+import { LOADOUT } from '../config/balance';
+import { type WeaponId } from '../config/weapons';
 import type { EventBus, GameEvents } from '../core/EventBus';
 import type { IconName } from '../ui/icons';
 import { STRINGS } from '../ui/strings';

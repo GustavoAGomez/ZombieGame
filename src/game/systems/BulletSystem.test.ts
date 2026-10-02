@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { BULLETS, WEAPONS, ZOMBIES } from '../../config/balance';
+import { BULLETS, ZOMBIES } from '../../config/balance';
+import { WEAPONS } from '../../config/weapons';
 import { command, createTestContext, placeZombie, player, runTicks } from '../../test/fixtures';
 import { updateBullets } from './BulletSystem';
 import { bodyEntry, hurtboxOf } from './shotGeometry';

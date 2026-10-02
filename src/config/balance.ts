@@ -1,3 +1,4 @@
+import type { WeaponId } from './weapons';
 /**
  * Every tunable gameplay number lives here (CLAUDE.md rule 3).
  * Units: world pixels, seconds, points. Angles in degrees unless noted.
@@ -52,49 +53,6 @@ export const HURT_VIGNETTE = {
   noisePixel: 3,
   noiseBand: 64,
 } as const;
-
-export type WeaponId = 'pistol' | 'smg';
-
-export interface WeaponStats {
-  /** Damage per bullet, in damage units (zombie HP is counted in the same units). */
-  damage: number;
-  /** Shots per second. */
-  fireRate: number;
-  magazine: number;
-  startReserve: number;
-  /** Ammo pickups never raise the reserve above this. */
-  maxReserve: number;
-  reloadTime: number;
-  /** Total cone angle in degrees; each shot deviates up to ±spread/2. */
-  spread: number;
-  range: number;
-  bulletSpeed: number;
-}
-
-export const WEAPONS: Readonly<Record<WeaponId, WeaponStats>> = {
-  pistol: {
-    damage: 1,
-    fireRate: 4,
-    magazine: 8,
-    startReserve: 64,
-    maxReserve: 64,
-    reloadTime: 1.6,
-    spread: 2,
-    range: 340,
-    bulletSpeed: 520,
-  },
-  smg: {
-    damage: 1,
-    fireRate: 11,
-    magazine: 30,
-    startReserve: 120,
-    maxReserve: 120,
-    reloadTime: 2.2,
-    spread: 6,
-    range: 300,
-    bulletSpeed: 560,
-  },
-};
 
 export const LOADOUT = {
   /** Both weapons from the start so switching can be tested (spec 01 §4.2). */
@@ -323,27 +281,7 @@ export const PICKUPS = {
 } as const;
 
 /** Debug panel (spec 01 §8). */
-/** Weapon upgrades (spec 03 §6): levels 1–3 add up; a special per weapon, apart from the levels. */
-export const WEAPON_UPGRADES = {
-  maxLevel: 3,
-  /** Level 1: magazine and maximum reserve multiplied by this (and the weapon refilled to the new maximum). */
-  capacityFactor: 2,
-  /** Level 2: fire rate multiplied by this. */
-  fireRateFactor: 1.5,
-  /** Level 3: damage multiplied by this (stacks with double damage: ×4). */
-  damageFactor: 2,
-  /** Pistol special: projectiles per shot, the angle between them (degrees) and one round of ammo for all. */
-  fanProjectiles: 3,
-  fanAngle: 12,
-  /** SMG special: zombies one bullet can hit before it disappears (walls still stop it). */
-  pierceHits: 3,
-} as const;
 
-/** The special each weapon gets (spec 03 §6). */
-export const WEAPON_SPECIALS: Readonly<Record<WeaponId, 'fan' | 'pierce'>> = {
-  pistol: 'fan',
-  smg: 'pierce',
-};
 
 /** Temporary boosts sold by the blue merchant (spec 03 §5). */
 export type BoostKind = 'speed' | 'double_damage';

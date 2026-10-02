@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { LOADOUT, MELEE, WEAPONS } from '../../config/balance';
+import { LOADOUT, MELEE } from '../../config/balance';
+import { WEAPONS } from '../../config/weapons';
 import { command, createTestContext, placeZombie, player, runTicks } from '../../test/fixtures';
 import { stepSimulation } from './Simulation';
 import { hasAnyAmmo, reloadProgress } from './WeaponSystem';

@@ -1,4 +1,4 @@
-import { WEAPONS } from '../config/balance';
+import { WEAPONS } from '../config/weapons';
 import type { EventBus } from '../core/EventBus';
 import { STRINGS } from '../ui/strings';
 import { TapButton } from './TapButton';
