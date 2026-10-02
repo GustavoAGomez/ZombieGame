@@ -1211,9 +1211,9 @@ Petición del usuario: al pulsar el botón de disparo, a veces el dedo cae desce
 
 - **Dónde:** en el sistema de armas, no en el control táctil. La entrada solo produce comandos (regla 2), y en el online el servidor aplicará la misma espera.
   - El estado del jugador lleva `aimTime` (segundos desde que empezó la pulsación) y `shotPending` (la pulsación aún no ha disparado).
-- **Cuánto:** `firstShotDelay` en cada arma de `weapons.ts`, de momento 0,15 s en las tres. Da tiempo a arrastrar sin que se note un retraso grande.
+- **Cuánto:** `firstShotDelay` en cada arma de `weapons.ts`, igual en las tres. Empezó en 0,15 s. El usuario no notaba la espera y pidió subirla a 1 s.
   - Durante la espera la puntería se actualiza cada tick (manual o automática), así que el jugador ya gira y se ve hacia dónde va a disparar.
-- **Toques cortos:** con una espera simple, un toque de menos de 0,15 s (lo normal en el móvil) no dispararía nunca. Por eso un toque dispara una vez cuando se cumple el tiempo, hacia donde apuntaba en el último tick pulsado.
+- **Toques cortos:** con una espera simple, un toque más corto que la espera (lo normal en el móvil) no dispararía nunca. Por eso un toque dispara una vez cuando se cumple el tiempo, hacia donde apuntaba en el último tick pulsado.
   - Si en ese momento no puede disparar (recargando, cambiando de arma, enfriamiento), el disparo se descarta. Así nunca sale una bala suelta segundos después.
 - **Cada pulsación nueva espera de nuevo.** Mantener pulsado no vuelve a esperar entre balas.
 - **El cuchillo no espera:** ni en su botón ni en el de disparo cuando no queda munición.

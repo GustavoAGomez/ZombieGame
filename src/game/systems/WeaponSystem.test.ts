@@ -9,7 +9,7 @@ describe('WeaponSystem · firing', () => {
   it('fires the pistol at 4 shots/s while held', () => {
     const ctx = withSmg(createTestContext());
     const p = player(ctx);
-    command(ctx).fire = true;
+    holdFire(ctx);
     runTicks(ctx, 60, stepSimulation); // 1 s: shots at 0, .25, .5, .75 (+1 at t=1 boundary)
     const fired = WEAPONS.pistol.magazine - (p.weapons[0]?.magazine ?? 0);
     expect(fired).toBeGreaterThanOrEqual(4);
@@ -117,7 +117,7 @@ describe('WeaponSystem · aiming before the first shot', () => {
     const ctx = withSmg(createTestContext());
     const cmd = command(ctx);
     cmd.fire = true;
-    runTicks(ctx, 60, stepSimulation);
+    runTicks(ctx, DELAY_TICKS + 60, stepSimulation);
     const held = shots(ctx);
     expect(held).toBeGreaterThanOrEqual(4); // the delay, then 4 shots/s
     cmd.fire = false;
@@ -157,7 +157,7 @@ describe('WeaponSystem · reload and switch', () => {
     p.activeSlot = 1; // SMG, the fastest
     const slot = p.weapons[1]!;
     slot.magazine = 1;
-    command(ctx).fire = true;
+    holdFire(ctx);
     const shotTicks: number[] = [];
     let last = p.lastShotTick;
     for (let t = 0; t < Math.round((WEAPONS.smg.reloadTime + 1) * 60); t++) {
@@ -222,7 +222,7 @@ describe('WeaponSystem · reload and switch', () => {
     expect(p.reloadTimer).toBe(0);
     expect(p.switchTimer).toBeCloseTo(LOADOUT.switchTime);
 
-    cmd.fire = true;
+    holdFire(ctx);
     runTicks(ctx, Math.floor(LOADOUT.switchTime * 60) - 1, stepSimulation);
     expect(p.weapons[1]!.magazine).toBe(WEAPONS.smg.magazine);
     runTicks(ctx, 3, stepSimulation);
@@ -423,8 +423,7 @@ describe('shots from the drawn muzzle', () => {
     ctx.muzzles = ART_MUZZLES;
     const p = player(ctx);
     const z = placeZombie(ctx, 0, p.x + dx, p.y + dy, 1000);
-    const cmd = command(ctx);
-    cmd.fire = true;
+    const cmd = holdFire(ctx);
     cmd.aimManual = false;
     runTicks(ctx, 40, stepSimulation);
     return z.hp;

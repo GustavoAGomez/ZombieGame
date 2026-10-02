@@ -82,7 +82,7 @@ export const UPGRADE_LEVELS: Readonly<Record<UpgradeKind, readonly number[]>> = 
 const ALL_UPGRADES = { ammo: 3, fire_rate: 3, damage: 3 } as const;
 
 /** Time to aim before the first shot of a press, the same for every weapon for now. */
-const FIRST_SHOT_DELAY = 0.15;
+const FIRST_SHOT_DELAY = 1;
 
 /** The specials' numbers. */
 export const WEAPON_SPECIALS = {

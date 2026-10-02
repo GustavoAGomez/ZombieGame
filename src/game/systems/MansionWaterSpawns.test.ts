@@ -4,6 +4,7 @@ import { WEAPONS } from '../../config/weapons';
 import {
   command,
   createMansionContext,
+  holdFire,
   movePlayerToTile as movePlayer,
   placeZombie,
   player,
@@ -32,8 +33,8 @@ describe('pool', () => {
     movePlayer(ctx, 45, 4);
     const target = tileCenter(ctx, 45, 12);
     const z = placeZombie(ctx, 0, target.x, target.y, 100);
-    const cmd = command(ctx);
-    Object.assign(cmd, { fire: true, aimManual: true, aimX: 0, aimY: 1 });
+    const cmd = holdFire(ctx);
+    Object.assign(cmd, { aimManual: true, aimX: 0, aimY: 1 });
     stepSimulation(ctx, 1 / 60);
     cmd.fire = false;
     runTicks(ctx, 40, stepSimulation);

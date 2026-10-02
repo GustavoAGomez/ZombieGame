@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { MELEE, POINTS } from '../../config/balance';
 import { WEAPONS } from '../../config/weapons';
-import { command, createTestContext, placeZombie, player, runTicks } from '../../test/fixtures';
+import { command, createTestContext, holdFire, placeZombie, player, runTicks } from '../../test/fixtures';
 import { damageZombie } from './Combat';
 import { spendMoney } from './PointsSystem';
 import { stepSimulation } from './Simulation';
@@ -17,8 +17,7 @@ describe('PointsSystem', () => {
     placeZombie(ctx, 0, p.x + 60, p.y, 1000);
     const gained = vi.fn();
     ctx.events.on('points:gained', gained);
-    const cmd = command(ctx);
-    cmd.fire = true;
+    const cmd = holdFire(ctx);
     stepSimulation(ctx, 1 / 60);
     cmd.fire = false;
     runTicks(ctx, 20, stepSimulation);
@@ -30,8 +29,7 @@ describe('PointsSystem', () => {
     const ctx = createTestContext();
     const p = player(ctx);
     const z = placeZombie(ctx, 0, p.x + 60, p.y, WEAPONS.pistol.damage);
-    const cmd = command(ctx);
-    cmd.fire = true;
+    const cmd = holdFire(ctx);
     stepSimulation(ctx, 1 / 60);
     cmd.fire = false;
     runTicks(ctx, 20, stepSimulation);
