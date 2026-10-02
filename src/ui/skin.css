@@ -129,13 +129,20 @@
   }
 }
 
-/* The boost button keeps its own look, to the left of the plate. */
+/*
+ * The stored boost (the blue merchant's), left of the plate and level with
+ * it: the small ring tinted blue. While it runs, the plain ring, with the
+ * countdown emptying in blue over its metal.
+ */
 .has-ui-skin .action-button--boost {
-  left: calc(50% - 112px);
-  width: 40px;
-  height: 40px;
-  background: rgba(15, 14, 12, 0.45);
-  box-shadow: inset 0 0 0 2px rgba(239, 230, 210, 0.45);
+  left: calc(50% - 105px);
+  bottom: calc(var(--pad-bottom) + 18px);
+  background-image: var(--ui-ring-small-blue);
+}
+
+.has-ui-skin .action-button--boost.is-running {
+  background-image: var(--ui-ring-small);
+  box-shadow: none;
 }
 
 /* ── Health: the frame; its heart replaces the heart icon and beats under 30. ── */
@@ -202,11 +209,12 @@
 }
 
 /*
- * ── Title screen: JUGAR on the plate at 2× (corners 16 px), so it matches
- * the big title; 50 px high, the plate's own 25 doubled, so its middle is
- * only stretched sideways. ──
+ * ── Menus: every screen button on the plate. JUGAR, REINTENTAR, CONTINUAR
+ * and REINICIAR at 2× (corners 16 px), to match the big titles: 50 px high,
+ * the plate's own 25 doubled, so its middle is only stretched sideways.
+ * The vibration switch, secondary, at 1× and 36 px. ──
  */
-.has-ui-skin .screen--title .screen-button--primary {
+.has-ui-skin .screen-button {
   min-height: 50px;
   padding: 0 12px;
   border-style: solid;
@@ -217,6 +225,28 @@
   box-shadow: none;
   line-height: 18px;
   image-rendering: pixelated;
+}
+
+.has-ui-skin .screen-button--toggle {
+  min-height: 36px;
+  padding: 0 6px;
+  border-width: var(--ui-plate-width);
+  border-image-width: var(--ui-plate-width);
+  line-height: 20px;
+}
+
+/* ── Pause button: the small ring (33 px), like the other round buttons, its symbol at 1× (12 px). ── */
+.has-ui-skin .pause-button {
+  width: var(--ui-ring-small-size);
+  height: var(--ui-ring-small-size);
+  background: var(--ui-ring-small) 0 0 / 100% 100% no-repeat;
+  box-shadow: none;
+  image-rendering: pixelated;
+}
+
+.has-ui-skin .pause-button .pixel-icon {
+  width: 12px;
+  height: 12px;
 }
 
 /* ── Pressed: 0.94 for 60 ms, everywhere. ── */

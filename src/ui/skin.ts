@@ -6,9 +6,13 @@ const REQUIRED = ['ringLarge', 'ringSmall', 'panel', 'plate', 'healthFrame'] as 
 /** The health bar's segments (as in Hud.ts) and the gap between them (px). */
 const SEGMENTS = 10;
 const SEGMENT_GAP = 2;
-/** State tints, by code (no extra art): the fire button red, the special and the weapon in hand amber. */
+/**
+ * State tints, by code (no extra art): the fire button red, the special and
+ * the weapon in hand amber, the stored boost in the blue merchant's colour.
+ */
 const RED: readonly [number, number, number] = [201, 58, 43];
 const AMBER: readonly [number, number, number] = [232, 176, 74];
+const BLUE: readonly [number, number, number] = [58, 111, 216];
 /** Share of the tint over the metal's own colour: its light, scratches and rivets stay readable. */
 const TINT_STRENGTH = 0.7;
 
@@ -39,6 +43,7 @@ export async function applyUiSkin(ui: Readonly<Record<string, UiPieceDef>>, asse
   style.setProperty('--ui-ring-large-size', px(ringLarge.width));
   style.setProperty('--ui-ring-small', url(href(ringSmall)));
   style.setProperty('--ui-ring-small-amber', url(small ? tinted(small, AMBER) ?? href(ringSmall) : href(ringSmall)));
+  style.setProperty('--ui-ring-small-blue', url(small ? tinted(small, BLUE) ?? href(ringSmall) : href(ringSmall)));
   style.setProperty('--ui-ring-small-size', px(ringSmall.width));
   // The veil that empties while reloading covers only the small ring's face.
   const face = small ? faceRadius(small) : ringSmall.width / 2 - 4;

@@ -118,13 +118,13 @@ Identifica las piezas por su forma, las recorta a su contorno y las escribe en `
 }
 ```
 
-- **Aros:** a escala entera, `pixelated`. El grande es el botón de disparo. El pequeño (`ringSmall`) es el especial, recargar, cuchillo y los huecos de arma: no viene en el kit; el importador lo saca del mediano reducido exactamente a la mitad (cada píxel, el color más repetido de su bloque de 2×2; en los empates, el más claro, para conservar el borde). El mediano se importa pero no se usa.
+- **Aros:** a escala entera, `pixelated`. El grande es el botón de disparo. El pequeño (`ringSmall`) es el especial, recargar, cuchillo, los huecos de arma, la pausa y la mejora de la ronda (teñido de azul): no viene en el kit; el importador lo saca del mediano reducido exactamente a la mitad (cada píxel, el color más repetido de su bloque de 2×2; en los empates, el más claro, para conservar el borde). El mediano se importa pero no se usa.
 - **Panel y placa:** 9-slice, con las esquinas enteras y los bordes repetidos píxel a píxel.
   - El panel es el fondo de la tienda. Sus cortes son anchos para que las esquinas incluyan los extremos inclinados de las pletinas del centro de cada lado.
-  - La placa es el chip de acción contextual, los botones de la tienda (también los de los artículos que no se pueden comprar, oscurecidos) y JUGAR en la pantalla de inicio (a 2×).
+  - La placa es el chip de acción contextual, los botones de la tienda (también los de los artículos que no se pueden comprar, oscurecidos) y los de los menús: JUGAR, REINTENTAR, CONTINUAR y REINICIAR a 2× y el interruptor de vibración a 1×.
 - **Barra de vida:** marco con un corazón a la izquierda. El juego dibuja los segmentos en `trough`, y una copia de `heart` encima late por debajo de 30 de vida.
 - **Estados, por código y sin más arte** (`src/ui/skin.ts` + `skin.css`, solo con `.has-ui-skin`):
-  - tinte rojo del aro de disparo y ámbar del especial y del arma en mano, hechos en un canvas al cargar y sin tocar la cara;
+  - tinte rojo del aro de disparo, ámbar del especial y del arma en mano y azul de la mejora guardada, hechos en un canvas al cargar y sin tocar la cara;
   - huecos de arma no equipados al 60 %;
   - pulsado a 0,94 durante 60 ms;
   - reparar: un borde ámbar de 2 px alrededor de la placa que parpadea.

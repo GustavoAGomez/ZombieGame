@@ -1,6 +1,6 @@
 import type { BoostKind } from '../config/balance';
 import type { EventBus, GameEvents } from '../core/EventBus';
-import type { IconName } from '../ui/icons';
+import { iconSize, type IconName } from '../ui/icons';
 import { STRINGS } from '../ui/strings';
 import { TapButton } from './TapButton';
 
@@ -28,7 +28,7 @@ export class BoostButton {
   private stored = false;
 
   constructor(parent: HTMLElement, events: EventBus) {
-    this.button = new TapButton(parent, 'action-button--boost', null, '', '', 24);
+    this.button = new TapButton(parent, 'action-button--boost', null, '', '', 12);
     const svg = document.createElementNS(SVG_NS, 'svg');
     svg.setAttribute('class', 'boost-ring');
     svg.setAttribute('viewBox', `0 0 ${SIZE} ${SIZE}`);
@@ -69,8 +69,8 @@ export class BoostButton {
     if (!kind) return;
     if (kind !== this.shownIcon) {
       this.shownIcon = kind;
-      // Whole pixels: the 12×12 bolt and the 11×7 ×2 at 2×.
-      this.button.setIcon(ICONS[kind], kind === 'speed' ? 24 : 22);
+      // Whole pixels: the 12×12 bolt and the 11×7 ×2 at 1×, like the other symbols on the small rings.
+      this.button.setIcon(ICONS[kind], iconSize(ICONS[kind], 1));
       el.setAttribute('aria-label', STRINGS.boosts.activate(STRINGS.boosts.names[kind]));
     }
     this.ring.setAttribute('stroke-dashoffset', String(RING_LENGTH * (1 - e.progress)));

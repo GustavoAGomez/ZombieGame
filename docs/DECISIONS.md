@@ -943,3 +943,17 @@ Petición del usuario: la placa en el botón de empezar y en los botones de mejo
 - **Botones de la tienda:** la placa salía solo en COMPRAR y en «FALTAN…». Cuando el artículo no haría nada («NIVEL MÁXIMO», «MUNICIÓN COMPLETA»…) o ya se ha llegado al límite de la visita («VUELVE EN OTRA RONDA», justo después de comprar una mejora), quedaba un recuadro fino sin diseño. Ahora todos los botones llevan la placa: estos dos estados, oscurecida al 60 % (`brightness`) y con el motivo en hueso.
 - **Reparar:** el parpadeo de antes animaba un `box-shadow` que la placa tapa, así que no se veía. Ahora parpadea un borde ámbar de 2 px que sigue el contorno de la propia placa (cuatro `drop-shadow` sin desenfoque). Mismo ritmo de antes: 0,5 s por ciclo, a pasos, la mitad encendido y la otra mitad apagado. Igual que antes, mientras dura la sacudida de un toque que no hace nada, el parpadeo se para.
 - **Capturas:** `maps/preview/hud/hud-inicio.jpg`, `hud-tienda-limite.jpg` y `hud-reparar.jpg` (esta última con el borde encendido).
+
+### Menús, botón de pausa y botón de la mejora del mago azul (misma rama)
+
+Petición del usuario: la placa también en REINTENTAR, la pausa, CONTINUAR, REINICIAR y vibración, y el diseño en los botones de las mejoras del mago azul.
+
+- **Todos los botones de los menús van sobre la placa:**
+  - REINTENTAR, CONTINUAR y REINICIAR a 2× y 50 px de alto, como JUGAR;
+  - el interruptor de vibración, que es secundario, a 1× y 36 px. Su texto sigue apagado cuando está en «NO».
+- **«Pausa»** se ha entendido como el botón de pausa del HUD, ya que los del menú se piden aparte. Es redondo, así que lleva el aro pequeño (33 px), como los demás botones redondos, con el símbolo a 1× (12 px). La placa es rectangular y no encaja en un botón redondo.
+- **Mago azul:** los botones de su tienda ya tenían la placa desde el cambio anterior; «MUNICIÓN COMPLETA» sale oscurecida. Lo que no tenía diseño era el botón de la mejora de la ronda que vende (velocidad o doble daño), que se quedaba en un cuadrado oscuro de 40 px.
+  - Ahora es el aro pequeño teñido del azul del mago (por código, como el rojo y el ámbar), con el símbolo a 1×, a la izquierda del chip y centrado con él.
+  - Mientras la mejora está activa, el aro va sin teñir y la cuenta atrás azul se vacía sobre su metal, con los segundos en el centro.
+  - Sin la skin, el símbolo también pasa a 1×, como en los demás botones de acción.
+- **Capturas:** `maps/preview/hud/hud-pausa.jpg`, `hud-fin.jpg`, `hud-tienda-azul.jpg`, `hud-mejora-guardada.jpg` y `hud-mejora-activa.jpg`.
