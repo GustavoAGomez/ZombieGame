@@ -12,7 +12,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import type { Directions } from '../src/game/assets/manifest';
+import { DIRECTIONS_4, DIRECTIONS_8, type Directions } from '../src/game/assets/manifest';
 import { decodePng, encodePng, parsePaletteHex } from './lib/png';
 import { directionRows, parsePixelLabMetadata, selectAnimations, type ExportAnimation, type TakeOverrides } from './lib/pixellab';
 import { binarizeAlpha, buildSheet, centerIn, croppedPixels, opaqueBounds, quantize, scaleAbout, type Frame } from './lib/sheet';
@@ -145,7 +145,7 @@ function importAnimation(
   palette: number[] | null,
   log: (line: string) => void,
   frameCount?: number,
-  scale?: number,
+  scale?: ScaleOption,
 ): ImportedAnimation {
   const frameWidth = typeof character.frameWidth === 'number' ? character.frameWidth : anim.width || 48;
   const frameHeight = typeof character.frameHeight === 'number' ? character.frameHeight : anim.height || 48;
@@ -174,14 +174,20 @@ function importAnimation(
     if (lost > 0) log(`  ⚠ ${anim.sourceName}: se recortan ${lost} píxeles del personaje al centrarlo`);
   }
 
-  if (scale !== undefined && scale !== 1) {
+  if (scale !== undefined) {
     // Drawn at another size than the rest of the character (PixelLab drew the crawl 1.5× bigger):
     // scaled around the feet, so it keeps standing where the character stands.
     const anchorX = (isRecord(character.anchor) && typeof character.anchor.x === 'number' ? character.anchor.x : 0.5) * frameWidth;
     const cx = Math.round(anchorX);
     const cy = Math.round(anchorY * frameHeight);
-    decoded = decoded.map((row) => row.map((f) => scaleAbout(centerIn(f, frameWidth, frameHeight), scale, cx, cy)));
-    log(`  · ${anim.sourceName}: escalado ×${scale} alrededor de los pies (import.json)`);
+    const names = rowDirections(directions);
+    const factors = names.map((d) => rowScale(scale, d));
+    decoded = decoded.map((row, r) => {
+      const factor = factors[r] ?? 1;
+      return factor === 1 ? row : row.map((f) => scaleAbout(centerIn(f, frameWidth, frameHeight), factor, cx, cy));
+    });
+    const summary = names.map((d, r) => `${d} ×${factors[r] ?? 1}`).join(', ');
+    log(`  · ${anim.sourceName}: escalado alrededor de los pies (import.json): ${summary}`);
   }
 
   const sheet = buildSheet(decoded, frameWidth, frameHeight);
@@ -215,12 +221,36 @@ function importAnimation(
   return { name: anim.name, frames, directions, file };
 }
 
+/**
+ * Scale of an animation (import.json "scale"): one factor, or one per
+ * direction with "*" for the rest. Facing the camera a crawler shows its
+ * face and looks bigger than from behind, so it can take a smaller factor.
+ */
+export type ScaleOption = number | Record<string, number>;
+
+/** The factor for one direction row (1 when nothing applies). */
+export function rowScale(scale: ScaleOption, direction: string): number {
+  if (typeof scale === 'number') return scale;
+  return scale[direction] ?? scale['*'] ?? 1;
+}
+
+/** Direction names of the sheet rows, in order. */
+function rowDirections(directions: Directions): readonly string[] {
+  if (directions === 8) return DIRECTIONS_8;
+  if (directions === 4) return DIRECTIONS_4;
+  return ['south'];
+}
+
+function validFactor(value: unknown): value is number {
+  return typeof value === 'number' && value > 0 && value <= 4;
+}
+
 interface ImportOptions {
   takes: TakeOverrides;
   /** Frames per row of an animation, instead of its longest direction. */
   frames: Record<string, number>;
   /** Scale of an animation drawn at another size than the rest of the character. */
-  scale: Record<string, number>;
+  scale: Record<string, ScaleOption>;
   /** Other characters that use this art (zombie kinds sharing one zombie). */
   alsoFor: string[];
 }
@@ -228,7 +258,8 @@ interface ImportOptions {
 /**
  * Optional art-src/pixellab/<asset>/import.json with artist choices:
  * { "takes": { "<animation>": { "<direction>": "<take folder>" } },
- *   "frames": { "<animation>": <frames per row> }, "scale": { "<animation>": <factor> },
+ *   "frames": { "<animation>": <frames per row> },
+ *   "scale": { "<animation>": <factor> | { "<direction>" | "*": <factor> } },
  *   "alsoFor": ["<asset>", …] }
  */
 function readOptions(assetDir: string, log: (line: string) => void): ImportOptions {
@@ -246,9 +277,11 @@ function readOptions(assetDir: string, log: (line: string) => void): ImportOptio
     Object.entries(framesRaw).filter((e): e is [string, number] => typeof e[1] === 'number' && Number.isInteger(e[1]) && e[1] > 0),
   );
   const scaleRaw = isRecord(json) && isRecord(json.scale) ? json.scale : {};
-  const scale = Object.fromEntries(
-    Object.entries(scaleRaw).filter((e): e is [string, number] => typeof e[1] === 'number' && e[1] > 0 && e[1] <= 4),
-  );
+  const scale: Record<string, ScaleOption> = {};
+  for (const [anim, value] of Object.entries(scaleRaw)) {
+    if (validFactor(value)) scale[anim] = value;
+    else if (isRecord(value)) scale[anim] = Object.fromEntries(Object.entries(value).filter((e): e is [string, number] => validFactor(e[1])));
+  }
   const alsoFor = isRecord(json) && Array.isArray(json.alsoFor) ? json.alsoFor.filter((a): a is string => typeof a === 'string') : [];
   log(`  · import.json: elecciones de tomas para ${Object.keys(out).join(', ') || 'nada'}${alsoFor.length ? `; arte compartido con ${alsoFor.join(', ')}` : ''}`);
   return { takes: out, frames, scale, alsoFor };

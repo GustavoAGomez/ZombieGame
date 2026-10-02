@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { checkAssets } from './check-assets';
-import { applyImport, importAssets, resampleFrames, shareArt } from './import-pixellab';
+import { applyImport, importAssets, resampleFrames, rowScale, shareArt } from './import-pixellab';
 import { decodePng } from './lib/png';
 
 const repo = resolve(import.meta.dirname, '..');
@@ -191,5 +191,16 @@ describe('resampleFrames', () => {
     expect(resampleFrames(['a', 'b', 'c'], 5)).toEqual(['a', 'a', 'b', 'b', 'c']);
     expect(resampleFrames([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 13)).toHaveLength(13);
     expect(resampleFrames(['a', 'b'], 2)).toEqual(['a', 'b']);
+  });
+});
+
+describe('rowScale', () => {
+  it('takes one factor for every row, or one per direction with "*" for the rest', () => {
+    expect(rowScale(0.8, 'south')).toBe(0.8);
+    const perDirection = { '*': 0.8, south: 0.7, 'south-east': 0.7 };
+    expect(rowScale(perDirection, 'south')).toBe(0.7);
+    expect(rowScale(perDirection, 'south-east')).toBe(0.7);
+    expect(rowScale(perDirection, 'north')).toBe(0.8);
+    expect(rowScale({ south: 0.7 }, 'north')).toBe(1);
   });
 });

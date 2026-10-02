@@ -763,3 +763,6 @@ Petición del usuario: incluir al mago azul con su animación de respirar de pie
   - Nunca baja más del 30 % de la vista, para que el jugador siga en pantalla, y no se mueve si el mago ya se ve.
   - Es solo vista (`followOffset`); el cálculo es una función pura (`shopCamera.ts`).
 - **Cambio posterior (pedido por el usuario):** a 2/3 el zombi del suelo se veía más pequeño que de pie. Con la cabeza igual, el cuerpo tumbado tiene menos masa visible. Se sube a **0,8**: la cabeza queda un poco mayor que de pie y el conjunto se percibe del mismo tamaño. La hurtbox sin piernas pasa a **28×28**, medida de nuevo (28–34 px de alto y 25–36 de ancho).
+- **Segundo ajuste (pedido por el usuario):** a 0,8, el zombi del suelo mirando hacia abajo (sur, sureste y suroeste) se veía más grande que de pie; hacia arriba, bien. Mirando a cámara enseña la cara de frente, que abulta más que la nuca o el perfil.
+  - `"scale"` admite ahora un factor por dirección. Esas tres filas bajan a **0,7**; el resto sigue en 0,8.
+  - La hurtbox sin piernas se queda en 28×28: mirando al sur mide unos 22×27 px, y por los lados, más.
