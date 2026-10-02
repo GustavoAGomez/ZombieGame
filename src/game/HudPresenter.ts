@@ -9,6 +9,7 @@ import { doorTarget } from './systems/DoorSystem';
 import { portalTarget } from './systems/PortalSystem';
 import { isPerWeapon, itemPrice, shopItemStatus, upgradeKindOf } from './systems/ShopSystem';
 import { batteryLevel } from './systems/BeamSystem';
+import { handOffer } from './systems/HandSystem';
 import { ammoKind, fireRate, magazineSize, maxUpgradeLevel, totalLevels } from './systems/weaponStats';
 import { caseOffer } from './systems/WeaponCaseSystem';
 import { hasItemRoom } from './systems/ItemSystem';
@@ -143,10 +144,25 @@ export class HudPresenter {
         }
       }
     }
+    // The Demon's Hand (spec 06 §3.3): pay, the blood pact, what is missing, or take its weapon.
+    let hand: GameEvents['action:context']['hand'];
+    if (kind === 'hand') {
+      const offer = handOffer(this.map, state, p);
+      if (offer) {
+        enabled = offer.enabled;
+        amount = offer.amount;
+        hand = { mode: offer.mode };
+        if (offer.weapon) hand.weapon = offer.weapon;
+        if (offer.mode === 'confirm' && offer.replaces) {
+          hand.replaces = offer.replaces.id;
+          hand.replacesLevel = totalLevels(offer.replaces);
+        }
+      }
+    }
     // A special item on the floor (spec 05 §3): picked up while there is room.
     const item = kind === 'pickup' ? state.groundItems[p.contextTarget]?.item : undefined;
     if (kind === 'pickup') enabled = hasItemRoom(p);
-    const caseKey = weaponCase ? JSON.stringify(weaponCase) : (item ?? '');
+    const caseKey = weaponCase ? JSON.stringify(weaponCase) : hand ? JSON.stringify(hand) : (item ?? '');
     if (
       kind !== this.actionKind ||
       merchant !== this.actionMerchant ||
@@ -165,6 +181,7 @@ export class HudPresenter {
       this.actionCase = caseKey;
       if (kind === 'portal') this.events.emit('action:context', { kind, amount, enabled, portal: portalKind, locked });
       else if (weaponCase) this.events.emit('action:context', { kind, amount, enabled, weaponCase });
+      else if (hand) this.events.emit('action:context', { kind, amount, enabled, hand });
       else if (merchant) this.events.emit('action:context', { kind, amount, enabled, merchant });
       else if (item) this.events.emit('action:context', { kind, amount, enabled, item });
       else this.events.emit('action:context', { kind, amount, enabled });

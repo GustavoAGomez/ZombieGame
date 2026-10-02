@@ -170,6 +170,11 @@ export const ASSET_KEYS = {
   offscreenArrow: 'offscreen_arrow',
   /** Special items on the floor (spec 05 §3): one 12×12 frame per item in ITEM_IDS order. */
   item: 'item',
+  /** The Demon's Hand (spec 06 §3.7): its crack (28×16, embers dim and bright) and the hand (20×28: fist, open, mocking). */
+  handCrack: 'hand_crack',
+  demonHand: 'demon_hand',
+  /** A weapon's outline over the hand (18×10): one frame per weapon in WEAPON_IDS order. */
+  weaponIcon: 'weapon_icon',
   mapRoom01: 'room01',
   mapMansion: 'mansion',
 } as const;

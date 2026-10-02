@@ -32,6 +32,11 @@ export const MAP_RULES = {
   maxItemSpotsPerZone: 2,
   /** Item spots keep at least this far (tiles, centre to centre) from barricades, doors, portals, spawns, merchant spots and weapon cases (spec 05 §2). */
   minItemClearanceTiles: 2,
+  /** Hand spots (spec 06 §3.1): one per zone but the starting one, this far (tiles, centre to centre) from barricades, doors, portals, merchant spots, weapon cases and item spots. */
+  handSpotsPerZone: 1,
+  minHandClearanceTiles: 3,
+  /** …and never in a passage narrower than this (tiles): the spot lies in an open square this size. */
+  minHandPassageTiles: 3,
   maxWidth: 120,
   maxHeight: 70,
 } as const;
@@ -231,6 +236,7 @@ export function validateMap(raw: TiledSourceMap | TiledMap): MapValidation {
   validateMerchantSpots(map, free, inOpenSquare, errors);
   validateWeaponCases(map, free, inOpenSquare, errors);
   validateItemSpots(map, free, (x, y) => seen[y * map.width + x] === 1, errors);
+  validateHandSpots(map, free, (x, y) => seen[y * map.width + x] === 1, errors);
   // Every activation needs its place on the map (spec 05 §6).
   for (const a of ACTIVATIONS) {
     const site = map.activationSites.find((s) => s.id === a.site);
@@ -324,6 +330,72 @@ function validateItemSpots(
     for (const k of keepAway) {
       const d = Math.min(...k.points.map((p) => Math.hypot(p.x - spot.x, p.y - spot.y))) / ts;
       if (d < R.minItemClearanceTiles) errors.push(`${who} está a ${d.toFixed(1)} tiles ${k.what.startsWith('el ') ? `del ${k.what.slice(3)}` : `de ${k.what}`}; debe estar a ${R.minItemClearanceTiles} o más`);
+    }
+  });
+}
+
+/**
+ * Hand spots (spec 06 §3.1): one per zone but the starting one, which has
+ * none; each on a free floor tile of its zone with its four neighbours free,
+ * reachable, inside an open square of minHandPassageTiles (never in a narrow
+ * passage) and at least minHandClearanceTiles from barricades, doors,
+ * portals, merchant spots, weapon cases and item spots.
+ */
+function validateHandSpots(
+  map: MapData,
+  free: (x: number, y: number) => boolean,
+  reachable: (x: number, y: number) => boolean,
+  errors: string[],
+): void {
+  const R = MAP_RULES;
+  const ts = map.tileSize;
+  map.zones.forEach((zone, i) => {
+    const count = map.handSpots.filter((s) => s.zoneIndex === i).length;
+    const wanted = zone.startsUnlocked ? 0 : R.handSpotsPerZone;
+    if (count !== wanted) {
+      errors.push(
+        zone.startsUnlocked
+          ? `la zona inicial ${zone.id} tiene ${count} puntos de mano; no debe tener ninguno`
+          : `la zona ${zone.id} tiene ${count} puntos de mano; debe tener ${wanted}`,
+      );
+    }
+  });
+  const centre = (t: { x: number; y: number }) => ({ x: (t.x + 0.5) * ts, y: (t.y + 0.5) * ts });
+  const keepAway: { what: string; points: { x: number; y: number }[] }[] = [
+    ...map.windows.map((w) => ({ what: `la barricada ${w.id}`, points: [w.center] })),
+    ...map.doors.map((d) => ({ what: `la puerta ${d.id}`, points: d.tiles.map(centre) })),
+    ...map.portals.map((p) => ({ what: `el portal ${p.id}`, points: p.tiles.map(centre) })),
+    ...map.merchantSpots.map((s, i) => ({ what: `el punto de mago ${i + 1} (${s.zone})`, points: [s] })),
+    ...map.weaponCases.map((c) => ({ what: `la vitrina ${c.id}`, points: [c] })),
+    ...map.itemSpots.map((s, i) => ({ what: `el punto de objeto ${i + 1} (${s.zone})`, points: [s] })),
+  ];
+  const side = R.minHandPassageTiles;
+  const inOpenSquare = (x: number, y: number): boolean => {
+    for (let oy = 1 - side; oy <= 0; oy++) {
+      for (let ox = 1 - side; ox <= 0; ox++) {
+        let open = true;
+        for (let dy = 0; dy < side && open; dy++) for (let dx = 0; dx < side && open; dx++) open = free(x + ox + dx, y + oy + dy);
+        if (open) return true;
+      }
+    }
+    return false;
+  };
+  map.handSpots.forEach((spot, i) => {
+    const who = `el punto de mano ${i + 1} (${spot.zone})`;
+    const tx = Math.floor(spot.x / ts);
+    const ty = Math.floor(spot.y / ts);
+    if ((map.cellZone[ty * map.width + tx] ?? -1) !== spot.zoneIndex) errors.push(`${who} no cae en su zona`);
+    if (!free(tx, ty)) {
+      errors.push(`${who} está en una casilla bloqueada (${tx},${ty}): agua, vacío, pared o atrezo`);
+      return;
+    }
+    const blocked = SIDES.filter(([dx, dy]) => !free(tx + dx, ty + dy)).map(([dx, dy]) => `${tx + dx},${ty + dy}`);
+    if (blocked.length > 0) errors.push(`${who} tiene casillas vecinas bloqueadas (${blocked.join(' ')}); las cuatro deben estar libres`);
+    if (!reachable(tx, ty)) errors.push(`${who} no se puede alcanzar a pie (${tx},${ty})`);
+    if (!inOpenSquare(tx, ty)) errors.push(`${who} está en un paso de menos de ${side} tiles (${tx},${ty})`);
+    for (const k of keepAway) {
+      const d = Math.min(...k.points.map((p) => Math.hypot(p.x - spot.x, p.y - spot.y))) / ts;
+      if (d < R.minHandClearanceTiles) errors.push(`${who} está a ${d.toFixed(1)} tiles ${k.what.startsWith('el ') ? `del ${k.what.slice(3)}` : `de ${k.what}`}; debe estar a ${R.minHandClearanceTiles} o más`);
     }
   });
 }

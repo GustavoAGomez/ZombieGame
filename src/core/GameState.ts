@@ -4,6 +4,7 @@ import { ACTIVATIONS } from '../config/activations';
 import { MERCHANTS, type MerchantId } from '../config/merchants';
 import { STARTING_ITEMS, type ItemId } from '../config/items';
 import type { MapData } from '../game/map/MapLoader';
+import { createHandState, emptyHand } from '../game/systems/handSpawn';
 import { placeMatchItems } from '../game/systems/itemSpawns';
 import { initialAccesses } from '../game/systems/ZoneSystem';
 import { zombiesInRound } from '../game/systems/waveFormulas';
@@ -39,7 +40,38 @@ export interface WeaponSlotState {
 export type BulletLook = 'normal' | 'upgraded' | 'boosted' | 'special' | 'fire';
 
 /** What the contextual action chip would do for a player right now. */
-export type ContextAction = 'none' | 'repair' | 'door' | 'portal' | 'merchant' | 'weaponCase' | 'pickup';
+export type ContextAction = 'none' | 'repair' | 'door' | 'portal' | 'merchant' | 'weaponCase' | 'hand' | 'pickup';
+
+/**
+ * Where the Demon's Hand is in its sequence (spec 06 §3.4): waiting in its
+ * crack, rising with its fist closed after a payment, weapon outlines
+ * rolling over it, open with the weapon drawn (or empty: the draw gave
+ * nothing), and sinking back.
+ */
+export type HandPhase = 'idle' | 'rising' | 'rolling' | 'offering' | 'empty' | 'sinking';
+
+/** The Demon's Hand (spec 06 §3): one in the match, shared by every player (the offer is only for the one who paid). */
+export interface HandState {
+  /** Index into MapData.handSpots where it is now, -1 when the map has none. */
+  spot: number;
+  phase: HandPhase;
+  /** Seconds left in the phase (0 while idle). */
+  timer: number;
+  /** Tick the phase started (views). */
+  phaseTick: number;
+  /** Payments it still takes in this spot before it tires (spec 06 §3.6). */
+  usesLeft: number;
+  /** What the payment under way drew: a weapon, or null for nothing. */
+  offer: WeaponId | null;
+  /** The offered weapon was taken: the hand sinks empty. */
+  taken: boolean;
+  /** The last weapon it offered: the next draw avoids it while there is another. */
+  lastOffered: WeaponId | null;
+  /** Player id of who paid for the sequence under way (only they can take the weapon), -1 none. */
+  payer: number;
+  /** How the sequence under way was paid. */
+  paid: 'money' | 'blood' | null;
+}
 
 export interface PlayerState {
   id: number;
@@ -134,6 +166,8 @@ export interface PlayerState {
    */
   swapConfirmCase: number;
   swapConfirmTimer: number;
+  /** Seconds left to tap again to take the Demon's Hand's weapon in place of an upgraded one (spec 06 §3.4); 0 when not asked. */
+  handConfirmTimer: number;
   /** Merchant whose shop panel this player has open (spec 03 §3), -1 when closed. */
   shopMerchant: number;
   /** Boost bought and kept for later (spec 03 §5): one slot, kept between rounds. */
@@ -373,6 +407,8 @@ export interface GameState extends RngState {
   groundItems: GroundItemState[];
   /** Parallel to ACTIVATIONS (spec 05 §6). */
   activations: ActivationState[];
+  /** The Demon's Hand (spec 06 §3). */
+  hand: HandState;
   wave: WaveState;
   /** Parallel to MapData.doors. */
   doorsOpen: boolean[];
@@ -450,6 +486,7 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     contextTarget: -1,
     swapConfirmCase: -1,
     swapConfirmTimer: 0,
+    handConfirmTimer: 0,
     shopMerchant: -1,
     boostStored: null,
     boostActive: null,
@@ -575,8 +612,10 @@ export function createGameState(map: MapData, options: GameOptions = {}): GameSt
     zonesUnlocked: map.zones.map((z) => z.startsUnlocked),
     groundItems: [],
     activations: ACTIVATIONS.map(() => ({ received: [], landsAt: [], thrownBy: [], done: false, doneTick: -1 })),
+    hand: emptyHand(),
   };
-  // Drawn with the match's RNG as the match starts (spec 05 §2).
+  // Drawn with the match's RNG as the match starts (spec 05 §2, spec 06 §3.2).
   state.groundItems = placeMatchItems(state, map);
+  state.hand = createHandState(state, map);
   return state;
 }

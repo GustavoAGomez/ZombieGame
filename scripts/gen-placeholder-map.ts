@@ -81,6 +81,12 @@ const MERCHANT_SPOTS: [number, number, string][] = [
   [21, 24, 'almacen'],
 ];
 
+/** Demon's Hand spots (spec 06 §3.1): one per zone but the starting one. */
+const HAND_SPOTS: [number, number, string][] = [
+  [7, 16, 'pasillo'],
+  [25, 20, 'almacen'],
+];
+
 const WINDOW_PLANKS = 5;
 const SPAWN_DISTANCE_TILES = 2;
 
@@ -197,6 +203,9 @@ export function buildRoom01Map(): TiledMap {
       height: 0,
       properties: [p('zone', 'string', zone)],
     });
+  });
+  HAND_SPOTS.forEach(([tx, ty, zone], i) => {
+    add({ name: `H${i + 1}`, type: 'hand_spot', point: true, x: (tx + 0.5) * TILE, y: (ty + 0.5) * TILE, width: 0, height: 0, properties: [p('zone', 'string', zone)] });
   });
 
   const tileLayer = (id: number, name: string, data: number[]) =>

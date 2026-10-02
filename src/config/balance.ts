@@ -352,6 +352,38 @@ export const MERCHANT = {
   offscreenIndicator: true,
 } as const;
 
+/**
+ * The Demon's Hand (spec 06 §3): a crack in the floor where, for money or
+ * for blood, a hand offers a weapon drawn at random. One in the match.
+ */
+export const HAND = {
+  price: 950,
+  /** With less money than `price`, the blood pact: this much health, only while the player has more than it. */
+  bloodCost: 40,
+  /** The action button offers it within this distance of the crack's centre. */
+  interactRange: 40,
+  /** The sequence after a payment (s): rising with its fist closed, weapon outlines rolling over it, then open. */
+  risingTime: 0.6,
+  rollingTime: 2,
+  /** Open with the weapon floating over it, for the one who paid to take; it blinks for the last blinkTime s. */
+  offeringTime: 8,
+  blinkTime: 3,
+  /** Open and empty when the draw gave nothing; the payment is lost. */
+  emptyTime: 1.2,
+  sinkingTime: 0.6,
+  /** A special weapon on offer: its name on the HUD for this long. */
+  specialNoticeTime: 1.5,
+  /**
+   * What a payment draws (users' answers, docs/DECISIONS.md): nothing, a
+   * special weapon or a basic one, never one the player carries. A group
+   * with none left gives its share to the other.
+   */
+  chances: { nothing: 0.1, special: 0.2, basic: 0.7 },
+  /** Uses it takes in one spot before it tires and moves (spec 06 §3.6, drawn at each new spot). */
+  usesMin: 4,
+  usesMax: 8,
+} as const;
+
 /** Special items (spec 05): items.ts has the catalogue, activations.ts what they open. */
 export const ITEMS = {
   /** Closer than this (px, feet to item) the action button offers to pick it up. */

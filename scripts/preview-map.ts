@@ -228,6 +228,14 @@ export function renderMap(mapPath: string): { image: Frame; map: MapData } {
     rect(image, cx - 1, cy - 5, 3, 11, [190, 90, 235]);
     rect(image, cx - 1, cy - 1, 3, 3, [245, 225, 255]);
   }
+  // Hand spots (spec 06 §3.1): the crack, a dark oval with red embers and a red outline.
+  for (const s of map.handSpots) {
+    const cx = Math.round(s.x);
+    const cy = Math.round(s.y);
+    rect(image, cx - 15, cy - 9, 30, 18, [200, 30, 30]);
+    rect(image, cx - 13, cy - 7, 26, 14, [25, 8, 8]);
+    for (const [ex, ey] of [[-8, -2], [-3, 2], [2, -3], [7, 1], [0, 0]] as const) rect(image, cx + ex - 1, cy + ey - 1, 3, 3, [255, 80, 30]);
+  }
   for (let i = 0; i <= 8; i++) rect(image, Math.round(map.playerSpawn.x) - i, Math.round(map.playerSpawn.y) - 8 + i, i * 2 + 1, 1, [255, 230, 40]);
   for (let i = 0; i < 8; i++) rect(image, Math.round(map.playerSpawn.x) - 7 + i, Math.round(map.playerSpawn.y) + 1 + i, 15 - i * 2, 1, [255, 230, 40]);
   return { image, map };

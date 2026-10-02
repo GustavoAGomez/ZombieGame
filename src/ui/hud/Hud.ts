@@ -1,4 +1,4 @@
-import { DOORS, ITEMS, MERCHANT, POINTS, WAVES, type BoostKind } from '../../config/balance';
+import { DOORS, HAND, ITEMS, MERCHANT, POINTS, WAVES, type BoostKind } from '../../config/balance';
 import { merchantDef } from '../../config/merchants';
 import { COLORS } from '../../config/theme';
 import { UPGRADE_KINDS, type UpgradeKind } from '../../config/weapons';
@@ -154,6 +154,7 @@ export class Hud {
       events.on('item:picked', this.onItemPicked),
       events.on('activation:completed', this.onActivationCompleted),
       events.on('zone:unlocked', this.onZoneUnlocked),
+      events.on('hand:offer', this.onHandOffer),
     );
   }
 
@@ -235,6 +236,11 @@ export class Hud {
     if (e.effect.kind !== 'summon_merchant') return;
     const merchant = e.effect.merchant;
     this.showNotice(STRINGS.merchants.summoned(STRINGS.merchants.names[merchant]), merchantDef(merchant).color, ITEMS.summonNoticeTime);
+  };
+
+  /** The Demon's Hand opened with a special weapon (spec 06 §3.4): its name, for a moment. */
+  private readonly onHandOffer = (e: GameEvents['hand:offer']): void => {
+    if (e.special) this.showNotice(STRINGS.weapons[e.weapon], 'var(--red)', HAND.specialNoticeTime);
   };
 
   /** A room unlocked: only now is it told which one, for everyone. */

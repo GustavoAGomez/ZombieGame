@@ -3,6 +3,7 @@ import type { PlayerState } from '../../core/GameState';
 import { repairableWindow, updateRepair } from './BarricadeSystem';
 import { nearestClosedDoor, tryBuyDoor } from './DoorSystem';
 import { isPlayerAlive } from './HealthSystem';
+import { handOffer, tapHand } from './HandSystem';
 import { itemInReach, pickUpItem } from './ItemSystem';
 import { isPortalBuyable, nearestClosedPortal, tryBuyPortal } from './PortalSystem';
 import { nearestMerchant } from './ShopSystem';
@@ -78,11 +79,17 @@ export function updateInteractions(ctx: SimContext, dt: number): void {
       p.contextTarget = window;
       updateRepair(ctx, p, cmd, window, dt);
     } else {
-      // Last of all, a special item on the floor (spec 05 §3); item spots keep clear of everything above.
-      const item = itemInReach(state, p);
+      // Then the Demon's Hand (spec 06 §3.3) and, last of all, a special item on the floor (spec 05 §3);
+      // hand and item spots keep clear of everything above and of each other.
+      const hand = handOffer(ctx.map, state, p);
+      const item = hand ? -1 : itemInReach(state, p);
       clearContext(p);
       updateRepair(ctx, p, undefined, -1, dt);
-      if (item >= 0) {
+      if (hand) {
+        p.contextAction = 'hand';
+        p.contextTarget = state.hand.spot;
+        if (cmd?.actionPressed) tapHand(ctx, p);
+      } else if (item >= 0) {
         p.contextAction = 'pickup';
         p.contextTarget = item;
         if (cmd?.actionPressed) pickUpItem(ctx, p, item);

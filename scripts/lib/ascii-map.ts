@@ -132,6 +132,13 @@ export interface AsciiItemSpot {
   zone: string;
 }
 
+/** Where the Demon's Hand can be (table "Mano", spec 06 §3.1). Only in the table: the cell keeps its floor. */
+export interface AsciiHandSpot {
+  id: string;
+  cell: Cell;
+  zone: string;
+}
+
 /** A place where special items are used (table "Activaciones", spec 05 §6): a rectangle of tiles and its zone. */
 export interface AsciiActivationSite {
   id: string;
@@ -171,6 +178,7 @@ export interface AsciiMap {
   merchantSpots: AsciiMerchantSpot[];
   weaponCases: AsciiWeaponCase[];
   itemSpots: AsciiItemSpot[];
+  handSpots: AsciiHandSpot[];
   activationSites: AsciiActivationSite[];
   props: AsciiProp[];
   player: Cell;
@@ -218,7 +226,7 @@ function readTables(text: string): Map<string, Row[]> {
     }
     const row: Row = {};
     header.forEach((h, i) => (row[h] = cells[i] ?? ''));
-    const key = ['zonas', 'puertas', 'barricadas', 'portales', 'spawns', 'magos', 'vitrinas', 'objetos', 'activaciones', 'jugador', 'atrezo'].find((k) => section.startsWith(k)) ?? section;
+    const key = ['zonas', 'puertas', 'barricadas', 'portales', 'spawns', 'magos', 'vitrinas', 'objetos', 'mano', 'activaciones', 'jugador', 'atrezo'].find((k) => section.startsWith(k)) ?? section;
     tables.set(key, [...(tables.get(key) ?? []), row]);
   }
   return tables;
@@ -330,6 +338,11 @@ export function parseAsciiMap(text: string): AsciiMap {
     cell: parseCells(r.casilla ?? '', problems, `objeto ${r.id}`)[0] ?? { x: -1, y: -1 },
     zone: r.zona ?? '',
   }));
+  const handSpots: AsciiHandSpot[] = rows('mano').map((r) => ({
+    id: r.id ?? '',
+    cell: parseCells(r.casilla ?? '', problems, `mano ${r.id}`)[0] ?? { x: -1, y: -1 },
+    zone: r.zona ?? '',
+  }));
   const activationSites: AsciiActivationSite[] = rows('activaciones').map((r) => ({
     id: r.id ?? '',
     cells: parseArea(r.casillas ?? '', problems, `activación ${r.id}`),
@@ -348,12 +361,13 @@ export function parseAsciiMap(text: string): AsciiMap {
     };
   });
 
-  const map: AsciiMap = { grid, width, height, zones, doors, windows, portals, openSpawns, merchantSpots, weaponCases, itemSpots, activationSites, props, player };
+  const map: AsciiMap = { grid, width, height, zones, doors, windows, portals, openSpawns, merchantSpots, weaponCases, itemSpots, handSpots, activationSites, props, player };
   checkMarkers(map, problems);
   checkProps(map, problems);
   checkMerchantSpots(map, problems);
   checkWeaponCases(map, problems);
   checkItemSpots(map, problems);
+  checkHandSpots(map, problems);
   if (problems.length > 0) throw new AsciiMapError(problems);
   return map;
 }
@@ -430,6 +444,24 @@ function checkMerchantSpots(map: AsciiMap, problems: string[]): void {
  * The design rules (reachable, clear of barricades, doors, portals, spawns,
  * merchant spots and weapon cases) are checked on the built map.
  */
+/**
+ * Hand spots are on floor cells, never under furniture. Their design rules
+ * (four free neighbours, clearances, a passage of 3 tiles, one per zone but
+ * the starting one) are checked on the built map.
+ */
+function checkHandSpots(map: AsciiMap, problems: string[]): void {
+  const covered = new Set(map.props.flatMap((p) => p.cells.map((c) => `${c.x},${c.y}`)));
+  const ids = new Set<string>();
+  for (const spot of map.handSpots) {
+    const who = `mano ${spot.id}`;
+    if (ids.has(spot.id)) problems.push(`${who}: id repetido`);
+    ids.add(spot.id);
+    const ch = map.grid[spot.cell.y]?.[spot.cell.x] ?? '_';
+    if ('#HFWDo<P_w'.includes(ch)) problems.push(`${who}: la casilla ${spot.cell.x},${spot.cell.y} es "${ch}"; la grieta va sobre suelo`);
+    if (covered.has(`${spot.cell.x},${spot.cell.y}`)) problems.push(`${who}: la casilla ${spot.cell.x},${spot.cell.y} está tapada por atrezo`);
+  }
+}
+
 function checkItemSpots(map: AsciiMap, problems: string[]): void {
   const covered = new Set(map.props.flatMap((p) => p.cells.map((c) => `${c.x},${c.y}`)));
   const ids = new Set<string>();
@@ -941,6 +973,11 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
     knownZone(s.zone, `objeto ${s.id}`);
     if (zoneIndex.has(s.zone) && cellZone[s.cell.y * W + s.cell.x] !== zoneIndex.get(s.zone)) problems.push(`objeto ${s.id}: no cae en la zona ${s.zone}`);
     add({ name: s.id, type: 'item_spot', ...point(s.cell), properties: [p('zone', 'string', s.zone)] });
+  }
+  for (const s of map.handSpots) {
+    knownZone(s.zone, `mano ${s.id}`);
+    if (zoneIndex.has(s.zone) && cellZone[s.cell.y * W + s.cell.x] !== zoneIndex.get(s.zone)) problems.push(`mano ${s.id}: no cae en la zona ${s.zone}`);
+    add({ name: s.id, type: 'hand_spot', ...point(s.cell), properties: [p('zone', 'string', s.zone)] });
   }
   for (const a of map.activationSites) {
     knownZone(a.zone, `activación ${a.id}`);

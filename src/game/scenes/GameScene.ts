@@ -13,6 +13,7 @@ import type { AssetLibrary } from '../assets/AssetLibrary';
 import { ASSET_KEYS } from '../assets/manifest';
 import { AimLine } from '../entities/AimLine';
 import { FlameJet } from '../entities/FlameJet';
+import { HandView } from '../entities/HandView';
 import { LaserBeam } from '../entities/LaserBeam';
 import { BloodViewPool } from '../entities/Blood';
 import { BloodSprayPool } from '../entities/BloodSpray';
@@ -81,6 +82,7 @@ export class GameScene extends Phaser.Scene {
   private aimLine!: AimLine;
   private laserBeam!: LaserBeam;
   private flameJet!: FlameJet;
+  private handView!: HandView;
   private muzzleFlash!: MuzzleFlash;
   private meleeSlash!: MeleeSlash;
   private worldTexts!: WorldTextPool;
@@ -176,6 +178,7 @@ export class GameScene extends Phaser.Scene {
     this.aimLine = new AimLine(this, playerDef);
     this.laserBeam = new LaserBeam(this, playerDef);
     this.flameJet = new FlameJet(this, playerDef, events);
+    this.handView = new HandView(this, this.map, events);
     this.muzzleFlash = new MuzzleFlash(this, playerDef);
     this.meleeSlash = new MeleeSlash(this, playerDef, manifest.objects[ASSET_KEYS.meleeSlash]);
     this.worldTexts = new WorldTextPool(this, events);
@@ -200,6 +203,7 @@ export class GameScene extends Phaser.Scene {
       this.hud.destroy();
       this.worldTexts.destroy();
       this.flameJet.destroy();
+      this.handView.destroy();
       this.cantUseText.destroy();
       this.thrownItems.destroy();
       this.bloodSpray.destroy();
@@ -225,6 +229,7 @@ export class GameScene extends Phaser.Scene {
     this.burnFlames.update(this.state.zombies, effectsDt, (i) => this.zombieViews.isShown(i));
     const player = this.state.players[0];
     this.flameJet.update(player, effectsDt);
+    this.handView.sync(this.state.hand, this.state.time, effectsDt);
     if (player) this.playerStains.sync(player, this.playerView.sprite, effectsDt);
     this.debugDraw.draw(this.state, this.sim.nav, this.sim.grid);
     this.presenter.publish(this.state);

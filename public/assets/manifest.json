@@ -539,6 +539,27 @@
       "frames": 2,
       "placeholder": true
     },
+    "hand_crack": {
+      "file": "sprites/objects/hand_crack.png",
+      "frameWidth": 28,
+      "frameHeight": 16,
+      "frames": 2,
+      "placeholder": true
+    },
+    "demon_hand": {
+      "file": "sprites/objects/demon_hand.png",
+      "frameWidth": 20,
+      "frameHeight": 28,
+      "frames": 3,
+      "placeholder": true
+    },
+    "weapon_icon": {
+      "file": "sprites/objects/weapon_icon.png",
+      "frameWidth": 18,
+      "frameHeight": 10,
+      "frames": 6,
+      "placeholder": true
+    },
     "prop_escalera_derrumbada": {
       "file": "sprites/props/prop_escalera_derrumbada.png",
       "frameWidth": 96,

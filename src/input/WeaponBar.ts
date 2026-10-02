@@ -1,19 +1,9 @@
 import { LOADOUT } from '../config/balance';
 import { type WeaponId } from '../config/weapons';
 import type { EventBus, GameEvents } from '../core/EventBus';
-import { iconSize, type IconName } from '../ui/icons';
+import { WEAPON_ICONS, iconSize } from '../ui/icons';
 import { STRINGS } from '../ui/strings';
 import { TapButton } from './TapButton';
-
-/** Provisional icon per weapon (final art later). */
-export const WEAPON_ICONS: Readonly<Record<WeaponId, IconName>> = {
-  pistol: 'pistol',
-  smg: 'rifle',
-  shotgun: 'shotgun',
-  katana: 'katana',
-  laser: 'laser',
-  flamethrower: 'flamethrower',
-};
 
 /**
  * Weapon slots in a column at the top right of the screen: one per weapon

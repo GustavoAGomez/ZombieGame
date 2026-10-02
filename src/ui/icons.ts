@@ -1,3 +1,5 @@
+import type { WeaponId } from '../config/weapons';
+
 /**
  * Pixel icons as inline SVG with crisp edges (HUD "Propuesta A"). Each icon
  * is a list of [x, y, w, h, color?] rects on a small grid.
@@ -17,6 +19,7 @@ export type IconName =
   | 'katana'
   | 'laser'
   | 'flamethrower'
+  | 'hand'
   | 'hammer'
   | 'door'
   | 'stairs'
@@ -101,6 +104,11 @@ const ICONS: Record<IconName, IconDef> = {
       [4, 4, 2, 3, 'var(--amber-dark)'], [7, 4, 2, 4], [15, 1, 1, 1],
     ],
   },
+  // The Demon's Hand (spec 06 §3): a dark red claw reaching up, its nails lit like embers.
+  hand: {
+    w: 11, h: 12, fill: '#a3241f',
+    rects: [[1, 2, 2, 5], [3, 1, 2, 6], [5, 1, 2, 6], [7, 2, 2, 5], [1, 7, 8, 3], [9, 5, 2, 3], [2, 10, 6, 2, '#6e1414'], [1, 1, 2, 1, '#ff7a3d'], [3, 0, 2, 1, '#ff7a3d'], [5, 0, 2, 1, '#ff7a3d'], [7, 1, 2, 1, '#ff7a3d']],
+  },
   hammer: {
     w: 12, h: 12, fill: 'var(--bone)',
     rects: [[1, 1, 9, 3], [10, 2, 1, 1], [0, 2, 1, 2], [5, 4, 2, 8, 'var(--amber-dark)']],
@@ -175,6 +183,16 @@ const ICONS: Record<IconName, IconDef> = {
       [7, 2, 5, 1, 'var(--amber)'], [8, 3, 3, 1, 'var(--amber)'], [9, 4, 1, 1, 'var(--amber)'],
     ],
   },
+};
+
+/** Provisional icon per weapon (final art later): the HUD's slots and action button, and the Demon's Hand's outlines. */
+export const WEAPON_ICONS: Readonly<Record<WeaponId, IconName>> = {
+  pistol: 'pistol',
+  smg: 'rifle',
+  shotgun: 'shotgun',
+  katana: 'katana',
+  laser: 'laser',
+  flamethrower: 'flamethrower',
 };
 
 const SVG_NS = 'http://www.w3.org/2000/svg';

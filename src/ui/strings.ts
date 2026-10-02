@@ -163,6 +163,11 @@ export const STRINGS = {
     swapFrom: (weapon: string): string => `CAMBIAR ${weapon}`,
     swapTo: (weapon: string): string => `POR ${weapon}`,
     buyWeaponLabel: (weapon: string): string => `Comprar ${weapon}`,
+    /** The Demon's Hand (spec 06 §3.3): pay, the blood pact when short of money, then take its weapon. */
+    handPay: (price: string): string => `MANO DEL DEMONIO · ${price}`,
+    bloodPact: (health: number): string => `PACTO DE SANGRE · ${health} VIDA`,
+    handTake: (weapon: string): string => `COGER ${weapon}`,
+    handLabel: 'Mano del Demonio',
     /** Special items on the floor (spec 05 §3): "RECOGER VARITA DESGASTADA". */
     pickUp: (item: string): string => `RECOGER ${item}`,
     inventoryFull: 'INVENTARIO LLENO',

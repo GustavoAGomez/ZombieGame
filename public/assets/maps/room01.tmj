@@ -10,7 +10,7 @@
  "tilewidth": 32,
  "tileheight": 32,
  "nextlayerid": 5,
- "nextobjectid": 24,
+ "nextobjectid": 26,
  "layers": [
   {
    "id": 1,
@@ -3367,6 +3367,44 @@
      "point": true,
      "x": 688,
      "y": 784,
+     "width": 0,
+     "height": 0,
+     "properties": [
+      {
+       "name": "zone",
+       "type": "string",
+       "value": "almacen"
+      }
+     ]
+    },
+    {
+     "id": 24,
+     "rotation": 0,
+     "visible": true,
+     "name": "H1",
+     "type": "hand_spot",
+     "point": true,
+     "x": 240,
+     "y": 528,
+     "width": 0,
+     "height": 0,
+     "properties": [
+      {
+       "name": "zone",
+       "type": "string",
+       "value": "pasillo"
+      }
+     ]
+    },
+    {
+     "id": 25,
+     "rotation": 0,
+     "visible": true,
+     "name": "H2",
+     "type": "hand_spot",
+     "point": true,
+     "x": 816,
+     "y": 656,
      "width": 0,
      "height": 0,
      "properties": [

@@ -26,6 +26,12 @@ export interface GameEvents {
   'door:opened': { doorId: string; playerId: number };
   /** A portal (stairs, ladder, hatch) was bought. */
   'portal:opened': { portalId: string; playerId: number };
+  /** Someone paid the Demon's Hand (spec 06 §3.3), with money or with blood. */
+  'hand:paid': { playerId: number; blood: boolean };
+  /** The hand opened with a weapon (spec 06 §3.4): a special one flashes and is named on the HUD. */
+  'hand:offer': { weapon: WeaponId; special: boolean };
+  /** The one who paid took the hand's weapon. */
+  'hand:taken': { playerId: number; weapon: WeaponId };
   /** A hellfire burst went off (spec 06 §2.3): the flamethrower's flames burst out there. */
   'fire:blast': { x: number; y: number };
   /** A room was unlocked (its zone id): only now does the HUD say which one, «COCINA DESBLOQUEADA». */
@@ -72,7 +78,7 @@ export interface GameEvents {
    * missing. A `locked` portal is a second entrance not yet buyable.
    */
   'action:context': {
-    kind: 'repair' | 'door' | 'portal' | 'merchant' | 'weaponCase' | 'pickup' | null;
+    kind: 'repair' | 'door' | 'portal' | 'merchant' | 'weaponCase' | 'hand' | 'pickup' | null;
     amount: number;
     enabled: boolean;
     portal?: 'stairs' | 'hatch';
@@ -86,6 +92,12 @@ export interface GameEvents {
      * `amount` is the price, or what is missing when not enabled.
      */
     weaponCase?: { weapon: WeaponId; mode: 'buy' | 'ammo' | 'confirm'; full: boolean; replaces?: WeaponId; replacesLevel?: number };
+    /**
+     * With kind 'hand' (spec 06 §3.3): what a tap does at the Demon's Hand (HandOffer's modes), the
+     * weapon on offer, and the upgraded weapon it would replace (`amount`: the price, the health or what
+     * is missing).
+     */
+    hand?: { mode: 'pay' | 'blood' | 'short' | 'take' | 'confirm'; weapon?: WeaponId; replaces?: WeaponId; replacesLevel?: number };
     /**
      * With kind 'pickup' (spec 05 §3): the special item on the floor; not enabled with the inventory full.
      * Doors and portals never say which room they unlock (`amount` is its price, or what is missing):

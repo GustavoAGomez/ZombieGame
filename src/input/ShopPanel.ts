@@ -1,10 +1,9 @@
 import type { BoostKind } from '../config/balance';
 import { UPGRADE_LEVELS, WEAPONS, type UpgradeKind } from '../config/weapons';
-import { WEAPON_ICONS } from './WeaponBar';
 import { merchantDef, type MerchantId, type MerchantItemId } from '../config/merchants';
 import type { EventBus, GameEvents } from '../core/EventBus';
 import type { ShopItemStatus } from '../core/shop';
-import { pixelIcon, type IconName } from '../ui/icons';
+import { WEAPON_ICONS, pixelIcon, type IconName } from '../ui/icons';
 import { STRINGS } from '../ui/strings';
 import './shop.css';
 

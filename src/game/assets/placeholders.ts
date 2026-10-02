@@ -2,7 +2,8 @@ import type Phaser from 'phaser';
 import { ZOMBIES } from '../../config/balance';
 import { ITEM_IDS } from '../../config/items';
 import { MERCHANTS } from '../../config/merchants';
-import { iconDef } from '../../ui/icons';
+import { WEAPON_IDS } from '../../config/weapons';
+import { WEAPON_ICONS, iconDef } from '../../ui/icons';
 import { COLORS } from '../../config/theme';
 import { propColor, shade } from './propColors';
 import { TILE_COLLIDES, TILE_VOID, TILE_WATER, type MapTileset } from '../map/MapLoader';
@@ -554,6 +555,62 @@ function drawItemIcon(ctx: Ctx, index: number, ox: number, oy: number, w: number
   for (const [x, y, rw, rh, color] of def.rects) rect(ctx, color ?? def.fill, dx + x, dy + y, rw, rh);
 }
 
+/** The Demon's Hand's crack (spec 06 §3.7): a dark smudge with ember dots, dim (0) or bright (1) for their pulse. */
+function drawHandCrack(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number): void {
+  rect(ctx, '#1a0a0a', ox + 3, oy + 2, w - 6, h - 4);
+  rect(ctx, '#1a0a0a', ox + 1, oy + 4, w - 2, h - 8);
+  rect(ctx, '#0b0404', ox + 6, oy + 5, w - 12, h - 10);
+  const ember = frame === 1 ? '#ff5a24' : '#8f2414';
+  for (const [x, y] of [[5, 5], [9, 9], [13, 6], [17, 10], [21, 6], [11, 4], [19, 8]] as const) rect(ctx, ember, ox + x, oy + y, 2, 2);
+}
+
+/** The hand (20×28): dark red, rising from the bottom edge: 0 a fist, 1 open with five fingers, 2 one finger wagging "no". */
+function drawDemonHand(ctx: Ctx, frame: number, ox: number, oy: number, h: number): void {
+  const skin = '#7a1a16';
+  const dark = '#4a0e0c';
+  const nail = '#ff7a3d';
+  // Wrist and palm.
+  rect(ctx, dark, ox + 6, oy + h - 8, 8, 8);
+  rect(ctx, skin, ox + 4, oy + h - 16, 12, 9);
+  if (frame === 0) {
+    // Fist: the knuckles curled over the palm.
+    rect(ctx, skin, ox + 4, oy + h - 20, 12, 5);
+    for (let i = 0; i < 4; i++) rect(ctx, dark, ox + 5 + i * 3, oy + h - 20, 1, 4);
+    rect(ctx, skin, ox + 15, oy + h - 17, 3, 4);
+  } else if (frame === 1) {
+    // Open: four fingers up and the thumb aside, nails like embers.
+    for (let i = 0; i < 4; i++) {
+      rect(ctx, skin, ox + 4 + i * 3, oy + 2 + (i === 0 || i === 3 ? 3 : 0), 2, h - 18 - (i === 0 || i === 3 ? 3 : 0));
+      rect(ctx, nail, ox + 4 + i * 3, oy + 2 + (i === 0 || i === 3 ? 3 : 0), 2, 1);
+    }
+    rect(ctx, skin, ox + 16, oy + h - 20, 3, 6);
+    rect(ctx, nail, ox + 16, oy + h - 20, 3, 1);
+  } else {
+    // Mocking: the fist with one finger up, wagging.
+    rect(ctx, skin, ox + 4, oy + h - 20, 12, 5);
+    rect(ctx, skin, ox + 9, oy + 3, 2, h - 22);
+    rect(ctx, nail, ox + 9, oy + 3, 2, 1);
+  }
+}
+
+/** A colour of ui/icons.ts for a canvas: theme tokens such as 'var(--amber-dark)' read from COLORS. */
+function cssColor(color: string): string {
+  const m = /^var\(--([a-z-]+)\)$/.exec(color);
+  if (!m?.[1]) return color;
+  const key = m[1].replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
+  return (COLORS as Readonly<Record<string, string>>)[key] ?? '#ffffff';
+}
+
+/** A weapon's outline for the Demon's Hand (spec 06 §3.7): its HUD icon (ui/icons.ts) at 1×, frame in WEAPON_IDS order. */
+function drawWeaponIcon(ctx: Ctx, index: number, ox: number, oy: number, w: number, h: number): void {
+  const id = WEAPON_IDS[index];
+  if (!id) return;
+  const def = iconDef(WEAPON_ICONS[id]);
+  const dx = ox + Math.floor((w - def.w) / 2);
+  const dy = oy + Math.floor((h - def.h) / 2);
+  for (const [x, y, rw, rh, color] of def.rects) rect(ctx, cssColor(color ?? def.fill), dx + x, dy + y, rw, rh);
+}
+
 /** Off-screen pointer: a white triangle towards +x with a dark outline, tinted at runtime. */
 function drawOffscreenArrow(ctx: Ctx, ox: number, oy: number, w: number, h: number): void {
   for (let x = 0; x < w; x++) {
@@ -630,6 +687,15 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
         break;
       case ASSET_KEYS.item:
         drawItemIcon(ctx, col, ox, oy, w, h);
+        break;
+      case ASSET_KEYS.handCrack:
+        drawHandCrack(ctx, col, ox, oy, w, h);
+        break;
+      case ASSET_KEYS.demonHand:
+        drawDemonHand(ctx, col, ox, oy, h);
+        break;
+      case ASSET_KEYS.weaponIcon:
+        drawWeaponIcon(ctx, col, ox, oy, w, h);
         break;
       default: {
         const merchant = MERCHANTS.find((m) => object === `merchant_${m.id}`);

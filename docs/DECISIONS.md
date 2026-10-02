@@ -1321,3 +1321,45 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - 20 % arma especial, 70 % arma básica y 10 % nada.
   - Si no da nada, la mano se abre vacía tras las siluetas, se hunde y el pago (dinero o vida) se pierde. Cuenta como un uso para el cansancio.
   - Si un grupo de armas no tiene ninguna disponible (las lleva todas), su parte pasa al otro grupo. La de «nada» no cambia.
+
+## Spec 06 · Fase H4 (la Mano del Demonio)
+
+- **Puntos en el mapa** (`hand_spot`, tabla `## Mano` del plano): colocados con la skill `level-design`, uno por sala salvo el recibidor, en sitios con historia:
+  - salón: ante el hogar;
+  - comedor: a los pies de la mesa de la última cena;
+  - biblioteca: al pie de las estanterías;
+  - cocina: entre la isla y el horno;
+  - garaje: junto a la mancha de aceite;
+  - jardín: delante del cobertizo;
+  - calle: una grieta en el asfalto frente al sendero;
+  - sótano: frente a la caldera;
+  - azotea: junto al campamento de los supervivientes.
+- **Validador:**
+  - Uno por zona y ninguno en la inicial.
+  - En su zona, libre y con las cuatro vecinas libres, alcanzable a pie.
+  - Dentro de un cuadrado libre de 3×3, que es la regla del paso de 3 tiles.
+  - A 3 tiles o más de barricadas, puertas, portales, puntos de mago, vitrinas y puntos de objeto.
+  - El mapa de pruebas (`room01`) tiene uno en el pasillo y otro en el almacén.
+- **Dónde empieza:** en el punto de una sala interior que se compra desde la zona inicial, por una puerta o una escalera principal (respuesta del usuario: salón o comedor, no la calle).
+  - En un mapa sin salas interiores así, vale cualquiera de las que se compran desde el inicio; si tampoco hay, cualquier sala con punto.
+  - El sitio y los usos (de 4 a 8) se sortean con el RNG de la partida al crearla, después de los objetos especiales: con la misma semilla, la misma mano.
+  - La colocación vive en `handSpawn.ts`, aparte de `HandSystem`, para que `GameState` no cargue los sistemas.
+- **Sorteo:** el reparto que dio el usuario (10 % nada, 20 % especial, 70 % básica), nunca un arma que lleva el jugador y sin repetir la última que ofreció si hay otra en su grupo. Un grupo vacío pasa su parte al otro. Se sortea al pagar.
+- **Botón de acción:** va detrás de magos, vitrinas, reparar, puertas y portales, y delante de recoger objetos.
+  - Con la mano esperando:
+    - `MANO DEL DEMONIO · 950$`;
+    - si falta dinero, `PACTO DE SANGRE · 40 VIDA` en rojo;
+    - con 40 de vida o menos, `FALTAN X$` atenuado (tiembla al tocarlo).
+  - Con la mano abierta, solo para quien pagó: `COGER ESCOPETA` con el icono del arma. Si va a sustituir un arma mejorada, la confirmación de las vitrinas: `CAMBIAR SMG ★★ POR KATANA` y un segundo toque en menos de 3 s.
+  - Mientras la mano está ocupada (subiendo, pasando siluetas, vacía o hundiéndose), el botón no la ofrece.
+- **Pacto de sangre:** resta 40 de vida y emite `player:damaged` desde la propia posición del jugador (marco rojo y sangre, sin empuje). En modo dios también cobra: es voluntario.
+- **Secuencia:** sube 0,6 s, pasa siluetas 2 s, se abre 8 s con el arma (parpadea los 3 últimos) o vacía 1,2 s, y se hunde 0,6 s.
+  - Si el arma no se coge a tiempo, se hunde con ella y el pago se pierde.
+  - El arma cogida entra con la munición completa, por `giveWeapon` y `refillWeapon`, igual que en una vitrina.
+- **Arma especial:** al abrirse, `hand:offer` con `special` produce un destello (un aro blanco que se abre) y su nombre en rojo en el aviso del centro durante 1,5 s.
+- **Vista provisional (`HandView`):**
+  - La grieta tiene brasas que laten cada 0,4 s.
+  - La mano crece y encoge desde la grieta, con el puño o abierta.
+  - Las siluetas pasan cada vez más despacio y nunca adelantan el resultado. Son los iconos del HUD a ×1,5 (`weapon_icon`, generados desde `ui/icons.ts`).
+  - Todo queda bajo la niebla de una sala bloqueada. La columna de brasas que se ve por encima llega en la H5.
+- **`WEAPON_ICONS`** pasa de la barra de armas a `ui/icons.ts`, para que los placeholders lo usen sin depender de la entrada.
