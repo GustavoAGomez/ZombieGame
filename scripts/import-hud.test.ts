@@ -2,7 +2,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { healthPadding } from '../src/ui/skin';
-import { cropToBounds, halve, measureHealthBar, namePieces, readExtraPieces, splitSheet } from './import-hud';
+import { cropToBounds, halve, measureHealthBar, namePieces, prepareHealthBar, readExtraPieces, splitSheet } from './import-hud';
 import { decodePng } from './lib/png';
 import { blank, paste, type Frame } from './lib/sheet';
 
@@ -69,12 +69,45 @@ describe('HUD kit from PixelLab (npm run hud:import)', () => {
     expect([small.width, small.height]).toEqual([33, 33]);
   });
 
-  it('takes the native small ring and the polygon buttons from import.json', () => {
+  it('takes the native small ring, the polygon buttons and the new health bar from import.json', () => {
     const extra = readExtraPieces(hudDir);
-    // The small ring comes drawn at its size (no reduction), 33 px like the buttons.
+    // All drawn at about the small buttons' size (no reduction).
     expect([extra.ringSmall?.width, extra.ringSmall?.height]).toEqual([33, 33]);
-    expect([extra.hexagon?.width, extra.hexagon?.height]).toEqual([56, 65]);
-    expect([extra.octagon?.width, extra.octagon?.height]).toEqual([74, 74]);
+    expect([extra.hexagon?.width, extra.hexagon?.height]).toEqual([28, 33]);
+    expect([extra.octagon?.width, extra.octagon?.height]).toEqual([34, 34]);
+    expect([extra.healthFrame?.width, extra.healthFrame?.height]).toEqual([149, 22]);
+  });
+
+  it('empties a bone-bordered health bar that comes partly filled, and finds its trough and heart', () => {
+    const bar = readExtraPieces(hudDir).healthFrame;
+    if (!bar) throw new Error('no health bar in import.json');
+    const { frame, trough, heart } = prepareHealthBar(bar);
+    expect(trough).toEqual({ x: 28, y: 6, width: 114, height: 13 });
+    // No olive fill left: every row of the trough is one colour.
+    for (let y = trough.y + 1; y < trough.y + trough.height - 1; y++) {
+      const colours = new Set<number>();
+      for (let x = trough.x + 2; x < trough.x + trough.width - 2; x++) {
+        const i = (y * frame.width + x) * 4;
+        colours.add(((frame.pixels[i] ?? 0) << 16) | ((frame.pixels[i + 1] ?? 0) << 8) | (frame.pixels[i + 2] ?? 0));
+      }
+      expect(colours.size, `row ${y}`).toBe(1);
+    }
+    // The heart, with its outline, left of the trough.
+    expect(heart.x + heart.width).toBeLessThan(trough.x);
+    expect([heart.width, heart.height]).toEqual([16, 14]);
+    // A bar without that border is measured as before and left as it was.
+    const old = read('Health_bar.png');
+    const same = prepareHealthBar(old);
+    expect(same.frame).toBe(old);
+    expect(same.trough).toEqual(measureHealthBar(old).trough);
+  });
+
+  it('puts 10 whole-pixel segments inside an odd-width trough too (the right margin takes the odd pixel)', () => {
+    const health = { file: '', width: 149, height: 22, trough: { x: 28, y: 6, width: 113, height: 13 } };
+    const [, right, , left] = healthPadding(health).split(' ').map((v) => Number.parseInt(v, 10));
+    expect((health.width - (left ?? 0) - (right ?? 0) - 9 * 2) % 10).toBe(0);
+    expect(left).toBeGreaterThanOrEqual(health.trough.x + 2);
+    expect(right).toBeGreaterThanOrEqual(health.width - (health.trough.x + health.trough.width) + 2);
   });
 
   it('puts 10 whole-pixel segments inside the trough', () => {

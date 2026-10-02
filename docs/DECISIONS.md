@@ -967,3 +967,24 @@ El usuario vio irregulares los botones pequeños. El CSS los dibujaba a 1:1, per
 - **El panel, la placa y la barra de vida del kit nuevo no se usan:** el usuario solo pasó el kit por los botones.
 - **Importación:** el kit nuevo se guarda en `art-src/pixellab/hud/botones/`. `art-src/pixellab/hud/import.json` dice qué piezas se toman de él: aro pequeño, hexágono y octógono. Se nombran a mano porque detectarlas por su forma no es fiable con un aro cortado y dos polígonos casi cuadrados.
 - **Hexágono (56×65) y octógono (74×74):** se importan, pero de momento no se usan. Miden de 1,7 a 2,2 veces el aro pequeño, y reducirlos los estropearía igual que al aro. Falta que el usuario decida cómo usarlos.
+
+### Hexágono, octógono y barra de vida a su tamaño (misma rama)
+
+El usuario pasó un kit más (`art-src/pixellab/hud/botones-2/`) con el hexágono y el octógono a unos 32 px y una barra de vida nueva. Pidió usar esas tres piezas.
+
+- **Las formas distinguen los grupos de botones:**
+  - huecos de arma: hexágono (28×33);
+  - habilidades (especial y mejora de la ronda): octógono (34×34);
+  - recargar, cuchillo y pausa: redondos (aro pequeño).
+  
+  El usuario no dijo qué forma iba con cada grupo; es la opción que se le propuso. Todas las piezas van a 1×.
+- **Zona de toque de los huecos de arma:** el hexágono mide 28 de ancho, así que el margen invisible pasa a 8 px a los lados y 6 arriba y abajo: 44×45. Con 12 px entre huecos, los márgenes no se pisan.
+- **El especial y la mejora,** a 34 px, se quedan donde estaban. La mejora sigue centrada con el chip (`bottom` +17 px). El velo de enfriamiento del especial se recorta en octógono sobre su cara.
+- **Tintes:** antes se tomaba como cara el círculo inscrito, que en un polígono dejaba sin tapar las esquinas de la cara. Ahora la cara es todo lo que encierra el borde claro, rellenando desde el centro con vecindad de 4. Si el relleno se escapa, se vuelve al círculo.
+- **Barra de vida nueva** (149×22): el corazón es de color oliva y el hueco tiene borde claro con contorno negro. PixelLab la entrega medio llena de oliva.
+  - El importador vacía el hueco fila a fila con el color de su extremo vacío (`prepareHealthBar`).
+  - El hueco es lo que encierra el contorno: 114×13 en (28, 6). El corazón es la mancha de color más grande a su izquierda, con el contorno: 16×14.
+  - Los segmentos salen de 9×11 px.
+  - Si el hueco mide un número impar de píxeles, el margen derecho se queda el píxel sobrante, para que los segmentos sigan siendo enteros.
+- **El aro con engranaje de ese kit no se usa:** no se pidió.
+- **Capturas:** `maps/preview/hud/hud-poligonos.jpg`. Comprobado a 844×390 y a 640×360, sin solapes y sin que unos botones roben toques a otros.

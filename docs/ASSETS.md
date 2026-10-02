@@ -105,12 +105,13 @@ El HUD es DOM, así que sus imágenes no pasan por Phaser. `npm run hud:import` 
 
 Identifica las piezas por su forma, las recorta a su contorno y las escribe en `public/assets/ui/`. También deja una hoja de contactos con nombres y tamaños en `maps/preview/hud/hud-kit.png` y registra la sección `ui` del manifiesto.
 
-Las piezas que vienen de otros exports (kits posteriores, guardados en subcarpetas como `art-src/pixellab/hud/botones/`) se nombran a mano en `art-src/pixellab/hud/import.json`. Se recortan igual y sustituyen o se suman a las del kit:
+Las piezas que vienen de otros exports (kits posteriores, guardados en subcarpetas como `art-src/pixellab/hud/botones/` y `botones-2/`) se nombran a mano en `art-src/pixellab/hud/import.json`. Se recortan igual y sustituyen o se suman a las del kit:
 
 ```json
-{ "pieces": { "ringSmall": "botones/<export>/elements/Icon_button-2.png",
-              "hexagon": "botones/<export>/elements/element_6.png",
-              "octagon": "botones/<export>/elements/element_7.png" } }
+{ "pieces": { "ringSmall":   "botones/<export>/elements/Icon_button-2.png",
+              "hexagon":     "botones-2/<export>/elements/element_3.png",
+              "octagon":     "botones-2/<export>/elements/element_4.png",
+              "healthFrame": "botones-2/<export>/elements/Health_bar.png" } }
 ```
 
 Nombres válidos: `ringLarge`, `ringMedium`, `ringSmall`, `hexagon`, `octagon`, `panel`, `plate` y `healthFrame`. La sección `ui` queda así:
@@ -120,28 +121,33 @@ Nombres válidos: `ringLarge`, `ringMedium`, `ringSmall`, `hexagon`, `octagon`, 
   "ringLarge":   { "file": "ui/ring_large.png", "width": 97, "height": 97 },
   "ringMedium":  { "file": "ui/ring_medium.png", "width": 65, "height": 65 },
   "ringSmall":   { "file": "ui/ring_small.png", "width": 33, "height": 33 },
-  "hexagon":     { "file": "ui/hexagon.png", "width": 56, "height": 65 },
-  "octagon":     { "file": "ui/octagon.png", "width": 74, "height": 74 },
+  "hexagon":     { "file": "ui/hexagon.png", "width": 28, "height": 33 },
+  "octagon":     { "file": "ui/octagon.png", "width": 34, "height": 34 },
   "panel":       { "file": "ui/panel.png", "width": 145, "height": 105, "slice": [35, 45, 35, 45] },
   "plate":       { "file": "ui/plate.png", "width": 96, "height": 25, "slice": [8, 8, 8, 8] },
-  "healthFrame": { "file": "ui/health_frame.png", "width": 145, "height": 17,
-                   "trough": { "x": 22, "y": 4, "width": 118, "height": 9 },
-                   "heart": { "x": 5, "y": 3, "width": 12, "height": 11 } }
+  "healthFrame": { "file": "ui/health_frame.png", "width": 149, "height": 22,
+                   "trough": { "x": 28, "y": 6, "width": 114, "height": 13 },
+                   "heart": { "x": 8, "y": 6, "width": 16, "height": 14 } }
 }
 ```
 
 - **Aros:** siempre a escala entera, `pixelated`; el pixel art nunca se reduce.
   - El grande es el botón de disparo.
-  - El pequeño (`ringSmall`, 33 px) es el especial, recargar, cuchillo, los huecos de arma, la pausa y la mejora de la ronda (teñido de azul). Viene dibujado a su tamaño en el kit de `botones/`.
+  - El pequeño (`ringSmall`, 33 px) es recargar, cuchillo y la pausa. Viene dibujado a su tamaño en el kit de `botones/`.
   - Si `import.json` no lo trae, el importador lo saca del mediano reducido a la mitad. Como alternativa vale, pero sale irregular.
   - El mediano se importa, pero no se usa.
-- **Hexágono y octógono** (`hexagon`, `octagon`): botones con otra forma, para distinguir armas y habilidades de los botones redondos. Se importan, pero todavía no se usan.
+- **Hexágono y octógono** (`hexagon` de 28×33 y `octagon` de 34×34, del kit de `botones-2/`): su forma distingue las armas y las habilidades de los botones redondos.
+  - El hexágono es cada hueco de arma, teñido de ámbar el del arma en mano.
+  - El octógono es el especial (ámbar) y la mejora de la ronda (azul mientras está guardada; sin teñir, con la cuenta atrás, mientras está activa).
+  - Si faltan, esos botones usan el aro pequeño.
 - **Panel y placa:** 9-slice, con las esquinas enteras y los bordes repetidos píxel a píxel.
   - El panel es el fondo de la tienda. Sus cortes son anchos para que las esquinas incluyan los extremos inclinados de las pletinas del centro de cada lado.
   - La placa es el chip de acción contextual, los botones de la tienda (también los de los artículos que no se pueden comprar, oscurecidos) y los de los menús: JUGAR, REINTENTAR, CONTINUAR y REINICIAR a 2× y el interruptor de vibración a 1×.
 - **Barra de vida:** marco con un corazón a la izquierda. El juego dibuja los segmentos en `trough`, y una copia de `heart` encima late por debajo de 30 de vida.
+  - Si el hueco tiene un borde claro, PixelLab lo entrega medio lleno, como una barra en uso. El importador lo vacía fila a fila con el color de su extremo vacío.
+  - En ese caso, el corazón es la mancha de color más grande a la izquierda del hueco, con su contorno.
 - **Estados, por código y sin más arte** (`src/ui/skin.ts` + `skin.css`, solo con `.has-ui-skin`):
-  - tinte rojo del aro de disparo, ámbar del especial y del arma en mano y azul de la mejora guardada, hechos en un canvas al cargar y sin tocar la cara;
+  - tinte rojo del aro de disparo, ámbar del especial y del arma en mano y azul de la mejora guardada. Se hacen en un canvas al cargar y no tocan la cara, que es todo lo que encierra el borde claro, sea redonda o poligonal;
   - huecos de arma no equipados al 60 %;
   - pulsado a 0,94 durante 60 ms;
   - reparar: un borde ámbar de 2 px alrededor de la placa que parpadea.

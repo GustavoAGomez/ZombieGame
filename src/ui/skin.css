@@ -1,10 +1,12 @@
 /*
  * HUD skin from PixelLab (src/ui/skin.ts, npm run hud:import). Only with
  * `.has-ui-skin` on <html>: without the pieces the HUD keeps its CSS look.
- * Rings at 1× (the big one, 97 px; the small one, 33 px: the medium halved
- * at import), symbols at whole multiples of their 12×12 grid; the panel and
- * the plate with 9-slice: corners whole, edges repeated pixel for pixel.
- * Always pixelated.
+ * Every piece at 1×, never reduced: the big ring (97 px) for fire; the
+ * small ring (33 px) for reload, knife and pause; the hexagon (28×33) for
+ * the weapon slots and the octagon (34 px) for the abilities, so their shape
+ * tells them apart. Symbols at whole multiples of their 12×12 grid; the
+ * panel and the plate with 9-slice: corners whole, edges repeated pixel for
+ * pixel. Always pixelated.
  */
 
 /* ── Fire button: the big ring, tinted red, on the 96 px button (the ring is 97). ── */
@@ -26,9 +28,8 @@
   pointer-events: none;
 }
 
-/* ── Special, reload, knife and weapon slots: the small ring (33 px, the medium one halved), where they always were. ── */
-.has-ui-skin .action-button,
-.has-ui-skin .weapon-column .action-button {
+/* ── Reload and knife: the small ring (33 px), where they always were. ── */
+.has-ui-skin .action-button {
   width: var(--ui-ring-small-size);
   height: var(--ui-ring-small-size);
   background: var(--ui-ring-small) 0 0 / 100% 100% no-repeat;
@@ -36,15 +37,39 @@
   image-rendering: pixelated;
 }
 
-.has-ui-skin .action-button--special,
-.has-ui-skin .weapon-slot.is-active {
-  background-image: var(--ui-ring-small-amber);
-  box-shadow: none;
-}
-
 /* The reload veil empties over the ring's face only. */
 .has-ui-skin .action-button__clip {
   inset: var(--ui-ring-small-face-inset);
+}
+
+/* ── Weapon slots: the hexagon (28×33), amber for the weapon in hand. ── */
+.has-ui-skin .weapon-column .action-button {
+  width: var(--ui-hexagon-w);
+  height: var(--ui-hexagon-h);
+  background-image: var(--ui-hexagon);
+}
+
+.has-ui-skin .weapon-slot.is-active {
+  background-image: var(--ui-hexagon-amber);
+  box-shadow: none;
+}
+
+/* ── Abilities: the octagon (34 px), amber for the special; its cooldown veil cut to the octagon's face. ── */
+.has-ui-skin .action-button--special,
+.has-ui-skin .action-button--boost {
+  width: var(--ui-octagon-w);
+  height: var(--ui-octagon-h);
+}
+
+.has-ui-skin .action-button--special {
+  background-image: var(--ui-octagon-amber);
+  box-shadow: none;
+}
+
+.has-ui-skin .action-button--special .action-button__clip {
+  inset: 6px;
+  border-radius: 0;
+  clip-path: polygon(29% 0, 71% 0, 100% 29%, 100% 71%, 71% 100%, 29% 100%, 0 71%, 0 29%);
 }
 
 /* Not in hand: dimmed to 60 %. */
@@ -53,20 +78,20 @@
 }
 
 /*
- * Drawn at 33 px, tapped as at least 44: a 6 px invisible margin makes each
- * slot 45 px, and the 12 px gap lets the margins meet without one slot
- * taking taps from its neighbour's ring. On short screens (360 px) the
- * column comes down to the special: on top of it, so the special's wider
- * margin never takes the last slot's ring (the slots' 6 px stop short of
- * the special's).
+ * Drawn at 28×33, tapped as at least 44: an invisible margin of 8 px at the
+ * sides and 6 px above and below makes each slot 44×45, and the 12 px gap
+ * lets the margins meet without one slot taking taps from its neighbour.
+ * On short screens (360 px) the column comes down to the special: on top of
+ * it, so the special's wider margin never takes the last slot (the slots'
+ * 6 px stop short of the special).
  */
 .has-ui-skin .weapon-column {
   z-index: 21;
   gap: 12px;
 }
 
-.has-ui-skin .weapon-column .action-button {
-  --hit-slop: 6px;
+.has-ui-skin .weapon-column .action-button::before {
+  inset: -6px -8px;
 }
 
 /* ── Context action: the plate with 9-slice, icon and text side by side. ── */
@@ -130,18 +155,18 @@
 }
 
 /*
- * The stored boost (the blue merchant's), left of the plate and level with
- * it: the small ring tinted blue. While it runs, the plain ring, with the
- * countdown emptying in blue over its metal.
+ * The stored boost (the blue merchant's), an ability: left of the plate and
+ * level with it, the octagon tinted blue. While it runs, the plain octagon,
+ * with the countdown emptying in blue over its metal.
  */
 .has-ui-skin .action-button--boost {
-  left: calc(50% - 105px);
-  bottom: calc(var(--pad-bottom) + 18px);
-  background-image: var(--ui-ring-small-blue);
+  left: calc(50% - 106px);
+  bottom: calc(var(--pad-bottom) + 17px);
+  background-image: var(--ui-octagon-blue);
 }
 
 .has-ui-skin .action-button--boost.is-running {
-  background-image: var(--ui-ring-small);
+  background-image: var(--ui-octagon);
   box-shadow: none;
 }
 

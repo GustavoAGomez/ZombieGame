@@ -215,6 +215,104 @@ export function measureHealthBar(f: Frame): { trough: Rect; heart: Rect } {
 }
 
 /**
+ * A health bar ready for the game: with its trough, where the segments go,
+ * and its heart. A bar whose trough is framed by a bone-white border comes
+ * from PixelLab partly filled (a mock-up of a bar in use): its trough, all
+ * the pixels the dark outline inside that border encloses, is emptied row by
+ * row with the colour of its empty right end. The heart is then the biggest
+ * coloured blob left of the trough, with its outline. A bar without that
+ * border is measured as before (measureHealthBar), untouched.
+ */
+export function prepareHealthBar(f: Frame): { frame: Frame; trough: Rect; heart: Rect } {
+  const midY = Math.floor(f.height / 2);
+  const isBone = (x: number, y: number): boolean => alpha(f, x, y) > 0 && luma(rgb(f, x, y)) > 170;
+  let x = f.width - 1;
+  while (x > f.width / 2 && !isBone(x, midY)) x--;
+  if (x <= f.width / 2) return { frame: f, ...measureHealthBar(f) };
+  // Past the border and the dark outline inside it: the first pixel of the trough.
+  while (x > 0 && (isBone(x, midY) || luma(rgb(f, x, midY)) < 22)) x--;
+  const out: Frame = { width: f.width, height: f.height, pixels: f.pixels.slice() };
+  const inside = new Uint8Array(f.width * f.height);
+  const stack: [number, number][] = [[x, midY]];
+  let x0 = Infinity;
+  let y0 = Infinity;
+  let x1 = -1;
+  let y1 = -1;
+  while (stack.length > 0) {
+    const [px, py] = stack.pop()!;
+    if (px < 0 || py < 0 || px >= f.width || py >= f.height || inside[py * f.width + px]) continue;
+    const l = luma(rgb(f, px, py));
+    if (alpha(f, px, py) === 0 || l < 22 || l > 170) continue;
+    if (px === 0 || py === 0 || px === f.width - 1 || py === f.height - 1) throw new Error('el hueco de la barra de vida no está cerrado');
+    inside[py * f.width + px] = 1;
+    x0 = Math.min(x0, px);
+    y0 = Math.min(y0, py);
+    x1 = Math.max(x1, px);
+    y1 = Math.max(y1, py);
+    stack.push([px + 1, py], [px - 1, py], [px, py + 1], [px, py - 1]);
+  }
+  // Each row of the trough takes the colour of its empty end (one pixel in from its rightmost pixel).
+  for (let y = y0; y <= y1; y++) {
+    let right = -1;
+    for (let rx = x1; rx >= x0 && right < 0; rx--) if (inside[y * f.width + rx]) right = rx;
+    if (right < 0) continue;
+    const ref = inside[y * f.width + right - 1] ? right - 1 : right;
+    const colour = f.pixels.slice(at(f, ref, y), at(f, ref, y) + 4);
+    for (let rx = x0; rx <= right; rx++) if (inside[y * f.width + rx]) out.pixels.set(colour, at(out, rx, y));
+  }
+  const trough = { x: x0, y: y0, width: x1 - x0 + 1, height: y1 - y0 + 1 };
+  return { frame: out, trough, heart: colouredHeart(out, x0) ?? measureHealthBar(f).heart };
+}
+
+/** The biggest blob of coloured pixels (8-neighbours) left of `beforeX`, grown by one pixel for its outline; null without one. */
+function colouredHeart(f: Frame, beforeX: number): Rect | null {
+  const coloured = (x: number, y: number): boolean => {
+    if (alpha(f, x, y) === 0) return false;
+    const [r, g, b] = rgb(f, x, y);
+    return Math.max(r, g, b) - Math.min(r, g, b) > 30;
+  };
+  const seen = new Uint8Array(f.width * f.height);
+  let best: Rect | null = null;
+  let bestCount = 20; // smaller blobs are rust, not a heart
+  for (let sy = 0; sy < f.height; sy++) {
+    for (let sx = 0; sx < beforeX - 1; sx++) {
+      if (seen[sy * f.width + sx] || !coloured(sx, sy)) continue;
+      let n = 0;
+      let bx0 = sx;
+      let by0 = sy;
+      let bx1 = sx;
+      let by1 = sy;
+      const stack: [number, number][] = [[sx, sy]];
+      seen[sy * f.width + sx] = 1;
+      while (stack.length > 0) {
+        const [x, y] = stack.pop()!;
+        n++;
+        bx0 = Math.min(bx0, x);
+        by0 = Math.min(by0, y);
+        bx1 = Math.max(bx1, x);
+        by1 = Math.max(by1, y);
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            const nx = x + dx;
+            const ny = y + dy;
+            if (nx < 0 || ny < 0 || nx >= beforeX - 1 || ny >= f.height || seen[ny * f.width + nx] || !coloured(nx, ny)) continue;
+            seen[ny * f.width + nx] = 1;
+            stack.push([nx, ny]);
+          }
+        }
+      }
+      if (n > bestCount) {
+        bestCount = n;
+        best = { x: Math.max(0, bx0 - 1), y: Math.max(0, by0 - 1), width: 0, height: 0 };
+        best.width = Math.min(f.width - 1, bx1 + 1) - best.x + 1;
+        best.height = Math.min(f.height - 1, by1 + 1) - best.y + 1;
+      }
+    }
+  }
+  return best;
+}
+
+/**
  * Exactly half the size: each pixel takes the commonest colour of its 2×2
  * block; on a tie the lighter one wins, so the thin bone-white border of a
  * ring survives. An odd size rounds up (the last row and column count alone).
@@ -288,7 +386,8 @@ export function importHud(root: string, log: (line: string) => void): Record<str
   if (!extra.ringSmall) log('  · sin aro pequeño en import.json: se reduce el mediano a la mitad');
   const outDir = resolve(root, 'public/assets/ui');
   mkdirSync(outDir, { recursive: true });
-  const bar = measureHealthBar(named.healthFrame);
+  const bar = prepareHealthBar(kit.healthFrame ?? named.healthFrame);
+  kit.healthFrame = bar.frame;
   const props: Partial<Record<OutputName, Partial<UiPiece>>> = {
     panel: { slice: PANEL_SLICE },
     plate: { slice: PLATE_SLICE },

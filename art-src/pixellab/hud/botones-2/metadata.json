@@ -1,0 +1,64 @@
+{
+  "ui_assets": [
+    {
+      "id": "deb31671-fc51-4be5-9d1b-797fef204c53",
+      "name": null,
+      "prompt": "gritty post-apocalyptic survival game HUD, dark worn gunmetal and charcoal surfaces with scratched edges and small rivets, thin bone-white inner border, subtle rust stains, flat plain empty faces ready for icons to be placed on top, chunky readable pixel art with dark 1px outlines, muted palette of charcoal, dark brown and bone white with amber accents. hexagon and octogon must be 32x32",
+      "kind": "template",
+      "file": "gritty_post-apocalyptic_survival_game_HUD_dark_wor/gritty_post-apocalyptic_survival_game_HUD_dark_wor.png",
+      "size": {
+        "width": 256,
+        "height": 256
+      },
+      "group_id": "deb31671-fc51-4be5-9d1b-797fef204c53"
+    },
+    {
+      "id": "6548d3b1-a908-4902-8bce-28fa1d95136b",
+      "name": "Icon button",
+      "prompt": "gritty post-apocalyptic survival game HUD, dark worn gunmetal and charcoal surfaces with scratched edges and small rivets, thin bone-white inner border, subtle rust stains, flat plain empty faces ready for icons to be placed on top, chunky readable pixel art with dark 1px outlines, muted palette of charcoal, dark brown and bone white with amber accents. hexagon and octogon must be 32x32",
+      "kind": "element",
+      "file": "gritty_post-apocalyptic_survival_game_HUD_dark_wor/elements/Icon_button.png",
+      "size": {
+        "width": 38,
+        "height": 38
+      },
+      "group_id": "deb31671-fc51-4be5-9d1b-797fef204c53"
+    },
+    {
+      "id": "794e2600-e2ef-45f0-8e4d-863fed35b661",
+      "name": "Health bar",
+      "prompt": "gritty post-apocalyptic survival game HUD, dark worn gunmetal and charcoal surfaces with scratched edges and small rivets, thin bone-white inner border, subtle rust stains, flat plain empty faces ready for icons to be placed on top, chunky readable pixel art with dark 1px outlines, muted palette of charcoal, dark brown and bone white with amber accents. hexagon and octogon must be 32x32",
+      "kind": "element",
+      "file": "gritty_post-apocalyptic_survival_game_HUD_dark_wor/elements/Health_bar.png",
+      "size": {
+        "width": 150,
+        "height": 22
+      },
+      "group_id": "deb31671-fc51-4be5-9d1b-797fef204c53"
+    },
+    {
+      "id": "cbaefe8c-255d-4a7d-8029-40f3969dd702",
+      "name": "element 3",
+      "prompt": "gritty post-apocalyptic survival game HUD, dark worn gunmetal and charcoal surfaces with scratched edges and small rivets, thin bone-white inner border, subtle rust stains, flat plain empty faces ready for icons to be placed on top, chunky readable pixel art with dark 1px outlines, muted palette of charcoal, dark brown and bone white with amber accents. hexagon and octogon must be 32x32",
+      "kind": "element",
+      "file": "gritty_post-apocalyptic_survival_game_HUD_dark_wor/elements/element_3.png",
+      "size": {
+        "width": 38,
+        "height": 38
+      },
+      "group_id": "deb31671-fc51-4be5-9d1b-797fef204c53"
+    },
+    {
+      "id": "90f56ce5-feff-4992-b52b-09679557e2af",
+      "name": "element 4",
+      "prompt": "gritty post-apocalyptic survival game HUD, dark worn gunmetal and charcoal surfaces with scratched edges and small rivets, thin bone-white inner border, subtle rust stains, flat plain empty faces ready for icons to be placed on top, chunky readable pixel art with dark 1px outlines, muted palette of charcoal, dark brown and bone white with amber accents. hexagon and octogon must be 32x32",
+      "kind": "element",
+      "file": "gritty_post-apocalyptic_survival_game_HUD_dark_wor/elements/element_4.png",
+      "size": {
+        "width": 38,
+        "height": 38
+      },
+      "group_id": "deb31671-fc51-4be5-9d1b-797fef204c53"
+    }
+  ]
+}

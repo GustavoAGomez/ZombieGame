@@ -1003,13 +1003,13 @@
     },
     "hexagon": {
       "file": "ui/hexagon.png",
-      "width": 56,
-      "height": 65
+      "width": 28,
+      "height": 33
     },
     "octagon": {
       "file": "ui/octagon.png",
-      "width": 74,
-      "height": 74
+      "width": 34,
+      "height": 34
     },
     "panel": {
       "file": "ui/panel.png",
@@ -1035,19 +1035,19 @@
     },
     "healthFrame": {
       "file": "ui/health_frame.png",
-      "width": 145,
-      "height": 17,
+      "width": 149,
+      "height": 22,
       "trough": {
-        "x": 22,
-        "y": 4,
-        "width": 118,
-        "height": 9
+        "x": 28,
+        "y": 6,
+        "width": 114,
+        "height": 13
       },
       "heart": {
-        "x": 5,
-        "y": 3,
-        "width": 12,
-        "height": 11
+        "x": 8,
+        "y": 6,
+        "width": 16,
+        "height": 14
       }
     }
   }

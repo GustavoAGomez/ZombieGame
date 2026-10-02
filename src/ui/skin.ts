@@ -10,9 +10,10 @@ const SEGMENT_GAP = 2;
  * State tints, by code (no extra art): the fire button red, the special and
  * the weapon in hand amber, the stored boost in the blue merchant's colour.
  */
-const RED: readonly [number, number, number] = [201, 58, 43];
-const AMBER: readonly [number, number, number] = [232, 176, 74];
-const BLUE: readonly [number, number, number] = [58, 111, 216];
+type Rgb = readonly [number, number, number];
+const RED: Rgb = [201, 58, 43];
+const AMBER: Rgb = [232, 176, 74];
+const BLUE: Rgb = [58, 111, 216];
 /** Share of the tint over the metal's own colour: its light, scratches and rivets stay readable. */
 const TINT_STRENGTH = 0.7;
 
@@ -37,14 +38,27 @@ export async function applyUiSkin(ui: Readonly<Record<string, UiPieceDef>>, asse
   const url = (src: string): string => `url("${src}")`;
   const px = (n: number): string => `${n}px`;
 
-  const [large, small] = await Promise.all([loadImage(href(ringLarge)), loadImage(href(ringSmall))]);
+  // Weapon slots and abilities on their own shapes; without them, on the small ring like the rest.
+  const hexagon = ui.hexagon ?? ringSmall;
+  const octagon = ui.octagon ?? ringSmall;
+  const [large, small, hex, oct] = await Promise.all([ringLarge, ringSmall, hexagon, octagon].map((piece) => loadImage(href(piece))));
   const style = root.style;
-  style.setProperty('--ui-ring-large', url(large ? tinted(large, RED) ?? href(ringLarge) : href(ringLarge)));
+  const tintedUrl = (img: HTMLImageElement | null | undefined, piece: UiPieceDef, tint: Rgb): string => url(img ? tinted(img, tint) ?? href(piece) : href(piece));
+  style.setProperty('--ui-ring-large', tintedUrl(large, ringLarge, RED));
   style.setProperty('--ui-ring-large-size', px(ringLarge.width));
   style.setProperty('--ui-ring-small', url(href(ringSmall)));
-  style.setProperty('--ui-ring-small-amber', url(small ? tinted(small, AMBER) ?? href(ringSmall) : href(ringSmall)));
-  style.setProperty('--ui-ring-small-blue', url(small ? tinted(small, BLUE) ?? href(ringSmall) : href(ringSmall)));
   style.setProperty('--ui-ring-small-size', px(ringSmall.width));
+  // Weapon slots: the hexagon, amber for the weapon in hand.
+  style.setProperty('--ui-hexagon', url(href(hexagon)));
+  style.setProperty('--ui-hexagon-amber', tintedUrl(hex, hexagon, AMBER));
+  style.setProperty('--ui-hexagon-w', px(hexagon.width));
+  style.setProperty('--ui-hexagon-h', px(hexagon.height));
+  // Abilities: the octagon, amber for the special, blue for the stored boost.
+  style.setProperty('--ui-octagon', url(href(octagon)));
+  style.setProperty('--ui-octagon-amber', tintedUrl(oct, octagon, AMBER));
+  style.setProperty('--ui-octagon-blue', tintedUrl(oct, octagon, BLUE));
+  style.setProperty('--ui-octagon-w', px(octagon.width));
+  style.setProperty('--ui-octagon-h', px(octagon.height));
   // The veil that empties while reloading covers only the small ring's face.
   const face = small ? faceRadius(small) : ringSmall.width / 2 - 4;
   style.setProperty('--ui-ring-small-face-inset', px(Math.ceil(ringSmall.width / 2 - face)));
@@ -87,16 +101,16 @@ function slicePx(piece: UiPieceDef, scale = 1): string {
 
 /**
  * Padding that puts the segments inside the trough with whole-pixel widths:
- * a margin of at least 2 px at the rounded ends, grown until the segments
- * divide evenly, and 1 px above and below.
+ * a margin of at least 2 px at each rounded end, grown until the segments
+ * divide evenly (the right one takes the odd pixel), and 1 px above and below.
  */
 export function healthPadding(health: UiPieceDef): string {
   const t = health.trough ?? { x: 0, y: 0, width: health.width, height: health.height };
-  let margin = 2;
-  while (margin < 8 && (t.width - 2 * margin - (SEGMENTS - 1) * SEGMENT_GAP) % SEGMENTS !== 0) margin++;
+  let margins = 4;
+  while (margins < 16 && (t.width - margins - (SEGMENTS - 1) * SEGMENT_GAP) % SEGMENTS !== 0) margins++;
   const top = t.y + 1;
-  const left = t.x + margin;
-  const right = health.width - (t.x + t.width) + margin;
+  const left = t.x + Math.floor(margins / 2);
+  const right = health.width - (t.x + t.width) + Math.ceil(margins / 2);
   const bottom = health.height - (t.y + t.height) + 1;
   return `${top}px ${right}px ${bottom}px ${left}px`;
 }
@@ -150,21 +164,46 @@ export function faceRadius(img: HTMLImageElement): number {
 }
 
 /**
- * The ring with its metal tinted (outside the face: the face keeps its own
- * colour), as a data URL; null without a 2D canvas.
+ * The face of a button (ring or polygon): every pixel its bone-white inner
+ * border encloses, flooding from the centre (4-neighbours, so a diagonal
+ * one-pixel border holds). Null when the flood leaks out: no closed border.
  */
-function tinted(img: HTMLImageElement, tint: readonly [number, number, number]): string | null {
+function faceMask(data: ImageData): Uint8Array | null {
+  const { width: w, height: h, data: d } = data;
+  const mask = new Uint8Array(w * h);
+  const stack = [Math.floor(h / 2) * w + Math.floor(w / 2)];
+  while (stack.length > 0) {
+    const i = stack.pop()!;
+    if (mask[i]) continue;
+    const x = i % w;
+    const y = Math.floor(i / w);
+    const opaque = (d[i * 4 + 3] ?? 0) > 0;
+    if (opaque && ((d[i * 4] ?? 0) * 3 + (d[i * 4 + 1] ?? 0) * 6 + (d[i * 4 + 2] ?? 0)) / 10 > 170) continue;
+    if (!opaque || x === 0 || y === 0 || x === w - 1 || y === h - 1) return null;
+    mask[i] = 1;
+    stack.push(i + 1, i - 1, i + w, i - w);
+  }
+  return mask;
+}
+
+/**
+ * The button with its metal tinted (outside the face: the face keeps its
+ * own colour), as a data URL; null without a 2D canvas.
+ */
+function tinted(img: HTMLImageElement, tint: Rgb): string | null {
   const px = pixelsOf(img);
   if (!px) return null;
   const { ctx, data } = px;
+  const mask = faceMask(data);
   const face = faceRadius(img);
   const cx = (data.width - 1) / 2;
   const cy = (data.height - 1) / 2;
+  const inFace = (x: number, y: number): boolean => (mask ? mask[y * data.width + x] === 1 : Math.hypot(x - cx, y - cy) < face - 0.5);
   const d = data.data;
   for (let y = 0; y < data.height; y++) {
     for (let x = 0; x < data.width; x++) {
       const i = (y * data.width + x) * 4;
-      if ((d[i + 3] ?? 0) === 0 || Math.hypot(x - cx, y - cy) < face - 0.5) continue;
+      if ((d[i + 3] ?? 0) === 0 || inFace(x, y)) continue;
       const r = d[i] ?? 0;
       const g = d[i + 1] ?? 0;
       const b = d[i + 2] ?? 0;
