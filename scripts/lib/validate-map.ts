@@ -24,6 +24,8 @@ export const MAP_RULES = {
   maxMerchantSpotsPerZone: 2,
   /** Merchant spots keep strictly farther than this (tiles) from barricades, doors, portals and spawns. */
   minMerchantClearanceTiles: 3,
+  /** Weapon cases keep at least this far (tiles, centre to centre) from barricades, doors and merchant spots (spec 04 §3). */
+  minCaseClearanceTiles: 3,
   maxWidth: 120,
   maxHeight: 70,
 } as const;
@@ -207,7 +209,47 @@ export function validateMap(raw: TiledSourceMap | TiledMap): MapValidation {
   }
 
   validateMerchantSpots(map, free, inOpenSquare, errors);
+  validateWeaponCases(map, free, inOpenSquare, errors);
   return { errors, map };
+}
+
+/**
+ * Weapon cases (spec 04 §3): in their zone, with a free tile in front to buy
+ * from, at least minCaseClearanceTiles from barricades, doors and merchant
+ * spots of their own zone (as with furniture, a wall in between already
+ * keeps them apart: a merchant in the next room is never reached from the
+ * case's front), and never leaving a pass under 2 tiles (the grid already
+ * counts them as solid).
+ */
+function validateWeaponCases(
+  map: MapData,
+  free: (x: number, y: number) => boolean,
+  inOpenSquare: (x: number, y: number) => boolean,
+  errors: string[],
+): void {
+  const R = MAP_RULES;
+  const ts = map.tileSize;
+  const centre = (t: { x: number; y: number }) => ({ x: (t.x + 0.5) * ts, y: (t.y + 0.5) * ts });
+  const keepAway: { what: string; points: { x: number; y: number }[]; zones: number[] }[] = [
+    ...map.windows.map((w) => ({ what: `la barricada ${w.id}`, points: [w.center], zones: [w.zoneIndex] })),
+    ...map.doors.map((d) => ({ what: `la puerta ${d.id}`, points: d.tiles.map(centre), zones: [d.fromZoneIndex, d.toZoneIndex] })),
+    ...map.merchantSpots.map((s, i) => ({ what: `el punto de mago ${i + 1} (${s.zone})`, points: [s], zones: [s.zoneIndex] })),
+  ];
+  const FRONT = { south: [0, 1], east: [1, 0], west: [-1, 0] } as const;
+  for (const c of map.weaponCases) {
+    const who = `la vitrina ${c.id}`;
+    if ((map.cellZone[c.tileY * map.width + c.tileX] ?? -1) !== c.zoneIndex) errors.push(`${who} no cae en su zona ${c.zone}`);
+    if ((map.walls[c.tileY * map.width + c.tileX] ?? 0) !== 0) errors.push(`${who} está sobre una pared (${c.tileX},${c.tileY})`);
+    const [fx, fy] = FRONT[c.facing];
+    if (!free(c.tileX + fx, c.tileY + fy)) errors.push(`${who} no tiene una casilla libre delante (${c.tileX + fx},${c.tileY + fy})`);
+    for (const k of keepAway) {
+      if (!k.zones.includes(c.zoneIndex)) continue;
+      const d = Math.min(...k.points.map((p) => Math.hypot(p.x - c.x, p.y - c.y))) / ts;
+      if (d < R.minCaseClearanceTiles) errors.push(`${who} está a ${d.toFixed(1)} tiles de ${k.what}; debe estar a ${R.minCaseClearanceTiles} o más`);
+    }
+    const narrow = SIDES.map(([dx, dy]) => [c.tileX + dx, c.tileY + dy] as const).filter(([x, y]) => free(x, y) && !inOpenSquare(x, y));
+    if (narrow.length > 0) errors.push(`${who} deja un paso de menos de 2 tiles en ${narrow.map(([x, y]) => `${x},${y}`).join(' ')}`);
+  }
 }
 
 const SIDES = [

@@ -379,6 +379,28 @@
   display: none;
 }
 
+/* The stars of the weapon a weapon case would replace (spec 04 §2). */
+.context-button__value .pixel-icon {
+  display: inline-block;
+  vertical-align: -1px;
+  margin: 0 1px;
+}
+
+/* Waiting for the second tap that confirms a replacement: a steady amber pulse. */
+.context-button.is-confirming .context-button__face {
+  animation: context-confirm 0.6s steps(2, jump-none) infinite;
+}
+
+@keyframes context-confirm {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px var(--amber);
+  }
+  50% {
+    box-shadow: 0 0 0 4px var(--amber);
+  }
+}
+
 .context-button.is-pressed {
   transform: scale(0.92);
 }

@@ -5,12 +5,14 @@ import { nearestClosedDoor, tryBuyDoor } from './DoorSystem';
 import { isPlayerAlive } from './HealthSystem';
 import { isPortalBuyable, nearestClosedPortal, tryBuyPortal } from './PortalSystem';
 import { nearestMerchant } from './ShopSystem';
+import { caseInReach, tapCase, updateSwapConfirm } from './WeaponCaseSystem';
 import type { SimContext } from './SimContext';
 
 /**
  * The contextual action chip (spec 01 §2.4): per player, pick the nearest
  * thing to interact with — a merchant's shop to open or close (tap), a
- * window to repair (taps), a closed door or a closed portal to buy (tap) —
+ * weapon case to buy from (tap, spec 04 §3), a window to repair (taps), a
+ * closed door or a closed portal to buy (tap) —
  * publish it in the state for the HUD, and act on the command. Merchant
  * spots keep more than 3 tiles from windows, doors and portals, so a
  * merchant in range never hides one of them.
@@ -35,7 +37,19 @@ export function updateInteractions(ctx: SimContext, dt: number): void {
       p.contextAction = 'merchant';
       p.contextTarget = merchant;
       updateRepair(ctx, p, undefined, -1, dt);
+      updateSwapConfirm(p, -1, dt);
       if (cmd?.actionPressed) p.shopMerchant = p.shopMerchant === merchant ? -1 : merchant;
+      continue;
+    }
+
+    // Weapon cases also keep 3 tiles from windows, doors and merchant spots (validate-map).
+    const weaponCase = caseInReach(ctx.map, state, p);
+    updateSwapConfirm(p, weaponCase, dt);
+    if (weaponCase >= 0) {
+      p.contextAction = 'weaponCase';
+      p.contextTarget = weaponCase;
+      updateRepair(ctx, p, undefined, -1, dt);
+      if (cmd?.actionPressed) tapCase(ctx, p, weaponCase);
       continue;
     }
 

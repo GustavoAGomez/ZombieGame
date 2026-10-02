@@ -852,3 +852,34 @@ Resueltas sin preguntar, por ser solo nombres o huecos de la spec:
   - si ya se lleva, solo se equipa.
 - **Confirmación** (`needsSwapConfirm`): solo si el arma que se va tiene algún nivel o la especial. El botón de acción la pide en la vitrina (A4).
 - **Tests de sustitución.** Con solo tres armas básicas nunca hay una cuarta que comprar con los tres huecos llenos, así que las funciones de inventario aceptan el número de huecos (3 por defecto) y los tests de sustitución usan 2.
+
+## Spec 04 · A4 (vitrinas de armas)
+
+- **Objeto `weapon_case`** (rectángulo de 1 tile, documentado en `ASSETS.md` §5):
+  - `weapon`, `cost`, `facing` (`south`, `east` o `west`; `north` se rechaza al cargar) y `zone`;
+  - en el plano ASCII, tabla `## Vitrinas`, que `map:build` convierte en el objeto;
+  - `MapLoader` comprueba que el arma existe, el precio es positivo y la zona existe.
+- **Colisión:** como el atrezo sólido (`BLOCK_PROP`), bloquea a jugador, zombis y balas, pero no la vista. El flujo de los zombis la rodea.
+- **Reglas de colocación** (`validate-map`): casilla libre delante; 3 tiles o más (de centro a centro) hasta las barricadas, puertas y puntos de mago; ningún paso de menos de 2 tiles.
+  - Solo cuenta lo que está en su misma zona, como con el atrezo: con una pared en medio no hay conflicto posible.
+  - Así la vitrina del comedor queda centrada, aunque al otro lado de la pared norte, en la cocina, está el punto de mago M9 (a 2,8 tiles).
+- **Colocación:**
+  - **SMG, 1000$:** salón, casilla (24,35), mirando al sur, justo al sur de la columna central (24–25, 33–34). La columna tiene 2 tiles y la vitrina 1, así que queda bajo su mitad izquierda.
+  - **Escopeta, 1500$:** comedor, casilla (53,30), mirando al sur, centrada en la pared norte, a 3,2 tiles de la puerta de la cocina (D4) y frente a la mesa.
+  - **M6 se mueve** de (55,30) a (58,37), pared este del comedor bajo el aparador, a 3,2 tiles de la ventana W7.
+- **Interacción** (`WeaponCaseSystem`):
+  - el botón de acción aparece solo delante del frente, a menos de 40 px del centro de su borde delantero (`WEAPON_CASES.interactRange`) y con la zona desbloqueada;
+  - las vitrinas guardan 3 tiles con lo demás de su zona, así que no tapan otras acciones (se miran después de los magos).
+- **El botón:**
+  - icono del arma y «SMG · 1000$»; «FALTAN 500$» atenuado si no llega el dinero;
+  - con el arma ya en las manos, «MUNICIÓN SMG · 500$» (la mitad, `caseAmmoPriceFactor`), o «MUNICIÓN COMPLETA» atenuado si no hace falta.
+- **Confirmación:** si la compra sustituiría un arma con niveles o especial, el primer toque no compra.
+  - El botón pasa a «CAMBIAR SMG ★★ POR ESCOPETA» en ámbar, con las estrellas dibujadas como en el HUD y el anillo parpadeando.
+  - El segundo toque compra. La confirmación caduca a los 3 s (`swapConfirmTime`) o al alejarse de esa vitrina.
+- **Al comprar:** se resta el dinero y aparece «-1000$» en rojo junto al dinero (el mismo aviso que en los magos). Vibración media (`weaponCase:purchase`). El arma se equipa; la munición rellena cargador y reserva.
+- **Placeholder** (`weapon_case` 28×18 y `weapon_case_v` 18×28 para este y oeste, en espejo al oeste):
+  - mueble marrón oscuro con cristal azulado y la silueta del arma (un fotograma por arma en el orden de `WEAPON_IDS`);
+  - se ordena con los actores como el atrezo sólido;
+  - encima, el precio en ámbar a menos de 96 px (el de la munición si ya se lleva el arma).
+- **`map:preview`** dibuja las vitrinas con una marca ámbar en su frente.
+- **Tests de las vitrinas:** como solo hay tres armas básicas, en los tests de sustitución el tercer hueco lo ocupa una segunda pistola, que hace de un arma futura.

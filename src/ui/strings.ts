@@ -111,5 +111,13 @@ export const STRINGS = {
     openHatch: 'ABRIR TRAMPILLA',
     locked: 'BLOQUEADA',
     missing: 'FALTAN',
+    /** Weapon cases (spec 04 §3), money with the "1000$" format like everywhere else. */
+    buyWeapon: (weapon: string, price: string): string => `${weapon} · ${price}`,
+    weaponAmmo: (weapon: string, price: string): string => `MUNICIÓN ${weapon} · ${price}`,
+    ammoFull: 'MUNICIÓN COMPLETA',
+    /** "CAMBIAR PISTOLA ★★ POR SMG": the stars of the weapon going away sit between the two parts. */
+    swapFrom: (weapon: string): string => `CAMBIAR ${weapon}`,
+    swapTo: (weapon: string): string => `POR ${weapon}`,
+    buyWeaponLabel: (weapon: string): string => `Comprar ${weapon}`,
   },
 } as const;

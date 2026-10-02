@@ -146,7 +146,7 @@ ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
 | M3 | 31,30 | salon | rincón noreste |
 | M4 | 24,41 | salon | brazo bajo de la L, junto al piano |
 | M5 | 48,39 | comedor | rincón suroeste |
-| M6 | 55,30 | comedor | pared norte |
+| M6 | 58,37 | comedor | pared este, junto al aparador (la pared norte es de la vitrina de la escopeta) |
 | M7 | 22,19 | biblioteca | rincón del estudio |
 | M8 | 27,28 | biblioteca | pared sur |
 | M9 | 55,28 | cocina | rincón del office |
@@ -161,6 +161,12 @@ ssaaaaasgssFgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
 | M18 | 106,36 | sotano | pared este, antes de la bodega |
 | M19 | 96,8 | azotea | junto a la chimenea pequeña |
 | M20 | 100,12 | azotea | junto a la chimenea grande |
+
+## Vitrinas (vitrinas de armas básicas, spec 04 §3: 1 tile sólido; se compra desde el frente, que mira al sur, este u oeste, nunca al norte; a 3 tiles o más de barricadas, puertas y puntos de mago, sin dejar un paso de menos de 2 tiles)
+| id | casilla | arma | coste | orientación | zona | nota |
+|---|---|---|---|---|---|---|
+| V1 | 24,35 | smg | 1000 | sur | salon | en el centro del salón, contra la cara sur de la columna |
+| V2 | 53,30 | shotgun | 1500 | sur | comedor | centrada en la pared norte, frente a la mesa |
 
 ## Jugador (P)
 | casilla |

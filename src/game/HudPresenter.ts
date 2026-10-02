@@ -8,6 +8,7 @@ import { repairPointsAvailable } from './systems/BarricadeSystem';
 import { isPortalBuyable } from './systems/PortalSystem';
 import { isPerWeapon, shopItemStatus } from './systems/ShopSystem';
 import { magazineSize } from './systems/weaponStats';
+import { caseOffer } from './systems/WeaponCaseSystem';
 import { reloadProgress } from './systems/WeaponSystem';
 
 /** Steps used to quantise continuous values so the DOM updates rarely. */
@@ -33,6 +34,8 @@ export class HudPresenter {
   private score = -1;
   private actionKind: GameEvents['action:context']['kind'] | undefined = undefined;
   private actionMerchant: MerchantId | undefined;
+  /** The weapon case offer last published, as a comparable string. */
+  private actionCase = '';
   /** Last published shop panel, as a comparable string. */
   private shopKey = '';
   /** Last published boost slot, as a comparable string. */
@@ -115,9 +118,24 @@ export class HudPresenter {
       amount = locked ? 0 : enabled ? cost : cost - p.money;
     }
     const merchant = kind === 'merchant' ? state.merchants[p.contextTarget]?.id : undefined;
+    let weaponCase: GameEvents['action:context']['weaponCase'];
+    if (kind === 'weaponCase') {
+      const offer = caseOffer(this.map, p, p.contextTarget);
+      if (offer) {
+        enabled = offer.enabled;
+        amount = offer.full ? 0 : offer.enabled ? offer.price : offer.missing;
+        weaponCase = { weapon: offer.weapon, mode: offer.mode, full: offer.full };
+        if (offer.mode === 'confirm' && offer.replaces) {
+          weaponCase.replaces = offer.replaces.id;
+          weaponCase.replacesLevel = offer.replaces.level;
+        }
+      }
+    }
+    const caseKey = weaponCase ? JSON.stringify(weaponCase) : '';
     if (
       kind !== this.actionKind ||
       merchant !== this.actionMerchant ||
+      caseKey !== this.actionCase ||
       amount !== this.actionAmount ||
       enabled !== this.actionEnabled ||
       locked !== this.actionLocked ||
@@ -129,7 +147,9 @@ export class HudPresenter {
       this.actionLocked = locked;
       this.actionPortal = portalKind;
       this.actionMerchant = merchant;
+      this.actionCase = caseKey;
       if (kind === 'portal') this.events.emit('action:context', { kind, amount, enabled, portal: portalKind, locked });
+      else if (weaponCase) this.events.emit('action:context', { kind, amount, enabled, weaponCase });
       else if (merchant) this.events.emit('action:context', { kind, amount, enabled, merchant });
       else this.events.emit('action:context', { kind, amount, enabled });
     }

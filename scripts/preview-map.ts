@@ -8,7 +8,8 @@
  * Layers are drawn as the game draws them (floor, decor, decals, walls from
  * their bottom-left corner, sorted by row). Objects whose sprites the game
  * draws at runtime get simple marks: boarded windows, closed doors, closed
- * stairs, red crosses for zombie spawns and a yellow diamond for the player.
+ * stairs, red crosses for zombie spawns, weapon cases (with an amber notch
+ * on their front) and a yellow diamond for the player.
  */
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, resolve } from 'node:path';
@@ -158,6 +159,25 @@ export function renderMap(mapPath: string): { image: Frame; map: MapData } {
       drawGid(map.wallJoins[y * map.width + x] ?? 0, x * ts, (y + 1) * ts);
     }
     for (const prop of map.props) if (prop.collides && prop.y + prop.height === (y + 1) * ts) drawProp(prop);
+    for (const c of map.weaponCases) if (c.tileY === y) drawCase(c);
+  }
+
+  // Weapon cases (spec 04 §3): a dark wooden cabinet with bluish glass, as the game's placeholder,
+  // and an amber notch on the side it is bought from.
+  function drawCase(c: MapData['weaponCases'][number]): void {
+    const vertical = c.facing !== 'south';
+    const w = vertical ? 18 : 28;
+    const h = vertical ? 28 : 18;
+    const x0 = Math.round(c.x - w / 2);
+    const y0 = (c.tileY + 1) * ts - h - 1;
+    rect(image, x0, y0, w, h, [52, 34, 22]);
+    rect(image, x0 + 1, y0 + 1, w - 2, h - 2, [82, 54, 34]);
+    rect(image, x0 + 3, y0 + 3, w - 6, h - 7, [96, 140, 170]);
+    rect(image, x0 + 4, y0 + 4, w - 8, 2, [170, 210, 230]);
+    const n = { south: [0, 1], east: [1, 0], west: [-1, 0] }[c.facing];
+    const fx = Math.round(c.x + (n[0] ?? 0) * (w / 2 + 2)) - 2;
+    const fy = Math.round(y0 + h / 2 + (n[1] ?? 0) * (h / 2 + 2)) - 2;
+    rect(image, fx, fy, 4, 4, [232, 176, 74]);
   }
 
   const cross = (cx: number, cy: number, color: RGB): void => {

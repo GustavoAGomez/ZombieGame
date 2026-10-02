@@ -1,4 +1,5 @@
 import { BARRICADES } from '../../config/balance';
+import { WEAPON_IDS, type WeaponId } from '../../config/weapons';
 import {
   LAYER_NAMES,
   type TiledLayer,
@@ -200,6 +201,25 @@ export interface MapPortal {
   arrival: Vec2;
 }
 
+/** Which way a weapon case's front looks: never north, its front must face the camera (spec 04 §3). */
+export type CaseFacing = 'south' | 'east' | 'west';
+
+/** A weapon case (spec 04 §3): fixed furniture of 1 tile that sells a basic weapon, bought from its front. */
+export interface MapWeaponCase {
+  id: string;
+  tileX: number;
+  tileY: number;
+  /** Centre of its tile in world px. */
+  x: number;
+  y: number;
+  facing: CaseFacing;
+  weapon: WeaponId;
+  /** Price in money ($). */
+  cost: number;
+  zone: string;
+  zoneIndex: number;
+}
+
 /** Where a merchant can stand (spec 03 §1): against a wall, clear of passages. */
 export interface MapMerchantSpot {
   /** Point in world px: the merchant's feet. */
@@ -243,6 +263,7 @@ export interface MapData {
   merchantSpots: MapMerchantSpot[];
   /** Indices into merchantSpots per zone (parallel to zones). */
   zoneMerchantSpots: number[][];
+  weaponCases: MapWeaponCase[];
   /** Number of portal pairs (length of GameState.portalsOpen). */
   portalLinks: number;
   /** Portal end per cell (row-major), -1 where there is none. */
@@ -254,6 +275,40 @@ export interface MapData {
 
 export class MapParseError extends Error {
   override name = 'MapParseError';
+}
+
+const CASE_FACINGS: readonly CaseFacing[] = ['south', 'east', 'west'];
+
+/** `weapon_case` objects (rectangles of 1 tile): weapon, cost, facing and zone, checked against the catalogue. */
+function parseWeaponCases(raw: readonly TiledObject[], zones: readonly MapZone[], tileSize: number, width: number, height: number): MapWeaponCase[] {
+  return raw.map((obj) => {
+    const who = `weapon_case ${obj.id}`;
+    const weapon = stringProp(obj, 'weapon');
+    if (!(WEAPON_IDS as readonly string[]).includes(weapon)) fail(`${who} sells unknown weapon "${weapon}"`);
+    const facing = stringProp(obj, 'facing');
+    if (!(CASE_FACINGS as readonly string[]).includes(facing)) fail(`${who} faces "${facing}": it must be south, east or west (never north)`);
+    const cost = numberProp(obj, 'cost');
+    if (cost <= 0) fail(`${who} needs a positive cost`);
+    const zone = stringProp(obj, 'zone');
+    const zoneIndex = zones.findIndex((z) => z.id === zone);
+    if (zoneIndex < 0) fail(`${who} references unknown zone "${zone}"`);
+    // The tile under the rectangle's centre (points work too).
+    const tileX = Math.floor((obj.x + obj.width / 2) / tileSize);
+    const tileY = Math.floor((obj.y + obj.height / 2) / tileSize);
+    if (tileX < 0 || tileY < 0 || tileX >= width || tileY >= height) fail(`${who} is outside the map`);
+    return {
+      id: obj.name || String(obj.id),
+      tileX,
+      tileY,
+      x: (tileX + 0.5) * tileSize,
+      y: (tileY + 0.5) * tileSize,
+      facing: facing as CaseFacing,
+      weapon: weapon as WeaponId,
+      cost,
+      zone,
+      zoneIndex,
+    };
+  });
 }
 
 function fail(message: string): never {
@@ -460,6 +515,7 @@ export function parseMap(json: unknown): MapData {
   const rawOpenSpawns: TiledObject[] = [];
   const rawPortals: TiledObject[] = [];
   const rawMerchantSpots: TiledObject[] = [];
+  const rawWeaponCases: TiledObject[] = [];
   let playerSpawn: Vec2 | undefined;
 
   for (const obj of objects) {
@@ -487,6 +543,9 @@ export function parseMap(json: unknown): MapData {
         break;
       case 'merchant_spot':
         rawMerchantSpots.push(obj);
+        break;
+      case 'weapon_case':
+        rawWeaponCases.push(obj);
         break;
       default:
         // Unknown objects are ignored so designers can annotate maps freely.
@@ -612,6 +671,7 @@ export function parseMap(json: unknown): MapData {
     return { x: obj.x, y: obj.y, zone, zoneIndex };
   });
   const zoneMerchantSpots = zones.map((_, zi) => merchantSpots.flatMap((s, i) => (s.zoneIndex === zi ? [i] : [])));
+  const weaponCases = parseWeaponCases(rawWeaponCases, zones, tileSize, width, height);
 
   const portals = parsePortals(rawPortals, zones, tileSize);
   const cellPortal = new Int16Array(size).fill(-1);
@@ -646,6 +706,7 @@ export function parseMap(json: unknown): MapData {
     portals,
     merchantSpots,
     zoneMerchantSpots,
+    weaponCases,
     portalLinks: portals.reduce((n, p) => Math.max(n, p.link + 1), 0),
     cellPortal,
     playerSpawn,

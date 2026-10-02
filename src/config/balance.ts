@@ -298,6 +298,18 @@ export const BOOSTS = {
 } as const;
 
 /** Rules shared by every merchant (spec 03 §2); each one's colour, rounds and catalogue are in merchants.ts. */
+/** Weapon cases (spec 04 §3): fixed furniture that sells a basic weapon, or its ammo once carried. */
+export const WEAPON_CASES = {
+  /** The action button appears this close to the case's front side (px from the middle of its front edge). */
+  interactRange: 40,
+  /** Ammo for a weapon already carried costs this share of the weapon's price. */
+  caseAmmoPriceFactor: 0.5,
+  /** The price over the case shows only with the player this close (px). */
+  priceLabelRange: 96,
+  /** Seconds the "CAMBIAR … POR …" confirmation waits for the second tap. */
+  swapConfirmTime: 3,
+} as const;
+
 export const MERCHANT = {
   /** Solid circle around its feet that players cannot walk through. Zombies and bullets ignore it. */
   radius: 8,

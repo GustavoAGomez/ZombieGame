@@ -62,6 +62,11 @@ export function buildCollisionGrid(map: MapData, doorsOpen: readonly boolean[]):
       if (t.x >= 0 && t.y >= 0 && t.x < map.width && t.y < map.height) cells[i] = (cells[i] ?? 0) | BLOCK_PROP;
     }
   }
+  // Weapon cases are solid furniture too: bodies and bullets, not the line of sight (spec 04 §3).
+  for (const c of map.weaponCases) {
+    const i = c.tileY * map.width + c.tileX;
+    cells[i] = (cells[i] ?? 0) | BLOCK_PROP;
+  }
   const grid: CollisionGrid = { width: map.width, height: map.height, tileSize: map.tileSize, cells, shapes };
   map.doors.forEach((door, i) => setDoorBlocking(grid, door, !doorsOpen[i]));
   return grid;

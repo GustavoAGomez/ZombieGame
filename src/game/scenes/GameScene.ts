@@ -25,6 +25,7 @@ import { PlayerView } from '../entities/Player';
 import { WorldTextPool } from '../entities/WorldText';
 import { ZombieViewPool } from '../entities/Zombie';
 import { BurnFlames } from '../entities/BurnFlames';
+import { WeaponCaseViews } from '../entities/WeaponCase';
 import { findWeapon, giveWeapon, refillWeapon } from '../systems/InventorySystem';
 import type { WeaponId } from '../../config/weapons';
 import { HudPresenter } from '../HudPresenter';
@@ -78,6 +79,7 @@ export class GameScene extends Phaser.Scene {
   private bloodViews!: BloodViewPool;
   private bloodSpray!: BloodSprayPool;
   private burnFlames!: BurnFlames;
+  private weaponCases!: WeaponCaseViews;
   private pickupViews!: PickupViewPool;
   private merchantViews!: MerchantViewPool;
   private offscreenArrows!: OffscreenArrows;
@@ -148,6 +150,7 @@ export class GameScene extends Phaser.Scene {
     this.pickupViews = new PickupViewPool(this, this.state.pickups.length);
     this.zombieViews = new ZombieViewPool(this, manifest, this.state.zombies.length);
     this.burnFlames = new BurnFlames(this, this.state.zombies.length);
+    this.weaponCases = new WeaponCaseViews(this, this.map);
     this.merchantViews = new MerchantViewPool(this, this.map, this.state.merchants, manifest);
     this.offscreenArrows = new OffscreenArrows(this, this.state.merchants);
     this.playerView = new PlayerView(this, playerDef);
@@ -279,6 +282,7 @@ export class GameScene extends Phaser.Scene {
     this.pickupViews.sync(this.state.pickups, this.state.time);
     this.zombieViews.sync(this.state.zombies, alpha, now, this.isDark);
     this.merchantViews.sync(this.state.merchants, this.state.players, this.state.tick, this.state.time);
+    this.weaponCases.sync(this.state, player);
     this.syncOffscreenArrows();
     if (player) {
       this.playerView.sync(player, alpha, this.state.tick);

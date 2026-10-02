@@ -28,7 +28,7 @@ export interface WeaponSlotState {
 export type BulletLook = 'normal' | 'upgraded' | 'boosted' | 'special' | 'fire';
 
 /** What the contextual action chip would do for a player right now. */
-export type ContextAction = 'none' | 'repair' | 'door' | 'portal' | 'merchant';
+export type ContextAction = 'none' | 'repair' | 'door' | 'portal' | 'merchant' | 'weaponCase';
 
 export interface PlayerState {
   id: number;
@@ -98,8 +98,15 @@ export interface PlayerState {
   /** True right after a plank was repaired (the player faces the window). */
   repairing: boolean;
   contextAction: ContextAction;
-  /** Window, door, portal or merchant index the context action applies to, -1 when none. */
+  /** Window, door, portal, merchant or weapon case index the context action applies to, -1 when none. */
   contextTarget: number;
+  /**
+   * Weapon case whose purchase is waiting for a second tap (spec 04 §2): it
+   * would replace an upgraded weapon. -1 when none; it lapses after
+   * swapConfirmTimer seconds or when the player leaves that case.
+   */
+  swapConfirmCase: number;
+  swapConfirmTimer: number;
   /** Merchant whose shop panel this player has open (spec 03 §3), -1 when closed. */
   shopMerchant: number;
   /** Boost bought and kept for later (spec 03 §5): one slot, kept between rounds. */
@@ -338,6 +345,8 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     repairing: false,
     contextAction: 'none',
     contextTarget: -1,
+    swapConfirmCase: -1,
+    swapConfirmTimer: 0,
     shopMerchant: -1,
     boostStored: null,
     boostActive: null,

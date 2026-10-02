@@ -965,6 +965,20 @@
       "frameHeight": 8,
       "frames": 3,
       "placeholder": true
+    },
+    "weapon_case": {
+      "file": "sprites/objects/weapon_case.png",
+      "frameWidth": 28,
+      "frameHeight": 18,
+      "frames": 3,
+      "placeholder": true
+    },
+    "weapon_case_v": {
+      "file": "sprites/objects/weapon_case_v.png",
+      "frameWidth": 18,
+      "frameHeight": 28,
+      "frames": 3,
+      "placeholder": true
     }
   },
   "maps": {

@@ -15,6 +15,7 @@
  */
 import { createHash } from 'node:crypto';
 import { BARRICADES } from '../../src/config/balance';
+import { WEAPON_IDS } from '../../src/config/weapons';
 import type { PortalKind } from '../../src/game/map/MapLoader';
 import type { TiledObject, TiledProperty, TiledSourceMap, TiledTileLayer } from '../../src/game/map/tiled';
 import { DECALS, SHADOW, floorVariants, placeDecals, shadowTile } from './decorate';
@@ -124,6 +125,16 @@ export interface AsciiMerchantSpot {
   zone: string;
 }
 
+/** A weapon case (table "Vitrinas", spec 04 §3): 1 tile, its weapon, price, facing and zone. */
+export interface AsciiWeaponCase {
+  id: string;
+  cell: Cell;
+  weapon: string;
+  cost: number;
+  facing: string;
+  zone: string;
+}
+
 /** A piece of furniture or clutter (table "Atrezo"): a manifest object over whole tiles. */
 export interface AsciiProp {
   id: string;
@@ -144,6 +155,7 @@ export interface AsciiMap {
   portals: AsciiPortal[];
   openSpawns: AsciiOpenSpawn[];
   merchantSpots: AsciiMerchantSpot[];
+  weaponCases: AsciiWeaponCase[];
   props: AsciiProp[];
   player: Cell;
 }
@@ -190,7 +202,7 @@ function readTables(text: string): Map<string, Row[]> {
     }
     const row: Row = {};
     header.forEach((h, i) => (row[h] = cells[i] ?? ''));
-    const key = ['zonas', 'puertas', 'barricadas', 'portales', 'spawns', 'magos', 'jugador', 'atrezo'].find((k) => section.startsWith(k)) ?? section;
+    const key = ['zonas', 'puertas', 'barricadas', 'portales', 'spawns', 'magos', 'vitrinas', 'jugador', 'atrezo'].find((k) => section.startsWith(k)) ?? section;
     tables.set(key, [...(tables.get(key) ?? []), row]);
   }
   return tables;
@@ -289,6 +301,15 @@ export function parseAsciiMap(text: string): AsciiMap {
     cell: parseCells(r.casilla ?? '', problems, `mago ${r.id}`)[0] ?? { x: -1, y: -1 },
     zone: r.zona ?? '',
   }));
+  const FACING: Record<string, string> = { sur: 'south', este: 'east', oeste: 'west', norte: 'north' };
+  const weaponCases: AsciiWeaponCase[] = rows('vitrinas').map((r) => ({
+    id: r.id ?? '',
+    cell: parseCells(r.casilla ?? '', problems, `vitrina ${r.id}`)[0] ?? { x: -1, y: -1 },
+    weapon: r.arma ?? '',
+    cost: Number(r.coste),
+    facing: FACING[normalize(r.orientacion ?? '')] ?? normalize(r.orientacion ?? ''),
+    zone: r.zona ?? '',
+  }));
   const player = parseCells(rows('jugador')[0]?.casilla ?? '', problems, 'jugador')[0] ?? { x: -1, y: -1 };
   const props: AsciiProp[] = rows('atrezo').map((r) => {
     const flip = normalize(r.volteo ?? '');
@@ -302,10 +323,11 @@ export function parseAsciiMap(text: string): AsciiMap {
     };
   });
 
-  const map: AsciiMap = { grid, width, height, zones, doors, windows, portals, openSpawns, merchantSpots, props, player };
+  const map: AsciiMap = { grid, width, height, zones, doors, windows, portals, openSpawns, merchantSpots, weaponCases, props, player };
   checkMarkers(map, problems);
   checkProps(map, problems);
   checkMerchantSpots(map, problems);
+  checkWeaponCases(map, problems);
   if (problems.length > 0) throw new AsciiMapError(problems);
   return map;
 }
@@ -374,6 +396,28 @@ function checkMerchantSpots(map: AsciiMap, problems: string[]): void {
     const ch = map.grid[spot.cell.y]?.[spot.cell.x] ?? '_';
     if ('#HFWDo<PZ_w'.includes(ch)) problems.push(`${who}: la casilla ${spot.cell.x},${spot.cell.y} es "${ch}"; el mago va sobre suelo`);
     if (solid.has(`${spot.cell.x},${spot.cell.y}`)) problems.push(`${who}: la casilla ${spot.cell.x},${spot.cell.y} está bajo atrezo con colisión`);
+  }
+}
+
+/**
+ * Weapon cases stand on plain floor, never under other furniture, sell a
+ * known weapon at a positive price, and face south, east or west (their
+ * front must be seen from the camera). Distances and passages are checked
+ * on the built map (validate-map.ts).
+ */
+function checkWeaponCases(map: AsciiMap, problems: string[]): void {
+  const solid = new Set(map.props.filter((p) => p.collides).flatMap((p) => p.cells.map((c) => `${c.x},${c.y}`)));
+  const ids = new Set<string>();
+  for (const c of map.weaponCases) {
+    const who = `vitrina ${c.id}`;
+    if (ids.has(c.id)) problems.push(`${who}: id repetido`);
+    ids.add(c.id);
+    const ch = map.grid[c.cell.y]?.[c.cell.x] ?? '_';
+    if ('#HFWDo<PZ_w'.includes(ch)) problems.push(`${who}: la casilla ${c.cell.x},${c.cell.y} es "${ch}"; la vitrina va sobre suelo`);
+    if (solid.has(`${c.cell.x},${c.cell.y}`)) problems.push(`${who}: la casilla ${c.cell.x},${c.cell.y} está bajo atrezo con colisión`);
+    if (!(WEAPON_IDS as readonly string[]).includes(c.weapon)) problems.push(`${who}: el arma "${c.weapon}" no existe (${WEAPON_IDS.join(', ')})`);
+    if (!(c.cost > 0)) problems.push(`${who}: el coste debe ser un número positivo`);
+    if (!['south', 'east', 'west'].includes(c.facing)) problems.push(`${who}: orientación "${c.facing}"; debe ser sur, este u oeste (nunca norte)`);
   }
 }
 
@@ -840,6 +884,16 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
     knownZone(m.zone, `mago ${m.id}`);
     if (zoneIndex.has(m.zone) && cellZone[m.cell.y * W + m.cell.x] !== zoneIndex.get(m.zone)) problems.push(`mago ${m.id}: no cae en la zona ${m.zone}`);
     add({ name: m.id, type: 'merchant_spot', ...point(m.cell), properties: [p('zone', 'string', m.zone)] });
+  }
+  for (const c of map.weaponCases) {
+    knownZone(c.zone, `vitrina ${c.id}`);
+    if (zoneIndex.has(c.zone) && cellZone[c.cell.y * W + c.cell.x] !== zoneIndex.get(c.zone)) problems.push(`vitrina ${c.id}: no cae en la zona ${c.zone}`);
+    add({
+      name: c.id,
+      type: 'weapon_case',
+      ...cellsRect([c.cell]),
+      properties: [p('weapon', 'string', c.weapon), p('cost', 'int', c.cost), p('facing', 'string', c.facing), p('zone', 'string', c.zone)],
+    });
   }
   for (const d of map.doors) {
     knownZone(d.from, `puerta ${d.id}`);

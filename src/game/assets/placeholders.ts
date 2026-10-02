@@ -470,6 +470,38 @@ function drawGem(ctx: Ctx, ox: number, oy: number, w: number, h: number): void {
 }
 
 /** Smoke puff in light greys (tinted at runtime): blobs that spread out and thin away over the frames. */
+/**
+ * A weapon case: dark brown cabinet with bluish glass and the weapon's
+ * silhouette inside (frame = weapon in WEAPON_IDS order: pistol, SMG,
+ * shotgun). Upright (`vertical`) for cases facing east or west, the front
+ * on the right.
+ */
+function drawWeaponCase(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number, vertical: boolean): void {
+  rect(ctx, '#2e1d12', ox, oy, w, h);
+  rect(ctx, '#523522', ox + 1, oy + 1, w - 2, h - 2);
+  // Glass on the front: the bottom part seen from above, or the right side when upright.
+  const gx = vertical ? ox + 5 : ox + 2;
+  const gy = vertical ? oy + 2 : oy + 4;
+  const gw = vertical ? w - 7 : w - 4;
+  const gh = vertical ? h - 4 : h - 6;
+  rect(ctx, '#5f8ca8', gx, gy, gw, gh);
+  rect(ctx, '#a6d2e6', gx + 1, gy + 1, vertical ? 2 : gw - 2, vertical ? gh - 2 : 2);
+  // The weapon lying inside, dark against the glass.
+  const silhouette = '#1d2226';
+  const cx = gx + Math.floor(gw / 2);
+  const cy = gy + Math.floor(gh / 2);
+  const long = [8, 14, 18][frame] ?? 10;
+  if (vertical) {
+    rect(ctx, silhouette, cx - 1, cy - Math.floor(long / 2), 2, long);
+    rect(ctx, silhouette, cx + 1, cy + 1, 2, 3);
+  } else {
+    rect(ctx, silhouette, cx - Math.floor(long / 2), cy - 1, long, 2);
+    rect(ctx, silhouette, cx - Math.floor(long / 2), cy + 1, 3, 2);
+    if (frame === 1) rect(ctx, silhouette, cx, cy + 1, 2, 3); // the SMG's magazine
+    if (frame === 2) rect(ctx, silhouette, cx - Math.floor(long / 2) + 4, cy - 2, long - 4, 1); // the second barrel
+  }
+}
+
 /** A small flame tongue: yellow core, orange body, dark red tip (3 shapes for the flicker). */
 function drawFlame(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number): void {
   const lean = [0, 1, -1][frame % 3] ?? 0;
@@ -573,6 +605,10 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
         break;
       case ASSET_KEYS.flame:
         drawFlame(ctx, col, ox, oy, w, h);
+        break;
+      case ASSET_KEYS.weaponCase:
+      case ASSET_KEYS.weaponCaseV:
+        drawWeaponCase(ctx, col, ox, oy, w, h, object === ASSET_KEYS.weaponCaseV);
         break;
       case ASSET_KEYS.offscreenArrow:
         drawOffscreenArrow(ctx, ox, oy, w, h);

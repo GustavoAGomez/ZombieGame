@@ -130,6 +130,13 @@ export const ASSET_KEYS = {
   smokePuff: 'smoke_puff',
   /** A small flame rising off a burning zombie (the burn effect, spec 04). */
   flame: 'flame',
+  /**
+   * Weapon cases (spec 04 §3): one frame per weapon in WEAPON_IDS order.
+   * `weapon_case` faces south (28×18); `weapon_case_v` faces east or west
+   * (18×28; west is drawn mirrored).
+   */
+  weaponCase: 'weapon_case',
+  weaponCaseV: 'weapon_case_v',
   offscreenArrow: 'offscreen_arrow',
   mapRoom01: 'room01',
   mapMansion: 'mansion',

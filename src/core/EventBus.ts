@@ -54,19 +54,28 @@ export interface GameEvents {
    * missing. A `locked` portal is a second entrance not yet buyable.
    */
   'action:context': {
-    kind: 'repair' | 'door' | 'portal' | 'merchant' | null;
+    kind: 'repair' | 'door' | 'portal' | 'merchant' | 'weaponCase' | null;
     amount: number;
     enabled: boolean;
     portal?: 'stairs' | 'hatch';
     locked?: boolean;
     /** With kind 'merchant': whose shop the button opens. */
     merchant?: MerchantId;
+    /**
+     * With kind 'weaponCase' (spec 04 §3): the weapon sold; `mode` buy, ammo
+     * (already carried; `full` when there is nothing to buy) or confirm (the
+     * second tap replaces `replaces`, with its `replacesLevel` stars).
+     * `amount` is the price, or what is missing when not enabled.
+     */
+    weaponCase?: { weapon: WeaponId; mode: 'buy' | 'ammo' | 'confirm'; full: boolean; replaces?: WeaponId; replacesLevel?: number };
   };
   'round:changed': { round: number };
   /** A merchant appeared (`first`) or teleported to another spot at the start of a round (spec 03 §2). */
   'merchant:moved': { merchant: MerchantId; first: boolean };
   /** Money spent in a shop: "-750$" in red next to the money (spec 03 §3). */
   'money:spent': { playerId: number; amount: number };
+  /** Bought at a weapon case: the weapon itself or its ammo (spec 04 §3). Medium vibration. */
+  'weaponCase:purchase': { playerId: number; weapon: WeaponId; ammo: boolean };
   /** Something was bought from a merchant (medium haptic). */
   'merchant:purchase': { playerId: number; merchant: MerchantId; item: MerchantItemId };
   /** The local player's shop panel: closed, or open with one row per item still sold. */
