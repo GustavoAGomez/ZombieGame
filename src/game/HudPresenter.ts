@@ -1,4 +1,4 @@
-import { BOOSTS, DASH, PLAYER } from '../config/balance';
+import { BARRICADES, BOOSTS, DASH, PLAYER } from '../config/balance';
 import { type WeaponId } from '../config/weapons';
 import { merchantDef, type MerchantId } from '../config/merchants';
 import type { EventBus, GameEvents } from '../core/EventBus';
@@ -106,8 +106,8 @@ export class HudPresenter {
     let portalKind: 'stairs' | 'hatch' | undefined;
     if (kind === 'repair') {
       amount = repairPointsAvailable(p);
-      // Between two repairs the chip waits (dimmed, a tap shakes it); ready again, it blinks.
-      enabled = p.repairCooldown <= 0;
+      // Only the long wait under attack shows: the chip dims (a tap shakes it); ready again, it blinks.
+      enabled = p.repairCooldown <= BARRICADES.repairTapCooldown;
     } else if (kind === 'door' || kind === 'portal') {
       // Affordable: show the cost. Otherwise: how many points are missing.
       const portal = kind === 'portal' ? this.map.portals[p.contextTarget] : undefined;

@@ -141,7 +141,7 @@ describe('BarricadeSystem · repairing with taps', () => {
     z.kind = 'walker';
     p.hp = 1e9; // survive once it gets in
     // Slower than any zombie tears a plank: repairing never holds a window for good.
-    for (const kind of Object.values(ZOMBIES.kinds)) expect(BARRICADES.repairTapCooldown).toBeGreaterThan(kind.tearTime);
+    for (const kind of Object.values(ZOMBIES.kinds)) expect(BARRICADES.repairTapCooldownUnderAttack).toBeGreaterThan(kind.tearTime);
     let repairedWhileTearing = false;
     const cmd = command(ctx);
     // Tapping as fast as a finger can: a tap every other tick.
@@ -156,20 +156,63 @@ describe('BarricadeSystem · repairing with taps', () => {
     expect(['climbing', 'chasing']).toContain(z.ai);
   });
 
-  it('the chip waits between repairs: dimmed until a tap counts again', () => {
+  /** A walker tearing window 0 (5 planks left to tear), with the player just inside it. */
+  function underAttack(ctx: Ctx, planks = 3) {
+    const { p } = atWindow(ctx, 0, 5);
+    p.hp = 1e9;
+    const z = ctx.state.zombies[0]!;
+    spawnZombie(ctx, z, ctx.map.zombieSpawns.findIndex((s) => s.windowIndex === 0));
+    z.kind = 'walker';
+    for (let t = 0; t < 30 * 60 && z.ai !== 'tearing'; t++) stepSimulation(ctx, 1 / 60);
+    ctx.state.windowPlanks[0] = planks;
+    return { p, z };
+  }
+
+  it('repairs freely with no zombie at the window, slowly while one is there, freely again once it has gone', () => {
+    const ctx = createTestContext();
+    atWindow(ctx, 0, 0);
+    // Free: a plank every repairTapCooldown.
+    tapTimes(ctx, 3);
+    expect(ctx.state.windowPlanks[0]).toBe(3);
+
+    const ctx2 = createTestContext();
+    const { z } = underAttack(ctx2, 1);
+    tap(ctx2);
+    expect(ctx2.state.windowPlanks[0]).toBe(2);
+    // Under attack, taps within repairTapCooldownUnderAttack do nothing.
+    tapTimes(ctx2, 3);
+    expect(ctx2.state.windowPlanks[0]).toBeLessThanOrEqual(2);
+    // Once it has climbed in, the long wait is cut short.
+    ctx2.state.windowPlanks[0] = 0;
+    for (let t = 0; t < 120 && z.ai !== 'chasing'; t++) stepSimulation(ctx2, 1 / 60);
+    tap(ctx2);
+    runTicks(ctx2, cooldownTicks, stepSimulation);
+    tap(ctx2);
+    expect(ctx2.state.windowPlanks[0]).toBe(2);
+  });
+
+  it('the chip only dims for the long wait under attack, until a tap counts again', () => {
     const ctx = createTestContext();
     atWindow(ctx, 0, 2);
     const presenter = new HudPresenter(ctx.events, ctx.map);
     const action = vi.fn();
     ctx.events.on('action:context', action);
     stepSimulation(ctx, 1 / 60);
-    presenter.publish(ctx.state);
-    expect(action).toHaveBeenLastCalledWith(expect.objectContaining({ kind: 'repair', enabled: true }));
+    // No zombie: never dimmed, not even right after a tap.
     tap(ctx);
     presenter.publish(ctx.state);
-    expect(action).toHaveBeenLastCalledWith(expect.objectContaining({ kind: 'repair', enabled: false }));
-    runTicks(ctx, cooldownTicks + 1, stepSimulation);
-    presenter.publish(ctx.state);
     expect(action).toHaveBeenLastCalledWith(expect.objectContaining({ kind: 'repair', enabled: true }));
+
+    const ctx2 = createTestContext();
+    underAttack(ctx2);
+    const presenter2 = new HudPresenter(ctx2.events, ctx2.map);
+    const action2 = vi.fn();
+    ctx2.events.on('action:context', action2);
+    tap(ctx2);
+    presenter2.publish(ctx2.state);
+    expect(action2).toHaveBeenLastCalledWith(expect.objectContaining({ kind: 'repair', enabled: false }));
+    runTicks(ctx2, Math.round(BARRICADES.repairTapCooldownUnderAttack * 60) + 1, stepSimulation);
+    presenter2.publish(ctx2.state);
+    expect(action2).toHaveBeenLastCalledWith(expect.objectContaining({ kind: 'repair', enabled: true }));
   });
 });

@@ -1027,16 +1027,19 @@ Petición del usuario: si hay muchos zombis apelotonados en una ventana, que los
 - **Animación:** el golpe se reproduce a esa misma velocidad (`tearRate`), así el zarpazo sigue cayendo cuando sale el tablón.
 - **Frente a la reparación:** al hacer este cambio el jugador reponía un tablón por toque, como mucho uno cada 0,2 s. Quien tocara muy rápido aún aguantaba; se resolvió en el apartado siguiente.
 
-### Reparar, como mucho un tablón cada 2 s
+### Reparar: libre sin zombis, un tablón cada 2 s con ellos
 
-Petición del usuario: subir la espera entre toques de reparar. Con 0,2 s se podía hacer dinero en las ventanas reparando sin parar mientras los zombis arrancaban tablones, y nunca entraban. El objetivo: que los zombis entren aunque el jugador se quede reparando.
+Petición del usuario: subir la espera entre toques de reparar. Con 0,2 s se podía hacer dinero en las ventanas reparando sin parar mientras los zombis arrancaban tablones, y nunca entraban. El objetivo es que entren aunque el jugador se quede reparando. Después precisó que, si no hay zombis, tiene que poder reparar sin límite; los límites, solo con zombis.
 
-- **`BARRICADES.repairTapCooldown` pasa de 0,2 a 2 s.** Tiene que ser mayor que lo que tarda el zombi más lento en arrancar un tablón (el caminante, 1,4 s): si no, un zombi solo nunca entraría. Un test lo comprueba con todos los tipos.
+- **Sin zombis en la ventana:** un tablón cada 0,2 s (`BARRICADES.repairTapCooldown`), como antes. Una ventana vacía se repara entera en menos de 1 s.
+- **Con zombis en la ventana:** un tablón cada 2 s (`BARRICADES.repairTapCooldownUnderAttack`).
+  - Cuenta cualquier zombi, no solo los caminantes: el usuario dijo «caminantes» por los zombis en general. Hay zombis en la ventana si alguno arranca sus tablones o va hacia ella y está a menos de 48 px de su punto de entrada. Es el mismo grupo que acelera el arranque de tablones (`crowdsWindow`).
+  - Esos 2 s tienen que ser más que lo que tarda el zombi más lento en arrancar un tablón (el caminante, 1,4 s): si no, un zombi solo nunca entraría. Un test lo comprueba con todos los tipos.
+- **Cuando se va el último zombi** (ha trepado, por ejemplo), la espera larga se corta en ese momento. Solo se corta si el jugador está ante una ventana que puede reparar y sin zombis. Con la ventana llena no hay nada que reparar y la espera sigue corriendo; si no, se rellenaría al instante cada tablón arrancado.
 - **Medido, desde que el primer zombi empieza a arrancar hasta que no queda ningún tablón,** con el jugador tocando todo lo rápido que puede:
   - un caminante: 19,6 s;
   - un corredor: 9,0 s;
   - dos caminantes: 5,6 s;
   - cuatro caminantes: 2,2 s.
-- **Reparar una ventana vacía entera** (5 tablones) lleva unos 8 s.
 - **Los puntos por tablón no cambian:** +10, con el tope de 500 por ronda.
-- **El botón muestra la espera:** mientras dura, se atenúa, deja de parpadear y un toque lo sacude sin reparar nada. Cuando vuelve a valer un toque, se ilumina y parpadea. El +10 sigue en ámbar mientras espera: no es que falte dinero.
+- **El botón muestra la espera larga:** se atenúa, deja de parpadear y un toque lo sacude sin reparar nada. Cuando vuelve a valer un toque, se ilumina y parpadea. El +10 sigue en ámbar mientras espera: no es que falte dinero. Los 0,2 s de la reparación libre no se señalan, para que el botón no parpadee a cada toque.

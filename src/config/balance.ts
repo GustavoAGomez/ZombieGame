@@ -221,13 +221,15 @@ export const NAVIGATION = {
 export const BARRICADES = {
   planksPerWindow: 5,
   repairRange: 40,
+  /** Each tap of the chip repairs one plank; faster taps than this are ignored. */
+  repairTapCooldown: 0.2,
   /**
-   * Each tap of the chip repairs one plank; faster taps than this are
-   * ignored. Longer than the slowest zombie's tearTime (the walker's 1.4 s),
-   * so even a lone zombie gets in against nonstop repairs, and a window is
-   * no place to farm points.
+   * The same with zombies at the window (tearing it or waiting their turn,
+   * ZOMBIES.tearCrowdRadius): longer than the slowest zombie's tearTime (the
+   * walker's 1.4 s), so even a lone zombie gets in against nonstop repairs,
+   * and a window under attack is no place to farm points.
    */
-  repairTapCooldown: 2,
+  repairTapCooldownUnderAttack: 2,
   pointsPerPlank: 10,
   maxRepairPointsPerRound: 500,
 } as const;

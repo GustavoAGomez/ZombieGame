@@ -2,7 +2,7 @@ import { NAVIGATION, PLAYER, ZOMBIES } from '../../config/balance';
 import type { PlayerState, ZombieAi, ZombieState } from '../../core/GameState';
 import { BLOCK_ZOMBIE, moveCircle, resolveCircle, segmentClear } from '../map/CollisionGrid';
 import { UNREACHABLE, computeFlowField, distanceAt, flowDirection, flowNextCell, sourcesChanged } from '../map/FlowField';
-import type { MapWindow } from '../map/MapLoader';
+import type { MapData, MapWindow } from '../map/MapLoader';
 import { isZombieAlive } from './Combat';
 import { damagePlayer, isPlayerAlive } from './HealthSystem';
 import type { SimContext } from './SimContext';
@@ -193,16 +193,23 @@ function countWindowCrowds(ctx: SimContext): void {
     tearersAt.push(0);
   }
   for (const z of state.zombies) {
-    if (!z.active || z.window < 0 || z.window >= map.windows.length) continue;
-    if (z.ai === 'tearing') {
-      crowdAt[z.window] = (crowdAt[z.window] ?? 0) + 1;
-      tearersAt[z.window] = (tearersAt[z.window] ?? 0) + 1;
-    } else if (z.ai === 'toWindow') {
-      const w = map.windows[z.window];
-      const entry = w && (z.crossOut ? w.interior : w.exterior);
-      if (entry && Math.hypot(entry.x - z.x, entry.y - z.y) <= ZOMBIES.tearCrowdRadius) crowdAt[z.window] = (crowdAt[z.window] ?? 0) + 1;
-    }
+    if (!crowdsWindow(map, z, z.window)) continue;
+    crowdAt[z.window] = (crowdAt[z.window] ?? 0) + 1;
+    if (z.ai === 'tearing') tearersAt[z.window] = (tearersAt[z.window] ?? 0) + 1;
   }
+}
+
+/**
+ * Zombie `z` is at window `index`: tearing it, or on its way and already
+ * within tearCrowdRadius of its entry point.
+ */
+export function crowdsWindow(map: MapData, z: ZombieState, index: number): boolean {
+  if (!z.active || index < 0 || z.window !== index) return false;
+  if (z.ai === 'tearing') return true;
+  if (z.ai !== 'toWindow') return false;
+  const w = map.windows[index];
+  const entry = w && (z.crossOut ? w.interior : w.exterior);
+  return entry !== undefined && Math.hypot(entry.x - z.x, entry.y - z.y) <= ZOMBIES.tearCrowdRadius;
 }
 
 function updateTearing(ctx: SimContext, z: ZombieState, dt: number): void {
