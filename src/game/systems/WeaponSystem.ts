@@ -242,7 +242,7 @@ function sweep(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
   p.meleeAngle = Math.atan2(p.aimY, p.aimX);
   p.meleeTimer = MELEE.swingTime;
   p.meleeTick = state.tick;
-  p.meleeWide = true;
+  p.meleeRange = def.range;
   p.facing = p.meleeAngle;
 }
 
@@ -354,7 +354,7 @@ function handleMelee(ctx: SimContext, p: PlayerState, turn: boolean): void {
   p.meleeAngle = Math.atan2(dirY, dirX);
   p.meleeTimer = MELEE.swingTime;
   p.meleeTick = ctx.state.tick;
-  p.meleeWide = false;
+  p.meleeRange = MELEE.range;
   p.facing = p.meleeAngle;
   if (z) damageZombie(ctx, z, MELEE.damage * damageFactor(p), p.id, bodyHitPoint(z, dirX, dirY), POINTS.meleeHit);
 }

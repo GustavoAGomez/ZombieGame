@@ -221,7 +221,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDef>> = {
     startReserve: 0,
     maxReserve: 0,
     reloadTime: 0,
-    range: 34,
+    range: 102,
     arc: 140,
     knockback: 6,
     firstShotDelay: 0,
@@ -262,7 +262,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDef>> = {
     maxReserve: 180,
     reloadTime: 2.5,
     /** Walls stop it: a zombie out of sight does not burn. */
-    range: 90,
+    range: 135,
     arc: 40,
     /** 5 s of jet per tank. */
     fuelPerSecond: 12,

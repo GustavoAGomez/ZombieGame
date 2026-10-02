@@ -29,12 +29,12 @@ const fireEast = (ctx: SimContext): void => void Object.assign(holdFire(ctx), { 
 const slot = (ctx: SimContext) => player(ctx).weapons[0]!;
 
 describe('flamethrower', () => {
-  it('burns every zombie in its 40° cone within 90 px, and none outside', () => {
+  it('burns every zombie in its 40° cone within 135 px, and none outside', () => {
     const ctx = holding('flamethrower');
     const p = player(ctx);
     const inside = [placeZombie(ctx, 0, p.x + 50, p.y, 100), placeZombie(ctx, 1, p.x + 70, p.y + 15, 100)]; // 12°
     const wide = placeZombie(ctx, 2, p.x + 40, p.y + 30, 100); // 37°: outside ±20°
-    const far = placeZombie(ctx, 3, p.x + 110, p.y, 100); // 104 px to its hitbox
+    const far = placeZombie(ctx, 3, p.x + 150, p.y, 100); // 144 px to its hitbox
     fireEast(ctx);
     updateWeapons(ctx, DT);
     for (const z of inside) {

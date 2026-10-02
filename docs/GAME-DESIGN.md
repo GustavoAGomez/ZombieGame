@@ -22,7 +22,7 @@ Registro vivo de las **reglas del juego tal como están implementadas**: qué ha
 El daño se cuenta en las mismas unidades que la vida de los zombis: una bala de pistola o de SMG quita 1.
 
 **Katana** (especial):
-- **Barrido:** 4 de daño a cada zombi dentro de un arco de 140° delante del jugador, hasta 34 px del borde de su cuerpo, cada 0,45 s mientras se mantiene pulsado. Empuja 6 px a cada uno.
+- **Barrido:** 4 de daño a cada zombi dentro de un arco de 140° delante del jugador, hasta 102 px del borde de su cuerpo, cada 0,45 s mientras se mantiene pulsado. Empuja 6 px a cada uno.
 - **Sin munición ni recarga:** en el HUD, donde irían los números, sale ∞.
 - **Al pulsar:** el barrido sale sin la espera del primer disparo, y el jugador corre a su velocidad normal mientras ataca.
 - **Dirección:** la del arrastre del botón de disparo. Sin arrastre, hacia el zombi más cercano a su alcance, como el cuchillo.
@@ -38,7 +38,7 @@ El daño se cuenta en las mismas unidades que la vida de los zombis: una bala de
 - Respeta la espera del primer disparo y frena al jugador como las armas de fuego. Un toque más corto que la espera no dispara.
 
 **Lanzallamas infernal** (especial):
-- **Chorro** mientras se mantiene pulsado, en un cono de 40° hasta 90 px. Las paredes lo paran: un zombi sin línea de visión no se quema.
+- **Chorro** mientras se mantiene pulsado, en un cono de 40° hasta 135 px. Las paredes lo paran: un zombi sin línea de visión no se quema.
 - **Daño directo:** 4 por segundo a cada zombi del cono, en golpes cada 0,1 s.
 - **Quemadura:** cada zombi tocado arde 2 s y pierde 2 en total. No se apila: cada toque la reinicia.
 - **Munición:** depósito de 60 y reserva de 180. Gasta 12 por segundo (5 s por depósito) y recarga en 2,5 s. La rellenan la munición máxima del mago azul y los premios de munición.

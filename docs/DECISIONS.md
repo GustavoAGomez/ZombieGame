@@ -1301,3 +1301,10 @@ Petición del usuario: no saber a qué sala lleva una puerta hasta abrirla. Al d
   - La munición máxima del azul rellena el lanzallamas y no cuenta el láser ni la katana para «MUNICIÓN COMPLETA», porque un arma sin balas siempre está llena.
 - **Vista provisional (`FlameJet`):** llamas del efecto de quemadura lanzadas desde el cañón en abanico sobre el cono, que vuelan hasta el alcance creciendo y desvaneciéndose, y un anillo de llamas por cada explosión.
 - **Debug:** `DAR LANZALLAMAS`. La especial se activa con `ESPECIAL ARMA`, que ya existía.
+
+## Ajuste tras probar las armas especiales en el móvil
+
+- **Katana, recorrido ×3:** el alcance pasa de 34 a 102 px. El arco se queda en 140°, porque el triple no cabe en un círculo.
+  - El tajo dibujado se escala con el alcance. `meleeRange` sustituye a la marca `meleeWide`: el arco del cuchillo, escalado por `meleeRange / MELEE.range`.
+  - Al apuntar sola, la katana busca el zombi más cercano a 102 px más su radio.
+- **Lanzallamas, alcance ×1,5:** de 90 a 135 px. El chorro dibujado lo sigue solo, porque lee el alcance del catálogo.

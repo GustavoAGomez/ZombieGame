@@ -5,11 +5,8 @@ import { lerp } from '../../core/math';
 import { ASSET_KEYS, objectTextureKey, type CharacterDef, type ObjectDef } from '../assets/manifest';
 import { DEPTH } from '../depth';
 
-/** How far in front of the player the slash is drawn (px). */
+/** How far in front of the player the knife's slash is drawn (px); a sweep further out, in proportion to its reach. */
 const SLASH_REACH = 10;
-/** A melee weapon's sweep (the katana, spec 06 §2.2): the same arc, wider and further out. */
-const WIDE_SCALE = 1.8;
-const WIDE_REACH = 16;
 
 /**
  * Provisional knife slash: an arc in front of the player, turned to the
@@ -40,13 +37,15 @@ export class MeleeSlash {
       this.shownFrame = frame;
       this.image.setFrame(frame);
     }
-    const reach = player.meleeWide ? WIDE_REACH : SLASH_REACH;
+    // A melee weapon's sweep (the katana, spec 06 §2.2): the knife's arc, scaled to its reach.
+    const scale = player.meleeRange > MELEE.range ? player.meleeRange / MELEE.range : 1;
+    const reach = SLASH_REACH * scale;
     const x = lerp(player.prevX, player.x, alpha) + Math.cos(player.meleeAngle) * reach;
     const y = lerp(player.prevY, player.y, alpha) - PLAYER.chestHeight + Math.sin(player.meleeAngle) * reach;
     this.image
       .setVisible(true)
       .setPosition(Math.round(x), Math.round(y))
       .setRotation(player.meleeAngle)
-      .setScale(player.meleeWide ? WIDE_SCALE : 1);
+      .setScale(scale);
   }
 }

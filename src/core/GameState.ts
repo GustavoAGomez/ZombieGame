@@ -74,8 +74,8 @@ export interface PlayerState {
   meleeAngle: number;
   /** Tick of the last knife slash (views restart its animation). */
   meleeTick: number;
-  /** The last slash was a melee weapon's sweep (the katana): drawn wider than the knife's. */
-  meleeWide: boolean;
+  /** Reach of the last slash (px): MELEE.range for the knife, the weapon's range for a sweep (the katana, drawn that much bigger). */
+  meleeRange: number;
   /** A beam is firing this tick (the laser), `beamLength` px from the gun's muzzle along the aim to a wall or its range. */
   beamOn: boolean;
   beamLength: number;
@@ -420,7 +420,7 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     godMode: false,
     meleeAngle: 0,
     meleeTick: -1000,
-    meleeWide: false,
+    meleeRange: 0,
     beamOn: false,
     beamLength: 0,
     coneOn: false,

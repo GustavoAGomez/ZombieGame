@@ -30,18 +30,19 @@ function swingEast(ctx: SimContext): void {
 }
 
 describe('katana', () => {
-  it('cuts every zombie inside its 140° arc and reach, and none outside', () => {
+  it('cuts every zombie inside its 140° arc and its 102 px reach, and none outside', () => {
     const ctx = withKatana();
     const p = player(ctx);
     const ahead = placeZombie(ctx, 0, p.x + 25, p.y, 100);
     const diagonal = placeZombie(ctx, 1, p.x + 20, p.y + 20, 100); // 45°: inside ±70°
     const side = placeZombie(ctx, 2, p.x, p.y - 30, 100); // 90°: outside
     const behind = placeZombie(ctx, 3, p.x - 25, p.y, 100);
-    const far = placeZombie(ctx, 4, p.x + 50, p.y, 100); // 44 px to its hitbox: beyond 34
+    const far = placeZombie(ctx, 4, p.x + 120, p.y, 100); // 114 px to its hitbox: beyond 102
+    const reach = placeZombie(ctx, 5, p.x + 100, p.y, 100); // 94 px: inside
     swingEast(ctx);
-    expect([ahead.hp, diagonal.hp]).toEqual([100 - KATANA.damage, 100 - KATANA.damage]);
+    expect([ahead.hp, diagonal.hp, reach.hp]).toEqual([100 - KATANA.damage, 100 - KATANA.damage, 100 - KATANA.damage]);
     expect([side.hp, behind.hp, far.hp]).toEqual([100, 100, 100]);
-    expect(p.meleeWide).toBe(true);
+    expect(p.meleeRange).toBe(KATANA.range);
     expect(p.meleeAngle).toBeCloseTo(0);
   });
 
@@ -122,7 +123,7 @@ describe('katana', () => {
     command(ctx).melee = true;
     updateWeapons(ctx, DT);
     expect(z.hp).toBe(100 - MELEE.damage);
-    expect(p.meleeWide).toBe(false);
+    expect(p.meleeRange).toBe(MELEE.range);
   });
 
   it('shows ∞ on the HUD instead of the ammo', () => {
