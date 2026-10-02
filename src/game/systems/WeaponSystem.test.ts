@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { LOADOUT, MELEE } from '../../config/balance';
 import { WEAPONS } from '../../config/weapons';
-import { command, createTestContext, placeZombie, player, runTicks, withSmg } from '../../test/fixtures';
+import { command, createTestContext, holdFire, placeZombie, player, runTicks, withSmg } from '../../test/fixtures';
 import { stepSimulation } from './Simulation';
 import { hasAnyAmmo, reloadProgress } from './WeaponSystem';
 
@@ -20,7 +20,7 @@ describe('WeaponSystem · firing', () => {
     const ctx = withSmg(createTestContext());
     const p = player(ctx);
     p.activeSlot = 1;
-    command(ctx).fire = true;
+    holdFire(ctx);
     runTicks(ctx, 120, stepSimulation); // 2 s -> 22 shots (+1)
     const fired = WEAPONS.smg.magazine - (p.weapons[1]?.magazine ?? 0);
     expect(fired).toBeGreaterThanOrEqual(22);
@@ -30,7 +30,7 @@ describe('WeaponSystem · firing', () => {
   it('records the tick of every bullet for the muzzle flash', () => {
     const ctx = withSmg(createTestContext());
     const p = player(ctx);
-    command(ctx).fire = true;
+    holdFire(ctx);
     stepSimulation(ctx, 1 / 60);
     expect(p.lastShotTick).toBe(0);
     runTicks(ctx, 20, stepSimulation);
@@ -64,13 +64,79 @@ describe('WeaponSystem · firing', () => {
   });
 });
 
+describe('WeaponSystem · aiming before the first shot', () => {
+  const DELAY_TICKS = Math.ceil(WEAPONS.pistol.firstShotDelay * 60);
+  const shots = (ctx: ReturnType<typeof createTestContext>): number => WEAPONS.pistol.magazine - (player(ctx).weapons[0]?.magazine ?? 0);
+
+  it('waits firstShotDelay from the press to the first shot, aiming all the while', () => {
+    const ctx = withSmg(createTestContext());
+    const cmd = command(ctx);
+    // The thumb lands off the centre (aiming north by mistake) and is dragged east before the shot.
+    Object.assign(cmd, { fire: true, aimManual: true, aimX: 0, aimY: -1 });
+    runTicks(ctx, 3, stepSimulation);
+    Object.assign(cmd, { aimX: 1, aimY: 0 });
+    runTicks(ctx, DELAY_TICKS - 4, stepSimulation);
+    expect(shots(ctx)).toBe(0);
+    expect(player(ctx).aimX).toBe(1); // already facing where it will shoot
+    runTicks(ctx, 2, stepSimulation);
+    expect(shots(ctx)).toBe(1);
+    const b = ctx.state.bullets.find((x) => x.active)!;
+    expect(Math.abs(Math.atan2(b.dirY, b.dirX))).toBeLessThan(0.1); // east, not north
+  });
+
+  it('still fires a tap shorter than the delay, once, when the time is up, where it was last aimed', () => {
+    const ctx = withSmg(createTestContext());
+    const cmd = command(ctx);
+    Object.assign(cmd, { fire: true, aimManual: true, aimX: -1, aimY: 0 });
+    runTicks(ctx, 2, stepSimulation);
+    Object.assign(cmd, { fire: false, aimManual: false });
+    runTicks(ctx, DELAY_TICKS - 4, stepSimulation);
+    expect(shots(ctx)).toBe(0);
+    runTicks(ctx, 3, stepSimulation);
+    expect(shots(ctx)).toBe(1);
+    const b = ctx.state.bullets.find((x) => x.active)!;
+    expect(Math.abs(Math.atan2(b.dirY, b.dirX))).toBeGreaterThan(Math.PI - 0.1); // west
+    runTicks(ctx, 60, stepSimulation);
+    expect(shots(ctx)).toBe(1);
+  });
+
+  it('drops a tap that cannot fire when its time is up: no stray shot after the reload', () => {
+    const ctx = withSmg(createTestContext());
+    const slot = player(ctx).weapons[0]!;
+    slot.magazine = 0;
+    stepSimulation(ctx, 1 / 60); // starts the automatic reload
+    const cmd = command(ctx);
+    cmd.fire = true;
+    runTicks(ctx, 2, stepSimulation);
+    cmd.fire = false;
+    runTicks(ctx, Math.round(WEAPONS.pistol.reloadTime * 60) + 30, stepSimulation);
+    expect(slot.magazine).toBe(WEAPONS.pistol.magazine);
+  });
+
+  it('makes every new press wait again, not the shots of a held one', () => {
+    const ctx = withSmg(createTestContext());
+    const cmd = command(ctx);
+    cmd.fire = true;
+    runTicks(ctx, 60, stepSimulation);
+    const held = shots(ctx);
+    expect(held).toBeGreaterThanOrEqual(4); // the delay, then 4 shots/s
+    cmd.fire = false;
+    runTicks(ctx, 30, stepSimulation);
+    cmd.fire = true;
+    runTicks(ctx, DELAY_TICKS - 2, stepSimulation);
+    expect(shots(ctx)).toBe(held);
+    runTicks(ctx, 3, stepSimulation);
+    expect(shots(ctx)).toBe(held + 1);
+  });
+});
+
 describe('WeaponSystem · reload and switch', () => {
   it('reloads automatically when the magazine empties, taking 1.6 s', () => {
     const ctx = withSmg(createTestContext());
     const p = player(ctx);
     const slot = p.weapons[0]!;
     slot.magazine = 1;
-    command(ctx).fire = true;
+    holdFire(ctx);
     stepSimulation(ctx, 1 / 60);
     command(ctx).fire = false;
     expect(slot.magazine).toBe(0);
@@ -385,8 +451,8 @@ describe('shots from the drawn muzzle', () => {
     const p = player(ctx);
     // Facing north the muzzle is drawn 41 px up, above this zombie's head.
     const z = placeZombie(ctx, 0, p.x, p.y - 10, 1000);
-    const cmd = command(ctx);
-    Object.assign(cmd, { fire: true, aimManual: true, aimX: 0, aimY: -1 });
+    const cmd = holdFire(ctx);
+    Object.assign(cmd, { aimManual: true, aimX: 0, aimY: -1 });
     stepSimulation(ctx, 1 / 60);
     expect(z.hp).toBe(1000 - WEAPONS.pistol.damage);
   });
@@ -395,8 +461,8 @@ describe('shots from the drawn muzzle', () => {
     const ctx = withSmg(createTestContext());
     ctx.muzzles = ART_MUZZLES;
     const p = player(ctx);
-    const cmd = command(ctx);
-    Object.assign(cmd, { fire: true, aimManual: true, aimX: 1, aimY: 0 });
+    const cmd = holdFire(ctx);
+    Object.assign(cmd, { aimManual: true, aimX: 1, aimY: 0 });
     stepSimulation(ctx, 1 / 60);
     const b = ctx.state.bullets.find((x) => x.active)!;
     expect(b.prevX + b.drawX).toBeCloseTo(p.x + 20);

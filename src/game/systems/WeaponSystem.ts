@@ -21,6 +21,10 @@ const AUTO_AIM_MIN_REACH = 20;
  * (manual drag or auto-aim), automatic fire at the weapon's rate, and the
  * knife: its own button at any time (turning to the nearest zombie in
  * reach), or the fire button when every weapon is out of ammo.
+ *
+ * The first shot of each press waits the weapon's firstShotDelay, aiming
+ * all the while, so a thumb that lands off the centre of the fire stick can
+ * still correct the aim before it fires (docs/DECISIONS.md).
  */
 export function updateWeapons(ctx: SimContext, dt: number): void {
   const { state, commands } = ctx;
@@ -31,10 +35,21 @@ export function updateWeapons(ctx: SimContext, dt: number): void {
     tickTimers(p, cmd, dt);
     handleSwitch(p, cmd);
     handleReload(p, cmd, dt);
+    updateTrigger(p, cmd, dt);
     updateAim(ctx, p, cmd);
     if (cmd.melee) handleMelee(ctx, p, true);
-    else if (cmd.fire) handleFire(ctx, p);
+    else if (cmd.fire || p.shotPending) handleFire(ctx, p, cmd.fire);
   }
+}
+
+/** A new press starts counting its aiming time; a pending tap keeps counting after the release. */
+function updateTrigger(p: PlayerState, cmd: InputCommand, dt: number): void {
+  if (cmd.fire && !p.firing) {
+    p.aimTime = 0;
+    p.shotPending = true;
+  }
+  if (cmd.fire || p.shotPending) p.aimTime += dt;
+  else p.aimTime = 0;
 }
 
 function tickTimers(p: PlayerState, cmd: InputCommand, dt: number): void {
@@ -148,14 +163,22 @@ function freeBullet(state: GameState): BulletState | undefined {
   return undefined;
 }
 
-function handleFire(ctx: SimContext, p: PlayerState): void {
-  if (p.switchTimer > 0) return;
+/**
+ * The fire button: shots at the weapon's rate once the press has aimed for
+ * its firstShotDelay. A tap released before that gets one try when the time
+ * is up (where it was last aimed), and none later: never a stray shot after
+ * a reload. Out of ammo everywhere, it slashes with the knife at once.
+ */
+function handleFire(ctx: SimContext, p: PlayerState, held: boolean): void {
   if (!hasAnyAmmo(p)) {
-    handleMelee(ctx, p, false);
+    p.shotPending = false;
+    if (held && p.switchTimer <= 0) handleMelee(ctx, p, false);
     return;
   }
   const slot = p.weapons[p.activeSlot];
-  if (!slot || p.reloadTimer > 0 || slot.magazine <= 0 || p.fireCooldown > 0) return;
+  if (slot && p.aimTime < WEAPONS[slot.id].firstShotDelay) return;
+  p.shotPending = false;
+  if (!slot || p.switchTimer > 0 || p.reloadTimer > 0 || slot.magazine <= 0 || p.fireCooldown > 0) return;
   shoot(ctx, p, slot);
 }
 

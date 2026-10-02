@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { PLAYER, POINTS } from '../../config/balance';
 import { WEAPON_SPECIALS, WEAPONS } from '../../config/weapons';
 import { createWeaponSlot } from '../../core/GameState';
-import { command, createTestContext, placeZombie, player, runTicks } from '../../test/fixtures';
+import { createTestContext, holdFire, placeZombie, player, runTicks } from '../../test/fixtures';
 import { falloffFactor, updateBullets } from './BulletSystem';
 import { BURN_TICKS, burnPerTick, igniteZombie, isBurning, updateBurns } from './BurnSystem';
 import { stepSimulation } from './Simulation';
@@ -22,8 +22,7 @@ function withShotgun(special = false): Ctx {
 }
 
 function pullTrigger(ctx: Ctx, aimX = 1, aimY = 0): void {
-  const cmd = command(ctx);
-  cmd.fire = true;
+  const cmd = holdFire(ctx);
   cmd.aimManual = true;
   cmd.aimX = aimX;
   cmd.aimY = aimY;

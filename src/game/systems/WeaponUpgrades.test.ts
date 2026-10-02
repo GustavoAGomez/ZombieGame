@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { BOOSTS } from '../../config/balance';
 import { UPGRADE_LEVELS, WEAPON_SPECIALS, WEAPONS } from '../../config/weapons';
-import { command, createTestContext, placeZombie, player, runTicks, withSmg } from '../../test/fixtures';
+import { command, createTestContext, holdFire, placeZombie, player, runTicks, withSmg } from '../../test/fixtures';
 import { HudPresenter } from '../HudPresenter';
 import { storeBoost } from './BoostSystem';
 import { moveMerchant } from './MerchantSystem';
@@ -15,8 +15,7 @@ const PISTOL = 0;
 const SMG = 1;
 
 function fire(ctx: Ctx, ticks: number, aimX = 1, aimY = 0): void {
-  const cmd = command(ctx);
-  cmd.fire = true;
+  const cmd = holdFire(ctx);
   cmd.aimManual = true;
   cmd.aimX = aimX;
   cmd.aimY = aimY;

@@ -1,14 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { BULLETS, ZOMBIES } from '../../config/balance';
 import { WEAPONS } from '../../config/weapons';
-import { command, createTestContext, placeZombie, player, runTicks } from '../../test/fixtures';
+import { createTestContext, holdFire, placeZombie, player, runTicks } from '../../test/fixtures';
 import { updateBullets } from './BulletSystem';
 import { bodyEntry, hurtboxOf } from './shotGeometry';
 import { stepSimulation } from './Simulation';
 
 function fireOnce(ctx: ReturnType<typeof createTestContext>, aimX: number, aimY: number): void {
-  const cmd = command(ctx);
-  cmd.fire = true;
+  const cmd = holdFire(ctx);
   cmd.aimManual = true;
   cmd.aimX = aimX;
   cmd.aimY = aimY;

@@ -71,6 +71,14 @@ export interface PlayerState {
   meleeTick: number;
   /** Fire held during the last tick. */
   firing: boolean;
+  /** Seconds since this press of the fire button began (still counting while a tap's shot waits). */
+  aimTime: number;
+  /**
+   * The press has not fired yet: its first shot waits for the weapon's
+   * firstShotDelay, and a tap released before that still fires once, when
+   * the time is up.
+   */
+  shotPending: boolean;
   /** True when aiming with a drag (draws the aim line). */
   aimManual: boolean;
   /** Unit aim direction used during the last tick. */
@@ -376,6 +384,8 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     meleeAngle: 0,
     meleeTick: -1000,
     firing: false,
+    aimTime: 0,
+    shotPending: false,
     aimManual: false,
     aimX: 0,
     aimY: 1,

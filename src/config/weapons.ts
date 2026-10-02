@@ -46,6 +46,13 @@ export interface WeaponStats {
   /** Size of its muzzle flash next to the pistol's, and how far the player is pushed back per shot (px). Look only. */
   muzzleFlashScale?: number;
   recoil?: number;
+  /**
+   * Seconds from pressing fire to the first shot of that press: time to
+   * correct the aim when the thumb lands off the centre of the fire stick.
+   * Holding on, it then fires at its rate. A tap shorter than this still
+   * fires once, when the time is up, where it was last aimed.
+   */
+  firstShotDelay: number;
 }
 
 export interface WeaponDef extends WeaponStats {
@@ -74,6 +81,9 @@ export const UPGRADE_LEVELS: Readonly<Record<UpgradeKind, readonly number[]>> = 
 /** Every basic weapon takes the three kinds, three levels each. */
 const ALL_UPGRADES = { ammo: 3, fire_rate: 3, damage: 3 } as const;
 
+/** Time to aim before the first shot of a press, the same for every weapon for now. */
+const FIRST_SHOT_DELAY = 0.15;
+
 /** The specials' numbers. */
 export const WEAPON_SPECIALS = {
   /** Pistol: projectiles per shot, the angle between them (degrees) and one round of ammo for all. */
@@ -101,6 +111,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDef>> = {
     spread: 2,
     range: 340,
     bulletSpeed: 520,
+    firstShotDelay: FIRST_SHOT_DELAY,
     upgrades: ALL_UPGRADES,
     special: 'fan',
   },
@@ -116,6 +127,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDef>> = {
     spread: 6,
     range: 300,
     bulletSpeed: 560,
+    firstShotDelay: FIRST_SHOT_DELAY,
     upgrades: ALL_UPGRADES,
     special: 'pierce',
   },
@@ -139,6 +151,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDef>> = {
     knockback: 3,
     muzzleFlashScale: 1.6,
     recoil: 2,
+    firstShotDelay: FIRST_SHOT_DELAY,
     upgrades: ALL_UPGRADES,
     special: 'fire',
     // With only 2 shells, the reload is most of its pace: the fire rate level speeds it up too.

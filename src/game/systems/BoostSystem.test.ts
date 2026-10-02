@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { BOOSTS, MELEE, PLAYER } from '../../config/balance';
 import { WEAPONS } from '../../config/weapons';
-import { command, createTestContext, placeZombie, player, runTicks } from '../../test/fixtures';
+import { command, createTestContext, holdFire, placeZombie, player, runTicks } from '../../test/fixtures';
 import { HudPresenter } from '../HudPresenter';
 import { drawRoundBoost, storeBoost } from './BoostSystem';
 import { updateMerchants } from './MerchantSystem';
@@ -147,7 +147,7 @@ describe('BoostSystem · effects', () => {
     const p = player(ctx);
     storeBoost(p, 'double_damage');
     tapBoost(ctx);
-    command(ctx).fire = true;
+    holdFire(ctx);
     stepSimulation(ctx, 1 / 60);
     command(ctx).fire = false;
     const bullet = ctx.state.bullets.find((b) => b.active);

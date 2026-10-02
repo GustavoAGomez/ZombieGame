@@ -26,6 +26,7 @@ export function damagePlayer(ctx: SimContext, p: PlayerState, amount: number, fr
   ctx.events.emit('player:damaged', { playerId: p.id, hp: p.hp, maxHp: p.maxHp, x: p.x, y: p.y, fromX, fromY });
   if (p.hp === 0) {
     p.firing = false;
+    p.shotPending = false;
     p.aimManual = false;
     p.moving = false;
     p.moveFactor = 0;

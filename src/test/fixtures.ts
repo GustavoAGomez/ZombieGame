@@ -98,6 +98,19 @@ export function command(ctx: SimContext) {
 }
 
 /**
+ * Fire held long enough to have aimed (the weapons' firstShotDelay): the
+ * next tick shoots at once. For tests about the shots, not about the delay.
+ */
+export function holdFire(ctx: SimContext) {
+  const p = player(ctx);
+  p.firing = true;
+  p.aimTime = 1;
+  const cmd = command(ctx);
+  cmd.fire = true;
+  return cmd;
+}
+
+/**
  * The player as it started before spec 04: pistol in hand and the SMG in
  * the second slot, for tests about switching, the SMG or several weapons.
  */

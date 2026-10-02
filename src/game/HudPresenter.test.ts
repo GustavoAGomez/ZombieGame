@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { command, createTestContext, player, withSmg } from '../test/fixtures';
+import { command, createTestContext, holdFire, player, withSmg } from '../test/fixtures';
 import { HudPresenter } from './HudPresenter';
 import { stepSimulation } from './systems/Simulation';
 
@@ -30,7 +30,7 @@ describe('HudPresenter', () => {
     });
     expect(cooldown).toHaveBeenCalledTimes(1);
 
-    command(ctx).fire = true;
+    holdFire(ctx);
     stepSimulation(ctx, 1 / 60);
     presenter.publish(ctx.state);
     expect(weapon).toHaveBeenCalledTimes(2);

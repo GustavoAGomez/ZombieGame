@@ -1204,3 +1204,17 @@ Petición del usuario, tras la anterior: abrir huecos en las vallas de los vecin
 - **Atrezo:** buzón, cubos, neumáticos, bidón, barbacoa volcada, astillas de la valla rota y una farola caída.
   - Con 3 casillas de fondo, los sólidos van pegados a la valla del frente o en los rincones; en la fila central dejarían un paso de 1 casilla.
   - Por eso no hay árboles: con 2×2, siempre dejan un paso de 1 casilla.
+
+## Apuntar antes del primer disparo
+
+Petición del usuario: al pulsar el botón de disparo, a veces el dedo cae descentrado, se apunta a mano sin querer y la primera bala falla hasta corregir la puntería. Hay que dejar un tiempo mínimo entre el primer apuntado y el primer disparo de cada arma.
+
+- **Dónde:** en el sistema de armas, no en el control táctil. La entrada solo produce comandos (regla 2), y en el online el servidor aplicará la misma espera.
+  - El estado del jugador lleva `aimTime` (segundos desde que empezó la pulsación) y `shotPending` (la pulsación aún no ha disparado).
+- **Cuánto:** `firstShotDelay` en cada arma de `weapons.ts`, de momento 0,15 s en las tres. Da tiempo a arrastrar sin que se note un retraso grande.
+  - Durante la espera la puntería se actualiza cada tick (manual o automática), así que el jugador ya gira y se ve hacia dónde va a disparar.
+- **Toques cortos:** con una espera simple, un toque de menos de 0,15 s (lo normal en el móvil) no dispararía nunca. Por eso un toque dispara una vez cuando se cumple el tiempo, hacia donde apuntaba en el último tick pulsado.
+  - Si en ese momento no puede disparar (recargando, cambiando de arma, enfriamiento), el disparo se descarta. Así nunca sale una bala suelta segundos después.
+- **Cada pulsación nueva espera de nuevo.** Mantener pulsado no vuelve a esperar entre balas.
+- **El cuchillo no espera:** ni en su botón ni en el de disparo cuando no queda munición.
+- **Tests:** el ayudante `holdFire` deja al jugador con el botón pulsado y la espera cumplida, para los tests que miran las balas y no la espera.

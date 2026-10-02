@@ -22,6 +22,11 @@ Registro vivo de las **reglas del juego tal como están implementadas**: qué ha
 
 El daño se cuenta en las mismas unidades que la vida de los zombis: una bala de pistola o de SMG quita 1.
 
+- **Apuntar antes del primer disparo:** al pulsar el botón de disparo, la primera bala espera **0,15 s** (igual en las tres armas, ajustable por arma). Mientras tanto el jugador ya gira hacia donde apunta y se puede corregir arrastrando, por si el dedo cayó descentrado.
+  - Manteniendo pulsado, después dispara a la cadencia del arma.
+  - Un toque más corto que esa espera dispara una vez al cumplirse, hacia donde apuntaba al soltar. Si en ese momento no puede (recargando, cambiando de arma), el disparo se pierde: nunca sale una bala suelta después.
+  - El cuchillo, en su botón o en el de disparo sin munición, no espera.
+
 ### Mejoras por arma
 
 Tres tipos de mejora, cada uno con sus niveles, que se compran por separado y en el orden que quiera el jugador. El factor de cada nivel es el total a ese nivel: los niveles de un tipo no se multiplican entre sí.
