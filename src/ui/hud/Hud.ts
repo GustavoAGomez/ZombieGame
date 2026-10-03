@@ -26,7 +26,6 @@ export class Hud {
   private readonly root: HTMLDivElement;
   private readonly healthRow: HTMLDivElement;
   private readonly segments: HTMLDivElement[] = [];
-  private readonly hpValue: HTMLSpanElement;
   private readonly round: HTMLDivElement;
   private readonly points: HTMLSpanElement;
   private readonly money: HTMLSpanElement;
@@ -76,8 +75,8 @@ export class Hud {
       this.segments.push(seg);
       bar.appendChild(seg);
     }
-    this.hpValue = el('span', 'hud-hp');
-    this.healthRow.append(heart, bar, this.hpValue);
+    // No number: the bar says it (and the label, for screen readers).
+    this.healthRow.append(heart, bar);
     this.round = el('div', 'hud-round');
     // The weapon in hand: its name and upgrade marks, and the ammo on the line below.
     this.weaponRow = el('div', 'hud-weapon');
@@ -104,12 +103,14 @@ export class Hud {
     battery.appendChild(this.batteryFill);
     const overheated = el('span', 'hud-battery__label');
     overheated.textContent = STRINGS.hud.overheated;
-    // Its overheats left before it breaks for good: a box each, lit while still to come.
+    // Its overheats left before it breaks for good: a box each under the bar, lit while still to come.
     this.overheatMarks = el('span', 'hud-mark hud-overheats');
+    const batteryBox = el('div', 'hud-battery-box');
+    batteryBox.append(battery, this.overheatMarks);
     // A weapon that wears out (the katana) shows its uses left in place of the ∞, and ROTA once out of them.
     const broken = el('span', 'hud-broken');
     broken.textContent = STRINGS.hud.broken;
-    ammoRow.append(bullet, infinite, this.magazine, battery, this.overheatMarks, overheated, broken, reload, this.reserve);
+    ammoRow.append(bullet, infinite, this.magazine, batteryBox, overheated, broken, reload, this.reserve);
     this.weaponRow.append(nameRow, ammoRow);
     // An empty row kept for future stats and perks (spec 01 §5).
     left.append(this.healthRow, this.round, this.weaponRow, el('div', 'hud-reserved'));
@@ -179,7 +180,7 @@ export class Hud {
   private readonly onHealth = (e: GameEvents['player:health']): void => {
     const filled = Math.ceil((e.hp / e.maxHp) * HEALTH_SEGMENTS);
     for (let i = 0; i < this.segments.length; i++) this.segments[i]?.classList.toggle('is-full', i < filled);
-    this.hpValue.textContent = String(e.hp);
+    this.healthRow.setAttribute('aria-label', `${STRINGS.hud.health}: ${e.hp}`);
     this.healthRow.classList.toggle('is-low', e.low);
     this.hurt.setHealth(e.hp, e.maxHp);
   };

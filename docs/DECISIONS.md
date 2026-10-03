@@ -1450,7 +1450,7 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - No se repara. Uno nuevo de la mano empieza de cero.
 - **HUD:**
   - La katana muestra sus usos en lugar del ∞, en el HUD y en su hueco de la barra de armas; rota, en rojo con «ROTA» parpadeando, y su hueco sale vacío.
-  - El láser muestra una casilla roja por cada sobrecalentamiento que aún aguanta.
+  - El láser muestra una casilla roja por cada sobrecalentamiento que aún aguanta, debajo de su barra de batería y repartidas a lo ancho de ella (a petición del usuario; al principio iban a su derecha).
   - Al romperse cualquiera de las dos, aviso en rojo en el centro (`weapon:broken`).
 
 ## Arte de los objetos especiales: la varita y el corazón (PixelLab)
@@ -1483,3 +1483,21 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 - **Varita:** se sustituye por la versión que el usuario retocó en la galería de PixelLab: quitó el píxel claro suelto al final del mango en los fotogramas que lo tenían.
   - Se exportó con el banco de trabajo de PixelLab: una edición que no cambia nada devuelve la hoja de fotogramas.
   - Pasa por el mismo proceso que antes: fotogramas 1-8, alfa 0/255 y 32 colores.
+
+## El dash, debajo del cuchillo
+
+- A petición del usuario: con 3 armas, la columna de armas llegaba demasiado cerca del dash, que estaba a la derecha de recargar.
+- **Posición:** el dash pasa a la izquierda del disparo, justo debajo del cuchillo y en la misma columna, con 14 px entre los dos.
+  - Para que quepa, el cuchillo sube 10 px.
+  - Centros respecto al del disparo, con la y hacia arriba: recargar (−14, +76), cuchillo (−76, +14) y dash (−76, −34).
+- **Toques:** el cuchillo y el dash tienen 7 px de margen invisible cada uno, en lugar de 14, así que ninguno se queda los toques del otro (el límite cae en la mitad del hueco).
+  - El dash queda fuera del círculo de toque del disparo.
+- En 844×390 la columna de 3 armas acaba en y = 183 y el dash empieza en y = 323.
+
+## HUD más limpio: sin cuenta atrás en el dash, sin número de vida y la ronda más pequeña
+
+- Todo a petición del usuario.
+- **Dash:** su botón ya no muestra los segundos que faltan. Como los demás botones, solo indica el enfriamiento con la sombra que baja hasta que vuelve a estar listo.
+  - La mejora de la ronda sigue con sus segundos, porque cuentan lo que le queda activa, no un enfriamiento.
+- **Vida:** se quita el número («100») junto a la barra. La barra ya lo dice, y su `aria-label` («Vida: 100») lo mantiene para lectores de pantalla.
+- **Ronda:** el «RONDA N» bajo la barra de vida pasa de 16 a 11 px, con 2 px de sombra en lugar de 3. El aviso grande de inicio de ronda no cambia.

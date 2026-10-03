@@ -138,9 +138,10 @@
 }
 
 /*
- * The arc around the fire button, like Wild Rift's abilities, with 34 px
- * buttons (centres from the fire button's centre): knife (-76, -4) on the
- * left, reload (-14, -76) above, dash (+38, -66) to the right of reload.
+ * The buttons around the fire button, like Wild Rift's abilities, 34 px
+ * (centres from the fire button's centre, y up): reload (-14, +76) above,
+ * knife (-76, +14) on the left, and the dash (-76, -34) right under the
+ * knife, low on the left of the fire button, away from the weapon column.
  */
 .action-button--reload {
   right: calc(var(--pad-x) + 57px);
@@ -150,7 +151,7 @@
 /* Knife to the left of the fire button. */
 .action-button--melee {
   right: calc(var(--pad-x) + 119px);
-  bottom: calc(var(--pad-bottom) + 51px);
+  bottom: calc(var(--pad-bottom) + 61px);
 }
 
 /*
@@ -269,10 +270,10 @@
   opacity: 0.4;
 }
 
-/* Special (dash) to the right of reload, amber accents. */
+/* Special (dash) under the knife, amber accents. */
 .action-button--special {
-  right: calc(var(--pad-x) + 5px);
-  bottom: calc(var(--pad-bottom) + 113px);
+  right: calc(var(--pad-x) + 119px);
+  bottom: calc(var(--pad-bottom) + 13px);
   color: var(--amber);
   background: rgba(232, 176, 74, 0.14);
   box-shadow: inset 0 0 0 2px rgba(232, 176, 74, 0.75);
@@ -295,24 +296,6 @@
   background: rgba(15, 14, 12, 0.72);
   transform-origin: 50% 100%;
   pointer-events: none;
-}
-
-/* Sibling of the veil so the digits are never scaled with it. */
-.action-button__seconds {
-  position: absolute;
-  inset: 0;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-size: 10px;
-  color: var(--bone);
-  text-shadow: 2px 2px 0 var(--ink);
-  pointer-events: none;
-}
-
-.action-button.is-cooling .action-button__seconds {
-  display: flex;
 }
 
 .fire-stick.is-pressed,
@@ -478,6 +461,12 @@
 
 .weapon-column .action-button {
   --hit-slop: 4px;
+}
+
+/* Knife and dash, one over the other 14 px apart: half the gap each, so neither takes the other's taps. */
+.action-button--melee,
+.action-button--special {
+  --hit-slop: 7px;
 }
 
 

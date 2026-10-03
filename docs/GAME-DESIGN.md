@@ -40,7 +40,7 @@ El daño se cuenta en las mismas unidades que la vida de los zombis: una bala de
 - **Batería de 100 en lugar de munición:** se gasta a 25 por segundo (4 s de rayo) y se recarga sola a 20 por segundo tras 0,8 s sin disparar, también enfundado. Ni la munición máxima ni los premios de munición le afectan.
 - **Sobrecalentamiento:** si se vacía, el arma se bloquea 3 s y luego recarga con normalidad. En el HUD, la barra de batería parpadea en rojo con «SOBRECALENTADO».
 - **Se rompe del todo a la 8.ª vez que se sobrecalienta:** se pierde, sin arreglo, y pasa a la mano el arma siguiente. Aviso «EL LÁSER SE HA ROTO».
-  - Junto a la batería, una casilla roja por cada sobrecalentamiento que aún aguanta.
+  - Debajo de la barra de batería, una casilla roja por cada sobrecalentamiento que aún aguanta.
 - Respeta la espera del primer disparo y frena al jugador como las armas de fuego. Un toque más corto que la espera no dispara.
 
 **Lanzallamas infernal** (especial):

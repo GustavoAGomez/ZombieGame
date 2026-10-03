@@ -169,13 +169,31 @@
   animation: hud-blink 0.4s steps(1, end) infinite;
 }
 
-/* The laser's overheats left before it breaks for good, a box each next to its battery. */
+/*
+ * The battery bar (the laser's battery, the katana's cooldown) and, under
+ * it, the laser's overheats left before it breaks for good: a box each,
+ * spread over the bar's width. Out of the row unless one of them shows.
+ */
+.hud-battery-box {
+  display: none;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.hud-weapon.is-battery .hud-battery-box,
+.hud-weapon.is-recharging .hud-battery-box {
+  display: flex;
+}
+
 .hud-weapon .hud-overheats {
   display: none;
 }
 
 .hud-weapon.is-battery .hud-overheats:not(:empty) {
   display: flex;
+  justify-content: space-between;
+  width: 56px;
 }
 
 .hud-overheats .hud-mark__box {
@@ -281,18 +299,11 @@
   background: var(--red-low);
 }
 
-.hud-hp {
-  font-family: var(--font-display);
-  font-size: 8px;
-  min-width: 24px;
-  text-shadow: 2px 2px 0 var(--ink);
-}
-
 .hud-round {
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: 11px;
   color: var(--red);
-  text-shadow: 3px 3px 0 var(--ink);
+  text-shadow: 2px 2px 0 var(--ink);
 }
 
 /* Red pixel border for 200 ms when the player is hit (spec 01 §4.1). */

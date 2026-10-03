@@ -3,11 +3,11 @@ import { STRINGS } from '../ui/strings';
 import { TapButton } from './TapButton';
 
 /**
- * Buttons in the arc around the fire button, as in Wild Rift: the knife to
- * its left, reload above it and the special (dash) to the right of reload.
- * The reload
- * button shows the reload in progress (dimmed while there is nothing to
- * reload) and the special its cooldown, both received via the EventBus.
+ * Buttons around the fire button, as in Wild Rift: the knife to its left,
+ * the special (dash) under the knife and reload above the fire button. The
+ * reload button shows the reload in progress (dimmed while there is nothing
+ * to reload) and the special its cooldown, both received via the EventBus
+ * and only as a veil going down, like every other button: no countdown.
  */
 /**
  * A dark veil for a cooldown or a reload, inside a holder clipped to the
@@ -33,7 +33,6 @@ export class ActionButtons {
   private readonly reloadButton: TapButton;
   private readonly meleeButton: TapButton;
   private readonly veil: HTMLDivElement;
-  private readonly seconds: HTMLSpanElement;
   private readonly reloadVeil: HTMLDivElement;
   private readonly unsubscribe: (() => void)[];
 
@@ -43,9 +42,6 @@ export class ActionButtons {
     this.specialButton = new TapButton(parent, 'action-button--special', 'bolt', '', STRINGS.controls.special, ICON_SIZE);
 
     this.veil = addVeil(this.specialButton.el);
-    this.seconds = document.createElement('span');
-    this.seconds.className = 'action-button__seconds';
-    this.specialButton.el.append(this.seconds);
     this.reloadVeil = addVeil(this.reloadButton.el);
 
     this.unsubscribe = [
@@ -53,7 +49,6 @@ export class ActionButtons {
         const fraction = total > 0 ? Math.min(1, remaining / total) : 0;
         this.veil.style.transform = `scaleY(${fraction})`;
         this.veil.style.display = fraction > 0 ? 'block' : 'none';
-        this.seconds.textContent = fraction > 0 ? String(Math.ceil(remaining)) : '';
         this.specialButton.el.classList.toggle('is-cooling', fraction > 0);
       }),
       events.on('weapon:state', ({ magazine, capacity, reserve, reloadProgress, switching }) => {
