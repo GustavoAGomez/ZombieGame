@@ -3,17 +3,31 @@ import { HAND } from '../../config/balance';
 import { WEAPON_IDS } from '../../config/weapons';
 import type { EventBus, GameEvents } from '../../core/EventBus';
 import type { HandPhase, HandState } from '../../core/GameState';
-import { ASSET_KEYS, objectTextureKey } from '../assets/manifest';
+import { ASSET_KEYS, objectTextureKey, type Manifest } from '../assets/manifest';
 import { actorDepth, DEPTH } from '../depth';
 import type { MapData } from '../map/MapLoader';
 import { ARROW_EDGE_GAP, edgeArrow, type ViewEdges } from './Merchant';
 
-/** The embers of the crack switch between dim and bright this often (s). */
-const EMBER_PULSE = 0.4;
+/** The hole's loops, in frames per second: the glowing cracks of its crust, and the fire inside once open. */
+const CRUST_FPS = 5;
+const FIRE_FPS = 10;
+/** The hole breaks open in this long (s) as the hand starts rising, and closes back in as long once it has sunk. */
+export const HOLE_TIME = 0.24;
+/** The hand starts coming out this long (s) after the hole starts opening (half open). */
+export const EMERGE_DELAY = 0.12;
+/** The floor line the hand comes out of, this far (px) under the hole's centre: towards its front, inside the fire. */
+const GROUND = 7;
+/** Moving away when tired, its hole fades out in this long (s), once the hand has sunk. */
+const FADE_TIME = 0.4;
 /** Weapon outlines shown while rolling, slowing down towards the end (spec 06 §3.4). */
 const ROLL_STEPS = 14;
-/** The weapon on offer floats this high over the open hand (px) and bobs this much; in its last seconds it blinks. */
-const FLOAT_HEIGHT = 34;
+/**
+ * The weapon on offer floats this high over the floor line (px), cradled by
+ * the open claw just over its glowing palm, and bobs this much; in its last
+ * seconds it blinks. While rolling, the outlines pass over the fist.
+ */
+const FLOAT_HEIGHT = 28;
+const ROLL_HEIGHT = 44;
 const BOB = 2;
 /** The outlines are the HUD's 1× icons: drawn bigger over the hand so they read on the map. */
 const WEAPON_SCALE = 1.5;
@@ -21,39 +35,95 @@ const BLINK_PERIOD = 0.15;
 /** A special weapon's flash as the hand opens: a ring this wide (px) that fades in this long (s). */
 const FLASH_RADIUS = 26;
 const FLASH_TIME = 0.4;
+/** The mocking gesture jabs up this far (px), this fast (rad/s). */
+const JAB = 2;
+const JAB_SPEED = 14;
 
-/** The column of embers over the crack (spec 06 §3.2): this many, rising this high (px) in this long (s). */
+/** The column of embers over the hole (spec 06 §3.2): this many, rising this high (px) in this long (s). */
 const EMBERS = 22;
 const EMBER_RISE = 48;
 const EMBER_LIFE = 1.4;
-const EMBER_COLORS = [0xff5a24, 0xc9221a, 0xffa040] as const;
 /** The arrow at the screen edge towards it, in dark red. */
 const ARROW_TINT = 0x9a1f1f;
 
+/** The poses of `demon_hand`, in frame order: fist, open holding the weapon (glowing palm), open and empty, and mocking. */
 const FIST = 0;
-const OPEN = 1;
-const MOCK = 2;
+const OFFER = 1;
+const EMPTY = 2;
+const MOCK = 3;
+
+/** The hole: sealed by its crust, breaking open or closing (`progress` 0 sealed .. 1 open, in the opening frames), or open onto the fire. */
+export interface HoleLook {
+  anim: 'crust' | 'opening' | 'fire';
+  progress: number;
+}
+
+/** How the hole looks in a phase, `elapsed` s into it: it opens as the hand starts rising and closes once it has sunk. */
+export function holeLook(phase: HandPhase, elapsed: number): HoleLook {
+  switch (phase) {
+    case 'idle':
+    case 'away':
+      return { anim: 'crust', progress: 0 };
+    case 'rising': {
+      const p = clamp01(elapsed / HOLE_TIME);
+      return p < 1 ? { anim: 'opening', progress: p } : { anim: 'fire', progress: 1 };
+    }
+    case 'sinking': {
+      const p = clamp01((HAND.sinkingTime - elapsed) / HOLE_TIME);
+      return p < 1 ? { anim: 'opening', progress: p } : { anim: 'fire', progress: 1 };
+    }
+    default:
+      return { anim: 'fire', progress: 1 };
+  }
+}
 
 /**
- * The Demon's Hand on the map (spec 06 §3.7, placeholders): its crack on the
- * floor with pulsing embers; the hand growing out of it with its fist closed,
- * weapon outlines rolling over it, then open with the weapon floating over
- * it (blinking in its last seconds) or empty, and sinking back; and a flash
- * when it offers a special weapon; the mocking gesture when tired. Over
- * all of it, a column of embers rising from the crack that shows even over
- * the darkness of a locked room, and an arrow at the screen edge towards it
- * while it is out of view in an unlocked room of the level shown. Render
- * only: it reads the hand's state. While the hand is away (moving), none of
- * it shows.
+ * How far out of the floor the hand is (0 hidden .. 1 all out) in a phase,
+ * `elapsed` s into it: it comes out once the hole is half open, slowing as
+ * it ends, and sinks speeding up, all in before the hole closes.
+ */
+export function handRise(phase: HandPhase, elapsed: number): number {
+  switch (phase) {
+    case 'idle':
+    case 'away':
+      return 0;
+    case 'rising': {
+      const t = clamp01((elapsed - EMERGE_DELAY) / (HAND.risingTime - EMERGE_DELAY));
+      return 1 - (1 - t) * (1 - t);
+    }
+    case 'sinking': {
+      const t = clamp01(elapsed / (HAND.sinkingTime - HOLE_TIME));
+      return 1 - t * t;
+    }
+    default:
+      return 1;
+  }
+}
+
+/**
+ * The Demon's Hand on the map (spec 06 §3.7): its hole in the floor, sealed
+ * by a crust whose cracks glow; the crust breaks open and the hand comes up
+ * out of the floor with its fist closed, weapon outlines rolling over it,
+ * then opens with the weapon floating in its claw over the glowing palm
+ * (blinking in its last seconds), or open and dark once the weapon is taken
+ * or when there was none, and sinks back into the floor before the hole
+ * closes; a flash when it offers a special weapon; the obscene gesture when
+ * tired. Over it, a column of embers rising from the hole while its room is
+ * unlocked (nothing of a locked room shows), and an arrow at the screen edge
+ * towards it while it is out of view in an unlocked room of the level shown.
+ * Render only: it reads the hand's state. While the hand is away (moving),
+ * only its hole shows, fading out where it was.
  */
 export class HandView {
   private readonly crack: Phaser.GameObjects.Image;
   private readonly hand: Phaser.GameObjects.Image;
   private readonly weapon: Phaser.GameObjects.Image;
   private readonly flash: Phaser.GameObjects.Graphics;
-  private readonly embers: Phaser.GameObjects.Graphics;
+  private readonly embers: Phaser.GameObjects.Image[];
   private readonly arrow: Phaser.GameObjects.Image;
   private readonly unsubscribe: () => void;
+  /** Frames of the hole's crust loop, opening and fire loop, and of the ember variants. */
+  private readonly frames: { crust: number; opening: number; fire: number; ember: number };
   private flashAge = -1;
   private shownSpot = -2;
 
@@ -61,22 +131,40 @@ export class HandView {
     scene: Phaser.Scene,
     private readonly map: MapData,
     events: EventBus,
+    manifest: Manifest,
   ) {
+    const frames = (key: string): number => Math.max(1, manifest.objects[key]?.frames ?? 1);
+    this.frames = {
+      crust: frames(ASSET_KEYS.handCrack),
+      opening: frames(ASSET_KEYS.handCrackOpening),
+      fire: frames(ASSET_KEYS.handCrackOpen),
+      ember: frames(ASSET_KEYS.handEmber),
+    };
     this.crack = scene.add.image(0, 0, objectTextureKey(ASSET_KEYS.handCrack), 0).setDepth(DEPTH.decals).setVisible(false);
     this.hand = scene.add.image(0, 0, objectTextureKey(ASSET_KEYS.demonHand), FIST).setOrigin(0.5, 1).setVisible(false);
     this.weapon = scene.add.image(0, 0, objectTextureKey(ASSET_KEYS.weaponIcon), 0).setScale(WEAPON_SCALE).setVisible(false);
     this.flash = scene.add.graphics();
-    this.embers = scene.add.graphics().setDepth(DEPTH.handEmbers);
+    this.embers = Array.from({ length: EMBERS }, (_, i) =>
+      scene.add
+        .image(0, 0, objectTextureKey(ASSET_KEYS.handEmber), i % this.frames.ember)
+        .setVisible(false),
+    );
     this.arrow = scene.add.image(0, 0, objectTextureKey(ASSET_KEYS.offscreenArrow)).setTint(ARROW_TINT).setDepth(DEPTH.indicators).setVisible(false);
     this.unsubscribe = events.on('hand:offer', this.onOffer);
   }
 
-  /** `time`: seconds of simulated time (the embers and the bobbing freeze with the match). */
-  sync(state: HandState, time: number, dt: number): void {
+  /**
+   * `time`: seconds of simulated time (the loops, the embers and the bobbing
+   * freeze with the match). `revealed`: its room is unlocked, so its embers
+   * may show (the rest is under the darkness of a locked room anyway).
+   */
+  sync(state: HandState, time: number, dt: number, revealed: boolean): void {
     const spot = this.map.handSpots[state.spot];
-    if (!spot || state.phase === 'away') {
+    const elapsed = phaseLength(state.phase) - state.timer;
+    const fade = state.phase === 'away' ? 1 - clamp01(elapsed / FADE_TIME) : 1;
+    if (!spot || fade <= 0) {
       if (this.crack.visible) [this.crack, this.hand, this.weapon].forEach((o) => o.setVisible(false));
-      this.embers.clear();
+      this.hideEmbers();
       this.shownSpot = -2;
       return;
     }
@@ -84,14 +172,17 @@ export class HandView {
       this.shownSpot = state.spot;
       this.crack.setPosition(spot.x, spot.y).setVisible(true);
       const depth = actorDepth(spot.y + 1);
-      this.hand.setPosition(spot.x, spot.y + 2).setDepth(depth);
+      this.hand.setDepth(depth);
+      // The embers rise behind the hand, sorted with the actors around the hole.
+      for (const ember of this.embers) ember.setDepth(depth - 0.0001);
       this.weapon.setDepth(depth + 0.0001);
       this.flash.setDepth(depth + 0.0002);
     }
-    this.crack.setFrame(Math.floor(time / EMBER_PULSE) % 2);
-    this.syncHand(state, spot.x, spot.y, time);
-    this.syncFlash(spot.x, spot.y - FLOAT_HEIGHT, dt);
-    this.syncEmbers(spot.x, spot.y, time);
+    this.syncHole(state.phase, elapsed, time, fade);
+    this.syncHand(state, elapsed, spot.x, spot.y, time);
+    this.syncFlash(spot.x, spot.y + GROUND - FLOAT_HEIGHT, dt);
+    if (revealed && state.phase !== 'away') this.syncEmbers(spot.x, spot.y, time);
+    else this.hideEmbers();
   }
 
   /**
@@ -118,55 +209,73 @@ export class HandView {
     this.unsubscribe();
   }
 
-  private syncHand(state: HandState, x: number, y: number, time: number): void {
+  private syncHole(phase: HandPhase, elapsed: number, time: number, alpha: number): void {
+    const look = holeLook(phase, elapsed);
+    const { crust, opening, fire } = this.frames;
+    if (look.anim === 'crust') this.crack.setTexture(objectTextureKey(ASSET_KEYS.handCrack), Math.floor(time * CRUST_FPS) % crust);
+    else if (look.anim === 'fire') this.crack.setTexture(objectTextureKey(ASSET_KEYS.handCrackOpen), Math.floor(time * FIRE_FPS) % fire);
+    else this.crack.setTexture(objectTextureKey(ASSET_KEYS.handCrackOpening), Math.min(opening - 1, Math.floor(look.progress * opening)));
+    this.crack.setAlpha(alpha);
+  }
+
+  private syncHand(state: HandState, elapsed: number, x: number, y: number, time: number): void {
     const { phase } = state;
-    if (phase === 'idle') {
+    const ground = y + GROUND;
+    const rise = handRise(phase, elapsed);
+    if (rise <= 0) {
       this.hand.setVisible(false);
       this.weapon.setVisible(false);
       return;
     }
-    const elapsed = phaseLength(phase) - state.timer;
-    // Grows out of the crack, and shrinks back into it.
-    const rise = phase === 'rising' ? Math.min(1, elapsed / HAND.risingTime) : phase === 'sinking' ? Math.max(0, state.timer / HAND.sinkingTime) : 1;
-    // Tired: one finger up, wagging "no".
-    const mocking = phase === 'mocking';
-    this.hand
-      .setVisible(rise > 0)
-      .setFrame(mocking ? MOCK : phase === 'rising' || phase === 'rolling' ? FIST : OPEN)
-      .setScale(1, rise)
-      .setX(x + (mocking ? Math.round(Math.sin(time * 18) * 2) : 0));
+    // Tired: the obscene gesture, jabbing up (also while sinking back afterwards).
+    const mocking = phase === 'mocking' || (phase === 'sinking' && state.mock);
+    // Open with its palm glowing while it holds the weapon; it goes dark once taken (or when the draw gave nothing).
+    const offer = state.taken ? null : state.offer;
+    const holding = offer !== null;
+    const pose = mocking ? MOCK : phase === 'rising' || phase === 'rolling' ? FIST : holding ? OFFER : EMPTY;
+    const jab = phase === 'mocking' ? Math.round(JAB * Math.max(0, Math.sin(time * JAB_SPEED))) : 0;
+    // Comes out of the floor: the part still under it is pushed down and cut off at the floor line.
+    const sunk = Math.round((1 - rise) * this.hand.frame.height) + (phase === 'mocking' ? JAB - jab : 0);
+    this.hand.setFrame(pose).setPosition(x, ground + sunk);
+    cropAbove(this.hand, ground);
+
     let frame = -1;
     if (phase === 'rolling') {
       // Outlines switching faster at first, slower at the end; never the result itself.
       const step = Math.floor(ROLL_STEPS * Math.sqrt(Math.min(1, elapsed / HAND.rollingTime)));
       frame = (step * 7 + 3) % WEAPON_IDS.length;
-    } else if ((phase === 'offering' || phase === 'sinking') && state.offer && !state.taken) {
+    } else if ((phase === 'offering' || phase === 'sinking') && offer) {
       const blinking = phase === 'offering' && state.timer <= HAND.blinkTime && Math.floor(state.timer / BLINK_PERIOD) % 2 === 0;
-      frame = blinking ? -1 : WEAPON_IDS.indexOf(state.offer);
+      frame = blinking ? -1 : WEAPON_IDS.indexOf(offer);
     }
     if (frame < 0) {
       this.weapon.setVisible(false);
       return;
     }
     const bob = phase === 'offering' ? Math.round(Math.sin(time * 4) * BOB) : 0;
+    const height = phase === 'rolling' ? ROLL_HEIGHT : FLOAT_HEIGHT;
+    // The weapon goes down with the hand into the floor.
     this.weapon
-      .setVisible(true)
       .setFrame(frame)
-      .setPosition(x, y - FLOAT_HEIGHT * rise + bob)
+      .setPosition(x, ground - height + sunk + bob)
       .setAlpha(phase === 'rolling' ? 0.6 : 1);
+    cropAbove(this.weapon, ground);
   }
 
-  /** Embers rising from the crack, swaying and fading, each on its own phase of the cycle. */
+  /** Embers rising from the hole, swaying and fading, each on its own phase of the cycle and with its own look. */
   private syncEmbers(x: number, y: number, time: number): void {
-    const g = this.embers;
-    g.clear();
-    for (let i = 0; i < EMBERS; i++) {
+    this.embers.forEach((ember, i) => {
       const t = (time / EMBER_LIFE + i / EMBERS) % 1;
       const sway = Math.sin(i * 12.9898 + time * 2.3) * 5 * (1 - t * 0.4);
-      const size = i % 4 === 0 ? 3 : 2;
-      g.fillStyle(EMBER_COLORS[i % EMBER_COLORS.length] ?? 0xff5a24, 1 - t);
-      g.fillRect(Math.round(x + sway + ((i * 7) % 11) - 5), Math.round(y - 2 - t * EMBER_RISE), size, size);
-    }
+      ember
+        .setVisible(true)
+        .setPosition(Math.round(x + sway + ((i * 7) % 11) - 5), Math.round(y + GROUND - t * EMBER_RISE))
+        .setAlpha(1 - t);
+    });
+  }
+
+  private hideEmbers(): void {
+    if (this.embers[0]?.visible) for (const ember of this.embers) ember.setVisible(false);
   }
 
   private readonly onOffer = (e: GameEvents['hand:offer']): void => {
@@ -187,6 +296,22 @@ export class HandView {
   }
 }
 
+/** Shows only the part of `image` above the floor line `ground` (whole frame rows), hiding it when none is. */
+function cropAbove(image: Phaser.GameObjects.Image, ground: number): void {
+  const { width, height } = image.frame;
+  const top = image.y - image.originY * height * image.scaleY;
+  const rows = Math.min(height, Math.floor((ground - top) / image.scaleY));
+  if (rows <= 0) {
+    image.setVisible(false);
+    return;
+  }
+  image.setVisible(true).setCrop(0, 0, width, rows);
+}
+
+function clamp01(v: number): number {
+  return Math.min(1, Math.max(0, v));
+}
+
 /** Seconds a phase lasts (0 for the waiting one). */
 function phaseLength(phase: HandPhase): number {
   switch (phase) {
@@ -202,6 +327,8 @@ function phaseLength(phase: HandPhase): number {
       return HAND.mockTime;
     case 'sinking':
       return HAND.sinkingTime;
+    case 'away':
+      return HAND.moveDelay;
     default:
       return 0;
   }

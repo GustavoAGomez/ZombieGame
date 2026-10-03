@@ -358,8 +358,12 @@ export const MERCHANT = {
  */
 export const HAND = {
   price: 950,
-  /** With less money than `price`, the blood pact: this much health, only while the player has more than it. */
-  bloodCost: 40,
+  /**
+   * With less money than `price`, the blood pact: this share of the player's
+   * maximum health, only while they have more than that (it never kills), and
+   * once per player in each spot: it comes back when the hand moves.
+   */
+  bloodShare: 0.5,
   /** The action button offers it within this distance of the crack's centre. */
   interactRange: 40,
   /** The sequence after a payment (s): rising with its fist closed, weapon outlines rolling over it, then open. */

@@ -555,20 +555,47 @@ function drawItemIcon(ctx: Ctx, index: number, ox: number, oy: number, w: number
   for (const [x, y, rw, rh, color] of def.rects) rect(ctx, color ?? def.fill, dx + x, dy + y, rw, rh);
 }
 
-/** The Demon's Hand's crack (spec 06 §3.7): a dark smudge with ember dots, dim (0) or bright (1) for their pulse. */
-function drawHandCrack(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number): void {
-  rect(ctx, '#1a0a0a', ox + 3, oy + 2, w - 6, h - 4);
-  rect(ctx, '#1a0a0a', ox + 1, oy + 4, w - 2, h - 8);
-  rect(ctx, '#0b0404', ox + 6, oy + 5, w - 12, h - 10);
-  const ember = frame === 1 ? '#ff5a24' : '#8f2414';
-  for (const [x, y] of [[5, 5], [9, 9], [13, 6], [17, 10], [21, 6], [11, 4], [19, 8]] as const) rect(ctx, ember, ox + x, oy + y, 2, 2);
+/**
+ * The Demon's Hand's hole (spec 06 §3.7), centred in its frame: a charred
+ * rim around a crust with ember dots (`open` 0, dim or bright by frame for
+ * their pulse), or opened that far (0..1) onto the fire inside.
+ */
+function drawHandCrack(ctx: Ctx, frame: number, open: number, ox: number, oy: number, w: number, h: number): void {
+  const cx = ox + Math.floor(w / 2);
+  const cy = oy + Math.floor(h / 2);
+  const hw = Math.floor(w / 2) - 2;
+  const hh = Math.floor(h / 2) - 4;
+  rect(ctx, '#1a0a0a', cx - hw, cy - hh + 2, hw * 2, hh * 2 - 4);
+  rect(ctx, '#1a0a0a', cx - hw + 2, cy - hh, hw * 2 - 4, hh * 2);
+  rect(ctx, '#0b0404', cx - hw + 4, cy - hh + 3, hw * 2 - 8, hh * 2 - 6);
+  if (open <= 0) {
+    const ember = frame % 2 === 1 ? '#ff5a24' : '#8f2414';
+    for (const [x, y] of [[-8, -4], [-4, 2], [0, -3], [4, 3], [7, -2], [-2, 5], [5, -6]] as const) rect(ctx, ember, cx + x, cy + y, 2, 2);
+    return;
+  }
+  const rw = Math.max(2, Math.round((hw * 2 - 10) * open));
+  const rh = Math.max(2, Math.round((hh * 2 - 8) * open));
+  rect(ctx, '#c9221a', cx - rw / 2, cy - rh / 2, rw, rh);
+  rect(ctx, frame % 2 === 1 ? '#ffd04a' : '#ff8a2a', cx - rw / 4, cy - rh / 4, Math.round(rw / 2), Math.round(rh / 2));
 }
 
-/** The hand (20×28): dark red, rising from the bottom edge: 0 a fist, 1 open with five fingers, 2 one finger wagging "no". */
-function drawDemonHand(ctx: Ctx, frame: number, ox: number, oy: number, h: number): void {
+/** An ember rising over the hand's hole (8×8): a square of 1 to 3 px, centred, in a colour per variant. */
+function drawHandEmber(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number): void {
+  const size = 1 + (frame % 3);
+  const color = ['#ffd04a', '#ff8a2a', '#ff5a24', '#c9221a'][frame % 4] ?? '#ff5a24';
+  rect(ctx, color, ox + Math.floor((w - size) / 2), oy + Math.floor((h - size) / 2), size, size);
+}
+
+/**
+ * The hand (20×28 drawn centred at the bottom of its frame): dark red,
+ * rising from the bottom edge: 0 a fist, 1 open with five fingers and its
+ * palm glowing (holding the weapon), 2 open and empty, 3 the middle finger up.
+ */
+function drawDemonHand(ctx: Ctx, frame: number, x0: number, oy: number, w: number, h: number): void {
   const skin = '#7a1a16';
   const dark = '#4a0e0c';
   const nail = '#ff7a3d';
+  const ox = x0 + Math.floor((w - 20) / 2);
   // Wrist and palm.
   rect(ctx, dark, ox + 6, oy + h - 8, 8, 8);
   rect(ctx, skin, ox + 4, oy + h - 16, 12, 9);
@@ -577,19 +604,20 @@ function drawDemonHand(ctx: Ctx, frame: number, ox: number, oy: number, h: numbe
     rect(ctx, skin, ox + 4, oy + h - 20, 12, 5);
     for (let i = 0; i < 4; i++) rect(ctx, dark, ox + 5 + i * 3, oy + h - 20, 1, 4);
     rect(ctx, skin, ox + 15, oy + h - 17, 3, 4);
-  } else if (frame === 1) {
-    // Open: four fingers up and the thumb aside, nails like embers.
+  } else if (frame === 1 || frame === 2) {
+    // Open: four fingers up and the thumb aside, nails like embers; the palm glows while it holds the weapon.
     for (let i = 0; i < 4; i++) {
-      rect(ctx, skin, ox + 4 + i * 3, oy + 2 + (i === 0 || i === 3 ? 3 : 0), 2, h - 18 - (i === 0 || i === 3 ? 3 : 0));
-      rect(ctx, nail, ox + 4 + i * 3, oy + 2 + (i === 0 || i === 3 ? 3 : 0), 2, 1);
+      rect(ctx, skin, ox + 4 + i * 3, oy + h - 26 + (i === 0 || i === 3 ? 3 : 0), 2, 10 - (i === 0 || i === 3 ? 3 : 0));
+      rect(ctx, nail, ox + 4 + i * 3, oy + h - 26 + (i === 0 || i === 3 ? 3 : 0), 2, 1);
     }
     rect(ctx, skin, ox + 16, oy + h - 20, 3, 6);
     rect(ctx, nail, ox + 16, oy + h - 20, 3, 1);
+    if (frame === 1) rect(ctx, nail, ox + 7, oy + h - 14, 6, 4);
   } else {
-    // Mocking: the fist with one finger up, wagging.
+    // Mocking: the fist with the middle finger up.
     rect(ctx, skin, ox + 4, oy + h - 20, 12, 5);
-    rect(ctx, skin, ox + 9, oy + 3, 2, h - 22);
-    rect(ctx, nail, ox + 9, oy + 3, 2, 1);
+    rect(ctx, skin, ox + 9, oy + h - 25, 2, 6);
+    rect(ctx, nail, ox + 9, oy + h - 25, 2, 1);
   }
 }
 
@@ -689,10 +717,19 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
         drawItemIcon(ctx, col, ox, oy, w, h);
         break;
       case ASSET_KEYS.handCrack:
-        drawHandCrack(ctx, col, ox, oy, w, h);
+        drawHandCrack(ctx, col, 0, ox, oy, w, h);
+        break;
+      case ASSET_KEYS.handCrackOpening:
+        drawHandCrack(ctx, col, (col + 1) / def.frames, ox, oy, w, h);
+        break;
+      case ASSET_KEYS.handCrackOpen:
+        drawHandCrack(ctx, col, 1, ox, oy, w, h);
+        break;
+      case ASSET_KEYS.handEmber:
+        drawHandEmber(ctx, col, ox, oy, w, h);
         break;
       case ASSET_KEYS.demonHand:
-        drawDemonHand(ctx, col, ox, oy, h);
+        drawDemonHand(ctx, col, ox, oy, w, h);
         break;
       case ASSET_KEYS.weaponIcon:
         drawWeaponIcon(ctx, col, ox, oy, w, h);

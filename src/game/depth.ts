@@ -16,8 +16,6 @@ export const DEPTH = {
   fog: 29,
   /** Zombies at a window of the dark outside (tearing, climbing): over the darkness so the player sees them. */
   actorsOverFog: 29.1,
-  /** The Demon's Hand's column of embers (spec 06 §3.2): seen over the darkness of a locked room. */
-  handEmbers: 29.5,
   bullets: 30,
   aimLine: 31,
   /** Arrows at the screen edge towards merchants out of view. */

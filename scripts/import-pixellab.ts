@@ -7,7 +7,9 @@
  *   3. forces binary alpha and quantises to art-src/palette.hex if present,
  *   4. writes public/assets/sprites/<asset>/<animation>.png and updates the
  *      manifest entry (frames, directions, placeholder flags).
- * Usage: npm run assets:import [-- <asset> …]   (all assets by default)
+ * Objects of the manifest come from art-src/pixellab/objects/<key>/ instead
+ * (one PNG per frame and an import.json with their order, see importObject).
+ * Usage: npm run assets:import [-- <asset or object key> …]   (all by default)
  */
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -302,14 +304,71 @@ export function findExports(assetDir: string): string[] {
   return found;
 }
 
+/** The folder of object exports inside art-src/pixellab/: one subfolder per object key. */
+const OBJECTS_DIR = 'objects';
+
+/**
+ * Imports one object of the manifest from art-src/pixellab/objects/<key>/:
+ * the PixelLab images (one PNG per frame, as downloaded) and an import.json
+ * naming them in frame order, { "frames": ["fist.png", "offer.png", …] }.
+ * Frames go left to right at the declared canvas (a frame of another size
+ * is centred, as for characters), with binary alpha and the palette;
+ * writes the object's file and marks it as real art in the manifest.
+ */
+export function importObject(root: string, key: string, manifest: Json, palette: number[] | null, log: (line: string) => void): boolean {
+  const dir = resolve(root, 'art-src/pixellab', OBJECTS_DIR, key);
+  const objects = isRecord(manifest.objects) ? manifest.objects : {};
+  const def = objects[key];
+  if (!isRecord(def) || typeof def.file !== 'string' || typeof def.frameWidth !== 'number' || typeof def.frameHeight !== 'number') {
+    log(`  ✖ ${key}: no está en la sección objects del manifiesto (con file, frameWidth y frameHeight)`);
+    return false;
+  }
+  const optionsPath = join(dir, 'import.json');
+  const json: unknown = existsSync(optionsPath) ? JSON.parse(readFileSync(optionsPath, 'utf8')) : null;
+  const names = isRecord(json) && Array.isArray(json.frames) ? json.frames.filter((f): f is string => typeof f === 'string') : [];
+  if (names.length === 0) {
+    log(`  ✖ ${key}: falta import.json con "frames" (los PNG en orden de fotograma)`);
+    return false;
+  }
+  const { frameWidth, frameHeight, file } = def;
+  const frames = names.map((name) => readFrame(join(dir, name)));
+  frames.forEach((f, i) => {
+    if (f.width === frameWidth && f.height === frameHeight) return;
+    log(`  · ${names[i]}: ${f.width}×${f.height}, centrado en ${frameWidth}×${frameHeight}`);
+    const lost = croppedPixels(f, frameWidth, frameHeight);
+    if (lost > 0) log(`  ⚠ ${names[i]}: se recortan ${lost} píxeles al centrarlo`);
+  });
+  const sheet = buildSheet([frames], frameWidth, frameHeight);
+  const softened = binarizeAlpha(sheet);
+  if (softened > 0) log(`  · ${softened} píxeles semitransparentes pasados a alfa 0/255`);
+  if (palette) {
+    const outside = quantize(sheet, palette);
+    if (outside > 0) log(`  ⚠ ${outside} colores fuera de la paleta, ajustados al más cercano`);
+  } else {
+    log('  ⚠ sin art-src/palette.hex, no se cuantiza');
+  }
+  const out = resolve(root, 'public/assets', file);
+  mkdirSync(dirname(out), { recursive: true });
+  writeFileSync(out, encodePng(sheet.width, sheet.height, sheet.pixels));
+  def.frames = frames.length;
+  def.placeholder = false;
+  log(`  ✓ ${names.join(', ')} → ${file} (${frames.length} fotogramas de ${frameWidth}×${frameHeight})`);
+  return true;
+}
+
 export function importAssets(root: string, only: readonly string[], log: (line: string) => void): number {
   const source = resolve(root, 'art-src/pixellab');
   const assets = existsSync(source)
-    ? readdirSync(source).filter((name) => !name.startsWith('.') && statSync(join(source, name)).isDirectory())
+    ? readdirSync(source).filter((name) => name !== OBJECTS_DIR && !name.startsWith('.') && statSync(join(source, name)).isDirectory())
+    : [];
+  const objectSource = join(source, OBJECTS_DIR);
+  const objectKeys = existsSync(objectSource)
+    ? readdirSync(objectSource).filter((name) => !name.startsWith('.') && statSync(join(objectSource, name)).isDirectory())
     : [];
   const selected = only.length > 0 ? assets.filter((a) => only.includes(a)) : assets;
-  if (selected.length === 0) {
-    log('No hay exports en art-src/pixellab/<asset>/. Nada que importar.');
+  const selectedObjects = only.length > 0 ? objectKeys.filter((k) => only.includes(k)) : objectKeys;
+  if (selected.length === 0 && selectedObjects.length === 0) {
+    log('No hay exports en art-src/pixellab/<asset>/ ni en art-src/pixellab/objects/<clave>/. Nada que importar.');
     return 0;
   }
 
@@ -321,6 +380,10 @@ export function importAssets(root: string, only: readonly string[], log: (line: 
   const hasFile = (file: string): boolean => file.length > 0 && existsSync(resolve(root, 'public/assets', file));
 
   let imported = 0;
+  for (const key of selectedObjects) {
+    log(`\n${OBJECTS_DIR}/${key}`);
+    if (importObject(root, key, manifest, palette, log)) imported++;
+  }
   for (const asset of selected) {
     const dir = join(source, asset);
     log(`\n${asset}`);
@@ -353,7 +416,7 @@ export function importAssets(root: string, only: readonly string[], log: (line: 
   }
 
   writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
-  log(`\nManifiesto actualizado (${imported} animaciones). Ejecuta npm run assets:check.`);
+  log(`\nManifiesto actualizado (${imported} animaciones y objetos). Ejecuta npm run assets:check.`);
   return imported;
 }
 

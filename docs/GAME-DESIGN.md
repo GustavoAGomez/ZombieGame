@@ -157,38 +157,39 @@ Magos con gabardina que venden munición y mejoras. Sus puntos de aparición son
 | Salas (el mismo precio por cualquiera de sus puertas o escaleras principales) | Salón y comedor 750$; biblioteca y cocina 1000$; garaje y calle 1250$; jardín 1500$; sótano 1750$; azotea 2000$ |
 | Vitrinas | SMG 1000$, escopeta 1500$; su munición, a mitad de precio |
 | Magos | Munición máxima 750$, mejora de la ronda 1000$, mejoras del rojo 1500$ / 3000$ / 5000$ por nivel, mejora especial 10000$ |
-| Mano del Demonio | 950$, o 40 de vida con el pacto de sangre |
+| Mano del Demonio | 950$, o 50 de vida (la mitad de la vida máxima) con el pacto de sangre, uno por sitio |
 
 ## Mano del Demonio
 
-Una grieta con brasas en el suelo de la que sale una mano que, por dinero o por sangre, ofrece un arma al azar. Es la única forma de conseguir las armas especiales. Solo hay una en la partida.
+Un agujero en el suelo, sellado por una costra con grietas de brasa, del que sale una mano que, por dinero o por sangre, ofrece un arma al azar. Es la única forma de conseguir las armas especiales. Solo hay una en la partida.
 
 - **Dónde está:**
   - Hay un punto posible por sala, salvo en el recibidor.
   - Al empezar está en el salón o en el comedor (al azar), que son las salas interiores que se compran desde el recibidor.
-  - Sobre la grieta sube una columna de brasas que se ve aunque la sala siga bloqueada y a oscuras.
+  - Sobre el agujero sube una columna de brasas, pero solo con su sala desbloqueada: de una sala bloqueada no se ve nada, ni las brasas.
   - Con su sala desbloqueada y fuera de la vista, una flecha roja oscura en el borde de la pantalla la señala, como la de los magos (nunca si está en otro nivel). En una sala bloqueada no hay flecha: hay que abrir salas hasta dar con ella.
   - No es sólida: se pasa por encima.
 - **Pagar**, a menos de 40 px, con el botón de acción:
   - Con 950$ o más: «MANO DEL DEMONIO · 950$».
-  - Con menos, si tienes más de 40 de vida: «PACTO DE SANGRE · 40 VIDA», en rojo. Cuesta 40 de vida, con el marco rojo y la sangre de un golpe; nunca mata.
-  - Si no llega ni lo uno ni lo otro: «FALTAN X$», atenuado.
+  - Con menos, si tienes más de 50 de vida: «PACTO DE SANGRE · 50 VIDA», en rojo. Cuesta la mitad de la vida máxima (50), con el marco rojo y la sangre de un golpe; nunca mata.
+  - **Un pacto de sangre por sitio:** después, aunque te cures, la mano solo acepta dinero hasta que se muda a otra sala. Con dinero se paga sin límite.
+  - Si no llega ni lo uno ni lo otro (o ya hiciste el pacto en este sitio): «FALTAN X$», atenuado.
   - Mientras está ocupada con una oferta, no acepta otro pago.
 - **Qué sale:** se sortea al pagar.
   - 10 % nada; 20 % un arma especial (láser, katana o lanzallamas); 70 % un arma básica (pistola, SMG o escopeta).
   - Nunca un arma que ya llevas, y no repite la última que ofreció si hay otra.
   - Si un grupo no tiene ninguna disponible, su parte pasa al otro.
 - **La secuencia** (el juego sigue mientras tanto):
-  1. Sale con el puño cerrado (0,6 s).
+  1. La costra se rompe y la mano sale del suelo con el puño cerrado (0,6 s).
   2. Pasan siluetas de armas, cada vez más despacio (2 s).
   3. Se abre con el arma flotando 8 s, que parpadea los 3 últimos. Si sale un arma especial, hay un destello y su nombre aparece en el centro de la pantalla 1,5 s. Si no sale nada, se abre vacía y el pago se pierde.
-  4. Se hunde (0,6 s).
+  4. Se hunde en el suelo y el agujero se cierra (0,6 s).
 - **Coger el arma:** solo quien pagó, con «COGER LÁSER» (o el arma que sea). Llega con la munición completa.
   - Con un hueco libre, entra y pasa a la mano.
   - Con los tres llenos, sustituye al arma en mano. Si esa arma tiene mejoras o su especial, pide un segundo toque, como en las vitrinas.
   - Si no la coges a tiempo, se hunde con ella y el pago se pierde.
 - **Se cansa:** en cada sitio acepta de 4 a 8 usos, al azar. Una tirada que no da nada también cuenta.
-  - Al pago siguiente sale, hace un gesto de burla (un dedo diciendo que no) durante 1,5 s, devuelve el pago (dinero o vida) y se hunde.
+  - Al pago siguiente sale, hace un gesto obsceno (el dedo corazón, con el dorso de la mano hacia ti) durante 1,5 s, devuelve el pago (dinero o vida) y se hunde.
   - 2 s después reaparece en el punto de otra sala, distinta de la actual y del recibidor, esté abierta o no. Sale el aviso «LA MANO SE HA MOVIDO» y se sortean sus usos de nuevo.
 
 ## Salas

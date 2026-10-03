@@ -179,7 +179,7 @@ export class GameScene extends Phaser.Scene {
     this.aimLine = new AimLine(this, playerDef);
     this.laserBeam = new LaserBeam(this, playerDef);
     this.flameJet = new FlameJet(this, playerDef, events);
-    this.handView = new HandView(this, this.map, events);
+    this.handView = new HandView(this, this.map, events, manifest);
     this.muzzleFlash = new MuzzleFlash(this, playerDef);
     this.meleeSlash = new MeleeSlash(this, playerDef, manifest.objects[ASSET_KEYS.meleeSlash]);
     this.worldTexts = new WorldTextPool(this, events);
@@ -230,7 +230,9 @@ export class GameScene extends Phaser.Scene {
     this.burnFlames.update(this.state.zombies, effectsDt, (i) => this.zombieViews.isShown(i));
     const player = this.state.players[0];
     this.flameJet.update(player, effectsDt);
-    this.handView.sync(this.state.hand, this.state.time, effectsDt);
+    // Nothing of a locked room shows, not even the embers over the hand's hole.
+    const handZone = this.map.handSpots[this.state.hand.spot]?.zoneIndex ?? -1;
+    this.handView.sync(this.state.hand, this.state.time, effectsDt, this.state.zonesUnlocked[handZone] === true);
     if (player) this.playerStains.sync(player, this.playerView.sprite, effectsDt);
     this.debugDraw.draw(this.state, this.sim.nav, this.sim.grid);
     this.presenter.publish(this.state);

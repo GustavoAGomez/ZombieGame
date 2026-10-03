@@ -541,17 +541,38 @@
     },
     "hand_crack": {
       "file": "sprites/objects/hand_crack.png",
-      "frameWidth": 28,
-      "frameHeight": 16,
-      "frames": 2,
-      "placeholder": true
+      "frameWidth": 48,
+      "frameHeight": 40,
+      "frames": 4,
+      "placeholder": false
+    },
+    "hand_crack_opening": {
+      "file": "sprites/objects/hand_crack_opening.png",
+      "frameWidth": 48,
+      "frameHeight": 40,
+      "frames": 5,
+      "placeholder": false
+    },
+    "hand_crack_open": {
+      "file": "sprites/objects/hand_crack_open.png",
+      "frameWidth": 48,
+      "frameHeight": 40,
+      "frames": 6,
+      "placeholder": false
     },
     "demon_hand": {
       "file": "sprites/objects/demon_hand.png",
-      "frameWidth": 20,
-      "frameHeight": 28,
-      "frames": 3,
-      "placeholder": true
+      "frameWidth": 32,
+      "frameHeight": 48,
+      "frames": 4,
+      "placeholder": false
+    },
+    "hand_ember": {
+      "file": "sprites/objects/hand_ember.png",
+      "frameWidth": 8,
+      "frameHeight": 8,
+      "frames": 5,
+      "placeholder": false
     },
     "weapon_icon": {
       "file": "sprites/objects/weapon_icon.png",

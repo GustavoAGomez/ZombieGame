@@ -13,7 +13,7 @@ import type { MapData } from '../map/MapLoader';
 
 /** A hand at no spot, waiting: the state before the match places it. */
 export function emptyHand(): HandState {
-  return { spot: -1, phase: 'idle', timer: 0, phaseTick: 0, usesLeft: 0, offer: null, taken: false, lastOffered: null, payer: -1, paid: null, mock: false, debugFree: false };
+  return { spot: -1, phase: 'idle', timer: 0, phaseTick: 0, usesLeft: 0, offer: null, taken: false, lastOffered: null, payer: -1, paid: null, mock: false, bloodPacts: [], debugFree: false };
 }
 
 /**

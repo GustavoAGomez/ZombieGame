@@ -9,7 +9,7 @@ import { HudPresenter } from '../HudPresenter';
 import { parseMap } from '../map/MapLoader';
 import type { TiledObjectLayer } from '../map/tiled';
 import { createHandState, drawHandOffer, nextHandSpot, startingHandZones } from './handSpawn';
-import { handOffer, moveHand } from './HandSystem';
+import { bloodCost, handOffer, moveHand } from './HandSystem';
 import type { SimContext } from './SimContext';
 import { stepSimulation } from './Simulation';
 
@@ -118,25 +118,43 @@ describe('paying', () => {
     expect(player(ctx).money).toBe(2000 - HAND.price);
   });
 
-  it('short of money, with blood: 40 health, the red frame of a hit, never killing', () => {
+  it('short of money, with blood: half the maximum health (50), the red frame of a hit, never killing', () => {
     const ctx = atTheHand(100);
     const damaged = vi.fn();
     ctx.events.on('player:damaged', damaged);
-    expect(handOffer(ctx.map, ctx.state, player(ctx))).toMatchObject({ mode: 'blood', amount: HAND.bloodCost });
+    expect(bloodCost(player(ctx))).toBe(50);
+    expect(handOffer(ctx.map, ctx.state, player(ctx))).toMatchObject({ mode: 'blood', amount: 50 });
     tap(ctx);
-    expect(player(ctx).hp).toBe(100 - HAND.bloodCost);
+    expect(player(ctx).hp).toBe(50);
     expect(player(ctx).money).toBe(100);
     expect(damaged).toHaveBeenCalledTimes(1);
     expect(ctx.state.hand.paid).toBe('blood');
   });
 
-  it('with 40 health or less and no money: what is missing, dimmed, and a tap does nothing', () => {
+  it('with 50 health or less and no money: what is missing, dimmed, and a tap does nothing', () => {
     const ctx = atTheHand(300);
-    player(ctx).hp = HAND.bloodCost;
+    player(ctx).hp = 50;
     expect(handOffer(ctx.map, ctx.state, player(ctx))).toMatchObject({ mode: 'short', amount: HAND.price - 300, enabled: false });
     tap(ctx);
     expect(ctx.state.hand.phase).toBe('idle');
-    expect(player(ctx).hp).toBe(HAND.bloodCost);
+    expect(player(ctx).hp).toBe(50);
+  });
+
+  it('one blood pact per spot: healed up, it asks for money until the hand moves', () => {
+    const ctx = atTheHand(100);
+    tap(ctx);
+    seconds(ctx, HAND.risingTime + HAND.rollingTime + HAND.offeringTime + HAND.sinkingTime);
+    expect(ctx.state.hand.phase).toBe('idle');
+    player(ctx).hp = 100;
+    expect(handOffer(ctx.map, ctx.state, player(ctx))).toMatchObject({ mode: 'short', amount: HAND.price - 100, enabled: false });
+    tap(ctx);
+    expect(player(ctx).hp).toBe(100);
+    // Money still pays as often as wanted.
+    player(ctx).money = 2000;
+    expect(handOffer(ctx.map, ctx.state, player(ctx))).toMatchObject({ mode: 'pay' });
+    player(ctx).money = 100;
+    moveHand(ctx);
+    expect(ctx.state.hand.bloodPacts).toEqual([]);
   });
 });
 
@@ -226,7 +244,7 @@ describe('the sequence', () => {
     ctx.events.on('action:context', action);
     stepSimulation(ctx, DT);
     presenter.publish(ctx.state);
-    expect(action).toHaveBeenLastCalledWith({ kind: 'hand', amount: HAND.bloodCost, enabled: true, hand: { mode: 'blood' } });
+    expect(action).toHaveBeenLastCalledWith({ kind: 'hand', amount: 50, enabled: true, hand: { mode: 'blood' } });
   });
 });
 
@@ -273,7 +291,7 @@ describe('the hand tires (spec 06 §3.6)', () => {
     const ctx = atTheHand(100);
     ctx.state.hand.usesLeft = 0;
     tap(ctx);
-    expect(player(ctx).hp).toBe(100 - HAND.bloodCost);
+    expect(player(ctx).hp).toBe(50);
     seconds(ctx, HAND.risingTime + HAND.mockTime);
     expect(player(ctx).hp).toBe(100);
   });
@@ -304,6 +322,14 @@ describe('the hand tires (spec 06 §3.6)', () => {
     expect(player(ctx).money).toBe(2000);
     expect(ctx.state.hand.phase).toBe('rising');
     expect(ctx.state.hand.paid).toBeNull();
+  });
+
+  it('debug, MANO GRATIS: a free blood pact neither takes health nor uses up the one of the spot', () => {
+    const ctx = atTheHand(100);
+    ctx.state.hand.debugFree = true;
+    tap(ctx);
+    expect(player(ctx).hp).toBe(100);
+    expect(ctx.state.hand.bloodPacts).toEqual([]);
   });
 });
 

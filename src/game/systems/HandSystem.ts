@@ -10,8 +10,9 @@ import type { SimContext } from './SimContext';
 /**
  * The Demon's Hand (spec 06 §3): a crack in the floor of one zone where,
  * within HAND.interactRange, the action button offers a weapon drawn at
- * random, for HAND.price or, short of money, for HAND.bloodCost health (the
- * blood pact never kills: it needs more health than that).
+ * random, for HAND.price or, short of money, for half the player's maximum
+ * health (the blood pact never kills: it needs more health than that; and
+ * each player makes it once per spot).
  *
  * The draw happens at the payment, with the match's RNG; then the hand
  * rises with its fist closed, weapon outlines roll over it, and it opens
@@ -32,7 +33,7 @@ import type { SimContext } from './SimContext';
 export interface HandOffer {
   /**
    *   pay      pay HAND.price (`amount`)
-   *   blood    the blood pact: HAND.bloodCost health (`amount`)
+   *   blood    the blood pact: bloodCost(p) health (`amount`)
    *   short    neither: `amount` money missing (the button is dimmed and shakes)
    *   take     take the weapon on offer
    *   confirm  take it, waiting for the second tap: it replaces `replaces`, upgraded
@@ -42,6 +43,11 @@ export interface HandOffer {
   enabled: boolean;
   weapon: WeaponId | null;
   replaces: WeaponSlotState | null;
+}
+
+/** Health the blood pact takes from `p`: a share of their maximum health. */
+export function bloodCost(p: PlayerState): number {
+  return Math.round(p.maxHp * HAND.bloodShare);
 }
 
 /** The player is within reach of the hand's crack, in an unlocked zone. */
@@ -57,7 +63,9 @@ export function handOffer(map: MapData, state: GameState, p: PlayerState): HandO
   const hand = state.hand;
   if (hand.phase === 'idle') {
     if (p.money >= HAND.price) return { mode: 'pay', amount: HAND.price, enabled: true, weapon: null, replaces: null };
-    if (p.hp > HAND.bloodCost) return { mode: 'blood', amount: HAND.bloodCost, enabled: true, weapon: null, replaces: null };
+    const blood = bloodCost(p);
+    // Once per spot: healing up does not buy another weapon until the hand moves.
+    if (p.hp > blood && !hand.bloodPacts.includes(p.id)) return { mode: 'blood', amount: blood, enabled: true, weapon: null, replaces: null };
     return { mode: 'short', amount: HAND.price - p.money, enabled: false, weapon: null, replaces: null };
   }
   if (hand.phase === 'offering' && !hand.taken && hand.offer && hand.payer === p.id) {
@@ -81,8 +89,9 @@ function pay(ctx: SimContext, p: PlayerState, blood: boolean): void {
   if (hand.debugFree) {
     hand.paid = null;
   } else if (blood) {
-    p.hp -= HAND.bloodCost;
+    p.hp -= bloodCost(p);
     hand.paid = 'blood';
+    hand.bloodPacts.push(p.id);
     // Like a hit (the red frame and the player's blood), but from nowhere: no push.
     ctx.events.emit('player:damaged', { playerId: p.id, hp: p.hp, maxHp: p.maxHp, x: p.x, y: p.y, fromX: p.x, fromY: p.y });
   } else {
@@ -182,8 +191,8 @@ function refund(ctx: SimContext): void {
   const p = ctx.state.players.find((q) => q.id === hand.payer);
   if (!p || !hand.paid) return;
   if (hand.paid === 'money') p.money += HAND.price;
-  else p.hp = Math.min(p.maxHp, p.hp + HAND.bloodCost);
-  ctx.events.emit('hand:refunded', { playerId: p.id, blood: hand.paid === 'blood', amount: hand.paid === 'money' ? HAND.price : HAND.bloodCost });
+  else p.hp = Math.min(p.maxHp, p.hp + bloodCost(p));
+  ctx.events.emit('hand:refunded', { playerId: p.id, blood: hand.paid === 'blood', amount: hand.paid === 'money' ? HAND.price : bloodCost(p) });
 }
 
 /**
@@ -198,6 +207,7 @@ export function moveHand(ctx: SimContext): void {
   if (spot >= 0) hand.spot = spot;
   hand.usesLeft = drawUses(state);
   hand.mock = false;
+  hand.bloodPacts.length = 0;
   hand.payer = -1;
   hand.paid = null;
   hand.offer = null;

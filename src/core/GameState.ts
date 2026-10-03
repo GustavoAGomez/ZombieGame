@@ -75,6 +75,8 @@ export interface HandState {
   paid: 'money' | 'blood' | null;
   /** The payment under way found it tired: it mocks, gives the payment back and moves (spec 06 §3.6). */
   mock: boolean;
+  /** Ids of the players who made the blood pact in this spot: once each, until it moves. */
+  bloodPacts: number[];
   /** Debug (MANO GRATIS): payments cost nothing. */
   debugFree: boolean;
 }

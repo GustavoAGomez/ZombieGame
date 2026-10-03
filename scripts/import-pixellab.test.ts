@@ -1,10 +1,10 @@
-import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { checkAssets } from './check-assets';
 import { applyImport, importAssets, resampleFrames, rowScale, shareArt } from './import-pixellab';
-import { decodePng } from './lib/png';
+import { decodePng, encodePng } from './lib/png';
 
 const repo = resolve(import.meta.dirname, '..');
 /** End-to-end imports copy every asset and decode real sheets: slow next to the rest of the suite. */
@@ -185,6 +185,56 @@ describe('importAssets with one export per subfolder', () => {
     expect(manifest.characters.player?.animations.walk).toMatchObject({ frames: 2 });
     expect(manifest.characters.player?.animations.walk?.placeholder).toBeUndefined();
     expect(checkAssets(tmp).errors).toEqual([]);
+  });
+});
+
+describe('importAssets (objects)', () => {
+  /** A frame of `w`×`h` filled with one opaque colour, but for a half-transparent pixel at the top left. */
+  function solid(w: number, h: number, r: number): Buffer {
+    const px = new Uint8Array(w * h * 4);
+    for (let i = 0; i < w * h; i++) px.set([r, 0, 0, 255], i * 4);
+    px[3] = 100;
+    return encodePng(w, h, px);
+  }
+
+  function setUp(): string {
+    tmp = mkdtempSync(join(tmpdir(), 'zombies-import-'));
+    mkdirSync(join(tmp, 'public/assets'), { recursive: true });
+    const manifest = { objects: { claw: { file: 'sprites/objects/claw.png', frameWidth: 4, frameHeight: 6, frames: 1, placeholder: true } } };
+    writeFileSync(join(tmp, 'public/assets/manifest.json'), JSON.stringify(manifest));
+    const dir = join(tmp, 'art-src/pixellab/objects/claw');
+    mkdirSync(join(dir, 'retouched'), { recursive: true });
+    writeFileSync(join(dir, 'open.png'), solid(4, 6, 200));
+    writeFileSync(join(dir, 'retouched/fist.png'), solid(2, 2, 50));
+    return dir;
+  }
+
+  it('lays the frames of import.json left to right at the declared size and marks the object as real art', () => {
+    const dir = setUp();
+    writeFileSync(join(dir, 'import.json'), JSON.stringify({ frames: ['retouched/fist.png', 'open.png'] }));
+    const lines: string[] = [];
+    expect(importAssets(tmp, [], (l) => lines.push(l))).toBe(1);
+
+    const png = decodePng(readFileSync(join(tmp, 'public/assets/sprites/objects/claw.png')));
+    expect([png.width, png.height]).toEqual([8, 6]);
+    const at = (x: number, y: number): number[] => [...png.pixels.subarray((y * 8 + x) * 4, (y * 8 + x) * 4 + 4)];
+    // The 2×2 fist is centred in its 4×6 frame; its half-transparent corner becomes fully transparent.
+    expect(at(1, 2)).toEqual([0, 0, 0, 0]);
+    expect(at(2, 3)).toEqual([50, 0, 0, 255]);
+    expect(at(0, 0)).toEqual([0, 0, 0, 0]);
+    expect(at(5, 5)).toEqual([200, 0, 0, 255]);
+    expect(lines.some((l) => l.includes('2×2, centrado en 4×6'))).toBe(true);
+
+    const manifest = JSON.parse(readFileSync(join(tmp, 'public/assets/manifest.json'), 'utf8')) as { objects: Record<string, unknown> };
+    expect(manifest.objects.claw).toEqual({ file: 'sprites/objects/claw.png', frameWidth: 4, frameHeight: 6, frames: 2, placeholder: false });
+  });
+
+  it('imports only the objects asked for, and skips one without import.json', () => {
+    setUp();
+    const lines: string[] = [];
+    expect(importAssets(tmp, ['player'], (l) => lines.push(l))).toBe(0);
+    expect(importAssets(tmp, ['claw'], (l) => lines.push(l))).toBe(0);
+    expect(lines.some((l) => l.includes('falta import.json'))).toBe(true);
   });
 });
 

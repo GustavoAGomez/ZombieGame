@@ -27,6 +27,11 @@ su caja delimitadora sobre el fondo transparente.
 - player: export completo de PixelLab (rotaciones, carrera, disparo, disparo andando y muerte en sur, este y oeste); formato en `docs/ASSETS.md` §6.
 - zombie_walker: el zombi (andar, zarpazo, climb de 4 direcciones, y en el estado sin piernas gatear y zarpazo en el suelo). Corredores y sprinters usan este arte (`alsoFor` en `import.json`).
 
+## Objetos (`objects/<clave>/`, imágenes sueltas y `import.json` con el orden de fotogramas)
+- demon_hand: la Mano del Demonio a 32×48. Los PNG de la carpeta son los de PixelLab sin tocar (puño, abierta con la palma encendida, vacía y el gesto obsceno). En `retocado/` están con puntas de brasa en las garras abiertas, desplazados (+2, +6) y con una paleta común de 32 colores; esos son los que se importan (ver `docs/DECISIONS.md`).
+- hand_crack, hand_crack_opening, hand_crack_open: el agujero de la mano (48×40, de 46 px de ancho): la costra con las grietas latiendo, la costra rompiéndose y el fuego dentro. En `retocado/`, con una paleta común de 32 colores para las tres.
+- hand_ember: 5 brasas sueltas de PixelLab (de 2 a 6 px), recortadas y centradas en 8×8 en `retocado/`.
+
 ---
 
 ## Formato medido de estos PNG (1 de octubre de 2026)

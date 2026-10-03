@@ -1379,3 +1379,57 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - `MOVER MANO`: la muda en el acto.
   - `FORZAR BURLA`: pone sus usos a 0, así que el siguiente pago es la burla.
   - `MOSTRAR PUNTOS DE MANO`: una cruz roja en cada punto y un aro en el actual.
+
+## Arte de la Mano del Demonio: la mano, su agujero y las brasas; el pacto de sangre
+
+- **La mano (`demon_hand`), 32×48 y cuatro poses**, en lugar de los 20×28 y tres poses de la spec 06 §3.7, a petición del usuario:
+  1. puño;
+  2. garra abierta hacia arriba con la palma encendida, sosteniendo el arma;
+  3. abierta y vacía;
+  4. el gesto obsceno: el dedo corazón, con el dorso de la mano hacia la cámara. Sustituye al dedo que dice «no» de la spec, a petición del usuario, que eligió de entre los intentos el de la semilla 14 por más real.
+- **Cuándo sale cada pose:**
+  - el puño al subir y mientras pasan las siluetas;
+  - la palma encendida mientras el arma está en la mano, también si se hunde con ella;
+  - vacía cuando el arma se coge (se hunde con la palma apagada) o cuando el sorteo no da nada;
+  - el gesto dura también mientras se hunde, y durante la burla da un golpe de 2 px hacia arriba (en vez del vaivén del «no»).
+- **Cómo se hizo (PixelLab):**
+  - La garra abierta salió de *Create Image (Pro)* a 32×48, con el zombi y el jugador como referencia de estilo: 1 de 16 candidatos.
+  - Las otras tres poses salen de editar esa misma mano con *Pro Flash*, para que compartan antebrazo, base y colores y no haya saltos al cambiar de pose:
+    - vacía apagando la palma;
+    - el puño cerrándola;
+    - el gesto girando el puño con *Pro Flash* (el intento de la semilla 14); conserva el antebrazo.
+  - PixelLab generó el gesto a la primera: 4 intentos, todos válidos.
+- **Retoques a mano** (en `retocado/`, junto a los originales):
+  - puntas de brasa en las garras de las dos poses abiertas;
+  - todo desplazado (+2, +6) px, para centrar el antebrazo y apoyar su base en el borde inferior, que es el ancla;
+  - una paleta común de 32 colores, fusionando cada vez los dos colores más parecidos, sin inventar ninguno.
+- **El arma sobre la mano:** flota a 28 px sobre esa línea de suelo, acunada por la garra justo encima de la palma encendida. Las siluetas del sorteo pasan a 44 px, por encima del puño.
+- **Sale del suelo, no se estira.** La spec la hacía crecer desde la grieta (escala vertical), y se notaba el sprite doblado. Ahora la mano sube entera y se recorta a ras de suelo, 7 px por debajo del centro del agujero, hacia su parte delantera:
+  - la base del antebrazo queda dentro del fuego;
+  - el arma baja con ella y también se recorta.
+- **El agujero** (sustituye a la grieta de 28×16), tres hojas de 48×40 con una paleta común. Mide 46 px de ancho por dentro de 34: la primera versión, de 26, se quedaba corta y los lados de la mano abierta (28 px) pisaban el borde.
+  - `hand_crack`: sellado por una costra cuyas grietas laten. Es el estado de espera, a 5 fps.
+  - `hand_crack_opening`: la costra rompiéndose, con un fogonazo.
+  - `hand_crack_open`: abierto con el fuego dentro, a 10 fps.
+  - El agujero abierto salió de *Create Image (Pro)* a 48×40, con el de 32 px como referencia (1 de 16 candidatos), y la costra de editarlo con *Pro Flash*. Las tres animaciones son *Animate Image* con el primer y el último fotograma fijados.
+  - **Cierre:** son los fotogramas de la apertura al revés. Así la costra se vuelve a formar sobre el mismo borde.
+- **Tiempos** (de la vista; las fases de `HAND` no cambian):
+  - **Al subir:** el agujero se abre en 0,24 s y la mano empieza a salir a los 0,12 s, con el agujero a medio abrir; acaba de salir al final de los 0,6 s.
+  - **Al hundirse:** la mano entra en 0,36 s y el agujero se cierra en los 0,24 s restantes.
+  - **Al mudarse** (después de la burla): la costra se desvanece en 0,4 s donde estaba.
+  - Las funciones puras `holeLook` y `handRise` lo calculan y tienen tests.
+- **Brasas** (`hand_ember`): 5 chispas de PixelLab (de 2 a 6 px) en lugar de los cuadraditos dibujados por código.
+  - Suben detrás de la mano, ordenadas con los personajes; delante tapaban la mano.
+  - Ya no tienen profundidad propia (`DEPTH.handEmbers` desaparece).
+- **Nada de una sala bloqueada se ve.** Esto cambia la spec 06 §3.2 y la fase H5, a petición del usuario: la columna de brasas se veía por encima de la oscuridad y delataba la mano a través de las paredes.
+  - Ahora la columna solo se dibuja con la sala de la mano desbloqueada.
+  - El agujero y la mano quedan bajo la niebla, como todo lo demás.
+  - Al empezar, la mano no da ninguna pista: hay que abrir salas hasta dar con ella.
+- **Importar objetos:** `assets:import` también lee `art-src/pixellab/objects/<clave>/`, con un `import.json` que ordena los fotogramas (`docs/ASSETS.md` §6).
+  - Los placeholders del agujero, la mano y las brasas siguen los tamaños y fotogramas nuevos, por si falta algún PNG.
+- **Pacto de sangre** (cambia la spec 06 §3.3, a petición del usuario: curándose, se podían pedir armas sin parar):
+  - **Cuesta la mitad de la vida máxima** (`HAND.bloodShare`, 0,5: 50 de vida), en lugar de 40. Solo se ofrece con más de eso, así que sigue sin matar.
+  - **Uno por jugador en cada sitio de la mano.** Lo anota `hand.bloodPacts`, con los ids de quienes lo hicieron, y se vacía cuando la mano se muda. Con dinero se sigue pagando sin límite.
+  - Hecho el pacto y sin dinero, el botón dice «FALTAN X$», atenuado, como sin vida suficiente.
+  - Si la mano estaba cansada, la burla devuelve los 50 de vida, y el pacto no se vuelve a ofrecer porque la mano se muda.
+  - Con `MANO GRATIS` (debug) el pacto no cobra ni cuenta.
