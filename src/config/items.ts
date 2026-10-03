@@ -7,7 +7,7 @@
  */
 export type ItemId = 'living_heart' | 'worn_wand';
 
-/** Catalogue order: frames of the `item` sprite sheet and icons. */
+/** Catalogue order (the inventory and the spawns go through it). */
 export const ITEM_IDS: readonly ItemId[] = ['living_heart', 'worn_wand'];
 
 /** When and where an item lies on the map waiting to be picked up. */
@@ -24,13 +24,22 @@ export interface ItemDef {
   color: string;
   /** Lighter detail of the placeholder (the wand's tip). */
   accent?: string;
+  /**
+   * Its animated sprite (`item_<id>` in the manifest: the same on the map, in
+   * flight and in its HUD slot) plays at this many frames per second.
+   */
+  fps: number;
+  /** On the map it floats over its spot, bobbing (the wand); otherwise it lies on the floor. */
+  floats?: boolean;
   /** Lies on the map from the match start; without it the item is never on the ground. */
   spawn?: ItemSpawnRule;
 }
 
 export const ITEMS_CATALOGUE: Readonly<Record<ItemId, ItemDef>> = {
-  living_heart: { id: 'living_heart', color: '#c93a2b' },
-  worn_wand: { id: 'worn_wand', color: '#8a6a3f', accent: '#efe6d2', spawn: { when: 'match_start', excludeStartZone: true } },
+  // A real human heart, beating.
+  living_heart: { id: 'living_heart', color: '#c93a2b', fps: 10 },
+  // Floating, with lightning crackling at its tip: magic that works by itself.
+  worn_wand: { id: 'worn_wand', color: '#8a6a3f', accent: '#efe6d2', fps: 12, floats: true, spawn: { when: 'match_start', excludeStartZone: true } },
 };
 
 /** Carried by every player from the start (provisional for the heart: it will be found some other way). */

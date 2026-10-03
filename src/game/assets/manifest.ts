@@ -2,6 +2,7 @@
  * Asset manifest (docs/ASSETS.md §4). Code refers to assets by key only;
  * file paths live in public/assets/manifest.json (CLAUDE.md rule 5).
  */
+import { ITEM_IDS, type ItemId } from '../../config/items';
 
 /**
  * Rows of a character sheet: 8 or 4 directions, or 1 for a character that
@@ -126,7 +127,7 @@ export const REQUIRED_OBJECTS: readonly string[] = [
   'merchant_gem',
   'smoke_puff',
   'offscreen_arrow',
-  'item',
+  ...ITEM_IDS.map((id) => itemSpriteKey(id)),
 ];
 
 /** Asset keys the game code uses. */
@@ -168,8 +169,6 @@ export const ASSET_KEYS = {
   weaponCase: 'weapon_case',
   weaponCaseV: 'weapon_case_v',
   offscreenArrow: 'offscreen_arrow',
-  /** Special items on the floor (spec 05 §3): one 12×12 frame per item in ITEM_IDS order. */
-  item: 'item',
   /**
    * The Demon's Hand (spec 06 §3.7), all 32 px wide: its hole in the floor,
    * sealed by a crust with glowing cracks (a loop), breaking open (closing is
@@ -187,6 +186,15 @@ export const ASSET_KEYS = {
   mapRoom01: 'room01',
   mapMansion: 'mansion',
 } as const;
+
+/**
+ * A special item's animated sprite (spec 05): `item_<id>`, 24×24 frames
+ * played at the item's fps, the same on the map, in flight and in its HUD
+ * slot.
+ */
+export function itemSpriteKey(id: ItemId): string {
+  return `item_${id}`;
+}
 
 export const MANIFEST_URL = 'assets/manifest.json';
 export const ASSETS_BASE_URL = 'assets/';

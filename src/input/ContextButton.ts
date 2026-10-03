@@ -3,6 +3,7 @@ import { merchantDef, type MerchantId } from '../config/merchants';
 import type { WeaponId } from '../config/weapons';
 import type { EventBus, GameEvents } from '../core/EventBus';
 import { WEAPON_ICONS, iconSize, pixelIcon } from '../ui/icons';
+import { itemSprite } from '../ui/itemSprites';
 import { STRINGS } from '../ui/strings';
 import { PointerControl } from './PointerControl';
 
@@ -23,7 +24,7 @@ export class ContextButton extends PointerControl {
   /** A weapon case's weapon, one icon per weapon. */
   private readonly weaponIcons = new Map<WeaponId, SVGSVGElement>();
   /** A special item on the floor, one icon per item. */
-  private readonly itemIcons = new Map<ItemId, SVGSVGElement>();
+  private readonly itemIcons = new Map<ItemId, HTMLElement | SVGSVGElement>();
   private readonly face: HTMLSpanElement;
   private readonly value: HTMLSpanElement;
   private readonly unsubscribe: () => void;
@@ -181,10 +182,11 @@ export class ContextButton extends PointerControl {
     return icon;
   }
 
-  private itemIconFor(id: ItemId): SVGSVGElement {
+  private itemIconFor(id: ItemId): HTMLElement | SVGSVGElement {
     let icon = this.itemIcons.get(id);
     if (!icon) {
-      icon = pixelIcon(id, iconSize(id, 2));
+      // The item's animated sprite (24 px at 1×), or its icon at 2× without art.
+      icon = itemSprite(id) ?? pixelIcon(id, iconSize(id, 2));
       this.itemIcons.set(id, icon);
       this.face.appendChild(icon);
     }

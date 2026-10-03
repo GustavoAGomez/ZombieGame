@@ -1452,3 +1452,19 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - La katana muestra sus usos en lugar del ∞, en el HUD y en su hueco de la barra de armas; rota, en rojo con «ROTA» parpadeando, y su hueco sale vacío.
   - El láser muestra una casilla roja por cada sobrecalentamiento que aún aguanta.
   - Al romperse cualquiera de las dos, aviso en rojo en el centro (`weapon:broken`).
+
+## Arte de los objetos especiales: la varita y el corazón (PixelLab)
+
+- **Un sprite animado por objeto** (`item_<id>`, 24×24, 8 fotogramas en bucle), en lugar de la hoja `item` de 12×12 con un fotograma por objeto.
+  - La misma hoja sirve en el suelo, en vuelo hacia la piscina y en el HUD.
+  - Los fps viven en el catálogo (`items.ts`): el corazón a 10 (un latido cada 0,8 s) y la varita a 12.
+- **Varita desgastada:** madera gastada con una tira de cuero, de *Create Image (Pro)* (1 de 64 candidatos, con el contorno y el sombreado de la mano). La animación son rayos blanco-azulados que chisporrotean en la punta, con *Animate Image* y el primer y último fotograma fijados.
+  - **Flotar** lo hace el código (`floats` en el catálogo): en el suelo sube 5 px sobre su foco y oscila 2 px cada 1,6 s.
+  - En el inventario no flota: se queda quieta con sus rayos.
+- **Corazón vivo:** un corazón humano anatómico, con la aorta, la grasa y las venas coronarias (1 de 64 candidatos). La animación es el latido: se contrae dos veces y se relaja.
+- **El foco del suelo** pasa de 11 a 15 px de radio, para que quepa el sprite de 24 px.
+- **HUD:**
+  - Los huecos del inventario pasan de 28 a 40 px (24 por dentro del marco de la placa), con el sprite a 1×. Se siguen tocando como 44×44.
+  - El botón de recoger muestra el sprite en lugar del icono a 2×.
+  - La animación es CSS (`steps()`) sobre la misma hoja del manifiesto: `src/ui/itemSprites.ts` las registra al arrancar desde `manifest.objects`, sin Phaser.
+  - Un objeto sin arte sigue con su icono de píxeles.

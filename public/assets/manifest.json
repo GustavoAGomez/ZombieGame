@@ -532,12 +532,19 @@
       "frames": 1,
       "placeholder": true
     },
-    "item": {
-      "file": "sprites/objects/item.png",
-      "frameWidth": 12,
-      "frameHeight": 12,
-      "frames": 2,
-      "placeholder": true
+    "item_living_heart": {
+      "file": "sprites/objects/item_living_heart.png",
+      "frameWidth": 24,
+      "frameHeight": 24,
+      "frames": 8,
+      "placeholder": false
+    },
+    "item_worn_wand": {
+      "file": "sprites/objects/item_worn_wand.png",
+      "frameWidth": 24,
+      "frameHeight": 24,
+      "frames": 8,
+      "placeholder": false
     },
     "hand_crack": {
       "file": "sprites/objects/hand_crack.png",

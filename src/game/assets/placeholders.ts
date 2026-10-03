@@ -1,6 +1,6 @@
 import type Phaser from 'phaser';
 import { ZOMBIES } from '../../config/balance';
-import { ITEM_IDS } from '../../config/items';
+import { ITEM_IDS, type ItemId } from '../../config/items';
 import { MERCHANTS } from '../../config/merchants';
 import { WEAPON_IDS } from '../../config/weapons';
 import { WEAPON_ICONS, iconDef } from '../../ui/icons';
@@ -13,6 +13,7 @@ import {
   DIRECTIONS_8,
   animationDirections,
   characterTextureKey,
+  itemSpriteKey,
   objectTextureKey,
   tilesetTextureKey,
   type CharacterDef,
@@ -544,11 +545,9 @@ function drawSmokePuff(ctx: Ctx, frame: number, frames: number, ox: number, oy: 
 
 /**
  * A special item (spec 05 §3): its HUD icon (ui/icons.ts) at 1×, centred in
- * the frame, frame `index` in ITEM_IDS order.
+ * every frame of the item's own sheet (`item_<id>`).
  */
-function drawItemIcon(ctx: Ctx, index: number, ox: number, oy: number, w: number, h: number): void {
-  const id = ITEM_IDS[index];
-  if (!id) return;
+function drawItemIcon(ctx: Ctx, id: ItemId, ox: number, oy: number, w: number, h: number): void {
   const def = iconDef(id);
   const dx = ox + Math.floor((w - def.w) / 2);
   const dy = oy + Math.floor((h - def.h) / 2);
@@ -713,9 +712,6 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
       case ASSET_KEYS.offscreenArrow:
         drawOffscreenArrow(ctx, ox, oy, w, h);
         break;
-      case ASSET_KEYS.item:
-        drawItemIcon(ctx, col, ox, oy, w, h);
-        break;
       case ASSET_KEYS.handCrack:
         drawHandCrack(ctx, col, 0, ox, oy, w, h);
         break;
@@ -738,6 +734,11 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
         const merchant = MERCHANTS.find((m) => object === `merchant_${m.id}`);
         if (merchant) {
           drawMerchant(ctx, merchant.color, ox, oy, w, h);
+          break;
+        }
+        const item = ITEM_IDS.find((id) => object === itemSpriteKey(id));
+        if (item) {
+          drawItemIcon(ctx, item, ox, oy, w, h);
           break;
         }
         if (object.startsWith('prop_')) {

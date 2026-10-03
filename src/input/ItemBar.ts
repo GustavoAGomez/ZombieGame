@@ -2,6 +2,7 @@ import { ITEMS } from '../config/balance';
 import type { ItemId } from '../config/items';
 import type { EventBus, GameEvents } from '../core/EventBus';
 import { iconSize } from '../ui/icons';
+import { itemSprite } from '../ui/itemSprites';
 import { STRINGS } from '../ui/strings';
 import { TapButton } from './TapButton';
 
@@ -66,8 +67,10 @@ export class ItemBar {
         return;
       }
       this.shown[i] = item;
-      // Whole pixels: the 12-unit icon at 1×, inside its frame.
-      button.setIcon(item, iconSize(item, 1));
+      // Its animated sprite at 1× (the wand's lightning, the beating heart); without art, the 12-unit icon.
+      const sprite = itemSprite(item);
+      if (sprite) button.setIconElement(sprite);
+      else button.setIcon(item, iconSize(item, 1));
       button.el.setAttribute('aria-label', STRINGS.items.use(STRINGS.items.names[item]));
     });
   };

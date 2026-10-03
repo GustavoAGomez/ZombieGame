@@ -47,6 +47,11 @@ export class TapButton {
     this.iconHolder.replaceChildren(pixelIcon(icon, size));
   }
 
+  /** Replaces the icon with another element (a special item's animated sprite). */
+  setIconElement(icon: Element): void {
+    this.iconHolder.replaceChildren(icon);
+  }
+
   setLabel(label: string): void {
     this.labelEl.textContent = label;
   }

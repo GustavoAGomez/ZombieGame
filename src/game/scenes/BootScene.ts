@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { FONTS } from '../../config/theme';
 import { AssetLibrary } from '../assets/AssetLibrary';
 import { ASSETS_BASE_URL, MANIFEST_URL, parseManifest } from '../assets/manifest';
+import { registerItemSprites } from '../../ui/itemSprites';
 import { applyUiSkin } from '../../ui/skin';
 import type { Services } from '../services';
 
@@ -39,6 +40,8 @@ export class BootScene extends Phaser.Scene {
     const manifest = parseManifest(this.cache.json.get(MANIFEST_KEY));
     // The HUD skin is DOM: its pieces go to CSS straight away (no Phaser texture).
     void applyUiSkin(manifest.ui, ASSETS_BASE_URL);
+    // The special items' animated sprites in the HUD slots, from the same sheets as the map.
+    registerItemSprites(manifest.objects, ASSETS_BASE_URL);
     const assets = new AssetLibrary(manifest);
     assets.queue(this);
     this.load.once(Phaser.Loader.Events.COMPLETE, () => {

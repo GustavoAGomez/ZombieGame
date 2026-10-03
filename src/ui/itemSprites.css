@@ -1,0 +1,21 @@
+/* A special item's animated sprite in the HUD (itemSprites.ts): its sheet, one frame at a time, at 1×. */
+.item-sprite {
+  display: block;
+  width: var(--item-w);
+  height: var(--item-h);
+  background-image: var(--item-sheet);
+  background-repeat: no-repeat;
+  background-size: calc(var(--item-w) * var(--item-frames)) var(--item-h);
+  image-rendering: pixelated;
+  animation: item-sprite-play var(--item-duration) steps(var(--item-frames)) infinite;
+}
+
+@keyframes item-sprite-play {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: calc(var(--item-w) * var(--item-frames) * -1) 0;
+  }
+}
