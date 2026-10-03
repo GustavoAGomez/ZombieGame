@@ -182,7 +182,7 @@ Un agujero en el suelo, sellado por una costra con grietas de brasa, del que sal
   - Si no llega ni lo uno ni lo otro (o ya hiciste el pacto en este sitio): «FALTAN X$», atenuado.
   - Mientras está ocupada con una oferta, no acepta otro pago.
 - **Qué sale:** se sortea al pagar.
-  - 10 % nada; 20 % un arma especial (láser, katana o lanzallamas); 70 % un arma básica (pistola, SMG o escopeta).
+  - 10 % nada; 10 % un arma especial (láser, katana o lanzallamas); 80 % un arma básica (pistola, SMG o escopeta).
   - Nunca un arma que ya llevas, y no repite la última que ofreció si hay otra.
   - Si un grupo no tiene ninguna disponible, su parte pasa al otro.
 - **La secuencia** (el juego sigue mientras tanto):

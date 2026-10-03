@@ -382,7 +382,7 @@ export const HAND = {
    * special weapon or a basic one, never one the player carries. A group
    * with none left gives its share to the other.
    */
-  chances: { nothing: 0.1, special: 0.2, basic: 0.7 },
+  chances: { nothing: 0.1, special: 0.1, basic: 0.8 },
   /**
    * Uses it takes in one spot before it tires (spec 06 §3.6, drawn at each
    * new spot): the payment after them gets the mocking gesture for mockTime

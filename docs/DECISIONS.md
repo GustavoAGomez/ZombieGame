@@ -1501,3 +1501,8 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - La mejora de la ronda sigue con sus segundos, porque cuentan lo que le queda activa, no un enfriamiento.
 - **Vida:** se quita el número («100») junto a la barra. La barra ya lo dice, y su `aria-label` («Vida: 100») lo mantiene para lectores de pantalla.
 - **Ronda:** el «RONDA N» bajo la barra de vida pasa de 16 a 11 px, con 2 px de sombra en lugar de 3. El aviso grande de inicio de ronda no cambia.
+
+## Menos armas especiales en la mano
+
+- A petición del usuario, el sorteo de la Mano del Demonio pasa a 10 % nada, **10 % arma especial** (antes 20 %) y **80 % arma básica** (antes 70 %), en `HAND.chances`.
+- Las demás reglas del sorteo no cambian: nunca un arma que ya llevas, no repite la última y un grupo vacío pasa su parte al otro.
