@@ -1468,3 +1468,18 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - El botón de recoger muestra el sprite en lugar del icono a 2×.
   - La animación es CSS (`steps()`) sobre la misma hoja del manifiesto: `src/ui/itemSprites.ts` las registra al arrancar desde `manifest.objects`, sin Phaser.
   - Un objeto sin arte sigue con su icono de píxeles.
+
+## El fuego del juego con el arte de la mano
+
+- **Llamas** (`flame`): pasan del placeholder de 6×8 a 3 lenguas de fuego de PixelLab de 8×12.
+  - Usan la paleta del fuego del agujero de la mano, como referencia de estilo en *Create Image (Pro)* (3 de 64 candidatos).
+  - Una es centrada, otra inclinada a la derecha y la tercera es esa misma en espejo, como el patrón del placeholder.
+  - El fuego del agujero no sirve como llama suelta: es una hoja de 48×40 con el borde y los cascotes.
+- **Chispas:** las brasas de la mano (`hand_ember`) salen mezcladas con las llamas: una de cada cuatro partículas.
+  - **Lanzallamas y fuego infernal:** van a la mitad de velocidad y duran 1,4 veces más, así que siguen volando cuando las llamas ya se han apagado.
+  - **Zombis ardiendo:** suben más rápido y más alto (40 px/s), se mecen más y duran 1,6 veces más.
+  - Las chispas no cambian de tamaño ni de fotograma: solo se desvanecen.
+- **Flecha hacia la mano:** negra (el `ink` del juego), en lugar de roja oscura, a petición del usuario.
+- **Varita:** se sustituye por la versión que el usuario retocó en la galería de PixelLab: quitó el píxel claro suelto al final del mango en los fotogramas que lo tenían.
+  - Se exportó con el banco de trabajo de PixelLab: una edición que no cambia nada devuelve la hoja de fotogramas.
+  - Pasa por el mismo proceso que antes: fotogramas 1-8, alfa 0/255 y 32 colores.

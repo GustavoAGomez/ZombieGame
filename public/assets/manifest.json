@@ -1017,10 +1017,10 @@
     },
     "flame": {
       "file": "sprites/objects/flame.png",
-      "frameWidth": 6,
-      "frameHeight": 8,
+      "frameWidth": 8,
+      "frameHeight": 12,
       "frames": 3,
-      "placeholder": true
+      "placeholder": false
     },
     "weapon_case": {
       "file": "sprites/objects/weapon_case.png",

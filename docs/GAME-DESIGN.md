@@ -173,7 +173,7 @@ Un agujero en el suelo, sellado por una costra con grietas de brasa, del que sal
   - Hay un punto posible por sala, salvo en el recibidor.
   - Al empezar está en el salón o en el comedor (al azar), que son las salas interiores que se compran desde el recibidor.
   - Sobre el agujero sube una columna de brasas, pero solo con su sala desbloqueada: de una sala bloqueada no se ve nada, ni las brasas.
-  - Con su sala desbloqueada y fuera de la vista, una flecha roja oscura en el borde de la pantalla la señala, como la de los magos (nunca si está en otro nivel). En una sala bloqueada no hay flecha: hay que abrir salas hasta dar con ella.
+  - Con su sala desbloqueada y fuera de la vista, una flecha negra en el borde de la pantalla la señala, como la de los magos (nunca si está en otro nivel). En una sala bloqueada no hay flecha: hay que abrir salas hasta dar con ella.
   - No es sólida: se pasa por encima.
 - **Pagar**, a menos de 40 px, con el botón de acción:
   - Con 950$ o más: «MANO DEL DEMONIO · 950$».

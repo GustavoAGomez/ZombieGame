@@ -1,5 +1,6 @@
 import type Phaser from 'phaser';
 import { HAND } from '../../config/balance';
+import { COLORS } from '../../config/theme';
 import { WEAPON_IDS } from '../../config/weapons';
 import type { EventBus, GameEvents } from '../../core/EventBus';
 import type { HandPhase, HandState } from '../../core/GameState';
@@ -43,8 +44,8 @@ const JAB_SPEED = 14;
 const EMBERS = 22;
 const EMBER_RISE = 48;
 const EMBER_LIFE = 1.4;
-/** The arrow at the screen edge towards it, in dark red. */
-const ARROW_TINT = 0x9a1f1f;
+/** The arrow at the screen edge towards it, in black (the game's ink). */
+const ARROW_TINT = Number.parseInt(COLORS.ink.slice(1), 16);
 
 /** The poses of `demon_hand`, in frame order: fist, open holding the weapon (glowing palm), open and empty, and mocking. */
 const FIST = 0;

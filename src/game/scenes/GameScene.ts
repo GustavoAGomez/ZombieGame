@@ -168,7 +168,7 @@ export class GameScene extends Phaser.Scene {
     this.groundItemViews = new GroundItemViews(this, this.state.groundItems, manifest);
     this.activationSites = new ActivationSiteViews(this, this.map);
     this.zombieViews = new ZombieViewPool(this, manifest, this.state.zombies.length);
-    this.burnFlames = new BurnFlames(this, this.state.zombies.length);
+    this.burnFlames = new BurnFlames(this, this.state.zombies.length, manifest);
     this.weaponCases = new WeaponCaseViews(this, this.map);
     this.merchantViews = new MerchantViewPool(this, this.map, this.state.merchants, manifest);
     this.offscreenArrows = new OffscreenArrows(this, this.state.merchants);
@@ -178,7 +178,7 @@ export class GameScene extends Phaser.Scene {
     this.bulletViews = new BulletViewPool(this, this.state.bullets.length, playerDef);
     this.aimLine = new AimLine(this, playerDef);
     this.laserBeam = new LaserBeam(this, playerDef);
-    this.flameJet = new FlameJet(this, playerDef, events);
+    this.flameJet = new FlameJet(this, playerDef, events, manifest);
     this.handView = new HandView(this, this.map, events, manifest);
     this.muzzleFlash = new MuzzleFlash(this, playerDef);
     this.meleeSlash = new MeleeSlash(this, playerDef, manifest.objects[ASSET_KEYS.meleeSlash]);

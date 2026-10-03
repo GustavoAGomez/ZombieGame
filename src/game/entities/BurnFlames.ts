@@ -1,6 +1,6 @@
 import type Phaser from 'phaser';
 import type { ZombieState } from '../../core/GameState';
-import { ASSET_KEYS, objectTextureKey } from '../assets/manifest';
+import { ASSET_KEYS, objectTextureKey, type Manifest } from '../assets/manifest';
 import { actorDepth } from '../depth';
 import { hurtboxOf } from '../systems/shotGeometry';
 
@@ -12,7 +12,10 @@ const SPAWN_INTERVAL = 0.07;
 const LIFE = 0.45;
 const RISE = 22;
 const FLICKER = 0.09;
-const FRAMES = 3;
+/** One in this many is an ember spark (the Demon's Hand's, `hand_ember`): it rises faster and higher, and lives longer. */
+const EMBER_EVERY = 4;
+const EMBER_RISE = 40;
+const EMBER_LIFE = 1.6;
 
 interface Flame {
   image: Phaser.GameObjects.Image;
@@ -20,26 +23,35 @@ interface Flame {
   /** -1 when free. */
   life: number;
   sway: number;
+  /** An ember spark: it keeps its look and size, and only fades. */
+  ember: boolean;
 }
 
 /**
  * Small flames rising off burning zombies (the burn effect, spec 04 §1):
- * they start somewhere on the drawn body, rise, flicker and fade. Render
- * only: it reads each zombie's burn state, and freezes with the match
- * (the scene passes dt = 0 when paused).
+ * they start somewhere on the drawn body, rise, flicker and fade, with
+ * ember sparks (the Demon's Hand's) flying up among them. Render only: it
+ * reads each zombie's burn state, and freezes with the match (the scene
+ * passes dt = 0 when paused).
  */
 export class BurnFlames {
   private readonly flames: Flame[];
   private readonly spawnTimers: number[];
+  private readonly flameFrames: number;
+  private readonly emberFrames: number;
   private next = 0;
+  private spawned = 0;
   private seed = 1;
 
-  constructor(scene: Phaser.Scene, zombieCount: number) {
+  constructor(scene: Phaser.Scene, zombieCount: number, manifest: Manifest) {
+    this.flameFrames = Math.max(1, manifest.objects[ASSET_KEYS.flame]?.frames ?? 1);
+    this.emberFrames = Math.max(1, manifest.objects[ASSET_KEYS.handEmber]?.frames ?? 1);
     this.flames = Array.from({ length: POOL_SIZE }, () => ({
       image: scene.add.image(0, 0, objectTextureKey(ASSET_KEYS.flame), 0).setOrigin(0.5, 1).setVisible(false),
       age: 0,
       life: -1,
       sway: 0,
+      ember: false,
     }));
     this.spawnTimers = new Array<number>(zombieCount).fill(0);
   }
@@ -69,11 +81,8 @@ export class BurnFlames {
         continue;
       }
       const k = f.age / f.life;
-      f.image
-        .setPosition(f.image.x + f.sway * dt, f.image.y - RISE * dt)
-        .setAlpha(1 - k * k)
-        .setScale(1 - k * 0.4)
-        .setFrame(Math.floor(f.age / FLICKER + f.sway) % FRAMES);
+      f.image.setPosition(f.image.x + f.sway * dt, f.image.y - (f.ember ? EMBER_RISE : RISE) * dt).setAlpha(1 - k * k);
+      if (!f.ember) f.image.setScale(1 - k * 0.4).setFrame(Math.floor(f.age / FLICKER + f.sway) % this.flameFrames);
     }
   }
 
@@ -84,9 +93,12 @@ export class BurnFlames {
     const box = hurtboxOf(z);
     const x = z.x + (this.random() - 0.5) * box.width * 0.7;
     const y = z.y - 2 - this.random() * box.height * 0.8;
+    f.ember = ++this.spawned % EMBER_EVERY === 0;
     f.age = 0;
-    f.life = LIFE * (0.7 + this.random() * 0.6);
-    f.sway = (this.random() - 0.5) * 12;
+    f.life = LIFE * (0.7 + this.random() * 0.6) * (f.ember ? EMBER_LIFE : 1);
+    f.sway = (this.random() - 0.5) * (f.ember ? 20 : 12);
+    if (f.ember) f.image.setTexture(objectTextureKey(ASSET_KEYS.handEmber), Math.floor(this.random() * this.emberFrames));
+    else f.image.setTexture(objectTextureKey(ASSET_KEYS.flame), 0);
     // In front of its zombie, sorted with the other actors.
     f.image.setVisible(true).setPosition(x, y).setAlpha(1).setScale(1).setDepth(actorDepth(z.y) + 0.0005);
   }

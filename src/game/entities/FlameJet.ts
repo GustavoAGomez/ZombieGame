@@ -3,7 +3,7 @@ import { WEAPONS } from '../../config/weapons';
 import type { EventBus, GameEvents } from '../../core/EventBus';
 import type { PlayerState } from '../../core/GameState';
 import { degToRad } from '../../core/math';
-import { ASSET_KEYS, objectTextureKey, type CharacterDef } from '../assets/manifest';
+import { ASSET_KEYS, objectTextureKey, type CharacterDef, type Manifest } from '../assets/manifest';
 import { DEPTH } from '../depth';
 import { muzzleOffset } from './muzzle';
 
@@ -16,7 +16,9 @@ const JET_LIFE = 0.28;
 const BURST_FLAMES = 14;
 const BURST_LIFE = 0.35;
 const FLICKER = 0.06;
-const FRAMES = 3;
+/** One particle in this many is an ember spark (the Demon's Hand's, `hand_ember`) instead of a flame; it lives longer. */
+const EMBER_EVERY = 4;
+const EMBER_LIFE = 1.4;
 
 interface Flame {
   image: Phaser.GameObjects.Image;
@@ -25,20 +27,26 @@ interface Flame {
   life: number;
   vx: number;
   vy: number;
+  /** An ember spark: it keeps its look and size, and only fades. */
+  ember: boolean;
 }
 
 /**
- * The flamethrower's jet (spec 06 §2.3, placeholder): flames thrown from the
- * gun's muzzle in a fan over its cone, flying out to its range as they grow
- * and fade; and the flames of each hellfire burst ('fire:blast'), flying out
- * in a ring. Reuses the burn effect's flame frames. Render only: it reads
- * whether the player's jet is on, and freezes with the match (dt = 0).
+ * The flamethrower's jet (spec 06 §2.3): flames thrown from the gun's
+ * muzzle in a fan over its cone, flying out to its range as they grow and
+ * fade, with ember sparks among them; and the flames and sparks of each
+ * hellfire burst ('fire:blast'), flying out in a ring. The same flames as
+ * the burn effect and the same sparks as the Demon's Hand. Render only: it
+ * reads whether the player's jet is on, and freezes with the match (dt = 0).
  */
 export class FlameJet {
   private readonly flames: Flame[];
   private readonly offset = { x: 0, y: 0 };
   private readonly unsubscribe: () => void;
+  private readonly flameFrames: number;
+  private readonly emberFrames: number;
   private next = 0;
+  private launched = 0;
   private spawnTimer = 0;
   private seed = 7;
 
@@ -46,13 +54,17 @@ export class FlameJet {
     scene: Phaser.Scene,
     private readonly def: CharacterDef | undefined,
     events: EventBus,
+    manifest: Manifest,
   ) {
+    this.flameFrames = Math.max(1, manifest.objects[ASSET_KEYS.flame]?.frames ?? 1);
+    this.emberFrames = Math.max(1, manifest.objects[ASSET_KEYS.handEmber]?.frames ?? 1);
     this.flames = Array.from({ length: POOL_SIZE }, () => ({
       image: scene.add.image(0, 0, objectTextureKey(ASSET_KEYS.flame), 0).setDepth(DEPTH.bullets).setVisible(false),
       age: 0,
       life: -1,
       vx: 0,
       vy: 0,
+      ember: false,
     }));
     this.unsubscribe = events.on('fire:blast', this.onBlast);
   }
@@ -77,11 +89,8 @@ export class FlameJet {
         continue;
       }
       const k = f.age / f.life;
-      f.image
-        .setPosition(f.image.x + f.vx * dt, f.image.y + f.vy * dt)
-        .setAlpha(1 - k * k)
-        .setScale(0.7 + k * 0.8)
-        .setFrame(Math.floor(f.age / FLICKER + f.vx) % FRAMES);
+      f.image.setPosition(f.image.x + f.vx * dt, f.image.y + f.vy * dt).setAlpha(1 - k * k);
+      if (!f.ember) f.image.setScale(0.7 + k * 0.8).setFrame(Math.floor(f.age / FLICKER + f.vx) % this.flameFrames);
     }
   }
 
@@ -110,11 +119,16 @@ export class FlameJet {
     const f = this.flames[this.next];
     if (!f) return;
     this.next = (this.next + 1) % this.flames.length;
+    // Every EMBER_EVERY-th one is a spark: slower, flying on past the flames and lasting longer.
+    f.ember = ++this.launched % EMBER_EVERY === 0;
+    const slow = f.ember ? 0.5 : 1;
     f.age = 0;
-    f.life = life;
-    f.vx = Math.cos(angle) * speed;
-    f.vy = Math.sin(angle) * speed;
-    f.image.setVisible(true).setPosition(x, y).setAlpha(1).setScale(0.7);
+    f.life = f.ember ? life * EMBER_LIFE : life;
+    f.vx = Math.cos(angle) * speed * slow;
+    f.vy = Math.sin(angle) * speed * slow;
+    if (f.ember) f.image.setTexture(objectTextureKey(ASSET_KEYS.handEmber), Math.floor(this.random() * this.emberFrames)).setScale(1);
+    else f.image.setTexture(objectTextureKey(ASSET_KEYS.flame), 0).setScale(0.7);
+    f.image.setVisible(true).setPosition(x, y).setAlpha(1);
   }
 
   /** Look-only randomness (never the simulation's RNG). */
