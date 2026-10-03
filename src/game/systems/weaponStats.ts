@@ -20,6 +20,22 @@ export function ammoKind(def: WeaponDef): AmmoKind {
   return 'rounds';
 }
 
+/** Uses left of a weapon that wears out (the katana), or null for one that never does. */
+export function usesLeft(slot: WeaponSlotState): number | null {
+  return WEAPONS[slot.id].durability === undefined ? null : slot.uses;
+}
+
+/** A weapon that wears out with no uses left: it stays in its slot, useless, until repaired. */
+export function isBroken(slot: WeaponSlotState): boolean {
+  return WEAPONS[slot.id].durability !== undefined && slot.uses <= 0;
+}
+
+/** Overheats a beam weapon can still take before it breaks for good (the laser), or null for the rest. */
+export function overheatsLeft(slot: WeaponSlotState): number | null {
+  const breaksAfter = WEAPONS[slot.id].battery?.breaksAfter;
+  return breaksAfter === undefined ? null : Math.max(0, breaksAfter - slot.overheats);
+}
+
 /** Levels a weapon takes of `kind` (0: not upgradable that way). */
 export function maxUpgradeLevel(def: WeaponDef, kind: UpgradeKind): number {
   return Math.min(def.upgrades[kind] ?? 0, UPGRADE_LEVELS[kind].length);

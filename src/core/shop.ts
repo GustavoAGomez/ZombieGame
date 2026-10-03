@@ -1,9 +1,10 @@
 /**
  * Why an item cannot be bought even with money enough (spec 03 §3, spec 04 §1):
  * full ammo, no more levels in the weapon's list (or no list at all), the
- * special already bought (or none defined for that weapon).
+ * special already bought (or none defined for that weapon), a weapon that
+ * has not worn out at all (nothing to repair).
  */
-export type ShopReason = 'ammoFull' | 'maxLevel' | 'notUpgradable' | 'hasSpecial' | 'noSpecial';
+export type ShopReason = 'ammoFull' | 'maxLevel' | 'notUpgradable' | 'hasSpecial' | 'noSpecial' | 'likeNew';
 
 /**
  * What the COMPRAR button of a shop item shows for a player:

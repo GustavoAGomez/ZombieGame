@@ -17,6 +17,7 @@ const ITEM_ICONS: Record<MerchantItemId, IconName> = {
   upgrade_fire_rate: 'bolt',
   upgrade_damage: 'crosshair',
   weapon_special: 'star',
+  repair: 'hammer',
 };
 /** The red merchant's items, by the kind of upgrade they sell. */
 const UPGRADE_OF: Partial<Record<MerchantItemId, UpgradeKind>> = { upgrade_ammo: 'ammo', upgrade_fire_rate: 'fire_rate', upgrade_damage: 'damage' };
@@ -115,7 +116,7 @@ export class ShopPanel {
       this.reset();
       return;
     }
-    const key = `${e.merchant}:${e.rows.map((r) => `${r.index}${r.boost ?? ''}${r.slot ?? ''}${r.weapon ?? ''}${r.level ?? ''}`).join(',')}`;
+    const key = `${e.merchant}:${e.rows.map((r) => `${r.index}${r.boost ?? ''}${r.slot ?? ''}${r.weapon ?? ''}${r.level ?? ''}${r.uses ?? ''}`).join(',')}`;
     if (key !== this.builtFor) this.build(e.merchant, e.rows, key);
     this.el.hidden = false;
     e.rows.forEach((r, i) => {
@@ -134,8 +135,8 @@ export class ShopPanel {
       row.className = 'shop-row';
       const icon = document.createElement('span');
       icon.className = 'shop-row__icon';
-      // An upgrade row shows its kind (the weapon is in its text); the special's rows, their weapon.
-      const iconName = r.boost ? BOOST_ICONS[r.boost] : UPGRADE_OF[r.item] ? ITEM_ICONS[r.item] : r.weapon ? WEAPON_ICONS[r.weapon] : ITEM_ICONS[r.item];
+      // An upgrade or repair row shows its item (the weapon is in its text); the special's rows, their weapon.
+      const iconName = r.boost ? BOOST_ICONS[r.boost] : UPGRADE_OF[r.item] || r.item === 'repair' ? ITEM_ICONS[r.item] : r.weapon ? WEAPON_ICONS[r.weapon] : ITEM_ICONS[r.item];
       icon.appendChild(pixelIcon(iconName, 18, color));
       const text = document.createElement('span');
       text.className = 'shop-row__text';
@@ -190,7 +191,7 @@ export class ShopPanel {
   }
 }
 
-/** What the row says under its name: the boost drawn, the weapon to upgrade and the next level, the weapon's special. */
+/** What the row says under its name: the boost drawn, the weapon to upgrade and the next level, the weapon's special, the wear to repair. */
 function rowDescription(r: ShopRow): string {
   if (r.boost) return STRINGS.shop.boosts[r.boost];
   const kind = UPGRADE_OF[r.item];
@@ -203,6 +204,7 @@ function rowDescription(r: ShopRow): string {
     return STRINGS.shop.levelUp(STRINGS.weapons[r.weapon], level, max, next === undefined ? null : STRINGS.shop.upgradeEffect(kind, next));
   }
   if (r.item === 'weapon_special' && r.weapon) return STRINGS.shop.specials[r.weapon] ?? STRINGS.weapons[r.weapon];
+  if (r.item === 'repair' && r.weapon) return STRINGS.shop.repairState(STRINGS.weapons[r.weapon], r.uses ?? 0, r.maxUses ?? 0);
   return STRINGS.shop.items[r.item].description;
 }
 

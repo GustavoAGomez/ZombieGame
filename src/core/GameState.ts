@@ -31,6 +31,10 @@ export interface WeaponSlotState {
   overheat: number;
   /** Seconds until a melee weapon can sweep again (the katana's cooldown); it runs down in the holster too. */
   cooldown: number;
+  /** Sweeps left before a weapon that wears out breaks (WeaponDef.durability; 0 for the others, and once broken). */
+  uses: number;
+  /** Times a beam weapon has overheated (it breaks at WeaponDef.battery.breaksAfter). */
+  overheats: number;
 }
 
 /**
@@ -440,6 +444,8 @@ export function createWeaponSlot(id: WeaponId): WeaponSlotState {
     batteryIdle: 0,
     overheat: 0,
     cooldown: 0,
+    uses: stats.durability ?? 0,
+    overheats: 0,
   };
 }
 

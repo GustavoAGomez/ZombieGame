@@ -53,7 +53,7 @@ export function shopItemStatus(state: GameState, merchantIndex: number, playerIn
   const item = def?.items[itemIndex];
   if (!m || !p || !def || !item) return { kind: 'hidden' };
   const effect = EFFECTS[item.id];
-  if (!effect || (effect.perWeapon && !p.weapons[slot])) return { kind: 'hidden' };
+  if (!effect || (effect.perWeapon && !p.weapons[slot]) || effect.shows?.(p, slot) === false) return { kind: 'hidden' };
   if (def.maxPurchasesPerVisit !== undefined && (m.visitPurchases[playerIndex] ?? 0) >= def.maxPurchasesPerVisit) return { kind: 'limit' };
   const reason = effect.unavailable(p, slot);
   if (reason) return { kind: 'unavailable', reason };
@@ -107,6 +107,8 @@ interface ItemEffect {
   upgrade?: UpgradeKind;
   /** One row per weapon the player carries; `slot` says which (−1 for the other items). */
   perWeapon?: boolean;
+  /** Whether it is on sale for this player (and weapon) at all; missing: always. */
+  shows?(p: PlayerState, slot: number): boolean;
   /** Why it would do nothing for this player, or null when it is worth buying. */
   unavailable(p: PlayerState, slot: number): ShopReason | null;
   apply(p: PlayerState, merchant: MerchantState, slot: number): void;
@@ -129,6 +131,22 @@ const EFFECTS: Partial<Record<MerchantItemId, ItemEffect>> = {
   round_boost: {
     unavailable: () => null,
     apply: (p, m) => storeBoost(p, m.boost),
+  },
+  // Blue merchant: a weapon that wears out (the katana) back to all its uses, broken or not; only for such a weapon.
+  repair: {
+    perWeapon: true,
+    shows: (p, slot) => {
+      const weapon = p.weapons[slot];
+      return weapon !== undefined && WEAPONS[weapon.id].durability !== undefined;
+    },
+    unavailable: (p, slot) => {
+      const weapon = p.weapons[slot];
+      return weapon && weapon.uses >= (WEAPONS[weapon.id].durability ?? 0) ? 'likeNew' : null;
+    },
+    apply: (p, _m, slot) => {
+      const weapon = p.weapons[slot];
+      if (weapon) weapon.uses = WEAPONS[weapon.id].durability ?? weapon.uses;
+    },
   },
   // Red merchant: one more level of a kind of upgrade, for the weapon in hand (spec 04 §1).
   upgrade_ammo: upgradeEffect('ammo'),

@@ -9,7 +9,7 @@ import { COLORS } from './theme';
 export type MerchantId = 'blue' | 'red' | 'gold';
 
 /** What merchants sell (spec 03 §4 and §6, spec 04 §1). */
-export type MerchantItemId = 'max_ammo' | 'round_boost' | 'upgrade_ammo' | 'upgrade_fire_rate' | 'upgrade_damage' | 'weapon_special';
+export type MerchantItemId = 'max_ammo' | 'round_boost' | 'repair' | 'upgrade_ammo' | 'upgrade_fire_rate' | 'upgrade_damage' | 'weapon_special';
 
 export interface MerchantItem {
   id: MerchantItemId;
@@ -46,6 +46,8 @@ export const MERCHANTS: readonly MerchantDef[] = [
     items: [
       { id: 'max_ammo', price: 750 },
       { id: 'round_boost', price: 1000 },
+      // Back to all its uses, for a weapon that wears out (the katana): only shown while carrying one.
+      { id: 'repair', price: 1500 },
     ],
   },
   // Red comes out of the garden pool when the heart and the wand are thrown in (spec 05 §6).

@@ -162,4 +162,40 @@ describe('laser', () => {
     presenter.publish(ctx.state);
     expect(weapon).toHaveBeenLastCalledWith(expect.objectContaining({ battery: 0, overheated: true }));
   });
+
+  it('breaks for good the 8th time it overheats: it is lost and the next weapon is taken', () => {
+    const ctx = withLaser();
+    const p = player(ctx);
+    p.weapons.push(createWeaponSlot('pistol'), createWeaponSlot('smg'));
+    const broken = vi.fn();
+    ctx.events.on('weapon:broken', broken);
+    beamEast(ctx);
+    // The first seven only lock it for a while.
+    for (let n = 1; n < BATTERY.breaksAfter!; n++) {
+      slot(ctx).battery = 0.01;
+      slot(ctx).overheat = 0;
+      updateWeapons(ctx, DT);
+      expect(slot(ctx)).toMatchObject({ id: 'laser', overheats: n });
+    }
+    expect(broken).not.toHaveBeenCalled();
+    slot(ctx).battery = 0.01;
+    slot(ctx).overheat = 0;
+    updateWeapons(ctx, DT);
+    expect(p.weapons.map((w) => w.id)).toEqual(['pistol', 'smg']);
+    expect(p.activeSlot).toBe(0);
+    expect(p.beamOn).toBe(false);
+    expect(broken).toHaveBeenCalledWith({ playerId: p.id, weapon: 'laser', lost: true });
+  });
+
+  it('shows on the HUD how many overheats it can still take', () => {
+    const ctx = withLaser();
+    const presenter = new HudPresenter(ctx.events, ctx.map);
+    const weapon = vi.fn();
+    ctx.events.on('weapon:state', weapon);
+    presenter.publish(ctx.state);
+    expect(weapon).toHaveBeenLastCalledWith(expect.objectContaining({ overheatsLeft: 8, uses: null }));
+    slot(ctx).overheats = 5;
+    presenter.publish(ctx.state);
+    expect(weapon).toHaveBeenLastCalledWith(expect.objectContaining({ overheatsLeft: 3 }));
+  });
 });

@@ -143,6 +143,50 @@
   display: block;
 }
 
+/* A weapon that wears out (the katana): its uses left in place of the ∞, next to its cooldown bar. */
+.hud-weapon.is-infinite.has-uses .hud-mag {
+  display: inline;
+}
+
+.hud-weapon.has-uses .hud-ammo__infinite {
+  display: none;
+}
+
+.hud-broken {
+  display: none;
+  font-family: var(--font-display);
+  font-size: 8px;
+  color: var(--red);
+  text-shadow: 2px 2px 0 var(--ink);
+}
+
+.hud-weapon.is-broken .hud-mag {
+  color: var(--red);
+}
+
+.hud-weapon.is-broken .hud-broken {
+  display: inline;
+  animation: hud-blink 0.4s steps(1, end) infinite;
+}
+
+/* The laser's overheats left before it breaks for good, a box each next to its battery. */
+.hud-weapon .hud-overheats {
+  display: none;
+}
+
+.hud-weapon.is-battery .hud-overheats:not(:empty) {
+  display: flex;
+}
+
+.hud-overheats .hud-mark__box {
+  width: 4px;
+  height: 4px;
+}
+
+.hud-overheats .hud-mark__box.is-on {
+  background: var(--red);
+}
+
 /* Upgrade stars next to the weapon's name, and the name in amber with the special (spec 03 §6). */
 /* The weapon's upgrade marks: per kind its 7 px icon and a 3 px box per level, amber once bought. */
 .hud-marks {

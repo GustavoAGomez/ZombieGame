@@ -57,15 +57,15 @@ describe('katana', () => {
     expect(p.money).toBe(money + 2 * POINTS.meleeHit);
   });
 
-  it('needs no ammo, sweeps at once on the press and then every 5 s while held', () => {
+  it('needs no ammo, sweeps at once on the press and then every second while held', () => {
     const ctx = withKatana();
     const p = player(ctx);
     const z = placeZombie(ctx, 0, p.x + 25, p.y, 1000);
     swingEast(ctx); // the very first tick: no wait before it
     expect(z.hp).toBe(1000 - KATANA.damage);
-    for (let t = 1; t < 60 * 11; t++) updateWeapons(ctx, DT); // 11 s held
-    // Sweeps at 0, 5 and 10 s.
-    expect(z.hp).toBe(1000 - 3 * KATANA.damage);
+    for (let t = 1; t < 60 * 3.5; t++) updateWeapons(ctx, DT); // 3.5 s held
+    // Sweeps at 0, 1, 2 and 3 s.
+    expect(z.hp).toBe(1000 - 4 * KATANA.damage);
     expect(p.weapons[0]).toMatchObject({ magazine: 0, reserve: 0 });
     expect(p.reloadTimer).toBe(0);
     expect(p.meleeCooldown).toBe(0); // never the knife instead
@@ -77,19 +77,19 @@ describe('katana', () => {
     p.weapons.push(createWeaponSlot('pistol'));
     const z = placeZombie(ctx, 0, p.x + 25, p.y, 1000);
     swingEast(ctx);
-    expect(p.weapons[0]!.cooldown).toBeCloseTo(5, 1);
-    // To the pistol: it fires at once, the katana's cooldown does not hold it.
+    expect(p.weapons[0]!.cooldown).toBeCloseTo(1, 1);
+    // To the pistol: it fires as soon as it is in hand, the katana's cooldown does not hold it.
     command(ctx).fire = false;
     command(ctx).selectWeapon = 1;
     updateWeapons(ctx, DT);
     command(ctx).selectWeapon = -1;
-    for (let t = 0; t < 60; t++) updateWeapons(ctx, DT);
+    for (let t = 0; t < 25; t++) updateWeapons(ctx, DT);
     p.firing = true;
     p.aimTime = 1;
     command(ctx).fire = true;
     updateWeapons(ctx, DT);
     expect(p.weapons[1]!.magazine).toBe(WEAPONS.pistol.magazine - 1);
-    // Back to the katana after 1 s or so: still cooling down, no sweep.
+    // Back to the katana, under a second after its sweep: still cooling down, no sweep.
     command(ctx).fire = false;
     command(ctx).selectWeapon = 0;
     updateWeapons(ctx, DT);
@@ -98,7 +98,7 @@ describe('katana', () => {
     const hp = z.hp;
     swingEast(ctx);
     expect(z.hp).toBe(hp);
-    expect(p.weapons[0]!.cooldown).toBeGreaterThan(3);
+    expect(p.weapons[0]!.cooldown).toBeGreaterThan(0);
   });
 
   it('shows its cooldown on the HUD, filling back up in place of the ∞', () => {
@@ -111,7 +111,7 @@ describe('katana', () => {
     swingEast(ctx);
     presenter.publish(ctx.state);
     expect(weapon).toHaveBeenLastCalledWith(expect.objectContaining({ cooldown: 1 }));
-    for (let t = 0; t < 150; t++) updateWeapons(ctx, DT); // half of the 5 s
+    for (let t = 0; t < 30; t++) updateWeapons(ctx, DT); // half of the second
     presenter.publish(ctx.state);
     const last = weapon.mock.lastCall?.[0] as { cooldown: number } | undefined;
     expect(last?.cooldown).toBeGreaterThan(0.45);
@@ -191,5 +191,51 @@ describe('katana', () => {
     const weapon = objects.find((o) => o.type === 'weapon_case')?.properties?.find((q) => q.name === 'weapon');
     if (weapon) weapon.value = 'katana';
     expect(() => parseMap(raw)).toThrow(/only sell basic weapons/);
+  });
+
+  it('wears out: 60 sweeps, and the last one breaks it; broken, it stays in its slot and cuts nothing', () => {
+    const ctx = withKatana();
+    const p = player(ctx);
+    p.weapons.push(createWeaponSlot('pistol'));
+    expect(p.weapons[0]!.uses).toBe(60);
+    const broken = vi.fn();
+    ctx.events.on('weapon:broken', broken);
+    const z = placeZombie(ctx, 0, p.x + 25, p.y, 1000);
+    swingEast(ctx);
+    expect(p.weapons[0]!.uses).toBe(59);
+    p.weapons[0]!.uses = 1;
+    p.weapons[0]!.cooldown = 0;
+    swingEast(ctx);
+    expect(p.weapons[0]!.uses).toBe(0);
+    expect(broken).toHaveBeenCalledWith({ playerId: p.id, weapon: 'katana', lost: false });
+    const hp = z.hp;
+    for (let t = 0; t < 120; t++) updateWeapons(ctx, DT); // held 2 s: nothing more
+    expect(z.hp).toBe(hp);
+    expect(p.weapons.map((w) => w.id)).toEqual(['katana', 'pistol']);
+    expect(broken).toHaveBeenCalledTimes(1);
+  });
+
+  it('broken and with no ammo anywhere else, the knife slashes instead', () => {
+    const ctx = withKatana();
+    const p = player(ctx);
+    p.weapons[0]!.uses = 0;
+    swingEast(ctx);
+    expect(p.meleeCooldown).toBeGreaterThan(0);
+    expect(p.meleeRange).toBe(MELEE.range);
+  });
+
+  it('shows its uses left on the HUD and in its slot, 0 once broken', () => {
+    const ctx = withKatana();
+    const presenter = new HudPresenter(ctx.events, ctx.map);
+    const weapon = vi.fn();
+    const loadout = vi.fn();
+    ctx.events.on('weapon:state', weapon);
+    ctx.events.on('weapons:loadout', loadout);
+    presenter.publish(ctx.state);
+    expect(weapon).toHaveBeenLastCalledWith(expect.objectContaining({ uses: 60, overheatsLeft: null }));
+    swingEast(ctx);
+    presenter.publish(ctx.state);
+    expect(weapon).toHaveBeenLastCalledWith(expect.objectContaining({ uses: 59 }));
+    expect(loadout).toHaveBeenLastCalledWith({ slots: [expect.objectContaining({ weapon: 'katana', uses: 59 })], active: 0 });
   });
 });

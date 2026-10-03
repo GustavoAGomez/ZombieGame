@@ -6,6 +6,7 @@ import { damageFactor } from './BoostSystem';
 import { damageZombie, isZombieAlive, type HitPoint } from './Combat';
 import { bodyEntry, hurtboxOf, muzzleFor } from './shotGeometry';
 import type { SimContext } from './SimContext';
+import { removeWeapon } from './InventorySystem';
 import { bulletDamage, fireRate } from './weaponStats';
 
 /**
@@ -19,6 +20,8 @@ import { bulletDamage, fireRate } from './weaponStats';
  *
  * Its battery drains while firing and refills by itself after a pause.
  * Running dry overheats it: locked for a while, then it recharges as usual.
+ * The time it overheats for battery.breaksAfter, it breaks for good: it is
+ * lost, and the next weapon is taken in hand.
  */
 
 const scoreTicks = Math.round(CONTINUOUS.scoreInterval * SIM.hz);
@@ -37,6 +40,13 @@ export function fireBeam(ctx: SimContext, p: PlayerState, slot: WeaponSlotState,
   if (slot.battery <= 0) {
     slot.battery = 0;
     slot.overheat = battery.overheatTime;
+    slot.overheats++;
+    if (battery.breaksAfter !== undefined && slot.overheats >= battery.breaksAfter) {
+      p.beamOn = false;
+      removeWeapon(p, p.weapons.indexOf(slot));
+      ctx.events.emit('weapon:broken', { playerId: p.id, weapon: slot.id, lost: true });
+      return;
+    }
   }
   const aim = Math.atan2(p.aimY, p.aimX);
   const m = muzzleFor(ctx.muzzles, aim);

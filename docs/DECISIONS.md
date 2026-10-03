@@ -1433,3 +1433,22 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - Hecho el pacto y sin dinero, el botón dice «FALTAN X$», atenuado, como sin vida suficiente.
   - Si la mano estaba cansada, la burla devuelve los 50 de vida, y el pacto no se vuelve a ofrecer porque la mano se muda.
   - Con `MANO GRATIS` (debug) el pacto no cobra ni cuenta.
+
+## Katana que se desgasta y láser que se rompe (petición del usuario)
+
+- **Katana:**
+  - Barre una vez por segundo (`fireRate` 1, antes 1/5).
+  - Aguanta 60 barridos (`durability` en `weapons.ts`); cada barrido cuenta, dé o no a algún zombi.
+  - Al quedarse sin usos **se queda rota en su hueco**, a elección del usuario: no corta, ocupa sitio y se puede sustituir como cualquier arma.
+  - Rota no cuenta como «algo con lo que atacar»: si las demás armas no tienen munición, el botón de disparo da cuchilladas.
+- **Reparar en el mago azul** (`repair`, 1500$):
+  - Es una fila por arma que se desgasta (`shows` en `ShopSystem`): solo la katana, y solo si la llevas.
+  - La devuelve a 60 usos, rota o solo gastada; con los 60 dice «COMO NUEVA».
+  - No tiene límite de compras por visita, como el resto del mago azul.
+- **Láser:** a la 8.ª vez que se sobrecalienta (`battery.breaksAfter`) se rompe del todo.
+  - Sale del inventario (`removeWeapon`) y pasa a la mano el arma que quede en su hueco (la siguiente, o la anterior si era la última).
+  - No se repara. Uno nuevo de la mano empieza de cero.
+- **HUD:**
+  - La katana muestra sus usos en lugar del ∞, en el HUD y en su hueco de la barra de armas; rota, en rojo con «ROTA» parpadeando, y su hueco sale vacío.
+  - El láser muestra una casilla roja por cada sobrecalentamiento que aún aguanta.
+  - Al romperse cualquiera de las dos, aviso en rojo en el centro (`weapon:broken`).

@@ -31,6 +31,8 @@ describe('HudPresenter', () => {
       battery: 1,
       overheated: false,
       cooldown: 0,
+      uses: null,
+      overheatsLeft: null,
     });
     expect(cooldown).toHaveBeenCalledTimes(1);
 
@@ -52,8 +54,8 @@ describe('HudPresenter', () => {
     expect(loadout).toHaveBeenCalledTimes(1);
     expect(loadout).toHaveBeenLastCalledWith({
       slots: [
-        { weapon: 'pistol', ammo: 'rounds', magazine: 8, reserve: 64 },
-        { weapon: 'smg', ammo: 'rounds', magazine: 30, reserve: 120 },
+        { weapon: 'pistol', ammo: 'rounds', magazine: 8, reserve: 64, uses: null },
+        { weapon: 'smg', ammo: 'rounds', magazine: 30, reserve: 120, uses: null },
       ],
       active: 0,
     });

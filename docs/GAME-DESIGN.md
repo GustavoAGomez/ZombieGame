@@ -23,8 +23,11 @@ El daño se cuenta en las mismas unidades que la vida de los zombis: una bala de
 
 **Katana** (especial):
 - **Barrido:** 4 de daño a cada zombi dentro de un arco de 140° delante del jugador, hasta 102 px del borde de su cuerpo. Empuja 6 px a cada uno.
-- **Enfriamiento de 5 s entre barridos:** manteniendo pulsado, barre en cuanto puede. El enfriamiento es del arma y corre también enfundada: cambiar de arma no lo salta ni bloquea a las demás.
-- **Sin munición ni recarga:** en el HUD, donde irían los números, sale ∞. Mientras se enfría, una barra que se va llenando ocupa su sitio.
+- **Un barrido por segundo:** manteniendo pulsado, barre en cuanto puede. El enfriamiento es del arma y corre también enfundada: cambiar de arma no lo salta ni bloquea a las demás.
+- **Se desgasta: 60 usos.** Cada barrido gasta uno, dé o no a algún zombi. El último la rompe: se queda en su hueco pero no corta, hasta que el mago azul la repara.
+  - Aviso «LA KATANA SE HA ROTO».
+  - Rota, y sin munición en las demás armas, el botón de disparo da cuchilladas.
+- **Sin munición ni recarga.** En el HUD, donde irían los números, salen los usos que le quedan (también en su hueco de la barra de armas). Mientras se enfría, una barra que se va llenando aparece a su lado; rota, el número sale en rojo con «ROTA» parpadeando.
 - **Al pulsar:** el barrido sale sin la espera del primer disparo, y el jugador corre a su velocidad normal mientras ataca.
 - **Dirección:** la del arrastre del botón de disparo. Sin arrastre, hacia el zombi más cercano a su alcance, como el cuchillo.
 - **Bloqueos y puntos:** una pared entre medias protege al zombi (una ventana no). Puntúa como el cuchillo: 10 por cada zombi golpeado.
@@ -36,6 +39,8 @@ El daño se cuenta en las mismas unidades que la vida de los zombis: una bala de
 - **Puntos:** un impacto (5) por zombi cada 0,5 s de contacto. Muere como siempre: 50 por la muerte.
 - **Batería de 100 en lugar de munición:** se gasta a 25 por segundo (4 s de rayo) y se recarga sola a 20 por segundo tras 0,8 s sin disparar, también enfundado. Ni la munición máxima ni los premios de munición le afectan.
 - **Sobrecalentamiento:** si se vacía, el arma se bloquea 3 s y luego recarga con normalidad. En el HUD, la barra de batería parpadea en rojo con «SOBRECALENTADO».
+- **Se rompe del todo a la 8.ª vez que se sobrecalienta:** se pierde, sin arreglo, y pasa a la mano el arma siguiente. Aviso «EL LÁSER SE HA ROTO».
+  - Junto a la batería, una casilla roja por cada sobrecalentamiento que aún aguanta.
 - Respeta la espera del primer disparo y frena al jugador como las armas de fuego. Un toque más corto que la espera no dispara.
 
 **Lanzallamas infernal** (especial):
@@ -101,6 +106,7 @@ Magos con gabardina que venden munición y mejoras. Sus puntos de aparición son
 |---|---|---|---|
 | **Azul** | Desde la ronda 2, primero en la zona inicial | **Munición máxima:** llena cargadores y reservas de todas las armas | 750$ |
 | | | **Mejora de la ronda:** una mejora temporal sorteada en cada visita (velocidad ×1,5 o doble daño ×2). Se guarda en su botón y se activa cuando quieras; dura 10 s. Comprar otra sustituye a la guardada | 1000$ |
+| | | **Reparar:** devuelve la katana a sus 60 usos, rota o solo gastada. Solo aparece si llevas la katana; sin gastar, dice «COMO NUEVA» | 1500$ |
 | **Rojo** | Cuando se invoca en la piscina (ver *Objetos especiales*); desde la ronda siguiente se teletransporta como los demás | **Mejorar munición, cadencia o daño** del arma en mano, a elegir: una fila por tipo, con el nivel al que sube y lo que da. Una compra por visita, del tipo que sea. En el último nivel de un tipo dice «NIVEL MÁXIMO» | 1500$ el nivel 1, 3000$ el 2 y 5000$ el 3 |
 | **Dorado** | Todavía sin regla de aparición (solo con el panel de depuración) | **Mejora especial:** la especial de un arma que llevas, una fila por arma. Una vez comprada dice «YA TIENE ESPECIAL» | 10000$ |
 

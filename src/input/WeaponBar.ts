@@ -59,11 +59,11 @@ export class WeaponBar {
         button.setIcon(WEAPON_ICONS[slot.weapon], iconSize(WEAPON_ICONS[slot.weapon], 1));
         button.el.setAttribute('aria-label', `${STRINGS.controls.weaponSlot(i + 1)}: ${STRINGS.weapons[slot.weapon]}`);
       }
-      // A weapon without rounds (the katana) shows no count and is never empty.
+      // A weapon without rounds shows no count, but one that wears out (the katana) shows its uses left; broken, it is empty.
       const rounds = slot.ammo === 'rounds';
-      button.setLabel(rounds ? String(slot.magazine) : '');
+      button.setLabel(rounds ? String(slot.magazine) : slot.uses !== null ? String(slot.uses) : '');
       button.el.classList.toggle('is-active', i === active);
-      button.el.classList.toggle('is-empty', rounds && slot.magazine === 0 && slot.reserve === 0);
+      button.el.classList.toggle('is-empty', (rounds && slot.magazine === 0 && slot.reserve === 0) || slot.uses === 0);
     });
   };
 }

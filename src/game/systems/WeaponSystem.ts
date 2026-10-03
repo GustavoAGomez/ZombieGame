@@ -12,7 +12,7 @@ import type { SimContext } from './SimContext';
 import { fireBeam, updateBatteries } from './BeamSystem';
 import { fireCone } from './ConeSystem';
 import { bulletHitsZombie } from './BulletSystem';
-import { ammoKind, bulletDamage, bulletLook, fireRate, magazineSize, reloadTime } from './weaponStats';
+import { ammoKind, bulletDamage, bulletLook, fireRate, isBroken, magazineSize, reloadTime } from './weaponStats';
 
 const centre: Vec2 = { x: 0, y: 0 };
 /** Closer than this (px from the muzzle to the body centre), auto-aim points from the feet. */
@@ -165,11 +165,14 @@ export function aimAtBody(ctx: SimContext, p: PlayerState, zx: number, zy: numbe
   p.aimY = ay / len;
 }
 
-/** Something to attack with: rounds left in any weapon, or a weapon that spends none (the katana) or recharges (the laser). */
+/**
+ * Something to attack with: rounds left in any weapon, or a weapon that
+ * spends none (the katana, unless broken) or recharges (the laser).
+ */
 export function hasAnyAmmo(p: PlayerState): boolean {
   for (let i = 0; i < p.weapons.length; i++) {
     const w = p.weapons[i];
-    if (w && (ammoKind(WEAPONS[w.id]) !== 'rounds' || w.magazine > 0 || w.reserve > 0)) return true;
+    if (w && !isBroken(w) && (ammoKind(WEAPONS[w.id]) !== 'rounds' || w.magazine > 0 || w.reserve > 0)) return true;
   }
   return false;
 }
@@ -206,8 +209,9 @@ function handleFire(ctx: SimContext, p: PlayerState, held: boolean, dt: number):
     return;
   }
   // A melee weapon waits for its own cooldown, not the player's: a swap neither skips it nor blocks the guns.
+  // Broken (out of uses), it does nothing until the blue merchant repairs it.
   if (attack === 'melee') {
-    if (slot.cooldown <= 0) sweep(ctx, p, slot);
+    if (slot.cooldown <= 0 && !isBroken(slot)) sweep(ctx, p, slot);
     return;
   }
   if (p.fireCooldown > 0) return;
@@ -219,12 +223,17 @@ function handleFire(ctx: SimContext, p: PlayerState, held: boolean, dt: number):
  * whose hitbox edge is within the weapon's range and inside its arc around
  * the aim takes its damage (with double damage) and a push away from the
  * player, and scores like a knife hit. A wall in between protects it, as
- * from a bullet; a window does not.
+ * from a bullet; a window does not. Each sweep wears it: out of uses, it
+ * breaks (and stays in its slot, useless, until repaired).
  */
 function sweep(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
   const { state } = ctx;
   const def = WEAPONS[slot.id];
   slot.cooldown = 1 / fireRate(slot);
+  if (def.durability !== undefined) {
+    slot.uses = Math.max(0, slot.uses - 1);
+    if (slot.uses === 0) ctx.events.emit('weapon:broken', { playerId: p.id, weapon: slot.id, lost: false });
+  }
   p.lastAttackTick = state.tick;
   const minCos = Math.cos(degToRad(def.arc ?? 0) / 2);
   const damage = bulletDamage(slot) * damageFactor(p);

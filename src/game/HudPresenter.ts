@@ -10,7 +10,7 @@ import { portalTarget } from './systems/PortalSystem';
 import { isPerWeapon, itemPrice, shopItemStatus, upgradeKindOf } from './systems/ShopSystem';
 import { batteryLevel } from './systems/BeamSystem';
 import { handOffer } from './systems/HandSystem';
-import { ammoKind, fireRate, magazineSize, maxUpgradeLevel, totalLevels } from './systems/weaponStats';
+import { ammoKind, fireRate, magazineSize, maxUpgradeLevel, overheatsLeft, totalLevels, usesLeft } from './systems/weaponStats';
 import { caseOffer } from './systems/WeaponCaseSystem';
 import { hasItemRoom } from './systems/ItemSystem';
 import { reloadProgress } from './systems/WeaponSystem';
@@ -36,6 +36,8 @@ export class HudPresenter {
   private battery = -1;
   private overheated = false;
   private cooldown = -1;
+  private uses: number | null = -1;
+  private overheatsLeft: number | null = -1;
   private cooldownStep = -1;
   private hp = -1;
   private round = -1;
@@ -74,7 +76,10 @@ export class HudPresenter {
         if (isPerWeapon(item.id)) {
           return (p?.weapons ?? []).flatMap((weapon, slot) => {
             const status = shopItemStatus(state, merchant, playerIndex, index, slot);
-            return status.kind === 'hidden' || !p ? [] : [{ index, item: item.id, price: itemPrice(p, item), status, slot, weapon: weapon.id }];
+            if (status.kind === 'hidden' || !p) return [];
+            const row = { index, item: item.id, price: itemPrice(p, item), status, slot, weapon: weapon.id };
+            // A repair row says how worn the weapon is.
+            return item.id === 'repair' ? [{ ...row, uses: weapon.uses, maxUses: WEAPONS[weapon.id].durability ?? 0 }] : [row];
           });
         }
         const status = shopItemStatus(state, merchant, playerIndex, index);
@@ -220,6 +225,9 @@ export class HudPresenter {
       const overheated = slot.overheat > 0;
       // A melee weapon's cooldown (the katana), as the part still to run, in the same steps.
       const cooldown = Math.ceil(slot.cooldown * fireRate(slot) * BATTERY_STEPS) / BATTERY_STEPS;
+      // Wear: the katana's uses left, the laser's overheats left before it breaks.
+      const uses = usesLeft(slot);
+      const overheats = overheatsLeft(slot);
       if (
         slot.id !== this.weapon ||
         slot.magazine !== this.magazine ||
@@ -229,6 +237,8 @@ export class HudPresenter {
         battery !== this.battery ||
         overheated !== this.overheated ||
         cooldown !== this.cooldown ||
+        uses !== this.uses ||
+        overheats !== this.overheatsLeft ||
         levelsKey(slot) !== this.levels ||
         slot.special !== this.special
       ) {
@@ -242,6 +252,8 @@ export class HudPresenter {
         this.battery = battery;
         this.overheated = overheated;
         this.cooldown = cooldown;
+        this.uses = uses;
+        this.overheatsLeft = overheats;
         this.events.emit('weapon:state', {
           weapon: slot.id,
           levels: { ...slot.levels },
@@ -256,22 +268,25 @@ export class HudPresenter {
           battery,
           overheated,
           cooldown,
+          uses,
+          overheatsLeft: overheats,
         });
       }
     }
 
     // Weapon slots: published when a weapon, the active one or any ammo count changes.
-    let loadoutChanged = p.activeSlot !== this.loadoutActive || this.loadout.length !== p.weapons.length * 3;
+    let loadoutChanged = p.activeSlot !== this.loadoutActive || this.loadout.length !== p.weapons.length * 4;
     for (let i = 0; i < p.weapons.length && !loadoutChanged; i++) {
       const w = p.weapons[i];
-      loadoutChanged = !w || this.loadout[i * 3] !== w.id || this.loadout[i * 3 + 1] !== w.magazine || this.loadout[i * 3 + 2] !== w.reserve;
+      loadoutChanged =
+        !w || this.loadout[i * 4] !== w.id || this.loadout[i * 4 + 1] !== w.magazine || this.loadout[i * 4 + 2] !== w.reserve || this.loadout[i * 4 + 3] !== w.uses;
     }
     if (loadoutChanged) {
       this.loadoutActive = p.activeSlot;
       this.loadout.length = 0;
-      for (const w of p.weapons) this.loadout.push(w.id, w.magazine, w.reserve);
+      for (const w of p.weapons) this.loadout.push(w.id, w.magazine, w.reserve, w.uses);
       this.events.emit('weapons:loadout', {
-        slots: p.weapons.map((w) => ({ weapon: w.id, ammo: ammoKind(WEAPONS[w.id]), magazine: w.magazine, reserve: w.reserve })),
+        slots: p.weapons.map((w) => ({ weapon: w.id, ammo: ammoKind(WEAPONS[w.id]), magazine: w.magazine, reserve: w.reserve, uses: usesLeft(w) })),
         active: p.activeSlot,
       });
     }

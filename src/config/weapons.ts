@@ -68,7 +68,15 @@ export interface WeaponStats {
     rechargeDelay: number;
     /** Seconds locked after running dry; then it recharges as usual. */
     overheatTime: number;
+    /** It breaks for good, and is lost, the time it overheats for this many; missing: never. */
+    breaksAfter?: number;
   };
+  /**
+   * Sweeps a melee weapon gives before it breaks (the katana). Broken, it
+   * stays in its slot, useless, until the blue merchant repairs it back to
+   * this many. Missing: it never wears out.
+   */
+  durability?: number;
   /** A cone weapon (the flamethrower): rounds of ammo spent per second of jet. */
   fuelPerSecond?: number;
   /** A cone weapon: every zombie it touches burns this much in total over `duration` s (BurnSystem). */
@@ -215,8 +223,8 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDef>> = {
     category: 'special',
     attack: 'melee',
     damage: 4,
-    /** One sweep every 5 s: the weapon's own cooldown, running in the holster too, so a swap does not skip it. */
-    fireRate: 1 / 5,
+    /** One sweep a second: the weapon's own cooldown, running in the holster too, so a swap does not skip it. */
+    fireRate: 1,
     magazine: 0,
     startReserve: 0,
     maxReserve: 0,
@@ -224,6 +232,8 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDef>> = {
     range: 102,
     arc: 140,
     knockback: 6,
+    /** 60 sweeps, then it breaks until the blue merchant repairs it. */
+    durability: 60,
     firstShotDelay: 0,
     upgrades: {},
     special: 'blood_edge',
@@ -242,8 +252,8 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDef>> = {
     reloadTime: 0,
     /** Walls stop it; zombies do not. */
     range: 280,
-    /** 4 s of beam on a full battery. */
-    battery: { capacity: 100, drain: 25, recharge: 20, rechargeDelay: 0.8, overheatTime: 3 },
+    /** 4 s of beam on a full battery; the 8th time it overheats, it breaks for good. */
+    battery: { capacity: 100, drain: 25, recharge: 20, rechargeDelay: 0.8, overheatTime: 3, breaksAfter: 8 },
     firstShotDelay: FIRST_SHOT_DELAY,
     upgrades: {},
     special: 'overcharge',

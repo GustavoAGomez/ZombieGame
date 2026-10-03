@@ -1,7 +1,7 @@
 import { DOORS, HAND, ITEMS, MERCHANT, POINTS, WAVES, type BoostKind } from '../../config/balance';
 import { merchantDef } from '../../config/merchants';
 import { COLORS } from '../../config/theme';
-import { UPGRADE_KINDS, type UpgradeKind } from '../../config/weapons';
+import { UPGRADE_KINDS, WEAPONS, type UpgradeKind } from '../../config/weapons';
 
 /** Colour of each boost's notice: amber like the speed bolt, light blue like the double damage bullets. */
 const BOOST_COLORS: Record<BoostKind, string> = { speed: COLORS.amber, double_damage: COLORS.boostDamage };
@@ -35,10 +35,13 @@ export class Hud {
   /** The weapon's upgrade marks: per kind, its icon and a box per level, filled when bought. */
   private readonly marks: HTMLSpanElement;
   private shownLevels = '';
+  /** The laser's overheat marks last drawn, as "left/total". */
+  private shownOverheats = '';
   private readonly magazine: HTMLSpanElement;
   private readonly reloadFill: HTMLDivElement;
   /** A beam weapon's battery instead of the ammo (spec 06 §2.1). */
   private readonly batteryFill: HTMLDivElement;
+  private readonly overheatMarks: HTMLSpanElement;
   private readonly reserve: HTMLSpanElement;
   private readonly floats: HTMLDivElement;
   private readonly floatPool: HTMLSpanElement[] = [];
@@ -101,7 +104,12 @@ export class Hud {
     battery.appendChild(this.batteryFill);
     const overheated = el('span', 'hud-battery__label');
     overheated.textContent = STRINGS.hud.overheated;
-    ammoRow.append(bullet, infinite, battery, overheated, this.magazine, reload, this.reserve);
+    // Its overheats left before it breaks for good: a box each, lit while still to come.
+    this.overheatMarks = el('span', 'hud-mark hud-overheats');
+    // A weapon that wears out (the katana) shows its uses left in place of the ∞, and ROTA once out of them.
+    const broken = el('span', 'hud-broken');
+    broken.textContent = STRINGS.hud.broken;
+    ammoRow.append(bullet, infinite, this.magazine, battery, this.overheatMarks, overheated, broken, reload, this.reserve);
     this.weaponRow.append(nameRow, ammoRow);
     // An empty row kept for future stats and perks (spec 01 §5).
     left.append(this.healthRow, this.round, this.weaponRow, el('div', 'hud-reserved'));
@@ -157,6 +165,7 @@ export class Hud {
       events.on('hand:offer', this.onHandOffer),
       events.on('hand:moved', this.onHandMoved),
       events.on('hand:refunded', this.onHandRefunded),
+      events.on('weapon:broken', this.onWeaponBroken),
     );
   }
 
@@ -250,6 +259,12 @@ export class Hud {
     this.showNotice(STRINGS.hand.moved, 'var(--red)', HAND.movedNoticeTime);
   };
 
+  /** One of this player's weapons broke: the katana out of uses, the laser at its last overheat. */
+  private readonly onWeaponBroken = (e: GameEvents['weapon:broken']): void => {
+    if (e.playerId !== this.localPlayerId) return;
+    this.showNotice(STRINGS.weaponBroken[e.weapon] ?? STRINGS.weapons[e.weapon], 'var(--red)', HAND.movedNoticeTime);
+  };
+
   /** The tired hand gave the payment back: "+950$" (the blood pact's health shows on the bar). */
   private readonly onHandRefunded = (e: GameEvents['hand:refunded']): void => {
     if (e.playerId === this.localPlayerId && !e.blood) this.float(STRINGS.hud.moneyGained(e.amount), false);
@@ -285,12 +300,24 @@ export class Hud {
       );
     }
     this.weaponRow.classList.toggle('is-infinite', e.ammo === 'none');
+    this.weaponRow.classList.toggle('has-uses', e.uses !== null);
+    this.weaponRow.classList.toggle('is-broken', e.uses === 0);
+    const total = WEAPONS[e.weapon].battery?.breaksAfter ?? 0;
+    const overheatsKey = e.overheatsLeft === null ? '' : `${e.overheatsLeft}/${total}`;
+    if (overheatsKey !== this.shownOverheats) {
+      this.shownOverheats = overheatsKey;
+      const left = e.overheatsLeft ?? 0;
+      this.overheatMarks.replaceChildren(...Array.from({ length: e.overheatsLeft === null ? 0 : total }, (_, i) => el('span', i < left ? 'hud-mark__box is-on' : 'hud-mark__box')));
+      this.overheatMarks.setAttribute('aria-label', STRINGS.hud.overheatsLeft(left));
+    }
     this.weaponRow.classList.toggle('is-battery', e.ammo === 'battery');
     this.weaponRow.classList.toggle('is-overheated', e.overheated);
     // The katana's cooldown fills the same bar back up, in place of the ∞, until it can sweep again.
     this.weaponRow.classList.toggle('is-recharging', e.cooldown > 0);
     this.batteryFill.style.transform = `scaleX(${e.cooldown > 0 ? 1 - e.cooldown : e.battery})`;
-    this.magazine.textContent = String(e.magazine);
+    this.magazine.textContent = String(e.uses ?? e.magazine);
+    if (e.uses !== null) this.magazine.setAttribute('aria-label', STRINGS.hud.usesLeft(e.uses));
+    else this.magazine.removeAttribute('aria-label');
     this.reserve.textContent = `/ ${e.reserve}`;
     const reloading = e.reloadProgress !== null;
     this.weaponRow.classList.toggle('is-reloading', reloading);

@@ -36,6 +36,11 @@ export interface GameEvents {
   'hand:refunded': { playerId: number; blood: boolean; amount: number };
   /** The tired hand came up in another zone (spec 06 §3.6): «LA MANO SE HA MOVIDO». */
   'hand:moved': { zone: string };
+  /**
+   * A weapon broke: the katana out of uses (it stays in its slot, useless,
+   * until repaired) or the laser at its last overheat (`lost`: it is gone).
+   */
+  'weapon:broken': { playerId: number; weapon: WeaponId; lost: boolean };
   /** A hellfire burst went off (spec 06 §2.3): the flamethrower's flames burst out there. */
   'fire:blast': { x: number; y: number };
   /** A room was unlocked (its zone id): only now does the HUD say which one, «COCINA DESBLOQUEADA». */
@@ -64,9 +69,16 @@ export interface GameEvents {
     overheated: boolean;
     /** 0..1 of a melee weapon's cooldown still to run, in steps (0: ready to sweep). */
     cooldown: number;
+    /** Uses left of a weapon that wears out (the katana; 0: broken), null for the rest. */
+    uses: number | null;
+    /** Overheats a beam weapon can still take before it breaks for good (the laser), null for the rest. */
+    overheatsLeft: number | null;
   };
-  /** The weapons the player carries (at most LOADOUT.maxWeapons), for the slots at the bottom of the HUD. */
-  'weapons:loadout': { slots: { weapon: WeaponId; ammo: AmmoKind; magazine: number; reserve: number }[]; active: number };
+  /**
+   * The weapons the player carries (at most LOADOUT.maxWeapons), for the
+   * slots at the bottom of the HUD; `uses` for one that wears out (the katana).
+   */
+  'weapons:loadout': { slots: { weapon: WeaponId; ammo: AmmoKind; magazine: number; reserve: number; uses: number | null }[]; active: number };
   'special:cooldown': { remaining: number; total: number };
   /** `points`: everything earned this match (the score); `money`: what is left to spend ($). */
   'points:changed': { points: number; money: number };
@@ -151,6 +163,9 @@ export interface GameEvents {
       weapon?: WeaponId;
       level?: number;
       slot?: number;
+      /** A repair row: the weapon's uses left (0: broken) and all it has when new. */
+      uses?: number;
+      maxUses?: number;
     }[];
   };
   /**

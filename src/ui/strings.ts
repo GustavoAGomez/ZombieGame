@@ -69,6 +69,11 @@ export const STRINGS = {
     battery: 'Batería',
     /** The laser ran dry (spec 06 §2.1): locked for a few seconds. */
     overheated: 'SOBRECALENTADO',
+    /** The katana out of uses: useless until the blue merchant repairs it. */
+    broken: 'ROTA',
+    /** What the laser's marks count: overheats left before it breaks for good. */
+    overheatsLeft: (n: number): string => `Sobrecalentamientos antes de romperse: ${n}`,
+    usesLeft: (n: number): string => `Usos antes de romperse: ${n}`,
     /** Points: everything earned this match (the score). */
     points: 'PUNTOS',
     /** Money to spend, and the floating gains and expenses. */
@@ -117,6 +122,7 @@ export const STRINGS = {
       notUpgradable: 'NO MEJORABLE',
       hasSpecial: 'YA TIENE ESPECIAL',
       noSpecial: 'SIN MEJORA ESPECIAL',
+      likeNew: 'COMO NUEVA',
     },
     comeBack: 'VUELVE EN OTRA RONDA',
     close: 'Cerrar tienda',
@@ -131,6 +137,9 @@ export const STRINGS = {
     /** What a kind of upgrade gives at a level: "munición ×1,5". */
     upgradeEffect: (kind: 'ammo' | 'fire_rate' | 'damage', factor: number): string =>
       `${{ ammo: 'munición', fire_rate: 'cadencia', damage: 'daño' }[kind]} ×${String(factor).replace('.', ',')}`,
+    /** The blue merchant's repair row: the weapon, its uses left (broken at 0) and all it gets back. */
+    repairState: (weapon: string, uses: number, max: number): string =>
+      uses <= 0 ? `${weapon} rota: vuelve a ${max} usos` : `${weapon}: quedan ${uses} de ${max} usos`,
     /** The gold merchant's rows, one per weapon. */
     /** What each weapon's special does (only the weapons that have one). */
     specials: {
@@ -148,6 +157,7 @@ export const STRINGS = {
       upgrade_fire_rate: { name: 'MEJORAR CADENCIA', description: 'El arma en mano dispara más rápido' },
       upgrade_damage: { name: 'MEJORAR DAÑO', description: 'Más daño por bala para el arma en mano' },
       weapon_special: { name: 'MEJORA ESPECIAL', description: 'Una mejora única para un arma' },
+      repair: { name: 'REPARAR', description: 'Devuelve todos sus usos a un arma que se desgasta' },
     },
   },
   actions: {
@@ -185,6 +195,11 @@ export const STRINGS = {
   hand: {
     moved: 'LA MANO SE HA MOVIDO',
   },
+  /** A weapon that broke: the katana out of uses (repairable), the laser at its last overheat (lost). */
+  weaponBroken: {
+    katana: 'LA KATANA SE HA ROTO',
+    laser: 'EL LÁSER SE HA ROTO',
+  } as Readonly<Partial<Record<WeaponId, string>>>,
   /** Special items (spec 05), by id. */
   items: {
     names: { living_heart: 'CORAZÓN VIVO', worn_wand: 'VARITA DESGASTADA' },

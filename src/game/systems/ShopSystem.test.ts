@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { MERCHANT } from '../../config/balance';
 import { WEAPONS } from '../../config/weapons';
 import { merchantDef } from '../../config/merchants';
+import { createWeaponSlot } from '../../core/GameState';
 import { command, createTestContext, player } from '../../test/fixtures';
 import { HudPresenter } from '../HudPresenter';
 import { updateMerchants } from './MerchantSystem';
@@ -13,6 +14,7 @@ type Ctx = ReturnType<typeof createTestContext>;
 
 const MAX_AMMO = 0;
 const ROUND_BOOST = 1;
+const REPAIR = 2;
 
 /** The blue merchant on the map (round 2) with the player standing `dx` px to its right. */
 function atMerchant(dx = 20): Ctx {
@@ -202,5 +204,62 @@ describe('HudPresenter · shop', () => {
       ],
     });
     expect(shops).toHaveLength(3);
+  });
+});
+
+describe('ShopSystem · repairing the katana (blue merchant)', () => {
+  it('only shows while carrying a weapon that wears out, a row for it', () => {
+    const ctx = atMerchant();
+    const p = player(ctx);
+    p.money = 5000;
+    expect(p.weapons.map((_, slot) => shopItemStatus(ctx.state, 0, 0, REPAIR, slot).kind)).toEqual(['hidden']);
+    p.weapons.push(createWeaponSlot('katana'));
+    expect(p.weapons.map((_, slot) => shopItemStatus(ctx.state, 0, 0, REPAIR, slot))).toEqual([{ kind: 'hidden' }, { kind: 'unavailable', reason: 'likeNew' }]);
+  });
+
+  it('brings it back to its 60 uses for 1500, broken or only worn', () => {
+    const ctx = atMerchant();
+    const p = player(ctx);
+    p.money = 4000;
+    p.weapons.push(createWeaponSlot('katana'));
+    const katana = p.weapons[1]!;
+    katana.uses = 0;
+    openShop(ctx);
+    tick(ctx, (c) => {
+      c.shopBuy = REPAIR;
+      c.shopSlot = 1;
+    });
+    expect(katana.uses).toBe(60);
+    expect(p.money).toBe(2500);
+    katana.uses = 23;
+    tick(ctx, (c) => {
+      c.shopBuy = REPAIR;
+      c.shopSlot = 1;
+    });
+    expect(katana.uses).toBe(60);
+    expect(p.money).toBe(1000);
+  });
+
+  it('tells the shop panel how worn it is', () => {
+    const ctx = atMerchant();
+    const presenter = new HudPresenter(ctx.events, ctx.map);
+    const shops: { rows: { item: string }[] }[] = [];
+    ctx.events.on('shop:state', (e) => shops.push(e));
+    const p = player(ctx);
+    p.money = 2000;
+    p.weapons.push(createWeaponSlot('katana'));
+    p.weapons[1]!.uses = 12;
+    openShop(ctx);
+    presenter.publish(ctx.state);
+    expect(shops.at(-1)?.rows.find((r) => r.item === 'repair')).toEqual({
+      index: REPAIR,
+      item: 'repair',
+      price: 1500,
+      status: { kind: 'buy' },
+      slot: 1,
+      weapon: 'katana',
+      uses: 12,
+      maxUses: 60,
+    });
   });
 });

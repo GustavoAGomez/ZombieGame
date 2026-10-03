@@ -64,6 +64,19 @@ export function giveWeapon(p: PlayerState, id: WeaponId, slots: number = LOADOUT
   return 'replaced';
 }
 
+/**
+ * Takes slot `index` out of the player's hands (a weapon broken for good):
+ * the others keep their order, and if it was in hand the next one is taken.
+ */
+export function removeWeapon(p: PlayerState, index: number): void {
+  if (!p.weapons[index]) return;
+  const wasActive = index === p.activeSlot;
+  p.weapons.splice(index, 1);
+  if (index < p.activeSlot) p.activeSlot--;
+  p.activeSlot = Math.max(0, Math.min(p.activeSlot, p.weapons.length - 1));
+  if (wasActive) equipSlot(p, p.activeSlot);
+}
+
 /** Magazine and reserve to their maximum at the weapon's level. */
 export function refillWeapon(slot: WeaponSlotState): void {
   slot.magazine = magazineSize(slot);
