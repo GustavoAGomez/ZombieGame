@@ -2,6 +2,7 @@
  * Asset manifest (docs/ASSETS.md §4). Code refers to assets by key only;
  * file paths live in public/assets/manifest.json (CLAUDE.md rule 5).
  */
+import { BOSS_IDS, type BossId } from '../../config/bosses';
 import { ITEM_IDS, type ItemId } from '../../config/items';
 
 /**
@@ -128,6 +129,8 @@ export const REQUIRED_OBJECTS: readonly string[] = [
   'smoke_puff',
   'offscreen_arrow',
   ...ITEM_IDS.map((id) => itemSpriteKey(id)),
+  ...BOSS_IDS.map((id) => bossTextureKey(id)),
+  'boss_rubble',
 ];
 
 /** Asset keys the game code uses. */
@@ -192,6 +195,8 @@ export const ASSET_KEYS = {
   iconRepair: 'icon_repair',
   iconKnife: 'icon_knife',
   iconDash: 'icon_dash',
+  /** Splinters left where a boss crushed furniture (spec 07 §8): 32×32, tiled over its footprint, one variant per frame. */
+  bossRubble: 'boss_rubble',
   mapRoom01: 'room01',
   mapMansion: 'mansion',
 } as const;
@@ -204,6 +209,20 @@ export const ASSET_KEYS = {
 export function itemSpriteKey(id: ItemId): string {
   return `item_${id}`;
 }
+
+/**
+ * A boss's sheet (spec 07 §8): `boss_<id>`, one pose per frame in
+ * BOSS_POSES order, drawn facing the camera with its mallet on its right
+ * (mirrored when it faces west), standing on the bottom edge of its
+ * footprint.
+ */
+export function bossTextureKey(id: BossId): string {
+  return `boss_${id}`;
+}
+
+/** The poses of a boss's sheet, in frame order. */
+export const BOSS_POSES = ['walk_a', 'walk_b', 'charge_windup', 'charge', 'stunned', 'slam_windup', 'slam', 'leap', 'land', 'roar', 'dead'] as const;
+export type BossPose = (typeof BOSS_POSES)[number];
 
 export const MANIFEST_URL = 'assets/manifest.json';
 export const ASSETS_BASE_URL = 'assets/';

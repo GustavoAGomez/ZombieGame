@@ -1,11 +1,12 @@
 import { LOADOUT, MELEE, PLAYER, POINTS, ZOMBIES } from '../../config/balance';
 import { WEAPON_SPECIALS, WEAPONS } from '../../config/weapons';
-import type { BulletState, GameState, PlayerState, WeaponSlotState } from '../../core/GameState';
+import type { BossState, BulletState, GameState, PlayerState, WeaponSlotState } from '../../core/GameState';
 import type { InputCommand } from '../../core/InputCommand';
 import { degToRad } from '../../core/math';
 import { randomRange } from '../../core/Rng';
-import { BLOCK_BULLET, segmentClearShaped } from '../map/CollisionGrid';
+import { BLOCK_BULLET, BLOCK_SIGHT, segmentClearShaped } from '../map/CollisionGrid';
 import { damageFactor } from './BoostSystem';
+import { bossBodyPoint, bossFeetY, bossHurtbox, damageBoss, distanceToBoss, isBossHittable, nearestOnBoss } from './BossCombat';
 import { bodyHitPoint, damageZombie, findAutoAimTarget, findMeleeTarget, isZombieAlive, knockZombie } from './Combat';
 import { bodyCentre, bodyEntry, hurtboxOf, muzzleFor, type Hurtbox, type Vec2 } from './shotGeometry';
 import type { SimContext } from './SimContext';
@@ -128,7 +129,15 @@ function updateAim(ctx: SimContext, p: PlayerState, cmd: InputCommand): void {
     const range = def ? def.range + (melee ? ZOMBIES.hitboxRadius : 0) : MELEE.range;
     const target = findAutoAimTarget(ctx, p.x, p.y, range);
     const z = target >= 0 ? ctx.state.zombies[target] : undefined;
-    if (z && melee) {
+    // A boss in reach and nearer than that zombie is the target instead (spec 07).
+    const boss = autoAimBoss(ctx, p, range, z ? Math.hypot(z.x - p.x, z.y - p.y) : Infinity);
+    if (boss && melee) {
+      const at = nearestOnBoss(boss, ctx.map.tileSize, p.x, p.y, scratchPoint);
+      const len = Math.hypot(at.x - p.x, at.y - p.y) || 1;
+      p.aimX = (at.x - p.x) / len;
+      p.aimY = (at.y - p.y) / len;
+    } else if (boss) aimAtBody(ctx, p, boss.x, bossFeetY(boss, ctx.map.tileSize), bossHurtbox(boss));
+    else if (z && melee) {
       const len = Math.hypot(z.x - p.x, z.y - p.y) || 1;
       p.aimX = (z.x - p.x) / len;
       p.aimY = (z.y - p.y) / len;
@@ -147,6 +156,42 @@ function updateAim(ctx: SimContext, p: PlayerState, cmd: InputCommand): void {
  * zombie's drawn body. The muzzle depends on the direction, which depends on
  * the aim, so the direction is settled in two passes.
  */
+const scratchPoint: Vec2 = { x: 0, y: 0 };
+
+/** The nearest boss whose footprint is within `range` of the player and in sight, if nearer than `than` (px). */
+function autoAimBoss(ctx: SimContext, p: PlayerState, range: number, than: number): BossState | undefined {
+  let best: BossState | undefined;
+  let bestDist = Math.min(range, than);
+  for (const b of ctx.state.bosses) {
+    if (!isBossHittable(b)) continue;
+    const d = distanceToBoss(b, ctx.map.tileSize, p.x, p.y);
+    if (d > bestDist) continue;
+    const at = nearestOnBoss(b, ctx.map.tileSize, p.x, p.y, scratchPoint);
+    if (!segmentClearShaped(ctx.grid, p.x, p.y, at.x, at.y, BLOCK_SIGHT)) continue;
+    best = b;
+    bestDist = d;
+  }
+  return best;
+}
+
+/**
+ * How far (px) boss `b` is for a melee blow from (x, y) along (dirX,
+ * dirY): its footprint edge within `range`, in the cone of cosine `minCos`
+ * (by its nearest point or its centre: any part of a big body counts), with
+ * no wall in between. Infinity when out of reach.
+ */
+function bossMeleeReach(ctx: SimContext, b: BossState, x: number, y: number, dirX: number, dirY: number, range: number, minCos: number): number {
+  if (!isBossHittable(b)) return Infinity;
+  const ts = ctx.map.tileSize;
+  const d = distanceToBoss(b, ts, x, y);
+  if (d > range) return Infinity;
+  const at = nearestOnBoss(b, ts, x, y, scratchPoint);
+  const len = Math.hypot(at.x - x, at.y - y);
+  const centreLen = Math.hypot(b.x - x, b.y - y) || 1;
+  const inCone = len < 1e-6 || ((at.x - x) * dirX + (at.y - y) * dirY) / len >= minCos || ((b.x - x) * dirX + (b.y - y) * dirY) / centreLen >= minCos;
+  return inCone && segmentClearShaped(ctx.grid, x, y, at.x, at.y, BLOCK_BULLET) ? d : Infinity;
+}
+
 export function aimAtBody(ctx: SimContext, p: PlayerState, zx: number, zy: number, box?: Hurtbox): void {
   bodyCentre(zx, zy, centre, box);
   let ax = centre.x - p.x;
@@ -251,6 +296,11 @@ function sweep(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
     if (!segmentClearShaped(ctx.grid, p.x, p.y, z.x, z.y, BLOCK_BULLET)) continue;
     if (damageZombie(ctx, z, damage, p.id, bodyHitPoint(z, ux, uy), POINTS.meleeHit)) kills++;
     else knockZombie(ctx, z, ux, uy, def.knockback ?? 0);
+  }
+  // Every boss the arc reaches is cut too (never pushed).
+  for (const b of state.bosses) {
+    if (bossMeleeReach(ctx, b, p.x, p.y, p.aimX, p.aimY, def.range, minCos) === Infinity) continue;
+    if (damageBoss(ctx, b, damage, p.id, bossBodyPoint(b, ctx.map.tileSize, p.aimX, p.aimY), POINTS.meleeHit)) kills++;
   }
   // "Filo de sangre" (the katana's special): each kill heals, up to a cap per sweep.
   if (slot.special && def.special === 'blood_edge' && kills > 0) {
@@ -363,11 +413,27 @@ function handleMelee(ctx: SimContext, p: PlayerState, turn: boolean): void {
   let dirY = turn ? Math.sin(p.facing) : p.aimY;
   const cone = turn ? Math.PI : degToRad(MELEE.coneHalfAngle);
   const target = findMeleeTarget(ctx, p.x, p.y, dirX, dirY, MELEE.range, cone);
-  const z = target >= 0 ? ctx.state.zombies[target] : undefined;
+  let z = target >= 0 ? ctx.state.zombies[target] : undefined;
+  // A boss within reach and nearer than that zombie takes the blow instead (spec 07).
+  let boss: BossState | undefined;
+  let bossReach = z ? Math.max(0, Math.hypot(z.x - p.x, z.y - p.y) - ZOMBIES.hitboxRadius) : Infinity;
+  for (const b of ctx.state.bosses) {
+    const reach = bossMeleeReach(ctx, b, p.x, p.y, dirX, dirY, MELEE.range, Math.cos(cone));
+    if (reach < bossReach) {
+      boss = b;
+      bossReach = reach;
+    }
+  }
+  if (boss) z = undefined;
   if (z && turn) {
     const len = Math.hypot(z.x - p.x, z.y - p.y) || 1;
     dirX = (z.x - p.x) / len;
     dirY = (z.y - p.y) / len;
+  } else if (boss && turn) {
+    const at = nearestOnBoss(boss, ctx.map.tileSize, p.x, p.y, scratchPoint);
+    const len = Math.hypot(at.x - p.x, at.y - p.y) || 1;
+    dirX = (at.x - p.x) / len;
+    dirY = (at.y - p.y) / len;
   }
   p.meleeAngle = Math.atan2(dirY, dirX);
   p.meleeTimer = MELEE.swingTime;
@@ -375,6 +441,7 @@ function handleMelee(ctx: SimContext, p: PlayerState, turn: boolean): void {
   p.meleeRange = MELEE.range;
   p.facing = p.meleeAngle;
   if (z) damageZombie(ctx, z, MELEE.damage * damageFactor(p), p.id, bodyHitPoint(z, dirX, dirY), POINTS.meleeHit);
+  else if (boss) damageBoss(ctx, boss, MELEE.damage * damageFactor(p), p.id, bossBodyPoint(boss, ctx.map.tileSize, dirX, dirY), POINTS.meleeHit);
 }
 
 /** 0..1 progress of the current reload, or null when not reloading. */

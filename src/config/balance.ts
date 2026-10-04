@@ -418,9 +418,33 @@ export const ITEMS = {
   summonNoticeTime: 2.5,
 } as const;
 
+/**
+ * Rules shared by every boss (spec 07): bosses.ts has the catalogue, the
+ * variants and the calendar.
+ */
+export const BOSS = {
+  /** Bosses on the map at once (the pool). */
+  maxAlive: 2,
+  /**
+   * The box that stops it against walls is its footprint minus this much
+   * on each side (px): with a 2-tile footprint it still slides into a
+   * 2-tile door without being perfectly lined up. Furniture is crushed by
+   * the whole footprint.
+   */
+  bodySlack: 2,
+  /** Longest step of its body in one go (px), so a fast move never skips a wall. */
+  maxSubstep: 8,
+  /** Its corpse stays on screen this long (s). */
+  corpseTime: 1.5,
+  /** The health bar moves in steps of 1/barSteps. */
+  barSteps: 100,
+} as const;
+
 export const DEBUG = {
   /** Money added by the bigger button (spec 03 §7). */
   bigPoints: 10000,
   /** Money added by the smaller button (spec 04 §5: +5000$). */
   points: 5000,
+  /** INVOCAR MATARIFE: it comes in at least this many steps (tiles) away from the player, walking. */
+  bossMinSteps: 5,
 } as const;

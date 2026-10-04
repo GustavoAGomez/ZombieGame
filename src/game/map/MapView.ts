@@ -22,6 +22,9 @@ export class MapView {
   private readonly shownPlanks: number[] = [];
   private readonly shownDoorsOpen: boolean[] = [];
   private readonly shownPortalsOpen: boolean[] = [];
+  /** Furniture images (parallel to MapData.props), and which ones are drawn crushed (spec 07 §2). */
+  private readonly propImages: Phaser.GameObjects.Image[] = [];
+  private readonly shownDestroyed: boolean[] = [];
   /** Darkness over each zone until it is unlocked (what lies behind a closed door stays unknown). */
   private readonly fog: Phaser.GameObjects.Graphics[] = [];
   private readonly fogShown: boolean[] = [];
@@ -93,6 +96,8 @@ export class MapView {
         .setDepth(prop.collides ? actorDepth(bottom) : DEPTH.floorProps);
       const tile = prop.tiles[0];
       if (tile) this.onCell(image, tile.x, tile.y);
+      this.propImages.push(image);
+      this.shownDestroyed.push(false);
     }
 
     for (const w of map.windows) {
@@ -248,6 +253,11 @@ export class MapView {
       if (locked) g.setVisible(true).setAlpha(1);
       else this.scene.tweens.add({ targets: g, alpha: 0, duration: DISPLAY.fogFadeMs, onComplete: () => g.setVisible(false) });
     }
+    for (let i = 0; i < this.propImages.length; i++) {
+      if (state.propsDestroyed[i] !== true || this.shownDestroyed[i]) continue;
+      this.shownDestroyed[i] = true;
+      this.crush(i);
+    }
     for (let i = 0; i < this.portalSprites.length; i++) {
       const open = state.portalsOpen[this.map.portals[i]?.link ?? -1] ?? false;
       if (open !== this.shownPortalsOpen[i]) {
@@ -258,6 +268,24 @@ export class MapView {
   }
 
   /** Whether the world point lies in the dark (a zone not unlocked yet, or the border of only such zones). */
+  /**
+   * Furniture crushed by a boss (spec 07 §2): the piece goes (transparent,
+   * so the darkness never brings it back) and a patch of splinters the size
+   * of its footprint lies on the floor instead. Once per piece and match.
+   */
+  private crush(index: number): void {
+    const prop = this.map.props[index];
+    const image = this.propImages[index];
+    if (!prop || !image) return;
+    image.setAlpha(0);
+    const rubble = this.scene.add
+      .tileSprite(prop.x, prop.y, prop.width, prop.height, objectTextureKey(ASSET_KEYS.bossRubble), index % 2)
+      .setOrigin(0, 0)
+      .setDepth(DEPTH.floorProps);
+    const tile = prop.tiles[0];
+    if (tile) this.onCell(rubble, tile.x, tile.y);
+  }
+
   isDark(x: number, y: number): boolean {
     const { width, height, tileSize: ts } = this.map;
     const cx = Math.floor(x / ts);

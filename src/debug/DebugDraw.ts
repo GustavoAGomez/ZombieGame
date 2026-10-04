@@ -6,6 +6,7 @@ import { DEPTH } from '../game/depth';
 import { BLOCK_BULLET, cellBlocks, cellShapeRects, type CollisionGrid } from '../game/map/CollisionGrid';
 import { UNREACHABLE, flowNextCell, type FlowField } from '../game/map/FlowField';
 import { isZombieAlive } from '../game/systems/Combat';
+import { bossFeetY, bossHalf, bossHurtbox, isBossAlive } from '../game/systems/BossCombat';
 import { hurtboxOf } from '../game/systems/shotGeometry';
 
 /**
@@ -51,6 +52,17 @@ export class DebugDraw {
       g.lineStyle(1, 0xffd040, 1);
       const box = hurtboxOf(z);
       g.strokeRect(z.x - box.width / 2, z.y - box.height, box.width, box.height);
+    }
+    // Bosses (spec 07): the footprint in red, the box bullets hit in yellow.
+    for (const b of state.bosses) {
+      if (!isBossAlive(b)) continue;
+      const half = bossHalf(b, this.map.tileSize);
+      g.lineStyle(1, 0xff4040, 1);
+      g.strokeRect(b.x - half, b.y - half, half * 2, half * 2);
+      const box = bossHurtbox(b);
+      const feet = bossFeetY(b, this.map.tileSize);
+      g.lineStyle(1, 0xffd040, 1);
+      g.strokeRect(b.x - box.width / 2, feet - box.height, box.width, box.height);
     }
     g.fillStyle(0xffffff, 1);
     for (const b of state.bullets) if (b.active) g.fillCircle(b.x + b.drawX, b.y + b.drawY, Math.max(1, BULLETS.radius));

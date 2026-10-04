@@ -1,7 +1,8 @@
 import { BULLETS } from '../../config/balance';
 import type { BulletState } from '../../core/GameState';
 import { BLOCK_BULLET, pointBlocksShaped, segmentHitShaped } from '../map/CollisionGrid';
-import { BURN, igniteZombie } from './BurnSystem';
+import { bossBodyEntry, damageBoss, isBossHittable } from './BossCombat';
+import { BURN, igniteBoss, igniteZombie } from './BurnSystem';
 import { damageZombie, isZombieAlive, knockZombie, type HitPoint } from './Combat';
 import { bodyEntry, hurtboxOf } from './shotGeometry';
 import type { SimContext } from './SimContext';
@@ -59,13 +60,19 @@ export function updateBullets(ctx: SimContext, dt: number): void {
   }
 }
 
+/** What a bullet's `hits` keeps for boss slot `i` (zombies are kept by their index, from 0). */
+export function bossHitId(i: number): number {
+  return -2 - i;
+}
+
 /**
- * Returns true (and deactivates the bullet) if it hit a zombie this tick,
- * before the wall `wallDist` px ahead (Infinity when there is none).
+ * Returns true (and deactivates the bullet) if it hit a zombie or a boss
+ * this tick, before the wall `wallDist` px ahead (Infinity when there is none).
  */
 function hitZombieAlongSegment(ctx: SimContext, b: BulletState, step: number, wallDist: number): boolean {
-  const { zombies } = ctx.state;
+  const { zombies, bosses } = ctx.state;
   let hitIndex = -1;
+  let bossIndex = -1;
   let hitT = Infinity;
   for (let i = 0; i < zombies.length; i++) {
     const z = zombies[i];
@@ -76,13 +83,42 @@ function hitZombieAlongSegment(ctx: SimContext, b: BulletState, step: number, wa
       hitIndex = i;
     }
   }
+  for (let i = 0; i < bosses.length; i++) {
+    const boss = bosses[i];
+    if (!boss || !isBossHittable(boss) || b.hits.includes(bossHitId(i))) continue;
+    const t = bossBodyEntry(boss, ctx.map.tileSize, b.x + b.drawX, b.y + b.drawY, b.dirX, b.dirY, step);
+    if (t < hitT) {
+      hitT = t;
+      hitIndex = -1;
+      bossIndex = i;
+    }
+  }
   // A wall in front of the zombie takes the bullet first.
-  if (hitIndex < 0 || hitT >= wallDist) return false;
+  if ((hitIndex < 0 && bossIndex < 0) || hitT >= wallDist) return false;
   b.x += b.dirX * hitT;
   b.y += b.dirY * hitT;
   b.remaining -= hitT;
-  bulletHitsZombie(ctx, b, hitIndex, { x: b.x + b.drawX, y: b.y + b.drawY, dirX: b.dirX, dirY: b.dirY });
+  const hit = { x: b.x + b.drawX, y: b.y + b.drawY, dirX: b.dirX, dirY: b.dirY };
+  if (bossIndex >= 0) bulletHitsBoss(ctx, b, bossIndex, hit);
+  else bulletHitsZombie(ctx, b, hitIndex, hit);
   return true;
+}
+
+/**
+ * Bullet `b` hits boss slot `index` (spec 07 §2): damage (less with distance
+ * for pellets) and fire for the shotgun's special, never a push. A piercing
+ * bullet goes through it like through a zombie.
+ */
+export function bulletHitsBoss(ctx: SimContext, b: BulletState, index: number, hit: HitPoint): void {
+  const boss = ctx.state.bosses[index];
+  if (!boss) return;
+  const free = b.hits.indexOf(-1);
+  if (free >= 0) b.hits[free] = bossHitId(index);
+  b.pierce--;
+  if (b.pierce <= 0 || b.remaining <= 0) b.active = false;
+  const damage = b.damage * falloffFactor(b, b.range - b.remaining);
+  if (damageBoss(ctx, boss, damage, b.owner, hit)) return;
+  if (b.burns) igniteBoss(boss, damage * BURN.fireDamageFactor, BURN.fireDuration, b.owner);
 }
 
 /**

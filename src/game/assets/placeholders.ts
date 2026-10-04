@@ -1,5 +1,6 @@
 import type Phaser from 'phaser';
 import { ZOMBIES } from '../../config/balance';
+import { BOSS_IDS } from '../../config/bosses';
 import { ITEM_IDS, type ItemId } from '../../config/items';
 import { MERCHANTS } from '../../config/merchants';
 import { WEAPON_IDS } from '../../config/weapons';
@@ -11,7 +12,9 @@ import {
   ASSET_KEYS,
   DIRECTIONS_4,
   DIRECTIONS_8,
+  BOSS_POSES,
   animationDirections,
+  bossTextureKey,
   characterTextureKey,
   itemSpriteKey,
   objectTextureKey,
@@ -746,7 +749,14 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
       case ASSET_KEYS.weaponIcon:
         drawWeaponIcon(ctx, col, ox, oy, w, h);
         break;
+      case ASSET_KEYS.bossRubble:
+        drawRubble(ctx, col, ox, oy);
+        break;
       default: {
+        if (BOSS_IDS.some((id) => object === bossTextureKey(id))) {
+          drawButcher(ctx, col, ox, oy, w, h);
+          break;
+        }
         const merchant = MERCHANTS.find((m) => object === `merchant_${m.id}`);
         if (merchant) {
           drawMerchant(ctx, merchant.color, ox, oy, w, h);
@@ -771,6 +781,182 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
       }
     }
   });
+}
+
+const BUTCHER = {
+  body: '#4a5544',
+  shade: '#38412f',
+  belly: '#76866a',
+  eye: '#c93a2b',
+  handle: '#6b4a2b',
+  head: '#4a3524',
+  dust: '#b8ad97',
+} as const;
+
+/** A rounded pixel blob with a 1 px outline. */
+function blob(ctx: Ctx, x: number, y: number, w: number, h: number, fill: string, outline: string = COLORS.ink): void {
+  rect(ctx, outline, x + 3, y, w - 6, h);
+  rect(ctx, outline, x + 1, y + 1, w - 2, h - 2);
+  rect(ctx, outline, x, y + 3, w, h - 6);
+  rect(ctx, fill, x + 3, y + 1, w - 6, h - 2);
+  rect(ctx, fill, x + 2, y + 2, w - 4, h - 4);
+  rect(ctx, fill, x + 1, y + 3, w - 2, h - 6);
+}
+
+/** The butcher's mallet (12×40): its head at (x, y), the handle hanging down from its middle, or sideways. */
+function mallet(ctx: Ctx, x: number, y: number, vertical: boolean, headFirst = true): void {
+  if (vertical) {
+    const headY = headFirst ? y : y + 26;
+    rect(ctx, COLORS.ink, x + 3, headFirst ? y + 13 : y, 6, 27);
+    rect(ctx, BUTCHER.handle, x + 4, headFirst ? y + 14 : y + 1, 4, 25);
+    rect(ctx, COLORS.ink, x, headY, 12, 14);
+    rect(ctx, BUTCHER.head, x + 1, headY + 1, 10, 12);
+  } else {
+    rect(ctx, COLORS.ink, x + 13, y + 3, 27, 6);
+    rect(ctx, BUTCHER.handle, x + 14, y + 4, 25, 4);
+    rect(ctx, COLORS.ink, x, y, 14, 12);
+    rect(ctx, BUTCHER.head, x + 1, y + 1, 12, 10);
+  }
+}
+
+/** Its body (a rounded blob with a lighter belly) and two red eyes; `xEyes` crossed out (stunned, dead). */
+function butcherBody(ctx: Ctx, x: number, y: number, w: number, h: number, xEyes = false): void {
+  blob(ctx, x, y, w, h, BUTCHER.body);
+  rect(ctx, BUTCHER.shade, x + 2, y + h - 8, w - 4, 6);
+  blob(ctx, x + Math.round(w * 0.22), y + Math.round(h * 0.45), Math.round(w * 0.56), Math.round(h * 0.42), BUTCHER.belly, BUTCHER.shade);
+  const ex = x + Math.round(w / 2);
+  const ey = y + 10;
+  if (xEyes) {
+    for (const sx of [-10, 6]) {
+      rect(ctx, COLORS.bone, ex + sx, ey, 1, 1);
+      rect(ctx, COLORS.bone, ex + sx + 1, ey + 1, 1, 1);
+      rect(ctx, COLORS.bone, ex + sx + 2, ey + 2, 1, 1);
+      rect(ctx, COLORS.bone, ex + sx + 2, ey, 1, 1);
+      rect(ctx, COLORS.bone, ex + sx, ey + 2, 1, 1);
+    }
+    return;
+  }
+  rect(ctx, BUTCHER.eye, ex - 9, ey, 3, 2);
+  rect(ctx, BUTCHER.eye, ex + 6, ey, 3, 2);
+}
+
+/**
+ * El Matarife (spec 07 §8): a rounded body of 64×84 in dark greyish green
+ * with a lighter belly, and a brown mallet of 12×40, standing on the bottom
+ * edge of its 96×110 frame, facing the camera with the mallet on its right.
+ * One simple pose per frame, in BOSS_POSES order.
+ */
+function drawButcher(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number): void {
+  const pose = BOSS_POSES[frame] ?? 'walk_a';
+  const cx = ox + Math.round(w / 2);
+  const ground = oy + h;
+  // Its two feet; `lift` raises the left one (a step).
+  const feet = (lift: number): void => {
+    rect(ctx, COLORS.ink, cx - 22, ground - 6 - lift, 14, 6);
+    rect(ctx, COLORS.ink, cx + 8, ground - 6, 14, 6);
+  };
+  switch (pose) {
+    case 'walk_a':
+    case 'walk_b': {
+      const bob = pose === 'walk_b' ? 1 : 0;
+      feet(pose === 'walk_b' ? 2 : 0);
+      butcherBody(ctx, cx - 32, ground - 84 - bob, 64, 80);
+      mallet(ctx, cx + 30, ground - 54 - bob, true, false);
+      break;
+    }
+    case 'charge_windup':
+      feet(0);
+      butcherBody(ctx, cx - 36, ground - 66, 72, 62);
+      mallet(ctx, cx - 46, ground - 42, false);
+      rect(ctx, BUTCHER.dust, cx - 30, ground - 3, 6, 2);
+      rect(ctx, BUTCHER.dust, cx + 26, ground - 4, 5, 2);
+      break;
+    case 'charge':
+      feet(2);
+      butcherBody(ctx, cx - 28, ground - 82, 64, 78);
+      mallet(ctx, cx - 48, ground - 60, false);
+      for (const ly of [30, 46, 62]) rect(ctx, COLORS.bone, ox + 2, ground - ly, 10, 2);
+      break;
+    case 'stunned':
+      feet(0);
+      butcherBody(ctx, cx - 32, ground - 74, 64, 70, true);
+      mallet(ctx, cx + 22, ground - 12, false);
+      for (const [sx, sy] of [
+        [-14, -82],
+        [0, -88],
+        [14, -82],
+      ] as const)
+        rect(ctx, COLORS.amber, cx + sx, ground + sy, 3, 3);
+      break;
+    case 'slam_windup':
+      feet(0);
+      butcherBody(ctx, cx - 32, ground - 84, 64, 80);
+      mallet(ctx, cx - 6, oy, true);
+      break;
+    case 'slam':
+      feet(0);
+      butcherBody(ctx, cx - 32, ground - 80, 64, 76);
+      mallet(ctx, cx - 6, ground - 40, true, false);
+      rect(ctx, BUTCHER.dust, cx - 18, ground - 2, 8, 2);
+      rect(ctx, BUTCHER.dust, cx + 12, ground - 2, 8, 2);
+      break;
+    case 'leap':
+      butcherBody(ctx, cx - 30, ground - 104, 60, 84);
+      rect(ctx, COLORS.ink, cx - 18, ground - 22, 12, 6);
+      rect(ctx, COLORS.ink, cx + 6, ground - 22, 12, 6);
+      mallet(ctx, cx + 26, ground - 108, true);
+      break;
+    case 'land':
+      feet(0);
+      butcherBody(ctx, cx - 40, ground - 66, 80, 62);
+      mallet(ctx, cx + 34, ground - 40, true, false);
+      for (const sx of [-46, -40, 36, 42]) rect(ctx, BUTCHER.dust, cx + sx, ground - 4 - (sx % 3), 4, 2);
+      break;
+    case 'roar':
+      feet(0);
+      butcherBody(ctx, cx - 32, ground - 84, 64, 80);
+      rect(ctx, COLORS.ink, cx - 8, ground - 66, 16, 10);
+      rect(ctx, COLORS.redDark, cx - 7, ground - 65, 14, 8);
+      rect(ctx, COLORS.ink, cx - 40, ground - 96, 8, 20);
+      mallet(ctx, cx + 30, ground - 110, true);
+      break;
+    case 'dead':
+      butcherBody(ctx, cx - 44, ground - 34, 88, 34, true);
+      mallet(ctx, cx + 2, ground - 12, false);
+      break;
+  }
+}
+
+/** Splinters of crushed furniture (spec 07 §8): 32×32, tiled over its footprint; two variants. */
+function drawRubble(ctx: Ctx, variant: number, ox: number, oy: number): void {
+  const wood = COLORS.wood;
+  const dark = '#4a3524';
+  const pieces =
+    variant % 2 === 0
+      ? [
+          [3, 4, 9, 2],
+          [16, 2, 3, 6],
+          [22, 9, 7, 2],
+          [6, 14, 2, 7],
+          [13, 18, 10, 2],
+          [24, 22, 3, 5],
+          [4, 26, 8, 2],
+          [17, 27, 2, 3],
+        ]
+      : [
+          [5, 2, 2, 7],
+          [12, 6, 9, 2],
+          [25, 3, 4, 2],
+          [2, 16, 7, 2],
+          [18, 13, 2, 8],
+          [24, 18, 6, 2],
+          [9, 24, 2, 6],
+          [20, 27, 8, 2],
+        ];
+  for (const [x, y, pw, ph] of pieces) {
+    rect(ctx, dark, ox + (x ?? 0), oy + (y ?? 0) + 1, pw ?? 1, ph ?? 1);
+    rect(ctx, wood, ox + (x ?? 0), oy + (y ?? 0), pw ?? 1, ph ?? 1);
+  }
 }
 
 /** Tiles are painted from their properties: walls, water, void, or floor for the rest. */

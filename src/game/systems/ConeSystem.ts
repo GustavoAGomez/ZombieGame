@@ -5,7 +5,8 @@ import { degToRad } from '../../core/math';
 import { BLOCK_BULLET, segmentClearShaped } from '../map/CollisionGrid';
 import { hitContinuously } from './BeamSystem';
 import { damageFactor } from './BoostSystem';
-import { igniteZombie } from './BurnSystem';
+import { bossBodyPoint, distanceToBoss, hitBossContinuously, isBossHittable, nearestOnBoss } from './BossCombat';
+import { igniteBoss, igniteZombie } from './BurnSystem';
 import { bodyHitPoint, isZombieAlive } from './Combat';
 import type { SimContext } from './SimContext';
 import { bulletDamage, fireRate } from './weaponStats';
@@ -52,4 +53,24 @@ export function fireCone(ctx: SimContext, p: PlayerState, slot: WeaponSlotState,
     if (def.burn) igniteZombie(z, def.burn.damage, def.burn.duration, p.id, hellfire);
     hitContinuously(ctx, z, damage, p.id, bodyHitPoint(z, ux, uy));
   }
+  // A boss in the cone (spec 07): judged by the nearest point of its footprint.
+  const ts = ctx.map.tileSize;
+  for (const boss of ctx.state.bosses) {
+    if (!isBossHittable(boss) || distanceToBoss(boss, ts, p.x, p.y) > def.range) continue;
+    const at = nearestOnBoss(boss, ts, p.x, p.y, scratchPoint);
+    const dx = at.x - p.x;
+    const dy = at.y - p.y;
+    const dist = Math.hypot(dx, dy);
+    const ux = dist > 0 ? dx / dist : p.aimX;
+    const uy = dist > 0 ? dy / dist : p.aimY;
+    // Its nearest point or its centre in the cone: a big body is caught by any part of the jet.
+    const toCentre = Math.hypot(boss.x - p.x, boss.y - p.y) || 1;
+    const centreCos = ((boss.x - p.x) * p.aimX + (boss.y - p.y) * p.aimY) / toCentre;
+    if (ux * p.aimX + uy * p.aimY < minCos && centreCos < minCos) continue;
+    if (!segmentClearShaped(ctx.grid, p.x, p.y, at.x, at.y, BLOCK_BULLET)) continue;
+    if (def.burn) igniteBoss(boss, def.burn.damage, def.burn.duration, p.id, hellfire);
+    hitBossContinuously(ctx, boss, damage, p.id, bossBodyPoint(boss, ts, ux, uy));
+  }
 }
+
+const scratchPoint = { x: 0, y: 0 };

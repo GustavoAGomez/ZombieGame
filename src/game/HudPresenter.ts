@@ -1,4 +1,4 @@
-import { BARRICADES, BOOSTS, DASH, PLAYER } from '../config/balance';
+import { BARRICADES, BOOSTS, BOSS, DASH, PLAYER } from '../config/balance';
 import { WEAPONS, type WeaponId } from '../config/weapons';
 import { merchantDef, type MerchantId } from '../config/merchants';
 import type { EventBus, GameEvents } from '../core/EventBus';
@@ -14,6 +14,7 @@ import { ammoKind, fireRate, magazineSize, maxUpgradeLevel, overheatsLeft, total
 import { caseOffer } from './systems/WeaponCaseSystem';
 import { hasItemRoom } from './systems/ItemSystem';
 import { reloadProgress } from './systems/WeaponSystem';
+import { bossBarShows } from './systems/BossCombat';
 
 /** Steps used to quantise continuous values so the DOM updates rarely. */
 const RELOAD_STEPS = 20;
@@ -56,6 +57,8 @@ export class HudPresenter {
   private actionEnabled = false;
   private actionLocked = false;
   private actionPortal: 'stairs' | 'hatch' | undefined;
+  /** Last published boss health bars, as a comparable string. */
+  private bossKey = '';
   /** Last published weapon slots: active slot, then weapon / magazine / reserve per slot. */
   private loadoutActive = -1;
   private readonly loadout: (WeaponId | number)[] = [];
@@ -97,6 +100,20 @@ export class HudPresenter {
     if (key === this.shopKey) return;
     this.shopKey = key;
     this.events.emit('shop:state', shop);
+  }
+
+  /** The bosses' health bars (spec 07 §6), in steps, only when they change. */
+  private publishBosses(state: GameState): void {
+    const bars: GameEvents['boss:bars']['bars'] = [];
+    for (const b of state.bosses) {
+      if (!b.active || !bossBarShows(b)) continue;
+      const hp = Math.ceil((Math.max(0, b.hp) / Math.max(1e-6, b.maxHp)) * BOSS.barSteps) / BOSS.barSteps;
+      bars.push({ boss: b.boss, variant: b.variant, hp, enraged: b.enraged });
+    }
+    const key = bars.map((b) => `${b.boss}:${b.variant}:${b.hp}:${b.enraged}`).join('|');
+    if (key === this.bossKey) return;
+    this.bossKey = key;
+    this.events.emit('boss:bars', { bars });
   }
 
   publish(state: GameState, playerIndex = 0): void {
@@ -209,6 +226,8 @@ export class HudPresenter {
       this.boostKey = boostKey;
       this.events.emit('boost:state', { stored: p.boostStored, active: p.boostActive, progress, seconds });
     }
+
+    this.publishBosses(state);
 
     if (state.wave.round !== this.round) {
       this.round = state.wave.round;

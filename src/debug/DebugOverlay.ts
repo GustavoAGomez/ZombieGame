@@ -44,6 +44,9 @@ export interface DebugActions {
   goToWand(): void;
   /** Spec 05 §8: every item spot on the map (the wand's ringed) and the activation sites. */
   toggleItemSpots(): boolean;
+  /** Spec 07 §10: El Matarife comes into the match now; the bosses on the map die. */
+  summonBoss(): void;
+  killBoss(): void;
 }
 
 const TRIPLE_TAP_WINDOW_MS = 600;
@@ -112,6 +115,8 @@ export class DebugOverlay {
     button(STRINGS.debug.giveItems, (a) => a.giveItems());
     button(STRINGS.debug.goToWand, (a) => a.goToWand());
     button(STRINGS.debug.itemSpots, (a) => a.toggleItemSpots());
+    button(STRINGS.debug.summonBoss, (a) => a.summonBoss());
+    button(STRINGS.debug.killBoss, (a) => a.killBoss());
     this.panel.append(this.statsEl, buttons);
     this.statsEl.addEventListener('pointerdown', (e) => {
       e.preventDefault();

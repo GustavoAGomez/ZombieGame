@@ -1,3 +1,4 @@
+import type { BossId } from '../config/bosses';
 import type { WeaponId } from '../config/weapons';
 /** Rooms by zone id, with their gender for «COCINA DESBLOQUEADA» / «GARAJE DESBLOQUEADO». */
 const ZONES: Readonly<Record<string, { name: string; feminine: boolean }>> = {
@@ -48,6 +49,9 @@ export const STRINGS = {
     giveItems: 'DAR OBJETOS',
     goToWand: 'IR A LA VARITA',
     itemSpots: 'MOSTRAR PUNTOS DE OBJETO',
+    /** Spec 07 §10. */
+    summonBoss: 'INVOCAR MATARIFE',
+    killBoss: 'MATAR BOSS',
   },
   controls: {
     joystick: 'Joystick de movimiento',
@@ -200,6 +204,12 @@ export const STRINGS = {
     katana: 'LA KATANA SE HA ROTO',
     laser: 'EL LÁSER SE HA ROTO',
   } as Readonly<Partial<Record<WeaponId, string>>>,
+  /** Bosses (spec 07), by id: the name over their health bar. */
+  bosses: {
+    names: { butcher: 'EL MATARIFE' } as Readonly<Record<BossId, string>>,
+    /** Its health bar, for screen readers. */
+    health: (name: string): string => `Vida de ${name}`,
+  },
   /** Special items (spec 05), by id. */
   items: {
     names: { living_heart: 'CORAZÓN VIVO', worn_wand: 'VARITA DESGASTADA' },

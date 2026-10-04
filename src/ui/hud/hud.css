@@ -525,3 +525,74 @@
 .is-paused .hud-banner {
   animation-play-state: paused;
 }
+
+/*
+ * The bosses' health bars (spec 07 §6): under the pause button, centred on
+ * it (it moves left on the narrowest screens, screens.css), stacked when
+ * there are two. The name over a red bar, with a mark at half, where its
+ * fury starts. Hidden while a shop is open: the merchant shows there.
+ */
+.hud-bosses {
+  position: absolute;
+  left: min(50%, calc(100% - var(--pad-x) - 141px - 12px - 4 * 44px - 14px - 16px - 4px));
+  top: calc(var(--pad-top) + 50px);
+  width: 150px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.hud-bosses.is-hidden {
+  visibility: hidden;
+}
+
+.hud-boss {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.hud-boss[hidden] {
+  display: none;
+}
+
+.hud-boss__name {
+  font-family: var(--font-display);
+  font-size: 8px;
+  color: var(--red);
+  text-shadow: 1px 1px 0 var(--ink);
+  white-space: nowrap;
+}
+
+.hud-boss__bar {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  background: var(--red-dark);
+  box-shadow: 0 0 0 2px var(--ink);
+}
+
+.hud-boss__fill {
+  position: absolute;
+  inset: 0;
+  background: var(--red);
+  transform-origin: left center;
+}
+
+/* Enraged: the bar burns brighter. */
+.hud-boss.is-enraged .hud-boss__fill {
+  background: var(--amber);
+}
+
+.hud-boss__half {
+  position: absolute;
+  left: 50%;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--ink);
+}

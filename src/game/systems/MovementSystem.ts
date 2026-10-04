@@ -4,6 +4,7 @@ import type { PlayerState, ZombieState } from '../../core/GameState';
 import { BLOCK_PLAYER, moveCircle, resolveCircle } from '../map/CollisionGrid';
 import type { SimContext } from './SimContext';
 import { speedFactor } from './BoostSystem';
+import { pushPlayerOut } from './BossSystem';
 import { isDashing } from './SpecialSystem';
 
 /** Moves each player from its command's analog vector, sliding along walls. */
@@ -33,6 +34,8 @@ export function updateMovement(ctx: SimContext, dt: number): void {
     const speed = PLAYER.speed * (slowed ? PLAYER.shootingSpeedFactor : 1) * speedFactor(player);
     moveCircle(grid, player, mx * speed * dt, my * speed * dt, PLAYER.hitboxRadius, BLOCK_PLAYER);
     blockByZombies(ctx, player);
+    // Bosses are solid too (spec 07 §2).
+    for (const b of state.bosses) if (b.active) pushPlayerOut(ctx, b, player);
     // During a knife slash the player keeps facing the slash.
     if (player.meleeTimer <= 0) player.facing = Math.atan2(my, mx);
   }

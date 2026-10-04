@@ -31,10 +31,13 @@ import { PlayerView } from '../entities/Player';
 import { WorldTextPool } from '../entities/WorldText';
 import { CantUseText } from '../entities/CantUseText';
 import { ZombieViewPool } from '../entities/Zombie';
+import { BossViewPool } from '../entities/Boss';
 import { BurnFlames } from '../entities/BurnFlames';
 import { WeaponCaseViews } from '../entities/WeaponCase';
 import { findWeapon, giveWeapon, refillWeapon } from '../systems/InventorySystem';
 import { moveHand } from '../systems/HandSystem';
+import { freeBossSlot, spawnBoss, spawnPositionNear } from '../systems/BossSystem';
+import { isBossAlive, killBoss } from '../systems/BossCombat';
 import { debugGiveItems } from '../systems/ItemSystem';
 import { HudPresenter } from '../HudPresenter';
 import { buildCollisionGrid } from '../map/CollisionGrid';
@@ -44,7 +47,7 @@ import { cameraBounds, computeLevels, type MapLevels } from '../map/levels';
 import type { Services } from '../services';
 import { activeBulletCount } from '../systems/BulletSystem';
 import { isZombieAlive } from '../systems/Combat';
-import { createNav, type SimContext } from '../systems/SimContext';
+import { createBossNavs, createNav, type SimContext } from '../systems/SimContext';
 import { stepSimulation } from '../systems/Simulation';
 import { roundsSurvived, startRound } from '../systems/WaveSystem';
 import { moveMerchant } from '../systems/MerchantSystem';
@@ -79,6 +82,7 @@ export class GameScene extends Phaser.Scene {
   private speedTrail!: SpeedTrail;
   private playerStains!: PlayerBloodStains;
   private zombieViews!: ZombieViewPool;
+  private bossViews!: BossViewPool;
   private bulletViews!: BulletViewPool;
   private aimLine!: AimLine;
   private laserBeam!: LaserBeam;
@@ -140,6 +144,7 @@ export class GameScene extends Phaser.Scene {
       map: this.map,
       grid: buildCollisionGrid(this.map, this.state.doorsOpen),
       nav: createNav(this.map),
+      bossNavs: createBossNavs(this.map),
       commands: this.state.players.map(() => createInputCommand()),
       events,
       muzzles,
@@ -168,6 +173,7 @@ export class GameScene extends Phaser.Scene {
     this.groundItemViews = new GroundItemViews(this, this.state.groundItems, manifest);
     this.activationSites = new ActivationSiteViews(this, this.map);
     this.zombieViews = new ZombieViewPool(this, manifest, this.state.zombies.length);
+    this.bossViews = new BossViewPool(this, this.state.bosses.length, this.map.tileSize);
     this.burnFlames = new BurnFlames(this, this.state.zombies.length, manifest);
     this.weaponCases = new WeaponCaseViews(this, this.map);
     this.merchantViews = new MerchantViewPool(this, this.map, this.state.merchants, manifest);
@@ -318,6 +324,7 @@ export class GameScene extends Phaser.Scene {
     this.activationSites.sync(this.state);
     this.thrownItems.sync(this.state.time);
     this.zombieViews.sync(this.state.zombies, alpha, now, this.isDark);
+    this.bossViews.sync(this.state.bosses, alpha, this.state.time, this.isDark);
     this.merchantViews.sync(this.state.merchants, this.state.players, this.state.tick, this.state.time);
     this.weaponCases.sync(this.state, player);
     this.syncOffscreenArrows();
@@ -432,6 +439,16 @@ export class GameScene extends Phaser.Scene {
         this.state.hand.usesLeft = 0;
       },
       toggleHandSpots: () => (this.debugDraw.showHandSpots = !this.debugDraw.showHandSpots),
+      summonBoss: () => {
+        const p = this.state.players[0];
+        const slot = freeBossSlot(this.sim);
+        if (!p || slot < 0) return;
+        const at = spawnPositionNear(this.sim, slot, p, DEBUG.bossMinSteps);
+        if (at) spawnBoss(this.sim, slot, 'butcher', 'base', at.x, at.y);
+      },
+      killBoss: () => {
+        for (const b of this.state.bosses) if (isBossAlive(b)) killBoss(this.sim, b);
+      },
     };
   }
 

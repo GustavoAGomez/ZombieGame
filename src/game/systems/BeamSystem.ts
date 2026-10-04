@@ -3,6 +3,7 @@ import { WEAPON_SPECIALS, WEAPONS } from '../../config/weapons';
 import type { PlayerState, WeaponSlotState, ZombieState } from '../../core/GameState';
 import { BLOCK_BULLET, pointBlocksShaped, segmentClearShaped, segmentHitShaped } from '../map/CollisionGrid';
 import { damageFactor } from './BoostSystem';
+import { bossBodyEntry, hitBossContinuously, isBossHittable } from './BossCombat';
 import { damageZombie, isZombieAlive, type HitPoint } from './Combat';
 import { bodyEntry, hurtboxOf, muzzleFor } from './shotGeometry';
 import type { SimContext } from './SimContext';
@@ -63,6 +64,12 @@ export function fireBeam(ctx: SimContext, p: PlayerState, slot: WeaponSlotState,
     const t = onBeam(ctx, p, z, sx, sy);
     if (t === Infinity) continue;
     hitContinuously(ctx, z, damage, p.id, { x: sx + p.aimX * t, y: sy + p.aimY * t, dirX: p.aimX, dirY: p.aimY });
+  }
+  // Through bosses too (spec 07): their hurtbox, as with bullets.
+  for (const boss of ctx.state.bosses) {
+    if (!isBossHittable(boss)) continue;
+    const t = bossBodyEntry(boss, ctx.map.tileSize, sx, sy, p.aimX, p.aimY, p.beamLength);
+    if (t !== Infinity) hitBossContinuously(ctx, boss, damage, p.id, { x: sx + p.aimX * t, y: sy + p.aimY * t, dirX: p.aimX, dirY: p.aimY });
   }
 }
 

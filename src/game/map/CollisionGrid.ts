@@ -39,29 +39,19 @@ export interface CollisionGrid {
   shapes: Uint8Array;
 }
 
-export function buildCollisionGrid(map: MapData, doorsOpen: readonly boolean[]): CollisionGrid {
+export function buildCollisionGrid(map: MapData, doorsOpen: readonly boolean[], propsDestroyed: readonly boolean[] = []): CollisionGrid {
   const cells = new Uint8Array(map.width * map.height);
   const shapes = new Uint8Array(cells.length);
-  const flagsOf = (gid: number): number => (gid > 0 ? (map.gidFlags[gid] ?? 0) : 0);
-  for (let i = 0; i < cells.length; i++) {
-    const tileFlags = flagsOf(map.walls[i] ?? 0) | flagsOf(map.floor[i] ?? 0) | flagsOf(map.decor[i] ?? 0);
-    if ((flagsOf(map.walls[i] ?? 0) & TILE_COLLIDES) !== 0) {
-      cells[i] = BLOCK_ALL;
-      shapes[i] = map.gidShapes[map.walls[i] ?? 0] ?? WALL_SHAPE_FULL;
-    }
-    else if ((tileFlags & (TILE_WATER | TILE_VOID)) !== 0) cells[i] = BLOCK_BODIES;
-    // Safety net: the player can never step where there is no floor.
-    else if ((map.floor[i] ?? 0) === 0) cells[i] = BLOCK_PLAYER;
-  }
+  for (let i = 0; i < cells.length; i++) shapes[i] = baseCell(map, cells, i);
   for (const w of map.windows) cells[w.tileY * map.width + w.tileX] = BLOCK_WINDOW;
   // Furniture with collision stops bodies and bullets but not the line of sight.
-  for (const prop of map.props) {
-    if (!prop.collides) continue;
+  map.props.forEach((prop, index) => {
+    if (!prop.collides || propsDestroyed[index]) return;
     for (const t of prop.tiles) {
       const i = t.y * map.width + t.x;
       if (t.x >= 0 && t.y >= 0 && t.x < map.width && t.y < map.height) cells[i] = (cells[i] ?? 0) | BLOCK_PROP;
     }
-  }
+  });
   // Weapon cases are solid furniture too: bodies and bullets, not the line of sight (spec 04 §3).
   for (const c of map.weaponCases) {
     const i = c.tileY * map.width + c.tileX;
@@ -70,6 +60,41 @@ export function buildCollisionGrid(map: MapData, doorsOpen: readonly boolean[]):
   const grid: CollisionGrid = { width: map.width, height: map.height, tileSize: map.tileSize, cells, shapes };
   map.doors.forEach((door, i) => setDoorBlocking(grid, door, !doorsOpen[i]));
   return grid;
+}
+
+/** The tiles of cell `i` alone (walls, water, void, no floor) into `cells`; returns its wall shape. */
+function baseCell(map: MapData, cells: Uint8Array, i: number): number {
+  const flagsOf = (gid: number): number => (gid > 0 ? (map.gidFlags[gid] ?? 0) : 0);
+  const tileFlags = flagsOf(map.walls[i] ?? 0) | flagsOf(map.floor[i] ?? 0) | flagsOf(map.decor[i] ?? 0);
+  cells[i] = 0;
+  if ((flagsOf(map.walls[i] ?? 0) & TILE_COLLIDES) !== 0) {
+    cells[i] = BLOCK_ALL;
+    return map.gidShapes[map.walls[i] ?? 0] ?? WALL_SHAPE_FULL;
+  }
+  if ((tileFlags & (TILE_WATER | TILE_VOID)) !== 0) cells[i] = BLOCK_BODIES;
+  // Safety net: the player can never step where there is no floor.
+  else if ((map.floor[i] ?? 0) === 0) cells[i] = BLOCK_PLAYER;
+  return 0;
+}
+
+/**
+ * Furniture `index` is gone (a boss crushed it, spec 07 §2): its tiles get
+ * back what lies under it, keeping any other furniture, weapon case or
+ * window on them. Doors never share a tile with furniture (validate-map).
+ */
+export function clearPropCells(grid: CollisionGrid, map: MapData, index: number, propsDestroyed: readonly boolean[]): void {
+  const prop = map.props[index];
+  if (!prop) return;
+  for (const t of prop.tiles) {
+    if (t.x < 0 || t.y < 0 || t.x >= map.width || t.y >= map.height) continue;
+    const i = t.y * map.width + t.x;
+    grid.shapes[i] = baseCell(map, grid.cells, i);
+    if (map.windows.some((w) => w.tileX === t.x && w.tileY === t.y)) grid.cells[i] = BLOCK_WINDOW;
+    const covered =
+      map.weaponCases.some((c) => c.tileX === t.x && c.tileY === t.y) ||
+      map.props.some((other, j) => j !== index && other.collides && !propsDestroyed[j] && other.tiles.some((u) => u.x === t.x && u.y === t.y));
+    if (covered) grid.cells[i] = (grid.cells[i] ?? 0) | BLOCK_PROP;
+  }
 }
 
 export function setDoorBlocking(grid: CollisionGrid, door: MapDoor, closed: boolean): void {

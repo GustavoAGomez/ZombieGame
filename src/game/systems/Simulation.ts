@@ -1,4 +1,5 @@
 import { updateBoosts } from './BoostSystem';
+import { updateBosses } from './BossSystem';
 import { updateBullets } from './BulletSystem';
 import { updateBurns } from './BurnSystem';
 import { updateBlood } from './Combat';
@@ -42,6 +43,8 @@ export function stepSimulation(ctx: SimContext, dt: number): void {
   updateBurns(ctx, dt);
   updateSpawns(ctx, dt);
   updateZombies(ctx, dt);
+  // After the zombies: a boss shoves aside the ones in its way.
+  updateBosses(ctx, dt);
   updateZombiePortals(ctx);
   updatePickups(ctx, dt);
   updateBlood(ctx, dt);

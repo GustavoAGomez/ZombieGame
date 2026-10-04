@@ -3,6 +3,7 @@ import type { AmmoKind, UpgradeKind, WeaponId } from '../config/weapons';
 import type { MerchantId, MerchantItemId } from '../config/merchants';
 import type { ActivationEffect, ActivationId } from '../config/activations';
 import type { ItemId } from '../config/items';
+import type { BossId, BossVariantId } from '../config/bosses';
 import type { ShopItemStatus } from './shop';
 
 /**
@@ -16,8 +17,16 @@ export interface GameEvents {
   'player:damaged': { playerId: number; hp: number; maxHp: number; x: number; y: number; fromX: number; fromY: number };
   'player:died': { playerId: number };
   'zombie:killed': { x: number; y: number; kind: ZombieKind };
+  /** A boss died (spec 07 §6), at the centre of its footprint. */
+  'boss:killed': { x: number; y: number; boss: BossId; variant: BossVariantId };
   /**
-   * A bullet or the knife hit a zombie: blood sprays from (x, y), where the
+   * The bosses' health bars at the top of the HUD (spec 07 §6), one per
+   * boss on the map with its bar showing: health 0..1 in BOSS.barSteps
+   * steps, and whether it is enraged. Empty: no bar.
+   */
+  'boss:bars': { bars: { boss: BossId; variant: BossVariantId; hp: number; enraged: boolean }[] };
+  /**
+   * A bullet or the knife hit a zombie (or a boss): blood sprays from (x, y), where the
    * hit is drawn, along (dirX, dirY); it falls to the zombie's feet (groundY).
    */
   'zombie:hit': { x: number; y: number; groundY: number; dirX: number; dirY: number; killed: boolean };

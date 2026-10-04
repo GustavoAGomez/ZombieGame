@@ -1538,3 +1538,39 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - Los originales sin tocar se guardan junto a `retocado/`.
 - **En el HUD:** `src/ui/sheetIcons.ts` registra al arrancar las hojas `weapon_icon` e `icon_*` del manifiesto (regla 5) y corta el fotograma con CSS, a 1× y pixelado. Una hoja sin arte devuelve `null` y el botón conserva su glifo SVG. Los botones no recortan su contenido, así que el icono puede salirse.
 - **Paleta:** la hoja de armas se reduce a 32 colores (de 225) sin diferencia visible, y cada icono redondo a 32 como mucho.
+
+## Spec 07 · Fase B1 (catálogo, calendario, cuerpo de 2×2 y navegación propia)
+
+- **Comprobación previa (pedida por el usuario):** con todas las puertas abiertas y el atrezo como transitable, un cuerpo de 2×2 llega a todas las salas de cada nivel de la mansión (planta baja, sótano y azotea). No hubo que tocar el mapa. El salón tiene un rincón de 2 posiciones que no conecta con el resto, sin importancia.
+- **Datos:** `src/config/bosses.ts` tiene el catálogo (`BOSSES`), las variantes (`BOSS_VARIANTS`) y el calendario (`BOSS_SCHEDULE`). Las reglas comunes a todos los bosses van en `BOSS` de `balance.ts`.
+  - Ids en inglés: el Matarife es `butcher`; las variantes, `base`, `rabid` (rabioso) y `putrid` (pútrido).
+  - **Vuelta del ciclo:** «×1,3 por cada vuelta» se aplica compuesto. La ronda 36 lleva ×1,3, la 60 ×1,69.
+  - **Vida:** base × variante × vuelta × jugadores (spec 07 §9).
+- **Estado:** `GameState.bosses` es un pool de 2 huecos (`BOSS.maxAlive`). Cada boss guarda el centro de su huella, su vida, su fase, su objetivo (el jugador vivo más cercano) y su propia quemadura. `GameState.propsDestroyed` (paralelo a `MapData.props`) recuerda los muebles aplastados.
+- **Navegación (`BossNav`):** un recorrido en anchura sobre las posiciones donde cabe la huella (su casilla de arriba a la izquierda), desde las posiciones que quedan a una casilla del objetivo.
+  - **Lo paran:** paredes, agua, vacío, casillas sin suelo, ventanas, vitrinas, escaleras y trampillas (siempre), y puertas cerradas, salas bloqueadas, la casilla del agujero de la mano y la de cada mago (según la partida). El atrezo no lo para: lo aplasta.
+  - **Ritmo:** recalcula al ritmo del campo de flujo (0,25 s) o en cuanto el objetivo cambia de casilla, y rehace entonces las casillas bloqueadas.
+  - **Un `BossNav` por hueco de boss**, en `SimContext.bossNavs`: cada boss persigue a su propio objetivo.
+- **Cuerpo:**
+  - Choca con una caja 2 px más pequeña por lado que la huella (60×60), para que entre por una puerta de 64 px sin estar perfectamente alineado. Se mueve eje a eje y en pasos de 8 px como mucho.
+  - Si choca en un eje, el resto del paso va por el otro hacia la siguiente posición. Sin esto se quedaba rozando las esquinas de las puertas a una fracción de su velocidad.
+  - La huella entera (64×64) aplasta el atrezo con colisión que toca.
+- **Muebles aplastados:** pierden la colisión para todos (`clearPropCells` rehace sus casillas con lo que hay debajo) y el campo de flujo de los zombies se recalcula. En el mapa, el mueble se vuelve transparente y en su huella aparece una mancha de astillas (`boss_rubble`, 32×32, repetida en mosaico).
+- **Contacto:**
+  - Al jugador lo saca de su huella sin hacerle daño: cuando el boss anda, hacia los lados de su marcha; si no, por el lado más cercano. El dash lo atraviesa.
+  - A los zombies los aparta a los lados de su marcha.
+  - Dos bosses nunca se pisan: se separan a medias por el eje en que menos se solapan.
+- **Daño:** le dan todas las armas.
+  - Balas, rayo y perdigones, por su caja de impacto (64×80) sobre el borde inferior de la huella. Las balas perforantes lo atraviesan como a un zombie (cuenta como uno de sus impactos).
+  - Cuchillo, katana y lanzallamas, por el punto de su huella más cercano al jugador. Vale si ese punto o su centro caen en el arco o el cono, porque cualquier parte de un cuerpo tan grande cuenta.
+  - Quemadura y estallidos del fuego infernal: arde como un zombie, pero al morir no estalla.
+  - Nada lo empuja.
+  - Puntos: los de cada impacto, como en un zombie. Su muerte no da los 50 de una baja: sus recompensas llegan en la B5.
+  - El apuntado automático y el cuchillo eligen al boss si está más cerca que el zombie más cercano.
+- **Muerte:** fase `dead` con el cadáver 1,5 s (se desvanece en el último medio segundo) y el evento `boss:killed`.
+- **Barra de vida:**
+  - Bajo el botón de pausa y centrada en él, porque en pantallas estrechas el botón se desplaza a la izquierda. Con dos bosses se apilan.
+  - Lleva el nombre en rojo, una barra roja y una marca negra en el 50 %. Enfurecido, la barra se pone ámbar.
+  - Con una tienda abierta se oculta, porque el mago se ve justo ahí, encima del panel.
+  - Comprobado en 844×390, 800×360 y 640×360 con dos barras, tres armas, objetos y la mejora guardada: sin solapes y con al menos 4 px de hueco.
+- **Debug:** `INVOCAR MATARIFE` lo pone a andar a 5 casillas o más del jugador (la regla del punto de entrada, sin `boss_spot` todavía) y nunca encima de otro boss. `MATAR BOSS` mata a los que haya. Con `HITBOX` se ven su huella (roja) y su caja de impacto (amarilla).

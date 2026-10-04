@@ -6,7 +6,7 @@ import { createInputCommand } from '../core/InputCommand';
 import { buildCollisionGrid } from '../game/map/CollisionGrid';
 import { parseMap, type MapData } from '../game/map/MapLoader';
 import { defaultMuzzles } from '../game/systems/shotGeometry';
-import { createNav, type SimContext } from '../game/systems/SimContext';
+import { createBossNavs, createNav, type SimContext } from '../game/systems/SimContext';
 
 /**
  * A fresh simulation on the placeholder map, for system tests. Spawning is
@@ -34,6 +34,7 @@ export function contextFor(map: MapData, seed = 1, toSpawn = 0): SimContext {
     map,
     grid: buildCollisionGrid(map, state.doorsOpen),
     nav: createNav(map),
+    bossNavs: createBossNavs(map),
     commands: state.players.map(() => createInputCommand()),
     events: new EventBus(),
     muzzles: defaultMuzzles(),

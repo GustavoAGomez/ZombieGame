@@ -483,6 +483,20 @@
       "frames": 2,
       "placeholder": true
     },
+    "boss_butcher": {
+      "file": "sprites/objects/boss_butcher.png",
+      "frameWidth": 96,
+      "frameHeight": 110,
+      "frames": 11,
+      "placeholder": true
+    },
+    "boss_rubble": {
+      "file": "sprites/objects/boss_rubble.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 2,
+      "placeholder": true
+    },
     "melee_slash": {
       "file": "sprites/objects/melee_slash.png",
       "frameWidth": 32,

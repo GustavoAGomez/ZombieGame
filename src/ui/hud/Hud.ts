@@ -1,4 +1,4 @@
-import { DOORS, HAND, ITEMS, MERCHANT, POINTS, WAVES, type BoostKind } from '../../config/balance';
+import { BOSS, DOORS, HAND, ITEMS, MERCHANT, POINTS, WAVES, type BoostKind } from '../../config/balance';
 import { merchantDef } from '../../config/merchants';
 import { COLORS } from '../../config/theme';
 import { UPGRADE_KINDS, WEAPONS, type UpgradeKind } from '../../config/weapons';
@@ -51,6 +51,9 @@ export class Hud {
   private readonly banner: HTMLDivElement;
   /** "EL MAGO AZUL SE HA MOVIDO" or "¡VELOCIDAD!" under the round banner (spec 03 §2, §5). */
   private readonly notice: HTMLDivElement;
+  /** The bosses' health bars under the pause button (spec 07 §6): one per boss slot, pooled. */
+  private readonly bossBars: HTMLDivElement;
+  private readonly bossRows: { row: HTMLDivElement; name: HTMLSpanElement; fill: HTMLDivElement }[] = [];
   private blinkTimer = 0;
   private readonly unsubscribers: (() => void)[] = [];
 
@@ -146,7 +149,21 @@ export class Hud {
     this.notice.style.animationDuration = `${MERCHANT.movedNoticeTime}s`;
     this.notice.addEventListener('animationend', () => this.notice.classList.remove('is-showing'));
 
-    this.root.append(this.hurt.root, left, right, this.banner, this.notice, this.dead);
+    // The bosses' bars: the name over a red bar with a mark at half, where its fury starts.
+    this.bossBars = el('div', 'hud-bosses');
+    for (let i = 0; i < BOSS.maxAlive; i++) {
+      const row = el('div', 'hud-boss');
+      const name = el('span', 'hud-boss__name');
+      const bar = el('div', 'hud-boss__bar');
+      const fill = el('div', 'hud-boss__fill');
+      bar.append(fill, el('span', 'hud-boss__half'));
+      row.append(name, bar);
+      row.hidden = true;
+      this.bossRows.push({ row, name, fill });
+      this.bossBars.appendChild(row);
+    }
+
+    this.root.append(this.hurt.root, left, right, this.bossBars, this.banner, this.notice, this.dead);
     parent.appendChild(this.root);
 
     this.unsubscribers.push(
@@ -167,6 +184,8 @@ export class Hud {
       events.on('hand:moved', this.onHandMoved),
       events.on('hand:refunded', this.onHandRefunded),
       events.on('weapon:broken', this.onWeaponBroken),
+      events.on('boss:bars', this.onBossBars),
+      events.on('shop:state', this.onShop),
     );
   }
 
@@ -324,6 +343,25 @@ export class Hud {
     this.weaponRow.classList.toggle('is-reloading', reloading);
     this.weaponRow.classList.toggle('is-switching', e.switching);
     if (reloading) this.reloadFill.style.transform = `scaleX(${e.reloadProgress})`;
+  };
+
+  /** The bosses' health bars: one row per boss shown, stacked. */
+  private readonly onBossBars = (e: GameEvents['boss:bars']): void => {
+    this.bossRows.forEach((r, i) => {
+      const bar = e.bars[i];
+      r.row.hidden = !bar;
+      if (!bar) return;
+      const name = STRINGS.bosses.names[bar.boss];
+      r.name.textContent = name;
+      r.row.setAttribute('aria-label', STRINGS.bosses.health(name));
+      r.row.classList.toggle('is-enraged', bar.enraged);
+      r.fill.style.transform = `scaleX(${bar.hp})`;
+    });
+  };
+
+  /** With a shop open the bars step aside: the merchant shows right above the panel, where they are. */
+  private readonly onShop = (e: GameEvents['shop:state']): void => {
+    this.bossBars.classList.toggle('is-hidden', e.merchant !== null);
   };
 
   private readonly onDamaged = (e: GameEvents['player:damaged']): void => {

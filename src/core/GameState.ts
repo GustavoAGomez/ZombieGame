@@ -1,4 +1,5 @@
-import { BOOSTS, BULLETS, LOADOUT, PICKUPS, PLAYER, POINTS, WAVES, ZOMBIES, type BoostKind, type PickupKind, type ZombieKind } from '../config/balance';
+import { BOOSTS, BOSS, BULLETS, LOADOUT, PICKUPS, PLAYER, POINTS, WAVES, ZOMBIES, type BoostKind, type PickupKind, type ZombieKind } from '../config/balance';
+import type { BossId, BossVariantId } from '../config/bosses';
 import { WEAPON_SPECIALS, WEAPONS, type UpgradeKind, type WeaponId } from '../config/weapons';
 import { ACTIVATIONS } from '../config/activations';
 import { MERCHANTS, type MerchantId } from '../config/merchants';
@@ -327,6 +328,43 @@ export interface BurnState {
   hellfire: boolean;
 }
 
+/**
+ * Where a boss is in its life (spec 07): walking after its target, and
+ * dead (its corpse on screen for BOSS.corpseTime).
+ */
+export type BossPhase = 'walking' | 'dead';
+
+/** A boss on the map (spec 07). Pooled: BOSS.maxAlive slots, toggled with `active`. */
+export interface BossState {
+  active: boolean;
+  boss: BossId;
+  variant: BossVariantId;
+  /** Centre of its footprint (world px), and where it was at the start of the last tick (render interpolation). */
+  x: number;
+  y: number;
+  prevX: number;
+  prevY: number;
+  /** Facing angle in radians (0 = east, π/2 = south). */
+  facing: number;
+  /** True when it moved during the last tick (walking animation). */
+  moving: boolean;
+  hp: number;
+  maxHp: number;
+  phase: BossPhase;
+  /** Seconds left in the phase (0 when it has no end). */
+  timer: number;
+  /** Tick the phase started (views). */
+  phaseTick: number;
+  /** Below half its health, or from the start for some variants (spec 07 §5). */
+  enraged: boolean;
+  /** Player id it goes for (the nearest one alive, spec 07 §9), -1 none. */
+  target: number;
+  /** Fire on it (the burn hurts it too). */
+  burn: BurnState;
+  /** Tick of the last hit of a continuous weapon that scored on it (as for zombies). */
+  contactScoreTick: number;
+}
+
 /** A burst of hellfire waiting to go off this tick (spec 06 §2.3): queued when a hellfire-burning zombie dies. */
 export interface BlastState {
   active: boolean;
@@ -409,6 +447,8 @@ export interface GameState extends RngState {
   players: PlayerState[];
   bullets: BulletState[];
   zombies: ZombieState[];
+  /** Spec 07: BOSS.maxAlive slots. */
+  bosses: BossState[];
   /** Hellfire bursts queued this tick, set off by BurnSystem (pooled). */
   blasts: BlastState[];
   blood: BloodState[];
@@ -430,6 +470,8 @@ export interface GameState extends RngState {
   windowPlanks: number[];
   /** Parallel to MapData.zones. */
   zonesUnlocked: boolean[];
+  /** Parallel to MapData.props: furniture a boss crushed (no collision any more, drawn as rubble). */
+  propsDestroyed: boolean[];
 }
 
 export function createWeaponSlot(id: WeaponId): WeaponSlotState {
@@ -566,6 +608,29 @@ function createZombie(): ZombieState {
   };
 }
 
+export function createBoss(): BossState {
+  return {
+    active: false,
+    boss: 'butcher',
+    variant: 'base',
+    x: 0,
+    y: 0,
+    prevX: 0,
+    prevY: 0,
+    facing: Math.PI / 2,
+    moving: false,
+    hp: 0,
+    maxHp: 0,
+    phase: 'walking',
+    timer: 0,
+    phaseTick: 0,
+    enraged: false,
+    target: -1,
+    burn: { timer: 0, tickTimer: 0, perTick: 0, owner: -1, hellfire: false },
+    contactScoreTick: -1000,
+  };
+}
+
 function createPickup(): PickupState {
   return { active: false, kind: 'ammo', x: 0, y: 0, age: 0 };
 }
@@ -614,6 +679,7 @@ export function createGameState(map: MapData, options: GameOptions = {}): GameSt
     players,
     bullets: Array.from({ length: BULLETS.poolSize }, createBullet),
     zombies: Array.from({ length: ZOMBIES.poolSize }, createZombie),
+    bosses: Array.from({ length: BOSS.maxAlive }, createBoss),
     blasts: Array.from({ length: ZOMBIES.poolSize }, () => ({ active: false, x: 0, y: 0, owner: -1 })),
     blood: Array.from({ length: ZOMBIES.maxBloodDecals }, createBlood),
     pickups: Array.from({ length: PICKUPS.poolSize }, createPickup),
@@ -624,6 +690,7 @@ export function createGameState(map: MapData, options: GameOptions = {}): GameSt
     portalsOpen: initialAccesses(map).portals,
     windowPlanks: map.windows.map((w) => w.planks),
     zonesUnlocked: map.zones.map((z) => z.startsUnlocked),
+    propsDestroyed: map.props.map(() => false),
     groundItems: [],
     activations: ACTIVATIONS.map(() => ({ received: [], landsAt: [], thrownBy: [], done: false, doneTick: -1 })),
     hand: emptyHand(),
