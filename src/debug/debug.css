@@ -1,18 +1,19 @@
 .debug-panel {
   position: absolute;
-  /* Under the top-left HUD block, clear of the pause button and the controls. */
+  /* Folded: the stats alone, under the top-left HUD block, clear of the pause button and the controls. A tap opens the sheet. */
   left: var(--pad-x);
   top: 112px;
   z-index: 900;
-  /* Never past the bottom of the screen: the buttons scroll inside it (a phone in landscape is short). */
-  display: flex;
-  flex-direction: column;
-  max-height: calc(100% - 112px - var(--pad-bottom) - 8px);
   padding: 6px 8px;
   background: rgba(15, 14, 12, 0.8);
   box-shadow: inset 0 0 0 2px var(--door);
-  /* It lies over the joystick's zone on short screens: only its buttons take touches. */
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.debug-panel[hidden] {
+  display: none;
 }
 
 .debug-panel pre {
@@ -21,13 +22,45 @@
   font-size: 10px;
   line-height: 1.4;
   color: var(--bone);
-  /* A tap on the stats folds the buttons away (they can cover a shop panel). */
-  pointer-events: auto;
-  cursor: pointer;
 }
 
-.debug-panel.is-folded .debug-buttons {
+/* Open: every button over the whole screen, big enough for a thumb, with no scrolling. */
+.debug-sheet {
+  position: absolute;
+  inset: 0;
+  z-index: 960;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: max(var(--pad-top), 10px) var(--pad-x) max(var(--pad-bottom), 10px);
+  background: rgba(15, 14, 12, 0.94);
+  pointer-events: auto;
+  overflow-y: auto;
+  touch-action: manipulation;
+}
+
+.debug-sheet[hidden] {
   display: none;
+}
+
+.debug-sheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.debug-sheet__title {
+  font-family: var(--font-display);
+  font-size: 12px;
+  color: var(--bone);
+}
+
+.debug-sheet__close.debug-button {
+  min-height: 36px;
+  padding: 6px 16px;
+  font-size: 10px;
+  color: var(--ink);
+  background: var(--amber);
 }
 
 .debug-corner {
@@ -42,27 +75,22 @@
 
 .debug-buttons {
   display: grid;
-  grid-template-columns: repeat(3, auto);
-  gap: 3px;
-  margin-top: 6px;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  touch-action: pan-y;
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  gap: 4px;
 }
 
 .debug-button {
-  pointer-events: auto;
+  min-height: 34px;
   margin: 0;
-  padding: 4px 4px;
+  padding: 4px;
   border: 0;
   font-family: var(--font-label);
-  font-size: 8px;
+  font-size: 9px;
   color: var(--bone);
   background: var(--panel);
   box-shadow: inset 0 0 0 1px var(--door);
-  /* A drag starting on a button scrolls the list (and cancels the press). */
-  touch-action: pan-y;
+  pointer-events: auto;
+  touch-action: manipulation;
   -webkit-appearance: none;
   appearance: none;
 }

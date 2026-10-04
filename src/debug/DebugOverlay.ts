@@ -55,16 +55,22 @@ const TRIPLE_TAP_WINDOW_MS = 600;
 const REFRESH_MS = 250;
 
 /**
- * Debug panel (spec 01 §8, spec 03 §7, spec 04 §5, spec 05 §8). Enabled
- * with ?debug=1 or a triple tap on the top-left corner. Stats are pulled on
- * a timer, never every frame. Buttons: next round, +5000$, god mode,
- * drawing the hitboxes and the flow field, then weapon level and special, a
- * boost, moving the merchants, the red and gold merchants, +10000$, the SMG
- * and the shotgun, and the special items: both into the inventory, a jump
- * to the wand and drawing the item spots (only while a match is running).
+ * Debug panel (spec 01 §8, spec 03 §7, spec 04 §5, spec 05 §8, spec 06 §5,
+ * spec 07 §10). Enabled with ?debug=1 or a triple tap on the top-left
+ * corner. Folded, only its stats show, at the top left under the HUD; a tap
+ * on them opens a sheet over the whole screen with every button at a
+ * glance, big enough for a thumb (no scrolling: it did not work on a phone),
+ * which stays open while they are used and folds back with CERRAR. Stats
+ * are pulled on a timer, never every frame. The buttons act on release and
+ * only while a match is running: rounds, money, god mode, drawings
+ * (hitboxes, flow field, spots), weapons and their upgrades, boosts,
+ * merchants, special items, the Demon's Hand and the bosses.
  */
 export class DebugOverlay {
+  /** Folded: the stats alone at the top left; a tap on them opens the sheet. */
   private readonly panel: HTMLDivElement;
+  /** Open: every button over the whole screen, with a button to fold it back. */
+  private readonly sheet: HTMLDivElement;
   private readonly statsEl: HTMLPreElement;
   private timer = 0;
   private visible = false;
@@ -85,7 +91,6 @@ export class DebugOverlay {
       b.type = 'button';
       b.className = 'debug-button';
       b.textContent = label;
-      // On release: a drag that scrolls the list cancels the pointer (pointercancel), so it presses nothing.
       b.addEventListener('pointerup', (e) => {
         e.preventDefault();
         const a = actions();
@@ -123,12 +128,32 @@ export class DebugOverlay {
     button(STRINGS.debug.forceCharge, (a) => a.forceAttack('charge'));
     button(STRINGS.debug.forceSlam, (a) => a.forceAttack('slam'));
     button(STRINGS.debug.forceLeap, (a) => a.forceAttack('leap'));
-    this.panel.append(this.statsEl, buttons);
-    this.statsEl.addEventListener('pointerdown', (e) => {
+    this.panel.append(this.statsEl);
+    this.panel.addEventListener('pointerup', (e) => {
       e.preventDefault();
-      this.panel.classList.toggle('is-folded');
+      this.setOpen(true);
     });
-    root.appendChild(this.panel);
+
+    // The sheet: a title, the button that folds it back to the top left, and every button at a glance (no scrolling).
+    this.sheet = document.createElement('div');
+    this.sheet.className = 'debug-sheet';
+    this.sheet.hidden = true;
+    const head = document.createElement('div');
+    head.className = 'debug-sheet__head';
+    const title = document.createElement('span');
+    title.className = 'debug-sheet__title';
+    title.textContent = STRINGS.debug.title;
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'debug-button debug-sheet__close';
+    close.textContent = STRINGS.debug.close;
+    close.addEventListener('pointerup', (e) => {
+      e.preventDefault();
+      this.setOpen(false);
+    });
+    head.append(title, close);
+    this.sheet.append(head, buttons);
+    root.append(this.panel, this.sheet);
 
     const corner = document.createElement('div');
     corner.className = 'debug-corner';
@@ -151,9 +176,16 @@ export class DebugOverlay {
     return this.visible;
   }
 
+  /** Opens the sheet over the whole screen, or folds it back to the stats at the top left. */
+  setOpen(open: boolean): void {
+    this.sheet.hidden = !open;
+    this.panel.hidden = open;
+  }
+
   setVisible(visible: boolean): void {
     this.visible = visible;
     this.panel.style.display = visible ? '' : 'none';
+    if (!visible) this.setOpen(false);
     window.clearInterval(this.timer);
     if (visible) {
       this.refresh();

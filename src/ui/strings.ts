@@ -25,6 +25,8 @@ export const STRINGS = {
   rotateDevice: 'GIRA EL MÓVIL',
   rotateDeviceHint: 'Este juego se juega en horizontal',
   debug: {
+    title: 'DEPURACIÓN',
+    close: 'CERRAR',
     nextRound: 'RONDA +1',
     points: '+5000$',
     god: 'DIOS',

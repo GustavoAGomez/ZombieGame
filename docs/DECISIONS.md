@@ -1645,3 +1645,10 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - La barra se pone ámbar.
 - **Daño a los jugadores:** todos los golpes pasan por `damagePlayer`, así que el dash y el modo dios los esquivan. Un jugador que esquiva con el dash no cuenta como alcanzado, y si al acabar el dash sigue en la zona, el golpe aún puede darle.
 - **Debug:** `FORZAR MAZAZO` y `FORZAR SALTOS`, como `FORZAR EMBESTIDA`.
+
+## Panel de depuración a pantalla completa (petición del usuario)
+
+- Con los botones de los bosses, la lista del panel pasaba del borde inferior en un móvil apaisado, y en el teléfono no se podía desplazar con el dedo.
+- **Plegado:** solo se ven las estadísticas, arriba a la izquierda bajo el HUD. Al tocarlas se abre el panel.
+- **Abierto:** una hoja sobre toda la pantalla con todos los botones a la vista, en una rejilla que se adapta al ancho y con botones de 34 px de alto. Se queda abierta mientras se usa y se pliega con `CERRAR`. Comprobado en 640×360, la pantalla más pequeña: caben los 29 botones sin desplazar nada.
+- Los botones actúan al soltar el dedo.
