@@ -17,13 +17,13 @@ export interface GameEvents {
   'player:damaged': { playerId: number; hp: number; maxHp: number; x: number; y: number; fromX: number; fromY: number };
   'player:died': { playerId: number };
   'zombie:killed': { x: number; y: number; kind: ZombieKind };
-  /** A crack opens where a boss is about to come out (spec 07 §3): the floor shakes, vibration. */
+  /** A boss's circle starts filling where it is about to fall from the sky (spec 07 §3): vibration. */
   'boss:warning': { x: number; y: number };
-  /** A boss roars (spec 07 §3, §5): out of the floor, and when its fury starts. */
+  /** A boss roars (spec 07 §3, §5): once it has landed from the sky, and when its fury starts. */
   'boss:roar': { x: number; y: number };
   /** A blow of a boss's slam fell there (spec 07 §4.2). */
   'boss:slam': { x: number; y: number };
-  /** A boss landed from a leap (spec 07 §4.3): the screen shakes, vibration. */
+  /** A boss landed, from the sky or from a leap (spec 07 §3, §4.3): the screen shakes, vibration. */
   'boss:landed': { x: number; y: number };
   /** A charging boss ran into a wall and is stunned (spec 07 §4.1): the floor jolts. */
   'boss:stunned': { x: number; y: number };

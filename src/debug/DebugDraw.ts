@@ -1,5 +1,5 @@
 import type Phaser from 'phaser';
-import { BULLETS, MERCHANT, PLAYER, ZOMBIES } from '../config/balance';
+import { BOSS, BULLETS, MERCHANT, PLAYER, ZOMBIES } from '../config/balance';
 import { BOSSES } from '../config/bosses';
 import type { GameState } from '../core/GameState';
 import type { MapData } from '../game/map/MapLoader';
@@ -89,7 +89,7 @@ export class DebugDraw {
    * Where each boss's blows really hurt (spec 07 §10), in magenta: its
    * charge's contact box (its footprint widened by the player's hitbox), the
    * slam's arc as it aims now, the landing circle at its leap's target, the
-   * band of its ring, and the puddles.
+   * circle it falls on from the sky, the band of its ring, and the puddles.
    */
   private drawBossZones(state: GameState): void {
     const g = this.g;
@@ -108,6 +108,8 @@ export class DebugDraw {
       g.closePath();
       g.strokePath();
       if (b.stage === 'air') g.strokeCircle(b.targetX, b.targetY, def.leap.landRadius);
+      // Coming in from the sky: where its landing hurts.
+      if (b.phase === 'warning' || b.phase === 'falling') g.strokeCircle(b.x, b.y, BOSS.dropRadius + PLAYER.hitboxRadius);
       if (b.waveTime >= 0) {
         const outer = Math.min(def.leap.waveRadius, def.leap.waveSpeed * b.waveTime);
         g.strokeCircle(b.waveX, b.waveY, outer);

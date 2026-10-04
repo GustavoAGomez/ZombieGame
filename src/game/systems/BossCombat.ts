@@ -18,14 +18,14 @@ export function isBossAlive(b: BossState): boolean {
   return b.active && b.hp > 0 && b.phase !== 'dead';
 }
 
-/** Out of the floor with its whole body: it blocks players and shoves zombies. */
+/** On the floor: it blocks players and shoves zombies. Not while in the sky, falling, jumping away nor in the air on a leap. */
 export function isBossSolid(b: BossState): boolean {
-  return isBossAlive(b) && b.phase !== 'warning' && b.phase !== 'sinking' && b.stage !== 'air';
+  return isBossAlive(b) && b.phase !== 'warning' && b.phase !== 'falling' && b.phase !== 'rising' && b.stage !== 'air';
 }
 
-/** It can be hurt now: never underground, nor while it climbs out or sinks (spec 07 §3), nor in the air on a leap (§4.3). */
+/** It can be hurt now: only on the floor (never coming in, jumping away, nor in the air on a leap, spec 07 §3 and §4.3). */
 export function isBossHittable(b: BossState): boolean {
-  return isBossSolid(b) && b.phase !== 'emerging';
+  return isBossSolid(b);
 }
 
 /** Its health bar shows at the top of the HUD (spec 07 §6): from its first roar until it dies. */

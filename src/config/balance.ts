@@ -437,25 +437,26 @@ export const BOSS = {
   /** Its corpse stays on screen this long (s). */
   corpseTime: 1.5,
   /**
-   * Coming in (spec 07 §3): the floor shakes and a crack opens on its boss
-   * spot for warningTime s; it climbs out in emergeTime (it cannot be hurt
-   * and does not attack), then roars for roarTime and its bar shows.
+   * Coming in (petición del usuario, replaces spec 07 §3's crack): a circle
+   * fills on the floor of its boss spot for warningTime s, under its growing
+   * shadow; it falls from the sky in fallTime (it cannot be hurt nor block
+   * anyone) and lands, then roars for roarTime and its bar shows.
    */
   warningTime: 3,
-  emergeTime: 1.2,
+  fallTime: 0.6,
   roarTime: 1,
-  /** Side (tiles) of the crack: the boss spot's square. */
-  crackTiles: 3,
-  /** Whoever stands in the crack as it climbs out takes this (× the variant's damage) and is thrown out of it. */
-  crackDamage: 20,
+  /** Radius (px) of the circle it falls on: the boss spot's 3×3 tiles. */
+  dropRadius: 48,
+  /** Whoever stands in the circle as it lands takes this (× the variant's damage); zombies too. */
+  dropDamage: 20,
   /** It comes out of the boss spot nearest the player by walking among those at least this many tiles away (the farthest when none is). */
   spotMinTiles: 5,
   /**
    * When the player it goes for changes level, or after noPathTime s with
-   * no way to them, it sinks into the floor (sinkTime s, it cannot be hurt)
-   * and comes out again near them, with the same warning and its health.
+   * no way to them, it jumps up into the sky (riseTime s, it cannot be hurt)
+   * and falls again near them, with the same warning and its health.
    */
-  sinkTime: 1.2,
+  riseTime: 1,
   noPathTime: 5,
   /** With no attack that will do when its walk is over, it walks on and thinks again this much later (s). */
   rethinkTime: 0.25,

@@ -222,19 +222,20 @@ Zombis enormes que salen del suelo en rondas fijas. Hoy hay uno, **el Matarife**
   - Si se acaban los zombis con un boss vivo, entra uno cada 6 s mientras haya menos de 4 vivos, 20 como mucho.
   - Una flecha roja en el borde de la pantalla señala al boss cuando no se ve (solo en el nivel en el que estás).
   - Los magos y la mano funcionan igual.
-- **Cómo entra:** por un punto de salida (1 a 3 por sala, también en el sótano y la azotea), el más cercano andando entre los que están a 5 casillas o más; si no hay ninguno tan lejos, el más lejano.
-  - **Aviso, 3 s:** se abre una grieta de 3×3 casillas con brasas, el suelo tiembla y vibra el móvil.
-  - **Salida, 1,2 s:** trepa sin poder recibir daño y aplasta el atrezo de la grieta. Quien esté dentro recibe 20: el jugador sale despedido, y los zombis también lo sufren.
+- **Cómo entra:** cae del cielo sobre un punto de salida (1 a 3 por sala, también en el sótano y la azotea), el más cercano andando entre los que están a 5 casillas o más; si no hay ninguno tan lejos, el más lejano.
+  - **Aviso, 3 s:** en el suelo se llena un círculo rojo de 48 px de radio (las 3×3 casillas del punto) con su sombra creciendo en el centro, y vibra el móvil. Hay tiempo de salir.
+  - **Caída, 0,6 s:** cae desde fuera de la pantalla, sin poder recibir daño ni bloquear a nadie.
+  - **Impacto:** aplasta el atrezo del círculo y quien siga dentro recibe 20 (× la variante); los zombis también. La pantalla se sacude. Si te cae encima, te aparta de su cuerpo.
   - **Rugido, 1 s:** aparece su barra de vida.
-  - Si cambias de nivel (sótano, azotea) o pasa 5 s sin poder llegar hasta ti, se hunde (1,2 s, sin recibir daño) y vuelve a salir cerca, con la misma vida.
+  - Si cambias de nivel (sótano, azotea) o pasa 5 s sin poder llegar hasta ti, salta al cielo (1 s, sin recibir daño) y vuelve a caer cerca, con el mismo aviso y la misma vida.
 - **El Matarife:**
-  - **Cuerpo:** huella de 2×2 casillas, por eso cruza las puertas y los pasos de 2. Dibujo de unos 96×110 y caja de impacto de 64×80.
+  - **Cuerpo:** huella de 2×2 casillas, por eso cruza las puertas y los pasos de 2. Dibujo de unos 116×118 (arte de PixelLab; andar, embestida, mazazo y salto en 8 direcciones, el resto en 4) y caja de impacto de 64×80.
   - **Vida y velocidad:** 100 (× variante × vuelta × jugadores); anda a 38 px/s.
   - **Choques:** las paredes, puertas cerradas, ventanas, agua, vitrinas, escaleras, magos y el agujero de la mano lo paran. Los muebles con colisión los aplasta para el resto de la partida: pierden la colisión para todos y queda una mancha de astillas.
   - **Contacto:** aparta a los zombis y te empuja sin hacerte daño; el dash lo atraviesa. Andando no hace daño: solo dañan sus ataques.
   - **Inmunidades:** no se le empuja, no pierde las piernas y no muere de un golpe. Le dañan todas las armas, la quemadura incluida; las balas perforantes lo atraviesan.
 - **Sus ataques:** todos se anuncian. Se queda quieto en una pose y en el suelo se dibuja en rojo la zona exacta del golpe, llenándose hasta que cae. El dash es invulnerable y sirve contra los tres.
-  - **Contra los zombis:** todos sus golpes dañan también a los zombis normales igual que al jugador: la grieta, la embestida (los mata), el mazazo (los empuja si sobreviven), el aterrizaje, la onda y los charcos. Nadie gana puntos por esas bajas. Los bosses no se hacen daño entre ellos.
+  - **Contra los zombis:** todos sus golpes dañan también a los zombis normales igual que al jugador: la caída del cielo, la embestida (los mata), el mazazo (los empuja si sobreviven), el aterrizaje, la onda y los charcos. Nadie gana puntos por esas bajas. Los bosses no se hacen daño entre ellos.
 
 | Ataque | Aviso | Golpe | Después |
 |---|---|---|---|

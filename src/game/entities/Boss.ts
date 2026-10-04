@@ -21,13 +21,8 @@ import { ARROW_EDGE_GAP, edgeArrow, type ViewEdges } from './Merchant';
 
 /** The corpse fades out over its last this-many seconds. */
 const CORPSE_FADE = 0.5;
-/** The crack is the Demon's Hand's hole drawn twice as big (96×80 over its 3×3 tiles), its fire looping this fast. */
-const CRACK_SCALE = 2;
-const CRACK_FIRE_FPS = 10;
-/** Of the warning, the part the crack takes to break open; the rest it burns open. */
-const CRACK_OPENING_SHARE = 0.4;
-/** Sinking, the crack takes this long (s) to break open again around it. */
-const CRACK_REOPEN_TIME = 0.24;
+/** How high (px) above the floor it falls from, and jumps up to: out of view. */
+const SKY_HEIGHT = 360;
 
 /** How high (px) its leap arcs above the floor at the top. */
 const LEAP_HEIGHT = 40;
@@ -71,6 +66,9 @@ export function bossFrame(b: BossState, time: number, tick: number, art: BossArt
   const idle: BossFrame = { animation: 'idle', frame: 0 };
 
   if (b.phase === 'dead') return once('death', elapsed);
+  // Falling from the sky it is in the air of its leap; jumping up into it, crouching and taking off first.
+  if (b.phase === 'falling') return span('leap', mark('leap', 'air', 0), mark('leap', 'land', frames('leap')), elapsed / BOSS.fallTime);
+  if (b.phase === 'rising') return span('leap', 0, mark('leap', 'land', frames('leap')), elapsed / BOSS.riseTime);
   if (b.phase === 'roaring') return span('roar', 0, frames('roar'), elapsed / BOSS.roarTime);
   if (b.phase === 'attacking') {
     const sinceBlow = (tick - b.blowTick) / SIM.hz;
@@ -104,47 +102,44 @@ export function bossFrame(b: BossState, time: number, tick: number, art: BossArt
   return idle;
 }
 
-/** How much of its body is out of the floor (0 under it .. 1 all out): it climbs out, and sinks back in. */
-export function bossRise(b: BossState, elapsed: number): number {
+/**
+ * How high (px) above the floor it is (render only): falling from the sky,
+ * faster and faster, and jumping back up into it; null while it is still up
+ * there (its circle filling).
+ */
+export function bossHeight(b: BossState, elapsed: number): number | null {
   switch (b.phase) {
     case 'warning':
-      return 0;
-    case 'emerging': {
-      const t = Math.min(1, Math.max(0, elapsed / BOSS.emergeTime));
-      return 1 - (1 - t) * (1 - t);
+      return null;
+    case 'falling': {
+      const t = Math.min(1, Math.max(0, elapsed / BOSS.fallTime));
+      return SKY_HEIGHT * (1 - t * t);
     }
-    case 'sinking': {
-      const t = Math.min(1, Math.max(0, elapsed / BOSS.sinkTime));
-      return 1 - t * t;
+    case 'rising': {
+      const t = Math.min(1, Math.max(0, elapsed / BOSS.riseTime));
+      return SKY_HEIGHT * t * t;
     }
     default:
-      return 1;
+      return 0;
   }
 }
 
-/** Its crack: none, breaking open (`progress` 0..1 in the opening frames, backwards to close) or open with fire. */
-export interface CrackLook {
-  anim: 'none' | 'opening' | 'fire';
-  progress: number;
-}
-
-export function bossCrackLook(b: BossState, elapsed: number): CrackLook {
+/**
+ * Size of its shadow on the floor (0 none .. 1 as big as its body): it grows
+ * while its circle fills and as it falls, is whole in the air on a leap,
+ * and shrinks as it jumps away. 0 when it stands on the floor.
+ */
+export function bossShadow(b: BossState): number {
+  const done = (total: number): number => Math.min(1, Math.max(0, 1 - b.timer / total));
   switch (b.phase) {
-    case 'warning': {
-      const p = elapsed / (BOSS.warningTime * CRACK_OPENING_SHARE);
-      return p < 1 ? { anim: 'opening', progress: Math.max(0, p) } : { anim: 'fire', progress: 1 };
-    }
-    case 'emerging':
-      return { anim: 'fire', progress: 1 };
-    case 'roaring':
-      // Out of it: the crack closes as it roars.
-      return { anim: 'opening', progress: Math.max(0, 1 - elapsed / BOSS.roarTime) };
-    case 'sinking': {
-      const p = elapsed / CRACK_REOPEN_TIME;
-      return p < 1 ? { anim: 'opening', progress: Math.max(0, p) } : { anim: 'fire', progress: 1 };
-    }
+    case 'warning':
+      return 0.15 + 0.35 * done(BOSS.warningTime);
+    case 'falling':
+      return 0.5 + 0.5 * done(BOSS.fallTime);
+    case 'rising':
+      return 1 - done(BOSS.riseTime);
     default:
-      return { anim: 'none', progress: 0 };
+      return b.stage === 'air' ? 1 : 0;
   }
 }
 
@@ -157,8 +152,6 @@ export function bossCrackLook(b: BossState, elapsed: number): CrackLook {
  */
 export class BossViewPool {
   private readonly sprites: Phaser.GameObjects.Sprite[];
-  private readonly cracks: Phaser.GameObjects.Image[];
-  private readonly crackFrames: { opening: number; fire: number };
   private readonly anims: Phaser.Animations.AnimationManager;
 
   constructor(
@@ -175,11 +168,6 @@ export class BossViewPool {
         .setOrigin(def?.anchor.x ?? 0.5, def?.anchor.y ?? 1)
         .setVisible(false),
     );
-    this.cracks = Array.from({ length: count }, () =>
-      scene.add.image(0, 0, objectTextureKey(ASSET_KEYS.handCrackOpen), 0).setScale(CRACK_SCALE).setDepth(DEPTH.decals).setVisible(false),
-    );
-    const frames = (key: string): number => Math.max(1, manifest.objects[key]?.frames ?? 1);
-    this.crackFrames = { opening: frames(ASSET_KEYS.handCrackOpening), fire: frames(ASSET_KEYS.handCrackOpen) };
   }
 
   private character(boss: BossState['boss']): CharacterDef | undefined {
@@ -190,21 +178,18 @@ export class BossViewPool {
   sync(bosses: readonly BossState[], alpha: number, time: number, tick: number, isDark: (x: number, y: number) => boolean): void {
     for (let i = 0; i < this.sprites.length; i++) {
       const sprite = this.sprites[i];
-      const crack = this.cracks[i];
       const b = bosses[i];
-      if (!sprite || !crack) continue;
+      if (!sprite) continue;
       if (!b?.active) {
         if (sprite.visible) sprite.setVisible(false);
-        if (crack.visible) crack.setVisible(false);
         continue;
       }
       const x = b.prevX + (b.x - b.prevX) * alpha;
       const y = b.prevY + (b.y - b.prevY) * alpha;
       const elapsed = phaseElapsed(b, tick);
-      this.syncCrack(crack, bossCrackLook(b, elapsed), x, y, time, isDark(x, y));
-      const rise = bossRise(b, elapsed);
+      const height = bossHeight(b, elapsed);
       const def = this.character(b.boss);
-      if (isDark(x, y) || rise <= 0 || !def) {
+      if (isDark(x, y) || height === null || !def) {
         if (sprite.visible) sprite.setVisible(false);
         continue;
       }
@@ -219,17 +204,12 @@ export class BossViewPool {
       else sprite.clearTint();
       // Its fury's roar (spec 07 §5): a red flash.
       if (b.phase === 'roaring' && b.enraged && Math.floor(elapsed / FURY_FLASH) % 2 === 0) sprite.setTint(FURY_TINT);
-      // Coming out of the floor: the part still under it is pushed down and cut off at the floor line (its feet).
-      const feetRow = Math.round(sprite.frame.height * def.anchor.y);
-      const sunk = Math.round((1 - rise) * feetRow);
-      if (sunk > 0) sprite.setCrop(0, 0, sprite.frame.width, feetRow - sunk);
-      else if (sprite.isCropped) sprite.setCrop();
-      // In the air on a leap it arcs up and down over its line.
+      // In the air on a leap it arcs up and down over its line; coming in, it falls from the sky.
       const t = b.stage === 'air' ? Math.min(1, Math.max(0, 1 - b.timer / leapAirTime(b))) : 0;
-      const lift = Math.round(4 * LEAP_HEIGHT * t * (1 - t));
+      const lift = Math.round(4 * LEAP_HEIGHT * t * (1 - t) + height);
       sprite
         .setVisible(true)
-        .setPosition(Math.round(x), Math.round(feet) + sunk - lift)
+        .setPosition(Math.round(x), Math.round(feet) - lift)
         .setAlpha(b.phase === 'dead' ? Math.min(1, b.timer / CORPSE_FADE) : 1)
         .setDepth(actorDepth(feet));
     }
@@ -248,24 +228,14 @@ export class BossViewPool {
     else if (sprite.frame.name !== frame.name) sprite.setFrame(frame.name);
     return true;
   }
-
-  private syncCrack(crack: Phaser.GameObjects.Image, look: CrackLook, x: number, y: number, time: number, dark: boolean): void {
-    if (look.anim === 'none' || dark) {
-      if (crack.visible) crack.setVisible(false);
-      return;
-    }
-    const { opening, fire } = this.crackFrames;
-    if (look.anim === 'fire') crack.setTexture(objectTextureKey(ASSET_KEYS.handCrackOpen), Math.floor(time * CRACK_FIRE_FPS) % fire);
-    else crack.setTexture(objectTextureKey(ASSET_KEYS.handCrackOpening), Math.min(opening - 1, Math.floor(look.progress * opening)));
-    crack.setVisible(true).setPosition(Math.round(x), Math.round(y));
-  }
 }
 
 /**
  * A zone on the floor that a boss's blow is about to hit (spec 07 §4), with
  * how full it is (0..1, up to the blow): the charge's corridor (from the
  * front of its footprint, as wide as its body and as long as its run or up
- * to what will stop it), the slam's arc and the leap's landing circle.
+ * to what will stop it), the slam's arc, and the circle a leap or its fall
+ * from the sky lands on.
  */
 export type BossZone =
   | { kind: 'corridor'; x: number; y: number; dirX: number; dirY: number; length: number; width: number; fill: number }
@@ -274,9 +244,12 @@ export type BossZone =
 
 /** The zone boss `b` is announcing now, or null. */
 export function bossZone(b: BossState, tileSize: number): BossZone | null {
+  const fill = (total: number): number => Math.min(1, Math.max(0, 1 - b.timer / total));
+  // Coming in: where it will fall, filling while it is up there, full as it falls.
+  if (b.phase === 'warning') return { kind: 'circle', x: b.x, y: b.y, radius: BOSS.dropRadius, fill: fill(BOSS.warningTime) };
+  if (b.phase === 'falling') return { kind: 'circle', x: b.x, y: b.y, radius: BOSS.dropRadius, fill: 1 };
   if (b.phase !== 'attacking') return null;
   const def = BOSSES[b.boss];
-  const fill = (total: number): number => Math.min(1, Math.max(0, 1 - b.timer / total));
   if (b.attack === 'charge' && b.stage === 'windup') {
     const half = (def.footprintTiles * tileSize) / 2;
     return {
@@ -305,19 +278,14 @@ const ZONE_COLOR = Number.parseInt(COLORS.red.slice(1), 16);
 const ZONE_EDGE = Number.parseInt(COLORS.redLow.slice(1), 16);
 /** The ring of a landing: orange like the fire, the band that hurts. */
 const WAVE_COLOR = Number.parseInt(COLORS.fire.slice(1), 16);
-/** The putrid boss's puddles: its sickly green, fading as they dry. */
-const PUDDLE_COLOR = Number.parseInt((BOSS_VARIANTS.putrid.tint ?? COLORS.red).slice(1), 16);
-/** A leaping boss's shadow on the floor, under where it is. */
+/** A boss's shadow on the floor under it while it is in the air (bossShadow). */
 const SHADOW_COLOR = Number.parseInt(COLORS.ink.slice(1), 16);
-/** A puddle fades out over its last this-many seconds. */
-const BOSS_PUDDLE_FADE = 1;
 /** Points of the arc's outline. */
 const ARC_STEPS = 16;
 
 /**
  * The bosses' marks on the floor (spec 07 §4): the warning zones, the
- * rings of their landings, the shadow of one in the air and the putrid
- * boss's puddles. One Graphics
+ * rings of their landings and the shadow of one in the air. One Graphics
  * for all, over the floor and its decals, under the characters. Render only.
  */
 export class BossZones {
@@ -330,15 +298,9 @@ export class BossZones {
     this.g = scene.add.graphics().setDepth(DEPTH.decals + 0.5);
   }
 
-  sync(bosses: readonly BossState[], puddles: readonly PuddleState[], alpha: number, isDark: (x: number, y: number) => boolean): void {
+  sync(bosses: readonly BossState[], alpha: number, isDark: (x: number, y: number) => boolean): void {
     const g = this.g;
     g.clear();
-    for (const pd of puddles) {
-      if (!pd.active || isDark(pd.x, pd.y)) continue;
-      const fade = Math.min(1, pd.timer / BOSS_PUDDLE_FADE);
-      g.fillStyle(PUDDLE_COLOR, 0.4 * fade).fillCircle(pd.x, pd.y, pd.radius);
-      g.lineStyle(2, PUDDLE_COLOR, 0.8 * fade).strokeCircle(pd.x, pd.y, pd.radius);
-    }
     for (const b of bosses) {
       if (!b.active || isDark(b.x, b.y)) continue;
       const zone = bossZone(b, this.tileSize);
@@ -346,10 +308,11 @@ export class BossZones {
       else if (zone?.kind === 'arc') this.drawArc(zone);
       else if (zone?.kind === 'circle') this.drawCircle(zone);
       if (b.waveTime >= 0) this.drawWave(b);
-      if (b.stage === 'air') {
+      const shadow = bossShadow(b);
+      if (shadow > 0) {
         const x = b.prevX + (b.x - b.prevX) * alpha;
         const y = b.prevY + (b.y - b.prevY) * alpha + (BOSSES[b.boss].footprintTiles * this.tileSize) / 2 - 4;
-        g.fillStyle(SHADOW_COLOR, 0.35).fillEllipse(x, y, 60, 18);
+        g.fillStyle(SHADOW_COLOR, 0.35).fillEllipse(x, y, 60 * shadow, 18 * shadow);
       }
     }
   }
@@ -402,6 +365,56 @@ export class BossZones {
     if (width <= 0) return;
     const fade = 1 - outer / leap.waveRadius;
     this.g.lineStyle(width, WAVE_COLOR, 0.35 + 0.4 * fade).strokeCircle(b.waveX, b.waveY, outer - width / 2);
+  }
+}
+
+/** A puddle fades out over its last this-many seconds. */
+const PUDDLE_FADE = 1;
+/** Its bubbling loops this fast. */
+const PUDDLE_FPS = 8;
+
+/**
+ * The putrid boss's acid puddles (spec 07 §1): one bubbling sprite per
+ * puddle of the pool, as big as the puddle (the art is drawn for a landing's;
+ * the charge's trail shows it smaller), each mirrored and out of step with
+ * the rest so a trail does not repeat, fading out as it dries. On the floor,
+ * under the warning zones. Render only.
+ */
+export class BossPuddles {
+  private readonly sprites: Phaser.GameObjects.Sprite[];
+  private readonly frames: number;
+  private readonly size: number;
+
+  constructor(scene: Phaser.Scene, count: number, manifest: Manifest) {
+    const def = manifest.objects[ASSET_KEYS.bossPuddle];
+    this.frames = Math.max(1, def?.frames ?? 1);
+    this.size = def?.frameWidth ?? 88;
+    this.sprites = Array.from({ length: count }, (_, i) =>
+      scene.add
+        .sprite(0, 0, objectTextureKey(ASSET_KEYS.bossPuddle), 0)
+        .setDepth(DEPTH.decals + 0.25)
+        .setFlip(i % 2 === 1, i % 4 >= 2)
+        .setVisible(false),
+    );
+  }
+
+  /** `time`: simulated seconds (the bubbling freezes with the match). */
+  sync(puddles: readonly PuddleState[], time: number, isDark: (x: number, y: number) => boolean): void {
+    for (let i = 0; i < this.sprites.length; i++) {
+      const sprite = this.sprites[i];
+      const pd = puddles[i];
+      if (!sprite) continue;
+      if (!pd?.active || isDark(pd.x, pd.y)) {
+        if (sprite.visible) sprite.setVisible(false);
+        continue;
+      }
+      sprite
+        .setVisible(true)
+        .setPosition(Math.round(pd.x), Math.round(pd.y))
+        .setScale((pd.radius * 2) / this.size)
+        .setFrame((Math.floor(time * PUDDLE_FPS) + i * 2) % this.frames)
+        .setAlpha(Math.min(1, pd.timer / PUDDLE_FADE));
+    }
   }
 }
 

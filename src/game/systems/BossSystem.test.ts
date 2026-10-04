@@ -4,7 +4,8 @@ import { BOSSES } from '../../config/bosses';
 import { WEAPONS } from '../../config/weapons';
 import { createMansionContext, createTestContext, holdFire, placeZombie, player, runTicks, tileCenter, unlockZones } from '../../test/fixtures';
 import { BLOCK_PROP, setDoorBlocking } from '../map/CollisionGrid';
-import { bossBarShows, bossHalf, damageBoss, distanceToBoss } from './BossCombat';
+import { bossZone } from '../entities/Boss';
+import { bossBarShows, bossHalf, damageBoss, distanceToBoss, isBossSolid } from './BossCombat';
 import { chooseBossSpot, spawnBoss, startBossEntry } from './BossSystem';
 import { stepSimulation } from './Simulation';
 import type { SimContext } from './SimContext';
@@ -180,7 +181,7 @@ describe('boss entry (spec 07 §3)', () => {
     expect(ctx.map.bossSpots[chooseBossSpot(ctx, 0, p)]?.zone).toBe('salon');
   });
 
-  it('waits under the floor, climbs out unhurt, roars and then walks; its bar shows from the roar', () => {
+  it('marks where it will fall, falls unhurt and blocking no one, roars and then walks; its bar shows from the roar', () => {
     const ctx = createMansionContext();
     const b = startBossEntry(ctx, 0, 'butcher', 'base');
     if (!b) throw new Error('no entry');
@@ -189,38 +190,53 @@ describe('boss entry (spec 07 §3)', () => {
     expect(b.phase).toBe('warning');
     expect(bossBarShows(b)).toBe(false);
     expect(damageBoss(ctx, b, 10)).toBe(false);
+    expect(bossZone(b, TS)).toMatchObject({ kind: 'circle', x: b.x, y: b.y, radius: BOSS.dropRadius });
     runTicks(ctx, Math.round(BOSS.warningTime * 60) + 1, stepSimulation);
-    expect(b.phase).toBe('emerging');
+    expect(b.phase).toBe('falling');
+    expect(isBossSolid(b)).toBe(false);
     expect(damageBoss(ctx, b, 10)).toBe(false);
     expect(b.hp).toBe(BOSSES.butcher.hp);
-    runTicks(ctx, Math.round(BOSS.emergeTime * 60) + 1, stepSimulation);
+    runTicks(ctx, Math.round(BOSS.fallTime * 60) + 1, stepSimulation);
     expect(b.phase).toBe('roaring');
+    expect(isBossSolid(b)).toBe(true);
     expect(bossBarShows(b)).toBe(true);
     runTicks(ctx, Math.round(BOSS.roarTime * 60) + 1, stepSimulation);
     expect(b.phase).toBe('walking');
   });
 
-  it('hurts whoever stands in its crack as it climbs out and throws them out of it', () => {
+  it('lands on whoever is still in its circle, and they end up out from under its body', () => {
     const ctx = createMansionContext();
     const p = player(ctx);
     const b = startBossEntry(ctx, 0, 'butcher', 'base');
     if (!b) throw new Error('no entry');
-    runTicks(ctx, Math.round(BOSS.warningTime * 60) - 2, stepSimulation);
+    runTicks(ctx, Math.round((BOSS.warningTime + BOSS.fallTime) * 60) - 2, stepSimulation);
     p.x = p.prevX = b.x + 10;
     p.y = p.prevY = b.y;
+    expect(p.hp).toBe(PLAYER.maxHp);
     runTicks(ctx, 4, stepSimulation);
-    expect(p.hp).toBe(PLAYER.maxHp - BOSS.crackDamage);
-    const half = (BOSS.crackTiles * TS) / 2;
-    expect(Math.max(Math.abs(p.x - b.x), Math.abs(p.y - b.y))).toBeGreaterThanOrEqual(half);
+    expect(p.hp).toBe(PLAYER.maxHp - BOSS.dropDamage);
+    expect(Math.max(Math.abs(p.x - b.x), Math.abs(p.y - b.y))).toBeGreaterThanOrEqual(bossHalf(b, TS));
   });
 
-  it('sinks and comes out again near the player when they go to another level, with its health', () => {
+  it('spares whoever got out of the circle in time', () => {
+    const ctx = createMansionContext();
+    const p = player(ctx);
+    const b = startBossEntry(ctx, 0, 'butcher', 'base');
+    if (!b) throw new Error('no entry');
+    p.x = p.prevX = b.x + BOSS.dropRadius + PLAYER.hitboxRadius + 2;
+    p.y = p.prevY = b.y;
+    runTicks(ctx, Math.round((BOSS.warningTime + BOSS.fallTime) * 60) + 2, stepSimulation);
+    expect(b.phase).toBe('roaring');
+    expect(p.hp).toBe(PLAYER.maxHp);
+  });
+
+  it('jumps up into the sky and falls again near the player when they go to another level, with its health', () => {
     const ctx = createMansionContext();
     openMansion(ctx);
     const p = player(ctx);
     const b = startBossEntry(ctx, 0, 'butcher', 'base');
     if (!b) throw new Error('no entry');
-    runTicks(ctx, Math.round((BOSS.warningTime + BOSS.emergeTime + BOSS.roarTime) * 60) + 5, stepSimulation);
+    runTicks(ctx, Math.round((BOSS.warningTime + BOSS.fallTime + BOSS.roarTime) * 60) + 5, stepSimulation);
     expect(b.phase).toBe('walking');
     b.hp = 70;
     // Down to the basement.
@@ -229,15 +245,15 @@ describe('boss entry (spec 07 §3)', () => {
     p.x = p.prevX = basement.x;
     p.y = p.prevY = basement.y;
     stepSimulation(ctx, 1 / 60);
-    expect(b.phase).toBe('sinking');
+    expect(b.phase).toBe('rising');
     expect(damageBoss(ctx, b, 10)).toBe(false);
-    runTicks(ctx, Math.round(BOSS.sinkTime * 60) + 2, stepSimulation);
+    runTicks(ctx, Math.round(BOSS.riseTime * 60) + 2, stepSimulation);
     expect(b.phase).toBe('warning');
     expect(ctx.map.bossSpots[b.spot]?.zone).toBe('sotano');
     expect(b.hp).toBe(70);
   });
 
-  it('sinks after a while with no way to the player', () => {
+  it('jumps away after a while with no way to the player', () => {
     const ctx = createMansionContext();
     openMansion(ctx);
     const p = player(ctx);
@@ -253,6 +269,6 @@ describe('boss entry (spec 07 §3)', () => {
     runTicks(ctx, Math.round(BOSS.noPathTime * 60) - 30, stepSimulation);
     expect(b.phase).toBe('walking');
     runTicks(ctx, 60, stepSimulation);
-    expect(b.phase).toBe('sinking');
+    expect(b.phase).toBe('rising');
   });
 });

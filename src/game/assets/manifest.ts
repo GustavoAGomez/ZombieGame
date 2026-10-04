@@ -143,6 +143,7 @@ export const REQUIRED_OBJECTS: readonly string[] = [
   'offscreen_arrow',
   ...ITEM_IDS.map((id) => itemSpriteKey(id)),
   'boss_rubble',
+  'boss_puddle',
 ];
 
 /** Asset keys the game code uses. */
@@ -209,6 +210,7 @@ export const ASSET_KEYS = {
   iconDash: 'icon_dash',
   /** Splinters left where a boss crushed furniture (spec 07 §8): 32×32, tiled over its footprint, one variant per frame. */
   bossRubble: 'boss_rubble',
+  bossPuddle: 'boss_puddle',
   mapRoom01: 'room01',
   mapMansion: 'mansion',
 } as const;

@@ -23,8 +23,8 @@ export const nativeVibrate: Vibrate = (strength) => {
 /**
  * Haptic feedback driven by game events, like the HUD (CLAUDE.md rule 4):
  * a light tap when the local player is hurt and a medium one when they buy
- * a door, a portal or something from a merchant (spec 01 §4.2, §4.7, spec 03 §3), and a medium one when a boss's
- * crack opens (spec 07 §3). Off when the player disables
+ * a door, a portal or something from a merchant (spec 01 §4.2, §4.7, spec 03 §3), and a medium one when a boss
+ * is about to fall from the sky (spec 07 §3). Off when the player disables
  * vibration in the pause menu.
  */
 export class HapticFeedback {
@@ -46,9 +46,9 @@ export class HapticFeedback {
       events.on('item:picked', (e) => this.play(e.playerId, 'light')),
       events.on('item:cantUse', (e) => this.play(e.playerId, 'light')),
       events.on('activation:completed', (e) => this.play(e.playerId, 'heavy')),
-      // A boss's crack opening shakes the floor for everyone (spec 07 §3).
+      // A boss about to fall from the sky warns everyone (spec 07 §3)…
       events.on('boss:warning', () => this.play(this.localPlayerId, 'medium')),
-      // …and every landing of its leaps (§4.3).
+      // …and every landing, from the sky or of its leaps (§4.3).
       events.on('boss:landed', () => this.play(this.localPlayerId, 'heavy')),
     ];
   }

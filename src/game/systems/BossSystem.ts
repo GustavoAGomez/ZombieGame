@@ -12,7 +12,7 @@ import {
   updateBossBlocking,
   type BossNav,
 } from '../map/BossNav';
-import { BLOCK_PLAYER, BLOCK_ZOMBIE, moveCircle, resolveCircle } from '../map/CollisionGrid';
+import { BLOCK_ZOMBIE, resolveCircle } from '../map/CollisionGrid';
 import { crushFurniture, moveBody, pushOutOfBox, pushPlayerOut } from './BossBody';
 import { computeLevels, type MapLevels } from '../map/levels';
 import type { MapData } from '../map/MapLoader';
@@ -24,18 +24,20 @@ import type { SimContext } from './SimContext';
 import { pushable } from './ZombieSystem';
 
 /**
- * Bosses on the map (spec 07). A boss comes out of the floor (§3): a crack
- * opens on the boss spot nearest its target by walking among those at
- * least BOSS.spotMinTiles away (warning), it climbs out, unhurt by
- * anything, and whoever stands in the crack takes a blow and is thrown out
- * (emerging), and it roars, its health bar showing from then on. Then it
+ * Bosses on the map (spec 07). A boss falls from the sky (§3, as the user
+ * asked instead of its crack): a circle fills on the floor of the boss spot
+ * nearest its target by walking among those at least BOSS.spotMinTiles
+ * away (warning), it falls, unhurt by anything and blocking no one
+ * (falling), lands on whoever is still in the circle, and roars, its health
+ * bar showing from then on. Then it
  * walks after its target (the nearest player alive) on its own way round
  * the map (BossNav), crushing the furniture its footprint touches: the
  * furniture loses its collision for good and turns into rubble. Walking, it
  * shoves the zombies in its way aside and pushes players without hurting
  * them (it is solid for them; the dash goes through). When its target goes
- * to another level, or it has no way to them for a while, it sinks and
- * comes out again near them, with its health. Dead, its corpse stays a moment.
+ * to another level, or it has no way to them for a while, it jumps up into
+ * the sky and falls again near them, with its health. Dead, its corpse
+ * stays a moment.
  */
 
 const scratchCentre = { x: 0, y: 0 };
@@ -51,14 +53,10 @@ export function updateBosses(ctx: SimContext, dt: number): void {
     b.timer -= dt;
     switch (b.phase) {
       case 'warning':
-        if (b.timer <= 0) climbOut(ctx, b);
+        if (b.timer <= 0) setPhase(ctx, b, 'falling', BOSS.fallTime);
         break;
-      case 'emerging':
-        if (b.timer <= 0) {
-          setPhase(ctx, b, 'roaring', BOSS.roarTime);
-          b.introduced = true;
-          ctx.events.emit('boss:roar', { x: b.x, y: b.y });
-        }
+      case 'falling':
+        if (b.timer <= 0) landFromSky(ctx, b);
         break;
       case 'roaring':
         if (b.timer <= 0) {
@@ -67,8 +65,8 @@ export function updateBosses(ctx: SimContext, dt: number): void {
         }
         break;
       case 'walking':
-        if (mustSink(ctx, b, i, dt)) {
-          setPhase(ctx, b, 'sinking', BOSS.sinkTime);
+        if (mustLeave(ctx, b, i, dt)) {
+          setPhase(ctx, b, 'rising', BOSS.riseTime);
           break;
         }
         if (b.furyPending) {
@@ -82,8 +80,8 @@ export function updateBosses(ctx: SimContext, dt: number): void {
       case 'attacking':
         if (updateAttack(ctx, b, i, targetOf(ctx, b), dt)) endAttack(ctx, b);
         break;
-      case 'sinking':
-        // Gone under: out again near its target (if no spot will do yet, it tries again next tick).
+      case 'rising':
+        // Gone up into the sky: it falls again near its target (if no spot will do yet, it tries again next tick).
         if (b.timer <= 0) {
           const target = targetOf(ctx, b);
           if (target) emergeNear(ctx, b, i, target);
@@ -165,10 +163,11 @@ export function levelAt(map: MapData, x: number, y: number): number {
 }
 
 /**
- * It has to sink and come out near its target (spec 07 §3): the target went
- * to another level, or it has had no way to them for BOSS.noPathTime.
+ * It has to jump away and fall again near its target (spec 07 §3): the
+ * target went to another level, or it has had no way to them for
+ * BOSS.noPathTime.
  */
-function mustSink(ctx: SimContext, b: BossState, slot: number, dt: number): boolean {
+function mustLeave(ctx: SimContext, b: BossState, slot: number, dt: number): boolean {
   const target = targetOf(ctx, b);
   const nav = ctx.bossNavs[slot];
   if (!target || !nav) return false;
@@ -181,30 +180,26 @@ function mustSink(ctx: SimContext, b: BossState, slot: number, dt: number): bool
 }
 
 /**
- * The crack has opened: it climbs out. Furniture in the crack is crushed,
- * and whoever stands in it takes BOSS.crackDamage (× its variant's damage)
- * and is thrown out of it; zombies in it take it too, with no points.
+ * It lands from the sky (petición del usuario): furniture under its circle
+ * is crushed, whoever is still in it takes BOSS.dropDamage (× its variant's
+ * damage) and zombies there too, with no points; then it roars. Players
+ * under its body are pushed out of it as it stands there.
  */
-function climbOut(ctx: SimContext, b: BossState): void {
-  setPhase(ctx, b, 'emerging', BOSS.emergeTime);
+function landFromSky(ctx: SimContext, b: BossState): void {
   const nav = ctx.bossNavs[ctx.state.bosses.indexOf(b)];
-  const half = (BOSS.crackTiles * ctx.map.tileSize) / 2;
-  if (nav) crushFurniture(ctx, nav, b.x, b.y, half);
-  const damage = BOSS.crackDamage * BOSS_VARIANTS[b.variant].damage;
+  const r = BOSS.dropRadius;
+  if (nav) crushFurniture(ctx, nav, b.x, b.y, r);
+  const damage = BOSS.dropDamage * BOSS_VARIANTS[b.variant].damage;
   for (const p of ctx.state.players) {
-    if (!isPlayerAlive(p)) continue;
-    const reach = half + PLAYER.hitboxRadius;
-    const dx = p.x - b.x;
-    const dy = p.y - b.y;
-    if (Math.abs(dx) >= reach || Math.abs(dy) >= reach) continue;
-    damagePlayer(ctx, p, damage, b.x, b.y);
-    // Out by the nearest side of the crack.
-    if (reach - Math.abs(dx) < reach - Math.abs(dy)) moveCircle(ctx.grid, p, (dx >= 0 ? reach : -reach) - dx + Math.sign(dx || 1), 0, PLAYER.hitboxRadius, BLOCK_PLAYER);
-    else moveCircle(ctx.grid, p, 0, (dy >= 0 ? reach : -reach) - dy + Math.sign(dy || 1), PLAYER.hitboxRadius, BLOCK_PLAYER);
+    if (isPlayerAlive(p) && Math.hypot(p.x - b.x, p.y - b.y) < r + PLAYER.hitboxRadius) damagePlayer(ctx, p, damage, b.x, b.y);
   }
   for (const z of ctx.state.zombies) {
-    if (isZombieAlive(z) && Math.abs(z.x - b.x) < half && Math.abs(z.y - b.y) < half) damageZombie(ctx, z, damage, -1, bodyHitPoint(z, 0, -1));
+    if (isZombieAlive(z) && Math.hypot(z.x - b.x, z.y - b.y) < r) damageZombie(ctx, z, damage, -1, bodyHitPoint(z, 0, -1));
   }
+  ctx.events.emit('boss:landed', { x: b.x, y: b.y });
+  setPhase(ctx, b, 'roaring', BOSS.roarTime);
+  b.introduced = true;
+  ctx.events.emit('boss:roar', { x: b.x, y: b.y });
 }
 
 /** Two bosses never stand on each other: overlapping footprints push apart, half each, along the shallower axis. */
@@ -362,10 +357,10 @@ export function spawnBoss(ctx: SimContext, slot: number, boss: BossId, variant: 
 }
 
 /**
- * Boss `boss` comes into the match through slot `slot`: a crack opens on
- * the boss spot that suits its target (the first player alive) and it
- * climbs out of it (spec 07 §3). Undefined when the slot is busy or there
- * is nowhere for it to come out.
+ * Boss `boss` comes into the match through slot `slot`: its circle fills
+ * on the boss spot that suits its target (the first player alive) and it
+ * falls on it from the sky (spec 07 §3). Undefined when the slot is busy or
+ * there is nowhere for it to fall.
  */
 export function startBossEntry(ctx: SimContext, slot: number, boss: BossId, variant: BossVariantId, hpFactor = 1): BossState | undefined {
   const target = ctx.state.players.find(isPlayerAlive);
@@ -378,7 +373,7 @@ export function startBossEntry(ctx: SimContext, slot: number, boss: BossId, vari
   return undefined;
 }
 
-/** Opens its crack near `target` (on the best boss spot, or anywhere it fits when the map has none that will do). */
+/** Marks where it will fall near `target` (on the best boss spot, or anywhere it fits when the map has none that will do). */
 function emergeNear(ctx: SimContext, b: BossState, slot: number, target: PlayerState): boolean {
   const spot = chooseBossSpot(ctx, slot, target);
   const at = spot >= 0 ? ctx.map.bossSpots[spot] : spawnPositionNear(ctx, slot, target, BOSS.spotMinTiles);
@@ -440,15 +435,14 @@ function stepsFromSpot(nav: BossNav, x: number, y: number): number {
   return best;
 }
 
-/** Another boss is coming out of spot `index`, or stands on its crack. */
+/** Another boss is falling on spot `index`, or stands on its circle. */
 function spotInUse(ctx: SimContext, index: number, slot: number): boolean {
   const spot = ctx.map.bossSpots[index];
   if (!spot) return true;
-  const crack = (BOSS.crackTiles * ctx.map.tileSize) / 2;
   return ctx.state.bosses.some((o, j) => {
     if (j === slot || !isBossAlive(o)) return false;
-    if (o.spot === index && (o.phase === 'warning' || o.phase === 'emerging' || o.phase === 'roaring')) return true;
-    const reach = crack + bossHalf(o, ctx.map.tileSize);
+    if (o.spot === index && (o.phase === 'warning' || o.phase === 'falling' || o.phase === 'roaring')) return true;
+    const reach = BOSS.dropRadius + bossHalf(o, ctx.map.tileSize);
     return isBossSolid(o) && Math.abs(o.x - spot.x) < reach && Math.abs(o.y - spot.y) < reach;
   });
 }

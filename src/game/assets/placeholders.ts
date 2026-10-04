@@ -1,6 +1,6 @@
 import type Phaser from 'phaser';
 import { ZOMBIES } from '../../config/balance';
-import { BOSS_IDS } from '../../config/bosses';
+import { BOSS_IDS, BOSS_VARIANTS } from '../../config/bosses';
 import { ITEM_IDS, type ItemId } from '../../config/items';
 import { MERCHANTS } from '../../config/merchants';
 import { WEAPON_IDS } from '../../config/weapons';
@@ -755,6 +755,9 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
       case ASSET_KEYS.bossRubble:
         drawRubble(ctx, col, ox, oy);
         break;
+      case ASSET_KEYS.bossPuddle:
+        drawPuddle(ctx, col, ox, oy, w, h);
+        break;
       default: {
         const merchant = MERCHANTS.find((m) => object === `merchant_${m.id}`);
         if (merchant) {
@@ -961,6 +964,31 @@ function drawButcher(ctx: Ctx, pose: ButcherPose, ox: number, oy: number, w: num
       butcherBody(ctx, cx - 44, ground - 34, 88, 34, true);
       mallet(ctx, cx + 2, ground - 12, false);
       break;
+  }
+}
+
+/**
+ * The putrid boss's acid puddle (spec 07 §1): a disc of its sickly green
+ * with a darker rim, filling the frame, and a few bubbles that move from
+ * frame to frame.
+ */
+function drawPuddle(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number): void {
+  const green = BOSS_VARIANTS.putrid.tint ?? COLORS.red;
+  const cx = ox + w / 2;
+  const cy = oy + h / 2;
+  const r = Math.min(w, h) / 2 - 2;
+  const rgb = (factor: number): string => `rgb(${shade(green, factor).join(',')})`;
+  ctx.fillStyle = rgb(0.6);
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = green;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r - 3, 0, Math.PI * 2);
+  ctx.fill();
+  for (let i = 0; i < 3; i++) {
+    const a = i * 2.1 + frame * 0.7;
+    rect(ctx, rgb(1.35), Math.round(cx + Math.cos(a) * r * 0.45), Math.round(cy + Math.sin(a) * r * 0.45), 3, 3);
   }
 }
 

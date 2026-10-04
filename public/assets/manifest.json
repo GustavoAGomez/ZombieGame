@@ -314,8 +314,7 @@
           "file": "sprites/boss_butcher/walk.png",
           "frames": 8,
           "fps": 8,
-          "loop": true,
-          "directions": 4
+          "loop": true
         },
         "charge_windup": {
           "file": "sprites/boss_butcher/charge_windup.png",
@@ -328,8 +327,7 @@
           "file": "sprites/boss_butcher/charge.png",
           "frames": 6,
           "fps": 12,
-          "loop": true,
-          "directions": 4
+          "loop": true
         },
         "stunned": {
           "file": "sprites/boss_butcher/stunned.png",
@@ -343,7 +341,6 @@
           "frames": 9,
           "fps": 12,
           "loop": false,
-          "directions": 4,
           "marks": {
             "hit": 7
           }
@@ -353,7 +350,6 @@
           "frames": 9,
           "fps": 10,
           "loop": false,
-          "directions": 4,
           "marks": {
             "air": 2,
             "land": 6
@@ -573,6 +569,13 @@
       "frameHeight": 32,
       "frames": 2,
       "placeholder": true
+    },
+    "boss_puddle": {
+      "file": "sprites/objects/boss_puddle.png",
+      "frameWidth": 88,
+      "frameHeight": 88,
+      "frames": 6,
+      "placeholder": false
     },
     "melee_slash": {
       "file": "sprites/objects/melee_slash.png",

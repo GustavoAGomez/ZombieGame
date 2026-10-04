@@ -191,13 +191,13 @@ describe('the putrid trail and the zombies (petición del usuario)', () => {
     expect(other.hp).toBe(other.maxHp);
   });
 
-  it('the crack and the puddles hurt zombies too', () => {
+  it('its fall from the sky and the puddles hurt zombies too', () => {
     const ctx = createMansionContext(4);
     const b = startBossEntry(ctx, 0, 'butcher', 'base');
     if (!b) throw new Error('no entry');
-    const inCrack = placeZombie(ctx, 0, b.x + 10, b.y, 100, 'idle');
-    runTicks(ctx, Math.round(BOSS.warningTime * 60) + 2, stepSimulation);
-    expect(inCrack.hp).toBe(100 - BOSS.crackDamage);
+    const inCircle = placeZombie(ctx, 0, b.x + 10, b.y, 100, 'idle');
+    runTicks(ctx, Math.round((BOSS.warningTime + BOSS.fallTime) * 60) + 2, stepSimulation);
+    expect(inCircle.hp).toBe(100 - BOSS.dropDamage);
     leavePuddle(ctx, b.x + 200, b.y, 30);
     const wading = placeZombie(ctx, 1, b.x + 200, b.y, 100, 'idle');
     runTicks(ctx, Math.round(BOSS.puddle.tickInterval * 60) + 1, stepSimulation);

@@ -1728,3 +1728,28 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 - **Marcas en el manifiesto:** los fotogramas clave (`marks`) son del arte, no del juego, así que viven en el manifiesto junto a cada animación y no en `balance.ts`.
 - **Placeholder:** si falta el arte, el boss sigue siendo el dibujo provisional del Matarife (cuerpo y mazo), ahora repartido por animaciones en vez de por poses.
 - **Coste:** 112 generaciones (3 del personaje y el resto de animaciones y repeticiones).
+
+## El boss cae del cielo, sus diagonales y el charco de ácido (petición del usuario)
+
+- **Entrada desde el cielo** (sustituye la grieta de la spec 07 §3):
+  - **Aviso (`warning`, 3 s):** el boss está en el cielo. En el suelo se llena un círculo rojo, como las zonas de sus ataques, de 48 px de radio (las 3×3 casillas del punto de salida). En el centro crece su sombra.
+  - **Caída (`falling`, 0,6 s):** cae acelerando desde 360 px por encima del suelo, fuera de la vista, con los fotogramas en el aire del salto. No bloquea ni recibe daño.
+  - **Impacto:** aplasta el atrezo del cuadrado de 3×3 casillas (como la grieta). Hace 20 (× la variante) a quien esté a menos de 48 px más su radio, y a los zombis dentro del círculo. Emite `boss:landed`, que sacude la pantalla y vibra fuerte como el aterrizaje de los saltos, y empieza el rugido.
+  - Ya no empuja fuera del círculo: quien se queda debajo sale empujado de su cuerpo, que desde el impacto es sólido.
+  - La sacudida larga del aviso desaparece: el suelo no tiembla hasta que cae. El aviso solo vibra el móvil.
+- **Recolocarse (`rising`, 1 s):** en lugar de hundirse, salta al cielo con el salto (se agacha, despega y sube acelerando). Cae en el sitio nuevo con el mismo aviso. Se eligió así para que entrar y salir sean lo mismo.
+- **La grieta del boss desaparece** de su vista. Su arte sigue siendo el agujero de la Mano del Demonio, que no cambia.
+- **Diagonales:**
+  - Andar, embestida, mazazo y salto tienen sureste y noreste, generados desde la vista diagonal del diseño base. Suroeste y noroeste salen en espejo.
+  - Preparar embestida, aturdido, rugido y muerte siguen en 4 direcciones; en diagonal usan la vista de lado.
+- **Descripciones concretas:** a partir de aquí, las animaciones de PixelLab se piden con la acción fotograma a fotograma: qué pasa en cada fotograma y qué no cambia (el mazo en la mano derecha, los pies en el suelo). Así no hay que rehacerlas cuando PixelLab decide por su cuenta.
+  - El mazazo pide el impacto en el fotograma 7 y el salto despega en el 2 y aterriza en el 6, para que valgan las marcas `hit`, `air` y `land` del manifiesto.
+  - En diagonal el mazo toca el suelo un fotograma antes (el 6). No se nota y no se ha separado la marca por dirección.
+- **Tomas sobrantes:** cancelé a tiempo unas diagonales pedidas con las descripciones cortas, pero PixelLab las terminó igual (`walk_v3`, `slam`, `leap_v2` y `charge` tienen sureste y noreste). No se usan: en `import.json`, `sources` pone primero las tomas `_diag`.
+- **Lienzo de 176 px:** las diagonales llegan en 176×176. Al centrarlas en 172×172 no se recorta nada del personaje.
+- **Charco de ácido (`boss_puddle`):**
+  - Imagen de 88×88 con *Create Image (Pro)* (el segundo de 4 candidatos, elegido por el usuario).
+  - Burbujeo de 6 fotogramas con *Animate Image*, con el primer y el último fotograma iguales. Se descarta el último generado, casi igual al primero, para que el bucle no repita fotograma.
+  - Se dibuja con un pool de sprites (uno por hueco del pool de charcos), escalado al radio de cada charco. Se voltea según su hueco y va desfasado para que el rastro de la embestida no se vea repetido. Se desvanece en su último segundo, como antes.
+  - El verde lima del arte es más vivo que el tinte del pútrido; se deja así porque se lee bien como ácido.
+- **Coste:** 81 generaciones: 30 de las diagonales buenas, 20 de la imagen del charco, 1 de su animación y 30 de las diagonales canceladas, que PixelLab terminó y cobró igualmente (cancelar un trabajo en marcha no lo devuelve).

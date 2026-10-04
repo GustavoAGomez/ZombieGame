@@ -331,11 +331,12 @@ export interface BurnState {
 }
 
 /**
- * Where a boss is in its life (spec 07): its crack opening (underground),
- * climbing out, roaring, walking after its target, sinking to come out
- * elsewhere, and dead (its corpse on screen for BOSS.corpseTime).
+ * Where a boss is in its life (spec 07): its landing circle filling on the
+ * floor (still in the sky), falling, roaring, walking after its target,
+ * jumping up into the sky to fall elsewhere, and dead (its corpse on screen
+ * for BOSS.corpseTime).
  */
-export type BossPhase = 'warning' | 'emerging' | 'roaring' | 'walking' | 'attacking' | 'sinking' | 'dead';
+export type BossPhase = 'warning' | 'falling' | 'roaring' | 'walking' | 'attacking' | 'rising' | 'dead';
 
 /**
  * Where a boss is in its attack (spec 07 §4): winding up (the zone on the
@@ -367,11 +368,11 @@ export interface BossState {
   phaseTick: number;
   /** Below half its health, or from the start for some variants (spec 07 §5). */
   enraged: boolean;
-  /** Index into MapData.bossSpots of the crack it is coming out of, -1 none (no spot: anywhere it fits). */
+  /** Index into MapData.bossSpots of the spot it is falling on, -1 none (no spot: anywhere it fits). */
   spot: number;
   /** It has roared once: its health bar shows from then on. */
   introduced: boolean;
-  /** Seconds it has gone with no way to its target (it sinks at BOSS.noPathTime). */
+  /** Seconds it has gone with no way to its target (it jumps away at BOSS.noPathTime). */
   noPathTime: number;
   /** The attack under way (spec 07 §4), null while walking; where in it, and the last one it made (never twice running). */
   attack: BossAttackId | null;
