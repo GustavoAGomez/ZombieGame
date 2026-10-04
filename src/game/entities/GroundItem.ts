@@ -41,24 +41,37 @@ export function itemFrame(time: number, fps: number, frames: number): number {
  * pulses every ITEMS.glowPeriod seconds, with the item's animated sprite
  * inside (the wand floating over it), so it shows on any floor. Drawn with the pickups, under the darkness of locked
  * zones: there it looks like the rest of the room's things, with no marker
- * pointing at it. One view per item placed this match, created once.
- * Visual only.
+ * pointing at it. One view per item placed this match, created once: those
+ * of the match start right away, one dropped later (the heart, by the first
+ * boss) when it appears. Visual only.
  */
 export class GroundItemViews {
-  private readonly views: View[];
+  private readonly views: View[] = [];
 
-  constructor(scene: Phaser.Scene, items: readonly GroundItemState[], manifest: Manifest) {
-    this.views = items.map((g) => {
-      const key = itemSpriteKey(g.item);
-      const def = itemDef(g.item);
-      const spot = scene.add.circle(g.x, g.y, SPOT_RADIUS, SPOT_COLOR, SPOT_MIN).setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH.pickups);
-      const rim = scene.add.circle(g.x, g.y, SPOT_RADIUS).setStrokeStyle(1, SPOT_COLOR, RIM_ALPHA).setDepth(DEPTH.pickups);
-      const icon = scene.add.image(g.x, g.y, objectTextureKey(key), 0).setDepth(DEPTH.pickups);
-      return { spot, rim, icon, frames: Math.max(1, manifest.objects[key]?.frames ?? 1), fps: def.fps, floats: def.floats === true };
-    });
+  constructor(
+    private readonly scene: Phaser.Scene,
+    items: readonly GroundItemState[],
+    private readonly manifest: Manifest,
+  ) {
+    for (const g of items) this.views.push(this.create(g));
+  }
+
+  private create(g: GroundItemState): View {
+    const { scene, manifest } = this;
+    const key = itemSpriteKey(g.item);
+    const def = itemDef(g.item);
+    const spot = scene.add.circle(g.x, g.y, SPOT_RADIUS, SPOT_COLOR, SPOT_MIN).setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH.pickups);
+    const rim = scene.add.circle(g.x, g.y, SPOT_RADIUS).setStrokeStyle(1, SPOT_COLOR, RIM_ALPHA).setDepth(DEPTH.pickups);
+    const icon = scene.add.image(g.x, g.y, objectTextureKey(key), 0).setDepth(DEPTH.pickups);
+    return { spot, rim, icon, frames: Math.max(1, manifest.objects[key]?.frames ?? 1), fps: def.fps, floats: def.floats === true };
   }
 
   sync(items: readonly GroundItemState[], time: number): void {
+    // An item dropped during the match (at most one per item): its view, once.
+    for (let i = this.views.length; i < items.length; i++) {
+      const g = items[i];
+      if (g) this.views.push(this.create(g));
+    }
     const pulse = (1 - Math.cos((time / ITEMS.glowPeriod) * Math.PI * 2)) / 2;
     for (let i = 0; i < this.views.length; i++) {
       const v = this.views[i];

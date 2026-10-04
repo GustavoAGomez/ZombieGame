@@ -1652,3 +1652,24 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 - **Plegado:** solo se ven las estadísticas, arriba a la izquierda bajo el HUD. Al tocarlas se abre el panel.
 - **Abierto:** una hoja sobre toda la pantalla con todos los botones a la vista, en una rejilla que se adapta al ancho y con botones de 34 px de alto. Se queda abierta mientras se usa y se pliega con `CERRAR`. Comprobado en 640×360, la pantalla más pequeña: caben los 29 botones sin desplazar nada.
 - Los botones actúan al soltar el dedo.
+
+## Spec 07 · Fase B5 (la ronda de boss, sus recompensas y el corazón vivo)
+
+- **Ronda de boss** (las del calendario de `bosses.ts`):
+  - La mitad de sus zombies, redondeando hacia arriba: 13 en la ronda 6.
+  - Sus bosses salen 5 s después de que aparezca el cartel de ronda; la grieta se abre a los 5 s y el Matarife ruge hacia los 9 s.
+  - Si hay dos y uno no cabe, se queda fuera.
+  - `GameState.wave.bossDelay` guarda la espera (-1 si la ronda no tiene bosses) y `roundZombies` da los zombies de la ronda, la mitad en las de boss.
+- **Fin de ronda:** cuando no quedan zombies por salir ni vivos, ningún boss vive y no hay ninguno por salir.
+  - Cualquier boss vivo retiene la ronda, también uno invocado con el debug (respuesta al usuario).
+- **Goteo:** con un boss vivo y los zombies de la ronda ya terminados, en cuanto no queda ninguno vivo empieza a entrar uno cada 6 s. Entra solo si hay menos de 4 vivos, y como mucho 20 en toda la ronda. Salen por los spawns normales.
+- **Cartel:** el evento `round:changed` lleva `boss`. Debajo de «RONDA 6» sale «ALGO GRANDE SE ACERCA» en hueso, más pequeño, dentro del mismo cartel, así que el aviso de los magos sigue debajo sin pisarlo.
+- **Flecha de borde hacia el boss:** roja como su barra, con el sistema de flechas de los magos. Sale mientras el boss vive, también durante su grieta, y solo en el nivel que enseña la cámara.
+- **Recompensas al morir:**
+  - **Puntos:** 500 puntos y 500$ a cada jugador vivo. La spec no dice a quién; así sirve igual en cooperativo, y en solitario es lo mismo. Su muerte no suma además los 50 de una baja; cada golpe sí puntúa.
+  - **Botiquín y munición:** en la casilla transitable más cercana, separados 14 px.
+  - **Corazón vivo:** solo con la primera muerte de un boss en la partida (`GameState.bossKills`), y si no está ya en juego (lo lleva alguien, está en el suelo o lo tiene una activación), porque los objetos son únicos. Cae donde muere el boss o, si ahí no se puede estar, en la casilla transitable más cercana de una sala abierta. Se queda en el suelo con su foco de luz hasta que alguien lo recoge.
+- **Corazón vivo por datos:** `STARTING_ITEMS` queda vacío y la regla de aparición del corazón es `{ when: 'first_boss_kill' }` en `items.ts`, junto a la de la varita (`match_start`). Por tanto el mago rojo no se puede invocar antes de la ronda 6.
+- **Objetos que aparecen a mitad de partida:** la vista de los objetos del suelo crea la del corazón cuando aparece. Pasa una vez por partida, así que no hace falta un pool.
+- **Debug:** `IR A RONDA 6` limpia zombies y bosses y empieza la ronda 6. `RONDA +1` también quita los bosses.
+- **Tests adaptados:** los que daban por hecho el corazón al empezar ahora lo dan a mano. El de las rondas 1 a 10 cuenta la mitad de zombies en la 6 y mata también al boss.

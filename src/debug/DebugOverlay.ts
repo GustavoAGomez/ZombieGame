@@ -12,6 +12,8 @@ export interface DebugStats {
  */
 export interface DebugActions {
   nextRound(): void;
+  /** Spec 07 §10: straight to the first boss round (the zombies and bosses on the map go). */
+  goToBossRound(): void;
   addPoints(): void;
   toggleGod(): boolean;
   toggleHitboxes(): boolean;
@@ -123,6 +125,7 @@ export class DebugOverlay {
     button(STRINGS.debug.giveItems, (a) => a.giveItems());
     button(STRINGS.debug.goToWand, (a) => a.goToWand());
     button(STRINGS.debug.itemSpots, (a) => a.toggleItemSpots());
+    button(STRINGS.debug.goToBossRound, (a) => a.goToBossRound());
     button(STRINGS.debug.summonBoss, (a) => a.summonBoss());
     button(STRINGS.debug.killBoss, (a) => a.killBoss());
     button(STRINGS.debug.forceCharge, (a) => a.forceAttack('charge'));

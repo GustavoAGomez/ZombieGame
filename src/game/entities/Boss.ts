@@ -6,6 +6,7 @@ import { chargeWindup, leapAirTime, slamWindup, waveRadius } from '../systems/Bo
 import type { BossState } from '../../core/GameState';
 import { ASSET_KEYS, BOSS_POSES, bossTextureKey, objectTextureKey, type BossPose, type Manifest } from '../assets/manifest';
 import { actorDepth, DEPTH } from '../depth';
+import { ARROW_EDGE_GAP, edgeArrow, type ViewEdges } from './Merchant';
 
 /** Its walk swaps feet this often (s). */
 const STEP_TIME = 0.28;
@@ -318,5 +319,44 @@ export class BossZones {
     if (width <= 0) return;
     const fade = 1 - outer / leap.waveRadius;
     this.g.lineStyle(width, WAVE_COLOR, 0.35 + 0.4 * fade).strokeCircle(b.waveX, b.waveY, outer - width / 2);
+  }
+}
+
+/** The arrow towards a boss out of view: red, like its bar. */
+const BOSS_ARROW_TINT = Number.parseInt(COLORS.red.slice(1), 16);
+
+/**
+ * An arrow at the screen edge towards each boss out of view (spec 07 §6),
+ * with the merchants' arrows (Merchant.ts): while it is alive, crack and
+ * all, and on the level the camera shows. Render only.
+ */
+export class BossArrows {
+  private readonly arrows: Phaser.GameObjects.Image[];
+
+  constructor(scene: Phaser.Scene, count: number) {
+    this.arrows = Array.from({ length: count }, () =>
+      scene.add.image(0, 0, objectTextureKey(ASSET_KEYS.offscreenArrow)).setTint(BOSS_ARROW_TINT).setDepth(DEPTH.indicators).setVisible(false),
+    );
+  }
+
+  /** `edges`: the visible world and its safe inset; `sameLevel(x, y)`: that point is on the level the camera shows. */
+  sync(bosses: readonly BossState[], edges: ViewEdges, worldPerCssPx: number, sameLevel: (x: number, y: number) => boolean): void {
+    const gap = ARROW_EDGE_GAP * worldPerCssPx;
+    const inset: ViewEdges = { ...edges, insetX: edges.insetX + gap, insetTop: edges.insetTop + gap, insetBottom: edges.insetBottom + gap };
+    for (let i = 0; i < this.arrows.length; i++) {
+      const arrow = this.arrows[i];
+      const b = bosses[i];
+      if (!arrow) continue;
+      const at = b?.active && b.phase !== 'dead' && sameLevel(b.x, b.y) ? edgeArrow(inset, b.x, b.y, 16) : null;
+      if (!at) {
+        if (arrow.visible) arrow.setVisible(false);
+        continue;
+      }
+      const half = arrow.width / 2;
+      arrow
+        .setVisible(true)
+        .setPosition(Math.round(at.x - Math.cos(at.angle) * half), Math.round(at.y - Math.sin(at.angle) * half))
+        .setRotation(at.angle);
+    }
   }
 }

@@ -1,4 +1,5 @@
-import { WAVES, ZOMBIE_MIX, ZOMBIES, type ZombieKind } from '../../config/balance';
+import { BOSS, WAVES, ZOMBIE_MIX, ZOMBIES, type ZombieKind } from '../../config/balance';
+import { bossesForRound } from '../../config/bosses';
 
 /** Pure round formulas from spec 01 §4.4 and §4.8. */
 
@@ -54,4 +55,15 @@ export function zombiesInRound(round: number): number {
 export function spawnInterval(round: number): number {
   const r = Math.max(1, Math.floor(round));
   return Math.max(WAVES.spawnIntervalMin, WAVES.spawnIntervalBase - WAVES.spawnIntervalPerRound * (r - 1));
+}
+
+/** Zombies a round spawns: zombiesInRound, a share of them in a boss round (spec 07 §6). */
+export function roundZombies(round: number): number {
+  const all = zombiesInRound(round);
+  return bossesForRound(round).length > 0 ? Math.ceil(all * BOSS.zombieShare) : all;
+}
+
+/** Seconds from the round banner until its bosses come out, -1 when the round has none. */
+export function bossDelayOf(round: number): number {
+  return bossesForRound(round).length > 0 ? BOSS.entryDelay : -1;
 }

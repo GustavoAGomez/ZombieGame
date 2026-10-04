@@ -49,6 +49,9 @@ export class Hud {
   private readonly hurt = new HurtVignette();
   private readonly dead: HTMLDivElement;
   private readonly banner: HTMLDivElement;
+  private readonly bannerTitle: HTMLSpanElement;
+  /** «ALGO GRANDE SE ACERCA» under the round in a boss round (spec 07 §6). */
+  private readonly bannerSub: HTMLSpanElement;
   /** "EL MAGO AZUL SE HA MOVIDO" or "¡VELOCIDAD!" under the round banner (spec 03 §2, §5). */
   private readonly notice: HTMLDivElement;
   /** The bosses' health bars under the pause button (spec 07 §6): one per boss slot, pooled. */
@@ -142,6 +145,10 @@ export class Hud {
     this.dead.textContent = STRINGS.hud.dead;
     // "RONDA N" in the middle for a moment at the start of each round (spec 01 §4.8).
     this.banner = el('div', 'hud-banner');
+    this.bannerTitle = el('span', 'hud-banner__title');
+    this.bannerSub = el('span', 'hud-banner__sub');
+    this.bannerSub.textContent = STRINGS.bosses.incoming;
+    this.banner.append(this.bannerTitle, this.bannerSub);
     this.banner.style.animationDuration = `${WAVES.bannerDuration}s`;
     this.banner.addEventListener('animationend', () => this.banner.classList.remove('is-showing'));
 
@@ -236,7 +243,8 @@ export class Hud {
   private readonly onRound = (e: GameEvents['round:changed']): void => {
     const text = `${STRINGS.hud.round} ${e.round}`;
     this.round.textContent = text;
-    this.banner.textContent = text;
+    this.bannerTitle.textContent = text;
+    this.bannerSub.hidden = !e.boss;
     // Restart the banner and make the HUD figure blink for as long as it shows.
     this.banner.classList.remove('is-showing');
     void this.banner.offsetWidth;

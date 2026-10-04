@@ -31,12 +31,12 @@ import { PlayerView } from '../entities/Player';
 import { WorldTextPool } from '../entities/WorldText';
 import { CantUseText } from '../entities/CantUseText';
 import { ZombieViewPool } from '../entities/Zombie';
-import { BossViewPool, BossZones } from '../entities/Boss';
+import { BossArrows, BossViewPool, BossZones } from '../entities/Boss';
 import { BurnFlames } from '../entities/BurnFlames';
 import { WeaponCaseViews } from '../entities/WeaponCase';
 import { findWeapon, giveWeapon, refillWeapon } from '../systems/InventorySystem';
 import { moveHand } from '../systems/HandSystem';
-import { freeBossSlot, startBossEntry } from '../systems/BossSystem';
+import { freeBossSlot, levelAt, startBossEntry } from '../systems/BossSystem';
 import { isBossAlive, killBoss } from '../systems/BossCombat';
 import { debugGiveItems } from '../systems/ItemSystem';
 import { HudPresenter } from '../HudPresenter';
@@ -84,6 +84,7 @@ export class GameScene extends Phaser.Scene {
   private zombieViews!: ZombieViewPool;
   private bossViews!: BossViewPool;
   private bossZones!: BossZones;
+  private bossArrows!: BossArrows;
   private bulletViews!: BulletViewPool;
   private aimLine!: AimLine;
   private laserBeam!: LaserBeam;
@@ -176,6 +177,7 @@ export class GameScene extends Phaser.Scene {
     this.zombieViews = new ZombieViewPool(this, manifest, this.state.zombies.length);
     this.bossViews = new BossViewPool(this, this.state.bosses.length, this.map.tileSize, manifest);
     this.bossZones = new BossZones(this, this.map.tileSize);
+    this.bossArrows = new BossArrows(this, this.state.bosses.length);
     this.burnFlames = new BurnFlames(this, this.state.zombies.length, manifest);
     this.weaponCases = new WeaponCaseViews(this, this.map);
     this.merchantViews = new MerchantViewPool(this, this.map, this.state.merchants, manifest);
@@ -361,11 +363,8 @@ export class GameScene extends Phaser.Scene {
   /** Debug panel buttons (spec 01 §8). They change the state directly: they are tools, not gameplay. */
   private createDebugActions(): DebugActions {
     return {
-      nextRound: () => {
-        // Clears the zombies on the map and starts the next round at once.
-        for (const z of this.state.zombies) z.active = false;
-        startRound(this.state, this.state.wave.round + 1);
-      },
+      nextRound: () => this.debugGoToRound(this.state.wave.round + 1),
+      goToBossRound: () => this.debugGoToRound(DEBUG.bossRound),
       addPoints: () => {
         const p = this.state.players[0];
         if (p) p.money += DEBUG.points;
@@ -468,6 +467,13 @@ export class GameScene extends Phaser.Scene {
     };
   }
 
+  /** Debug: clears the zombies and the bosses on the map and starts round `round` at once. */
+  private debugGoToRound(round: number): void {
+    for (const z of this.state.zombies) z.active = false;
+    for (const b of this.state.bosses) b.active = false;
+    startRound(this.state, round);
+  }
+
   /** Debug: the weapon in hand, full of ammo (spec 04 §5). */
   private debugGiveWeapon(id: WeaponId): void {
     const p = this.state.players[0];
@@ -516,6 +522,21 @@ export class GameScene extends Phaser.Scene {
         const zone = this.map.merchantSpots[spot]?.zoneIndex ?? -1;
         return zone >= 0 && this.levels?.zoneLevel[zone] === this.currentLevel;
       },
+    );
+    // Bosses (spec 07 §6): on the level shown.
+    this.bossArrows.sync(
+      this.state.bosses,
+      {
+        x: view.x,
+        y: view.y,
+        width: view.width,
+        height: view.height,
+        insetX: pad.x * worldPerCssPx,
+        insetTop: pad.top * worldPerCssPx,
+        insetBottom: pad.bottom * worldPerCssPx,
+      },
+      worldPerCssPx,
+      (x, y) => levelAt(this.map, x, y) === this.currentLevel,
     );
     // The Demon's Hand (spec 06 §3.2): only once its room is unlocked, and on the level shown.
     const handZone = this.map.handSpots[this.state.hand.spot]?.zoneIndex ?? -1;

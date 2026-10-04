@@ -461,6 +461,28 @@ export const BOSS = {
   rethinkTime: 0.25,
   /** A leap lands on the nearest place its footprint fits within this many tiles of where it aimed (else it stays). */
   landingSearchTiles: 6,
+  /**
+   * A boss round (spec 07 §6): this share of the round's zombies; its
+   * bosses come out entryDelay s after the round banner shows. Once its
+   * zombies are over with a boss still alive, one more comes every
+   * dripInterval s while fewer than dripMaxAlive are alive, dripMax at
+   * most. The round ends when its bosses and every zombie are dead.
+   */
+  zombieShare: 0.5,
+  entryDelay: 5,
+  dripInterval: 6,
+  dripMaxAlive: 4,
+  dripMax: 20,
+  /**
+   * Its death (spec 07 §6): rewardPoints points and money to every player
+   * alive, a health and an ammo pickup where it falls (rewardSpread px
+   * apart), and the first time a boss dies in the match, the items that
+   * come from it (items.ts: the living heart), on the nearest walkable
+   * tile within dropSearchTiles.
+   */
+  rewardPoints: 500,
+  rewardSpread: 14,
+  dropSearchTiles: 6,
   /** The health bar moves in steps of 1/barSteps. */
   barSteps: 100,
 } as const;
@@ -470,4 +492,6 @@ export const DEBUG = {
   bigPoints: 10000,
   /** Money added by the smaller button (spec 04 §5: +5000$). */
   points: 5000,
+  /** IR A RONDA 6 (spec 07 §10): the first boss round. */
+  bossRound: 6,
 } as const;

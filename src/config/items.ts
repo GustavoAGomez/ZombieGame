@@ -10,13 +10,14 @@ export type ItemId = 'living_heart' | 'worn_wand';
 /** Catalogue order (the inventory and the spawns go through it). */
 export const ITEM_IDS: readonly ItemId[] = ['living_heart', 'worn_wand'];
 
-/** When and where an item lies on the map waiting to be picked up. */
-export interface ItemSpawnRule {
-  /** Drawn once, when the match starts, among the map's item spots (it stays there until picked up). */
-  when: 'match_start';
-  /** Never in the zone the player starts in: it has to be found. */
-  excludeStartZone: boolean;
-}
+/**
+ * When and where an item lies on the map waiting to be picked up (it stays
+ * there until someone does): drawn once as the match starts among the
+ * map's item spots (never in the starting zone, when `excludeStartZone`:
+ * it has to be found), or dropped where the first boss of the match dies
+ * (spec 07 §7).
+ */
+export type ItemSpawnRule = { when: 'match_start'; excludeStartZone: boolean } | { when: 'first_boss_kill' };
 
 export interface ItemDef {
   id: ItemId;
@@ -31,19 +32,19 @@ export interface ItemDef {
   fps: number;
   /** On the map it floats over its spot, bobbing (the wand); otherwise it lies on the floor. */
   floats?: boolean;
-  /** Lies on the map from the match start; without it the item is never on the ground. */
+  /** How it comes onto the map; without it the item is never on the ground. */
   spawn?: ItemSpawnRule;
 }
 
 export const ITEMS_CATALOGUE: Readonly<Record<ItemId, ItemDef>> = {
-  // A real human heart, beating.
-  living_heart: { id: 'living_heart', color: '#c93a2b', fps: 10 },
+  // A real human heart, beating: El Matarife drops it the first time a boss dies (spec 07 §7).
+  living_heart: { id: 'living_heart', color: '#c93a2b', fps: 10, spawn: { when: 'first_boss_kill' } },
   // Floating, with lightning crackling at its tip: magic that works by itself.
   worn_wand: { id: 'worn_wand', color: '#8a6a3f', accent: '#efe6d2', fps: 12, floats: true, spawn: { when: 'match_start', excludeStartZone: true } },
 };
 
-/** Carried by every player from the start (provisional for the heart: it will be found some other way). */
-export const STARTING_ITEMS: readonly ItemId[] = ['living_heart'];
+/** Carried by every player from the start: none (the heart comes from the first boss, spec 07 §7). */
+export const STARTING_ITEMS: readonly ItemId[] = [];
 
 export function itemDef(id: ItemId): ItemDef {
   return ITEMS_CATALOGUE[id];

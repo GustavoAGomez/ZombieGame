@@ -2,6 +2,7 @@ import { BOSS, CONTINUOUS, POINTS, SIM } from '../../config/balance';
 import { BOSSES } from '../../config/bosses';
 import type { BossState } from '../../core/GameState';
 import type { HitPoint } from './Combat';
+import { bossRewards } from './BossRewards';
 import { awardPoints } from './PointsSystem';
 import { bodyEntry, type Hurtbox } from './shotGeometry';
 import type { SimContext } from './SimContext';
@@ -94,7 +95,7 @@ export function damageBoss(ctx: SimContext, b: BossState, amount: number, attack
   return true;
 }
 
-/** Its death: the corpse stays BOSS.corpseTime, and the match hears about it (rewards, HUD). */
+/** Its death: the corpse stays BOSS.corpseTime, and it leaves its rewards (spec 07 §6). */
 export function killBoss(ctx: SimContext, b: BossState): void {
   b.hp = 0;
   b.phase = 'dead';
@@ -103,6 +104,7 @@ export function killBoss(ctx: SimContext, b: BossState): void {
   b.burn.timer = 0;
   b.waveTime = -1;
   ctx.events.emit('boss:killed', { x: b.x, y: b.y, boss: b.boss, variant: b.variant });
+  bossRewards(ctx, b.x, b.y);
 }
 
 const scoreTicks = Math.round(CONTINUOUS.scoreInterval * SIM.hz);

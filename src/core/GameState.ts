@@ -8,7 +8,7 @@ import type { MapData } from '../game/map/MapLoader';
 import { createHandState, emptyHand } from '../game/systems/handSpawn';
 import { placeMatchItems } from '../game/systems/itemSpawns';
 import { initialAccesses } from '../game/systems/ZoneSystem';
-import { zombiesInRound } from '../game/systems/waveFormulas';
+import { bossDelayOf, roundZombies } from '../game/systems/waveFormulas';
 import type { RngState } from './Rng';
 
 /**
@@ -482,6 +482,16 @@ export interface WaveState {
   restTimer: number;
   /** False freezes the flow on the current round (system tests). */
   auto: boolean;
+  /** Seconds until the round's bosses come out (spec 07 §6), -1 when none is due. */
+  bossDelay: number;
+  /**
+   * The zombies that keep coming while a boss lives on (spec 07 §6): started
+   * once the round's own are over; one every BOSS.dripInterval, at most
+   * dripLeft more.
+   */
+  dripping: boolean;
+  dripTimer: number;
+  dripLeft: number;
 }
 
 export interface GameState extends RngState {
@@ -517,6 +527,8 @@ export interface GameState extends RngState {
   zonesUnlocked: boolean[];
   /** Parallel to MapData.props: furniture a boss crushed (no collision any more, drawn as rubble). */
   propsDestroyed: boolean[];
+  /** Bosses killed this match: the first one drops the living heart (spec 07 §7). */
+  bossKills: number;
 }
 
 export function createWeaponSlot(id: WeaponId): WeaponSlotState {
@@ -738,7 +750,7 @@ export interface GameOptions {
 
 export function createGameState(map: MapData, options: GameOptions = {}): GameState {
   const round = Math.max(1, Math.floor(options.startRound ?? 1));
-  const { seed = 1, toSpawn = zombiesInRound(round), waveFlow = true } = options;
+  const { seed = 1, toSpawn = roundZombies(round), waveFlow = true } = options;
   const players = [createPlayerState(0, map.playerSpawn.x, map.playerSpawn.y)];
   const state: GameState = {
     tick: 0,
@@ -752,13 +764,25 @@ export function createGameState(map: MapData, options: GameOptions = {}): GameSt
     blood: Array.from({ length: ZOMBIES.maxBloodDecals }, createBlood),
     pickups: Array.from({ length: PICKUPS.poolSize }, createPickup),
     merchants: MERCHANTS.map((m) => createMerchant(m.id, m.appears?.by === 'round', players.length)),
-    wave: { round, phase: 'active', toSpawn, spawnTimer: WAVES.bannerDuration, restTimer: 0, auto: waveFlow },
+    wave: {
+      round,
+      phase: 'active',
+      toSpawn,
+      spawnTimer: WAVES.bannerDuration,
+      restTimer: 0,
+      auto: waveFlow,
+      bossDelay: bossDelayOf(round),
+      dripping: false,
+      dripTimer: BOSS.dripInterval,
+      dripLeft: BOSS.dripMax,
+    },
     // Open from the start only between the zones the match starts with (rooms are unlocked, not doors).
     doorsOpen: initialAccesses(map).doors,
     portalsOpen: initialAccesses(map).portals,
     windowPlanks: map.windows.map((w) => w.planks),
     zonesUnlocked: map.zones.map((z) => z.startsUnlocked),
     propsDestroyed: map.props.map(() => false),
+    bossKills: 0,
     groundItems: [],
     activations: ACTIVATIONS.map(() => ({ received: [], landsAt: [], thrownBy: [], done: false, doneTick: -1 })),
     hand: emptyHand(),

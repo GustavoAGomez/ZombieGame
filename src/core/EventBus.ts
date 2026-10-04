@@ -27,6 +27,8 @@ export interface GameEvents {
   'boss:landed': { x: number; y: number };
   /** A charging boss ran into a wall and is stunned (spec 07 §4.1): the floor jolts. */
   'boss:stunned': { x: number; y: number };
+  /** A special item came onto the floor during the match (spec 07 §7: the living heart, where the first boss died). */
+  'item:dropped': { item: ItemId; x: number; y: number };
   /** A boss died (spec 07 §6), at the centre of its footprint. */
   'boss:killed': { x: number; y: number; boss: BossId; variant: BossVariantId };
   /**
@@ -154,7 +156,8 @@ export interface GameEvents {
   'item:thrown': { playerId: number; item: ItemId; activation: ActivationId; fromX: number; fromY: number; toX: number; toY: number; time: number };
   /** An activation got its last item, which has landed: its effect has happened. Strong vibration. */
   'activation:completed': { playerId: number; activation: ActivationId; effect: ActivationEffect };
-  'round:changed': { round: number };
+  /** A new round: its banner, and under it «ALGO GRANDE SE ACERCA» when bosses come in it (spec 07 §6). */
+  'round:changed': { round: number; boss: boolean };
   /** A merchant appeared (`first`) or teleported to another spot at the start of a round (spec 03 §2). */
   'merchant:moved': { merchant: MerchantId; first: boolean };
   /** Money spent in a shop: "-750$" in red next to the money (spec 03 §3). */

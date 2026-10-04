@@ -2,12 +2,13 @@ import { describe, expect, it, vi } from 'vitest';
 import { WAVES } from '../../config/balance';
 import { createGameState } from '../../core/GameState';
 import { createMansionContext, createTestContext, player } from '../../test/fixtures';
+import { damageBoss, isBossHittable } from './BossCombat';
 import { damageZombie, isZombieAlive } from './Combat';
 import { awardPoints, spendMoney } from './PointsSystem';
 import type { SimContext } from './SimContext';
 import { stepSimulation } from './Simulation';
 import { roundsSurvived, startRound } from './WaveSystem';
-import { spawnInterval, zombiesInRound } from './waveFormulas';
+import { roundZombies, spawnInterval, zombiesInRound } from './waveFormulas';
 
 const DT = 1 / 60;
 
@@ -18,9 +19,10 @@ function withWaves(ctx: SimContext, round = 1): SimContext {
   return ctx;
 }
 
-/** Kills every zombie as soon as it appears (the player does not die and earns the points). */
+/** Kills every zombie as soon as it appears, and every boss as soon as it can be hurt (the player does not die and earns the points). */
 function killAll(ctx: SimContext): void {
   for (const z of ctx.state.zombies) if (isZombieAlive(z)) damageZombie(ctx, z, 1e9, 0);
+  for (const b of ctx.state.bosses) if (isBossHittable(b)) damageBoss(ctx, b, 1e9, 0);
 }
 
 describe('WaveSystem', () => {
@@ -56,7 +58,7 @@ describe('WaveSystem', () => {
     expect(ctx.state.wave).toMatchObject({ round: 2, phase: 'active', toSpawn: zombiesInRound(2) });
   });
 
-  it('can be played from round 1 to round 10, each round with the zombies of its formula', () => {
+  it('can be played from round 1 to round 10, each round with the zombies of its formula (half of them, and its boss, in round 6)', () => {
     const ctx = withWaves(createMansionContext(5));
     const spawnedIn = new Map<number, number>();
     const seen = new Set<object>();
@@ -74,7 +76,9 @@ describe('WaveSystem', () => {
       for (const z of ctx.state.zombies) if (!z.active) seen.delete(z);
     }
     expect(ctx.state.wave.round).toBe(10);
-    for (let r = 1; r < 10; r++) expect(spawnedIn.get(r), `round ${r}`).toBe(zombiesInRound(r));
+    for (let r = 1; r < 10; r++) expect(spawnedIn.get(r), `round ${r}`).toBe(roundZombies(r));
+    expect(roundZombies(6)).toBe(Math.ceil(zombiesInRound(6) / 2));
+    expect(ctx.state.bossKills).toBe(1);
     expect(player(ctx).score).toBeGreaterThan(0);
   });
 

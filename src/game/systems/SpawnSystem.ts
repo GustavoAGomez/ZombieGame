@@ -45,7 +45,7 @@ export function countAlive(ctx: SimContext): number {
   return n;
 }
 
-function freeZombieSlot(ctx: SimContext): ZombieState | undefined {
+export function freeZombieSlot(ctx: SimContext): ZombieState | undefined {
   const { zombies } = ctx.state;
   for (let i = 0; i < zombies.length; i++) {
     const z = zombies[i];

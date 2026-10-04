@@ -1,5 +1,6 @@
 import { BARRICADES, BOOSTS, BOSS, DASH, PLAYER } from '../config/balance';
 import { WEAPONS, type WeaponId } from '../config/weapons';
+import { bossesForRound } from '../config/bosses';
 import { merchantDef, type MerchantId } from '../config/merchants';
 import type { EventBus, GameEvents } from '../core/EventBus';
 import type { GameState } from '../core/GameState';
@@ -231,7 +232,7 @@ export class HudPresenter {
 
     if (state.wave.round !== this.round) {
       this.round = state.wave.round;
-      this.events.emit('round:changed', { round: this.round });
+      this.events.emit('round:changed', { round: this.round, boss: bossesForRound(this.round).length > 0 });
     }
 
     const slot = p.weapons[p.activeSlot];

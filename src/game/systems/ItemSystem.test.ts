@@ -73,8 +73,7 @@ describe('special items · picking them up (spec 05 §3)', () => {
     presenter.publish(ctx.state);
     expect(action).toHaveBeenLastCalledWith(expect.objectContaining({ kind: 'pickup', item: 'worn_wand', enabled: true }));
     tap(ctx);
-    // After the heart carried from the start: the order they were picked up in.
-    expect(p.items).toEqual(['living_heart', 'worn_wand']);
+    expect(p.items).toEqual(['worn_wand']);
     expect(g.active).toBe(false);
     expect(picked).toHaveBeenCalledWith({ playerId: p.id, item: 'worn_wand' });
     // Gone from the floor: the button no longer offers it.
@@ -104,10 +103,11 @@ describe('special items · picking them up (spec 05 §3)', () => {
 });
 
 describe('special items · the inventory and using them (spec 05 §4–5)', () => {
-  it('carries the living heart from the start, and tells the HUD what it carries', () => {
+  it('starts with nothing (the heart comes from the first boss, spec 07 §7), and tells the HUD what it carries', () => {
     const ctx = createMansionContext();
     const p = player(ctx);
-    expect(p.items).toEqual(['living_heart']);
+    expect(p.items).toEqual([]);
+    p.items.push('living_heart');
     const presenter = new HudPresenter(ctx.events, ctx.map);
     const inventory = vi.fn();
     ctx.events.on('items:inventory', inventory);
@@ -121,6 +121,7 @@ describe('special items · the inventory and using them (spec 05 §4–5)', () =
   it('a tap far from any place that takes it says "AQUÍ NO SE USA" and keeps the item, every time', () => {
     const ctx = createMansionContext();
     const p = player(ctx);
+    p.items = ['living_heart'];
     const cantUse = vi.fn();
     ctx.events.on('item:cantUse', cantUse);
     for (let i = 0; i < 3; i++) {

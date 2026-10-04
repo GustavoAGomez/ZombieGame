@@ -52,6 +52,7 @@ export const STRINGS = {
     goToWand: 'IR A LA VARITA',
     itemSpots: 'MOSTRAR PUNTOS DE OBJETO',
     /** Spec 07 §10. */
+    goToBossRound: 'IR A RONDA 6',
     summonBoss: 'INVOCAR MATARIFE',
     killBoss: 'MATAR BOSS',
     forceCharge: 'FORZAR EMBESTIDA',
@@ -214,6 +215,8 @@ export const STRINGS = {
     names: { butcher: 'EL MATARIFE' } as Readonly<Record<BossId, string>>,
     /** Its health bar, for screen readers. */
     health: (name: string): string => `Vida de ${name}`,
+    /** Under the round banner in a boss round (spec 07 §6). */
+    incoming: 'ALGO GRANDE SE ACERCA',
   },
   /** Special items (spec 05), by id. */
   items: {
