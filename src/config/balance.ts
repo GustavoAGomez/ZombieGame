@@ -436,6 +436,27 @@ export const BOSS = {
   maxSubstep: 8,
   /** Its corpse stays on screen this long (s). */
   corpseTime: 1.5,
+  /**
+   * Coming in (spec 07 §3): the floor shakes and a crack opens on its boss
+   * spot for warningTime s; it climbs out in emergeTime (it cannot be hurt
+   * and does not attack), then roars for roarTime and its bar shows.
+   */
+  warningTime: 3,
+  emergeTime: 1.2,
+  roarTime: 1,
+  /** Side (tiles) of the crack: the boss spot's square. */
+  crackTiles: 3,
+  /** Whoever stands in the crack as it climbs out takes this (× the variant's damage) and is thrown out of it. */
+  crackDamage: 20,
+  /** It comes out of the boss spot nearest the player by walking among those at least this many tiles away (the farthest when none is). */
+  spotMinTiles: 5,
+  /**
+   * When the player it goes for changes level, or after noPathTime s with
+   * no way to them, it sinks into the floor (sinkTime s, it cannot be hurt)
+   * and comes out again near them, with the same warning and its health.
+   */
+  sinkTime: 1.2,
+  noPathTime: 5,
   /** The health bar moves in steps of 1/barSteps. */
   barSteps: 100,
 } as const;
@@ -445,6 +466,4 @@ export const DEBUG = {
   bigPoints: 10000,
   /** Money added by the smaller button (spec 04 §5: +5000$). */
   points: 5000,
-  /** INVOCAR MATARIFE: it comes in at least this many steps (tiles) away from the player, walking. */
-  bossMinSteps: 5,
 } as const;

@@ -14,6 +14,13 @@ export const DISPLAY = {
   shotHeight: BULLETS.flightHeight,
   /** How long the darkness over a zone takes to clear once it is unlocked (ms). */
   fogFadeMs: 600,
+  /**
+   * Camera shakes, as fractions of the view (spec 07): while a boss's crack
+   * opens (the whole warning), and a short jolt when it roars.
+   */
+  bossWarningShake: 0.002,
+  bossRoarShake: 0.005,
+  bossRoarShakeMs: 300,
 } as const;
 
 export function cappedDevicePixelRatio(dpr: number): number {

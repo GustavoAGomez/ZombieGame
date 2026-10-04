@@ -201,4 +201,50 @@ describe('validateMap', () => {
       expect(errorsOf(moveSpot('I12', 45, 8))).toMatch(/punto de objeto 12 \(jardin\) está en una casilla bloqueada \(45,8\)/);
     });
   });
+
+  it('needs a boss spot in every zone (spec 07 §3)', () => {
+    const errors = errorsOf(variant((o) => o.splice(0, o.length, ...o.filter((x) => !(x.type === 'boss_spot' && ['B9', 'B10', 'B11'].includes(x.name))))));
+    expect(errors).toMatch(/la zona calle tiene 0 puntos de boss/);
+  });
+
+  it('puts boss spots on a free 3×3 square of floor, away from doors, portals, cases, merchants and the hand', () => {
+    // Next to the hall's door to the living room (D1): its square crosses the wall and the door is right there.
+    const errors = errorsOf(variant((o) => Object.assign(byName(o, 'B1'), { x: 33.5 * 32, y: 38.5 * 32 })));
+    expect(errors).toMatch(/el punto de boss 1 \(recibidor\) no tiene su cuadrado de 3×3/);
+    expect(errors).toMatch(/el punto de boss 1 \(recibidor\) está a .* tiles de la puerta D1/);
+  });
+
+  it('checks that a 2×2 boss reaches every room of each level by the doors (spec 07 §2)', () => {
+    // Weapon cases (solid for a boss) on every tile of the library's doors leave it cut off.
+    const errors = errorsOf(
+      variant((o) => {
+        const doors = o.filter((x) => x.type === 'door' && x.properties?.some((pr) => (pr.name === 'fromZone' || pr.name === 'toZone') && pr.value === 'biblioteca'));
+        let id = 9000;
+        for (const d of doors) {
+          for (let y = d.y; y < d.y + d.height; y += 32) {
+            for (let x = d.x; x < d.x + d.width; x += 32) {
+              o.push({
+                id: id++,
+                name: `X${id}`,
+                type: 'weapon_case',
+                x,
+                y,
+                width: 32,
+                height: 32,
+                rotation: 0,
+                visible: true,
+                properties: [
+                  { name: 'weapon', type: 'string', value: 'smg' },
+                  { name: 'cost', type: 'int', value: 1000 },
+                  { name: 'facing', type: 'string', value: 'south' },
+                  { name: 'zone', type: 'string', value: 'biblioteca' },
+                ],
+              });
+            }
+          }
+        }
+      }),
+    );
+    expect(errors).toMatch(/un boss de 2×2 no llega a la zona biblioteca desde el resto de su nivel/);
+  });
 });

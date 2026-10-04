@@ -1,7 +1,7 @@
 import { App } from '@capacitor/app';
 import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
 import Phaser from 'phaser';
-import { DEBUG, SIM, type BoostKind } from '../../config/balance';
+import { BOSS, DEBUG, SIM, type BoostKind } from '../../config/balance';
 import { DISPLAY, computeWorldZoom } from '../../config/display';
 import { FixedStep } from '../../core/FixedStep';
 import { createGameState, type GameState } from '../../core/GameState';
@@ -36,7 +36,7 @@ import { BurnFlames } from '../entities/BurnFlames';
 import { WeaponCaseViews } from '../entities/WeaponCase';
 import { findWeapon, giveWeapon, refillWeapon } from '../systems/InventorySystem';
 import { moveHand } from '../systems/HandSystem';
-import { freeBossSlot, spawnBoss, spawnPositionNear } from '../systems/BossSystem';
+import { freeBossSlot, startBossEntry } from '../systems/BossSystem';
 import { isBossAlive, killBoss } from '../systems/BossCombat';
 import { debugGiveItems } from '../systems/ItemSystem';
 import { HudPresenter } from '../HudPresenter';
@@ -173,7 +173,7 @@ export class GameScene extends Phaser.Scene {
     this.groundItemViews = new GroundItemViews(this, this.state.groundItems, manifest);
     this.activationSites = new ActivationSiteViews(this, this.map);
     this.zombieViews = new ZombieViewPool(this, manifest, this.state.zombies.length);
-    this.bossViews = new BossViewPool(this, this.state.bosses.length, this.map.tileSize);
+    this.bossViews = new BossViewPool(this, this.state.bosses.length, this.map.tileSize, manifest);
     this.burnFlames = new BurnFlames(this, this.state.zombies.length, manifest);
     this.weaponCases = new WeaponCaseViews(this, this.map);
     this.merchantViews = new MerchantViewPool(this, this.map, this.state.merchants, manifest);
@@ -204,7 +204,12 @@ export class GameScene extends Phaser.Scene {
     this.applyZoom();
 
     this.scale.on(Phaser.Scale.Events.RESIZE, this.applyZoom);
+    // A boss's crack opening: the floor shakes for as long as it takes (spec 07 §3); its roar, a jolt.
+    const offWarning = events.on('boss:warning', () => this.cameras.main.shake(BOSS.warningTime * 1000, DISPLAY.bossWarningShake));
+    const offRoar = events.on('boss:roar', () => this.cameras.main.shake(DISPLAY.bossRoarShakeMs, DISPLAY.bossRoarShake));
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      offWarning();
+      offRoar();
       this.scale.off(Phaser.Scale.Events.RESIZE, this.applyZoom);
       this.controls.destroy();
       this.hud.destroy();
@@ -324,7 +329,7 @@ export class GameScene extends Phaser.Scene {
     this.activationSites.sync(this.state);
     this.thrownItems.sync(this.state.time);
     this.zombieViews.sync(this.state.zombies, alpha, now, this.isDark);
-    this.bossViews.sync(this.state.bosses, alpha, this.state.time, this.isDark);
+    this.bossViews.sync(this.state.bosses, alpha, this.state.time, this.state.tick, this.isDark);
     this.merchantViews.sync(this.state.merchants, this.state.players, this.state.tick, this.state.time);
     this.weaponCases.sync(this.state, player);
     this.syncOffscreenArrows();
@@ -440,11 +445,8 @@ export class GameScene extends Phaser.Scene {
       },
       toggleHandSpots: () => (this.debugDraw.showHandSpots = !this.debugDraw.showHandSpots),
       summonBoss: () => {
-        const p = this.state.players[0];
         const slot = freeBossSlot(this.sim);
-        if (!p || slot < 0) return;
-        const at = spawnPositionNear(this.sim, slot, p, DEBUG.bossMinSteps);
-        if (at) spawnBoss(this.sim, slot, 'butcher', 'base', at.x, at.y);
+        if (slot >= 0) startBossEntry(this.sim, slot, 'butcher', 'base');
       },
       killBoss: () => {
         for (const b of this.state.bosses) if (isBossAlive(b)) killBoss(this.sim, b);

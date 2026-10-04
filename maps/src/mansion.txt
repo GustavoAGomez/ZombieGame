@@ -215,6 +215,25 @@ ssaaaaasgssFgggggggggssggFgggggddgggggggFgggsssggggggggggFggssggggggggFggssggggg
 | H8 | 103,33 | sotano | frente a la caldera |
 | H9 | 96,13 | azotea | junto al campamento de los supervivientes |
 
+## Bosses (por dónde sale un boss del suelo, spec 07 §3: centro de un cuadrado de 3×3 de suelo sin paredes, al menos uno por zona; puede tener atrezo encima, que aplasta al salir; a 3 tiles o más de puertas, portales, vitrinas, magos y puntos de la mano)
+| id | casilla | zona | nota |
+|---|---|---|---|
+| B1 | 38,36 | recibidor | donde se hundió la escalera: el suelo ya había cedido |
+| B2 | 28,34 | salon | bajo la barricada de muebles de los supervivientes |
+| B3 | 53,34 | comedor | bajo la mesa larga de la última cena |
+| B4 | 24,24 | biblioteca | entre las estanterías y la mesa de lectura |
+| B5 | 47,25 | cocina | en el office, donde se desayunaba |
+| B6 | 63,28 | garaje | en el taller, entre las herramientas tiradas |
+| B7 | 24,6 | jardin | en el césped del fondo, junto a la valla |
+| B8 | 62,16 | jardin | en el césped del lado del garaje |
+| B9 | 20,47 | calle | en el jardín delantero |
+| B10 | 58,57 | calle | en mitad de la calzada, frente a la entrada de coches |
+| B11 | 4,30 | calle | en la calle lateral |
+| B12 | 95,36 | sotano | en el refugio improvisado del colchón |
+| B13 | 101,41 | sotano | al fondo del sótano |
+| B14 | 96,17 | azotea | cerca de la escalera |
+| B15 | 92,8 | azotea | en el rincón noroeste |
+
 ## Activaciones (lugares donde se usan los objetos especiales, spec 05 §6: un rectángulo de casillas, de esquina a esquina, con el id que nombra src/config/activations.ts)
 | id | casillas | zona | nota |
 |---|---|---|---|

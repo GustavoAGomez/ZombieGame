@@ -1574,3 +1574,33 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - Con una tienda abierta se oculta, porque el mago se ve justo ahí, encima del panel.
   - Comprobado en 844×390, 800×360 y 640×360 con dos barras, tres armas, objetos y la mejora guardada: sin solapes y con al menos 4 px de hueco.
 - **Debug:** `INVOCAR MATARIFE` lo pone a andar a 5 casillas o más del jugador (la regla del punto de entrada, sin `boss_spot` todavía) y nunca encima de otro boss. `MATAR BOSS` mata a los que haya. Con `HITBOX` se ven su huella (roja) y su caja de impacto (amarilla).
+
+## Spec 07 · Fase B2 (puntos de boss, validador, entrada y reaparición)
+
+- **Puntos en el mapa** (`boss_spot`, tabla `## Bosses` del plano): colocados con la skill `level-design`, 15 en total. Hay uno en cada sala interior y dos o tres en las grandes (jardín, calle, sótano y azotea), para que haya donde elegir a 5 casillas o más del jugador:
+  - recibidor: donde se hundió la escalera (la aplasta al salir);
+  - salón: bajo la barricada de muebles de los supervivientes;
+  - comedor: bajo la mesa de la última cena;
+  - biblioteca: entre las estanterías y la mesa de lectura;
+  - cocina: en el office;
+  - garaje: en el taller;
+  - jardín: el césped del fondo y el del lado del garaje;
+  - calle: el jardín delantero, la calzada frente a la entrada de coches y la calle lateral;
+  - sótano: el refugio del colchón y el fondo;
+  - azotea: cerca de la escalera y el rincón noroeste.
+- **Validador:**
+  - Al menos un punto por zona. Cada uno es el centro de un cuadrado de 3×3 de suelo sin paredes, ventanas, vitrinas ni portales (el atrezo vale), dentro de su zona.
+  - A 3 tiles o más (de centro a centro) de puertas, portales, vitrinas, puntos de mago y puntos de la mano.
+  - **Alcance de un cuerpo de 2×2 (pedido por el usuario):** con todas las puertas abiertas, el atrezo transitable y los puntos de la mano como sólidos, las posiciones de la huella de cada nivel forman un solo grupo que toca todas sus salas. Los portales llevan a otro nivel y el boss no los usa, así que se comprueba nivel a nivel. La mansión cumple sin tocarla.
+- **Tabla nueva en el compilador:** el plano solo leía las tablas cuyo título empezaba por una palabra conocida; se añade `bosses`.
+- **Elección del punto:** el camino de 2×2 del boss mide «andando» la distancia de cada punto al jugador, y así un punto de otro nivel o de una sala bloqueada queda fuera solo. Nunca elige un punto por el que esté saliendo otro boss ni uno sobre el que haya un boss. Si ningún punto vale (un mapa sin puntos), sale en la posición libre más cercana a 5 casillas o más, como el debug de la B1.
+- **Secuencia:**
+  - **Aviso, 3 s:** se abre la grieta, que es el agujero de la mano dibujado al doble (96×80), con temblor de cámara todo el aviso y vibración media. Bajo tierra el boss no se ve, no choca y no recibe daño.
+  - **Salida, 1,2 s:** aplasta el atrezo de las 3×3 casillas. Quien esté dentro recibe 20 × el daño de su variante (el dash y el modo dios lo esquivan, como cualquier golpe) y sale empujado por el lado más cercano de la grieta. Trepa cortado a ras de suelo, como la mano, y sigue sin recibir daño.
+  - **Rugido, 1 s:** la barra aparece y desde entonces se queda (`introduced`). Ya se le puede hacer daño. Hay un golpe corto de cámara.
+- **Reaparición:**
+  - Si el jugador está en otro nivel que el boss (con los niveles de `computeLevels`; en un umbral de puerta no cuenta), se hunde al momento.
+  - Si lleva 5 s sin camino hasta él, también.
+  - Al hundirse (1,2 s) es invulnerable. Luego elige punto con la misma regla («el más adecuado de la zona del jugador» es el más cercano andando a 5 casillas o más, que suele estar en su sala) y repite el aviso. Conserva la vida.
+- **La oscuridad:** solo cubre salas bloqueadas, y un boss solo sale y anda por salas desbloqueadas, así que la grieta va sobre el suelo, bajo los personajes, y nunca queda tapada.
+- **Debug:** `INVOCAR MATARIFE` ya hace la entrada completa en el punto que toca.

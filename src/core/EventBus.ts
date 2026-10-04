@@ -17,6 +17,10 @@ export interface GameEvents {
   'player:damaged': { playerId: number; hp: number; maxHp: number; x: number; y: number; fromX: number; fromY: number };
   'player:died': { playerId: number };
   'zombie:killed': { x: number; y: number; kind: ZombieKind };
+  /** A crack opens where a boss is about to come out (spec 07 §3): the floor shakes, vibration. */
+  'boss:warning': { x: number; y: number };
+  /** A boss roars (spec 07 §3, §5): out of the floor, and when its fury starts. */
+  'boss:roar': { x: number; y: number };
   /** A boss died (spec 07 §6), at the centre of its footprint. */
   'boss:killed': { x: number; y: number; boss: BossId; variant: BossVariantId };
   /**

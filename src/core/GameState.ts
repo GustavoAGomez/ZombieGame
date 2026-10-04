@@ -329,10 +329,11 @@ export interface BurnState {
 }
 
 /**
- * Where a boss is in its life (spec 07): walking after its target, and
- * dead (its corpse on screen for BOSS.corpseTime).
+ * Where a boss is in its life (spec 07): its crack opening (underground),
+ * climbing out, roaring, walking after its target, sinking to come out
+ * elsewhere, and dead (its corpse on screen for BOSS.corpseTime).
  */
-export type BossPhase = 'walking' | 'dead';
+export type BossPhase = 'warning' | 'emerging' | 'roaring' | 'walking' | 'sinking' | 'dead';
 
 /** A boss on the map (spec 07). Pooled: BOSS.maxAlive slots, toggled with `active`. */
 export interface BossState {
@@ -357,6 +358,12 @@ export interface BossState {
   phaseTick: number;
   /** Below half its health, or from the start for some variants (spec 07 §5). */
   enraged: boolean;
+  /** Index into MapData.bossSpots of the crack it is coming out of, -1 none (no spot: anywhere it fits). */
+  spot: number;
+  /** It has roared once: its health bar shows from then on. */
+  introduced: boolean;
+  /** Seconds it has gone with no way to its target (it sinks at BOSS.noPathTime). */
+  noPathTime: number;
   /** Player id it goes for (the nearest one alive, spec 07 §9), -1 none. */
   target: number;
   /** Fire on it (the burn hurts it too). */
@@ -625,6 +632,9 @@ export function createBoss(): BossState {
     timer: 0,
     phaseTick: 0,
     enraged: false,
+    spot: -1,
+    introduced: false,
+    noPathTime: 0,
     target: -1,
     burn: { timer: 0, tickTimer: 0, perTick: 0, owner: -1, hellfire: false },
     contactScoreTick: -1000,

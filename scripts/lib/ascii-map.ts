@@ -139,6 +139,13 @@ export interface AsciiHandSpot {
   zone: string;
 }
 
+/** Where a boss comes out of the floor (table "Bosses", spec 07 §3): the middle tile of a free 3×3 square. */
+export interface AsciiBossSpot {
+  id: string;
+  cell: Cell;
+  zone: string;
+}
+
 /** A place where special items are used (table "Activaciones", spec 05 §6): a rectangle of tiles and its zone. */
 export interface AsciiActivationSite {
   id: string;
@@ -179,6 +186,7 @@ export interface AsciiMap {
   weaponCases: AsciiWeaponCase[];
   itemSpots: AsciiItemSpot[];
   handSpots: AsciiHandSpot[];
+  bossSpots: AsciiBossSpot[];
   activationSites: AsciiActivationSite[];
   props: AsciiProp[];
   player: Cell;
@@ -226,7 +234,7 @@ function readTables(text: string): Map<string, Row[]> {
     }
     const row: Row = {};
     header.forEach((h, i) => (row[h] = cells[i] ?? ''));
-    const key = ['zonas', 'puertas', 'barricadas', 'portales', 'spawns', 'magos', 'vitrinas', 'objetos', 'mano', 'activaciones', 'jugador', 'atrezo'].find((k) => section.startsWith(k)) ?? section;
+    const key = ['zonas', 'puertas', 'barricadas', 'portales', 'spawns', 'magos', 'vitrinas', 'objetos', 'mano', 'bosses', 'activaciones', 'jugador', 'atrezo'].find((k) => section.startsWith(k)) ?? section;
     tables.set(key, [...(tables.get(key) ?? []), row]);
   }
   return tables;
@@ -343,6 +351,11 @@ export function parseAsciiMap(text: string): AsciiMap {
     cell: parseCells(r.casilla ?? '', problems, `mano ${r.id}`)[0] ?? { x: -1, y: -1 },
     zone: r.zona ?? '',
   }));
+  const bossSpots: AsciiBossSpot[] = rows('bosses').map((r) => ({
+    id: r.id ?? '',
+    cell: parseCells(r.casilla ?? '', problems, `boss ${r.id}`)[0] ?? { x: -1, y: -1 },
+    zone: r.zona ?? '',
+  }));
   const activationSites: AsciiActivationSite[] = rows('activaciones').map((r) => ({
     id: r.id ?? '',
     cells: parseArea(r.casillas ?? '', problems, `activación ${r.id}`),
@@ -361,13 +374,14 @@ export function parseAsciiMap(text: string): AsciiMap {
     };
   });
 
-  const map: AsciiMap = { grid, width, height, zones, doors, windows, portals, openSpawns, merchantSpots, weaponCases, itemSpots, handSpots, activationSites, props, player };
+  const map: AsciiMap = { grid, width, height, zones, doors, windows, portals, openSpawns, merchantSpots, weaponCases, itemSpots, handSpots, bossSpots, activationSites, props, player };
   checkMarkers(map, problems);
   checkProps(map, problems);
   checkMerchantSpots(map, problems);
   checkWeaponCases(map, problems);
   checkItemSpots(map, problems);
   checkHandSpots(map, problems);
+  checkBossSpots(map, problems);
   if (problems.length > 0) throw new AsciiMapError(problems);
   return map;
 }
@@ -459,6 +473,28 @@ function checkHandSpots(map: AsciiMap, problems: string[]): void {
     const ch = map.grid[spot.cell.y]?.[spot.cell.x] ?? '_';
     if ('#HFWDo<P_w'.includes(ch)) problems.push(`${who}: la casilla ${spot.cell.x},${spot.cell.y} es "${ch}"; la grieta va sobre suelo`);
     if (covered.has(`${spot.cell.x},${spot.cell.y}`)) problems.push(`${who}: la casilla ${spot.cell.x},${spot.cell.y} está tapada por atrezo`);
+  }
+}
+
+/**
+ * Boss spots are the middle of a 3×3 square of floor (furniture on it is
+ * fine: the boss crushes it as it comes out). Their design rules (one per
+ * zone at least, clearances, the square walkable) are checked on the built map.
+ */
+function checkBossSpots(map: AsciiMap, problems: string[]): void {
+  const ids = new Set<string>();
+  for (const spot of map.bossSpots) {
+    const who = `boss ${spot.id}`;
+    if (ids.has(spot.id)) problems.push(`${who}: id repetido`);
+    ids.add(spot.id);
+    for (let dy = -1; dy <= 1; dy++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        const x = spot.cell.x + dx;
+        const y = spot.cell.y + dy;
+        const ch = map.grid[y]?.[x] ?? '_';
+        if ('#HFWDo<_w'.includes(ch)) problems.push(`${who}: la casilla ${x},${y} de su cuadrado de 3×3 es "${ch}"; la grieta va sobre suelo`);
+      }
+    }
   }
 }
 
@@ -978,6 +1014,11 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
     knownZone(s.zone, `mano ${s.id}`);
     if (zoneIndex.has(s.zone) && cellZone[s.cell.y * W + s.cell.x] !== zoneIndex.get(s.zone)) problems.push(`mano ${s.id}: no cae en la zona ${s.zone}`);
     add({ name: s.id, type: 'hand_spot', ...point(s.cell), properties: [p('zone', 'string', s.zone)] });
+  }
+  for (const s of map.bossSpots) {
+    knownZone(s.zone, `boss ${s.id}`);
+    if (zoneIndex.has(s.zone) && cellZone[s.cell.y * W + s.cell.x] !== zoneIndex.get(s.zone)) problems.push(`boss ${s.id}: no cae en la zona ${s.zone}`);
+    add({ name: s.id, type: 'boss_spot', ...point(s.cell), properties: [p('zone', 'string', s.zone)] });
   }
   for (const a of map.activationSites) {
     knownZone(a.zone, `activación ${a.id}`);

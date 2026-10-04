@@ -236,6 +236,21 @@ export function renderMap(mapPath: string): { image: Frame; map: MapData } {
     rect(image, cx - 13, cy - 7, 26, 14, [25, 8, 8]);
     for (const [ex, ey] of [[-8, -2], [-3, 2], [2, -3], [7, 1], [0, 0]] as const) rect(image, cx + ex - 1, cy + ey - 1, 3, 3, [255, 80, 30]);
   }
+  // Boss spots (spec 07 §3): their 3×3 crack, a dashed orange square with a red cross in the middle.
+  for (const s of map.bossSpots) {
+    const x0 = Math.round(s.x) - 48;
+    const y0 = Math.round(s.y) - 48;
+    for (let i = 0; i < 96; i += 8) {
+      rect(image, x0 + i, y0, 4, 2, [255, 120, 20]);
+      rect(image, x0 + i, y0 + 94, 4, 2, [255, 120, 20]);
+      rect(image, x0, y0 + i, 2, 4, [255, 120, 20]);
+      rect(image, x0 + 94, y0 + i, 2, 4, [255, 120, 20]);
+    }
+    for (let i = -8; i <= 8; i++) {
+      rect(image, Math.round(s.x) + i - 1, Math.round(s.y) + i - 1, 3, 3, [200, 30, 30]);
+      rect(image, Math.round(s.x) + i - 1, Math.round(s.y) - i - 1, 3, 3, [200, 30, 30]);
+    }
+  }
   for (let i = 0; i <= 8; i++) rect(image, Math.round(map.playerSpawn.x) - i, Math.round(map.playerSpawn.y) - 8 + i, i * 2 + 1, 1, [255, 230, 40]);
   for (let i = 0; i < 8; i++) rect(image, Math.round(map.playerSpawn.x) - 7 + i, Math.round(map.playerSpawn.y) + 1 + i, 15 - i * 2, 1, [255, 230, 40]);
   return { image, map };

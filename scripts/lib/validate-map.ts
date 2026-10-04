@@ -6,6 +6,8 @@
  * Spanish; an empty list means the map is valid.
  */
 import { BLOCK_PLAYER, buildCollisionGrid } from '../../src/game/map/CollisionGrid';
+import { createBossNav, footprintFits, type BossNav } from '../../src/game/map/BossNav';
+import { computeLevels } from '../../src/game/map/levels';
 import { ACTIVATIONS } from '../../src/config/activations';
 import { parseMap, TILE_WATER, type MapData } from '../../src/game/map/MapLoader';
 import type { TiledMap, TiledSourceMap } from '../../src/game/map/tiled';
@@ -37,6 +39,17 @@ export const MAP_RULES = {
   minHandClearanceTiles: 3,
   /** …and never in a passage narrower than this (tiles): the spot lies in an open square this size. */
   minHandPassageTiles: 3,
+  /**
+   * Boss spots (spec 07 §3): at least this many per zone, each the middle of
+   * a square this side (tiles) of floor without walls, at least
+   * minBossClearanceTiles (centre to centre) from doors, portals, weapon
+   * cases, merchant spots and hand spots.
+   */
+  minBossSpotsPerZone: 1,
+  bossSpotSquare: 3,
+  minBossClearanceTiles: 3,
+  /** A boss's footprint (tiles): it must reach every room of each level by the doors (spec 07 §2). */
+  bossFootprintTiles: 2,
   maxWidth: 120,
   maxHeight: 70,
 } as const;
@@ -237,6 +250,8 @@ export function validateMap(raw: TiledSourceMap | TiledMap): MapValidation {
   validateWeaponCases(map, free, inOpenSquare, errors);
   validateItemSpots(map, free, (x, y) => seen[y * map.width + x] === 1, errors);
   validateHandSpots(map, free, (x, y) => seen[y * map.width + x] === 1, errors);
+  const bossNav = validateBossReach(map, errors);
+  validateBossSpots(map, bossNav, errors);
   // Every activation needs its place on the map (spec 05 §6).
   for (const a of ACTIVATIONS) {
     const site = map.activationSites.find((s) => s.id === a.site);
@@ -396,6 +411,117 @@ function validateHandSpots(
     for (const k of keepAway) {
       const d = Math.min(...k.points.map((p) => Math.hypot(p.x - spot.x, p.y - spot.y))) / ts;
       if (d < R.minHandClearanceTiles) errors.push(`${who} está a ${d.toFixed(1)} tiles ${k.what.startsWith('el ') ? `del ${k.what.slice(3)}` : `de ${k.what}`}; debe estar a ${R.minHandClearanceTiles} o más`);
+    }
+  });
+}
+
+/**
+ * A boss's footprint (bossFootprintTiles square) reaches every room of each
+ * level from every other by its doors, all of them open, furniture counting
+ * as walkable (it crushes it) and the Demon's Hand's spots as solid (spec 07
+ * §2). Portals lead to other levels: a boss does not take them. Returns the
+ * navigation, its `dist` holding the component of each footprint position.
+ */
+function validateBossReach(map: MapData, errors: string[]): BossNav {
+  const R = MAP_RULES;
+  const nav = createBossNav(map, R.bossFootprintTiles);
+  nav.blocked.set(nav.solid);
+  for (const h of map.handSpots) nav.blocked[Math.floor(h.y / map.tileSize) * map.width + Math.floor(h.x / map.tileSize)] = 1;
+  // Connected footprint positions (4-neighbours), numbered in nav.dist.
+  const { width, height, dist, queue } = nav;
+  dist.fill(-1);
+  let component = 0;
+  for (let start = 0; start < dist.length; start++) {
+    if (dist[start] !== -1 || !footprintFits(nav, start % width, Math.floor(start / width))) continue;
+    let head = 0;
+    let tail = 0;
+    dist[start] = component;
+    queue[tail++] = start;
+    while (head < tail) {
+      const pos = queue[head++] ?? 0;
+      const x = pos % width;
+      const y = (pos - x) / width;
+      for (const [dx, dy] of SIDES) {
+        const nx = x + dx;
+        const ny = y + dy;
+        if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+        const next = ny * width + nx;
+        if (dist[next] !== -1 || !footprintFits(nav, nx, ny)) continue;
+        dist[next] = component;
+        queue[tail++] = next;
+      }
+    }
+    component++;
+  }
+  // Each zone: the components of the positions that lie wholly inside it.
+  const side = R.bossFootprintTiles;
+  const zoneComponents = map.zones.map(() => new Set<number>());
+  for (let pos = 0; pos < dist.length; pos++) {
+    const c = dist[pos] ?? -1;
+    if (c < 0) continue;
+    const x = pos % width;
+    const y = (pos - x) / width;
+    const zone = map.cellZone[pos] ?? -1;
+    let inside = zone >= 0;
+    for (let dy = 0; dy < side && inside; dy++) for (let dx = 0; dx < side && inside; dx++) inside = map.cellZone[(y + dy) * width + x + dx] === zone;
+    if (inside) zoneComponents[zone]?.add(c);
+  }
+  const { levels } = computeLevels(map);
+  for (const level of levels) {
+    // The component shared by the most rooms of the level is its way round; every room must be on it.
+    const counts = new Map<number, number>();
+    for (const z of level.zones) for (const c of zoneComponents[z] ?? []) counts.set(c, (counts.get(c) ?? 0) + 1);
+    const main = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? -1;
+    for (const z of level.zones) {
+      const zone = map.zones[z];
+      if (!zone) continue;
+      if ((zoneComponents[z]?.size ?? 0) === 0) errors.push(`un boss de ${side}×${side} no cabe en ninguna parte de la zona ${zone.id}`);
+      else if (!zoneComponents[z]?.has(main)) errors.push(`un boss de ${side}×${side} no llega a la zona ${zone.id} desde el resto de su nivel por las puertas`);
+    }
+  }
+  return nav;
+}
+
+/**
+ * Boss spots (spec 07 §3): at least minBossSpotsPerZone per zone, the
+ * middle of a bossSpotSquare square of floor without walls (furniture on it
+ * is fine: the boss crushes it), inside its zone, at least
+ * minBossClearanceTiles from doors, portals, weapon cases, merchant spots
+ * and hand spots, and where a boss can walk on to the rest of its level.
+ */
+function validateBossSpots(map: MapData, nav: BossNav, errors: string[]): void {
+  const R = MAP_RULES;
+  const ts = map.tileSize;
+  map.zones.forEach((zone, i) => {
+    const count = map.bossSpots.filter((s) => s.zoneIndex === i).length;
+    if (count < R.minBossSpotsPerZone) errors.push(`la zona ${zone.id} tiene ${count} puntos de boss; necesita al menos ${R.minBossSpotsPerZone}`);
+  });
+  const centre = (t: { x: number; y: number }) => ({ x: (t.x + 0.5) * ts, y: (t.y + 0.5) * ts });
+  const keepAway: { what: string; points: { x: number; y: number }[] }[] = [
+    ...map.doors.map((d) => ({ what: `la puerta ${d.id}`, points: d.tiles.map(centre) })),
+    ...map.portals.map((p) => ({ what: `el portal ${p.id}`, points: p.tiles.map(centre) })),
+    ...map.weaponCases.map((c) => ({ what: `la vitrina ${c.id}`, points: [c] })),
+    ...map.merchantSpots.map((s, i) => ({ what: `el punto de mago ${i + 1} (${s.zone})`, points: [s] })),
+    ...map.handSpots.map((s, i) => ({ what: `el punto de mano ${i + 1} (${s.zone})`, points: [s] })),
+  ];
+  const half = Math.floor(R.bossSpotSquare / 2);
+  map.bossSpots.forEach((spot, i) => {
+    const who = `el punto de boss ${i + 1} (${spot.zone})`;
+    const tx = Math.floor(spot.x / ts);
+    const ty = Math.floor(spot.y / ts);
+    const blocked: string[] = [];
+    for (let dy = -half; dy <= half; dy++) {
+      for (let dx = -half; dx <= half; dx++) {
+        const x = tx + dx;
+        const y = ty + dy;
+        const inside = x >= 0 && y >= 0 && x < map.width && y < map.height;
+        if (!inside || nav.solid[y * map.width + x] || map.cellZone[y * map.width + x] !== spot.zoneIndex) blocked.push(`${x},${y}`);
+      }
+    }
+    if (blocked.length > 0) errors.push(`${who} no tiene su cuadrado de ${R.bossSpotSquare}×${R.bossSpotSquare} de suelo libre en su zona (${blocked.join(' ')})`);
+    for (const k of keepAway) {
+      const d = Math.min(...k.points.map((p) => Math.hypot(p.x - spot.x, p.y - spot.y))) / ts;
+      if (d < R.minBossClearanceTiles) errors.push(`${who} está a ${d.toFixed(1)} tiles ${k.what.startsWith('el ') ? `del ${k.what.slice(3)}` : `de ${k.what}`}; debe estar a ${R.minBossClearanceTiles} o más`);
     }
   });
 }

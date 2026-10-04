@@ -101,6 +101,7 @@ Esto es lo que más realismo aporta:
 - Los muebles altos pueden tapar la vista, pero nunca deben esconder spawns ni barricadas.
 - Respeta el esquema de capas y objetos de `docs/ASSETS.md`.
 - **Puntos de mago** (spec 03 §1, tabla `## Magos` del plano): 1 o 2 por zona, incluidas las islas, en una casilla de suelo pegada a una pared o en un rincón, a más de 3 tiles de barricadas, puertas, portales y spawns, y sin estrechar un paso a menos de 2 tiles. Mejor en sitios con sentido (el rincón del estudio, contra el cobertizo) que en mitad de una pared lisa.
+- **Puntos de boss** (spec 07 §3, tabla `## Bosses` del plano): al menos uno por zona, también en el sótano y la azotea, en el centro de un cuadrado de 3×3 de suelo sin paredes (el atrezo vale: el boss lo aplasta al salir), a 3 tiles o más de puertas, portales, vitrinas, magos y puntos de la mano. Mejor donde la salida cuente algo (donde ya se hundió el suelo, bajo una barricada vieja) y, en zonas grandes, dos o tres separados, porque el boss sale por el más cercano al jugador entre los que están a 5 casillas o más. Las puertas y los pasos tienen que dejar pasar un cuerpo de 2×2 casillas a todas las salas.
 
 ## 7. Leyenda del plano ASCII
 

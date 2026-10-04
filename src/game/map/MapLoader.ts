@@ -262,6 +262,18 @@ export interface MapHandSpot {
   zoneIndex: number;
 }
 
+/**
+ * Where a boss comes out of the floor (spec 07 §3): the centre of a free
+ * 3×3 square of floor, at least one per zone.
+ */
+export interface MapBossSpot {
+  /** Point in world px (the centre of the square's middle tile). */
+  x: number;
+  y: number;
+  zone: string;
+  zoneIndex: number;
+}
+
 /** A place where special items are used (spec 05 §6): a rectangle in world px, named for activations.ts. */
 export interface MapActivationSite {
   id: string;
@@ -311,6 +323,8 @@ export interface MapData {
   itemSpots: MapItemSpot[];
   /** Spec 06 §3.1. */
   handSpots: MapHandSpot[];
+  /** Spec 07 §3. */
+  bossSpots: MapBossSpot[];
   activationSites: MapActivationSite[];
   /** Number of portal pairs (length of GameState.portalsOpen). */
   portalLinks: number;
@@ -567,6 +581,7 @@ export function parseMap(json: unknown): MapData {
   const rawWeaponCases: TiledObject[] = [];
   const rawItemSpots: TiledObject[] = [];
   const rawHandSpots: TiledObject[] = [];
+  const rawBossSpots: TiledObject[] = [];
   const rawActivationSites: TiledObject[] = [];
   let playerSpawn: Vec2 | undefined;
 
@@ -604,6 +619,9 @@ export function parseMap(json: unknown): MapData {
         break;
       case 'hand_spot':
         rawHandSpots.push(obj);
+        break;
+      case 'boss_spot':
+        rawBossSpots.push(obj);
         break;
       case 'activation_site':
         rawActivationSites.push(obj);
@@ -764,6 +782,12 @@ export function parseMap(json: unknown): MapData {
     if (zoneIndex < 0) fail(`hand_spot ${obj.id} references unknown zone "${zone}"`);
     return { x: obj.x, y: obj.y, zone, zoneIndex };
   });
+  const bossSpots: MapBossSpot[] = rawBossSpots.map((obj) => {
+    const zone = stringProp(obj, 'zone');
+    const zoneIndex = zones.findIndex((z) => z.id === zone);
+    if (zoneIndex < 0) fail(`boss_spot ${obj.id} references unknown zone "${zone}"`);
+    return { x: obj.x, y: obj.y, zone, zoneIndex };
+  });
   const activationSites: MapActivationSite[] = rawActivationSites.map((obj) => {
     const id = stringProp(obj, 'id');
     const zone = stringProp(obj, 'zone');
@@ -808,6 +832,7 @@ export function parseMap(json: unknown): MapData {
     weaponCases,
     itemSpots,
     handSpots,
+    bossSpots,
     activationSites,
     portalLinks: portals.reduce((n, p) => Math.max(n, p.link + 1), 0),
     cellPortal,
