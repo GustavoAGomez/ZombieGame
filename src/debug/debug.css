@@ -4,6 +4,10 @@
   left: var(--pad-x);
   top: 112px;
   z-index: 900;
+  /* Never past the bottom of the screen: the buttons scroll inside it (a phone in landscape is short). */
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100% - 112px - var(--pad-bottom) - 8px);
   padding: 6px 8px;
   background: rgba(15, 14, 12, 0.8);
   box-shadow: inset 0 0 0 2px var(--door);
@@ -41,6 +45,10 @@
   grid-template-columns: repeat(3, auto);
   gap: 3px;
   margin-top: 6px;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
 }
 
 .debug-button {
@@ -53,7 +61,8 @@
   color: var(--bone);
   background: var(--panel);
   box-shadow: inset 0 0 0 1px var(--door);
-  touch-action: none;
+  /* A drag starting on a button scrolls the list (and cancels the press). */
+  touch-action: pan-y;
   -webkit-appearance: none;
   appearance: none;
 }

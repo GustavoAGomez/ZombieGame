@@ -85,7 +85,8 @@ export class DebugOverlay {
       b.type = 'button';
       b.className = 'debug-button';
       b.textContent = label;
-      b.addEventListener('pointerdown', (e) => {
+      // On release: a drag that scrolls the list cancels the pointer (pointercancel), so it presses nothing.
+      b.addEventListener('pointerup', (e) => {
         e.preventDefault();
         const a = actions();
         if (!a) return;
@@ -152,7 +153,7 @@ export class DebugOverlay {
 
   setVisible(visible: boolean): void {
     this.visible = visible;
-    this.panel.style.display = visible ? 'block' : 'none';
+    this.panel.style.display = visible ? '' : 'none';
     window.clearInterval(this.timer);
     if (visible) {
       this.refresh();
