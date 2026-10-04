@@ -254,7 +254,7 @@ Zombis enormes que caen del cielo en rondas fijas. Hoy hay uno, **Matarife**: un
 | Pútrido | Verde enfermizo | ×2,5 | ×1,5 | ×0,85 | Empieza enfurecido; cada aterrizaje deja un charco de 44 px y cada embestida un rastro de charcos de 24 px (uno cada 32 px de carrera). Los charcos duran 4 s y hacen 10 de daño por segundo a quien los pise, jugador o zombi; varios charcos solapados no suman |
 
 - **Dos bosses a la vez:** solo uno puede empezar a preparar un ataque cada 0,8 s, para que sus avisos no caigan juntos. Salen por puntos distintos y nunca se pisan. Sus barras se apilan.
-- **Barra de vida:** arriba en el centro, bajo la pausa, con su nombre («EL MATARIFE») y una marca en el 50 %. Se oculta mientras hay una tienda abierta.
+- **Barra de vida:** arriba del todo en el centro, con su nombre («MATARIFE»), una marca en el 50 % y una franja clara que enseña el daño recién hecho. Se oculta mientras hay una tienda abierta. El botón de pausa está en la esquina inferior derecha.
 - **Al morir:** 500 puntos y 500$ a cada jugador vivo, un botiquín y una caja de munición, y la primera vez en la partida, el corazón vivo.
 
 ## Salas

@@ -54,7 +54,7 @@ export class Hud {
   private readonly bannerSub: HTMLSpanElement;
   /** "EL MAGO AZUL SE HA MOVIDO" or "¡VELOCIDAD!" under the round banner (spec 03 §2, §5). */
   private readonly notice: HTMLDivElement;
-  /** The bosses' health bars under the pause button (spec 07 §6): one per boss slot, pooled. */
+  /** The bosses' health bars at the top centre (spec 07 §6): one per boss slot, pooled. */
   private readonly bossBars: HTMLDivElement;
   private readonly bossRows: { row: HTMLDivElement; name: HTMLSpanElement; fill: HTMLDivElement; ghost: HTMLDivElement }[] = [];
   private blinkTimer = 0;

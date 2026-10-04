@@ -1807,3 +1807,11 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 ## El boss se llama Matarife (petición del usuario)
 
 - El nombre visible pasa de «EL MATARIFE» a «MATARIFE» (`STRINGS.bosses.names.butcher`), que es lo que sale sobre su barra de vida. Los comentarios y la ficha de `GAME-DESIGN.md` lo nombran igual. En las notas antiguas de este documento se queda como estaba.
+
+## La pausa en la esquina y las barras de los bosses arriba del todo (petición del usuario)
+
+- **Botón de pausa:** pasa de arriba en el centro a la esquina inferior derecha, en diagonal bajo el botón de disparo.
+  - Cuelga de `--pad-x` y `--pad-bottom` igual que el disparo (`right: pad-x − 18 px`, `bottom: pad-bottom − 14 px`), así que su centro queda siempre a 61,5 px del del disparo en cada eje. Su zona táctil (14 px alrededor) nunca toca el círculo del disparo: hay 87 px entre centros frente a los 78,5 que sumarían.
+  - Con los márgenes mínimos (24 y 20 px) queda a 6 px de los dos bordes. En un iPhone con muesca (47 y 21 px) se mete dentro de la esquina redondeada del área segura.
+  - Comprobado a 667×375: a 6 px de cada borde, y pausa.
+- **Barras de los bosses:** suben arriba del todo (`pad-top + 6 px`) con el nombre encima, y su marco queda a la altura del de la vida. Siguen centradas, y en las pantallas más estrechas se desplazan a la izquierda para no pisar la fila de objetos especiales (la misma fórmula que tenía la pausa).

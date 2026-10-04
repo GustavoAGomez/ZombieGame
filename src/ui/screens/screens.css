@@ -116,18 +116,20 @@
 }
 
 /*
- * Pause button: 32×32 at the top centre (spec 01 §2.5), tappable 14 px
- * around it. Centred, unless the special items' row (four slots to the left
- * of the points, controls.css) would reach its tap area: on the narrowest
- * screens (640 px) it moves left as far as needed, clear of the health row.
+ * Pause button: 32×32 in the bottom-right corner of the screen (petición
+ * del usuario, so the bosses' bars can go at the very top), tappable 14 px
+ * around it. It sits in the corner diagonally below the fire button, the
+ * same 61.5 px from its centre on every screen (both hang from --pad-x and
+ * --pad-bottom): its tap area never reaches the fire button's circle. With
+ * the smallest pads (24 and 20 px) it is 6 px from both edges; on a
+ * notched phone it stays inside the safe area's rounded corner.
  */
 .pause-button {
   position: absolute;
-  left: min(50%, calc(100% - var(--pad-x) - 141px - 12px - 4 * 44px - 14px - 16px - 4px));
-  top: calc(var(--pad-top) + 10px);
+  right: calc(var(--pad-x) - 18px);
+  bottom: calc(var(--pad-bottom) - 14px);
   width: 32px;
   height: 32px;
-  margin-left: -16px;
   display: flex;
   align-items: center;
   justify-content: center;

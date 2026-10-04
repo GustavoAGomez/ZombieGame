@@ -122,7 +122,7 @@ export class PauseMenu {
   }
 }
 
-/** The 32×32 pause button at the top centre (its tap area is larger, screens.css). */
+/** The 32×32 pause button in the bottom-right corner (its tap area is larger, screens.css). */
 export class PauseButton {
   private readonly root: HTMLButtonElement;
 

@@ -553,15 +553,18 @@
 }
 
 /*
- * The bosses' health bars (spec 07 §6): under the pause button, centred on
- * it (it moves left on the narrowest screens, screens.css), stacked when
- * there are two. The name over a red bar, with a mark at half, where its
- * fury starts. Hidden while a shop is open: the merchant shows there.
+ * The bosses' health bars (spec 07 §6): at the very top, centred (the pause
+ * button went to the bottom-right corner, petición del usuario), stacked
+ * when there are two, the frame level with the health bar's. On the
+ * narrowest screens (640 px) they move left, clear of the special items'
+ * row (four slots to the left of the points, controls.css). The name over
+ * a red bar, with a mark at half, where its fury starts. Hidden while a
+ * shop is open: the merchant shows there.
  */
 .hud-bosses {
   position: absolute;
   left: min(50%, calc(100% - var(--pad-x) - 141px - 12px - 4 * 44px - 14px - 16px - 4px));
-  top: calc(var(--pad-top) + 50px);
+  top: calc(var(--pad-top) + 6px);
   width: 150px;
   transform: translateX(-50%);
   display: flex;
