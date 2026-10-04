@@ -505,25 +505,25 @@ export class GameScene extends Phaser.Scene {
 
   /**
    * While a shop is open the view moves down just enough for the merchant,
-   * opening its coat, to show under the panel; back when it closes.
+   * opening its coat, to show above the panel; back when it closes.
    */
   private updateShopCamera(): void {
     const camera = this.cameras.main;
     const p = this.state.players[0];
     const index = p?.shopMerchant ?? -1;
     const m = index >= 0 ? this.state.merchants[index] : undefined;
-    const panelBottom = this.controls.shopPanelBottom();
+    const panelTop = this.controls.shopPanelTop();
     let offset = 0;
-    if (p && m?.active && panelBottom !== null) {
+    if (p && m?.active && panelTop !== null) {
       const canvas = this.game.canvas.getBoundingClientRect();
       const cssWidth = canvas.width || this.scale.width;
       offset = shopCameraOffset({
-        merchantTop: this.merchantViews.bodyTop(index, m),
+        merchantBottom: this.merchantViews.bodyBottom(index, m),
         targetY: this.playerView.sprite.y,
         viewHeight: camera.height / camera.zoom,
         cssPerWorld: (cssWidth / this.scale.width) * camera.zoom,
         canvasTop: canvas.top,
-        panelBottom,
+        panelTop,
       });
     }
     // The follow lerp eases the move both ways.

@@ -98,9 +98,9 @@ export class InputCollector {
     return cmd;
   }
 
-  /** Bottom edge of the shop panel on screen (CSS px) while it is open, else null. */
-  shopPanelBottom(): number | null {
-    return this.shop.bottom();
+  /** Top edge of the shop panel on screen (CSS px) while it is open, else null. */
+  shopPanelTop(): number | null {
+    return this.shop.top();
   }
 
   readonly resetAll = (): void => {

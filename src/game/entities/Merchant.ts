@@ -115,11 +115,11 @@ export class MerchantViewPool {
     }
   }
 
-  /** Top of merchant `index`'s drawn body (world y), to keep it in view while its shop is open. */
-  bodyTop(index: number, m: MerchantState): number {
+  /** Bottom of merchant `index`'s drawn body (its feet, world y), to keep it in view while its shop is open. */
+  bodyBottom(index: number, m: MerchantState): number {
     const s = this.sprites[index];
     if (!s) return m.y;
-    return (s.character ? m.y : m.y + FEET_OFFSET) - s.bodyHeight;
+    return s.character ? m.y : m.y + FEET_OFFSET;
   }
 
   /** Breathing, or the coat opening, held open or closing, from where it is now. */

@@ -77,9 +77,9 @@ export class ShopPanel {
     this.unsubscribe = events.on('shop:state', this.onShop);
   }
 
-  /** Bottom edge of the open panel on screen (CSS px), or null while it is closed. */
-  bottom(): number | null {
-    return this.el.hidden ? null : this.el.getBoundingClientRect().bottom;
+  /** Top edge of the open panel on screen (CSS px), or null while it is closed. */
+  top(): number | null {
+    return this.el.hidden ? null : this.el.getBoundingClientRect().top;
   }
 
   /** Item index bought since the last tick (and its weapon slot for items sold per weapon), or null. */
