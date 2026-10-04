@@ -1622,3 +1622,26 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - **Aviso al chocar:** el evento `boss:stunned` da un golpe corto de cámara.
 - **Bloqueos al día:** las casillas que paran al boss se rehacen también al empezar cada ataque, no solo al andar, para que el pasillo y el choque usen las puertas y los magos tal como están en ese momento.
 - **Debug:** `FORZAR EMBESTIDA` hace que embista en cuanto termine lo que esté haciendo, sin mirar la distancia ni si fue su último ataque. En la B3 es el único ataque, y como nunca repite, tras la primera embestida solo anda: el elector completo llega en la B4.
+
+## Spec 07 · Fase B4 (triple mazazo, tres saltos, elección de ataque y furia)
+
+- **Triple mazazo:**
+  - Cada golpe dibuja antes su arco (160°, 84 px desde el centro). El primero se prepara 0,7 s y los siguientes 0,5 s, con el factor de la variante, porque esa espera es el aviso del golpe siguiente.
+  - Da a quien esté a 84 px o menos del centro del boss, dentro del arco y sin pared en medio: 30 × la variante, con un empujón de 16 px en total.
+  - **Giro y avance:** justo después de cada golpe gira hacia el jugador (45° como mucho) y avanza 16 px de una vez, así el arco del golpe siguiente se dibuja ya donde va a caer y la zona es exacta durante todo el aviso.
+  - Los zombies no sufren el mazazo (la spec no lo pide).
+- **Tres saltos:**
+  - **Aterrizaje:** donde estaba el jugador al despegar, exactamente, si su cuerpo cabe ahí. Si no, en el hueco de 2×2 más cercano (a 6 casillas como mucho), nunca encima de otro boss.
+    - Al principio se alineaba siempre a la rejilla, y eso acercaba el aterrizaje hasta 22 px a un jugador que huía. Con el punto exacto se cumplen las cuentas de la spec: corriendo en línea recta (140 px/s) ni el aterrizaje ni la onda alcanzan; andando (70 px/s) no alcanza el aterrizaje (queda a 49 px), pero sí la onda.
+  - **Alcance:** cada salto llega como mucho a 360 px (`leap.maxRange`). La spec no le pone tope, pero sin él saltaría a través de medio mapa. Más lejos, el elector no elige saltos y el boss sigue andando; un segundo o tercer salto hacia un jugador que se ha alejado se queda a 360 px en su dirección.
+  - **En el aire:** 0,7 s × la variante, en línea recta por encima de todo. No recibe daño ni choca. El dibujo sube y baja en arco con su sombra en el suelo, y el círculo de aterrizaje (44 px) se llena.
+  - **Daños:** el aterrizaje hace 45 × la variante a quien esté a menos de 44 px de su centro (de centro a centro) y aplasta el atrezo bajo la huella. La onda es un anillo de 16 px que crece a 170 px/s hasta 130 px. Da 20 × la variante una vez por salto a quien esté en su banda con línea de visión al punto de aterrizaje: las paredes la paran y las ventanas no.
+  - **Ritmo:** la onda sigue creciendo aunque el boss haga otra cosa y desaparece al llegar a su tamaño; antes del siguiente aterrizaje ya ha terminado. Entre saltos hay 0,5 s en el suelo y, tras el tercero, 1,5 s quieto.
+  - Cada aterrizaje da un golpe de cámara y una vibración fuerte. Ni el aterrizaje ni la onda dañan a los zombies.
+- **Elección de ataque:** con los pesos de la spec, guardados en el catálogo (`choice.close` y `choice.mid`), y medida del centro del boss al jugador. Nunca repite el último ataque; si no queda ninguno posible, sigue andando y vuelve a pensarlo en 0,25 s.
+- **Furia:** al bajar del 50 %, ruge 1 s con un destello rojo (el dibujo parpadea en rojo) y queda enfurecido hasta morir: anda un 25 % más rápido y anda la mitad de tiempo entre ataques. Las preparaciones no cambian.
+  - Si la furia llega en mitad de un ataque, ruge al terminarlo.
+  - Las variantes rabiosa y pútrida empiezan enfurecidas, sin rugido de furia aparte.
+  - La barra se pone ámbar.
+- **Daño a los jugadores:** todos los golpes pasan por `damagePlayer`, así que el dash y el modo dios los esquivan. Un jugador que esquiva con el dash no cuenta como alcanzado, y si al acabar el dash sigue en la zona, el golpe aún puede darle.
+- **Debug:** `FORZAR MAZAZO` y `FORZAR SALTOS`, como `FORZAR EMBESTIDA`.

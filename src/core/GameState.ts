@@ -340,7 +340,7 @@ export type BossPhase = 'warning' | 'emerging' | 'roaring' | 'walking' | 'attack
  * floor filling), running (the charge), stunned against a wall, braking,
  * or still after it (recovering).
  */
-export type BossStage = 'none' | 'windup' | 'run' | 'stunned' | 'brake' | 'recover';
+export type BossStage = 'none' | 'windup' | 'run' | 'stunned' | 'brake' | 'recover' | 'air' | 'ground';
 
 /** A boss on the map (spec 07). Pooled: BOSS.maxAlive slots, toggled with `active`. */
 export interface BossState {
@@ -378,8 +378,24 @@ export interface BossState {
   /** Unit direction of the attack under way. */
   aimX: number;
   aimY: number;
-  /** Px still to run in a charge. */
+  /** Px still to run in a charge (while winding up: how far it will get, the corridor drawn). */
   runLeft: number;
+  /** Blows of the slam or leaps made so far in the attack under way. */
+  count: number;
+  /** A leap: where it took off and where it lands (world px, centre of its footprint). */
+  fromX: number;
+  fromY: number;
+  targetX: number;
+  targetY: number;
+  /** Tick of its last blow or landing (views: the pose right after it). */
+  blowTick: number;
+  /** The wave of its last landing (spec 07 §4.3): where it started, seconds since (-1: none), and the players it already hit (bits). */
+  waveX: number;
+  waveY: number;
+  waveTime: number;
+  waveHits: number;
+  /** Its health went under the fury line: it roars as soon as it is between blows (spec 07 §5). */
+  furyPending: boolean;
   /** Bit per player (index into players) already hurt by this blow: once per charge. */
   hitPlayers: number;
   /** Seconds left walking before it picks its next attack. */
@@ -663,6 +679,17 @@ export function createBoss(): BossState {
     aimX: 0,
     aimY: 1,
     runLeft: 0,
+    count: 0,
+    fromX: 0,
+    fromY: 0,
+    targetX: 0,
+    targetY: 0,
+    blowTick: -1000,
+    waveX: 0,
+    waveY: 0,
+    waveTime: -1,
+    waveHits: 0,
+    furyPending: false,
     hitPlayers: 0,
     walkTimer: 0,
     forcedAttack: null,

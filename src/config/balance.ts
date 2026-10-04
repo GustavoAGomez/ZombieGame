@@ -459,6 +459,8 @@ export const BOSS = {
   noPathTime: 5,
   /** With no attack that will do when its walk is over, it walks on and thinks again this much later (s). */
   rethinkTime: 0.25,
+  /** A leap lands on the nearest place its footprint fits within this many tiles of where it aimed (else it stays). */
+  landingSearchTiles: 6,
   /** The health bar moves in steps of 1/barSteps. */
   barSteps: 100,
 } as const;

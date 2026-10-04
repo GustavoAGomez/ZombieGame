@@ -120,6 +120,8 @@ export class DebugOverlay {
     button(STRINGS.debug.summonBoss, (a) => a.summonBoss());
     button(STRINGS.debug.killBoss, (a) => a.killBoss());
     button(STRINGS.debug.forceCharge, (a) => a.forceAttack('charge'));
+    button(STRINGS.debug.forceSlam, (a) => a.forceAttack('slam'));
+    button(STRINGS.debug.forceLeap, (a) => a.forceAttack('leap'));
     this.panel.append(this.statsEl, buttons);
     this.statsEl.addEventListener('pointerdown', (e) => {
       e.preventDefault();

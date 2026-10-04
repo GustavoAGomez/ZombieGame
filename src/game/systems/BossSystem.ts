@@ -16,7 +16,7 @@ import { BLOCK_PLAYER, BLOCK_ZOMBIE, moveCircle, resolveCircle } from '../map/Co
 import { crushFurniture, moveBody, pushOutOfBox, pushPlayerOut } from './BossBody';
 import { computeLevels, type MapLevels } from '../map/levels';
 import type { MapData } from '../map/MapLoader';
-import { chooseAttack, startAttack, updateAttack, walkTime } from './BossAttacks';
+import { chooseAttack, startAttack, updateAttack, updateWave, walkTime } from './BossAttacks';
 import { bossHalf, isBossAlive, isBossSolid } from './BossCombat';
 import { damagePlayer, isPlayerAlive } from './HealthSystem';
 import type { SimContext } from './SimContext';
@@ -70,6 +70,10 @@ export function updateBosses(ctx: SimContext, dt: number): void {
           setPhase(ctx, b, 'sinking', BOSS.sinkTime);
           break;
         }
+        if (b.furyPending) {
+          roarInFury(ctx, b);
+          break;
+        }
         walk(ctx, b, i, dt);
         b.walkTimer -= dt;
         if (b.walkTimer <= 0) attackIfAble(ctx, b, i);
@@ -88,6 +92,8 @@ export function updateBosses(ctx: SimContext, dt: number): void {
         if (b.timer <= 0) b.active = false;
         break;
     }
+    // The ring of its last landing goes on growing whatever it does next.
+    updateWave(ctx, b, dt);
   }
   separateBosses(ctx);
   for (const b of bosses) {
@@ -107,7 +113,7 @@ function attackIfAble(ctx: SimContext, b: BossState, slot: number): void {
   else b.walkTimer = BOSS.rethinkTime;
 }
 
-/** The attack is over: it walks again for a while, after the nearest player alive (spec 07 §9). */
+/** The attack is over: it walks again for a while, after the nearest player alive (spec 07 §9); first its fury's roar, if due. */
 function endAttack(ctx: SimContext, b: BossState): void {
   b.lastAttack = b.attack;
   b.attack = null;
@@ -115,6 +121,14 @@ function endAttack(ctx: SimContext, b: BossState): void {
   setPhase(ctx, b, 'walking', 0);
   b.walkTimer = walkTime(ctx, b);
   b.target = nearestPlayer(ctx, b.x, b.y)?.id ?? -1;
+  if (b.furyPending) roarInFury(ctx, b);
+}
+
+/** Under half its health (spec 07 §5): it roars (a red flash), and is enraged until it dies. */
+function roarInFury(ctx: SimContext, b: BossState): void {
+  b.furyPending = false;
+  setPhase(ctx, b, 'roaring', BOSSES[b.boss].fury.roarTime);
+  ctx.events.emit('boss:roar', { x: b.x, y: b.y });
 }
 
 function setPhase(ctx: SimContext, b: BossState, phase: BossPhase, timer: number): void {
@@ -231,7 +245,8 @@ function targetOf(ctx: SimContext, b: BossState): PlayerState | undefined {
 
 /** Walking speed: its own, a quarter faster enraged (spec 07 §5). */
 export function bossSpeed(b: BossState): number {
-  return BOSSES[b.boss].speed;
+  const def = BOSSES[b.boss];
+  return def.speed * (b.enraged ? def.fury.speedFactor : 1);
 }
 
 /** One step along its way to the target; it stops once next to it. */
@@ -316,6 +331,11 @@ export function spawnBoss(ctx: SimContext, slot: number, boss: BossId, variant: 
     lastAttack: null,
     hitPlayers: 0,
     runLeft: 0,
+    count: 0,
+    blowTick: -1000,
+    waveTime: -1,
+    waveHits: 0,
+    furyPending: false,
     forcedAttack: null,
     target: -1,
     contactScoreTick: -1000,

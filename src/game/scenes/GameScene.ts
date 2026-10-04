@@ -210,10 +210,12 @@ export class GameScene extends Phaser.Scene {
     const offWarning = events.on('boss:warning', () => this.cameras.main.shake(BOSS.warningTime * 1000, DISPLAY.bossWarningShake));
     const offRoar = events.on('boss:roar', () => this.cameras.main.shake(DISPLAY.bossRoarShakeMs, DISPLAY.bossRoarShake));
     const offStunned = events.on('boss:stunned', () => this.cameras.main.shake(DISPLAY.bossRoarShakeMs, DISPLAY.bossRoarShake));
+    const offLanded = events.on('boss:landed', () => this.cameras.main.shake(DISPLAY.bossRoarShakeMs, DISPLAY.bossRoarShake));
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       offWarning();
       offRoar();
       offStunned();
+      offLanded();
       this.scale.off(Phaser.Scale.Events.RESIZE, this.applyZoom);
       this.controls.destroy();
       this.hud.destroy();
@@ -334,7 +336,7 @@ export class GameScene extends Phaser.Scene {
     this.thrownItems.sync(this.state.time);
     this.zombieViews.sync(this.state.zombies, alpha, now, this.isDark);
     this.bossViews.sync(this.state.bosses, alpha, this.state.time, this.state.tick, this.isDark);
-    this.bossZones.sync(this.state.bosses, this.isDark);
+    this.bossZones.sync(this.state.bosses, alpha, this.isDark);
     this.merchantViews.sync(this.state.merchants, this.state.players, this.state.tick, this.state.time);
     this.weaponCases.sync(this.state, player);
     this.syncOffscreenArrows();

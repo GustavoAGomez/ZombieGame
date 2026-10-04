@@ -3,9 +3,9 @@ import { PLAYER } from '../../config/balance';
 import { BOSSES } from '../../config/bosses';
 import { createTestContext, placeZombie, player, runTicks } from '../../test/fixtures';
 import { bossZone } from '../entities/Boss';
-import { chargeWindup, startAttack } from './BossAttacks';
+import { chargeWindup, chooseAttack, inSlamArc, leapAirTime, slamWindup, startAttack } from './BossAttacks';
 import { damageBoss } from './BossCombat';
-import { spawnBoss } from './BossSystem';
+import { bossSpeed, spawnBoss } from './BossSystem';
 import { stepSimulation } from './Simulation';
 import type { SimContext } from './SimContext';
 
@@ -21,6 +21,13 @@ function charging(ctx: SimContext, x: number, y: number) {
   return b;
 }
 
+/** The charge's corridor boss `b` is announcing (fails if it is announcing anything else). */
+function corridor(b: Parameters<typeof bossZone>[0]) {
+  const zone = bossZone(b, TS);
+  if (zone?.kind !== 'corridor') throw new Error(`no corridor: ${zone?.kind}`);
+  return zone;
+}
+
 /** Ticks until the windup is over (the run starts on the next one). */
 const windupTicks = (ctx: SimContext) => Math.ceil(chargeWindup(ctx.state.bosses[0]!) * 60) + 1;
 
@@ -32,10 +39,9 @@ describe('the charge (spec 07 §4.1)', () => {
     p.y = p.prevY = 272;
     const b = charging(ctx, 200, 272);
     stepSimulation(ctx, 1 / 60);
-    const zone = bossZone(b, TS);
-    expect(zone?.kind).toBe('corridor');
-    expect(zone?.width).toBe(CHARGE.width);
-    expect(zone?.dirX).toBeCloseTo(1);
+    const zone = corridor(b);
+    expect(zone.width).toBe(CHARGE.width);
+    expect(zone.dirX).toBeCloseTo(1);
     // It follows the player while it can…
     p.y = p.prevY = 320;
     stepSimulation(ctx, 1 / 60);
@@ -124,10 +130,10 @@ describe('the charge (spec 07 §4.1)', () => {
     p.y = p.prevY = 200;
     const b = charging(ctx, 420, 200);
     stepSimulation(ctx, 1 / 60);
-    const zone = bossZone(b, TS);
+    const zone = corridor(b);
     // The east wall (x 576) is 156 px from its centre: its front reaches it after 576 − 420 − 32 px.
-    expect(zone?.length).toBeLessThan(CHARGE.distance);
-    expect((zone?.x ?? 0) + (zone?.length ?? 0)).toBeLessThanOrEqual(576 + 1);
+    expect(zone.length).toBeLessThan(CHARGE.distance);
+    expect(zone.x + zone.length).toBeLessThanOrEqual(576 + 1);
   });
 
   it('spares a dashing player', () => {
@@ -142,5 +148,207 @@ describe('the charge (spec 07 §4.1)', () => {
     runTicks(ctx, 40, stepSimulation);
     expect(p.hp).toBe(PLAYER.maxHp);
     expect(b.hitPlayers).toBe(0);
+  });
+});
+
+const SLAM = BOSSES.butcher.slam;
+const LEAP = BOSSES.butcher.leap;
+
+function attacking(ctx: SimContext, attack: 'slam' | 'leap', x: number, y: number) {
+  const b = spawnBoss(ctx, 0, 'butcher', 'base', x, y);
+  if (!b) throw new Error('no boss slot');
+  startAttack(ctx, b, attack, player(ctx));
+  return b;
+}
+
+describe('the triple slam (spec 07 §4.2)', () => {
+  it('hits three times in its arc, each blow announced first, then stands still', () => {
+    const ctx = createTestContext();
+    const p = player(ctx);
+    p.x = p.prevX = 260;
+    p.y = p.prevY = 272;
+    const b = attacking(ctx, 'slam', 200, 272);
+    expect(bossZone(b, TS)?.kind).toBe('arc');
+    runTicks(ctx, Math.ceil(slamWindup(b) * 60) + 1, stepSimulation);
+    expect(p.hp).toBe(PLAYER.maxHp - SLAM.damage);
+    expect(b.count).toBe(1);
+    // Thrown away from it (16 px in all), and back in its arc for the next ones.
+    p.x = p.prevX = b.x + 50;
+    p.y = p.prevY = b.y;
+    runTicks(ctx, Math.ceil(slamWindup(b) * 60) + 1, stepSimulation);
+    p.x = p.prevX = b.x + 50;
+    p.y = p.prevY = b.y;
+    runTicks(ctx, Math.ceil(slamWindup(b) * 60) + 1, stepSimulation);
+    expect(b.count).toBe(3);
+    expect(p.hp).toBe(PLAYER.maxHp - 3 * SLAM.damage);
+    expect(b.stage).toBe('recover');
+    runTicks(ctx, Math.ceil(SLAM.recovery * 60) + 1, stepSimulation);
+    expect(b.phase).toBe('walking');
+    expect(b.lastAttack).toBe('slam');
+  });
+
+  it('misses outside its arc, beyond its reach and behind it', () => {
+    const ctx = createTestContext();
+    const b = attacking(ctx, 'slam', 300, 272);
+    b.aimX = 1;
+    b.aimY = 0;
+    expect(inSlamArc(b, 380, 272)).toBe(true);
+    expect(inSlamArc(b, 300 + SLAM.reach + 2, 272)).toBe(false);
+    expect(inSlamArc(b, 300 + 30, 272 + 60)).toBe(true); // 63° off its aim: inside ±80°
+    expect(inSlamArc(b, 300, 272 + 60)).toBe(false); // 90°
+    expect(inSlamArc(b, 240, 272)).toBe(false);
+  });
+
+  it('turns towards the player at most 45° between blows, and steps forward', () => {
+    const ctx = createTestContext();
+    const p = player(ctx);
+    p.x = p.prevX = 260;
+    p.y = p.prevY = 272;
+    const b = attacking(ctx, 'slam', 200, 272);
+    // Behind it before the first blow falls: it can only turn 45° towards them.
+    p.x = p.prevX = 120 + 30;
+    p.y = p.prevY = 272;
+    const x = b.x;
+    runTicks(ctx, Math.ceil(slamWindup(b) * 60) + 1, stepSimulation);
+    expect(Math.abs(Math.atan2(b.aimY, b.aimX))).toBeCloseTo(Math.PI / 4, 2);
+    expect(Math.hypot(b.x - x, b.y - 272)).toBeCloseTo(SLAM.step, 0);
+  });
+});
+
+describe('the three leaps (spec 07 §4.3)', () => {
+  /** The player runs west at `speed` of their running speed from takeoff on; their health once the first ring is done. */
+  function runFromLeap(speed: number): number {
+    const ctx = createTestContext();
+    const p = player(ctx);
+    p.x = p.prevX = 430;
+    p.y = p.prevY = 272;
+    const b = attacking(ctx, 'leap', 520, 272);
+    expect(bossZone(b, TS)?.kind).toBe('circle');
+    const cmd = ctx.commands[0];
+    if (!cmd) throw new Error('no command');
+    cmd.moveX = -speed;
+    // In the air, then the ring all the way out; the next takeoff waits LEAP.between.
+    runTicks(ctx, Math.ceil((leapAirTime(b) + LEAP.waveRadius / LEAP.waveSpeed) * 60) + 2, stepSimulation);
+    expect(b.count).toBe(1);
+    return p.hp;
+  }
+
+  it('lands where the player stood: running straight away from the circle, the ring never catches them; walking it does', () => {
+    expect(runFromLeap(1)).toBe(PLAYER.maxHp);
+    // Half speed (shooting): out of the landing, but the ring catches up.
+    expect(runFromLeap(0.5)).toBe(PLAYER.maxHp - LEAP.waveDamage);
+  });
+
+  it('cannot be hurt in the air, and hurts whoever is under it when it lands', () => {
+    const ctx = createTestContext();
+    const p = player(ctx);
+    p.x = p.prevX = 430;
+    p.y = p.prevY = 272;
+    const b = attacking(ctx, 'leap', 520, 272);
+    stepSimulation(ctx, 1 / 60);
+    expect(damageBoss(ctx, b, 10)).toBe(false);
+    runTicks(ctx, Math.ceil(leapAirTime(b) * 60) + 1, stepSimulation);
+    expect(b.count).toBe(1);
+    expect(p.hp).toBeLessThanOrEqual(PLAYER.maxHp - LEAP.landDamage);
+  });
+
+  it('lands only where its footprint fits', () => {
+    const ctx = createTestContext();
+    const p = player(ctx);
+    // The player hugging the north-west corner of the room: it lands as close as it fits.
+    p.x = p.prevX = 136;
+    p.y = p.prevY = 136;
+    const b = attacking(ctx, 'leap', 400, 300);
+    expect(b.targetX - 32).toBeGreaterThanOrEqual(128);
+    expect(b.targetY - 32).toBeGreaterThanOrEqual(128);
+  });
+
+  it('its ring stops at walls and hurts once per leap', () => {
+    const ctx = createTestContext();
+    const p = player(ctx);
+    // Lands by the room's south wall (y 416); the player behind it, in the corridor beyond.
+    p.x = p.prevX = 300;
+    p.y = p.prevY = 380;
+    const b = attacking(ctx, 'leap', 300, 250);
+    p.x = p.prevX = 300;
+    p.y = p.prevY = 470;
+    runTicks(ctx, Math.ceil((leapAirTime(b) + 1) * 60), stepSimulation);
+    expect(p.hp).toBe(PLAYER.maxHp);
+    // In the open, a ring hurts once even if the player stays in its band.
+    const open = createTestContext();
+    const q = player(open);
+    q.x = q.prevX = 400;
+    q.y = q.prevY = 272;
+    const c = attacking(open, 'leap', 400, 272);
+    q.x = q.prevX = c.targetX + 100;
+    q.y = q.prevY = c.targetY;
+    runTicks(open, Math.ceil((leapAirTime(c) + 1) * 60), stepSimulation);
+    expect(q.hp).toBe(PLAYER.maxHp - LEAP.waveDamage);
+  });
+
+  it('spares a dashing player: landing and ring', () => {
+    const ctx = createTestContext();
+    const p = player(ctx);
+    p.x = p.prevX = 430;
+    p.y = p.prevY = 272;
+    const b = attacking(ctx, 'leap', 520, 272);
+    p.dashTimer = 100;
+    p.dashCooldown = 100;
+    runTicks(ctx, Math.ceil((leapAirTime(b) + 1) * 60), stepSimulation);
+    expect(p.hp).toBe(PLAYER.maxHp);
+  });
+});
+
+describe('picking an attack (spec 07 §4.4)', () => {
+  function picks(distance: number, last: 'charge' | 'slam' | 'leap' | null, tries = 60): Set<string> {
+    const ctx = createTestContext();
+    const p = player(ctx);
+    p.x = p.prevX = 160;
+    p.y = p.prevY = 272;
+    const b = spawnBoss(ctx, 0, 'butcher', 'base', 160 + distance, 272);
+    if (!b) throw new Error('no boss');
+    stepSimulation(ctx, 1 / 60);
+    b.x = 160 + distance;
+    b.y = 272;
+    b.lastAttack = last;
+    const seen = new Set<string>();
+    for (let i = 0; i < tries; i++) seen.add(String(chooseAttack(ctx, b, 0, p)));
+    return seen;
+  }
+
+  it('close: the slam or the leaps; mid-range with a clear way: the charge or the leaps; farther: the leaps', () => {
+    expect(picks(60, null)).toEqual(new Set(['slam', 'leap']));
+    expect(picks(200, null)).toEqual(new Set(['charge', 'leap']));
+    expect(picks(300, null)).toEqual(new Set(['leap']));
+  });
+
+  it('never makes the same attack twice running', () => {
+    expect(picks(60, 'slam')).toEqual(new Set(['leap']));
+    expect(picks(200, 'leap')).toEqual(new Set(['charge']));
+    expect(picks(300, 'leap')).toEqual(new Set(['null']));
+  });
+});
+
+describe('the fury (spec 07 §5)', () => {
+  it('under half its health it roars and is enraged until it dies: faster, shorter walks, the same windups', () => {
+    const ctx = createTestContext();
+    const p = player(ctx);
+    const b = spawnBoss(ctx, 0, 'butcher', 'base', p.x + 150, p.y);
+    if (!b) throw new Error('no boss');
+    const roars: number[] = [];
+    ctx.events.on('boss:roar', (e) => roars.push(e.x));
+    const windup = chargeWindup(b);
+    damageBoss(ctx, b, BOSSES.butcher.hp * 0.4);
+    expect(b.enraged).toBe(false);
+    damageBoss(ctx, b, BOSSES.butcher.hp * 0.15);
+    expect(b.enraged).toBe(true);
+    stepSimulation(ctx, 1 / 60);
+    expect(b.phase).toBe('roaring');
+    expect(roars).toHaveLength(1);
+    runTicks(ctx, Math.ceil(BOSSES.butcher.fury.roarTime * 60) + 1, stepSimulation);
+    expect(b.phase).toBe('walking');
+    expect(bossSpeed(b)).toBeCloseTo(BOSSES.butcher.speed * 1.25);
+    expect(b.walkTimer).toBeLessThanOrEqual(BOSSES.butcher.walkTime.max * 0.5);
+    expect(chargeWindup(b)).toBe(windup);
   });
 });

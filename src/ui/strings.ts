@@ -53,6 +53,8 @@ export const STRINGS = {
     summonBoss: 'INVOCAR MATARIFE',
     killBoss: 'MATAR BOSS',
     forceCharge: 'FORZAR EMBESTIDA',
+    forceSlam: 'FORZAR MAZAZO',
+    forceLeap: 'FORZAR SALTOS',
   },
   controls: {
     joystick: 'Joystick de movimiento',

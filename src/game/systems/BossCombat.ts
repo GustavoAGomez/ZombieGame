@@ -19,10 +19,10 @@ export function isBossAlive(b: BossState): boolean {
 
 /** Out of the floor with its whole body: it blocks players and shoves zombies. */
 export function isBossSolid(b: BossState): boolean {
-  return isBossAlive(b) && b.phase !== 'warning' && b.phase !== 'sinking';
+  return isBossAlive(b) && b.phase !== 'warning' && b.phase !== 'sinking' && b.stage !== 'air';
 }
 
-/** It can be hurt now: never underground, nor while it climbs out or sinks (spec 07 §3). */
+/** It can be hurt now: never underground, nor while it climbs out or sinks (spec 07 §3), nor in the air on a leap (§4.3). */
 export function isBossHittable(b: BossState): boolean {
   return isBossSolid(b) && b.phase !== 'emerging';
 }
@@ -81,6 +81,11 @@ export function damageBoss(ctx: SimContext, b: BossState, amount: number, attack
   if (!isBossHittable(b) || amount <= 0) return false;
   // Stunned against a wall after a charge, it takes more (spec 07 §4.1).
   b.hp -= amount * (b.stage === 'stunned' ? BOSSES[b.boss].charge.stunDamageFactor : 1);
+  // Under half its health it goes into a fury (spec 07 §5): it roars as soon as it is between blows.
+  if (!b.enraged && b.hp > 0 && b.hp <= b.maxHp * BOSSES[b.boss].fury.at) {
+    b.enraged = true;
+    b.furyPending = true;
+  }
   if (attacker >= 0 && hitPoints > 0) awardPoints(ctx, attacker, hitPoints, 'hit');
   const feet = bossFeetY(b, ctx.map.tileSize);
   if (hit) ctx.events.emit('zombie:hit', { x: hit.x, y: hit.y, groundY: feet, dirX: hit.dirX, dirY: hit.dirY, killed: b.hp <= 0 });
@@ -96,6 +101,7 @@ export function killBoss(ctx: SimContext, b: BossState): void {
   b.timer = BOSS.corpseTime;
   b.phaseTick = ctx.state.tick;
   b.burn.timer = 0;
+  b.waveTime = -1;
   ctx.events.emit('boss:killed', { x: b.x, y: b.y, boss: b.boss, variant: b.variant });
 }
 

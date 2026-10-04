@@ -31,6 +31,62 @@ export interface ChargeParams {
   brakeTime: number;
 }
 
+/**
+ * The triple slam (spec 07 §4.2): `hits` blows, each over an arc of `arc`
+ * degrees in front of it up to `reach` px from its centre, drawn on the
+ * floor before it falls. The first winds up for `windup` s; between blows
+ * (`between` s, the next one's warning) it turns towards its target by
+ * `turnMax` degrees at most and steps `step` px. Each blow: `damage` and a
+ * push of `knockback` px. After the last it stands still `recovery` s.
+ */
+export interface SlamParams {
+  arc: number;
+  reach: number;
+  windup: number;
+  between: number;
+  turnMax: number;
+  step: number;
+  hits: number;
+  damage: number;
+  knockback: number;
+  recovery: number;
+}
+
+/**
+ * The three leaps (spec 07 §4.3): `leaps` jumps, each to where its target
+ * stands at takeoff (moved to the nearest place its footprint fits, at most
+ * `maxRange` px away), marked with a circle; `air` s in the air, unhurt. The
+ * landing hurts `landDamage` within `landRadius` px of its centre, and a ring
+ * `waveWidth` px thick grows from there to `waveRadius` px at `waveSpeed`
+ * px/s, hurting `waveDamage` once a leap (walls stop it; zombies are spared).
+ * `between` s on the ground between leaps; `recovery` s still after the last.
+ */
+export interface LeapParams {
+  leaps: number;
+  air: number;
+  maxRange: number;
+  landRadius: number;
+  landDamage: number;
+  waveWidth: number;
+  waveRadius: number;
+  waveSpeed: number;
+  waveDamage: number;
+  between: number;
+  recovery: number;
+}
+
+/**
+ * Its fury (spec 07 §5): under `at` of its health it roars `roarTime` s and
+ * stays enraged until it dies: `speedFactor`× faster, its walks between
+ * attacks `walkFactor`× as long; its windups do not change.
+ */
+export interface FuryParams {
+  at: number;
+  roarTime: number;
+  speedFactor: number;
+  walkFactor: number;
+}
+
 export interface BossDef {
   id: BossId;
   /** Side of its square footprint on the floor, in tiles: what meets walls and decides where it fits. */
@@ -51,8 +107,17 @@ export interface BossDef {
    * (spec 07 §4.4): close (under closeRange px), mid (up to farRange, with
    * a straight clear way), or far.
    */
-  choice: { closeRange: number; farRange: number };
+  choice: {
+    closeRange: number;
+    farRange: number;
+    /** Weights of the attacks close to its target, and at mid range with a straight clear way. Farther: the leaps. */
+    close: readonly (readonly [BossAttackId, number])[];
+    mid: readonly (readonly [BossAttackId, number])[];
+  };
   charge: ChargeParams;
+  slam: SlamParams;
+  leap: LeapParams;
+  fury: FuryParams;
 }
 
 export const BOSSES: Readonly<Record<BossId, BossDef>> = {
@@ -66,8 +131,22 @@ export const BOSSES: Readonly<Record<BossId, BossDef>> = {
     speed: 38,
     attacks: ['charge', 'slam', 'leap'],
     walkTime: { min: 1.5, max: 2.5 },
-    choice: { closeRange: 90, farRange: 260 },
+    choice: {
+      closeRange: 90,
+      farRange: 260,
+      close: [
+        ['slam', 0.7],
+        ['leap', 0.3],
+      ],
+      mid: [
+        ['charge', 0.6],
+        ['leap', 0.4],
+      ],
+    },
     charge: { windup: 1, lockBefore: 0.3, width: 64, distance: 256, speed: 300, damage: 45, knockback: 24, stunTime: 2, stunDamageFactor: 2, brakeTime: 0.6 },
+    slam: { arc: 160, reach: 84, windup: 0.7, between: 0.5, turnMax: 45, step: 16, hits: 3, damage: 30, knockback: 16, recovery: 1.2 },
+    leap: { leaps: 3, air: 0.7, maxRange: 360, landRadius: 44, landDamage: 45, waveWidth: 16, waveRadius: 130, waveSpeed: 170, waveDamage: 20, between: 0.5, recovery: 1.5 },
+    fury: { at: 0.5, roarTime: 1, speedFactor: 1.25, walkFactor: 0.5 },
   },
 };
 

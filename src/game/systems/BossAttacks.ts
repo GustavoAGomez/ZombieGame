@@ -1,11 +1,12 @@
 import { BOSS, PLAYER, ZOMBIES } from '../../config/balance';
 import { BOSS_VARIANTS, BOSSES, windupFactor, type BossAttackId } from '../../config/bosses';
-import type { BossState, PlayerState } from '../../core/GameState';
+import type { BossStage, BossState, PlayerState } from '../../core/GameState';
+import { degToRad } from '../../core/math';
 import { randomRange, random } from '../../core/Rng';
-import { boxBlocked, updateBossBlocking } from '../map/BossNav';
-import { BLOCK_PLAYER, moveCircle } from '../map/CollisionGrid';
-import { moveBody } from './BossBody';
-import { bossHalf } from './BossCombat';
+import { boxBlocked, footprintFits, updateBossBlocking } from '../map/BossNav';
+import { BLOCK_BULLET, BLOCK_PLAYER, BLOCK_SIGHT, moveCircle, segmentClearShaped } from '../map/CollisionGrid';
+import { crushFurniture, moveBody } from './BossBody';
+import { bossHalf, isBossSolid } from './BossCombat';
 import { damageZombie, isZombieAlive } from './Combat';
 import { damagePlayer, isPlayerAlive } from './HealthSystem';
 import type { SimContext } from './SimContext';
@@ -14,7 +15,8 @@ import type { SimContext } from './SimContext';
  * A boss's attacks (spec 07 §4). Every attack is announced: the boss stands
  * still in a pose of its own and the exact zone that will take the blow is
  * drawn on the floor, filling up until the blow (the views read it from the
- * boss's state). The dash goes through all of them (damagePlayer).
+ * boss's state: entities/Boss.ts, bossZone). The dash goes through all of
+ * them (damagePlayer). Windups are its variant's (never under 80 %).
  *
  * The charge (§4.1): it crouches with a corridor towards its target on the
  * floor (the way follows the target and locks a moment before it runs),
@@ -22,48 +24,49 @@ import type { SimContext } from './SimContext';
  * the zombies (they die, without points). A player it catches takes its
  * damage once and is thrown along the run. Into a wall it is stunned, and
  * takes double damage; otherwise it brakes.
+ *
+ * The triple slam (§4.2): three blows over an arc in front of it, each drawn
+ * on the floor before it falls; between blows it turns towards its target
+ * (45° at most) and steps forward. Then it stands still a while.
+ *
+ * The three leaps (§4.3): to where its target stands at takeoff (the nearest
+ * place its footprint fits), marked with a circle, unhurt in the air. The
+ * landing hurts around it and sends out a ring that grows and hurts once
+ * per leap whoever it reaches with a clear line from the landing (walls
+ * stop it; zombies are spared). Running straight away from the circle as
+ * it appears, the ring never catches a player; walking (shooting) it does.
  */
 
-/** Attacks the code knows how to make (the rest of a boss's list is left out). */
-const MADE: readonly BossAttackId[] = ['charge'];
-
-/** Its next walk between attacks: the boss's walking time. */
+/** Its next walk between attacks: the boss's walking time, half as long enraged (spec 07 §5). */
 export function walkTime(ctx: SimContext, b: BossState): number {
-  const { min, max } = BOSSES[b.boss].walkTime;
-  return randomRange(ctx.state, min, max);
+  const def = BOSSES[b.boss];
+  return randomRange(ctx.state, def.walkTime.min, def.walkTime.max) * (b.enraged ? def.fury.walkFactor : 1);
 }
 
 /**
  * What it does when its walking time is up (spec 07 §4.4), by the distance
  * from its centre to its target: close, the slam (70 %) or the leaps
  * (30 %); mid-range with a straight clear way, the charge (60 %) or the
- * leaps (40 %); farther or with no clear way, the leaps. Never the same
- * attack twice running, and only those it has. Null: it keeps walking.
+ * leaps (40 %); farther or with no clear way, the leaps, if the target is
+ * within a leap. Never the same attack twice running, and only those it
+ * has. Null: it keeps walking.
  */
 export function chooseAttack(ctx: SimContext, b: BossState, slot: number, target: PlayerState): BossAttackId | null {
   const def = BOSSES[b.boss];
   const d = Math.hypot(target.x - b.x, target.y - b.y);
-  let options: [BossAttackId, number][];
-  if (d < def.choice.closeRange) {
-    options = [
-      ['slam', 0.7],
-      ['leap', 0.3],
-    ];
-  } else if (d <= def.choice.farRange && clearRun(ctx, b, slot, target.x, target.y)) {
-    options = [
-      ['charge', 0.6],
-      ['leap', 0.4],
-    ];
-  } else options = [['leap', 1]];
-  options = options.filter(([a]) => a !== b.lastAttack && def.attacks.includes(a) && MADE.includes(a));
-  const total = options.reduce((sum, [, w]) => sum + w, 0);
+  let options: readonly (readonly [BossAttackId, number])[];
+  if (d < def.choice.closeRange) options = def.choice.close;
+  else if (d <= def.choice.farRange && clearRun(ctx, b, slot, target.x, target.y)) options = def.choice.mid;
+  else options = d <= def.leap.maxRange ? [['leap', 1]] : [];
+  const allowed = options.filter(([a]) => a !== b.lastAttack && def.attacks.includes(a));
+  const total = allowed.reduce((sum, [, w]) => sum + w, 0);
   if (total <= 0) return null;
   let roll = random(ctx.state) * total;
-  for (const [attack, weight] of options) {
+  for (const [attack, weight] of allowed) {
     roll -= weight;
     if (roll < 0) return attack;
   }
-  return options[options.length - 1]?.[0] ?? null;
+  return allowed[allowed.length - 1]?.[0] ?? null;
 }
 
 /** Its body fits all the way from where it stands to (x, y) in a straight line (furniture does not count: it crushes it). */
@@ -96,17 +99,19 @@ export function runReach(ctx: SimContext, b: BossState, slot: number, distance: 
 /** Starts `attack` towards `target`. */
 export function startAttack(ctx: SimContext, b: BossState, attack: BossAttackId, target: PlayerState): void {
   // What stops its body, as the match is now (doors, merchants): its blows are judged against it.
-  const nav = ctx.bossNavs[ctx.state.bosses.indexOf(b)];
+  const slot = ctx.state.bosses.indexOf(b);
+  const nav = ctx.bossNavs[slot];
   if (nav) updateBossBlocking(nav, ctx.map, ctx.state);
   b.phase = 'attacking';
   b.attack = attack;
   b.hitPlayers = 0;
+  b.count = 0;
   aimAt(b, target);
   if (attack === 'charge') {
-    const charge = BOSSES[b.boss].charge;
     setStage(ctx, b, 'windup', chargeWindup(b));
-    b.runLeft = charge.distance;
-  }
+    b.runLeft = BOSSES[b.boss].charge.distance;
+  } else if (attack === 'slam') setStage(ctx, b, 'windup', slamWindup(b));
+  else takeOff(ctx, b, slot, target);
 }
 
 /** Its charge's windup: the base one by its variant (never under 80 %). */
@@ -114,7 +119,18 @@ export function chargeWindup(b: BossState): number {
   return BOSSES[b.boss].charge.windup * windupFactor(b.variant);
 }
 
-function setStage(ctx: SimContext, b: BossState, stage: BossState['stage'], timer: number): void {
+/** The windup of the slam's blow under way: the first one's, or the wait between blows (each the next one's warning). */
+export function slamWindup(b: BossState): number {
+  const slam = BOSSES[b.boss].slam;
+  return (b.count === 0 ? slam.windup : slam.between) * windupFactor(b.variant);
+}
+
+/** Seconds in the air on a leap: the circle's warning, by its variant. */
+export function leapAirTime(b: BossState): number {
+  return BOSSES[b.boss].leap.air * windupFactor(b.variant);
+}
+
+function setStage(ctx: SimContext, b: BossState, stage: BossStage, timer: number): void {
   b.stage = stage;
   b.timer = timer;
   b.phaseTick = ctx.state.tick;
@@ -133,9 +149,25 @@ function aimAt(b: BossState, target: { x: number; y: number }): void {
 
 /** One tick of the attack under way. Returns true once it is over (the boss walks again). */
 export function updateAttack(ctx: SimContext, b: BossState, slot: number, target: PlayerState | undefined, dt: number): boolean {
-  if (b.attack === 'charge') return updateCharge(ctx, b, slot, target, dt);
-  return true;
+  switch (b.attack) {
+    case 'charge':
+      return updateCharge(ctx, b, slot, target, dt);
+    case 'slam':
+      return updateSlam(ctx, b, slot, target);
+    case 'leap':
+      return updateLeap(ctx, b, slot, target);
+    default:
+      return true;
+  }
 }
+
+/** A blow's push on top of the hit's own (PLAYER.hitKnockback): `total` px along (dirX, dirY) in all. */
+function throwPlayer(ctx: SimContext, p: PlayerState, dirX: number, dirY: number, total: number): void {
+  const extra = Math.max(0, total - PLAYER.hitKnockback);
+  if (extra > 0) moveCircle(ctx.grid, p, dirX * extra, dirY * extra, PLAYER.hitboxRadius, BLOCK_PLAYER);
+}
+
+// ----------------------------------------------------------------------------- charge
 
 function updateCharge(ctx: SimContext, b: BossState, slot: number, target: PlayerState | undefined, dt: number): boolean {
   const charge = BOSSES[b.boss].charge;
@@ -182,11 +214,191 @@ function runOver(ctx: SimContext, b: BossState): void {
     if (Math.abs(p.x - b.x) >= reach || Math.abs(p.y - b.y) >= reach) return;
     if (!damagePlayer(ctx, p, charge.damage * BOSS_VARIANTS[b.variant].damage, b.x, b.y)) return;
     b.hitPlayers |= bit;
-    moveCircle(ctx.grid, p, b.aimX * charge.knockback, b.aimY * charge.knockback, PLAYER.hitboxRadius, BLOCK_PLAYER);
+    throwPlayer(ctx, p, b.aimX, b.aimY, charge.knockback);
   });
   const reach = half + ZOMBIES.hitboxRadius;
   for (const z of ctx.state.zombies) {
     if (!isZombieAlive(z) || Math.abs(z.x - b.x) >= reach || Math.abs(z.y - b.y) >= reach) continue;
     damageZombie(ctx, z, z.hp, -1);
   }
+}
+
+// ----------------------------------------------------------------------------- slam
+
+function updateSlam(ctx: SimContext, b: BossState, slot: number, target: PlayerState | undefined): boolean {
+  const slam = BOSSES[b.boss].slam;
+  if (b.stage === 'recover') return b.timer <= 0;
+  if (b.timer > 0) return false;
+  slamBlow(ctx, b);
+  b.count++;
+  b.blowTick = ctx.state.tick;
+  if (b.count >= slam.hits) {
+    setStage(ctx, b, 'recover', slam.recovery);
+    return false;
+  }
+  // Between blows: it turns towards its target (turnMax at most) and steps forward; the next arc is drawn there.
+  if (target) {
+    const want = Math.atan2(target.y - b.y, target.x - b.x);
+    const now = Math.atan2(b.aimY, b.aimX);
+    const max = degToRad(slam.turnMax);
+    const turn = Math.max(-max, Math.min(max, Math.atan2(Math.sin(want - now), Math.cos(want - now))));
+    b.aimX = Math.cos(now + turn);
+    b.aimY = Math.sin(now + turn);
+    b.facing = now + turn;
+  }
+  moveBody(ctx, b, slot, b.aimX * slam.step, b.aimY * slam.step);
+  setStage(ctx, b, 'windup', slamWindup(b));
+  return false;
+}
+
+/** True when (x, y) lies in the slam's arc of boss `b` as it stands (spec 07 §4.2). */
+export function inSlamArc(b: BossState, x: number, y: number): boolean {
+  const slam = BOSSES[b.boss].slam;
+  const dx = x - b.x;
+  const dy = y - b.y;
+  const d = Math.hypot(dx, dy);
+  if (d > slam.reach) return false;
+  return d < 1e-6 || (dx * b.aimX + dy * b.aimY) / d >= Math.cos(degToRad(slam.arc) / 2);
+}
+
+/** A blow of the slam: every player in its arc, with no wall in between, takes its damage and a push away. */
+function slamBlow(ctx: SimContext, b: BossState): void {
+  const slam = BOSSES[b.boss].slam;
+  for (const p of ctx.state.players) {
+    if (!isPlayerAlive(p) || !inSlamArc(b, p.x, p.y)) continue;
+    if (!segmentClearShaped(ctx.grid, b.x, b.y, p.x, p.y, BLOCK_BULLET)) continue;
+    if (!damagePlayer(ctx, p, slam.damage * BOSS_VARIANTS[b.variant].damage, b.x, b.y)) continue;
+    const d = Math.hypot(p.x - b.x, p.y - b.y) || 1;
+    throwPlayer(ctx, p, (p.x - b.x) / d, (p.y - b.y) / d, slam.knockback);
+  }
+  ctx.events.emit('boss:slam', { x: b.x + b.aimX * slam.reach * 0.6, y: b.y + b.aimY * slam.reach * 0.6 });
+}
+
+// ----------------------------------------------------------------------------- leaps
+
+function updateLeap(ctx: SimContext, b: BossState, slot: number, target: PlayerState | undefined): boolean {
+  switch (b.stage) {
+    case 'air': {
+      // A straight line over everything; the arc up and down is drawn by the view.
+      const t = 1 - Math.max(0, b.timer) / leapAirTime(b);
+      b.x = b.fromX + (b.targetX - b.fromX) * t;
+      b.y = b.fromY + (b.targetY - b.fromY) * t;
+      b.moving = true;
+      if (b.timer <= 0) land(ctx, b, slot);
+      return false;
+    }
+    case 'ground':
+      if (b.timer <= 0) {
+        if (target) takeOff(ctx, b, slot, target);
+        else setStage(ctx, b, 'recover', 0);
+      }
+      return false;
+    default:
+      return b.timer <= 0;
+  }
+}
+
+/** Takes off towards where its target stands now (the nearest place its footprint fits, at most a leap away). */
+function takeOff(ctx: SimContext, b: BossState, slot: number, target: PlayerState): void {
+  const leap = BOSSES[b.boss].leap;
+  let tx = target.x;
+  let ty = target.y;
+  const d = Math.hypot(tx - b.x, ty - b.y);
+  if (d > leap.maxRange) {
+    tx = b.x + ((tx - b.x) / d) * leap.maxRange;
+    ty = b.y + ((ty - b.y) / d) * leap.maxRange;
+  }
+  const at = landingSpot(ctx, b, slot, tx, ty) ?? { x: b.x, y: b.y };
+  b.fromX = b.x;
+  b.fromY = b.y;
+  b.targetX = at.x;
+  b.targetY = at.y;
+  aimAt(b, at);
+  setStage(ctx, b, 'air', leapAirTime(b));
+}
+
+/**
+ * Where a leap aimed at (x, y) lands: right there when its body fits, or the
+ * centre of the place its footprint fits nearest to it, within
+ * BOSS.landingSearchTiles; never on another boss. Null when there is none.
+ */
+export function landingSpot(ctx: SimContext, b: BossState, slot: number, x: number, y: number): { x: number; y: number } | null {
+  const nav = ctx.bossNavs[slot];
+  if (!nav) return null;
+  const ts = nav.tileSize;
+  const side = nav.side;
+  const onBoss = (px: number, py: number): boolean =>
+    ctx.state.bosses.some((o) => o !== b && isBossSolid(o) && Math.abs(o.x - px) < side * ts && Math.abs(o.y - py) < side * ts);
+  if (!boxBlocked(nav, x, y, bossHalf(b, ts) - BOSS.bodySlack) && !onBoss(x, y)) return { x, y };
+  const cx = Math.round(x / ts - side / 2);
+  const cy = Math.round(y / ts - side / 2);
+  let best: { x: number; y: number } | null = null;
+  let bestSq = Infinity;
+  const R = BOSS.landingSearchTiles;
+  for (let ty = cy - R; ty <= cy + R; ty++) {
+    for (let tx = cx - R; tx <= cx + R; tx++) {
+      if (!footprintFits(nav, tx, ty)) continue;
+      const px = (tx + side / 2) * ts;
+      const py = (ty + side / 2) * ts;
+      const sq = (px - x) ** 2 + (py - y) ** 2;
+      if (sq >= bestSq || onBoss(px, py)) continue;
+      best = { x: px, y: py };
+      bestSq = sq;
+    }
+  }
+  return best;
+}
+
+/**
+ * The landing: furniture under it is crushed, every player within
+ * landRadius of its centre takes the landing's damage, and its ring starts
+ * growing from there. The floor jolts.
+ */
+function land(ctx: SimContext, b: BossState, slot: number): void {
+  const leap = BOSSES[b.boss].leap;
+  b.x = b.targetX;
+  b.y = b.targetY;
+  const nav = ctx.bossNavs[slot];
+  if (nav) crushFurniture(ctx, nav, b.x, b.y, bossHalf(b, ctx.map.tileSize));
+  for (const p of ctx.state.players) {
+    if (!isPlayerAlive(p) || Math.hypot(p.x - b.x, p.y - b.y) >= leap.landRadius) continue;
+    damagePlayer(ctx, p, leap.landDamage * BOSS_VARIANTS[b.variant].damage, b.x, b.y);
+  }
+  b.waveX = b.x;
+  b.waveY = b.y;
+  b.waveTime = 0;
+  b.waveHits = 0;
+  b.count++;
+  b.blowTick = ctx.state.tick;
+  ctx.events.emit('boss:landed', { x: b.x, y: b.y });
+  if (b.count >= leap.leaps) setStage(ctx, b, 'recover', leap.recovery);
+  else setStage(ctx, b, 'ground', leap.between);
+}
+
+/** Radius (px) of the outer edge of a boss's ring `time` s after its landing. */
+export function waveRadius(b: BossState, time: number): number {
+  const leap = BOSSES[b.boss].leap;
+  return Math.min(leap.waveRadius, leap.waveSpeed * time);
+}
+
+/**
+ * The ring of its last landing grows (whatever the boss does meanwhile):
+ * a player inside its band, with a clear line from the landing, takes its
+ * damage once per ring. It is gone once it reaches its full size.
+ */
+export function updateWave(ctx: SimContext, b: BossState, dt: number): void {
+  if (b.waveTime < 0) return;
+  const leap = BOSSES[b.boss].leap;
+  b.waveTime += dt;
+  const outer = waveRadius(b, b.waveTime);
+  const inner = Math.max(0, outer - leap.waveWidth);
+  ctx.state.players.forEach((p, i) => {
+    const bit = 1 << i;
+    if (!isPlayerAlive(p) || b.waveHits & bit) return;
+    const d = Math.hypot(p.x - b.waveX, p.y - b.waveY);
+    if (d < inner || d > outer) return;
+    if (!segmentClearShaped(ctx.grid, b.waveX, b.waveY, p.x, p.y, BLOCK_SIGHT)) return;
+    if (damagePlayer(ctx, p, leap.waveDamage * BOSS_VARIANTS[b.variant].damage, b.waveX, b.waveY)) b.waveHits |= bit;
+  });
+  if (outer >= leap.waveRadius) b.waveTime = -1;
 }

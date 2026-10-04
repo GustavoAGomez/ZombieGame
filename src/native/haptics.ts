@@ -48,6 +48,8 @@ export class HapticFeedback {
       events.on('activation:completed', (e) => this.play(e.playerId, 'heavy')),
       // A boss's crack opening shakes the floor for everyone (spec 07 §3).
       events.on('boss:warning', () => this.play(this.localPlayerId, 'medium')),
+      // …and every landing of its leaps (§4.3).
+      events.on('boss:landed', () => this.play(this.localPlayerId, 'heavy')),
     ];
   }
 
