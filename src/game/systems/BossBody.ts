@@ -1,7 +1,7 @@
 import { BOSS, PLAYER } from '../../config/balance';
 import type { BossState, PlayerState } from '../../core/GameState';
 import { moveBossBox, type BossNav } from '../map/BossNav';
-import { BLOCK_PLAYER, clearPropCells, resolveCircle } from '../map/CollisionGrid';
+import { BLOCK_PLAYER, clearPropCells, moveCircle, type CollisionGrid } from '../map/CollisionGrid';
 import { bossHalf, isBossSolid } from './BossCombat';
 import { isPlayerAlive } from './HealthSystem';
 import type { SimContext } from './SimContext';
@@ -49,12 +49,37 @@ export function destroyProp(ctx: SimContext, index: number): void {
   ctx.nav.age = Infinity;
 }
 
-/** It is solid for players: pushed out of its footprint, unhurt; a dashing player goes through. */
+/** It is solid for players: pushed out of its footprint, unhurt, never through a wall; a dashing player goes through. */
 export function pushPlayerOut(ctx: SimContext, b: BossState, p: PlayerState): void {
   if (!isPlayerAlive(p) || isDashing(p) || !isBossSolid(b)) return;
   const half = bossHalf(b, ctx.map.tileSize) + PLAYER.hitboxRadius;
   const alongX = Math.abs(Math.cos(b.facing)) >= Math.abs(Math.sin(b.facing));
-  if (pushOutOfBox(p, b.x, b.y, half, b.moving ? alongX : nearestAxisIsY(p, b, half))) resolveCircle(ctx.grid, p, PLAYER.hitboxRadius, BLOCK_PLAYER);
+  shoveOutOfBox(ctx.grid, p, b.x, b.y, half, b.moving ? alongX : nearestAxisIsY(p, b, half), PLAYER.hitboxRadius, BLOCK_PLAYER);
+}
+
+/**
+ * Shoves a circle of `radius` out of the square of half-size `half` centred
+ * at (cx, cy), moving it with the walls in the way (moveCircle), so it can
+ * never be shoved through one, not even a thin wall whose collision is only
+ * its base (petición del usuario: it went through into a locked room).
+ * Across `acrossY` first; when a wall keeps it in, out by the nearest side
+ * along the other axis. Squeezed into a corner, it stays where the walls let it.
+ */
+export function shoveOutOfBox(
+  grid: CollisionGrid,
+  pos: { x: number; y: number },
+  cx: number,
+  cy: number,
+  half: number,
+  acrossY: boolean,
+  radius: number,
+  mask: number,
+): void {
+  for (const alongY of [acrossY, !acrossY]) {
+    const to = { x: pos.x, y: pos.y };
+    if (!pushOutOfBox(to, cx, cy, half, alongY)) return;
+    moveCircle(grid, pos, to.x - pos.x, to.y - pos.y, radius, mask);
+  }
 }
 
 /** For a body that is not being run over: out by the nearest side (true = along y). */

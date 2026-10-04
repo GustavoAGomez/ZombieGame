@@ -12,8 +12,8 @@ import {
   updateBossBlocking,
   type BossNav,
 } from '../map/BossNav';
-import { BLOCK_ZOMBIE, resolveCircle } from '../map/CollisionGrid';
-import { crushFurniture, moveBody, pushOutOfBox, pushPlayerOut } from './BossBody';
+import { BLOCK_ZOMBIE } from '../map/CollisionGrid';
+import { crushFurniture, moveBody, pushOutOfBox, pushPlayerOut, shoveOutOfBox } from './BossBody';
 import { computeLevels, type MapLevels } from '../map/levels';
 import type { MapData } from '../map/MapLoader';
 import { chooseAttack, startAttack, updateAttack, updatePuddles, updateWave, walkTime } from './BossAttacks';
@@ -295,14 +295,16 @@ function walk(ctx: SimContext, b: BossState, slot: number, dt: number): void {
 /**
  * Zombies in its way are shoved aside: out of its footprint across the way
  * it is going (sideways when it walks along x, up or down when along y).
+ * Those on the floor are moved with the walls in the way, never through
+ * one; those at a window (climbing in) just get out of its way.
  */
 function shoveZombies(ctx: SimContext, b: BossState): void {
   const half = bossHalf(b, ctx.map.tileSize) + ZOMBIES.hitboxRadius;
   const alongX = Math.abs(Math.cos(b.facing)) >= Math.abs(Math.sin(b.facing));
   for (const z of ctx.state.zombies) {
     if (!pushable(z)) continue;
-    if (!pushOutOfBox(z, b.x, b.y, half, alongX)) continue;
-    if (z.ai === 'chasing' || z.ai === 'attacking' || z.ai === 'idle') resolveCircle(ctx.grid, z, ZOMBIES.hitboxRadius, BLOCK_ZOMBIE);
+    if (z.ai === 'chasing' || z.ai === 'attacking' || z.ai === 'idle') shoveOutOfBox(ctx.grid, z, b.x, b.y, half, alongX, ZOMBIES.hitboxRadius, BLOCK_ZOMBIE);
+    else pushOutOfBox(z, b.x, b.y, half, alongX);
   }
 }
 

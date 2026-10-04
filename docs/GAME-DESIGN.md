@@ -232,7 +232,7 @@ Zombis enormes que salen del suelo en rondas fijas. Hoy hay uno, **el Matarife**
   - **Cuerpo:** huella de 2×2 casillas, por eso cruza las puertas y los pasos de 2. Dibujo de unos 116×118 (arte de PixelLab; andar, embestida, mazazo y salto en 8 direcciones, el resto en 4) y caja de impacto de 64×80.
   - **Vida y velocidad:** 100 (× variante × vuelta × jugadores); anda a 38 px/s.
   - **Choques:** las paredes, puertas cerradas, ventanas, agua, vitrinas, escaleras, magos y el agujero de la mano lo paran. Los muebles con colisión los aplasta para el resto de la partida: pierden la colisión para todos y queda una mancha de astillas.
-  - **Contacto:** aparta a los zombis y te empuja sin hacerte daño; el dash lo atraviesa. Andando no hace daño: solo dañan sus ataques.
+  - **Contacto:** aparta a los zombis y te empuja sin hacerte daño, nunca a través de una pared (si te aplasta contra una, te saca por un lado); el dash lo atraviesa. Andando no hace daño: solo dañan sus ataques.
   - **Inmunidades:** no se le empuja, no pierde las piernas y no muere de un golpe. Le dañan todas las armas, la quemadura incluida; las balas perforantes lo atraviesan.
 - **Sus ataques:** todos se anuncian. Se queda quieto en una pose y en el suelo se dibuja en rojo la zona exacta del golpe, llenándose hasta que cae. El dash es invulnerable y sirve contra los tres.
   - **Contra los zombis:** todos sus golpes dañan también a los zombis normales igual que al jugador: la caída del cielo, la embestida (los mata), el mazazo (los empuja si sobreviven), el aterrizaje, la onda y los charcos. Nadie gana puntos por esas bajas. Los bosses no se hacen daño entre ellos.

@@ -2,7 +2,7 @@ import type Phaser from 'phaser';
 import { PLAYER } from '../../config/balance';
 import type { EventBus, GameEvents } from '../../core/EventBus';
 import { ASSET_KEYS, objectTextureKey } from '../assets/manifest';
-import { actorDepth, DEPTH, overFogDepth } from '../depth';
+import { actorDepth, DEPTH } from '../depth';
 
 /** Drops in the pool; the oldest is reused when they are all in use. */
 const POOL_SIZE = 180;
@@ -115,7 +115,7 @@ export class BloodSprayPool {
         .setPosition(Math.round(d.x), Math.round(d.y - d.z))
         .setFrame(stretched ? FRAME_STRETCHED : d.small ? FRAME_SMALL : FRAME_ROUND)
         .setRotation(stretched ? Math.atan2(d.vy - d.vz, d.vx) : 0)
-        .setDepth(d.overFog ? overFogDepth(d.y) + 0.0002 : actorDepth(d.y) + 0.0005);
+        .setDepth(actorDepth(d.y) + 0.0005);
     }
   }
 

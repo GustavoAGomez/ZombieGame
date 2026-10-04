@@ -1754,3 +1754,18 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - El verde lima del arte es más vivo que el tinte del pútrido; se deja así porque se lee bien como ácido.
 - **Coste:** 81 generaciones: 30 de las diagonales buenas, 20 de la imagen del charco, 1 de su animación y 30 de las diagonales canceladas, que PixelLab terminó y cobró igualmente (cancelar un trabajo en marcha no lo devuelve).
 - **Andar hacia el sur, rehecho:** el de `walk_v3` casi no movía las piernas de frente a cámara. Se repitió (`walk_south`, 4 generaciones) con la descripción fotograma a fotograma: qué rodilla sube en cada par de fotogramas y un pie siempre en el aire en los fotogramas 1-2 y 5-6. Ahora las piernas se alternan y el cuerpo se balancea.
+
+## La niebla bajo los personajes y el empujón del boss contra las paredes (petición del usuario)
+
+- **Niebla (`DEPTH.fog`):** pasa de la capa 29, por encima de los personajes, a la 9: encima del mapa, del atrezo y de lo que hay en el suelo, y debajo de los personajes.
+  - Antes, la oscuridad de una sala bloqueada le cortaba la cabeza al boss cuando estaba junto a su pared, porque su dibujo sobresale 3,7 casillas hacia arriba. Al jugador le pasaba lo mismo, en menos.
+  - Lo que está dentro de una sala bloqueada ya se escondía solo (zombis, boss, sangre). Faltaban las vitrinas y la mano del demonio, que dependían de la niebla: ahora se ocultan mientras su sala está bloqueada.
+  - Los magos solo van a salas desbloqueadas.
+  - La capa de los zombis en la ventana de la oscuridad (`actorsOverFog`) sobra: todos los personajes están ya por encima de la niebla y ordenados por su `y`.
+  - El atrezo alto de una sala iluminada que asoma sobre una oscura sigue tapado por la niebla, como antes.
+- **El empujón del boss** (`shoveOutOfBox` en `BossBody`):
+  - Antes teletransportaba al jugador al borde de su cuerpo (hasta 38 px) y luego lo sacaba de la pared por el lado más cercano.
+  - Una pared fina, cuya colisión es solo su base de 7 px (la del recibidor con la cocina), quedaba cruzada de un salto y el jugador acababa en la sala bloqueada.
+  - Ahora el empujón avanza con `moveCircle`, en pasos de medio radio, y se para en las paredes. Si una pared lo retiene dentro del cuerpo del boss, sale por el lado más cercano del otro eje. Encajonado en una esquina, se queda donde le dejan las paredes, solapado con el boss hasta que este se aparta.
+  - Igual para los zombis que aparta al andar (los que están en el suelo). Los de las ventanas solo se apartan, como antes.
+  - Comprobado por fuerza bruta junto a esa pared: 748.440 combinaciones de posición del boss y del jugador, orientación y movimiento, y ninguna lo cuela.

@@ -11,11 +11,14 @@ export const DEPTH = {
   mapObjects: 3,
   decals: 4,
   pickups: 5,
+  /**
+   * Darkness over zones not unlocked yet: over the map, its props and what
+   * lies on the floor, under the actors, so a tall one standing by a locked
+   * room (the boss) is never cut off where its head pokes over it
+   * (petición del usuario). Whatever stands inside the dark hides itself.
+   */
+  fog: 9,
   actors: 10,
-  /** Darkness over zones not unlocked yet: above actors and props, under bullets. */
-  fog: 29,
-  /** Zombies at a window of the dark outside (tearing, climbing): over the darkness so the player sees them. */
-  actorsOverFog: 29.1,
   bullets: 30,
   aimLine: 31,
   /** Arrows at the screen edge towards merchants out of view. */
@@ -26,9 +29,4 @@ export const DEPTH = {
 /** Depth for an actor standing at world y (feet). */
 export function actorDepth(y: number): number {
   return DEPTH.actors + y * 0.001;
-}
-
-/** Depth for an actor over the darkness, still y-sorted and under the bullets (maps up to 8000 px tall). */
-export function overFogDepth(y: number): number {
-  return DEPTH.actorsOverFog + y * 0.0001;
 }

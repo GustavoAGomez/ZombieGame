@@ -156,14 +156,14 @@ export class HandView {
 
   /**
    * `time`: seconds of simulated time (the loops, the embers and the bobbing
-   * freeze with the match). `revealed`: its room is unlocked, so its embers
-   * may show (the rest is under the darkness of a locked room anyway).
+   * freeze with the match). `revealed`: its room is unlocked; in a locked one
+   * it hides itself, as the darkness is under the actors it is sorted with.
    */
   sync(state: HandState, time: number, dt: number, revealed: boolean): void {
     const spot = this.map.handSpots[state.spot];
     const elapsed = phaseLength(state.phase) - state.timer;
     const fade = state.phase === 'away' ? 1 - clamp01(elapsed / FADE_TIME) : 1;
-    if (!spot || fade <= 0) {
+    if (!spot || fade <= 0 || !revealed) {
       if (this.crack.visible) [this.crack, this.hand, this.weapon].forEach((o) => o.setVisible(false));
       this.hideEmbers();
       this.shownSpot = -2;

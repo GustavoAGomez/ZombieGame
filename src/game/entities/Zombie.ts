@@ -4,7 +4,7 @@ import { COLORS, hexToInt } from '../../config/theme';
 import type { ZombieState } from '../../core/GameState';
 import { dir8FromAngle, lerp } from '../../core/math';
 import { ASSET_KEYS, animationKey, characterTextureKey, isAnimationPlaceholder, type Manifest } from '../assets/manifest';
-import { actorDepth, overFogDepth } from '../depth';
+import { actorDepth } from '../depth';
 import { isLegless, isStrike, letsStrikeFinish, swingId, zombiePose, type ZombieArt, type ZombieAnimation, type ZombiePose } from './zombieAnimation';
 
 const CHARACTER_BY_KIND: Record<ZombieKind, string> = {
@@ -126,7 +126,7 @@ export class ZombieViewPool {
         .setVisible(true)
         .setAlpha(slot.visibility * corpseFade)
         .setPosition(x, y)
-        .setDepth(slot.atWindow && dark ? overFogDepth(y) : actorDepth(y));
+        .setDepth(actorDepth(y));
 
       this.animate(slot, character, z, pose);
       // Crawling without crawl art: the walk slows down with the zombie, so its feet do not slide.

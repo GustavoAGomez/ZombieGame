@@ -53,6 +53,9 @@ export class WeaponCaseViews {
     this.map.weaponCases.forEach((c, i) => {
       const view = this.views[i];
       if (!view) return;
+      // In a locked room it hides itself: the darkness is under the actors it is sorted with.
+      const unlocked = state.zonesUnlocked[c.zoneIndex] === true;
+      if (view.image.visible !== unlocked) view.image.setVisible(unlocked);
       const near = player !== undefined && player.hp > 0 && state.zonesUnlocked[c.zoneIndex] === true && within(c, player, WEAPON_CASES.priceLabelRange);
       if (!near) {
         if (view.price.visible) view.price.setVisible(false);
