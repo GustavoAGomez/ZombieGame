@@ -27,7 +27,7 @@ El juego toma como referencia el modo Zombies de Black Ops 1. Lo que lo hacía a
 |---|---|---|
 | Rondas 1–2 | Sobrevivir, reparar ventanas, abrir la primera sala | Hecho |
 | Ronda 2 | Aparece el **mago azul**: munición y mejoras temporales | Hecho |
-| Ronda 6 | Sale el primer boss, **el Matarife**; al morir suelta el corazón vivo | Hecho (spec 07) |
+| Ronda 6 | Sale el primer boss, **Matarife**; al morir suelta el corazón vivo | Hecho (spec 07) |
 | Inicio–medio | Buscar la **Mano del Demonio** y probar suerte | Hecho (spec 06) |
 | Medio | **Encender la caldera** del sótano: luz y altares | Pendiente |
 | Medio | Ritual de la piscina: **mago rojo**, mejoras de arma | Hecho |

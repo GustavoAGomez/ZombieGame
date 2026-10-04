@@ -121,7 +121,7 @@ export interface BossDef {
 }
 
 export const BOSSES: Readonly<Record<BossId, BossDef>> = {
-  // El Matarife: a fat zombie with a mallet, the size of a van next to the characters.
+  // Matarife: a fat zombie with a mallet, the size of a van next to the characters.
   butcher: {
     id: 'butcher',
     footprintTiles: 2,

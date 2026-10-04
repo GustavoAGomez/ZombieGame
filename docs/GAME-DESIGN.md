@@ -118,7 +118,7 @@ Magos con gabardina que venden munición y mejoras. Sus puntos de aparición son
 
 | Objeto | Cómo se consigue |
 |---|---|
-| Corazón vivo | Lo suelta el primer boss que muere en la partida (el Matarife de la ronda 6), donde cae; se queda en el suelo hasta que alguien lo recoge |
+| Corazón vivo | Lo suelta el primer boss que muere en la partida (Matarife, en la ronda 6), donde cae; se queda en el suelo hasta que alguien lo recoge |
 | Varita desgastada | Al empezar la partida aparece en un punto de objeto al azar de cualquier zona salvo la inicial, y se queda ahí hasta que alguien la recoge |
 
 - **Puntos de objeto:** 1 o 2 por zona, también en el sótano y la azotea (19 en la mansión). Cada uno está junto a algo que cuenta una historia: la caja fuerte abierta del estudio, la puerta abierta del coche del garaje, la barbacoa volcada, el refugio del sótano… En el suelo, el objeto se ve dentro de un foco circular de luz ámbar: la varita flota sobre él con rayos chisporroteando en la punta. Los objetos se ven animados también en el inventario y en el botón de recoger: la varita con sus rayos y el corazón vivo latiendo. En una zona cerrada o a oscuras se ve como el resto de cosas de la habitación: no hay flecha ni indicador hacia él, hay que encontrarlo.
@@ -202,7 +202,7 @@ Un agujero en el suelo, sellado por una costra con grietas de brasa, del que sal
 
 ## Bosses
 
-Zombis enormes que salen del suelo en rondas fijas. Hoy hay uno, **el Matarife**: un zombi gordo con un mazo, del tamaño de una furgoneta. Sus números están en `src/config/bosses.ts` (catálogo, variantes y calendario) y en `BOSS` de `balance.ts`.
+Zombis enormes que caen del cielo en rondas fijas. Hoy hay uno, **Matarife**: un zombi gordo con un mazo, del tamaño de una furgoneta. Sus números están en `src/config/bosses.ts` (catálogo, variantes y calendario) y en `BOSS` de `balance.ts`.
 
 - **Calendario:**
 
@@ -228,7 +228,7 @@ Zombis enormes que salen del suelo en rondas fijas. Hoy hay uno, **el Matarife**
   - **Impacto:** aplasta el atrezo del círculo y quien siga dentro recibe 20 (× la variante); los zombis también. La pantalla se sacude. Si te cae encima, te aparta de su cuerpo.
   - **Rugido, 1 s:** aparece su barra de vida.
   - Si cambias de nivel (sótano, azotea) o pasa 5 s sin poder llegar hasta ti, salta al cielo (1 s, sin recibir daño) y vuelve a caer cerca, con el mismo aviso y la misma vida.
-- **El Matarife:**
+- **Matarife:**
   - **Cuerpo:** huella de 2×2 casillas, por eso cruza las puertas y los pasos de 2. Dibujo de unos 116×118 (arte de PixelLab; andar, embestida, mazazo y salto en 8 direcciones, el resto en 4) y caja de impacto de 64×80.
   - **Vida y velocidad:** 100 (× variante × vuelta × jugadores); anda a 38 px/s.
   - **Choques:** las paredes, puertas cerradas, ventanas, agua, vitrinas, escaleras, magos y el agujero de la mano lo paran. Los muebles con colisión los aplasta para el resto de la partida: pierden la colisión para todos y queda una mancha de astillas.

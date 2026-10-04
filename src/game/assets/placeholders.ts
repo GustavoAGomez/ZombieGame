@@ -869,7 +869,7 @@ function butcherPose(animation: string, col: number, frames: number, marks: Reco
   }
 }
 
-/** A boss's animation drawn as El Matarife's placeholder poses, the same in every direction. */
+/** A boss's animation drawn as Matarife's placeholder poses, the same in every direction. */
 function createBossPlaceholder(scene: Phaser.Scene, character: string, def: CharacterDef, animation: string): void {
   const anim = def.animations[animation];
   if (!anim) return;
@@ -883,7 +883,7 @@ function createBossPlaceholder(scene: Phaser.Scene, character: string, def: Char
 }
 
 /**
- * El Matarife (spec 07 §8): a rounded body of 64×84 in dark greyish green
+ * Matarife (spec 07 §8): a rounded body of 64×84 in dark greyish green
  * with a lighter belly, and a brown mallet of 12×40, standing on the bottom
  * edge of its 96×110 box, facing the camera with the mallet on its right.
  */

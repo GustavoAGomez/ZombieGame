@@ -215,7 +215,7 @@ export const STRINGS = {
   } as Readonly<Partial<Record<WeaponId, string>>>,
   /** Bosses (spec 07), by id: the name over their health bar. */
   bosses: {
-    names: { butcher: 'EL MATARIFE' } as Readonly<Record<BossId, string>>,
+    names: { butcher: 'MATARIFE' } as Readonly<Record<BossId, string>>,
     /** Its health bar, for screen readers. */
     health: (name: string): string => `Vida de ${name}`,
     /** Under the round banner in a boss round (spec 07 §6). */

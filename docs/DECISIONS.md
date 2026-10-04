@@ -1803,3 +1803,7 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - La banda se pinta como cuadriláteros entre rayos consecutivos, con el borde exterior recortado donde se para cada rayo.
 - **Capa:** las marcas del boss en el suelo (anillo y sombra) bajan a `DEPTH.floorMarks` (1,75), justo bajo las paredes. Así, la parte de arriba de una pared al sur, que la onda cruza antes de llegar a su base, la tapa.
 - **Pendiente aparte:** en 14 de las 170 paredes verticales de la mansión, la celda con cara (una junta o el arranque de un tramo) solo tiene colisión en su base. Queda un hueco de 12 px por el que pasan la vista, las balas y el daño de la onda, y ahora también su dibujo, porque lo sigue fielmente.
+
+## El boss se llama Matarife (petición del usuario)
+
+- El nombre visible pasa de «EL MATARIFE» a «MATARIFE» (`STRINGS.bosses.names.butcher`), que es lo que sale sobre su barra de vida. Los comentarios y la ficha de `GAME-DESIGN.md` lo nombran igual. En las notas antiguas de este documento se queda como estaba.

@@ -51,7 +51,7 @@ export interface DebugActions {
   goToWand(): void;
   /** Spec 05 §8: every item spot on the map (the wand's ringed) and the activation sites. */
   toggleItemSpots(): boolean;
-  /** Spec 07 §10: El Matarife comes into the match now; the bosses on the map die. */
+  /** Spec 07 §10: Matarife comes into the match now; the bosses on the map die. */
   summonBoss(): void;
   killBoss(): void;
   /** The bosses' next attack is this one, as soon as they finish what they are doing. */
