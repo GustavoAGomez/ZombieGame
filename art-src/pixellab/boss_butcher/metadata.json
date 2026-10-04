@@ -63,6 +63,18 @@
               "Idle/animations/death_v3/north/frame_008.png"
             ]
           },
+          "walk_south": {
+            "south": [
+              "Idle/animations/walk_south/south/frame_000.png",
+              "Idle/animations/walk_south/south/frame_001.png",
+              "Idle/animations/walk_south/south/frame_002.png",
+              "Idle/animations/walk_south/south/frame_003.png",
+              "Idle/animations/walk_south/south/frame_004.png",
+              "Idle/animations/walk_south/south/frame_005.png",
+              "Idle/animations/walk_south/south/frame_006.png",
+              "Idle/animations/walk_south/south/frame_007.png"
+            ]
+          },
           "death": {
             "north": [
               "Idle/animations/death/north/frame_000.png",
@@ -529,5 +541,5 @@
     }
   ],
   "export_version": "3.1",
-  "export_date": "2026-10-04T15:16:47.891111"
+  "export_date": "2026-10-04T16:11:30.347555"
 }

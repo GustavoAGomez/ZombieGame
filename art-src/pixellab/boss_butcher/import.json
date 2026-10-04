@@ -1,6 +1,6 @@
 {
   "sources": {
-    "walk": ["walk_diag", "walk_v3"],
+    "walk": ["walk_south", "walk_diag", "walk_v3"],
     "death": ["death_v3"],
     "slam": ["slam_diag", "slam"],
     "leap": ["leap_diag", "leap_v2", "leap"],
