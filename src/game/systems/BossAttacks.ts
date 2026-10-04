@@ -1,13 +1,13 @@
 import { BOSS, PLAYER, ZOMBIES } from '../../config/balance';
 import { BOSS_VARIANTS, BOSSES, windupFactor, type BossAttackId } from '../../config/bosses';
-import type { BossStage, BossState, PlayerState, PuddleState } from '../../core/GameState';
+import type { BossStage, BossState, PlayerState, PuddleState, ZombieState } from '../../core/GameState';
 import { degToRad } from '../../core/math';
 import { randomRange, random } from '../../core/Rng';
 import { boxBlocked, footprintFits, updateBossBlocking } from '../map/BossNav';
 import { BLOCK_BULLET, BLOCK_PLAYER, BLOCK_SIGHT, moveCircle, segmentClearShaped } from '../map/CollisionGrid';
 import { crushFurniture, moveBody } from './BossBody';
 import { bossHalf, isBossSolid } from './BossCombat';
-import { damageZombie, isZombieAlive } from './Combat';
+import { bodyHitPoint, damageZombie, isZombieAlive, knockZombie } from './Combat';
 import { damagePlayer, isPlayerAlive } from './HealthSystem';
 import type { SimContext } from './SimContext';
 
@@ -33,9 +33,28 @@ import type { SimContext } from './SimContext';
  * place its footprint fits), marked with a circle, unhurt in the air. The
  * landing hurts around it and sends out a ring that grows and hurts once
  * per leap whoever it reaches with a clear line from the landing (walls
- * stop it; zombies are spared). Running straight away from the circle as
- * it appears, the ring never catches a player; walking (shooting) it does.
+ * stop it). Running straight away from the circle as it appears, the ring
+ * never catches a player; walking (shooting) it does.
+ *
+ * Its blows hurt the zombies too, as they hurt players (the charge kills
+ * them outright), with no points for anyone (petición del usuario); bosses
+ * never hurt each other. The putrid one leaves puddles where it lands and
+ * a trail of them along its charges.
  */
+
+/**
+ * A boss's blow on a zombie: its damage, with blood sprayed away from
+ * (fromX, fromY) and no points for anyone; one that survives is pushed
+ * `push` px away. Returns true if it died.
+ */
+function hurtZombie(ctx: SimContext, z: ZombieState, damage: number, fromX: number, fromY: number, push = 0): boolean {
+  const d = Math.hypot(z.x - fromX, z.y - fromY) || 1;
+  const dirX = (z.x - fromX) / d;
+  const dirY = (z.y - fromY) / d;
+  if (damageZombie(ctx, z, damage, -1, bodyHitPoint(z, dirX, dirY))) return true;
+  knockZombie(ctx, z, dirX, dirY, push);
+  return false;
+}
 
 /** Its next walk between attacks: the boss's walking time, half as long enraged (spec 07 §5). */
 export function walkTime(ctx: SimContext, b: BossState): number {
@@ -180,14 +199,19 @@ function updateCharge(ctx: SimContext, b: BossState, slot: number, target: Playe
       if (b.timer <= 0) {
         setStage(ctx, b, 'run', 0);
         b.runLeft = charge.distance;
+        b.trailLeft = 0;
       }
       return false;
     case 'run': {
       const step = Math.min(b.runLeft, charge.speed * dt);
+      const fromX = b.x;
+      const fromY = b.y;
       const hitWall = moveBody(ctx, b, slot, b.aimX * step, b.aimY * step);
       b.runLeft -= step;
       b.moving = true;
       runOver(ctx, b);
+      // The putrid one leaves a trail of puddles along its run (petición del usuario).
+      if (BOSS_VARIANTS[b.variant].puddles) leaveTrail(ctx, b, Math.hypot(b.x - fromX, b.y - fromY));
       if (hitWall) {
         setStage(ctx, b, 'stunned', charge.stunTime);
         ctx.events.emit('boss:stunned', { x: b.x, y: b.y });
@@ -270,6 +294,11 @@ function slamBlow(ctx: SimContext, b: BossState): void {
     if (!damagePlayer(ctx, p, slam.damage * BOSS_VARIANTS[b.variant].damage, b.x, b.y)) continue;
     const d = Math.hypot(p.x - b.x, p.y - b.y) || 1;
     throwPlayer(ctx, p, (p.x - b.x) / d, (p.y - b.y) / d, slam.knockback);
+  }
+  for (const z of ctx.state.zombies) {
+    if (!isZombieAlive(z) || !inSlamArc(b, z.x, z.y)) continue;
+    if (!segmentClearShaped(ctx.grid, b.x, b.y, z.x, z.y, BLOCK_BULLET)) continue;
+    hurtZombie(ctx, z, slam.damage * BOSS_VARIANTS[b.variant].damage, b.x, b.y, slam.knockback);
   }
   ctx.events.emit('boss:slam', { x: b.x + b.aimX * slam.reach * 0.6, y: b.y + b.aimY * slam.reach * 0.6 });
 }
@@ -360,16 +389,23 @@ function land(ctx: SimContext, b: BossState, slot: number): void {
   b.y = b.targetY;
   const nav = ctx.bossNavs[slot];
   if (nav) crushFurniture(ctx, nav, b.x, b.y, bossHalf(b, ctx.map.tileSize));
+  const landDamage = leap.landDamage * BOSS_VARIANTS[b.variant].damage;
   for (const p of ctx.state.players) {
     if (!isPlayerAlive(p) || Math.hypot(p.x - b.x, p.y - b.y) >= leap.landRadius) continue;
-    damagePlayer(ctx, p, leap.landDamage * BOSS_VARIANTS[b.variant].damage, b.x, b.y);
+    damagePlayer(ctx, p, landDamage, b.x, b.y);
+  }
+  const bit = 1 << slot;
+  for (const z of ctx.state.zombies) {
+    // A new ring: none has hit it yet.
+    z.waveHits &= ~bit;
+    if (isZombieAlive(z) && Math.hypot(z.x - b.x, z.y - b.y) < leap.landRadius) hurtZombie(ctx, z, landDamage, b.x, b.y);
   }
   b.waveX = b.x;
   b.waveY = b.y;
   b.waveTime = 0;
   b.waveHits = 0;
   // The putrid variant leaves a puddle where it lands (spec 07 §1).
-  if (BOSS_VARIANTS[b.variant].puddles) leavePuddle(ctx, b.x, b.y);
+  if (BOSS_VARIANTS[b.variant].puddles) leavePuddle(ctx, b.x, b.y, BOSS.puddle.radius);
   b.count++;
   b.blowTick = ctx.state.tick;
   ctx.events.emit('boss:landed', { x: b.x, y: b.y });
@@ -388,50 +424,72 @@ export function waveRadius(b: BossState, time: number): number {
  * a player inside its band, with a clear line from the landing, takes its
  * damage once per ring. It is gone once it reaches its full size.
  */
-export function updateWave(ctx: SimContext, b: BossState, dt: number): void {
+export function updateWave(ctx: SimContext, b: BossState, slot: number, dt: number): void {
   if (b.waveTime < 0) return;
   const leap = BOSSES[b.boss].leap;
   b.waveTime += dt;
   const outer = waveRadius(b, b.waveTime);
   const inner = Math.max(0, outer - leap.waveWidth);
+  const damage = leap.waveDamage * BOSS_VARIANTS[b.variant].damage;
+  const inBand = (x: number, y: number): boolean => {
+    const d = Math.hypot(x - b.waveX, y - b.waveY);
+    return d >= inner && d <= outer && segmentClearShaped(ctx.grid, b.waveX, b.waveY, x, y, BLOCK_SIGHT);
+  };
   ctx.state.players.forEach((p, i) => {
     const bit = 1 << i;
-    if (!isPlayerAlive(p) || b.waveHits & bit) return;
-    const d = Math.hypot(p.x - b.waveX, p.y - b.waveY);
-    if (d < inner || d > outer) return;
-    if (!segmentClearShaped(ctx.grid, b.waveX, b.waveY, p.x, p.y, BLOCK_SIGHT)) return;
-    if (damagePlayer(ctx, p, leap.waveDamage * BOSS_VARIANTS[b.variant].damage, b.waveX, b.waveY)) b.waveHits |= bit;
+    if (!isPlayerAlive(p) || b.waveHits & bit || !inBand(p.x, p.y)) return;
+    if (damagePlayer(ctx, p, damage, b.waveX, b.waveY)) b.waveHits |= bit;
   });
+  // The zombies too, once per ring each (the bit of this boss's slot).
+  const bit = 1 << slot;
+  for (const z of ctx.state.zombies) {
+    if (!isZombieAlive(z) || z.waveHits & bit || !inBand(z.x, z.y)) continue;
+    z.waveHits |= bit;
+    hurtZombie(ctx, z, damage, b.waveX, b.waveY);
+  }
   if (outer >= leap.waveRadius) b.waveTime = -1;
 }
 
-/** A putrid puddle at (x, y) for BOSS.puddle.time s; with the pool full, the one with least time left goes. */
-export function leavePuddle(ctx: SimContext, x: number, y: number): void {
+/** A putrid puddle `radius` px wide at (x, y) for BOSS.puddle.time s; with the pool full, the one with least time left goes. */
+export function leavePuddle(ctx: SimContext, x: number, y: number, radius: number): void {
   const { puddles } = ctx.state;
   let slot = puddles.find((p) => !p.active);
   if (!slot) slot = puddles.reduce<PuddleState | undefined>((least, p) => (!least || p.timer < least.timer ? p : least), undefined);
   if (!slot) return;
-  Object.assign(slot, { active: true, x, y, timer: BOSS.puddle.time, tickTimer: BOSS.puddle.tickInterval });
+  Object.assign(slot, { active: true, x, y, radius, timer: BOSS.puddle.time });
+}
+
+/** Along its charge, the putrid one leaves a puddle every BOSS.puddle.trailSpacing px it runs (`moved` this tick). */
+function leaveTrail(ctx: SimContext, b: BossState, moved: number): void {
+  b.trailLeft -= moved;
+  if (b.trailLeft > 0) return;
+  leavePuddle(ctx, b.x, b.y, BOSS.puddle.trailRadius);
+  b.trailLeft += BOSS.puddle.trailSpacing;
+}
+
+/** True when (x, y) lies in an active puddle. */
+export function inPuddle(ctx: SimContext, x: number, y: number): boolean {
+  return ctx.state.puddles.some((pd) => pd.active && Math.hypot(x - pd.x, y - pd.y) < pd.radius);
 }
 
 /**
- * The puddles hurt whoever stands in them, every tickInterval (no push: the
- * player is hurt from where they stand), until they dry up. Zombies wade
- * through unhurt; the dash spares a player, as from any blow.
+ * The puddles dry up, and every tickInterval whoever stands in any of them
+ * takes its damage once (overlapping puddles do not add up): players with
+ * no push (hurt from where they stand; the dash spares them, as from any
+ * blow), and zombies too, with no points for anyone.
  */
 export function updatePuddles(ctx: SimContext, dt: number): void {
   const { puddle } = BOSS;
-  for (const pd of ctx.state.puddles) {
+  const { state } = ctx;
+  for (const pd of state.puddles) {
     if (!pd.active) continue;
     pd.timer -= dt;
-    pd.tickTimer -= dt;
-    while (pd.tickTimer <= 0 && pd.timer > -dt) {
-      pd.tickTimer += puddle.tickInterval;
-      for (const p of ctx.state.players) {
-        if (!isPlayerAlive(p) || Math.hypot(p.x - pd.x, p.y - pd.y) >= puddle.radius) continue;
-        damagePlayer(ctx, p, puddle.damagePerSecond * puddle.tickInterval, p.x, p.y);
-      }
-    }
     if (pd.timer <= 0) pd.active = false;
   }
+  state.puddleTick -= dt;
+  if (state.puddleTick > 0) return;
+  state.puddleTick += puddle.tickInterval;
+  const damage = puddle.damagePerSecond * puddle.tickInterval;
+  for (const p of state.players) if (isPlayerAlive(p) && inPuddle(ctx, p.x, p.y)) damagePlayer(ctx, p, damage, p.x, p.y);
+  for (const z of state.zombies) if (isZombieAlive(z) && inPuddle(ctx, z.x, z.y)) damageZombie(ctx, z, damage, -1);
 }

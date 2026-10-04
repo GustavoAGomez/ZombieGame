@@ -490,11 +490,13 @@ export const BOSS = {
   attackStagger: 0.8,
   /**
    * The putrid variant's puddles (spec 07 §1): every landing of its leaps
-   * leaves one this wide (px, its radius: the landing's) for `time` s. A
-   * player in it takes damagePerSecond, in ticks every tickInterval s.
-   * Zombies wade through it unhurt. Pool: `pool` puddles at once.
+   * leaves one `radius` px wide (the landing's), and its charge a trail of
+   * smaller ones (`trailRadius`) every `trailSpacing` px of its run; they
+   * last `time` s. Whoever stands in any of them, player or zombie, takes
+   * damagePerSecond in a tick every tickInterval s (overlapping puddles do
+   * not add up). Pool: `pool` puddles at once.
    */
-  puddle: { time: 4, radius: 44, damagePerSecond: 10, tickInterval: 0.5, pool: 8 },
+  puddle: { time: 4, radius: 44, trailRadius: 24, trailSpacing: 32, damagePerSecond: 10, tickInterval: 0.5, pool: 32 },
   /** The health bar moves in steps of 1/barSteps. */
   barSteps: 100,
 } as const;

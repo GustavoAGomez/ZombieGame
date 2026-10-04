@@ -264,8 +264,8 @@ export class BossZones {
     for (const pd of puddles) {
       if (!pd.active || isDark(pd.x, pd.y)) continue;
       const fade = Math.min(1, pd.timer / BOSS_PUDDLE_FADE);
-      g.fillStyle(PUDDLE_COLOR, 0.4 * fade).fillCircle(pd.x, pd.y, BOSS.puddle.radius);
-      g.lineStyle(2, PUDDLE_COLOR, 0.8 * fade).strokeCircle(pd.x, pd.y, BOSS.puddle.radius);
+      g.fillStyle(PUDDLE_COLOR, 0.4 * fade).fillCircle(pd.x, pd.y, pd.radius);
+      g.lineStyle(2, PUDDLE_COLOR, 0.8 * fade).strokeCircle(pd.x, pd.y, pd.radius);
     }
     for (const b of bosses) {
       if (!b.active || isDark(b.x, b.y)) continue;

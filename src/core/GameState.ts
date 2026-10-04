@@ -312,6 +312,8 @@ export interface ZombieState {
   burn: BurnState;
   /** Tick of the last hit of a continuous weapon (beam, cone) that scored on it: they score once per CONTINUOUS.scoreInterval. */
   contactScoreTick: number;
+  /** Bit per boss slot whose current ring (spec 07 §4.3) has already hit it: once per ring. */
+  waveHits: number;
 }
 
 /** A zombie on fire: damage every tick interval until `timer` runs out. */
@@ -380,6 +382,8 @@ export interface BossState {
   aimY: number;
   /** Px still to run in a charge (while winding up: how far it will get, the corridor drawn). */
   runLeft: number;
+  /** Px of the run until the putrid one leaves its next puddle of the trail. */
+  trailLeft: number;
   /** Blows of the slam or leaps made so far in the attack under way. */
   count: number;
   /** A leap: where it took off and where it lands (world px, centre of its footprint). */
@@ -410,14 +414,14 @@ export interface BossState {
   contactScoreTick: number;
 }
 
-/** A puddle a putrid boss leaves where it lands (spec 07 §1): it hurts whoever stands in it for a while. */
+/** A puddle a putrid boss leaves where it lands or runs (spec 07 §1): it hurts whoever stands in it for a while. */
 export interface PuddleState {
   active: boolean;
   x: number;
   y: number;
-  /** Seconds left, and to its next damage tick. */
+  radius: number;
+  /** Seconds left. */
   timer: number;
-  tickTimer: number;
 }
 
 /** A burst of hellfire waiting to go off this tick (spec 06 §2.3): queued when a hellfire-burning zombie dies. */
@@ -514,8 +518,9 @@ export interface GameState extends RngState {
   zombies: ZombieState[];
   /** Spec 07: BOSS.maxAlive slots. */
   bosses: BossState[];
-  /** The putrid boss's puddles (pooled, BOSS.puddle.pool). */
+  /** The putrid boss's puddles (pooled, BOSS.puddle.pool), and the seconds to their next damage tick (shared: they never add up). */
   puddles: PuddleState[];
+  puddleTick: number;
   /** Simulated time (s) a boss last started winding up an attack: the next one waits BOSS.attackStagger. */
   bossAttackAt: number;
   /** Hellfire bursts queued this tick, set off by BurnSystem (pooled). */
@@ -676,6 +681,7 @@ function createZombie(): ZombieState {
     lostTimer: 0,
     burn: { timer: 0, tickTimer: 0, perTick: 0, owner: -1, hellfire: false },
     contactScoreTick: -1000,
+    waveHits: 0,
   };
 }
 
@@ -705,6 +711,7 @@ export function createBoss(): BossState {
     aimX: 0,
     aimY: 1,
     runLeft: 0,
+    trailLeft: 0,
     count: 0,
     fromX: 0,
     fromY: 0,
@@ -774,7 +781,8 @@ export function createGameState(map: MapData, options: GameOptions = {}): GameSt
     bullets: Array.from({ length: BULLETS.poolSize }, createBullet),
     zombies: Array.from({ length: ZOMBIES.poolSize }, createZombie),
     bosses: Array.from({ length: BOSS.maxAlive }, createBoss),
-    puddles: Array.from({ length: BOSS.puddle.pool }, () => ({ active: false, x: 0, y: 0, timer: 0, tickTimer: 0 })),
+    puddles: Array.from({ length: BOSS.puddle.pool }, () => ({ active: false, x: 0, y: 0, radius: 0, timer: 0 })),
+    puddleTick: BOSS.puddle.tickInterval,
     bossAttackAt: -1000,
     blasts: Array.from({ length: ZOMBIES.poolSize }, () => ({ active: false, x: 0, y: 0, owner: -1 })),
     blood: Array.from({ length: ZOMBIES.maxBloodDecals }, createBlood),

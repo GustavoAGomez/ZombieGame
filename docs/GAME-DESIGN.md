@@ -224,7 +224,7 @@ Zombis enormes que salen del suelo en rondas fijas. Hoy hay uno, **el Matarife**
   - Los magos y la mano funcionan igual.
 - **Cómo entra:** por un punto de salida (1 a 3 por sala, también en el sótano y la azotea), el más cercano andando entre los que están a 5 casillas o más; si no hay ninguno tan lejos, el más lejano.
   - **Aviso, 3 s:** se abre una grieta de 3×3 casillas con brasas, el suelo tiembla y vibra el móvil.
-  - **Salida, 1,2 s:** trepa sin poder recibir daño, aplasta el atrezo de la grieta y quien esté dentro recibe 20 y sale despedido.
+  - **Salida, 1,2 s:** trepa sin poder recibir daño y aplasta el atrezo de la grieta. Quien esté dentro recibe 20: el jugador sale despedido, y los zombis también lo sufren.
   - **Rugido, 1 s:** aparece su barra de vida.
   - Si cambias de nivel (sótano, azotea) o pasa 5 s sin poder llegar hasta ti, se hunde (1,2 s, sin recibir daño) y vuelve a salir cerca, con la misma vida.
 - **El Matarife:**
@@ -234,12 +234,13 @@ Zombis enormes que salen del suelo en rondas fijas. Hoy hay uno, **el Matarife**
   - **Contacto:** aparta a los zombis y te empuja sin hacerte daño; el dash lo atraviesa. Andando no hace daño: solo dañan sus ataques.
   - **Inmunidades:** no se le empuja, no pierde las piernas y no muere de un golpe. Le dañan todas las armas, la quemadura incluida; las balas perforantes lo atraviesan.
 - **Sus ataques:** todos se anuncian. Se queda quieto en una pose y en el suelo se dibuja en rojo la zona exacta del golpe, llenándose hasta que cae. El dash es invulnerable y sirve contra los tres.
+  - **Contra los zombis:** todos sus golpes dañan también a los zombis normales igual que al jugador: la grieta, la embestida (los mata), el mazazo (los empuja si sobreviven), el aterrizaje, la onda y los charcos. Nadie gana puntos por esas bajas. Los bosses no se hacen daño entre ellos.
 
 | Ataque | Aviso | Golpe | Después |
 |---|---|---|---|
 | **Embestida** | 1 s agachado, con un pasillo de 64 px hacia ti que llega hasta donde va a chocar; la dirección te sigue y se fija 0,3 s antes de salir | Corre hasta 256 px a 300 px/s: 45 de daño (una vez) y un empujón de 24 px; aplasta muebles y mata a los zombis de su camino, sin dar puntos | Contra una pared, aturdido 2 s recibiendo el doble de daño; si no, frena 0,6 s |
-| **Triple mazazo** | Arco de 160° hasta 84 px, dibujado antes de cada golpe (0,7 s el primero, 0,5 s los siguientes) | 30 por golpe y empujón de 16 px, tres golpes; entre golpes gira hacia ti (45° como mucho) y avanza 16 px | 1,2 s quieto |
-| **Tres saltos** | Círculo de 44 px donde estabas al despegar; 0,7 s en el aire, sin poder recibir daño | Aterrizaje: 45 a menos de 44 px de su centro. Onda: un anillo de 16 px que crece hasta 130 px a 170 px/s, 20 de daño una vez por salto; las paredes la paran y no daña a los zombis. Corriendo en línea recta no te alcanza; andando (disparando), sí | 0,5 s entre saltos y 1,5 s quieto tras el tercero; salta como mucho 360 px |
+| **Triple mazazo** | Arco de 160° hasta 84 px, dibujado antes de cada golpe (0,7 s el primero, 0,5 s los siguientes) | 30 por golpe y empujón de 16 px (también a los zombis), tres golpes; entre golpes gira hacia ti (45° como mucho) y avanza 16 px | 1,2 s quieto |
+| **Tres saltos** | Círculo de 44 px donde estabas al despegar; 0,7 s en el aire, sin poder recibir daño | Aterrizaje: 45 a menos de 44 px de su centro. Onda: un anillo de 16 px que crece hasta 130 px a 170 px/s, 20 de daño una vez por salto; las paredes la paran. Corriendo en línea recta no te alcanza; andando (disparando), sí | 0,5 s entre saltos y 1,5 s quieto tras el tercero; salta como mucho 360 px |
 
 - **Qué ataque elige:** entre ataques anda hacia ti de 1,5 a 2,5 s. Luego, según la distancia: a menos de 90 px, mazazo (70 %) o saltos (30 %); hasta 260 px con línea recta despejada, embestida (60 %) o saltos (40 %); más lejos, saltos (si estás a un salto) o sigue andando. Nunca repite el mismo ataque dos veces seguidas.
 - **Furia:** al bajar del 50 % de vida ruge 1 s con un destello rojo y queda enfurecido hasta morir: anda un 25 % más rápido y la mitad de tiempo entre ataques; las preparaciones no cambian. Su barra se pone ámbar.
@@ -249,7 +250,7 @@ Zombis enormes que salen del suelo en rondas fijas. Hoy hay uno, **el Matarife**
 |---|---|---|---|---|---|
 | Base | — | ×1 | ×1 | ×1 | — |
 | Rabioso | Rojizo | ×1,8 | ×1,25 | ×0,85 | Empieza enfurecido |
-| Pútrido | Verde enfermizo | ×2,5 | ×1,5 | ×0,85 | Empieza enfurecido; cada aterrizaje deja un charco de 44 px que hace 10 de daño por segundo durante 4 s |
+| Pútrido | Verde enfermizo | ×2,5 | ×1,5 | ×0,85 | Empieza enfurecido; cada aterrizaje deja un charco de 44 px y cada embestida un rastro de charcos de 24 px (uno cada 32 px de carrera). Los charcos duran 4 s y hacen 10 de daño por segundo a quien los pise, jugador o zombi; varios charcos solapados no suman |
 
 - **Dos bosses a la vez:** solo uno puede empezar a preparar un ataque cada 0,8 s, para que sus avisos no caigan juntos. Salen por puntos distintos y nunca se pisan. Sus barras se apilan.
 - **Barra de vida:** arriba en el centro, bajo la pausa, con su nombre («EL MATARIFE») y una marca en el 50 %. Se oculta mientras hay una tienda abierta.

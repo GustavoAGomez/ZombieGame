@@ -172,6 +172,7 @@ export function spawnZombie(ctx: SimContext, z: ZombieState, spawnIndex: number)
   z.burn.perTick = 0;
   z.burn.hellfire = false;
   z.contactScoreTick = -1000;
+  z.waveHits = 0;
   if (open) {
     z.ai = 'entering';
     z.entry = openSpawnIndex(ctx, spawnIndex);

@@ -18,6 +18,7 @@ import { computeLevels, type MapLevels } from '../map/levels';
 import type { MapData } from '../map/MapLoader';
 import { chooseAttack, startAttack, updateAttack, updatePuddles, updateWave, walkTime } from './BossAttacks';
 import { bossHalf, isBossAlive, isBossSolid } from './BossCombat';
+import { bodyHitPoint, damageZombie, isZombieAlive } from './Combat';
 import { damagePlayer, isPlayerAlive } from './HealthSystem';
 import type { SimContext } from './SimContext';
 import { pushable } from './ZombieSystem';
@@ -93,7 +94,7 @@ export function updateBosses(ctx: SimContext, dt: number): void {
         break;
     }
     // The ring of its last landing goes on growing whatever it does next.
-    updateWave(ctx, b, dt);
+    updateWave(ctx, b, i, dt);
   }
   updatePuddles(ctx, dt);
   separateBosses(ctx);
@@ -182,7 +183,7 @@ function mustSink(ctx: SimContext, b: BossState, slot: number, dt: number): bool
 /**
  * The crack has opened: it climbs out. Furniture in the crack is crushed,
  * and whoever stands in it takes BOSS.crackDamage (× its variant's damage)
- * and is thrown out of it.
+ * and is thrown out of it; zombies in it take it too, with no points.
  */
 function climbOut(ctx: SimContext, b: BossState): void {
   setPhase(ctx, b, 'emerging', BOSS.emergeTime);
@@ -200,6 +201,9 @@ function climbOut(ctx: SimContext, b: BossState): void {
     // Out by the nearest side of the crack.
     if (reach - Math.abs(dx) < reach - Math.abs(dy)) moveCircle(ctx.grid, p, (dx >= 0 ? reach : -reach) - dx + Math.sign(dx || 1), 0, PLAYER.hitboxRadius, BLOCK_PLAYER);
     else moveCircle(ctx.grid, p, 0, (dy >= 0 ? reach : -reach) - dy + Math.sign(dy || 1), PLAYER.hitboxRadius, BLOCK_PLAYER);
+  }
+  for (const z of ctx.state.zombies) {
+    if (isZombieAlive(z) && Math.abs(z.x - b.x) < half && Math.abs(z.y - b.y) < half) damageZombie(ctx, z, damage, -1, bodyHitPoint(z, 0, -1));
   }
 }
 

@@ -1,5 +1,5 @@
 import type Phaser from 'phaser';
-import { BOSS, BULLETS, MERCHANT, PLAYER, ZOMBIES } from '../config/balance';
+import { BULLETS, MERCHANT, PLAYER, ZOMBIES } from '../config/balance';
 import { BOSSES } from '../config/bosses';
 import type { GameState } from '../core/GameState';
 import type { MapData } from '../game/map/MapLoader';
@@ -114,7 +114,7 @@ export class DebugDraw {
         g.strokeCircle(b.waveX, b.waveY, Math.max(0, outer - def.leap.waveWidth));
       }
     }
-    for (const pd of state.puddles) if (pd.active) g.strokeCircle(pd.x, pd.y, BOSS.puddle.radius);
+    for (const pd of state.puddles) if (pd.active) g.strokeCircle(pd.x, pd.y, pd.radius);
   }
 
   /** The Demon's Hand's spots (spec 06 §5): a red cross each, the one it is at ringed. */

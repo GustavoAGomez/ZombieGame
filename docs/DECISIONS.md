@@ -1693,3 +1693,18 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 - **Documentación final:**
   - `GAME-DESIGN.md` tiene la sección *Bosses* con las reglas tal como están, el corazón vivo como recompensa del primer boss y los 500 por boss en la economía.
   - `ROADMAP.md` marca las rondas especiales como hechas con este sistema, cierra la pregunta del corazón y corrige el reparto de la mano (10 % especial, 80 % básica), que se había quedado viejo.
+
+## El rastro del pútrido y los golpes de los bosses contra los zombies (petición del usuario)
+
+- **Rastro de la embestida:** el Matarife pútrido deja un charco cada 32 px de carrera, de 24 px de radio (más pequeño que el del aterrizaje, para que se lea como un rastro del ancho de su cuerpo). Dura y daña como los demás.
+- **Los charcos ya no suman:** antes cada charco llevaba su propio reloj de daño. Con el rastro, que se solapa, un jugador dentro de varios habría recibido varias veces el daño.
+  - Ahora hay un único tic para todos (`GameState.puddleTick`, cada 0,5 s), y quien esté dentro de al menos uno recibe el daño una vez.
+  - Cada charco guarda su radio y el pool sube a 32.
+- **Los golpes de los bosses dañan a los zombies normales**, con el mismo daño que al jugador (× la variante). La spec decía lo contrario para la onda.
+  - **Grieta:** 20 a los zombies dentro de las 3×3 casillas al salir.
+  - **Embestida:** ya los mataba.
+  - **Mazazo:** en el arco y sin pared en medio, con el empujón de 16 px si sobreviven.
+  - **Aterrizaje y onda:** los que están a menos de 44 px del aterrizaje, y una vez por anillo (un bit por hueco de boss en el zombie, `waveHits`, que se limpia en cada aterrizaje).
+  - **Charcos:** 5 por tic a quien esté dentro.
+  - Esas bajas no dan puntos a nadie (atacante -1), pero sí pueden soltar botín y salpican sangre.
+- **Entre bosses no hay daño:** ningún golpe de un boss daña a otro boss (los golpes solo recorren jugadores y zombies).
