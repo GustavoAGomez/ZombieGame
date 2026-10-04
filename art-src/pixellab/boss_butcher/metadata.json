@@ -535,11 +535,63 @@
               "Idle/animations/charge_diag/south-east/frame_004.png",
               "Idle/animations/charge_diag/south-east/frame_005.png"
             ]
+          },
+          "stunned_dazed": {
+            "south": [
+              "Idle/animations/stunned_dazed/south/frame_000.png",
+              "Idle/animations/stunned_dazed/south/frame_001.png",
+              "Idle/animations/stunned_dazed/south/frame_002.png",
+              "Idle/animations/stunned_dazed/south/frame_003.png",
+              "Idle/animations/stunned_dazed/south/frame_004.png",
+              "Idle/animations/stunned_dazed/south/frame_005.png",
+              "Idle/animations/stunned_dazed/south/frame_006.png",
+              "Idle/animations/stunned_dazed/south/frame_007.png"
+            ],
+            "north": [
+              "Idle/animations/stunned_dazed/north/frame_000.png",
+              "Idle/animations/stunned_dazed/north/frame_001.png",
+              "Idle/animations/stunned_dazed/north/frame_002.png",
+              "Idle/animations/stunned_dazed/north/frame_003.png",
+              "Idle/animations/stunned_dazed/north/frame_004.png",
+              "Idle/animations/stunned_dazed/north/frame_005.png",
+              "Idle/animations/stunned_dazed/north/frame_006.png",
+              "Idle/animations/stunned_dazed/north/frame_007.png"
+            ],
+            "south-east": [
+              "Idle/animations/stunned_dazed/south-east/frame_000.png",
+              "Idle/animations/stunned_dazed/south-east/frame_001.png",
+              "Idle/animations/stunned_dazed/south-east/frame_002.png",
+              "Idle/animations/stunned_dazed/south-east/frame_003.png",
+              "Idle/animations/stunned_dazed/south-east/frame_004.png",
+              "Idle/animations/stunned_dazed/south-east/frame_005.png",
+              "Idle/animations/stunned_dazed/south-east/frame_006.png",
+              "Idle/animations/stunned_dazed/south-east/frame_007.png"
+            ],
+            "north-east": [
+              "Idle/animations/stunned_dazed/north-east/frame_000.png",
+              "Idle/animations/stunned_dazed/north-east/frame_001.png",
+              "Idle/animations/stunned_dazed/north-east/frame_002.png",
+              "Idle/animations/stunned_dazed/north-east/frame_003.png",
+              "Idle/animations/stunned_dazed/north-east/frame_004.png",
+              "Idle/animations/stunned_dazed/north-east/frame_005.png",
+              "Idle/animations/stunned_dazed/north-east/frame_006.png",
+              "Idle/animations/stunned_dazed/north-east/frame_007.png"
+            ],
+            "east": [
+              "Idle/animations/stunned_dazed/east/frame_000.png",
+              "Idle/animations/stunned_dazed/east/frame_001.png",
+              "Idle/animations/stunned_dazed/east/frame_002.png",
+              "Idle/animations/stunned_dazed/east/frame_003.png",
+              "Idle/animations/stunned_dazed/east/frame_004.png",
+              "Idle/animations/stunned_dazed/east/frame_005.png",
+              "Idle/animations/stunned_dazed/east/frame_006.png",
+              "Idle/animations/stunned_dazed/east/frame_007.png"
+            ]
           }
         }
       }
     }
   ],
   "export_version": "3.1",
-  "export_date": "2026-10-04T16:11:30.347555"
+  "export_date": "2026-10-04T16:34:39.095599"
 }

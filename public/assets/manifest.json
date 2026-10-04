@@ -331,10 +331,9 @@
         },
         "stunned": {
           "file": "sprites/boss_butcher/stunned.png",
-          "frames": 6,
+          "frames": 8,
           "fps": 6,
-          "loop": true,
-          "directions": 4
+          "loop": true
         },
         "slam": {
           "file": "sprites/boss_butcher/slam.png",

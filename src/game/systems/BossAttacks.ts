@@ -12,28 +12,28 @@ import { damagePlayer, isPlayerAlive } from './HealthSystem';
 import type { SimContext } from './SimContext';
 
 /**
- * A boss's attacks (spec 07 §4). Every attack is announced: the boss stands
- * still in a pose of its own and the exact zone that will take the blow is
- * drawn on the floor, filling up until the blow (the views read it from the
- * boss's state: entities/Boss.ts, bossZone). The dash goes through all of
- * them (damagePlayer). Windups are its variant's (never under 80 %).
+ * A boss's attacks (spec 07 §4). Every attack is announced by its windup:
+ * the boss stands still in a pose of its own until the blow. No zone is
+ * drawn on the floor any more (petición del usuario); a leap shows its
+ * shadow. The dash goes through all of them (damagePlayer). Windups are its
+ * variant's (never under 80 %).
  *
- * The charge (§4.1): it crouches with a corridor towards its target on the
- * floor (the way follows the target and locks a moment before it runs),
+ * The charge (§4.1): it crouches facing its target (the way follows the
+ * target and locks a moment before it runs),
  * then runs straight, crushing the furniture on its way and running over
  * the zombies (they die, without points). A player it catches takes its
  * damage once and is thrown along the run. Into a wall it is stunned, and
  * takes double damage; otherwise it brakes.
  *
- * The triple slam (§4.2): three blows over an arc in front of it, each drawn
- * on the floor before it falls; between blows it turns towards its target
+ * The triple slam (§4.2): three blows over an arc in front of it, each with
+ * the mallet raised first; between blows it turns towards its target
  * (45° at most) and steps forward. Then it stands still a while.
  *
  * The three leaps (§4.3): to where its target stands at takeoff (the nearest
- * place its footprint fits), marked with a circle, unhurt in the air. The
+ * place its footprint fits), unhurt in the air, its shadow under it. The
  * landing hurts around it and sends out a ring that grows and hurts once
  * per leap whoever it reaches with a clear line from the landing (walls
- * stop it). Running straight away from the circle as it appears, the ring
+ * stop it). Running straight away from where it will land as it takes off, the ring
  * never catches a player; walking (shooting) it does.
  *
  * Its blows hurt the zombies too, as they hurt players (the charge kills
@@ -100,19 +100,6 @@ export function clearRun(ctx: SimContext, b: BossState, slot: number, x: number,
     if (boxBlocked(nav, b.x + (dx * i) / steps, b.y + (dy * i) / steps, half)) return false;
   }
   return true;
-}
-
-/** How far (px, up to `distance`) its body gets along its aim before something stops it (furniture does not). */
-export function runReach(ctx: SimContext, b: BossState, slot: number, distance: number): number {
-  const nav = ctx.bossNavs[slot];
-  if (!nav) return distance;
-  const half = bossHalf(b, ctx.map.tileSize) - BOSS.bodySlack;
-  const steps = Math.max(1, Math.ceil(distance / BOSS.maxSubstep));
-  for (let i = 1; i <= steps; i++) {
-    const d = (distance * i) / steps;
-    if (boxBlocked(nav, b.x + b.aimX * d, b.y + b.aimY * d, half)) return (distance * (i - 1)) / steps;
-  }
-  return distance;
 }
 
 /** Starts `attack` towards `target`. */
@@ -194,8 +181,6 @@ function updateCharge(ctx: SimContext, b: BossState, slot: number, target: Playe
     case 'windup':
       // The way follows its target until it locks, a moment before it runs.
       if (target && b.timer > charge.lockBefore * windupFactor(b.variant)) aimAt(b, target);
-      // Meanwhile runLeft is how far it will get before something stops it: the corridor drawn on the floor.
-      b.runLeft = runReach(ctx, b, slot, charge.distance);
       if (b.timer <= 0) {
         setStage(ctx, b, 'run', 0);
         b.runLeft = charge.distance;

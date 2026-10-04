@@ -381,7 +381,7 @@ export interface BossState {
   /** Unit direction of the attack under way. */
   aimX: number;
   aimY: number;
-  /** Px still to run in a charge (while winding up: how far it will get, the corridor drawn). */
+  /** Px still to run in a charge. */
   runLeft: number;
   /** Px of the run until the putrid one leaves its next puddle of the trail. */
   trailLeft: number;

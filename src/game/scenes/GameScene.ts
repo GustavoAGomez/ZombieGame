@@ -31,7 +31,7 @@ import { PlayerView } from '../entities/Player';
 import { WorldTextPool } from '../entities/WorldText';
 import { CantUseText } from '../entities/CantUseText';
 import { ZombieViewPool } from '../entities/Zombie';
-import { BossArrows, BossPuddles, BossViewPool, BossZones } from '../entities/Boss';
+import { BossArrows, BossMarks, BossPuddles, BossViewPool } from '../entities/Boss';
 import { BurnFlames } from '../entities/BurnFlames';
 import { WeaponCaseViews } from '../entities/WeaponCase';
 import { findWeapon, giveWeapon, refillWeapon } from '../systems/InventorySystem';
@@ -85,7 +85,7 @@ export class GameScene extends Phaser.Scene {
   private playerStains!: PlayerBloodStains;
   private zombieViews!: ZombieViewPool;
   private bossViews!: BossViewPool;
-  private bossZones!: BossZones;
+  private bossMarks!: BossMarks;
   private bossPuddles!: BossPuddles;
   private bossArrows!: BossArrows;
   private bulletViews!: BulletViewPool;
@@ -181,7 +181,7 @@ export class GameScene extends Phaser.Scene {
     this.activationSites = new ActivationSiteViews(this, this.map);
     this.zombieViews = new ZombieViewPool(this, manifest, this.state.zombies.length);
     this.bossViews = new BossViewPool(this, this.state.bosses.length, this.map.tileSize, manifest);
-    this.bossZones = new BossZones(this, this.map.tileSize);
+    this.bossMarks = new BossMarks(this, this.map.tileSize);
     this.bossPuddles = new BossPuddles(this, this.state.puddles.length, manifest);
     this.bossArrows = new BossArrows(this, this.state.bosses.length);
     this.burnFlames = new BurnFlames(this, this.state.zombies.length, manifest);
@@ -342,7 +342,7 @@ export class GameScene extends Phaser.Scene {
     this.thrownItems.sync(this.state.time);
     this.zombieViews.sync(this.state.zombies, alpha, now, this.isDark);
     this.bossViews.sync(this.state.bosses, alpha, this.state.time, this.state.tick, this.isDark);
-    this.bossZones.sync(this.state.bosses, alpha, this.isDark);
+    this.bossMarks.sync(this.state.bosses, alpha, this.isDark);
     this.bossPuddles.sync(this.state.puddles, this.state.time, this.isDark);
     this.merchantViews.sync(this.state.merchants, this.state.players, this.state.tick, this.state.time);
     this.weaponCases.sync(this.state, player);

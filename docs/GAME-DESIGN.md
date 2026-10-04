@@ -223,7 +223,7 @@ Zombis enormes que salen del suelo en rondas fijas. Hoy hay uno, **el Matarife**
   - Una flecha roja en el borde de la pantalla señala al boss cuando no se ve (solo en el nivel en el que estás).
   - Los magos y la mano funcionan igual.
 - **Cómo entra:** cae del cielo sobre un punto de salida (1 a 3 por sala, también en el sótano y la azotea), el más cercano andando entre los que están a 5 casillas o más; si no hay ninguno tan lejos, el más lejano.
-  - **Aviso, 3 s:** en el suelo se llena un círculo rojo de 48 px de radio (las 3×3 casillas del punto) con su sombra creciendo en el centro, y vibra el móvil. Hay tiempo de salir.
+  - **Aviso, 3 s:** su sombra crece en el suelo donde va a caer (el impacto alcanza 48 px de radio, las 3×3 casillas del punto), y vibra el móvil. Hay tiempo de salir.
   - **Caída, 0,6 s:** cae desde fuera de la pantalla, sin poder recibir daño ni bloquear a nadie.
   - **Impacto:** aplasta el atrezo del círculo y quien siga dentro recibe 20 (× la variante); los zombis también. La pantalla se sacude. Si te cae encima, te aparta de su cuerpo.
   - **Rugido, 1 s:** aparece su barra de vida.
@@ -234,14 +234,14 @@ Zombis enormes que salen del suelo en rondas fijas. Hoy hay uno, **el Matarife**
   - **Choques:** las paredes, puertas cerradas, ventanas, agua, vitrinas, escaleras, magos y el agujero de la mano lo paran. Los muebles con colisión los aplasta para el resto de la partida: pierden la colisión para todos y queda una mancha de astillas.
   - **Contacto:** aparta a los zombis y te empuja sin hacerte daño, nunca a través de una pared (si te aplasta contra una, te saca por un lado); el dash lo atraviesa. Andando no hace daño: solo dañan sus ataques.
   - **Inmunidades:** no se le empuja, no pierde las piernas y no muere de un golpe. Le dañan todas las armas, la quemadura incluida; las balas perforantes lo atraviesan.
-- **Sus ataques:** todos se anuncian. Se queda quieto en una pose y en el suelo se dibuja en rojo la zona exacta del golpe, llenándose hasta que cae. El dash es invulnerable y sirve contra los tres.
+- **Sus ataques:** todos se anuncian con su preparación: se queda quieto en una pose (agachado escarbando, el mazo en alto, agachado para saltar) hasta que golpea. En el suelo no se dibuja ninguna zona; en los saltos se ve su sombra. El dash es invulnerable y sirve contra los tres.
   - **Contra los zombis:** todos sus golpes dañan también a los zombis normales igual que al jugador: la caída del cielo, la embestida (los mata), el mazazo (los empuja si sobreviven), el aterrizaje, la onda y los charcos. Nadie gana puntos por esas bajas. Los bosses no se hacen daño entre ellos.
 
 | Ataque | Aviso | Golpe | Después |
 |---|---|---|---|
-| **Embestida** | 1 s agachado, con un pasillo de 64 px hacia ti que llega hasta donde va a chocar; la dirección te sigue y se fija 0,3 s antes de salir | Corre hasta 256 px a 300 px/s: 45 de daño (una vez) y un empujón de 24 px; aplasta muebles y mata a los zombis de su camino, sin dar puntos | Contra una pared, aturdido 2 s recibiendo el doble de daño; si no, frena 0,6 s |
-| **Triple mazazo** | Arco de 160° hasta 84 px, dibujado antes de cada golpe (0,7 s el primero, 0,5 s los siguientes) | 30 por golpe y empujón de 16 px (también a los zombis), tres golpes; entre golpes gira hacia ti (45° como mucho) y avanza 16 px | 1,2 s quieto |
-| **Tres saltos** | Círculo de 44 px donde estabas al despegar; 0,7 s en el aire, sin poder recibir daño | Aterrizaje: 45 a menos de 44 px de su centro. Onda: un anillo de 16 px que crece hasta 130 px a 170 px/s, 20 de daño una vez por salto; las paredes la paran. Corriendo en línea recta no te alcanza; andando (disparando), sí | 0,5 s entre saltos y 1,5 s quieto tras el tercero; salta como mucho 360 px |
+| **Embestida** | 1 s agachado escarbando, mirando hacia ti; la dirección te sigue y se fija 0,3 s antes de salir. Corre por un pasillo de 64 px de ancho | Corre hasta 256 px a 300 px/s: 45 de daño (una vez) y un empujón de 24 px; aplasta muebles y mata a los zombis de su camino, sin dar puntos | Contra una pared, aturdido 2 s (se tambalea sin moverse con estrellas girando sobre su cabeza) recibiendo el doble de daño; si no, frena 0,6 s |
+| **Triple mazazo** | Levanta el mazo antes de cada golpe (0,7 s el primero, 0,5 s los siguientes); golpea un arco de 160° hasta 84 px | 30 por golpe y empujón de 16 px (también a los zombis), tres golpes; entre golpes gira hacia ti (45° como mucho) y avanza 16 px | 1,2 s quieto |
+| **Tres saltos** | Salta hacia donde estabas al despegar, con su sombra debajo; 0,7 s en el aire, sin poder recibir daño | Aterrizaje: 45 a menos de 44 px de su centro. Onda: un anillo de 16 px que crece hasta 130 px a 170 px/s, 20 de daño una vez por salto; las paredes la paran. Corriendo en línea recta no te alcanza; andando (disparando), sí | 0,5 s entre saltos y 1,5 s quieto tras el tercero; salta como mucho 360 px |
 
 - **Qué ataque elige:** entre ataques anda hacia ti de 1,5 a 2,5 s. Luego, según la distancia: a menos de 90 px, mazazo (70 %) o saltos (30 %); hasta 260 px con línea recta despejada, embestida (60 %) o saltos (40 %); más lejos, saltos (si estás a un salto) o sigue andando. Nunca repite el mismo ataque dos veces seguidas.
 - **Furia:** al bajar del 50 % de vida ruge 1 s con un destello rojo y queda enfurecido hasta morir: anda un 25 % más rápido y la mitad de tiempo entre ataques; las preparaciones no cambian. Su barra se pone ámbar.

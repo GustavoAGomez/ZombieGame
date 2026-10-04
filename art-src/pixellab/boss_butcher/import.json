@@ -2,6 +2,7 @@
   "sources": {
     "walk": ["walk_south", "walk_diag", "walk_v3"],
     "death": ["death_v3"],
+    "stunned": ["stunned_dazed"],
     "slam": ["slam_diag", "slam"],
     "leap": ["leap_diag", "leap_v2", "leap"],
     "charge": ["charge_diag", "charge_v2", "charge"]

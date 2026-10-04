@@ -4,7 +4,7 @@ import { BOSSES } from '../../config/bosses';
 import { WEAPONS } from '../../config/weapons';
 import { createMansionContext, createTestContext, holdFire, placeZombie, player, runTicks, tileCenter, unlockZones } from '../../test/fixtures';
 import { BLOCK_PROP, setDoorBlocking } from '../map/CollisionGrid';
-import { bossZone } from '../entities/Boss';
+import { bossShadow } from '../entities/Boss';
 import { bossBarShows, bossHalf, damageBoss, distanceToBoss, isBossSolid } from './BossCombat';
 import { chooseBossSpot, spawnBoss, startBossEntry } from './BossSystem';
 import { stepSimulation } from './Simulation';
@@ -190,7 +190,8 @@ describe('boss entry (spec 07 §3)', () => {
     expect(b.phase).toBe('warning');
     expect(bossBarShows(b)).toBe(false);
     expect(damageBoss(ctx, b, 10)).toBe(false);
-    expect(bossZone(b, TS)).toMatchObject({ kind: 'circle', x: b.x, y: b.y, radius: BOSS.dropRadius });
+    // No circle on the floor any more: its shadow grows where it will fall.
+    expect(bossShadow(b)).toBeGreaterThan(0);
     runTicks(ctx, Math.round(BOSS.warningTime * 60) + 1, stepSimulation);
     expect(b.phase).toBe('falling');
     expect(isBossSolid(b)).toBe(false);

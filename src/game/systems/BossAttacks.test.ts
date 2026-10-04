@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { PLAYER } from '../../config/balance';
 import { BOSSES } from '../../config/bosses';
 import { createTestContext, placeZombie, player, runTicks } from '../../test/fixtures';
-import { bossZone } from '../entities/Boss';
 import { chargeWindup, chooseAttack, inSlamArc, leapAirTime, slamWindup, startAttack } from './BossAttacks';
 import { damageBoss } from './BossCombat';
 import { bossSpeed, spawnBoss } from './BossSystem';
@@ -12,7 +11,6 @@ import type { SimContext } from './SimContext';
 /** Spec 07 §4.1: the charge. room01's first room runs from x 128 to 576 and y 128 to 416. */
 
 const CHARGE = BOSSES.butcher.charge;
-const TS = 32;
 
 function charging(ctx: SimContext, x: number, y: number) {
   const b = spawnBoss(ctx, 0, 'butcher', 'base', x, y);
@@ -21,27 +19,19 @@ function charging(ctx: SimContext, x: number, y: number) {
   return b;
 }
 
-/** The charge's corridor boss `b` is announcing (fails if it is announcing anything else). */
-function corridor(b: Parameters<typeof bossZone>[0]) {
-  const zone = bossZone(b, TS);
-  if (zone?.kind !== 'corridor') throw new Error(`no corridor: ${zone?.kind}`);
-  return zone;
-}
-
 /** Ticks until the windup is over (the run starts on the next one). */
 const windupTicks = (ctx: SimContext) => Math.ceil(chargeWindup(ctx.state.bosses[0]!) * 60) + 1;
 
 describe('the charge (spec 07 §4.1)', () => {
-  it('announces a corridor towards the player, which follows them until it locks a moment before the run', () => {
+  it('winds up facing the player, following them until it locks a moment before the run', () => {
     const ctx = createTestContext();
     const p = player(ctx);
     p.x = p.prevX = 400;
     p.y = p.prevY = 272;
     const b = charging(ctx, 200, 272);
     stepSimulation(ctx, 1 / 60);
-    const zone = corridor(b);
-    expect(zone.width).toBe(CHARGE.width);
-    expect(zone.dirX).toBeCloseTo(1);
+    expect(b.stage).toBe('windup');
+    expect(b.aimX).toBeCloseTo(1);
     // It follows the player while it can…
     p.y = p.prevY = 320;
     stepSimulation(ctx, 1 / 60);
@@ -97,10 +87,8 @@ describe('the charge (spec 07 §4.1)', () => {
     p.x = p.prevX = 560;
     p.y = p.prevY = 200;
     const b = charging(ctx, 420, 200);
-    const zone = bossZone(b, TS);
     runTicks(ctx, windupTicks(ctx) + 40, stepSimulation);
     expect(b.stage).toBe('stunned');
-    expect(zone).not.toBeNull();
     const hp = b.hp;
     damageBoss(ctx, b, 5);
     expect(b.hp).toBe(hp - 5 * CHARGE.stunDamageFactor);
@@ -121,19 +109,6 @@ describe('the charge (spec 07 §4.1)', () => {
     const before = c.hp;
     damageBoss(open, c, 5);
     expect(c.hp).toBe(before - 5);
-  });
-
-  it('draws its corridor only as far as it will get', () => {
-    const ctx = createTestContext();
-    const p = player(ctx);
-    p.x = p.prevX = 560;
-    p.y = p.prevY = 200;
-    const b = charging(ctx, 420, 200);
-    stepSimulation(ctx, 1 / 60);
-    const zone = corridor(b);
-    // The east wall (x 576) is 156 px from its centre: its front reaches it after 576 − 420 − 32 px.
-    expect(zone.length).toBeLessThan(CHARGE.distance);
-    expect(zone.x + zone.length).toBeLessThanOrEqual(576 + 1);
   });
 
   it('spares a dashing player', () => {
@@ -168,7 +143,7 @@ describe('the triple slam (spec 07 §4.2)', () => {
     p.x = p.prevX = 260;
     p.y = p.prevY = 272;
     const b = attacking(ctx, 'slam', 200, 272);
-    expect(bossZone(b, TS)?.kind).toBe('arc');
+    expect(b.stage).toBe('windup');
     runTicks(ctx, Math.ceil(slamWindup(b) * 60) + 1, stepSimulation);
     expect(p.hp).toBe(PLAYER.maxHp - SLAM.damage);
     expect(b.count).toBe(1);
@@ -223,7 +198,7 @@ describe('the three leaps (spec 07 §4.3)', () => {
     p.x = p.prevX = 430;
     p.y = p.prevY = 272;
     const b = attacking(ctx, 'leap', 520, 272);
-    expect(bossZone(b, TS)?.kind).toBe('circle');
+    expect(b.stage).toBe('air');
     const cmd = ctx.commands[0];
     if (!cmd) throw new Error('no command');
     cmd.moveX = -speed;

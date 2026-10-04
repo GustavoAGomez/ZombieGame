@@ -29,6 +29,15 @@ const LEAP_HEIGHT = 40;
 /** Its fury's roar flashes red this often (s). */
 const FURY_FLASH = 0.12;
 const FURY_TINT = Number.parseInt(COLORS.redLow.slice(1), 16);
+/**
+ * Stunned against a wall (petición del usuario), stars circle over its head:
+ * this many, on a flat ellipse of these radii (px) this high over its feet,
+ * going round this fast (rad/s).
+ */
+const STUN_STARS = 3;
+const STAR_ORBIT = { rx: 22, ry: 6, height: 120, speed: 4 } as const;
+const STAR_COLOR = Number.parseInt(COLORS.amber.slice(1), 16);
+const STAR_OUTLINE = Number.parseInt(COLORS.ink.slice(1), 16);
 
 /** Seconds a boss has been in its phase (render only). */
 function phaseElapsed(b: BossState, tick: number): number {
@@ -152,6 +161,7 @@ export function bossShadow(b: BossState): number {
  */
 export class BossViewPool {
   private readonly sprites: Phaser.GameObjects.Sprite[];
+  private readonly stars: Phaser.GameObjects.Graphics[];
   private readonly anims: Phaser.Animations.AnimationManager;
 
   constructor(
@@ -168,6 +178,7 @@ export class BossViewPool {
         .setOrigin(def?.anchor.x ?? 0.5, def?.anchor.y ?? 1)
         .setVisible(false),
     );
+    this.stars = Array.from({ length: count }, () => scene.add.graphics().setVisible(false));
   }
 
   private character(boss: BossState['boss']): CharacterDef | undefined {
@@ -178,8 +189,10 @@ export class BossViewPool {
   sync(bosses: readonly BossState[], alpha: number, time: number, tick: number, isDark: (x: number, y: number) => boolean): void {
     for (let i = 0; i < this.sprites.length; i++) {
       const sprite = this.sprites[i];
+      const stars = this.stars[i];
       const b = bosses[i];
-      if (!sprite) continue;
+      if (!sprite || !stars) continue;
+      if (stars.visible) stars.clear().setVisible(false);
       if (!b?.active) {
         if (sprite.visible) sprite.setVisible(false);
         continue;
@@ -212,6 +225,25 @@ export class BossViewPool {
         .setPosition(Math.round(x), Math.round(feet) - lift)
         .setAlpha(b.phase === 'dead' ? Math.min(1, b.timer / CORPSE_FADE) : 1)
         .setDepth(actorDepth(feet));
+      if (b.phase === 'attacking' && b.stage === 'stunned') this.drawStars(stars, Math.round(x), Math.round(feet) - STAR_ORBIT.height, time, actorDepth(feet));
+    }
+  }
+
+  /** Its stars going round over its head, centred at (x, y): the ones behind it smaller. */
+  private drawStars(g: Phaser.GameObjects.Graphics, x: number, y: number, time: number, depth: number): void {
+    g.setVisible(true).setDepth(depth + 0.0001);
+    for (let k = 0; k < STUN_STARS; k++) {
+      const a = time * STAR_ORBIT.speed + (k * Math.PI * 2) / STUN_STARS;
+      const sx = Math.round(x + Math.cos(a) * STAR_ORBIT.rx);
+      const sy = Math.round(y + Math.sin(a) * STAR_ORBIT.ry);
+      // A pixel plus with a dark outline: arms of 2 px in front, 1 px behind.
+      const arm = Math.sin(a) >= 0 ? 2 : 1;
+      g.fillStyle(STAR_OUTLINE, 1);
+      g.fillRect(sx - arm - 1, sy - 1, arm * 2 + 3, 3);
+      g.fillRect(sx - 1, sy - arm - 1, 3, arm * 2 + 3);
+      g.fillStyle(STAR_COLOR, 1);
+      g.fillRect(sx - arm, sy, arm * 2 + 1, 1);
+      g.fillRect(sx, sy - arm, 1, arm * 2 + 1);
     }
   }
 
@@ -230,65 +262,18 @@ export class BossViewPool {
   }
 }
 
-/**
- * A zone on the floor that a boss's blow is about to hit (spec 07 §4), with
- * how full it is (0..1, up to the blow): the charge's corridor (from the
- * front of its footprint, as wide as its body and as long as its run or up
- * to what will stop it), the slam's arc, and the circle a leap or its fall
- * from the sky lands on.
- */
-export type BossZone =
-  | { kind: 'corridor'; x: number; y: number; dirX: number; dirY: number; length: number; width: number; fill: number }
-  | { kind: 'arc'; x: number; y: number; angle: number; spread: number; radius: number; fill: number }
-  | { kind: 'circle'; x: number; y: number; radius: number; fill: number };
-
-/** The zone boss `b` is announcing now, or null. */
-export function bossZone(b: BossState, tileSize: number): BossZone | null {
-  const fill = (total: number): number => Math.min(1, Math.max(0, 1 - b.timer / total));
-  // Coming in: where it will fall, filling while it is up there, full as it falls.
-  if (b.phase === 'warning') return { kind: 'circle', x: b.x, y: b.y, radius: BOSS.dropRadius, fill: fill(BOSS.warningTime) };
-  if (b.phase === 'falling') return { kind: 'circle', x: b.x, y: b.y, radius: BOSS.dropRadius, fill: 1 };
-  if (b.phase !== 'attacking') return null;
-  const def = BOSSES[b.boss];
-  if (b.attack === 'charge' && b.stage === 'windup') {
-    const half = (def.footprintTiles * tileSize) / 2;
-    return {
-      kind: 'corridor',
-      x: b.x + b.aimX * half,
-      y: b.y + b.aimY * half,
-      dirX: b.aimX,
-      dirY: b.aimY,
-      // As far as it will get: a wall stops it short.
-      length: Math.min(def.charge.distance, b.runLeft),
-      width: def.charge.width,
-      fill: fill(chargeWindup(b)),
-    };
-  }
-  if (b.attack === 'slam' && b.stage === 'windup') {
-    return { kind: 'arc', x: b.x, y: b.y, angle: Math.atan2(b.aimY, b.aimX), spread: (def.slam.arc * Math.PI) / 180, radius: def.slam.reach, fill: fill(slamWindup(b)) };
-  }
-  if (b.attack === 'leap' && b.stage === 'air') {
-    return { kind: 'circle', x: b.targetX, y: b.targetY, radius: def.leap.landRadius, fill: fill(leapAirTime(b)) };
-  }
-  return null;
-}
-
-/** The warning zones drawn on the floor: red, see-through, filling up until the blow, with a firmer edge. */
-const ZONE_COLOR = Number.parseInt(COLORS.red.slice(1), 16);
-const ZONE_EDGE = Number.parseInt(COLORS.redLow.slice(1), 16);
 /** The ring of a landing: orange like the fire, the band that hurts. */
 const WAVE_COLOR = Number.parseInt(COLORS.fire.slice(1), 16);
 /** A boss's shadow on the floor under it while it is in the air (bossShadow). */
 const SHADOW_COLOR = Number.parseInt(COLORS.ink.slice(1), 16);
-/** Points of the arc's outline. */
-const ARC_STEPS = 16;
 
 /**
- * The bosses' marks on the floor (spec 07 §4): the warning zones, the
- * rings of their landings and the shadow of one in the air. One Graphics
- * for all, over the floor and its decals, under the characters. Render only.
+ * The bosses' marks on the floor (spec 07 §4): the rings of their landings
+ * and the shadow of one in the air or coming in. No warning zones: the user
+ * asked for them to go; its windups announce its blows. One Graphics for
+ * all, over the floor and its decals, under the characters. Render only.
  */
-export class BossZones {
+export class BossMarks {
   private readonly g: Phaser.GameObjects.Graphics;
 
   constructor(
@@ -303,10 +288,6 @@ export class BossZones {
     g.clear();
     for (const b of bosses) {
       if (!b.active || isDark(b.x, b.y)) continue;
-      const zone = bossZone(b, this.tileSize);
-      if (zone?.kind === 'corridor') this.drawCorridor(zone);
-      else if (zone?.kind === 'arc') this.drawArc(zone);
-      else if (zone?.kind === 'circle') this.drawCircle(zone);
       if (b.waveTime >= 0) this.drawWave(b);
       const shadow = bossShadow(b);
       if (shadow > 0) {
@@ -315,46 +296,6 @@ export class BossZones {
         g.fillStyle(SHADOW_COLOR, 0.35).fillEllipse(x, y, 60 * shadow, 18 * shadow);
       }
     }
-  }
-
-  private zoneStyle(fill: number): void {
-    this.g.fillStyle(ZONE_COLOR, 0.15 + 0.35 * fill).lineStyle(2, ZONE_EDGE, 0.5 + 0.4 * fill);
-  }
-
-  private drawCorridor(z: Extract<BossZone, { kind: 'corridor' }>): void {
-    const nx = -z.dirY * (z.width / 2);
-    const ny = z.dirX * (z.width / 2);
-    const ex = z.x + z.dirX * z.length;
-    const ey = z.y + z.dirY * z.length;
-    const g = this.g;
-    this.zoneStyle(z.fill);
-    g.beginPath();
-    g.moveTo(z.x + nx, z.y + ny);
-    g.lineTo(ex + nx, ey + ny);
-    g.lineTo(ex - nx, ey - ny);
-    g.lineTo(z.x - nx, z.y - ny);
-    g.closePath();
-    g.fillPath();
-    g.strokePath();
-  }
-
-  private drawArc(z: Extract<BossZone, { kind: 'arc' }>): void {
-    const g = this.g;
-    this.zoneStyle(z.fill);
-    g.beginPath();
-    g.moveTo(z.x, z.y);
-    for (let i = 0; i <= ARC_STEPS; i++) {
-      const a = z.angle - z.spread / 2 + (z.spread * i) / ARC_STEPS;
-      g.lineTo(z.x + Math.cos(a) * z.radius, z.y + Math.sin(a) * z.radius);
-    }
-    g.closePath();
-    g.fillPath();
-    g.strokePath();
-  }
-
-  private drawCircle(z: Extract<BossZone, { kind: 'circle' }>): void {
-    this.zoneStyle(z.fill);
-    this.g.fillCircle(z.x, z.y, z.radius).strokeCircle(z.x, z.y, z.radius);
   }
 
   /** The ring that hurts: its band, fading as it reaches its full size. */

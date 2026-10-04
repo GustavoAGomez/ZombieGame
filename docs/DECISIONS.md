@@ -1769,3 +1769,15 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - Ahora el empujón avanza con `moveCircle`, en pasos de medio radio, y se para en las paredes. Si una pared lo retiene dentro del cuerpo del boss, sale por el lado más cercano del otro eje. Encajonado en una esquina, se queda donde le dejan las paredes, solapado con el boss hasta que este se aparta.
   - Igual para los zombis que aparta al andar (los que están en el suelo). Los de las ventanas solo se apartan, como antes.
   - Comprobado por fuerza bruta junto a esa pared: 748.440 combinaciones de posición del boss y del jugador, orientación y movimiento, y ninguna lo cuela.
+
+## Sin avisos rojos en el suelo y el aturdido nuevo (petición del usuario)
+
+- **Fuera las zonas rojas:** los ataques del boss ya no dibujan en el suelo el pasillo de la embestida, el abanico del mazazo ni el círculo de los saltos. La caída del cielo tampoco dibuja su círculo. Lo pidió el usuario («los indicadores, no la colisión»): los golpes, sus áreas y sus tiempos no cambian.
+  - Se anuncian con la preparación de su animación (agachado escarbando, el mazo en alto, agachado para saltar) y, en los saltos y la caída, con la sombra que crece o le sigue.
+  - Sigue el anillo naranja de la onda de los saltos: no es un aviso, es el golpe que avanza.
+  - `bossZone` desaparece, y con él `runReach`, que solo servía para que el pasillo llegara hasta donde iba a chocar. `BossZones` pasa a llamarse `BossMarks` (anillos y sombras).
+  - El panel de depuración «MOSTRAR ZONAS DE DAÑO» sigue dibujando en magenta dónde daña de verdad cada golpe.
+- **Aturdido:**
+  - El de antes parecía andar hacia la pared. Se rehízo (`stunned_dazed`, 20 generaciones) con la acción fotograma a fotograma: los pies clavados y sin pasos, las rodillas flojas, los brazos colgando, el mazo apoyado en el suelo y el torso balanceándose a un lado y al otro con la cabeza ladeada.
+  - Ahora tiene 8 fotogramas en 5 direcciones (el oeste y sus diagonales en espejo), a 6 fps.
+  - Mientras está aturdido, tres estrellas ámbar con contorno oscuro giran sobre su cabeza (dibujadas por código, 120 px sobre sus pies). Las de detrás se ven más pequeñas.
