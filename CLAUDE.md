@@ -30,6 +30,7 @@ Juego móvil (iOS + Android) top-down shooter pixel art de supervivencia por ole
 | `npm run tiles:import` | Importa los tilesets, kits (autotile de paredes) y decals de PixelLab (spec 02, `docs/ASSETS.md` §7) |
 | `npm run map:build [mapa]` | Compila el plano ASCII `maps/src/<mapa>.txt` a `art-src/tiled/<mapa>.tmj` (sin pisar retoques hechos en Tiled salvo con `--force`), embebe los tilesets en `public/assets/maps/` y valida |
 | `npm run map:preview [mapa]` | Renderiza el mapa a PNG en `maps/preview/` (completo a 1:4, cada zona a 1:1 y el plano ASCII) |
+| `npm run windows:compose` | Monta las hojas de las barricadas (hueco de PixelLab + tablones de la madera del suelo) y su hoja de revisión en `maps/preview/windows/` |
 
 ## Reglas de arquitectura
 

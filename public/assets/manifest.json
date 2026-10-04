@@ -455,14 +455,14 @@
       "frameWidth": 32,
       "frameHeight": 32,
       "frames": 6,
-      "placeholder": true
+      "placeholder": false
     },
     "window_planks_v": {
       "file": "sprites/objects/window_planks_v.png",
       "frameWidth": 32,
       "frameHeight": 32,
       "frames": 6,
-      "placeholder": true
+      "placeholder": false
     },
     "door": {
       "file": "sprites/objects/door.png",
@@ -1163,6 +1163,20 @@
       "frameHeight": 28,
       "frames": 3,
       "placeholder": true
+    },
+    "fence_planks": {
+      "file": "sprites/objects/fence_planks.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 6,
+      "placeholder": false
+    },
+    "fence_planks_v": {
+      "file": "sprites/objects/fence_planks_v.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 6,
+      "placeholder": false
     }
   },
   "maps": {

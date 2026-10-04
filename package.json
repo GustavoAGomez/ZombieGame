@@ -22,7 +22,8 @@
     "tiles:review": "tsx scripts/review-tiles.ts",
     "map:build": "tsx scripts/build-map.ts",
     "map:preview": "tsx scripts/preview-map.ts",
-    "hud:import": "tsx scripts/import-hud.ts"
+    "hud:import": "tsx scripts/import-hud.ts",
+    "windows:compose": "tsx scripts/compose-windows.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",

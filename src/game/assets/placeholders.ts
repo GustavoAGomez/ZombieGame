@@ -198,8 +198,9 @@ export function createCharacterPlaceholder(
  * Frame N = window with N planks. Horizontal walls stack planks top to
  * bottom; vertical walls (the `_v` variant) stack them left to right.
  */
-function drawWindowPlanks(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number, vertical: boolean): void {
-  rect(ctx, PLACEHOLDER_COLORS.windowGap, ox, oy, w, h);
+function drawWindowPlanks(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number, vertical: boolean, hole: boolean): void {
+  // A window's gap is dark; a fence's gap is the ground (nothing drawn but the planks).
+  if (hole) rect(ctx, PLACEHOLDER_COLORS.windowGap, ox, oy, w, h);
   const across = vertical ? w : h;
   const along = vertical ? h : w;
   const thickness = Math.max(2, Math.floor(across / 8));
@@ -683,7 +684,11 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
     switch (object) {
       case ASSET_KEYS.windowPlanks:
       case ASSET_KEYS.windowPlanksV:
-        drawWindowPlanks(ctx, col, ox, oy, w, h, object === ASSET_KEYS.windowPlanksV);
+        drawWindowPlanks(ctx, col, ox, oy, w, h, object === ASSET_KEYS.windowPlanksV, true);
+        break;
+      case ASSET_KEYS.fencePlanks:
+      case ASSET_KEYS.fencePlanksV:
+        drawWindowPlanks(ctx, col, ox, oy, w, h, object === ASSET_KEYS.fencePlanksV, false);
         break;
       case ASSET_KEYS.door:
       case ASSET_KEYS.doorV:

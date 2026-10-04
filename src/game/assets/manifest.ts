@@ -155,6 +155,9 @@ export const ASSET_KEYS = {
   tilesetInterior: 'interior',
   windowPlanks: 'window_planks',
   windowPlanksV: 'window_planks_v',
+  /** A fence's gap barricaded: the planks alone (npm run windows:compose). */
+  fencePlanks: 'fence_planks',
+  fencePlanksV: 'fence_planks_v',
   door: 'door',
   doorV: 'door_v',
   portal: 'portal',

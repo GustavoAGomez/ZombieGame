@@ -763,18 +763,24 @@ export function compileAsciiMap(map: AsciiMap, tilesets: Readonly<Record<Tileset
     return undefined;
   };
   const topKitOf = (x: number, y: number): Kit => (at(x, y) === 'F' ? 'kit_fence' : (zoneKit(x, y) ?? 'kit_interior'));
+  // A window in a facade is part of it: it shows the facade's face (siding outside, plaster to a room).
+  const facade = (x: number, y: number): boolean =>
+    at(x, y) === 'H' || (at(x, y) === 'W' && [at(x - 1, y), at(x + 1, y), at(x, y - 1), at(x, y + 1)].includes('H'));
   const faceKitOf = (x: number, y: number): Kit => {
     const top = topKitOf(x, y);
-    if (top !== 'kit_interior' || at(x, y) !== 'H') return top;
+    if (top !== 'kit_interior' || !facade(x, y)) return top;
     return g(x, y + 1) in FLOOR_ROW ? 'kit_interior' : 'kit_exterior';
   };
   const wallFaces = new Array<number>(W * H).fill(0);
   const kits: (Kit | undefined)[] = new Array<Kit | undefined>(W * H);
   const masks = new Int8Array(W * H).fill(-1);
   const solid = solidCells(W, H, isWall);
+  // A window is a hole in its wall: its cell gets the wall's tile (top edge and face, in the kit of the side
+  // it looks onto) and the window is drawn over it (window_planks). A fence gap stays open ground.
+  const windowWall = (x: number, y: number): boolean => at(x, y) === 'W' && windowKind.get(`${x},${y}`) !== 'fence';
   for (let y = 0; y < H; y++) {
     for (let x = 0; x < W; x++) {
-      if (!isWall(x, y)) continue;
+      if (!isWall(x, y) && !windowWall(x, y)) continue;
       const mask = wallMask(wallish, x, y);
       masks[y * W + x] = mask;
       const tile = solid[y * W + x]

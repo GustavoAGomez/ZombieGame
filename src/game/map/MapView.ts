@@ -102,8 +102,10 @@ export class MapView {
 
     for (const w of map.windows) {
       // Each wall orientation has its own art (lit from the top-left): never rotate.
-      const key = w.axis === 'vertical' ? ASSET_KEYS.windowPlanksV : ASSET_KEYS.windowPlanks;
-      const sprite = scene.add.sprite(w.center.x, w.center.y, objectTextureKey(key), w.planks).setDepth(DEPTH.mapObjects);
+      const fence = w.kind === 'fence';
+      const key = w.axis === 'vertical' ? (fence ? ASSET_KEYS.fencePlanksV : ASSET_KEYS.windowPlanksV) : fence ? ASSET_KEYS.fencePlanks : ASSET_KEYS.windowPlanks;
+      // Over its own wall tile (a window is a hole in it), which is y-sorted with the characters.
+      const sprite = scene.add.sprite(w.center.x, w.center.y, objectTextureKey(key), w.planks).setDepth(actorDepth((w.tileY + 1) * ts) + 0.0001);
       this.onCell(sprite, w.tileX, w.tileY);
       this.windowSprites.push(sprite);
       this.shownPlanks.push(w.planks);

@@ -1831,3 +1831,15 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - **Cuchillo:** se descartó el último fotograma generado, que traía una línea discontinua suelta.
   - **Katana:** de su animación solo valen los 4 primeros fotogramas; los demás oscurecían la media luna sin adelgazarla, de ahí el desvanecido por código. Se importa en espejo (`"mirror": true` en su `import.json`): PixelLab la dibujó abultando hacia el lado contrario al pedido.
 - **Coste:** 48 generaciones (25 y 20 de las imágenes, 2 y 1 de las animaciones).
+
+## Las ventanas: un hueco en su pared y tablones de verdad (petición del usuario)
+
+- **Antes:** la celda de una ventana no llevaba pared (las `W` no eran pared para el autotile), y el dibujo provisional rellenaba toda la celda de negro con rayas marrones encima. Sin tablones se veía un cuadrado negro.
+- **La ventana es un hueco en su pared:** al compilar el mapa, cada ventana que no es de valla recibe el tramo de pared de su muro, con la máscara de sus vecinos y la cara del lado que mira (`faceKitOf` trata una `W` de fachada como la fachada). La colisión no cambia: la celda sigue siendo `BLOCK_WINDOW` entera, con la forma de pared anulada. La niebla la trata como pared, igual que el muro de alrededor.
+- **Capa:** el sprite de la ventana va justo encima de su tramo de pared (`actorDepth` de la fila + 0,0001), porque las paredes se ordenan con los personajes. Un zombi que entra desde fuera queda delante mientras arranca tablones y pasa por detrás del muro al cruzar. Uno que llega por detrás asoma por encima del muro.
+- **Materiales:** el usuario pidió usar lo que ya hubiera. Los kits de pared no traían ninguna ventana, así que el hueco salió de PixelLab (2 llamadas a *Create Image (Pro)*, 40 generaciones, 64 candidatos cada una; el usuario eligió el frontal 3 y el vertical 2). Los tablones salen de la madera del suelo interior, sin coste.
+  - El hueco frontal medía 21×28 y la cara de la pared tiene 18 filas: se quitan filas del centro del cristal, que se parecen entre sí, en vez de reescalar.
+  - PixelLab dibujó también de frente el hueco «visto desde arriba». Se usa girado un cuarto y recortado a la franja de 12 px del muro vertical (girar está permitido en piezas sin cara frontal).
+- **Tablones:** 5 posiciones fijas por tipo, que se clavan en el orden 2, 0, 4, 1, 3 (el del centro primero). Cada uno tiene 4 px de alto, contorno oscuro, dos clavos y medio píxel de inclinación en algunos. Los arranca el último que se clavó.
+- **Vallas:** los 3 huecos de valla del jardín tienen hojas propias (`fence_planks`, `fence_planks_v`): solo tablones de poste a poste y el fotograma 0 vacío.
+- **`npm run windows:compose`** monta las cuatro hojas, las marca en el manifiesto y deja la hoja de revisión en `maps/preview/windows/barricadas.png`.
