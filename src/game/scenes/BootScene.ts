@@ -3,6 +3,7 @@ import { FONTS } from '../../config/theme';
 import { AssetLibrary } from '../assets/AssetLibrary';
 import { ASSETS_BASE_URL, MANIFEST_URL, parseManifest } from '../assets/manifest';
 import { registerItemSprites } from '../../ui/itemSprites';
+import { registerSheetIcons } from '../../ui/sheetIcons';
 import { applyUiSkin } from '../../ui/skin';
 import type { Services } from '../services';
 
@@ -42,6 +43,8 @@ export class BootScene extends Phaser.Scene {
     void applyUiSkin(manifest.ui, ASSETS_BASE_URL);
     // The special items' animated sprites in the HUD slots, from the same sheets as the map.
     registerItemSprites(manifest.objects, ASSETS_BASE_URL);
+    // The weapons and the round buttons' symbols, cut from their sheets.
+    registerSheetIcons(manifest.objects, ASSETS_BASE_URL);
     const assets = new AssetLibrary(manifest);
     assets.queue(this);
     this.load.once(Phaser.Loader.Events.COMPLETE, () => {

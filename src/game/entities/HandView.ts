@@ -30,8 +30,8 @@ const ROLL_STEPS = 14;
 const FLOAT_HEIGHT = 28;
 const ROLL_HEIGHT = 44;
 const BOB = 2;
-/** The outlines are the HUD's 1× icons: drawn bigger over the hand so they read on the map. */
-const WEAPON_SCALE = 1.5;
+/** The weapons' PixelLab icons (32×16), at 1× like everything on the map. */
+const WEAPON_SCALE = 1;
 const BLINK_PERIOD = 0.15;
 /** A special weapon's flash as the hand opens: a ring this wide (px) that fades in this long (s). */
 const FLASH_RADIUS = 26;

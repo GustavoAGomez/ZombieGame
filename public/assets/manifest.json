@@ -581,12 +581,40 @@
       "frames": 5,
       "placeholder": false
     },
+    "icon_reload": {
+      "file": "sprites/objects/icon_reload.png",
+      "frameWidth": 36,
+      "frameHeight": 36,
+      "frames": 1,
+      "placeholder": false
+    },
+    "icon_repair": {
+      "file": "sprites/objects/icon_repair.png",
+      "frameWidth": 36,
+      "frameHeight": 36,
+      "frames": 1,
+      "placeholder": false
+    },
+    "icon_knife": {
+      "file": "sprites/objects/icon_knife.png",
+      "frameWidth": 36,
+      "frameHeight": 36,
+      "frames": 1,
+      "placeholder": false
+    },
+    "icon_dash": {
+      "file": "sprites/objects/icon_dash.png",
+      "frameWidth": 36,
+      "frameHeight": 36,
+      "frames": 1,
+      "placeholder": false
+    },
     "weapon_icon": {
       "file": "sprites/objects/weapon_icon.png",
-      "frameWidth": 18,
-      "frameHeight": 10,
+      "frameWidth": 32,
+      "frameHeight": 16,
       "frames": 6,
-      "placeholder": true
+      "placeholder": false
     },
     "prop_escalera_derrumbada": {
       "file": "sprites/props/prop_escalera_derrumbada.png",

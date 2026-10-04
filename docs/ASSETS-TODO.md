@@ -24,7 +24,6 @@ Objetos y tiles que el juego ya usa con un placeholder. Cada entrada lleva el pr
 | `blood_stain` | Manchas de sangre sobre el cuerpo del jugador hasta que vuelve a tener la vida al máximo (3 formas de 6×6, una con chorreón) | Manchas pequeñas en rojo vivo | "small fresh blood stain on clothes, bright red, 6x6, 3 variants, one dripping" |
 | `melee_slash` | Tajo provisional delante del jugador mientras no exista la animación `melee` | Arco claro generado, 4 fotogramas de 32×32 dibujados hacia la derecha (la vista lo gira) | Opcional si la animación del personaje ya lleva el tajo: "knife slash swoosh arc, white, 4 frames, 32x32, facing right" |
 | salpicadura de objeto | Un objeto que cae al agua de la piscina (spec 05 §6): unos 0,35 s | Aro claro que se abre y cuatro gotas, dibujados por código (`ThrownItem.ts`) | "small water splash ring with droplets, 4-5 frames, 24x24, top-down pixel art" |
-| `weapon_icon` | Siluetas de armas sobre la mano (spec 06 §3.4): 18×10, un fotograma por arma en el orden de `WEAPON_IDS` (pistola, SMG, escopeta, katana, láser, lanzallamas). Se dibujan a ×1,5 | Los iconos provisionales del HUD | Iconos de las seis armas de perfil hacia la derecha, 18×10, con contorno |
 | arte de las armas especiales | Katana (barrido), láser (rayo con destello final) y lanzallamas (llamas en abanico y anillo de las explosiones del fuego infernal), spec 06 §2 | El tajo del cuchillo escalado, una línea roja con núcleo blanco y las llamas de la quemadura, dibujados por código | "katana slash arc swoosh, wide, white-red, 4 frames"; el láser y el chorro pueden seguir siendo de código |
 | burbujas de la piscina | El agua de la piscina con un objeto dentro (burbujas lentas) y al invocar al mago rojo (hierve en rojo 1,5 s) | Círculos claros que crecen y revientan sobre un tinte rojo, dibujados por código (`ActivationSite.ts`) | "bubbles rising and popping in reddish water, 4 frames, 8x8 each, top-down pixel art" |
 
@@ -34,9 +33,8 @@ Iconos en píxeles provisionales en `src/ui/icons.ts` (rectángulos sobre una re
 
 | Icono | Uso |
 |---|---|
-| `pistol`, `rifle` | Huecos de arma de la barra inferior (pistola, fusil automático) |
-| `hammer`, `door`, `stairs` | Botón de acción de la derecha: reparar, comprar puerta, abrir escalera o trampilla |
-| `reload`, `knife`, `bolt` | Recargar, cuchillo y especial |
+| `door`, `stairs` | Botón de acción: comprar puerta, abrir escalera o trampilla (el martillo de reparar ya tiene arte: `icon_repair`) |
+| `bolt` | La mejora de velocidad (botón de la mejora y fila de la tienda). Recargar, cuchillo y dash ya tienen arte (`icon_reload`, `icon_knife`, `icon_dash`) |
 | `wizard` | Botón de acción junto a un mago (sombrero de su color) |
 | `mark_ammo`, `mark_rate`, `mark_damage` | Marcas de mejora del arma junto a su nombre (7×7): munición, cadencia y daño, cada una con una casilla por nivel |
 | `star` | Estrellas del arma que una vitrina va a sustituir (una por nivel comprado) y fila de la mejora especial del mago dorado |

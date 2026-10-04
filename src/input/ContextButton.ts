@@ -1,9 +1,11 @@
 import type { ItemId } from '../config/items';
 import { merchantDef, type MerchantId } from '../config/merchants';
-import type { WeaponId } from '../config/weapons';
+import { WEAPON_IDS, type WeaponId } from '../config/weapons';
 import type { EventBus, GameEvents } from '../core/EventBus';
+import { ASSET_KEYS } from '../game/assets/manifest';
 import { WEAPON_ICONS, iconSize, pixelIcon } from '../ui/icons';
 import { itemSprite } from '../ui/itemSprites';
+import { sheetIcon } from '../ui/sheetIcons';
 import { STRINGS } from '../ui/strings';
 import { PointerControl } from './PointerControl';
 
@@ -18,11 +20,11 @@ import { PointerControl } from './PointerControl';
  * logic.
  */
 export class ContextButton extends PointerControl {
-  private readonly icons: Record<'repair' | 'door' | 'portal' | 'hand', SVGSVGElement>;
+  private readonly icons: Record<'repair' | 'door' | 'portal' | 'hand', HTMLElement | SVGSVGElement>;
   /** The merchant's hat, one per colour. */
   private readonly hats = new Map<MerchantId, SVGSVGElement>();
   /** A weapon case's weapon, one icon per weapon. */
-  private readonly weaponIcons = new Map<WeaponId, SVGSVGElement>();
+  private readonly weaponIcons = new Map<WeaponId, HTMLElement | SVGSVGElement>();
   /** A special item on the floor, one icon per item. */
   private readonly itemIcons = new Map<ItemId, HTMLElement | SVGSVGElement>();
   private readonly face: HTMLSpanElement;
@@ -40,9 +42,9 @@ export class ContextButton extends PointerControl {
     const face = document.createElement('span');
     face.className = 'context-button__face';
     this.face = face;
-    // Whole pixels: every 12-unit icon at 2×.
+    // Whole pixels: every 12-unit icon at 2×; the hammer is PixelLab's symbol at 1× once it has art.
     this.icons = {
-      repair: pixelIcon('hammer', iconSize('hammer', 2)),
+      repair: sheetIcon(ASSET_KEYS.iconRepair) ?? pixelIcon('hammer', iconSize('hammer', 2)),
       door: pixelIcon('door', iconSize('door', 2)),
       portal: pixelIcon('stairs', iconSize('stairs', 2)),
       hand: pixelIcon('hand', iconSize('hand', 2)),
@@ -172,10 +174,11 @@ export class ContextButton extends PointerControl {
     }
   };
 
-  private weaponIconFor(id: WeaponId): SVGSVGElement {
+  private weaponIconFor(id: WeaponId): HTMLElement | SVGSVGElement {
     let icon = this.weaponIcons.get(id);
     if (!icon) {
-      icon = pixelIcon(WEAPON_ICONS[id], iconSize(WEAPON_ICONS[id], 2));
+      // The weapon's PixelLab outline at 1×; without art, its glyph at 2×.
+      icon = sheetIcon(ASSET_KEYS.weaponIcon, WEAPON_IDS.indexOf(id)) ?? pixelIcon(WEAPON_ICONS[id], iconSize(WEAPON_ICONS[id], 2));
       this.weaponIcons.set(id, icon);
       this.face.appendChild(icon);
     }

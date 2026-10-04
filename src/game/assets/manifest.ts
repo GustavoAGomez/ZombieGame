@@ -181,8 +181,17 @@ export const ASSET_KEYS = {
   handCrackOpen: 'hand_crack_open',
   demonHand: 'demon_hand',
   handEmber: 'hand_ember',
-  /** A weapon's outline over the hand (18×10): one frame per weapon in WEAPON_IDS order. */
+  /**
+   * Each weapon seen from the side, pointing right: one frame per weapon in
+   * WEAPON_IDS order. Over the Demon's Hand and in the HUD's weapon slots and
+   * action button (ui/sheetIcons.ts).
+   */
   weaponIcon: 'weapon_icon',
+  /** The round buttons' symbols in the HUD (ui/sheetIcons.ts): reload, repair, knife and dash. */
+  iconReload: 'icon_reload',
+  iconRepair: 'icon_repair',
+  iconKnife: 'icon_knife',
+  iconDash: 'icon_dash',
   mapRoom01: 'room01',
   mapMansion: 'mansion',
 } as const;

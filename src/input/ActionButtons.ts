@@ -1,4 +1,6 @@
 import type { EventBus } from '../core/EventBus';
+import { ASSET_KEYS } from '../game/assets/manifest';
+import { sheetIcon } from '../ui/sheetIcons';
 import { STRINGS } from '../ui/strings';
 import { TapButton } from './TapButton';
 
@@ -40,6 +42,16 @@ export class ActionButtons {
     this.reloadButton = new TapButton(parent, 'action-button--reload', 'reload', '', STRINGS.controls.reload, ICON_SIZE);
     this.meleeButton = new TapButton(parent, 'action-button--melee', 'knife', '', STRINGS.controls.melee, ICON_SIZE);
     this.specialButton = new TapButton(parent, 'action-button--special', 'bolt', '', STRINGS.controls.special, ICON_SIZE);
+    // Their PixelLab symbols (the dash's boot replaces the bolt); without art, the SVG glyphs above.
+    const symbols: [TapButton, string][] = [
+      [this.reloadButton, ASSET_KEYS.iconReload],
+      [this.meleeButton, ASSET_KEYS.iconKnife],
+      [this.specialButton, ASSET_KEYS.iconDash],
+    ];
+    for (const [button, key] of symbols) {
+      const icon = sheetIcon(key);
+      if (icon) button.setIconElement(icon);
+    }
 
     this.veil = addVeil(this.specialButton.el);
     this.reloadVeil = addVeil(this.reloadButton.el);

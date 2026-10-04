@@ -1,7 +1,9 @@
 import { LOADOUT } from '../config/balance';
-import { type WeaponId } from '../config/weapons';
+import { WEAPON_IDS, type WeaponId } from '../config/weapons';
 import type { EventBus, GameEvents } from '../core/EventBus';
+import { ASSET_KEYS } from '../game/assets/manifest';
 import { WEAPON_ICONS, iconSize } from '../ui/icons';
+import { sheetIcon } from '../ui/sheetIcons';
 import { STRINGS } from '../ui/strings';
 import { TapButton } from './TapButton';
 
@@ -56,7 +58,10 @@ export class WeaponBar {
       if (!slot) return;
       if (this.shown[i] !== slot.weapon) {
         this.shown[i] = slot.weapon;
-        button.setIcon(WEAPON_ICONS[slot.weapon], iconSize(WEAPON_ICONS[slot.weapon], 1));
+        // The weapon's PixelLab outline at 1×; without art, its SVG glyph.
+        const icon = sheetIcon(ASSET_KEYS.weaponIcon, WEAPON_IDS.indexOf(slot.weapon));
+        if (icon) button.setIconElement(icon);
+        else button.setIcon(WEAPON_ICONS[slot.weapon], iconSize(WEAPON_ICONS[slot.weapon], 1));
         button.el.setAttribute('aria-label', `${STRINGS.controls.weaponSlot(i + 1)}: ${STRINGS.weapons[slot.weapon]}`);
       }
       // A weapon without rounds shows no count, but one that wears out (the katana) shows its uses left; broken, it is empty.

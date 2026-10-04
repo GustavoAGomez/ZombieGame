@@ -1,0 +1,11 @@
+/* An icon cut from a manifest sheet (sheetIcons.ts): one frame, at 1×. */
+.sheet-icon {
+  display: block;
+  width: var(--icon-w);
+  height: var(--icon-h);
+  background-image: var(--icon-sheet);
+  background-repeat: no-repeat;
+  background-size: var(--icon-sheet-w) var(--icon-h);
+  background-position: var(--icon-x) 0;
+  image-rendering: pixelated;
+}

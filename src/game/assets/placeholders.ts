@@ -3,7 +3,7 @@ import { ZOMBIES } from '../../config/balance';
 import { ITEM_IDS, type ItemId } from '../../config/items';
 import { MERCHANTS } from '../../config/merchants';
 import { WEAPON_IDS } from '../../config/weapons';
-import { WEAPON_ICONS, iconDef } from '../../ui/icons';
+import { WEAPON_ICONS, iconDef, type IconName } from '../../ui/icons';
 import { COLORS } from '../../config/theme';
 import { propColor, shade } from './propColors';
 import { TILE_COLLIDES, TILE_VOID, TILE_WATER, type MapTileset } from '../map/MapLoader';
@@ -543,6 +543,22 @@ function drawSmokePuff(ctx: Ctx, frame: number, frames: number, ox: number, oy: 
   }
 }
 
+/** The round buttons' symbols without art: their SVG glyph of ui/icons.ts (the dash's bolt). */
+const ICON_GLYPHS: Readonly<Record<string, IconName>> = {
+  [ASSET_KEYS.iconReload]: 'reload',
+  [ASSET_KEYS.iconRepair]: 'hammer',
+  [ASSET_KEYS.iconKnife]: 'knife',
+  [ASSET_KEYS.iconDash]: 'bolt',
+};
+
+/** A HUD glyph (ui/icons.ts) at 1×, centred in the frame. */
+function drawGlyph(ctx: Ctx, name: IconName, ox: number, oy: number, w: number, h: number): void {
+  const def = iconDef(name);
+  const dx = ox + Math.floor((w - def.w) / 2);
+  const dy = oy + Math.floor((h - def.h) / 2);
+  for (const [x, y, rw, rh, color] of def.rects) rect(ctx, cssColor(color ?? def.fill), dx + x, dy + y, rw, rh);
+}
+
 /**
  * A special item (spec 05 §3): its HUD icon (ui/icons.ts) at 1×, centred in
  * every frame of the item's own sheet (`item_<id>`).
@@ -734,6 +750,11 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
         const merchant = MERCHANTS.find((m) => object === `merchant_${m.id}`);
         if (merchant) {
           drawMerchant(ctx, merchant.color, ox, oy, w, h);
+          break;
+        }
+        const glyph = ICON_GLYPHS[object];
+        if (glyph) {
+          drawGlyph(ctx, glyph, ox, oy, w, h);
           break;
         }
         const item = ITEM_IDS.find((id) => object === itemSpriteKey(id));

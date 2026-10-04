@@ -1506,3 +1506,34 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 
 - A petición del usuario, el sorteo de la Mano del Demonio pasa a 10 % nada, **10 % arma especial** (antes 20 %) y **80 % arma básica** (antes 70 %), en `HAND.chances`.
 - Las demás reglas del sorteo no cambian: nunca un arma que ya llevas, no repite la última y un grupo vacío pasa su parte al otro.
+
+## Arte de PixelLab para las armas y los botones del HUD
+
+- **Armas** (`weapon_icon`, 32×16, en el orden de `WEAPON_IDS`): cada una de perfil apuntando a la derecha, con *Create Image (Pro)* y los sprites del jugador y del zombi como referencia de contorno, sombreado y detalle (1 de 64 candidatos por arma).
+  - **Las elegidas:**
+    - pistola de corredera clara y cachas de madera;
+    - SMG con culata plegable;
+    - escopeta de dos cañones con culata de madera;
+    - katana de empuñadura forrada;
+    - láser con la célula roja;
+    - lanzallamas de cuerpo de latón con depósito rojo y llama piloto.
+  - **Dónde se ven:**
+    - encima de la mano, a 1× (antes los iconos del HUD a 1,5×), tanto las siluetas del sorteo como el arma ofrecida;
+    - en los huecos de armas;
+    - en el botón de acción (vitrinas y «COGER …»).
+  - La tienda sigue con los glifos teñidos del color del mago, como el resto de sus filas.
+- **Sobresalen del botón a propósito** (petición del usuario): la escopeta y la katana ya salían del hueco y las demás quedaban justas, así que todas comparten ese estilo.
+  - Las armas miden 30-31 px de ancho, en huecos de 32 px con aro: pisan el aro por los lados.
+  - Los símbolos de los botones redondos van en un lienzo de 36×36, más grande que el botón (34 px). Las piezas en diagonal (cuchillo, martillo y llave) salen por las esquinas y el cargador lo cubre de arriba abajo.
+  - La pistola, la SMG, el láser y el lanzallamas se volvieron a generar más grandes, con su versión anterior como referencia. La pistola grande salió apuntando a la izquierda y se usa en espejo.
+- **Botones redondos** (`icon_reload`, `icon_repair`, `icon_knife`, `icon_dash`, 36×36), con las piezas del HUD (aros, octógono, hexágono, marco de vida) como referencia de estilo.
+  - **Recargar:** dos cargadores con las balas doradas asomando. Sustituye a las flechas en círculo, que no se entendían.
+  - **Reparar:** un martillo cruzado con una llave inglesa.
+  - **Cuchillo:** un cuchillo de combate de hoja clara.
+  - **Dash:** una bota ámbar con líneas de velocidad, en lugar del rayo (elección del usuario). El diseño sale de una tanda a 24 px que el usuario eligió, regenerado más grande con esa bota como referencia.
+  - El rayo se queda en la mejora de velocidad, que no es el dash.
+- **«Enrollados»:** muchos candidatos de PixelLab a estos tamaños venían con trozos pegados al borde contrario del lienzo (la corredera de la pistola abajo, la culata de la escopeta a la izquierda).
+  - Se desenrollan desplazando filas y columnas en círculo hasta que el dibujo queda junto. Después se recorta y se centra.
+  - Los originales sin tocar se guardan junto a `retocado/`.
+- **En el HUD:** `src/ui/sheetIcons.ts` registra al arrancar las hojas `weapon_icon` e `icon_*` del manifiesto (regla 5) y corta el fotograma con CSS, a 1× y pixelado. Una hoja sin arte devuelve `null` y el botón conserva su glifo SVG. Los botones no recortan su contenido, así que el icono puede salirse.
+- **Paleta:** la hoja de armas se reduce a 32 colores (de 225) sin diferencia visible, y cada icono redondo a 32 como mucho.

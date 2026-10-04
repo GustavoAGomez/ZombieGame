@@ -32,6 +32,8 @@ su caja delimitadora sobre el fondo transparente.
 - hand_crack, hand_crack_opening, hand_crack_open: el agujero de la mano (48×40, de 46 px de ancho): la costra con las grietas latiendo, la costra rompiéndose y el fuego dentro. En `retocado/`, con una paleta común de 32 colores para las tres.
 - hand_ember: 5 brasas sueltas de PixelLab (de 2 a 6 px), recortadas y centradas en 8×8 en `retocado/`.
 - item_worn_wand, item_living_heart: los objetos especiales (24×24), 8 fotogramas en bucle cada uno: la varita gastada con rayos en la punta y el corazón humano latiendo. La varita es la versión que el usuario retocó en PixelLab (sin el píxel claro suelto al final del mango), exportada de la galería. En `retocado/`, con alfa 0/255 y una paleta de 32 colores por objeto.
+- weapon_icon: las 6 armas de perfil (32×16, de 30-31 px de ancho para que sobresalgan del hueco; la pistola, en espejo). Los PNG de la carpeta son los candidatos de PixelLab tal cual; muchos venían «enrollados» (trozos pegados al borde contrario del lienzo), y en `retocado/` están desenrollados, recortados, centrados y con una paleta común de 32 colores.
+- icon_reload, icon_repair, icon_knife, icon_dash: los símbolos de los botones redondos (36×36, más grandes que el botón para que sobresalgan): cargador doble, martillo cruzado con llave inglesa, cuchillo y bota con líneas de velocidad. En `retocado/`, desenrollados y centrados.
 - flame: 3 lenguas de fuego de PixelLab (8×12) con la paleta del fuego del agujero: centrada, inclinada a la derecha y esa misma en espejo, recortadas y apoyadas en el borde inferior en `retocado/`.
 
 ---
