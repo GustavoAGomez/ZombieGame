@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BOSS } from '../../config/balance';
+import { BOSSES } from '../../config/bosses';
 import { createTestContext, player, runTicks } from '../../test/fixtures';
 import type { AnimationDef, BossAnimation } from '../assets/manifest';
 import { chargeWindup, leapAirTime, slamWindup, startAttack } from '../systems/BossAttacks';
@@ -7,7 +8,7 @@ import { damageBoss } from '../systems/BossCombat';
 import { spawnBoss } from '../systems/BossSystem';
 import type { SimContext } from '../systems/SimContext';
 import { stepSimulation } from '../systems/Simulation';
-import { bossFrame, type BossArt } from './Boss';
+import { bossFrame, waveReach, type BossArt } from './Boss';
 
 /** Spec 07 §8: which frame of its art a boss shows, from its state. */
 
@@ -101,5 +102,20 @@ describe('bossFrame (spec 07 §8)', () => {
     expect(frame()).toEqual({ animation: 'death', frame: 0 });
     ctx.state.tick += 60;
     expect(frame()).toEqual({ animation: 'death', frame: 8 });
+  });
+});
+
+describe('waveReach (petición del usuario: the ring was drawn over the walls)', () => {
+  it('stops each ray of the ring where its blow stops: short towards a wall, whole into the open room', () => {
+    const ctx = createTestContext();
+    // room01's first room runs from x 128 to 576: 72 px to its west wall, the whole ring to the east
+    // (y 216: no window there, and on the base of its wall cell).
+    const radius = BOSSES.butcher.leap.waveRadius;
+    const reach = waveReach(ctx.grid, 200, 216, radius, new Float32Array(128));
+    const east = reach[0] ?? 0;
+    const west = reach[64] ?? 0;
+    expect(east).toBe(radius);
+    expect(west).toBeLessThan(80);
+    expect(west).toBeGreaterThan(40);
   });
 });

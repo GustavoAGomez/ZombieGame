@@ -1793,3 +1793,13 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - **Medidor del láser:** corto y sin emblema, porque la katana usa la misma barra para su enfriamiento. Lleva el relleno ámbar, el hueco rojo parpadeante al sobrecalentarse y debajo los 8 testigos de sobrecalentamientos restantes, repartidos a lo ancho del hueco.
 - **Generación:** una llamada a *Create UI Asset* (20 generaciones) con la barra de vida como referencia de estilo y dos piezas colocadas. PixelLab devolvió un kit entero de 256×256 en vez de solo las dos piezas, pero con ellas dentro: una barra con calavera de 147×27 y un medidor de 63×24, que se recortan de `barras/kit.png`. El resto del kit no se usa.
 - **HUD:** el relleno de cada barra va dentro de un elemento canal (`hud-boss__trough`, `hud-battery__trough`). Con el skin (`has-ui-boss`, `has-ui-gauge`) se coloca en el hueco del marco; sin él ocupa toda la barra, como antes.
+
+## La onda de los saltos no se dibuja sobre las paredes (petición del usuario)
+
+- **Antes:** el anillo era un círculo completo dibujado por encima de las paredes (capa 4,5), aunque su daño ya se paraba en ellas (`segmentClearShaped` con `BLOCK_SIGHT` desde el aterrizaje).
+- **Ahora:**
+  - Se dibuja por 128 rayos. Cada uno llega hasta lo primero que le corta la vista, con el mismo criterio que el daño (las paredes por su base; las ventanas no la paran).
+  - El alcance de cada rayo (`waveReach`) se calcula una vez por aterrizaje, en un `Float32Array` por hueco de boss.
+  - La banda se pinta como cuadriláteros entre rayos consecutivos, con el borde exterior recortado donde se para cada rayo.
+- **Capa:** las marcas del boss en el suelo (anillo y sombra) bajan a `DEPTH.floorMarks` (1,75), justo bajo las paredes. Así, la parte de arriba de una pared al sur, que la onda cruza antes de llegar a su base, la tapa.
+- **Pendiente aparte:** en 14 de las 170 paredes verticales de la mansión, la celda con cara (una junta o el arranque de un tramo) solo tiene colisión en su base. Queda un hueco de 12 px por el que pasan la vista, las balas y el daño de la onda, y ahora también su dibujo, porque lo sigue fielmente.

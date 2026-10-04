@@ -16,6 +16,7 @@ import {
   type CharacterDef,
   type Manifest,
 } from '../assets/manifest';
+import { BLOCK_SIGHT, segmentHitShaped, type CollisionGrid } from '../map/CollisionGrid';
 import { actorDepth, DEPTH } from '../depth';
 import { ARROW_EDGE_GAP, edgeArrow, type ViewEdges } from './Merchant';
 
@@ -264,6 +265,23 @@ export class BossViewPool {
 
 /** The ring of a landing: orange like the fire, the band that hurts. */
 const WAVE_COLOR = Number.parseInt(COLORS.fire.slice(1), 16);
+/** Rays the ring is drawn along, each stopped where its blow stops. */
+const WAVE_RAYS = 128;
+
+/**
+ * How far (px, up to `radius`) a ring sent out from (x, y) gets along each
+ * of `out.length` directions (clockwise from east) before something stops
+ * it: what blocks sight, walls by their base, as for its damage
+ * (BossAttacks.updateWave). Fills `out`, so a landing costs no allocation.
+ */
+export function waveReach(grid: CollisionGrid, x: number, y: number, radius: number, out: Float32Array): Float32Array {
+  for (let i = 0; i < out.length; i++) {
+    const a = (i / out.length) * Math.PI * 2;
+    const t = segmentHitShaped(grid, x, y, x + Math.cos(a) * radius, y + Math.sin(a) * radius, BLOCK_SIGHT);
+    out[i] = t === Infinity ? radius : t * radius;
+  }
+  return out;
+}
 /** A boss's shadow on the floor under it while it is in the air (bossShadow). */
 const SHADOW_COLOR = Number.parseInt(COLORS.ink.slice(1), 16);
 
@@ -271,41 +289,76 @@ const SHADOW_COLOR = Number.parseInt(COLORS.ink.slice(1), 16);
  * The bosses' marks on the floor (spec 07 §4): the rings of their landings
  * and the shadow of one in the air or coming in. No warning zones: the user
  * asked for them to go; its windups announce its blows. One Graphics for
- * all, over the floor and its decals, under the characters. Render only.
+ * all, on the floor and under the walls (the user saw the ring over them):
+ * a ring stops where its blow stops, and the top of a wall it crosses
+ * before reaching its base covers it. Render only.
  */
 export class BossMarks {
   private readonly g: Phaser.GameObjects.Graphics;
+  /** Per boss slot: where its last ring started and how far it gets along each ray. */
+  private readonly waves: { x: number; y: number; reach: Float32Array }[];
 
   constructor(
     scene: Phaser.Scene,
+    count: number,
     private readonly tileSize: number,
+    private readonly grid: CollisionGrid,
   ) {
-    this.g = scene.add.graphics().setDepth(DEPTH.decals + 0.5);
+    this.g = scene.add.graphics().setDepth(DEPTH.floorMarks);
+    this.waves = Array.from({ length: count }, () => ({ x: Number.NaN, y: Number.NaN, reach: new Float32Array(WAVE_RAYS) }));
   }
 
   sync(bosses: readonly BossState[], alpha: number, isDark: (x: number, y: number) => boolean): void {
     const g = this.g;
     g.clear();
-    for (const b of bosses) {
-      if (!b.active || isDark(b.x, b.y)) continue;
-      if (b.waveTime >= 0) this.drawWave(b);
+    bosses.forEach((b, i) => {
+      if (!b.active || isDark(b.x, b.y)) return;
+      const wave = this.waves[i];
+      if (b.waveTime >= 0 && wave) this.drawWave(b, wave);
       const shadow = bossShadow(b);
       if (shadow > 0) {
         const x = b.prevX + (b.x - b.prevX) * alpha;
         const y = b.prevY + (b.y - b.prevY) * alpha + (BOSSES[b.boss].footprintTiles * this.tileSize) / 2 - 4;
         g.fillStyle(SHADOW_COLOR, 0.35).fillEllipse(x, y, 60 * shadow, 18 * shadow);
       }
-    }
+    });
   }
 
-  /** The ring that hurts: its band, fading as it reaches its full size. */
-  private drawWave(b: BossState): void {
+  /**
+   * The ring that hurts: its band, fading as it reaches its full size, ray
+   * by ray only as far as each gets (worked out once per landing).
+   */
+  private drawWave(b: BossState, wave: { x: number; y: number; reach: Float32Array }): void {
     const leap = BOSSES[b.boss].leap;
+    if (wave.x !== b.waveX || wave.y !== b.waveY) {
+      wave.x = b.waveX;
+      wave.y = b.waveY;
+      waveReach(this.grid, b.waveX, b.waveY, leap.waveRadius, wave.reach);
+    }
     const outer = waveRadius(b, b.waveTime);
-    const width = Math.min(leap.waveWidth, outer);
-    if (width <= 0) return;
+    const inner = Math.max(0, outer - leap.waveWidth);
+    if (outer <= inner) return;
     const fade = 1 - outer / leap.waveRadius;
-    this.g.lineStyle(width, WAVE_COLOR, 0.35 + 0.4 * fade).strokeCircle(b.waveX, b.waveY, outer - width / 2);
+    const g = this.g;
+    g.fillStyle(WAVE_COLOR, 0.35 + 0.4 * fade);
+    const rays = wave.reach.length;
+    for (let i = 0; i < rays; i++) {
+      // One quad per pair of rays, its outer edge pulled in to where each ray stops.
+      const r0 = Math.min(outer, wave.reach[i] ?? 0);
+      const r1 = Math.min(outer, wave.reach[(i + 1) % rays] ?? 0);
+      if (r0 <= inner && r1 <= inner) continue;
+      const a0 = (i / rays) * Math.PI * 2;
+      const a1 = ((i + 1) / rays) * Math.PI * 2;
+      const in0 = Math.min(inner, r0);
+      const in1 = Math.min(inner, r1);
+      g.beginPath();
+      g.moveTo(b.waveX + Math.cos(a0) * in0, b.waveY + Math.sin(a0) * in0);
+      g.lineTo(b.waveX + Math.cos(a0) * r0, b.waveY + Math.sin(a0) * r0);
+      g.lineTo(b.waveX + Math.cos(a1) * r1, b.waveY + Math.sin(a1) * r1);
+      g.lineTo(b.waveX + Math.cos(a1) * in1, b.waveY + Math.sin(a1) * in1);
+      g.closePath();
+      g.fillPath();
+    }
   }
 }
 

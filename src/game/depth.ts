@@ -7,6 +7,8 @@ export const DEPTH = {
   decor: 1,
   /** Rugs, rubble and other props without collision. */
   floorProps: 1.5,
+  /** A boss's marks on the floor (its ring, its shadow): under the walls, which cover them. */
+  floorMarks: 1.75,
   walls: 2,
   mapObjects: 3,
   decals: 4,

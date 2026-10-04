@@ -181,7 +181,7 @@ export class GameScene extends Phaser.Scene {
     this.activationSites = new ActivationSiteViews(this, this.map);
     this.zombieViews = new ZombieViewPool(this, manifest, this.state.zombies.length);
     this.bossViews = new BossViewPool(this, this.state.bosses.length, this.map.tileSize, manifest);
-    this.bossMarks = new BossMarks(this, this.map.tileSize);
+    this.bossMarks = new BossMarks(this, this.state.bosses.length, this.map.tileSize, this.sim.grid);
     this.bossPuddles = new BossPuddles(this, this.state.puddles.length, manifest);
     this.bossArrows = new BossArrows(this, this.state.bosses.length);
     this.burnFlames = new BurnFlames(this, this.state.zombies.length, manifest);
