@@ -52,6 +52,7 @@ export const STRINGS = {
     /** Spec 07 §10. */
     summonBoss: 'INVOCAR MATARIFE',
     killBoss: 'MATAR BOSS',
+    forceCharge: 'FORZAR EMBESTIDA',
   },
   controls: {
     joystick: 'Joystick de movimiento',

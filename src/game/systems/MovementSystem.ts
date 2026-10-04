@@ -4,7 +4,7 @@ import type { PlayerState, ZombieState } from '../../core/GameState';
 import { BLOCK_PLAYER, moveCircle, resolveCircle } from '../map/CollisionGrid';
 import type { SimContext } from './SimContext';
 import { speedFactor } from './BoostSystem';
-import { pushPlayerOut } from './BossSystem';
+import { pushPlayerOut } from './BossBody';
 import { isDashing } from './SpecialSystem';
 
 /** Moves each player from its command's analog vector, sliding along walls. */

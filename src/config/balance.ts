@@ -457,6 +457,8 @@ export const BOSS = {
    */
   sinkTime: 1.2,
   noPathTime: 5,
+  /** With no attack that will do when its walk is over, it walks on and thinks again this much later (s). */
+  rethinkTime: 0.25,
   /** The health bar moves in steps of 1/barSteps. */
   barSteps: 100,
 } as const;

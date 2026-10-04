@@ -9,6 +9,28 @@ export type BossId = 'butcher';
 export type BossVariantId = 'base' | 'rabid' | 'putrid';
 export type BossAttackId = 'charge' | 'slam' | 'leap';
 
+/**
+ * The charge (spec 07 §4.1): it crouches for `windup` s with a corridor
+ * `width` px wide on the floor towards its target (the direction follows
+ * them and locks `lockBefore` s before it runs), then runs up to
+ * `distance` px at `speed` px/s. A player it catches takes `damage` and is
+ * thrown `knockback` px, once per charge. Into a wall it is stunned for
+ * `stunTime` s, taking stunDamageFactor× damage; otherwise it brakes for
+ * `brakeTime` s.
+ */
+export interface ChargeParams {
+  windup: number;
+  lockBefore: number;
+  width: number;
+  distance: number;
+  speed: number;
+  damage: number;
+  knockback: number;
+  stunTime: number;
+  stunDamageFactor: number;
+  brakeTime: number;
+}
+
 export interface BossDef {
   id: BossId;
   /** Side of its square footprint on the floor, in tiles: what meets walls and decides where it fits. */
@@ -22,6 +44,15 @@ export interface BossDef {
   /** Walking speed (px/s). */
   speed: number;
   attacks: readonly BossAttackId[];
+  /** Seconds it walks towards its target between attacks (a random time in the range). */
+  walkTime: { min: number; max: number };
+  /**
+   * How it picks an attack by the distance from its centre to its target
+   * (spec 07 §4.4): close (under closeRange px), mid (up to farRange, with
+   * a straight clear way), or far.
+   */
+  choice: { closeRange: number; farRange: number };
+  charge: ChargeParams;
 }
 
 export const BOSSES: Readonly<Record<BossId, BossDef>> = {
@@ -34,6 +65,9 @@ export const BOSSES: Readonly<Record<BossId, BossDef>> = {
     hp: 100,
     speed: 38,
     attacks: ['charge', 'slam', 'leap'],
+    walkTime: { min: 1.5, max: 2.5 },
+    choice: { closeRange: 90, farRange: 260 },
+    charge: { windup: 1, lockBefore: 0.3, width: 64, distance: 256, speed: 300, damage: 45, knockback: 24, stunTime: 2, stunDamageFactor: 2, brakeTime: 0.6 },
   },
 };
 

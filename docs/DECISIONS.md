@@ -1604,3 +1604,21 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - Al hundirse (1,2 s) es invulnerable. Luego elige punto con la misma regla («el más adecuado de la zona del jugador» es el más cercano andando a 5 casillas o más, que suele estar en su sala) y repite el aviso. Conserva la vida.
 - **La oscuridad:** solo cubre salas bloqueadas, y un boss solo sale y anda por salas desbloqueadas, así que la grieta va sobre el suelo, bajo los personajes, y nunca queda tapada.
 - **Debug:** `INVOCAR MATARIFE` ya hace la entrada completa en el punto que toca.
+
+## Spec 07 · Fase B3 (avisos en el suelo y embestida)
+
+- **Ataques:** el boss pasa a la fase `attacking`, con el ataque en curso (`attack`) y su etapa (`stage`: preparación, carrera, aturdido, frenada, recuperación).
+  - Al terminar vuelve a andar un tiempo al azar de `walkTime` (1,5 a 2,5 s) y reevalúa su objetivo: el jugador vivo más cercano (spec 07 §9).
+  - Cuando se le acaba el tiempo de andar, elige ataque con las reglas de distancia de §4.4 (el elector completo llega en la B4). Si ninguno vale, sigue andando y vuelve a pensarlo 0,25 s después.
+  - Los parámetros de cada ataque van en el catálogo (`BOSSES.butcher.charge`) y los tiempos de preparación se multiplican por la variante, nunca por debajo del 80 %. El momento en que se fija la dirección (0,3 s antes de salir) también se escala.
+- **Avisos en el suelo (`BossZones`):** se calculan del estado del boss (`bossZone`), así que la simulación no guarda nada solo para dibujarlos.
+  - Rojo translúcido que se va llenando (del 15 % al 50 % de opacidad) con un borde más marcado.
+  - Van sobre el suelo y sus manchas y bajo los personajes. La oscuridad solo cubre salas bloqueadas, donde un boss nunca ataca, así que no los tapa.
+- **Embestida:**
+  - **Pasillo:** sale del borde delantero de la huella, con el ancho del cuerpo (64 px), y llega hasta donde va a llegar: si una pared lo para antes de 256 px, el pasillo acaba en la pared. Es la «zona exacta» de la spec y le dice al jugador dónde está a salvo.
+  - **Choque:** cualquier cosa que pare su cuerpo cuenta como pared (paredes, puertas cerradas, ventanas, vitrinas, escaleras, magos, el agujero de la mano), aunque solo roce de lado en una carrera en diagonal. Aturdido 2 s, recibe el doble de daño de todo. Sin choque frena 0,6 s.
+  - **Jugador alcanzado:** 45 × el daño de la variante, una vez por embestida, y sale lanzado 24 px en la dirección de la carrera; luego el cuerpo sólido del boss lo aparta a un lado. Si el dash lo salva, no cuenta como alcanzado.
+  - **Zombies arrollados:** mueren sin dar puntos a nadie. Sí pueden soltar botín, como cualquier zombie que muere.
+  - **Aviso al chocar:** el evento `boss:stunned` da un golpe corto de cámara.
+- **Bloqueos al día:** las casillas que paran al boss se rehacen también al empezar cada ataque, no solo al andar, para que el pasillo y el choque usen las puertas y los magos tal como están en ese momento.
+- **Debug:** `FORZAR EMBESTIDA` hace que embista en cuanto termine lo que esté haciendo, sin mirar la distancia ni si fue su último ataque. En la B3 es el único ataque, y como nunca repite, tras la primera embestida solo anda: el elector completo llega en la B4.

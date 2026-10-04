@@ -20,6 +20,8 @@ function bossEast(ctx: SimContext, gap: number) {
   const p = player(ctx);
   const b = spawnBoss(ctx, 0, 'butcher', 'base', p.x + gap + 32, p.y);
   if (!b) throw new Error('no boss slot');
+  // It never attacks here.
+  b.walkTimer = Number.POSITIVE_INFINITY;
   return b;
 }
 

@@ -1,5 +1,5 @@
 import { BOOSTS, BOSS, BULLETS, LOADOUT, PICKUPS, PLAYER, POINTS, WAVES, ZOMBIES, type BoostKind, type PickupKind, type ZombieKind } from '../config/balance';
-import type { BossId, BossVariantId } from '../config/bosses';
+import type { BossAttackId, BossId, BossVariantId } from '../config/bosses';
 import { WEAPON_SPECIALS, WEAPONS, type UpgradeKind, type WeaponId } from '../config/weapons';
 import { ACTIVATIONS } from '../config/activations';
 import { MERCHANTS, type MerchantId } from '../config/merchants';
@@ -333,7 +333,14 @@ export interface BurnState {
  * climbing out, roaring, walking after its target, sinking to come out
  * elsewhere, and dead (its corpse on screen for BOSS.corpseTime).
  */
-export type BossPhase = 'warning' | 'emerging' | 'roaring' | 'walking' | 'sinking' | 'dead';
+export type BossPhase = 'warning' | 'emerging' | 'roaring' | 'walking' | 'attacking' | 'sinking' | 'dead';
+
+/**
+ * Where a boss is in its attack (spec 07 §4): winding up (the zone on the
+ * floor filling), running (the charge), stunned against a wall, braking,
+ * or still after it (recovering).
+ */
+export type BossStage = 'none' | 'windup' | 'run' | 'stunned' | 'brake' | 'recover';
 
 /** A boss on the map (spec 07). Pooled: BOSS.maxAlive slots, toggled with `active`. */
 export interface BossState {
@@ -364,6 +371,21 @@ export interface BossState {
   introduced: boolean;
   /** Seconds it has gone with no way to its target (it sinks at BOSS.noPathTime). */
   noPathTime: number;
+  /** The attack under way (spec 07 §4), null while walking; where in it, and the last one it made (never twice running). */
+  attack: BossAttackId | null;
+  stage: BossStage;
+  lastAttack: BossAttackId | null;
+  /** Unit direction of the attack under way. */
+  aimX: number;
+  aimY: number;
+  /** Px still to run in a charge. */
+  runLeft: number;
+  /** Bit per player (index into players) already hurt by this blow: once per charge. */
+  hitPlayers: number;
+  /** Seconds left walking before it picks its next attack. */
+  walkTimer: number;
+  /** Debug: the attack it makes next, as soon as it can. */
+  forcedAttack: BossAttackId | null;
   /** Player id it goes for (the nearest one alive, spec 07 §9), -1 none. */
   target: number;
   /** Fire on it (the burn hurts it too). */
@@ -635,6 +657,15 @@ export function createBoss(): BossState {
     spot: -1,
     introduced: false,
     noPathTime: 0,
+    attack: null,
+    stage: 'none',
+    lastAttack: null,
+    aimX: 0,
+    aimY: 1,
+    runLeft: 0,
+    hitPlayers: 0,
+    walkTimer: 0,
+    forcedAttack: null,
     target: -1,
     burn: { timer: 0, tickTimer: 0, perTick: 0, owner: -1, hellfire: false },
     contactScoreTick: -1000,

@@ -1,6 +1,8 @@
 import type Phaser from 'phaser';
 import { BOSS, SIM } from '../../config/balance';
 import { BOSS_VARIANTS, BOSSES } from '../../config/bosses';
+import { COLORS } from '../../config/theme';
+import { chargeWindup } from '../systems/BossAttacks';
 import type { BossState } from '../../core/GameState';
 import { ASSET_KEYS, BOSS_POSES, bossTextureKey, objectTextureKey, type BossPose, type Manifest } from '../assets/manifest';
 import { actorDepth, DEPTH } from '../depth';
@@ -26,6 +28,12 @@ function phaseElapsed(b: BossState, tick: number): number {
 export function bossPose(b: BossState, time: number): BossPose {
   if (b.phase === 'dead') return 'dead';
   if (b.phase === 'roaring') return 'roar';
+  if (b.phase === 'attacking' && b.attack === 'charge') {
+    if (b.stage === 'windup') return 'charge_windup';
+    if (b.stage === 'run') return 'charge';
+    if (b.stage === 'stunned') return 'stunned';
+    return 'walk_a';
+  }
   if (!b.moving) return 'walk_a';
   return Math.floor(time / STEP_TIME) % 2 === 0 ? 'walk_a' : 'walk_b';
 }
@@ -151,5 +159,91 @@ export class BossViewPool {
     if (look.anim === 'fire') crack.setTexture(objectTextureKey(ASSET_KEYS.handCrackOpen), Math.floor(time * CRACK_FIRE_FPS) % fire);
     else crack.setTexture(objectTextureKey(ASSET_KEYS.handCrackOpening), Math.min(opening - 1, Math.floor(look.progress * opening)));
     crack.setVisible(true).setPosition(Math.round(x), Math.round(y));
+  }
+}
+
+/**
+ * A zone on the floor that a boss's blow is about to hit (spec 07 §4), with
+ * how full it is (0..1, up to the blow). The charge's is a corridor from the
+ * front of its footprint as wide as its body and as long as its run, or up
+ * to what will stop it.
+ */
+export interface BossZone {
+  kind: 'corridor';
+  /** Where it starts (world px), its unit direction, length and width. */
+  x: number;
+  y: number;
+  dirX: number;
+  dirY: number;
+  length: number;
+  width: number;
+  fill: number;
+}
+
+/** The zone boss `b` is announcing now, or null. */
+export function bossZone(b: BossState, tileSize: number): BossZone | null {
+  if (b.phase !== 'attacking' || b.stage !== 'windup') return null;
+  if (b.attack === 'charge') {
+    const charge = BOSSES[b.boss].charge;
+    const half = (BOSSES[b.boss].footprintTiles * tileSize) / 2;
+    const total = chargeWindup(b);
+    return {
+      kind: 'corridor',
+      x: b.x + b.aimX * half,
+      y: b.y + b.aimY * half,
+      dirX: b.aimX,
+      dirY: b.aimY,
+      // As far as it will get: a wall stops it short.
+      length: Math.min(charge.distance, b.runLeft),
+      width: charge.width,
+      fill: Math.min(1, Math.max(0, 1 - b.timer / total)),
+    };
+  }
+  return null;
+}
+
+/** The warning zones drawn on the floor: red, see-through, filling up until the blow, with a firmer edge. */
+const ZONE_COLOR = Number.parseInt(COLORS.red.slice(1), 16);
+const ZONE_EDGE = Number.parseInt(COLORS.redLow.slice(1), 16);
+
+/**
+ * The bosses' warning zones on the floor (spec 07 §4): one Graphics for all,
+ * over the floor and its decals, under the characters. Render only.
+ */
+export class BossZones {
+  private readonly g: Phaser.GameObjects.Graphics;
+
+  constructor(
+    scene: Phaser.Scene,
+    private readonly tileSize: number,
+  ) {
+    this.g = scene.add.graphics().setDepth(DEPTH.decals + 0.5);
+  }
+
+  sync(bosses: readonly BossState[], isDark: (x: number, y: number) => boolean): void {
+    const g = this.g;
+    g.clear();
+    for (const b of bosses) {
+      if (!b.active || isDark(b.x, b.y)) continue;
+      const zone = bossZone(b, this.tileSize);
+      if (zone) this.drawCorridor(zone);
+    }
+  }
+
+  private drawCorridor(z: BossZone): void {
+    const nx = -z.dirY * (z.width / 2);
+    const ny = z.dirX * (z.width / 2);
+    const ex = z.x + z.dirX * z.length;
+    const ey = z.y + z.dirY * z.length;
+    const g = this.g;
+    g.fillStyle(ZONE_COLOR, 0.15 + 0.35 * z.fill).lineStyle(2, ZONE_EDGE, 0.5 + 0.4 * z.fill);
+    g.beginPath();
+    g.moveTo(z.x + nx, z.y + ny);
+    g.lineTo(ex + nx, ey + ny);
+    g.lineTo(ex - nx, ey - ny);
+    g.lineTo(z.x - nx, z.y - ny);
+    g.closePath();
+    g.fillPath();
+    g.strokePath();
   }
 }

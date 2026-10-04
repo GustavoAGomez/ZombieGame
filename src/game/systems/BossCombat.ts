@@ -79,7 +79,8 @@ export function bossBodyEntry(b: BossState, tileSize: number, x: number, y: numb
  */
 export function damageBoss(ctx: SimContext, b: BossState, amount: number, attacker = -1, hit?: HitPoint, hitPoints: number = POINTS.hit): boolean {
   if (!isBossHittable(b) || amount <= 0) return false;
-  b.hp -= amount;
+  // Stunned against a wall after a charge, it takes more (spec 07 §4.1).
+  b.hp -= amount * (b.stage === 'stunned' ? BOSSES[b.boss].charge.stunDamageFactor : 1);
   if (attacker >= 0 && hitPoints > 0) awardPoints(ctx, attacker, hitPoints, 'hit');
   const feet = bossFeetY(b, ctx.map.tileSize);
   if (hit) ctx.events.emit('zombie:hit', { x: hit.x, y: hit.y, groundY: feet, dirX: hit.dirX, dirY: hit.dirY, killed: b.hp <= 0 });

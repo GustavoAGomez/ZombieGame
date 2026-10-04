@@ -7,19 +7,19 @@ import {
   bossStepsAt,
   computeBossNav,
   footprintFits,
-  moveBossBox,
   positionCentre,
   refreshBossNav,
   updateBossBlocking,
   type BossNav,
 } from '../map/BossNav';
-import { BLOCK_PLAYER, BLOCK_ZOMBIE, clearPropCells, moveCircle, resolveCircle } from '../map/CollisionGrid';
+import { BLOCK_PLAYER, BLOCK_ZOMBIE, moveCircle, resolveCircle } from '../map/CollisionGrid';
+import { crushFurniture, moveBody, pushOutOfBox, pushPlayerOut } from './BossBody';
 import { computeLevels, type MapLevels } from '../map/levels';
 import type { MapData } from '../map/MapLoader';
+import { chooseAttack, startAttack, updateAttack, walkTime } from './BossAttacks';
 import { bossHalf, isBossAlive, isBossSolid } from './BossCombat';
 import { damagePlayer, isPlayerAlive } from './HealthSystem';
 import type { SimContext } from './SimContext';
-import { isDashing } from './SpecialSystem';
 import { pushable } from './ZombieSystem';
 
 /**
@@ -60,11 +60,22 @@ export function updateBosses(ctx: SimContext, dt: number): void {
         }
         break;
       case 'roaring':
-        if (b.timer <= 0) setPhase(ctx, b, 'walking', 0);
+        if (b.timer <= 0) {
+          setPhase(ctx, b, 'walking', 0);
+          b.walkTimer = walkTime(ctx, b);
+        }
         break;
       case 'walking':
-        if (mustSink(ctx, b, i, dt)) setPhase(ctx, b, 'sinking', BOSS.sinkTime);
-        else walk(ctx, b, i, dt);
+        if (mustSink(ctx, b, i, dt)) {
+          setPhase(ctx, b, 'sinking', BOSS.sinkTime);
+          break;
+        }
+        walk(ctx, b, i, dt);
+        b.walkTimer -= dt;
+        if (b.walkTimer <= 0) attackIfAble(ctx, b, i);
+        break;
+      case 'attacking':
+        if (updateAttack(ctx, b, i, targetOf(ctx, b), dt)) endAttack(ctx, b);
         break;
       case 'sinking':
         // Gone under: out again near its target (if no spot will do yet, it tries again next tick).
@@ -84,6 +95,26 @@ export function updateBosses(ctx: SimContext, dt: number): void {
     shoveZombies(ctx, b);
     for (const p of ctx.state.players) pushPlayerOut(ctx, b, p);
   }
+}
+
+/** Its walk is over: the attack that suits (or the one forced from the debug panel), or it walks on a little longer. */
+function attackIfAble(ctx: SimContext, b: BossState, slot: number): void {
+  const target = targetOf(ctx, b);
+  if (!target) return;
+  const attack = b.forcedAttack ?? chooseAttack(ctx, b, slot, target);
+  b.forcedAttack = null;
+  if (attack) startAttack(ctx, b, attack, target);
+  else b.walkTimer = BOSS.rethinkTime;
+}
+
+/** The attack is over: it walks again for a while, after the nearest player alive (spec 07 §9). */
+function endAttack(ctx: SimContext, b: BossState): void {
+  b.lastAttack = b.attack;
+  b.attack = null;
+  b.stage = 'none';
+  setPhase(ctx, b, 'walking', 0);
+  b.walkTimer = walkTime(ctx, b);
+  b.target = nearestPlayer(ctx, b.x, b.y)?.id ?? -1;
 }
 
 function setPhase(ctx: SimContext, b: BossState, phase: BossPhase, timer: number): void {
@@ -238,42 +269,6 @@ function walk(ctx: SimContext, b: BossState, slot: number, dt: number): void {
   b.moving = true;
 }
 
-/** Moves its body (sliding on what stops it) and crushes the furniture its footprint touches. Returns true if stopped. */
-export function moveBody(ctx: SimContext, b: BossState, slot: number, dx: number, dy: number): boolean {
-  const nav = ctx.bossNavs[slot];
-  if (!nav) return false;
-  const half = bossHalf(b, ctx.map.tileSize);
-  const hit = moveBossBox(nav, b, dx, dy, half - BOSS.bodySlack, BOSS.maxSubstep);
-  crushFurniture(ctx, nav, b.x, b.y, half);
-  return hit;
-}
-
-/** Furniture with collision under the footprint centred at (x, y) is destroyed (spec 07 §2). */
-export function crushFurniture(ctx: SimContext, nav: BossNav, x: number, y: number, half: number): void {
-  const ts = ctx.map.tileSize;
-  const x0 = Math.floor((x - half) / ts);
-  const x1 = Math.floor((x + half - 1e-6) / ts);
-  const y0 = Math.floor((y - half) / ts);
-  const y1 = Math.floor((y + half - 1e-6) / ts);
-  for (let ty = y0; ty <= y1; ty++) {
-    for (let tx = x0; tx <= x1; tx++) {
-      if (tx < 0 || ty < 0 || tx >= nav.width || ty >= nav.height) continue;
-      const index = nav.propAt[ty * nav.width + tx] ?? -1;
-      if (index >= 0 && !ctx.state.propsDestroyed[index]) destroyProp(ctx, index);
-    }
-  }
-}
-
-/** Furniture `index` is gone for the rest of the match: no collision for anyone, drawn as rubble. */
-export function destroyProp(ctx: SimContext, index: number): void {
-  const { state } = ctx;
-  if (state.propsDestroyed[index] !== false) return;
-  state.propsDestroyed[index] = true;
-  clearPropCells(ctx.grid, ctx.map, index, state.propsDestroyed);
-  // The zombies' way round changes with it.
-  ctx.nav.age = Infinity;
-}
-
 /**
  * Zombies in its way are shoved aside: out of its footprint across the way
  * it is going (sideways when it walks along x, up or down when along y).
@@ -286,33 +281,6 @@ function shoveZombies(ctx: SimContext, b: BossState): void {
     if (!pushOutOfBox(z, b.x, b.y, half, alongX)) continue;
     if (z.ai === 'chasing' || z.ai === 'attacking' || z.ai === 'idle') resolveCircle(ctx.grid, z, ZOMBIES.hitboxRadius, BLOCK_ZOMBIE);
   }
-}
-
-/** It is solid for players: pushed out of its footprint, unhurt; a dashing player goes through. */
-export function pushPlayerOut(ctx: SimContext, b: BossState, p: PlayerState): void {
-  if (!isPlayerAlive(p) || isDashing(p) || !isBossSolid(b)) return;
-  const half = bossHalf(b, ctx.map.tileSize) + PLAYER.hitboxRadius;
-  const alongX = Math.abs(Math.cos(b.facing)) >= Math.abs(Math.sin(b.facing));
-  if (pushOutOfBox(p, b.x, b.y, half, b.moving ? alongX : nearestAxisIsY(p, b, half))) resolveCircle(ctx.grid, p, PLAYER.hitboxRadius, BLOCK_PLAYER);
-}
-
-/** For a body that is not being run over: out by the nearest side (true = along y). */
-function nearestAxisIsY(pos: { x: number; y: number }, b: { x: number; y: number }, half: number): boolean {
-  return half - Math.abs(pos.y - b.y) < half - Math.abs(pos.x - b.x);
-}
-
-/**
- * Pushes `pos` out of the square of half-size `half` centred at (cx, cy):
- * across x-motion (`acrossY`: out by the top or bottom) or across y-motion.
- * Returns true if it was inside.
- */
-function pushOutOfBox(pos: { x: number; y: number }, cx: number, cy: number, half: number, acrossY: boolean): boolean {
-  const dx = pos.x - cx;
-  const dy = pos.y - cy;
-  if (Math.abs(dx) >= half || Math.abs(dy) >= half) return false;
-  if (acrossY) pos.y = cy + (dy >= 0 ? half : -half);
-  else pos.x = cx + (dx >= 0 ? half : -half);
-  return true;
 }
 
 /**
@@ -343,9 +311,16 @@ export function spawnBoss(ctx: SimContext, slot: number, boss: BossId, variant: 
     spot: -1,
     introduced: false,
     noPathTime: 0,
+    attack: null,
+    stage: 'none',
+    lastAttack: null,
+    hitPlayers: 0,
+    runLeft: 0,
+    forcedAttack: null,
     target: -1,
     contactScoreTick: -1000,
   } satisfies Partial<BossState>);
+  b.walkTimer = walkTime(ctx, b);
   b.burn.timer = 0;
   b.burn.perTick = 0;
   nav.side = BOSSES[boss].footprintTiles;

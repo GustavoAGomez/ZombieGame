@@ -47,6 +47,8 @@ export interface DebugActions {
   /** Spec 07 §10: El Matarife comes into the match now; the bosses on the map die. */
   summonBoss(): void;
   killBoss(): void;
+  /** The bosses' next attack is this one, as soon as they finish what they are doing. */
+  forceAttack(attack: 'charge' | 'slam' | 'leap'): void;
 }
 
 const TRIPLE_TAP_WINDOW_MS = 600;
@@ -117,6 +119,7 @@ export class DebugOverlay {
     button(STRINGS.debug.itemSpots, (a) => a.toggleItemSpots());
     button(STRINGS.debug.summonBoss, (a) => a.summonBoss());
     button(STRINGS.debug.killBoss, (a) => a.killBoss());
+    button(STRINGS.debug.forceCharge, (a) => a.forceAttack('charge'));
     this.panel.append(this.statsEl, buttons);
     this.statsEl.addEventListener('pointerdown', (e) => {
       e.preventDefault();

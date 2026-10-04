@@ -11,9 +11,11 @@ import type { SimContext } from './SimContext';
 
 const TS = 32;
 
+/** A boss walking at (x, y) that never attacks (its walk never ends). */
 function bossAt(ctx: SimContext, x: number, y: number) {
   const b = spawnBoss(ctx, 0, 'butcher', 'base', x, y);
   if (!b) throw new Error('no boss slot');
+  b.walkTimer = Number.POSITIVE_INFINITY;
   return b;
 }
 
@@ -140,6 +142,7 @@ describe('BossSystem (spec 07 §2)', () => {
     const a = bossAt(ctx, p.x + 150, p.y);
     const b = spawnBoss(ctx, 1, 'butcher', 'base', p.x + 150, p.y);
     if (!b) throw new Error('no second slot');
+    b.walkTimer = Number.POSITIVE_INFINITY;
     runTicks(ctx, 30, stepSimulation);
     const reach = bossHalf(a, TS) + bossHalf(b, TS);
     expect(Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y))).toBeGreaterThanOrEqual(reach - 1);

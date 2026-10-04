@@ -21,6 +21,8 @@ export interface GameEvents {
   'boss:warning': { x: number; y: number };
   /** A boss roars (spec 07 §3, §5): out of the floor, and when its fury starts. */
   'boss:roar': { x: number; y: number };
+  /** A charging boss ran into a wall and is stunned (spec 07 §4.1): the floor jolts. */
+  'boss:stunned': { x: number; y: number };
   /** A boss died (spec 07 §6), at the centre of its footprint. */
   'boss:killed': { x: number; y: number; boss: BossId; variant: BossVariantId };
   /**
