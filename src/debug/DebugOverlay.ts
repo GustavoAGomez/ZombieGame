@@ -12,8 +12,13 @@ export interface DebugStats {
  */
 export interface DebugActions {
   nextRound(): void;
-  /** Spec 07 §10: straight to the first boss round (the zombies and bosses on the map go). */
+  /** Spec 07 §10: straight to the first boss round, or to the next one in the calendar (the zombies and bosses on the map go). */
   goToBossRound(): void;
+  nextBossRound(): void;
+  /** Spec 07 §10: the variant INVOCAR MATARIFE uses, in turns; returns the button's new label. */
+  cycleBossVariant(): string;
+  /** Spec 07 §10: every boss blow's real damage zone drawn over the world. */
+  toggleBossZones(): boolean;
   addPoints(): void;
   toggleGod(): boolean;
   toggleHitboxes(): boolean;
@@ -88,7 +93,8 @@ export class DebugOverlay {
     this.statsEl = document.createElement('pre');
     const buttons = document.createElement('div');
     buttons.className = 'debug-buttons';
-    const button = (label: string, run: (a: DebugActions) => boolean | void): void => {
+    // A toggle returns its new state (the button lights up); a selector, its new label.
+    const button = (label: string, run: (a: DebugActions) => boolean | string | void): void => {
       const b = document.createElement('button');
       b.type = 'button';
       b.className = 'debug-button';
@@ -99,6 +105,7 @@ export class DebugOverlay {
         if (!a) return;
         const on = run(a);
         if (typeof on === 'boolean') b.classList.toggle('is-on', on);
+        else if (typeof on === 'string') b.textContent = on;
       });
       buttons.appendChild(b);
     };
@@ -126,11 +133,14 @@ export class DebugOverlay {
     button(STRINGS.debug.goToWand, (a) => a.goToWand());
     button(STRINGS.debug.itemSpots, (a) => a.toggleItemSpots());
     button(STRINGS.debug.goToBossRound, (a) => a.goToBossRound());
+    button(STRINGS.debug.nextBossRound, (a) => a.nextBossRound());
+    button(STRINGS.debug.bossVariant(STRINGS.bosses.variants.base), (a) => a.cycleBossVariant());
     button(STRINGS.debug.summonBoss, (a) => a.summonBoss());
     button(STRINGS.debug.killBoss, (a) => a.killBoss());
     button(STRINGS.debug.forceCharge, (a) => a.forceAttack('charge'));
     button(STRINGS.debug.forceSlam, (a) => a.forceAttack('slam'));
     button(STRINGS.debug.forceLeap, (a) => a.forceAttack('leap'));
+    button(STRINGS.debug.bossZones, (a) => a.toggleBossZones());
     this.panel.append(this.statsEl);
     this.panel.addEventListener('pointerup', (e) => {
       e.preventDefault();

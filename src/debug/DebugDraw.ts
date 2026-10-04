@@ -1,5 +1,6 @@
 import type Phaser from 'phaser';
-import { BULLETS, MERCHANT, PLAYER, ZOMBIES } from '../config/balance';
+import { BOSS, BULLETS, MERCHANT, PLAYER, ZOMBIES } from '../config/balance';
+import { BOSSES } from '../config/bosses';
 import type { GameState } from '../core/GameState';
 import type { MapData } from '../game/map/MapLoader';
 import { DEPTH } from '../game/depth';
@@ -23,6 +24,8 @@ export class DebugDraw {
   showFlowField = false;
   showItemSpots = false;
   showHandSpots = false;
+  /** Spec 07 §10: every boss blow's real damage zone. */
+  showBossZones = false;
   private readonly g: Phaser.GameObjects.Graphics;
 
   constructor(
@@ -38,6 +41,7 @@ export class DebugDraw {
     if (this.showFlowField) this.drawFlowField(nav);
     if (this.showItemSpots) this.drawItemSpots(state);
     if (this.showHandSpots) this.drawHandSpots(state);
+    if (this.showBossZones) this.drawBossZones(state);
     if (!this.showHitboxes) return;
     this.drawBulletBlockers(grid);
     g.lineStyle(1, 0x5fd0ff, 1);
@@ -79,6 +83,38 @@ export class DebugDraw {
     for (const item of state.groundItems) if (item.active) g.strokeCircle(item.x, item.y, 14);
     g.lineStyle(1, 0xbe5aeb, 1);
     for (const a of this.map.activationSites) g.strokeRect(a.x, a.y, a.width, a.height);
+  }
+
+  /**
+   * Where each boss's blows really hurt (spec 07 §10), in magenta: its
+   * charge's contact box (its footprint widened by the player's hitbox), the
+   * slam's arc as it aims now, the landing circle at its leap's target, the
+   * band of its ring, and the puddles.
+   */
+  private drawBossZones(state: GameState): void {
+    const g = this.g;
+    const ts = this.map.tileSize;
+    g.lineStyle(1, 0xff3cff, 1);
+    for (const b of state.bosses) {
+      if (!isBossAlive(b)) continue;
+      const def = BOSSES[b.boss];
+      const reach = bossHalf(b, ts) + PLAYER.hitboxRadius;
+      g.strokeRect(b.x - reach, b.y - reach, reach * 2, reach * 2);
+      const aim = Math.atan2(b.aimY, b.aimX);
+      const half = (def.slam.arc * Math.PI) / 360;
+      g.beginPath();
+      g.moveTo(b.x, b.y);
+      g.arc(b.x, b.y, def.slam.reach, aim - half, aim + half);
+      g.closePath();
+      g.strokePath();
+      if (b.stage === 'air') g.strokeCircle(b.targetX, b.targetY, def.leap.landRadius);
+      if (b.waveTime >= 0) {
+        const outer = Math.min(def.leap.waveRadius, def.leap.waveSpeed * b.waveTime);
+        g.strokeCircle(b.waveX, b.waveY, outer);
+        g.strokeCircle(b.waveX, b.waveY, Math.max(0, outer - def.leap.waveWidth));
+      }
+    }
+    for (const pd of state.puddles) if (pd.active) g.strokeCircle(pd.x, pd.y, BOSS.puddle.radius);
   }
 
   /** The Demon's Hand's spots (spec 06 §5): a red cross each, the one it is at ringed. */

@@ -1,6 +1,6 @@
 import { BOSS, PLAYER, ZOMBIES } from '../../config/balance';
 import { BOSS_VARIANTS, BOSSES, windupFactor, type BossAttackId } from '../../config/bosses';
-import type { BossStage, BossState, PlayerState } from '../../core/GameState';
+import type { BossStage, BossState, PlayerState, PuddleState } from '../../core/GameState';
 import { degToRad } from '../../core/math';
 import { randomRange, random } from '../../core/Rng';
 import { boxBlocked, footprintFits, updateBossBlocking } from '../map/BossNav';
@@ -368,6 +368,8 @@ function land(ctx: SimContext, b: BossState, slot: number): void {
   b.waveY = b.y;
   b.waveTime = 0;
   b.waveHits = 0;
+  // The putrid variant leaves a puddle where it lands (spec 07 §1).
+  if (BOSS_VARIANTS[b.variant].puddles) leavePuddle(ctx, b.x, b.y);
   b.count++;
   b.blowTick = ctx.state.tick;
   ctx.events.emit('boss:landed', { x: b.x, y: b.y });
@@ -401,4 +403,35 @@ export function updateWave(ctx: SimContext, b: BossState, dt: number): void {
     if (damagePlayer(ctx, p, leap.waveDamage * BOSS_VARIANTS[b.variant].damage, b.waveX, b.waveY)) b.waveHits |= bit;
   });
   if (outer >= leap.waveRadius) b.waveTime = -1;
+}
+
+/** A putrid puddle at (x, y) for BOSS.puddle.time s; with the pool full, the one with least time left goes. */
+export function leavePuddle(ctx: SimContext, x: number, y: number): void {
+  const { puddles } = ctx.state;
+  let slot = puddles.find((p) => !p.active);
+  if (!slot) slot = puddles.reduce<PuddleState | undefined>((least, p) => (!least || p.timer < least.timer ? p : least), undefined);
+  if (!slot) return;
+  Object.assign(slot, { active: true, x, y, timer: BOSS.puddle.time, tickTimer: BOSS.puddle.tickInterval });
+}
+
+/**
+ * The puddles hurt whoever stands in them, every tickInterval (no push: the
+ * player is hurt from where they stand), until they dry up. Zombies wade
+ * through unhurt; the dash spares a player, as from any blow.
+ */
+export function updatePuddles(ctx: SimContext, dt: number): void {
+  const { puddle } = BOSS;
+  for (const pd of ctx.state.puddles) {
+    if (!pd.active) continue;
+    pd.timer -= dt;
+    pd.tickTimer -= dt;
+    while (pd.tickTimer <= 0 && pd.timer > -dt) {
+      pd.tickTimer += puddle.tickInterval;
+      for (const p of ctx.state.players) {
+        if (!isPlayerAlive(p) || Math.hypot(p.x - pd.x, p.y - pd.y) >= puddle.radius) continue;
+        damagePlayer(ctx, p, puddle.damagePerSecond * puddle.tickInterval, p.x, p.y);
+      }
+    }
+    if (pd.timer <= 0) pd.active = false;
+  }
 }

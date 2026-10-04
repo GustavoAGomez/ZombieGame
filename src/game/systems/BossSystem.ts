@@ -16,7 +16,7 @@ import { BLOCK_PLAYER, BLOCK_ZOMBIE, moveCircle, resolveCircle } from '../map/Co
 import { crushFurniture, moveBody, pushOutOfBox, pushPlayerOut } from './BossBody';
 import { computeLevels, type MapLevels } from '../map/levels';
 import type { MapData } from '../map/MapLoader';
-import { chooseAttack, startAttack, updateAttack, updateWave, walkTime } from './BossAttacks';
+import { chooseAttack, startAttack, updateAttack, updatePuddles, updateWave, walkTime } from './BossAttacks';
 import { bossHalf, isBossAlive, isBossSolid } from './BossCombat';
 import { damagePlayer, isPlayerAlive } from './HealthSystem';
 import type { SimContext } from './SimContext';
@@ -95,6 +95,7 @@ export function updateBosses(ctx: SimContext, dt: number): void {
     // The ring of its last landing goes on growing whatever it does next.
     updateWave(ctx, b, dt);
   }
+  updatePuddles(ctx, dt);
   separateBosses(ctx);
   for (const b of bosses) {
     if (!isBossSolid(b)) continue;
@@ -107,10 +108,18 @@ export function updateBosses(ctx: SimContext, dt: number): void {
 function attackIfAble(ctx: SimContext, b: BossState, slot: number): void {
   const target = targetOf(ctx, b);
   if (!target) return;
+  // Another boss started an attack a moment ago: it waits its turn, so their warnings never fall all at once (spec 07 §6).
+  const since = ctx.state.time - ctx.state.bossAttackAt;
+  if (since < BOSS.attackStagger) {
+    b.walkTimer = BOSS.attackStagger - since;
+    return;
+  }
   const attack = b.forcedAttack ?? chooseAttack(ctx, b, slot, target);
   b.forcedAttack = null;
-  if (attack) startAttack(ctx, b, attack, target);
-  else b.walkTimer = BOSS.rethinkTime;
+  if (attack) {
+    startAttack(ctx, b, attack, target);
+    ctx.state.bossAttackAt = ctx.state.time;
+  } else b.walkTimer = BOSS.rethinkTime;
 }
 
 /** The attack is over: it walks again for a while, after the nearest player alive (spec 07 §9); first its fury's roar, if due. */

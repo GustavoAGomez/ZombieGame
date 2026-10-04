@@ -27,6 +27,7 @@ El juego toma como referencia el modo Zombies de Black Ops 1. Lo que lo hacía a
 |---|---|---|
 | Rondas 1–2 | Sobrevivir, reparar ventanas, abrir la primera sala | Hecho |
 | Ronda 2 | Aparece el **mago azul**: munición y mejoras temporales | Hecho |
+| Ronda 6 | Sale el primer boss, **el Matarife**; al morir suelta el corazón vivo | Hecho (spec 07) |
 | Inicio–medio | Buscar la **Mano del Demonio** y probar suerte | Hecho (spec 06) |
 | Medio | **Encender la caldera** del sótano: luz y altares | Pendiente |
 | Medio | Ritual de la piscina: **mago rojo**, mejoras de arma | Hecho |
@@ -38,7 +39,7 @@ El juego toma como referencia el modo Zombies de Black Ops 1. Lo que lo hacía a
 
 ### 3.1 La Mano del Demonio y las armas especiales — *spec 06, hecho*
 
-Implementado. Las reglas definitivas están en `GAME-DESIGN.md` (*Mano del Demonio* y *Armas*). Cambios respecto a lo previsto: la mano da 10 % nada, 20 % especial y 70 % básica; la katana alcanza 102 px y se enfría 5 s entre barridos; el lanzallamas llega a 135 px.
+Implementado. Las reglas definitivas están en `GAME-DESIGN.md` (*Mano del Demonio* y *Armas*). Cambios respecto a lo previsto: la mano da 10 % nada, 10 % especial y 80 % básica; la katana alcanza 102 px y se enfría 5 s entre barridos; el lanzallamas llega a 135 px.
 
 
 - Una grieta con brasas en el suelo. Por 950$, una mano sale y ofrece un arma al azar.
@@ -90,13 +91,13 @@ Hay que revisar que no pisen lo que vende el mago azul (munición máxima y mejo
 
 ### 3.7 Más adelante
 
-- **Rondas especiales** cada 5 o 6 rondas, con un enemigo distinto y un premio garantizado al terminar.
+- ~~**Rondas especiales** cada 5 o 6 rondas, con un enemigo distinto y un premio garantizado al terminar.~~ Hechas como el sistema de bosses (spec 07): el Matarife sale en las rondas 6, 12, 18, 24 y 30 con sus variantes, y luego el ciclo se repite más fuerte. Reglas en `GAME-DESIGN.md` (*Bosses*). Siguiente paso posible: más bosses, que se intercalan en el calendario cambiando solo los datos.
 - **Trampas de pago:** por ejemplo, la alarma del coche del garaje como señuelo.
 - **Más armas especiales** para la mano. Candidatas descartadas por ahora: ballesta señuelo y rayo encadenado.
 - **Duración de la partida en móvil:** valorar guardar y continuar, o un ritmo más rápido.
 
 ## 4. Preguntas abiertas
 
-- ¿Cómo se consigue el **corazón vivo**? Hoy se lleva desde el inicio de forma provisional.
+- ~~¿Cómo se consigue el **corazón vivo**?~~ Resuelto (spec 07): lo suelta el primer boss que muere en la partida, así que el mago rojo llega desde la ronda 6.
 - ¿El pacto de sangre de la mano debe ofrecerse también cuando sí hay dinero? (Hoy solo cuando falta dinero.)
 - ¿Las armas especiales tendrán algún día niveles del mago rojo, o solo la mejora dorada?

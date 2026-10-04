@@ -54,6 +54,8 @@ import { moveMerchant } from '../systems/MerchantSystem';
 import { storeBoost } from '../systems/BoostSystem';
 import { upgradeReason, upgradeWeapon } from '../systems/weaponStats';
 import { UPGRADE_KINDS, WEAPONS, type WeaponId } from '../../config/weapons';
+import { BOSS_VARIANT_IDS, bossesForRound, type BossVariantId } from '../../config/bosses';
+import { STRINGS } from '../../ui/strings';
 import { DebugDraw } from '../../debug/DebugDraw';
 import type { DebugActions } from '../../debug/DebugOverlay';
 import type { MuzzleTable } from '../systems/shotGeometry';
@@ -120,6 +122,8 @@ export class GameScene extends Phaser.Scene {
   private currentLevel = -1;
   /** Player teleports already shown: a new one snaps the camera instead of panning across the map. */
   private shownTeleports = 0;
+  /** The variant INVOCAR MATARIFE calls up (the debug panel's selector). */
+  private debugVariant: BossVariantId = 'base';
   /** Last boost given from the debug panel (they alternate). */
   private debugBoost: BoostKind = 'double_damage';
   private readonly fixedStep = new FixedStep(SIM.hz, SIM.maxStepsPerFrame, SIM.maxFrameMs);
@@ -338,7 +342,7 @@ export class GameScene extends Phaser.Scene {
     this.thrownItems.sync(this.state.time);
     this.zombieViews.sync(this.state.zombies, alpha, now, this.isDark);
     this.bossViews.sync(this.state.bosses, alpha, this.state.time, this.state.tick, this.isDark);
-    this.bossZones.sync(this.state.bosses, alpha, this.isDark);
+    this.bossZones.sync(this.state.bosses, this.state.puddles, alpha, this.isDark);
     this.merchantViews.sync(this.state.merchants, this.state.players, this.state.tick, this.state.time);
     this.weaponCases.sync(this.state, player);
     this.syncOffscreenArrows();
@@ -365,6 +369,17 @@ export class GameScene extends Phaser.Scene {
     return {
       nextRound: () => this.debugGoToRound(this.state.wave.round + 1),
       goToBossRound: () => this.debugGoToRound(DEBUG.bossRound),
+      nextBossRound: () => {
+        // The next round of the calendar with bosses (12, 18, 24…).
+        let round = this.state.wave.round + 1;
+        while (bossesForRound(round).length === 0 && round < this.state.wave.round + DEBUG.bossRoundSearch) round++;
+        this.debugGoToRound(round);
+      },
+      cycleBossVariant: () => {
+        this.debugVariant = BOSS_VARIANT_IDS[(BOSS_VARIANT_IDS.indexOf(this.debugVariant) + 1) % BOSS_VARIANT_IDS.length] ?? 'base';
+        return STRINGS.debug.bossVariant(STRINGS.bosses.variants[this.debugVariant]);
+      },
+      toggleBossZones: () => (this.debugDraw.showBossZones = !this.debugDraw.showBossZones),
       addPoints: () => {
         const p = this.state.players[0];
         if (p) p.money += DEBUG.points;
@@ -452,7 +467,7 @@ export class GameScene extends Phaser.Scene {
       toggleHandSpots: () => (this.debugDraw.showHandSpots = !this.debugDraw.showHandSpots),
       summonBoss: () => {
         const slot = freeBossSlot(this.sim);
-        if (slot >= 0) startBossEntry(this.sim, slot, 'butcher', 'base');
+        if (slot >= 0) startBossEntry(this.sim, slot, 'butcher', this.debugVariant);
       },
       killBoss: () => {
         for (const b of this.state.bosses) if (isBossAlive(b)) killBoss(this.sim, b);

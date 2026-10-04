@@ -3,7 +3,7 @@ import { BOSS, SIM } from '../../config/balance';
 import { BOSS_VARIANTS, BOSSES } from '../../config/bosses';
 import { COLORS } from '../../config/theme';
 import { chargeWindup, leapAirTime, slamWindup, waveRadius } from '../systems/BossAttacks';
-import type { BossState } from '../../core/GameState';
+import type { BossState, PuddleState } from '../../core/GameState';
 import { ASSET_KEYS, BOSS_POSES, bossTextureKey, objectTextureKey, type BossPose, type Manifest } from '../assets/manifest';
 import { actorDepth, DEPTH } from '../depth';
 import { ARROW_EDGE_GAP, edgeArrow, type ViewEdges } from './Merchant';
@@ -233,14 +233,19 @@ const ZONE_COLOR = Number.parseInt(COLORS.red.slice(1), 16);
 const ZONE_EDGE = Number.parseInt(COLORS.redLow.slice(1), 16);
 /** The ring of a landing: orange like the fire, the band that hurts. */
 const WAVE_COLOR = Number.parseInt(COLORS.fire.slice(1), 16);
+/** The putrid boss's puddles: its sickly green, fading as they dry. */
+const PUDDLE_COLOR = Number.parseInt((BOSS_VARIANTS.putrid.tint ?? COLORS.red).slice(1), 16);
 /** A leaping boss's shadow on the floor, under where it is. */
 const SHADOW_COLOR = Number.parseInt(COLORS.ink.slice(1), 16);
+/** A puddle fades out over its last this-many seconds. */
+const BOSS_PUDDLE_FADE = 1;
 /** Points of the arc's outline. */
 const ARC_STEPS = 16;
 
 /**
  * The bosses' marks on the floor (spec 07 §4): the warning zones, the
- * rings of their landings and the shadow of one in the air. One Graphics
+ * rings of their landings, the shadow of one in the air and the putrid
+ * boss's puddles. One Graphics
  * for all, over the floor and its decals, under the characters. Render only.
  */
 export class BossZones {
@@ -253,9 +258,15 @@ export class BossZones {
     this.g = scene.add.graphics().setDepth(DEPTH.decals + 0.5);
   }
 
-  sync(bosses: readonly BossState[], alpha: number, isDark: (x: number, y: number) => boolean): void {
+  sync(bosses: readonly BossState[], puddles: readonly PuddleState[], alpha: number, isDark: (x: number, y: number) => boolean): void {
     const g = this.g;
     g.clear();
+    for (const pd of puddles) {
+      if (!pd.active || isDark(pd.x, pd.y)) continue;
+      const fade = Math.min(1, pd.timer / BOSS_PUDDLE_FADE);
+      g.fillStyle(PUDDLE_COLOR, 0.4 * fade).fillCircle(pd.x, pd.y, BOSS.puddle.radius);
+      g.lineStyle(2, PUDDLE_COLOR, 0.8 * fade).strokeCircle(pd.x, pd.y, BOSS.puddle.radius);
+    }
     for (const b of bosses) {
       if (!b.active || isDark(b.x, b.y)) continue;
       const zone = bossZone(b, this.tileSize);

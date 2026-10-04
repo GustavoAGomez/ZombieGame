@@ -410,6 +410,16 @@ export interface BossState {
   contactScoreTick: number;
 }
 
+/** A puddle a putrid boss leaves where it lands (spec 07 §1): it hurts whoever stands in it for a while. */
+export interface PuddleState {
+  active: boolean;
+  x: number;
+  y: number;
+  /** Seconds left, and to its next damage tick. */
+  timer: number;
+  tickTimer: number;
+}
+
 /** A burst of hellfire waiting to go off this tick (spec 06 §2.3): queued when a hellfire-burning zombie dies. */
 export interface BlastState {
   active: boolean;
@@ -504,6 +514,10 @@ export interface GameState extends RngState {
   zombies: ZombieState[];
   /** Spec 07: BOSS.maxAlive slots. */
   bosses: BossState[];
+  /** The putrid boss's puddles (pooled, BOSS.puddle.pool). */
+  puddles: PuddleState[];
+  /** Simulated time (s) a boss last started winding up an attack: the next one waits BOSS.attackStagger. */
+  bossAttackAt: number;
   /** Hellfire bursts queued this tick, set off by BurnSystem (pooled). */
   blasts: BlastState[];
   blood: BloodState[];
@@ -760,6 +774,8 @@ export function createGameState(map: MapData, options: GameOptions = {}): GameSt
     bullets: Array.from({ length: BULLETS.poolSize }, createBullet),
     zombies: Array.from({ length: ZOMBIES.poolSize }, createZombie),
     bosses: Array.from({ length: BOSS.maxAlive }, createBoss),
+    puddles: Array.from({ length: BOSS.puddle.pool }, () => ({ active: false, x: 0, y: 0, timer: 0, tickTimer: 0 })),
+    bossAttackAt: -1000,
     blasts: Array.from({ length: ZOMBIES.poolSize }, () => ({ active: false, x: 0, y: 0, owner: -1 })),
     blood: Array.from({ length: ZOMBIES.maxBloodDecals }, createBlood),
     pickups: Array.from({ length: PICKUPS.poolSize }, createPickup),

@@ -483,6 +483,18 @@ export const BOSS = {
   rewardPoints: 500,
   rewardSpread: 14,
   dropSearchTiles: 6,
+  /**
+   * With two bosses (spec 07 §6), only one may start winding up an attack
+   * in each of these spans (s): their warnings never fall all at once.
+   */
+  attackStagger: 0.8,
+  /**
+   * The putrid variant's puddles (spec 07 §1): every landing of its leaps
+   * leaves one this wide (px, its radius: the landing's) for `time` s. A
+   * player in it takes damagePerSecond, in ticks every tickInterval s.
+   * Zombies wade through it unhurt. Pool: `pool` puddles at once.
+   */
+  puddle: { time: 4, radius: 44, damagePerSecond: 10, tickInterval: 0.5, pool: 8 },
   /** The health bar moves in steps of 1/barSteps. */
   barSteps: 100,
 } as const;
@@ -492,6 +504,7 @@ export const DEBUG = {
   bigPoints: 10000,
   /** Money added by the smaller button (spec 04 §5: +5000$). */
   points: 5000,
-  /** IR A RONDA 6 (spec 07 §10): the first boss round. */
+  /** IR A RONDA 6 (spec 07 §10): the first boss round; SIGUIENTE RONDA DE BOSS looks this many rounds ahead at most. */
   bossRound: 6,
+  bossRoundSearch: 60,
 } as const;

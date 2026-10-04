@@ -1,4 +1,4 @@
-import type { BossId } from '../config/bosses';
+import type { BossId, BossVariantId } from '../config/bosses';
 import type { WeaponId } from '../config/weapons';
 /** Rooms by zone id, with their gender for «COCINA DESBLOQUEADA» / «GARAJE DESBLOQUEADO». */
 const ZONES: Readonly<Record<string, { name: string; feminine: boolean }>> = {
@@ -53,6 +53,9 @@ export const STRINGS = {
     itemSpots: 'MOSTRAR PUNTOS DE OBJETO',
     /** Spec 07 §10. */
     goToBossRound: 'IR A RONDA 6',
+    nextBossRound: 'SIGUIENTE RONDA DE BOSS',
+    bossVariant: (name: string): string => `VARIANTE: ${name}`,
+    bossZones: 'MOSTRAR ZONAS DE DAÑO',
     summonBoss: 'INVOCAR MATARIFE',
     killBoss: 'MATAR BOSS',
     forceCharge: 'FORZAR EMBESTIDA',
@@ -217,6 +220,8 @@ export const STRINGS = {
     health: (name: string): string => `Vida de ${name}`,
     /** Under the round banner in a boss round (spec 07 §6). */
     incoming: 'ALGO GRANDE SE ACERCA',
+    /** The variants, by id (the debug panel's selector). */
+    variants: { base: 'BASE', rabid: 'RABIOSO', putrid: 'PÚTRIDO' } as Readonly<Record<BossVariantId, string>>,
   },
   /** Special items (spec 05), by id. */
   items: {

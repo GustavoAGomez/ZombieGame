@@ -118,7 +118,7 @@ Magos con gabardina que venden munición y mejoras. Sus puntos de aparición son
 
 | Objeto | Cómo se consigue |
 |---|---|
-| Corazón vivo | Se lleva desde el inicio de la partida (provisional: más adelante se conseguirá de otra forma) |
+| Corazón vivo | Lo suelta el primer boss que muere en la partida (el Matarife de la ronda 6), donde cae; se queda en el suelo hasta que alguien lo recoge |
 | Varita desgastada | Al empezar la partida aparece en un punto de objeto al azar de cualquier zona salvo la inicial, y se queda ahí hasta que alguien la recoge |
 
 - **Puntos de objeto:** 1 o 2 por zona, también en el sótano y la azotea (19 en la mansión). Cada uno está junto a algo que cuenta una historia: la caja fuerte abierta del estudio, la puerta abierta del coche del garaje, la barbacoa volcada, el refugio del sótano… En el suelo, el objeto se ve dentro de un foco circular de luz ámbar: la varita flota sobre él con rayos chisporroteando en la punta. Los objetos se ven animados también en el inventario y en el botón de recoger: la varita con sus rayos y el corazón vivo latiendo. En una zona cerrada o a oscuras se ve como el resto de cosas de la habitación: no hay flecha ni indicador hacia él, hay que encontrarlo.
@@ -139,6 +139,7 @@ Magos con gabardina que venden munición y mejoras. Sus puntos de aparición son
   - Al caer el segundo, el agua hierve en rojo 1,5 s, sale el aviso «EL MAGO ROJO HA SIDO INVOCADO» y el mago aparece con su humo en el punto de mago del borde de la piscina (si está ocupado, en el siguiente más cercano del jardín).
   - Desde la ronda siguiente se teletransporta como los demás.
   - El jardín empieza cerrado: para completar el ritual hay que desbloquearlo antes (1500$, por la puerta de la cocina o la de la biblioteca).
+  - Como el corazón lo suelta el primer boss, el mago rojo no se puede invocar antes de la ronda 6.
 
 ## Economía
 
@@ -155,6 +156,7 @@ Magos con gabardina que venden munición y mejoras. Sus puntos de aparición son
 | Rayo del láser o chorro del lanzallamas (una vez cada 0,5 s por zombi) | +5 |
 | Baja (se suma a lo del golpe que la causa) | +50 |
 | Tablón reparado (como mucho 500 por ronda; después se repara sin ganar nada) | +10 |
+| Boss muerto (a cada jugador vivo; sus impactos puntúan aparte, como en un zombi) | +500 |
 
 - **Precios vigentes:**
 
@@ -197,6 +199,61 @@ Un agujero en el suelo, sellado por una costra con grietas de brasa, del que sal
 - **Se cansa:** en cada sitio acepta de 4 a 8 usos, al azar. Una tirada que no da nada también cuenta.
   - Al pago siguiente sale, hace un gesto obsceno (el dedo corazón, con el dorso de la mano hacia ti) durante 1,5 s, devuelve el pago (dinero o vida) y se hunde.
   - 2 s después reaparece en el punto de otra sala, distinta de la actual y del recibidor, esté abierta o no. Sale el aviso «LA MANO SE HA MOVIDO» y se sortean sus usos de nuevo.
+
+## Bosses
+
+Zombis enormes que salen del suelo en rondas fijas. Hoy hay uno, **el Matarife**: un zombi gordo con un mazo, del tamaño de una furgoneta. Sus números están en `src/config/bosses.ts` (catálogo, variantes y calendario) y en `BOSS` de `balance.ts`.
+
+- **Calendario:**
+
+| Ronda | Bosses |
+|---|---|
+| 6 | Matarife |
+| 12 | Matarife rabioso |
+| 18 | Dos Matarifes |
+| 24 | Matarife pútrido |
+| 30 | Matarife rabioso y Matarife |
+| Desde la 36, cada 6 | Se repiten las rondas 12 a 30, con la vida ×1,3 por cada vuelta (×1,3, ×1,69…) |
+
+- **La ronda de boss:**
+  - Bajo el cartel de ronda sale «ALGO GRANDE SE ACERCA».
+  - Salen la mitad de los zombis que tocarían (redondeando hacia arriba), y los bosses 5 s después del cartel.
+  - Termina cuando han muerto los bosses y todos los zombis. Cualquier boss vivo la retiene, también uno invocado con el debug.
+  - Si se acaban los zombis con un boss vivo, entra uno cada 6 s mientras haya menos de 4 vivos, 20 como mucho.
+  - Una flecha roja en el borde de la pantalla señala al boss cuando no se ve (solo en el nivel en el que estás).
+  - Los magos y la mano funcionan igual.
+- **Cómo entra:** por un punto de salida (1 a 3 por sala, también en el sótano y la azotea), el más cercano andando entre los que están a 5 casillas o más; si no hay ninguno tan lejos, el más lejano.
+  - **Aviso, 3 s:** se abre una grieta de 3×3 casillas con brasas, el suelo tiembla y vibra el móvil.
+  - **Salida, 1,2 s:** trepa sin poder recibir daño, aplasta el atrezo de la grieta y quien esté dentro recibe 20 y sale despedido.
+  - **Rugido, 1 s:** aparece su barra de vida.
+  - Si cambias de nivel (sótano, azotea) o pasa 5 s sin poder llegar hasta ti, se hunde (1,2 s, sin recibir daño) y vuelve a salir cerca, con la misma vida.
+- **El Matarife:**
+  - **Cuerpo:** huella de 2×2 casillas, por eso cruza las puertas y los pasos de 2. Dibujo de unos 96×110 y caja de impacto de 64×80.
+  - **Vida y velocidad:** 100 (× variante × vuelta × jugadores); anda a 38 px/s.
+  - **Choques:** las paredes, puertas cerradas, ventanas, agua, vitrinas, escaleras, magos y el agujero de la mano lo paran. Los muebles con colisión los aplasta para el resto de la partida: pierden la colisión para todos y queda una mancha de astillas.
+  - **Contacto:** aparta a los zombis y te empuja sin hacerte daño; el dash lo atraviesa. Andando no hace daño: solo dañan sus ataques.
+  - **Inmunidades:** no se le empuja, no pierde las piernas y no muere de un golpe. Le dañan todas las armas, la quemadura incluida; las balas perforantes lo atraviesan.
+- **Sus ataques:** todos se anuncian. Se queda quieto en una pose y en el suelo se dibuja en rojo la zona exacta del golpe, llenándose hasta que cae. El dash es invulnerable y sirve contra los tres.
+
+| Ataque | Aviso | Golpe | Después |
+|---|---|---|---|
+| **Embestida** | 1 s agachado, con un pasillo de 64 px hacia ti que llega hasta donde va a chocar; la dirección te sigue y se fija 0,3 s antes de salir | Corre hasta 256 px a 300 px/s: 45 de daño (una vez) y un empujón de 24 px; aplasta muebles y mata a los zombis de su camino, sin dar puntos | Contra una pared, aturdido 2 s recibiendo el doble de daño; si no, frena 0,6 s |
+| **Triple mazazo** | Arco de 160° hasta 84 px, dibujado antes de cada golpe (0,7 s el primero, 0,5 s los siguientes) | 30 por golpe y empujón de 16 px, tres golpes; entre golpes gira hacia ti (45° como mucho) y avanza 16 px | 1,2 s quieto |
+| **Tres saltos** | Círculo de 44 px donde estabas al despegar; 0,7 s en el aire, sin poder recibir daño | Aterrizaje: 45 a menos de 44 px de su centro. Onda: un anillo de 16 px que crece hasta 130 px a 170 px/s, 20 de daño una vez por salto; las paredes la paran y no daña a los zombis. Corriendo en línea recta no te alcanza; andando (disparando), sí | 0,5 s entre saltos y 1,5 s quieto tras el tercero; salta como mucho 360 px |
+
+- **Qué ataque elige:** entre ataques anda hacia ti de 1,5 a 2,5 s. Luego, según la distancia: a menos de 90 px, mazazo (70 %) o saltos (30 %); hasta 260 px con línea recta despejada, embestida (60 %) o saltos (40 %); más lejos, saltos (si estás a un salto) o sigue andando. Nunca repite el mismo ataque dos veces seguidas.
+- **Furia:** al bajar del 50 % de vida ruge 1 s con un destello rojo y queda enfurecido hasta morir: anda un 25 % más rápido y la mitad de tiempo entre ataques; las preparaciones no cambian. Su barra se pone ámbar.
+- **Variantes:** el mismo boss teñido. La preparación de un ataque nunca baja del 80 % de la base.
+
+| Variante | Tinte | Vida | Daño | Preparación | Extra |
+|---|---|---|---|---|---|
+| Base | — | ×1 | ×1 | ×1 | — |
+| Rabioso | Rojizo | ×1,8 | ×1,25 | ×0,85 | Empieza enfurecido |
+| Pútrido | Verde enfermizo | ×2,5 | ×1,5 | ×0,85 | Empieza enfurecido; cada aterrizaje deja un charco de 44 px que hace 10 de daño por segundo durante 4 s |
+
+- **Dos bosses a la vez:** solo uno puede empezar a preparar un ataque cada 0,8 s, para que sus avisos no caigan juntos. Salen por puntos distintos y nunca se pisan. Sus barras se apilan.
+- **Barra de vida:** arriba en el centro, bajo la pausa, con su nombre («EL MATARIFE») y una marca en el 50 %. Se oculta mientras hay una tienda abierta.
+- **Al morir:** 500 puntos y 500$ a cada jugador vivo, un botiquín y una caja de munición, y la primera vez en la partida, el corazón vivo.
 
 ## Salas
 

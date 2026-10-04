@@ -1673,3 +1673,23 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 - **Objetos que aparecen a mitad de partida:** la vista de los objetos del suelo crea la del corazón cuando aparece. Pasa una vez por partida, así que no hace falta un pool.
 - **Debug:** `IR A RONDA 6` limpia zombies y bosses y empieza la ronda 6. `RONDA +1` también quita los bosses.
 - **Tests adaptados:** los que daban por hecho el corazón al empezar ahora lo dan a mano. El de las rondas 1 a 10 cuenta la mitad de zombies en la 6 y mata también al boss.
+
+## Spec 07 · Fase B6 (variantes, dos bosses, rondas 12 en adelante, debug y documentación)
+
+- **Variantes:** ya se aplicaban desde la B1 (vida, tinte, empezar enfurecido) y la B3–B4 (daño y preparaciones). La B6 añade el charco del pútrido.
+- **Charco pútrido:** la spec no da sus números. Elegí:
+  - **Tamaño:** el radio del aterrizaje, 44 px.
+  - **Daño:** 10 por segundo en golpes de 5 cada 0,5 s, durante 4 s, sin multiplicar por la variante. Quedarse dentro todo el rato quita 40.
+  - **Golpes:** no empujan (se dañan desde la posición del jugador) y el dash los esquiva. Los zombies lo cruzan sin daño.
+  - Hay 8 charcos como mucho a la vez (el pool); si se llena, desaparece el que menos tiempo le queda. Se dibuja verde, desvaneciéndose en su último segundo.
+- **Dos bosses:** solo uno puede empezar a preparar un ataque cada 0,8 s (`GameState.bossAttackAt`); el otro espera lo que falte. Afecta también a uno solo enfurecido, cuyas pausas (0,75 a 1,25 s) pueden quedar 0,05 s más largas.
+  - Salen por puntos distintos (B2) y se separan si se tocan (B1). Si con las salas abiertas solo hay un punto libre (por ejemplo, todo cerrado salvo el recibidor), el segundo sale en la posición libre más cercana a 5 casillas o más.
+- **Rondas 12 en adelante:** salen del calendario (B1) sin código aparte. Comprobado por test: rabioso en la 12, dos base en la 18, pútrido en la 24 y la 36 como la 12 con ×1,3 de vida.
+- **Debug:**
+  - **`SIGUIENTE RONDA DE BOSS`:** salta a la siguiente ronda del calendario con bosses (6, 12, 18, 24…), además de `IR A RONDA 6`. Es la forma de probar las rondas 12, 18 y 24 que pide la spec.
+  - **`VARIANTE: BASE`:** cambia en cada toque la variante que usa `INVOCAR MATARIFE` (base, rabioso, pútrido). Es el selector de variante de la spec; el botón muestra la elegida.
+  - **`MOSTRAR ZONAS DE DAÑO`:** dibuja en magenta dónde daña de verdad cada golpe de cada boss: el contacto de la embestida (su huella más el radio del jugador), el arco del mazazo tal como apunta ahora, el círculo de aterrizaje, la banda de la onda y los charcos.
+  - El panel ya tiene 33 botones; con botones de 30 px y columnas de 116 px siguen cabiendo todos sin desplazar en 640×360.
+- **Documentación final:**
+  - `GAME-DESIGN.md` tiene la sección *Bosses* con las reglas tal como están, el corazón vivo como recompensa del primer boss y los 500 por boss en la economía.
+  - `ROADMAP.md` marca las rondas especiales como hechas con este sistema, cierra la pregunta del corazón y corrige el reparto de la mano (10 % especial, 80 % básica), que se había quedado viejo.
