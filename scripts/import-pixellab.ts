@@ -340,7 +340,8 @@ const OBJECTS_DIR = 'objects';
 /**
  * Imports one object of the manifest from art-src/pixellab/objects/<key>/:
  * the PixelLab images (one PNG per frame, as downloaded) and an import.json
- * naming them in frame order, { "frames": ["fist.png", "offer.png", …] }.
+ * naming them in frame order, { "frames": ["fist.png", "offer.png", …] },
+ * with "mirror": true to flip them left to right.
  * Frames go left to right at the declared canvas (a frame of another size
  * is centred, as for characters), with binary alpha and the palette;
  * writes the object's file and marks it as real art in the manifest.
@@ -356,12 +357,15 @@ export function importObject(root: string, key: string, manifest: Json, palette:
   const optionsPath = join(dir, 'import.json');
   const json: unknown = existsSync(optionsPath) ? JSON.parse(readFileSync(optionsPath, 'utf8')) : null;
   const names = isRecord(json) && Array.isArray(json.frames) ? json.frames.filter((f): f is string => typeof f === 'string') : [];
+  // Drawn facing the other way (a slash curving the wrong side): "mirror": true flips every frame.
+  const mirror = isRecord(json) && json.mirror === true;
   if (names.length === 0) {
     log(`  ✖ ${key}: falta import.json con "frames" (los PNG en orden de fotograma)`);
     return false;
   }
   const { frameWidth, frameHeight, file } = def;
-  const frames = names.map((name) => readFrame(dir, name));
+  const frames = names.map((name) => (mirror ? flipHorizontal(readFrame(dir, name)) : readFrame(dir, name)));
+  if (mirror) log('  · en espejo (import.json)');
   frames.forEach((f, i) => {
     if (f.width === frameWidth && f.height === frameHeight) return;
     log(`  · ${names[i]}: ${f.width}×${f.height}, centrado en ${frameWidth}×${frameHeight}`);

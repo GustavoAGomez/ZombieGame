@@ -36,7 +36,7 @@ export class InputCollector {
     this.root.className = 'controls';
     hudRoot.appendChild(this.root);
     this.joystick = new VirtualJoystick(this.root);
-    this.fireStick = new FireStick(this.root);
+    this.fireStick = new FireStick(this.root, events);
     this.weaponBar = new WeaponBar(this.root, events);
     this.buttons = new ActionButtons(this.root, events);
     this.chip = new ContextButton(this.root, events);

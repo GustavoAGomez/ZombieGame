@@ -119,29 +119,28 @@ function updateAim(ctx: SimContext, p: PlayerState, cmd: InputCommand): void {
   p.aimManual = cmd.fire && cmd.aimManual;
   if (!cmd.fire) return;
 
+  // A melee weapon in hand (the katana) only cuts straight ahead, where the player faces: its button
+  // takes no aim and nothing turns it towards a zombie (petición del usuario).
+  const inHand = p.weapons[p.activeSlot];
+  if (inHand && WEAPONS[inHand.id].attack === 'melee') {
+    p.aimManual = false;
+    p.aimX = Math.cos(p.facing);
+    p.aimY = Math.sin(p.facing);
+    return;
+  }
+
   if (cmd.aimManual) {
     p.aimX = cmd.aimX;
     p.aimY = cmd.aimY;
   } else {
     const def = p.weapons[p.activeSlot] ? WEAPONS[p.weapons[p.activeSlot]!.id] : undefined;
-    // A melee weapon turns to the nearest zombie in its reach, like the knife: straight at it, no muzzle.
-    const melee = def?.attack === 'melee';
-    const range = def ? def.range + (melee ? ZOMBIES.hitboxRadius : 0) : MELEE.range;
+    const range = def ? def.range : MELEE.range;
     const target = findAutoAimTarget(ctx, p.x, p.y, range);
     const z = target >= 0 ? ctx.state.zombies[target] : undefined;
     // A boss in reach and nearer than that zombie is the target instead (spec 07).
     const boss = autoAimBoss(ctx, p, range, z ? Math.hypot(z.x - p.x, z.y - p.y) : Infinity);
-    if (boss && melee) {
-      const at = nearestOnBoss(boss, ctx.map.tileSize, p.x, p.y, scratchPoint);
-      const len = Math.hypot(at.x - p.x, at.y - p.y) || 1;
-      p.aimX = (at.x - p.x) / len;
-      p.aimY = (at.y - p.y) / len;
-    } else if (boss) aimAtBody(ctx, p, boss.x, bossFeetY(boss, ctx.map.tileSize), bossHurtbox(boss));
-    else if (z && melee) {
-      const len = Math.hypot(z.x - p.x, z.y - p.y) || 1;
-      p.aimX = (z.x - p.x) / len;
-      p.aimY = (z.y - p.y) / len;
-    } else if (z) aimAtBody(ctx, p, z.x, z.y, hurtboxOf(z));
+    if (boss) aimAtBody(ctx, p, boss.x, bossFeetY(boss, ctx.map.tileSize), bossHurtbox(boss));
+    else if (z) aimAtBody(ctx, p, z.x, z.y, hurtboxOf(z));
     else {
       p.aimX = Math.cos(p.facing);
       p.aimY = Math.sin(p.facing);

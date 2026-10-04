@@ -579,9 +579,16 @@
     "melee_slash": {
       "file": "sprites/objects/melee_slash.png",
       "frameWidth": 32,
-      "frameHeight": 32,
+      "frameHeight": 48,
+      "frames": 6,
+      "placeholder": false
+    },
+    "katana_slash": {
+      "file": "sprites/objects/katana_slash.png",
+      "frameWidth": 88,
+      "frameHeight": 168,
       "frames": 4,
-      "placeholder": true
+      "placeholder": false
     },
     "merchant_blue": {
       "file": "sprites/objects/merchant_blue.png",

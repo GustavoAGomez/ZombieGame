@@ -29,7 +29,7 @@ El daño se cuenta en las mismas unidades que la vida de los zombis: una bala de
   - Rota, y sin munición en las demás armas, el botón de disparo da cuchilladas.
 - **Sin munición ni recarga.** En el HUD, donde irían los números, salen los usos que le quedan (también en su hueco de la barra de armas). Mientras se enfría, una barra que se va llenando aparece a su lado; rota, el número sale en rojo con «ROTA» parpadeando.
 - **Al pulsar:** el barrido sale sin la espera del primer disparo, y el jugador corre a su velocidad normal mientras ataca.
-- **Dirección:** la del arrastre del botón de disparo. Sin arrastre, hacia el zombi más cercano a su alcance, como el cuchillo.
+- **Dirección:** solo hacia delante, hacia donde mira el jugador (la última dirección en la que se movió). Con la katana en la mano, el botón de disparo es un botón de acción con su icono: no se arrastra para apuntar ni gira hacia ningún zombi.
 - **Bloqueos y puntos:** una pared entre medias protege al zombi (una ventana no). Puntúa como el cuchillo: 10 por cada zombi golpeado.
 - El cuchillo sigue en su botón, sin cambios.
 

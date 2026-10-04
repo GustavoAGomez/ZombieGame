@@ -197,7 +197,7 @@ export class GameScene extends Phaser.Scene {
     this.flameJet = new FlameJet(this, playerDef, events, manifest);
     this.handView = new HandView(this, this.map, events, manifest);
     this.muzzleFlash = new MuzzleFlash(this, playerDef);
-    this.meleeSlash = new MeleeSlash(this, playerDef, manifest.objects[ASSET_KEYS.meleeSlash]);
+    this.meleeSlash = new MeleeSlash(this, manifest.objects[ASSET_KEYS.meleeSlash], manifest.objects[ASSET_KEYS.katanaSlash]);
     this.worldTexts = new WorldTextPool(this, events);
     this.cantUseText = new CantUseText(this, events);
     this.thrownItems = new ThrownItemViews(this, events, manifest);

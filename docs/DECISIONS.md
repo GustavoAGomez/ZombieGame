@@ -1815,3 +1815,19 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - Con los márgenes mínimos (24 y 20 px) queda a 6 px de los dos bordes. En un iPhone con muesca (47 y 21 px) se mete dentro de la esquina redondeada del área segura.
   - Comprobado a 667×375: a 6 px de cada borde, y pausa.
 - **Barras de los bosses:** suben arriba del todo (`pad-top + 6 px`) con el nombre encima, y su marco queda a la altura del de la vida. Siguen centradas, y en las pantallas más estrechas se desplazan a la izquierda para no pisar la fila de objetos especiales (la misma fórmula que tenía la pausa).
+
+## La katana corta solo hacia delante, y los tajos nuevos (petición del usuario)
+
+- **Control de la katana:**
+  - Con un arma cuerpo a cuerpo en la mano (hoy la katana), el apuntado es siempre hacia donde mira el jugador (`WeaponSystem.updateAim`): se ignoran el arrastre del botón y el giro automático hacia el zombi o el boss más cercano. Mientras corre, mira hacia donde se mueve, así que corta en esa dirección.
+  - La regla vive en la simulación: el botón sigue enviando solo «disparar» (CLAUDE.md, regla 2).
+  - El botón de disparo (`FireStick`) escucha `weapon:state`. Con un arma cuerpo a cuerpo muestra el icono de esa arma (su fotograma de la hoja de iconos de armas), no mueve la palanca y su etiqueta es «Cortar hacia delante».
+  - Mantener pulsado sigue repitiendo el corte en cuanto se enfría (uno por segundo), como antes.
+  - Rota y sin munición en las demás armas, el botón da cuchilladas hacia donde mira.
+  - El cuchillo no cambia: en su botón sigue girándose hacia el zombi más cercano a su alcance.
+- **Tajos de PixelLab** (sustituyen al arco provisional, que la katana ampliaba 5 veces):
+  - Cada uno es una imagen de *Create Image (Pro)* elegida por el usuario (la katana, la 3 de 4; el cuchillo, la 1 de 16), animada con *Animate Image* («el tajo se disipa en el sitio»).
+  - El dibujo va mirando a la derecha alrededor del centro izquierdo del fotograma (origen 0; 0,5), a 2 px (cuchillo) o 12 px (katana) delante del pecho del jugador, girado hacia el corte. Se ve en cuanto empieza el golpe y se desvanece en el último 40 % de sus 0,25 s.
+  - **Cuchillo:** se descartó el último fotograma generado, que traía una línea discontinua suelta.
+  - **Katana:** de su animación solo valen los 4 primeros fotogramas; los demás oscurecían la media luna sin adelgazarla, de ahí el desvanecido por código. Se importa en espejo (`"mirror": true` en su `import.json`): PixelLab la dibujó abultando hacia el lado contrario al pedido.
+- **Coste:** 48 generaciones (25 y 20 de las imágenes, 2 y 1 de las animaciones).

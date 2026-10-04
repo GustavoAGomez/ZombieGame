@@ -65,6 +65,8 @@ export const STRINGS = {
   controls: {
     joystick: 'Joystick de movimiento',
     fire: 'Disparar: arrastra para apuntar',
+    /** The fire button with a melee weapon in hand (the katana): it cuts ahead, no aim. */
+    slash: 'Cortar hacia delante',
     weaponSlot: (n: number) => `Arma ${n}`,
     special: 'Movimiento especial',
     reload: 'Recargar',

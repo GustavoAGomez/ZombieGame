@@ -24,8 +24,10 @@ function withKatana(): SimContext {
   return ctx;
 }
 
+/** The player faces east and presses the button: the katana cuts where the player faces. */
 function swingEast(ctx: SimContext): void {
-  Object.assign(command(ctx), { fire: true, aimManual: true, aimX: 1, aimY: 0 });
+  player(ctx).facing = 0;
+  command(ctx).fire = true;
   updateWeapons(ctx, DT);
 }
 
@@ -134,20 +136,26 @@ describe('katana', () => {
     p.x = d1.center.x;
     p.y = d1.y - 10;
     const z = placeZombie(ctx, 0, d1.center.x, d1.y + d1.height + 12, 100);
-    Object.assign(command(ctx), { fire: true, aimManual: true, aimX: 0, aimY: 1 });
+    p.facing = Math.PI / 2; // south, at the door
+    command(ctx).fire = true;
     updateWeapons(ctx, DT);
     expect(z.hp).toBe(100);
   });
 
-  it('without a drag turns to the nearest zombie in reach, like the knife', () => {
+  it('only cuts where the player faces: a drag does not aim it, and a zombie beside it does not turn it (petición del usuario)', () => {
     const ctx = withKatana();
     const p = player(ctx);
     p.facing = 0; // east
-    const z = placeZombie(ctx, 0, p.x, p.y + 30, 100); // south
-    command(ctx).fire = true;
+    const south = placeZombie(ctx, 0, p.x, p.y + 30, 100);
+    const ahead = placeZombie(ctx, 1, p.x + 30, p.y, 100);
+    // Dragged south: the drag is ignored.
+    Object.assign(command(ctx), { fire: true, aimManual: true, aimX: 0, aimY: 1 });
     updateWeapons(ctx, DT);
-    expect(p.aimY).toBeCloseTo(1);
-    expect(z.hp).toBe(100 - KATANA.damage);
+    expect(p.aimX).toBeCloseTo(1);
+    expect(p.aimManual).toBe(false);
+    expect(p.facing).toBeCloseTo(0);
+    expect(south.hp).toBe(100);
+    expect(ahead.hp).toBe(100 - KATANA.damage);
   });
 
   it('does not slow the player down while attacking, unlike a gun', () => {

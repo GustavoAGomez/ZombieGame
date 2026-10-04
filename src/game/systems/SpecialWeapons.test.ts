@@ -25,7 +25,11 @@ function holding(id: WeaponId, special = false): SimContext {
 }
 
 /** Fire held past the first-shot delay, dragged east. */
-const fireEast = (ctx: SimContext): void => void Object.assign(holdFire(ctx), { aimManual: true, aimX: 1, aimY: 0 });
+/** Fires east: dragged east, and facing east (the katana only cuts where the player faces). */
+const fireEast = (ctx: SimContext): void => {
+  player(ctx).facing = 0;
+  Object.assign(holdFire(ctx), { aimManual: true, aimX: 1, aimY: 0 });
+};
 const slot = (ctx: SimContext) => player(ctx).weapons[0]!;
 
 describe('flamethrower', () => {

@@ -172,6 +172,7 @@ export const ASSET_KEYS = {
   pickupHealth: 'pickup_health',
   muzzleFlash: 'muzzle_flash',
   meleeSlash: 'melee_slash',
+  katanaSlash: 'katana_slash',
   /** Merchant bodies are `merchant_<id>` (merchantTextureKey). */
   merchantGem: 'merchant_gem',
   smokePuff: 'smoke_puff',
