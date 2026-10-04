@@ -12,8 +12,11 @@
  *
  * Pieces from other exports (a later kit with a native small ring and the
  * hexagon and octagon buttons) are named in art-src/pixellab/hud/import.json:
- * `{ "pieces": { "<name>": "<PNG path from art-src/pixellab/hud/>" } }`.
- * They are cropped the same way and replace or add to the kit's pieces.
+ * `{ "pieces": { "<name>": "<PNG path from art-src/pixellab/hud/>" } }`, or
+ * `{ "from": "<sheet PNG>", "rect": [x, y, width, height] }` to cut a piece
+ * out of a whole sheet when PixelLab's own element came cropped too tight
+ * (the health bar lost its top, bottom and right border). They are cropped
+ * the same way and replace or add to the kit's pieces.
  *
  * Nothing is repainted: the rings are tinted at runtime (src/ui/skin.ts), the
  * panel and the plate are drawn with 9-slice, and the game draws the health
@@ -51,16 +54,18 @@ export interface UiPiece {
   width: number;
   height: number;
   slice?: Slice;
-  /** The health bar's trough, where the game draws the segments, and its heart (px of the image). */
+  /** A bar's trough, where the game draws its fill (the health segments), and the health bar's heart (px of the image). */
   trough?: Rect;
   heart?: Rect;
 }
 
 type PieceName = 'ringLarge' | 'ringMedium' | 'panel' | 'plate' | 'healthFrame';
-/** Pieces that only come from import.json: the polygon buttons. */
-type ExtraName = 'hexagon' | 'octagon';
+/** Pieces that only come from import.json: the polygon buttons and the boss's and the weapon's bars. */
+type ExtraName = 'hexagon' | 'octagon' | 'bossFrame' | 'gaugeFrame';
 type OutputName = PieceName | 'ringSmall' | ExtraName;
-const OUTPUT_NAMES: readonly OutputName[] = ['ringLarge', 'ringMedium', 'ringSmall', 'hexagon', 'octagon', 'panel', 'plate', 'healthFrame'];
+const OUTPUT_NAMES: readonly OutputName[] = ['ringLarge', 'ringMedium', 'ringSmall', 'hexagon', 'octagon', 'panel', 'plate', 'healthFrame', 'bossFrame', 'gaugeFrame'];
+/** Bars measured for their trough (the game draws their fill in it). */
+const BARS: readonly OutputName[] = ['bossFrame', 'gaugeFrame'];
 
 const LABELS: Record<OutputName, string> = {
   ringLarge: 'ARO GRANDE',
@@ -71,6 +76,8 @@ const LABELS: Record<OutputName, string> = {
   panel: 'PANEL',
   plate: 'PLACA',
   healthFrame: 'BARRA DE VIDA',
+  bossFrame: 'BARRA DEL BOSS',
+  gaugeFrame: 'MEDIDOR DEL ARMA',
 };
 
 const FILES: Record<OutputName, string> = {
@@ -82,6 +89,8 @@ const FILES: Record<OutputName, string> = {
   panel: 'panel.png',
   plate: 'plate.png',
   healthFrame: 'health_frame.png',
+  bossFrame: 'boss_frame.png',
+  gaugeFrame: 'gauge_frame.png',
 };
 
 const at = (f: Frame, x: number, y: number): number => (y * f.width + x) * 4;
@@ -224,14 +233,39 @@ export function measureHealthBar(f: Frame): { trough: Rect; heart: Rect } {
  * border is measured as before (measureHealthBar), untouched.
  */
 export function prepareHealthBar(f: Frame): { frame: Frame; trough: Rect; heart: Rect } {
+  const found = boneRimTrough(f);
+  if (!found) return { frame: f, ...measureHealthBar(f) };
+  const { inside, trough } = found;
+  const { x: x0, y: y0 } = trough;
+  const x1 = x0 + trough.width - 1;
+  const y1 = y0 + trough.height - 1;
+  const out: Frame = { width: f.width, height: f.height, pixels: f.pixels.slice() };
+  // Each row of the trough takes the colour of its empty end (one pixel in from its rightmost pixel).
+  for (let y = y0; y <= y1; y++) {
+    let right = -1;
+    for (let rx = x1; rx >= x0 && right < 0; rx--) if (inside[y * f.width + rx]) right = rx;
+    if (right < 0) continue;
+    const ref = inside[y * f.width + right - 1] ? right - 1 : right;
+    const colour = f.pixels.slice(at(f, ref, y), at(f, ref, y) + 4);
+    for (let rx = x0; rx <= right; rx++) if (inside[y * f.width + rx]) out.pixels.set(colour, at(out, rx, y));
+  }
+  return { frame: out, trough, heart: colouredHeart(out, x0) ?? measureHealthBar(f).heart };
+}
+
+/**
+ * A bar's trough: what a bone-white border encloses, coming in from its
+ * right end past that border and the dark outline inside it, every pixel
+ * neither as dark as the outline nor as light as the border. Null for a bar
+ * without that border.
+ */
+function boneRimTrough(f: Frame): { inside: Uint8Array; trough: Rect } | null {
   const midY = Math.floor(f.height / 2);
   const isBone = (x: number, y: number): boolean => alpha(f, x, y) > 0 && luma(rgb(f, x, y)) > 170;
   let x = f.width - 1;
   while (x > f.width / 2 && !isBone(x, midY)) x--;
-  if (x <= f.width / 2) return { frame: f, ...measureHealthBar(f) };
+  if (x <= f.width / 2) return null;
   // Past the border and the dark outline inside it: the first pixel of the trough.
   while (x > 0 && (isBone(x, midY) || luma(rgb(f, x, midY)) < 22)) x--;
-  const out: Frame = { width: f.width, height: f.height, pixels: f.pixels.slice() };
   const inside = new Uint8Array(f.width * f.height);
   const stack: [number, number][] = [[x, midY]];
   let x0 = Infinity;
@@ -243,7 +277,7 @@ export function prepareHealthBar(f: Frame): { frame: Frame; trough: Rect; heart:
     if (px < 0 || py < 0 || px >= f.width || py >= f.height || inside[py * f.width + px]) continue;
     const l = luma(rgb(f, px, py));
     if (alpha(f, px, py) === 0 || l < 22 || l > 170) continue;
-    if (px === 0 || py === 0 || px === f.width - 1 || py === f.height - 1) throw new Error('el hueco de la barra de vida no está cerrado');
+    if (px === 0 || py === 0 || px === f.width - 1 || py === f.height - 1) throw new Error('el hueco de la barra no está cerrado');
     inside[py * f.width + px] = 1;
     x0 = Math.min(x0, px);
     y0 = Math.min(y0, py);
@@ -251,17 +285,14 @@ export function prepareHealthBar(f: Frame): { frame: Frame; trough: Rect; heart:
     y1 = Math.max(y1, py);
     stack.push([px + 1, py], [px - 1, py], [px, py + 1], [px, py - 1]);
   }
-  // Each row of the trough takes the colour of its empty end (one pixel in from its rightmost pixel).
-  for (let y = y0; y <= y1; y++) {
-    let right = -1;
-    for (let rx = x1; rx >= x0 && right < 0; rx--) if (inside[y * f.width + rx]) right = rx;
-    if (right < 0) continue;
-    const ref = inside[y * f.width + right - 1] ? right - 1 : right;
-    const colour = f.pixels.slice(at(f, ref, y), at(f, ref, y) + 4);
-    for (let rx = x0; rx <= right; rx++) if (inside[y * f.width + rx]) out.pixels.set(colour, at(out, rx, y));
-  }
-  const trough = { x: x0, y: y0, width: x1 - x0 + 1, height: y1 - y0 + 1 };
-  return { frame: out, trough, heart: colouredHeart(out, x0) ?? measureHealthBar(f).heart };
+  return { inside, trough: { x: x0, y: y0, width: x1 - x0 + 1, height: y1 - y0 + 1 } };
+}
+
+/** The trough of an empty bar (the boss's, the weapon's gauge), where the game draws its fill. */
+export function measureTrough(f: Frame): Rect {
+  const found = boneRimTrough(f);
+  if (!found) throw new Error('no encuentro el hueco de la barra (sin borde claro alrededor)');
+  return found.trough;
 }
 
 /** The biggest blob of coloured pixels (8-neighbours) left of `beforeX`, grown by one pixel for its outline; null without one. */
@@ -363,17 +394,30 @@ function readKit(dir: string): Frame[] {
   return splitSheet(readFrame(join(dir, sheet)));
 }
 
+/** A piece in import.json: a PNG of its own, or a rectangle cut out of a sheet. */
+type PieceSource = string | { from: string; rect: [number, number, number, number] };
+
 /** The pieces named in import.json (next to the kit), cropped; none without the file. */
 export function readExtraPieces(dir: string): Partial<Record<OutputName, Frame>> {
   const configPath = join(dir, 'import.json');
   if (!existsSync(configPath)) return {};
-  const config = JSON.parse(readFileSync(configPath, 'utf8')) as { pieces?: Record<string, string> };
+  const config = JSON.parse(readFileSync(configPath, 'utf8')) as { pieces?: Record<string, PieceSource> };
   const pieces: Partial<Record<OutputName, Frame>> = {};
-  for (const [name, file] of Object.entries(config.pieces ?? {})) {
+  for (const [name, source] of Object.entries(config.pieces ?? {})) {
     if (!(OUTPUT_NAMES as readonly string[]).includes(name)) throw new Error(`import.json: pieza desconocida "${name}" (válidas: ${OUTPUT_NAMES.join(', ')})`);
+    const file = typeof source === 'string' ? source : source.from;
     const path = join(dir, file);
     if (!existsSync(path)) throw new Error(`import.json: no existe ${file}`);
-    pieces[name as OutputName] = cropToBounds(readFrame(path));
+    const image = readFrame(path);
+    if (typeof source === 'string') {
+      pieces[name as OutputName] = cropToBounds(image);
+      continue;
+    }
+    const [x, y, width, height] = source.rect;
+    if (x < 0 || y < 0 || width <= 0 || height <= 0 || x + width > image.width || y + height > image.height) {
+      throw new Error(`import.json: el rectángulo de "${name}" se sale de ${file} (${image.width}×${image.height})`);
+    }
+    pieces[name as OutputName] = cropToBounds(cut(image, x, y, width, height));
   }
   return pieces;
 }
@@ -393,6 +437,13 @@ export function importHud(root: string, log: (line: string) => void): Record<str
     plate: { slice: PLATE_SLICE },
     healthFrame: { trough: bar.trough, heart: bar.heart },
   };
+  for (const name of BARS) {
+    const frame = kit[name];
+    if (!frame) continue;
+    const trough = measureTrough(frame);
+    props[name] = { trough };
+    log(`  · ${LABELS[name].toLowerCase()}: hueco x ${trough.x}, y ${trough.y}, ${trough.width}×${trough.height}`);
+  }
   const pieces: Record<string, UiPiece> = {};
   const review: SheetEntry[] = [];
   for (const name of OUTPUT_NAMES) {

@@ -114,10 +114,14 @@ Las piezas que vienen de otros exports (kits posteriores, guardados en subcarpet
 { "pieces": { "ringSmall":   "botones/<export>/elements/Icon_button-2.png",
               "hexagon":     "botones-2/<export>/elements/element_3.png",
               "octagon":     "botones-2/<export>/elements/element_4.png",
-              "healthFrame": "botones-2/<export>/elements/Health_bar.png" } }
+              "healthFrame": { "from": "botones-2/<export>/<export>.png", "rect": [14, 26, 151, 31] },
+              "bossFrame":   { "from": "barras/kit.png", "rect": [12, 98, 147, 27] },
+              "gaugeFrame":  { "from": "barras/kit.png", "rect": [37, 220, 63, 24] } } }
 ```
 
-Nombres válidos: `ringLarge`, `ringMedium`, `ringSmall`, `hexagon`, `octagon`, `panel`, `plate` y `healthFrame`. La sección `ui` queda así:
+Una pieza puede ser un PNG propio o `{ "from", "rect" }`: un rectángulo `[x, y, ancho, alto]` recortado de una hoja entera. Sirve cuando el elemento que exporta PixelLab sale demasiado justo: el de la barra de vida (`elements/Health_bar.png`, 150×22) había perdido el borde de arriba, el de abajo y el derecho, y en la hoja del kit está entera (151×31).
+
+Nombres válidos: `ringLarge`, `ringMedium`, `ringSmall`, `hexagon`, `octagon`, `panel`, `plate`, `healthFrame`, `bossFrame` y `gaugeFrame`. La sección `ui` queda así:
 
 ```json
 "ui": {
@@ -128,9 +132,13 @@ Nombres válidos: `ringLarge`, `ringMedium`, `ringSmall`, `hexagon`, `octagon`, 
   "octagon":     { "file": "ui/octagon.png", "width": 34, "height": 34 },
   "panel":       { "file": "ui/panel.png", "width": 145, "height": 105, "slice": [35, 45, 35, 45] },
   "plate":       { "file": "ui/plate.png", "width": 96, "height": 25, "slice": [8, 8, 8, 8] },
-  "healthFrame": { "file": "ui/health_frame.png", "width": 149, "height": 22,
-                   "trough": { "x": 28, "y": 6, "width": 114, "height": 13 },
-                   "heart": { "x": 8, "y": 6, "width": 16, "height": 14 } }
+  "healthFrame": { "file": "ui/health_frame.png", "width": 151, "height": 31,
+                   "trough": { "x": 28, "y": 9, "width": 114, "height": 13 },
+                   "heart": { "x": 8, "y": 9, "width": 16, "height": 14 } },
+  "bossFrame":   { "file": "ui/boss_frame.png", "width": 147, "height": 27,
+                   "trough": { "x": 27, "y": 8, "width": 111, "height": 11 } },
+  "gaugeFrame":  { "file": "ui/gauge_frame.png", "width": 63, "height": 24,
+                   "trough": { "x": 8, "y": 7, "width": 48, "height": 10 } }
 }
 ```
 
@@ -148,6 +156,10 @@ Nombres válidos: `ringLarge`, `ringMedium`, `ringSmall`, `hexagon`, `octagon`, 
   - La placa es el chip de acción contextual, los botones de la tienda (también los de los artículos que no se pueden comprar, oscurecidos) y los de los menús: JUGAR, REINTENTAR, CONTINUAR y REINICIAR a 2× y el interruptor de vibración a 1×.
 - **Barra de vida:** marco con un corazón a la izquierda. El juego dibuja los segmentos en `trough`, y una copia de `heart` encima late por debajo de 30 de vida.
   - Si el hueco tiene un borde claro, PixelLab lo entrega medio lleno, como una barra en uso. El importador lo vacía fila a fila con el color de su extremo vacío.
+- **Barra del boss** (`bossFrame`, 147×27): marco con una calavera agrietada a la izquierda y una muesca de hierro a la mitad. El juego dibuja en `trough` su relleno (rojo, ámbar si está enfurecido), detrás una franja clara que se vacía con retraso (el daño recién hecho) y la marca de la mitad, donde empieza la furia. Va bajo la pausa con el nombre encima.
+- **Medidor del arma** (`gaugeFrame`, 63×24): marco corto sin emblema. Es la batería del láser y el enfriamiento de la katana, con el relleno ámbar en `trough` (rojo parpadeante al sobrecalentarse) y, debajo, los testigos de sobrecalentamientos que le quedan al láser repartidos a lo ancho del hueco.
+  - Las dos salen del kit `barras/kit.png` (*Create UI Asset*, con la barra de vida como referencia de estilo). El importador mide su hueco como el de la vida, sin repintarlo: ya vienen vacías.
+  - Sin ellas en el manifiesto, el HUD dibuja las dos barras planas en CSS.
   - En ese caso, el corazón es la mancha de color más grande a la izquierda del hueco, con su contorno.
 - **Estados, por código y sin más arte** (`src/ui/skin.ts` + `skin.css`, solo con `.has-ui-skin`):
   - tinte ámbar del especial y del arma en mano y azul de la mejora guardada. El aro de disparo va sin teñir. Los tintes se hacen en un canvas al cargar y no tocan la cara, que es todo lo que encierra el borde claro, sea redonda o poligonal;

@@ -1212,19 +1212,41 @@
     },
     "healthFrame": {
       "file": "ui/health_frame.png",
-      "width": 149,
-      "height": 22,
+      "width": 151,
+      "height": 31,
       "trough": {
         "x": 28,
-        "y": 6,
+        "y": 9,
         "width": 114,
         "height": 13
       },
       "heart": {
         "x": 8,
-        "y": 6,
+        "y": 9,
         "width": 16,
         "height": 14
+      }
+    },
+    "bossFrame": {
+      "file": "ui/boss_frame.png",
+      "width": 147,
+      "height": 27,
+      "trough": {
+        "x": 27,
+        "y": 8,
+        "width": 111,
+        "height": 11
+      }
+    },
+    "gaugeFrame": {
+      "file": "ui/gauge_frame.png",
+      "width": 63,
+      "height": 24,
+      "trough": {
+        "x": 8,
+        "y": 7,
+        "width": 48,
+        "height": 10
       }
     }
   }

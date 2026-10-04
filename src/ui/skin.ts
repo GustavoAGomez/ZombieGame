@@ -80,6 +80,21 @@ export async function applyUiSkin(ui: Readonly<Record<string, UiPieceDef>>, asse
   style.setProperty('--ui-heart-y', px(heart.y));
   style.setProperty('--ui-heart-w', px(heart.width));
   style.setProperty('--ui-heart-h', px(heart.height));
+  // The boss's bar and the weapon's gauge: their frames, and their fills in the trough. Each optional.
+  for (const [name, piece] of [
+    ['boss', ui.bossFrame],
+    ['gauge', ui.gaugeFrame],
+  ] as const) {
+    if (!piece?.trough) continue;
+    style.setProperty(`--ui-${name}`, url(href(piece)));
+    style.setProperty(`--ui-${name}-w`, px(piece.width));
+    style.setProperty(`--ui-${name}-h`, px(piece.height));
+    style.setProperty(`--ui-${name}-trough-x`, px(piece.trough.x));
+    style.setProperty(`--ui-${name}-trough-y`, px(piece.trough.y));
+    style.setProperty(`--ui-${name}-trough-w`, px(piece.trough.width));
+    style.setProperty(`--ui-${name}-trough-h`, px(piece.trough.height));
+    root.classList.add(`has-ui-${name}`);
+  }
   root.classList.add('has-ui-skin');
   return true;
 }

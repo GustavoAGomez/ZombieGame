@@ -220,6 +220,61 @@
   animation: hud-heartbeat 0.6s steps(2, jump-none) infinite;
 }
 
+/*
+ * ── The boss's bar and the weapon's gauge (the laser's battery, the katana's
+ * cooldown): their frames, the fill (and the boss's strip of damage just
+ * done, and its mark at half) inside their troughs. ──
+ */
+.has-ui-boss .hud-boss__bar {
+  width: var(--ui-boss-w);
+  height: var(--ui-boss-h);
+  background: var(--ui-boss) 0 0 / 100% 100% no-repeat;
+  box-shadow: none;
+  image-rendering: pixelated;
+}
+
+.has-ui-boss .hud-boss__trough {
+  inset: auto;
+  left: var(--ui-boss-trough-x);
+  top: var(--ui-boss-trough-y);
+  width: var(--ui-boss-trough-w);
+  height: var(--ui-boss-trough-h);
+  background: none;
+}
+
+.has-ui-boss .hud-boss__half {
+  top: 0;
+  bottom: 0;
+}
+
+.has-ui-gauge .hud-battery {
+  width: var(--ui-gauge-w);
+  height: var(--ui-gauge-h);
+  background: var(--ui-gauge) 0 0 / 100% 100% no-repeat;
+  box-shadow: none;
+  image-rendering: pixelated;
+}
+
+.has-ui-gauge .hud-battery__trough {
+  inset: auto;
+  left: var(--ui-gauge-trough-x);
+  top: var(--ui-gauge-trough-y);
+  width: var(--ui-gauge-trough-w);
+  height: var(--ui-gauge-trough-h);
+  background: none;
+}
+
+/* Overheated, the hollow blinks red (over the frame's own dark). */
+.has-ui-gauge .hud-weapon.is-overheated .hud-battery__trough {
+  background: var(--red);
+}
+
+/* The overheats left, spread under the gauge's hollow. */
+.has-ui-gauge .hud-weapon.is-battery .hud-overheats:not(:empty) {
+  width: var(--ui-gauge-trough-w);
+  margin-left: var(--ui-gauge-trough-x);
+}
+
 /* ── Merchant shop: the panel with 9-slice; the plate for its buy buttons. ── */
 .has-ui-skin .shop-panel {
   border-style: solid;

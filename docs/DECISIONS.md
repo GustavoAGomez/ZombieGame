@@ -1781,3 +1781,15 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - El de antes parecía andar hacia la pared. Se rehízo (`stunned_dazed`, 20 generaciones) con la acción fotograma a fotograma: los pies clavados y sin pasos, las rodillas flojas, los brazos colgando, el mazo apoyado en el suelo y el torso balanceándose a un lado y al otro con la cabeza ladeada.
   - Ahora tiene 8 fotogramas en 5 direcciones (el oeste y sus diagonales en espejo), a 6 fps.
   - Mientras está aturdido, tres estrellas ámbar con contorno oscuro giran sobre su cabeza (dibujadas por código, 120 px sobre sus pies). Las de detrás se ven más pequeñas.
+
+## La barra de vida entera y las barras del boss y del láser (petición del usuario)
+
+- **Barra de vida cortada:** el elemento que exportó PixelLab (`Health_bar.png`, 150×22) venía recortado demasiado justo. Le faltaban el contorno de arriba (los remaches salían partidos), el de abajo y el extremo derecho. En la hoja del kit está entera, así que `import.json` admite ahora una pieza como rectángulo de una hoja (`{ "from", "rect" }`) y la vida sale de ahí (151×31). El canal mide lo mismo (114×13); el marco solo es más alto.
+- **Investigación de diseño** (barras de jefe y medidores de arma):
+  - **Jefe:** ancha, arriba en el centro, con el nombre y un marco propio para no confundirla con la del jugador. Marcas en las fases y una franja «fantasma» clara que se queda atrás para enseñar el daño recién hecho.
+  - **Calor o batería del arma:** junto al arma, de un color propio, con aviso al llegar al límite y marcas de lo que queda. Si es pequeña o de un color que se pierde contra el fondo, cuesta de leer.
+- **Diseño elegido:**
+  - **Barra del boss:** marco de metal con remaches como el de la vida, una calavera agrietada en lugar del corazón y una muesca a la mitad, donde empieza la furia. El nombre va encima como texto. Por código: el relleno rojo (ámbar enfurecido), la marca de la mitad y la franja fantasma (`hud-boss__ghost`, 0,35 s de espera y 0,45 s de vaciado). Un boss que aparece empieza con la franja llena, sin vaciarse desde la del anterior.
+  - **Medidor del láser:** corto y sin emblema, porque la katana usa la misma barra para su enfriamiento. Lleva el relleno ámbar, el hueco rojo parpadeante al sobrecalentarse y debajo los 8 testigos de sobrecalentamientos restantes, repartidos a lo ancho del hueco.
+- **Generación:** una llamada a *Create UI Asset* (20 generaciones) con la barra de vida como referencia de estilo y dos piezas colocadas. PixelLab devolvió un kit entero de 256×256 en vez de solo las dos piezas, pero con ellas dentro: una barra con calavera de 147×27 y un medidor de 63×24, que se recortan de `barras/kit.png`. El resto del kit no se usa.
+- **HUD:** el relleno de cada barra va dentro de un elemento canal (`hud-boss__trough`, `hud-battery__trough`). Con el skin (`has-ui-boss`, `has-ui-gauge`) se coloca en el hueco del marco; sin él ocupa toda la barra, como antes.

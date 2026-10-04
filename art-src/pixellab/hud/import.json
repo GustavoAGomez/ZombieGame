@@ -3,6 +3,32 @@
     "ringSmall": "botones/gritty_post-apocalyptic_survival_game_HUD_dark_wor/elements/Icon_button-2.png",
     "hexagon": "botones-2/gritty_post-apocalyptic_survival_game_HUD_dark_wor/elements/element_3.png",
     "octagon": "botones-2/gritty_post-apocalyptic_survival_game_HUD_dark_wor/elements/element_4.png",
-    "healthFrame": "botones-2/gritty_post-apocalyptic_survival_game_HUD_dark_wor/elements/Health_bar.png"
+    "healthFrame": {
+      "from": "botones-2/gritty_post-apocalyptic_survival_game_HUD_dark_wor/gritty_post-apocalyptic_survival_game_HUD_dark_wor.png",
+      "rect": [
+        14,
+        26,
+        151,
+        31
+      ]
+    },
+    "bossFrame": {
+      "from": "barras/kit.png",
+      "rect": [
+        12,
+        98,
+        147,
+        27
+      ]
+    },
+    "gaugeFrame": {
+      "from": "barras/kit.png",
+      "rect": [
+        37,
+        220,
+        63,
+        24
+      ]
+    }
   }
 }

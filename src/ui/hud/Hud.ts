@@ -56,7 +56,7 @@ export class Hud {
   private readonly notice: HTMLDivElement;
   /** The bosses' health bars under the pause button (spec 07 §6): one per boss slot, pooled. */
   private readonly bossBars: HTMLDivElement;
-  private readonly bossRows: { row: HTMLDivElement; name: HTMLSpanElement; fill: HTMLDivElement }[] = [];
+  private readonly bossRows: { row: HTMLDivElement; name: HTMLSpanElement; fill: HTMLDivElement; ghost: HTMLDivElement }[] = [];
   private blinkTimer = 0;
   private readonly unsubscribers: (() => void)[] = [];
 
@@ -105,8 +105,11 @@ export class Hud {
     // A beam weapon (the laser) shows its battery instead, blinking red with SOBRECALENTADO once overheated.
     const battery = el('div', 'hud-battery');
     battery.setAttribute('aria-label', STRINGS.hud.battery);
+    // The fill goes in the trough: the gauge frame's hollow with the skin, the whole bar without it.
+    const batteryTrough = el('div', 'hud-battery__trough');
     this.batteryFill = el('div', 'hud-battery__fill');
-    battery.appendChild(this.batteryFill);
+    batteryTrough.appendChild(this.batteryFill);
+    battery.appendChild(batteryTrough);
     const overheated = el('span', 'hud-battery__label');
     overheated.textContent = STRINGS.hud.overheated;
     // Its overheats left before it breaks for good: a box each under the bar, lit while still to come.
@@ -156,17 +159,21 @@ export class Hud {
     this.notice.style.animationDuration = `${MERCHANT.movedNoticeTime}s`;
     this.notice.addEventListener('animationend', () => this.notice.classList.remove('is-showing'));
 
-    // The bosses' bars: the name over a red bar with a mark at half, where its fury starts.
+    // The bosses' bars: the name over a red bar with a mark at half, where its fury starts. In its
+    // trough, behind the fill, a pale strip empties a moment after each blow: the damage just done.
     this.bossBars = el('div', 'hud-bosses');
     for (let i = 0; i < BOSS.maxAlive; i++) {
       const row = el('div', 'hud-boss');
       const name = el('span', 'hud-boss__name');
       const bar = el('div', 'hud-boss__bar');
+      const trough = el('div', 'hud-boss__trough');
+      const ghost = el('div', 'hud-boss__ghost');
       const fill = el('div', 'hud-boss__fill');
-      bar.append(fill, el('span', 'hud-boss__half'));
+      trough.append(ghost, fill, el('span', 'hud-boss__half'));
+      bar.append(trough);
       row.append(name, bar);
       row.hidden = true;
-      this.bossRows.push({ row, name, fill });
+      this.bossRows.push({ row, name, fill, ghost });
       this.bossBars.appendChild(row);
     }
 
@@ -357,6 +364,7 @@ export class Hud {
   private readonly onBossBars = (e: GameEvents['boss:bars']): void => {
     this.bossRows.forEach((r, i) => {
       const bar = e.bars[i];
+      const appearing = r.row.hidden && bar !== undefined;
       r.row.hidden = !bar;
       if (!bar) return;
       const name = STRINGS.bosses.names[bar.boss];
@@ -364,6 +372,13 @@ export class Hud {
       r.row.setAttribute('aria-label', STRINGS.bosses.health(name));
       r.row.classList.toggle('is-enraged', bar.enraged);
       r.fill.style.transform = `scaleX(${bar.hp})`;
+      // A boss just shown starts with its strip full, not emptying from the last one's.
+      if (appearing) {
+        r.ghost.style.transition = 'none';
+        r.ghost.style.transform = `scaleX(${bar.hp})`;
+        void r.ghost.offsetWidth;
+        r.ghost.style.transition = '';
+      } else r.ghost.style.transform = `scaleX(${bar.hp})`;
     });
   };
 

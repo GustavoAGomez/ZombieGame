@@ -2,7 +2,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { healthPadding } from '../src/ui/skin';
-import { cropToBounds, halve, measureHealthBar, namePieces, prepareHealthBar, readExtraPieces, splitSheet } from './import-hud';
+import { cropToBounds, halve, measureHealthBar, measureTrough, namePieces, prepareHealthBar, readExtraPieces, splitSheet } from './import-hud';
 import { decodePng } from './lib/png';
 import { blank, paste, type Frame } from './lib/sheet';
 
@@ -69,20 +69,30 @@ describe('HUD kit from PixelLab (npm run hud:import)', () => {
     expect([small.width, small.height]).toEqual([33, 33]);
   });
 
-  it('takes the native small ring, the polygon buttons and the new health bar from import.json', () => {
+  it('takes the native small ring, the polygon buttons, the health bar and the boss and weapon bars from import.json', () => {
     const extra = readExtraPieces(hudDir);
     // All drawn at about the small buttons' size (no reduction).
     expect([extra.ringSmall?.width, extra.ringSmall?.height]).toEqual([33, 33]);
     expect([extra.hexagon?.width, extra.hexagon?.height]).toEqual([28, 33]);
     expect([extra.octagon?.width, extra.octagon?.height]).toEqual([34, 34]);
-    expect([extra.healthFrame?.width, extra.healthFrame?.height]).toEqual([149, 22]);
+    // Cut out of its whole sheet: PixelLab's own element had lost its top, bottom and right border.
+    expect([extra.healthFrame?.width, extra.healthFrame?.height]).toEqual([151, 31]);
+    expect([extra.bossFrame?.width, extra.bossFrame?.height]).toEqual([147, 27]);
+    expect([extra.gaugeFrame?.width, extra.gaugeFrame?.height]).toEqual([63, 24]);
+  });
+
+  it('finds the troughs of the boss bar and the weapon gauge, where the game draws their fill', () => {
+    const extra = readExtraPieces(hudDir);
+    if (!extra.bossFrame || !extra.gaugeFrame) throw new Error('no boss bar or gauge in import.json');
+    expect(measureTrough(extra.bossFrame)).toEqual({ x: 27, y: 8, width: 111, height: 11 });
+    expect(measureTrough(extra.gaugeFrame)).toEqual({ x: 8, y: 7, width: 48, height: 10 });
   });
 
   it('empties a bone-bordered health bar that comes partly filled, and finds its trough and heart', () => {
     const bar = readExtraPieces(hudDir).healthFrame;
     if (!bar) throw new Error('no health bar in import.json');
     const { frame, trough, heart } = prepareHealthBar(bar);
-    expect(trough).toEqual({ x: 28, y: 6, width: 114, height: 13 });
+    expect(trough).toEqual({ x: 28, y: 9, width: 114, height: 13 });
     // No olive fill left: every row of the trough is one colour.
     for (let y = trough.y + 1; y < trough.y + trough.height - 1; y++) {
       const colours = new Set<number>();
