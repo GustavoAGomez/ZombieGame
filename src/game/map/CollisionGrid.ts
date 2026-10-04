@@ -3,6 +3,7 @@ import {
   TILE_COLLIDES,
   TILE_VOID,
   TILE_WATER,
+  WALL_SHAPE_DOOR_VERTICAL,
   WALL_SHAPE_FULL,
   WALL_SHAPE_SOLID,
   WALL_SHAPE_SOLID_NORTH_OPEN,
@@ -101,7 +102,7 @@ export function setDoorBlocking(grid: CollisionGrid, door: MapDoor, closed: bool
   for (const t of door.tiles) {
     if (t.x < 0 || t.y < 0 || t.x >= grid.width || t.y >= grid.height) continue;
     grid.cells[t.y * grid.width + t.x] = closed ? BLOCK_ALL : 0;
-    grid.shapes[t.y * grid.width + t.x] = WALL_SHAPE_FULL;
+    grid.shapes[t.y * grid.width + t.x] = door.axis === 'vertical' ? WALL_SHAPE_DOOR_VERTICAL : WALL_SHAPE_FULL;
   }
 }
 
@@ -134,12 +135,17 @@ type Rect = readonly [x0: number, y0: number, x1: number, y1: number];
  * - something flat drawn on its tile (furniture, doors, walls without a kit)
  *   from the flight height down: a bullet coming from the north stops as it
  *   visibly reaches the top edge, and one fired by a player standing right
- *   in front of it still flies.
+ *   in front of it still flies;
+ * - a closed door in a vertical wall, flat too, plus the wall's strip over
+ *   the part above its flat top: the strip of the wall (or door tile) to
+ *   its north reaches the bottom of its tile, so a shot or a look from the
+ *   east or the west finds no gap at the joint.
  */
 function shapeRects(shape: number): readonly Rect[] {
+  if (shape === WALL_SHAPE_DOOR_VERTICAL) return [[STRIP_X0, 0, STRIP_X1, FLAT_TOP], ...FLAT];
   if (shape === WALL_SHAPE_SOLID_NORTH_OPEN) return [[0, BASE_Y, KIT_TILE, KIT_TILE]];
   if (shape === WALL_SHAPE_SOLID) return FULL_TILE;
-  if (shape < WALL_SHAPE_THIN || shape >= WALL_SHAPE_THIN + 16) return [[0, FLAT_TOP, KIT_TILE, KIT_TILE]];
+  if (shape < WALL_SHAPE_THIN || shape >= WALL_SHAPE_THIN + 16) return FLAT;
   const mask = shape - WALL_SHAPE_THIN;
   const rects: Rect[] = [[STRIP_X0, mask & 1 ? 0 : BASE_Y, STRIP_X1, KIT_TILE]];
   if (mask & 8) rects.push([0, BASE_Y, STRIP_X0, KIT_TILE]);
@@ -150,7 +156,8 @@ function shapeRects(shape: number): readonly Rect[] {
 const FULL_TILE: readonly Rect[] = [[0, 0, KIT_TILE, KIT_TILE]];
 /** Flat things block from the bullets' flight height down (see shapeRects). */
 const FLAT_TOP = Math.min(KIT_TILE, BULLETS.flightHeight);
-const SHAPE_RECTS: readonly (readonly Rect[])[] = Array.from({ length: WALL_SHAPE_SOLID + 1 }, (_, shape) => shapeRects(shape));
+const FLAT: readonly Rect[] = [[0, FLAT_TOP, KIT_TILE, KIT_TILE]];
+const SHAPE_RECTS: readonly (readonly Rect[])[] = Array.from({ length: WALL_SHAPE_DOOR_VERTICAL + 1 }, (_, shape) => shapeRects(shape));
 
 function rectsOf(grid: CollisionGrid, index: number): readonly Rect[] {
   return SHAPE_RECTS[grid.shapes[index] ?? WALL_SHAPE_FULL] ?? FULL_TILE;

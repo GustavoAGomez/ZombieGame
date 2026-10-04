@@ -33,11 +33,14 @@ export const TILE_VOID = 4;
  * a thin wall of the kit autotile with that neighbour mask (docs/ASSETS.md
  * §7.2: tiles 0–15 carry a `mask` property); WALL_SHAPE_SOLID a kit's thick
  * wall, and WALL_SHAPE_SOLID_NORTH_OPEN one with nothing north.
+ * WALL_SHAPE_DOOR_VERTICAL is a closed door in a vertical wall: flat, with
+ * the wall's strip going on over its top so the line has no gap.
  */
 export const WALL_SHAPE_FULL = 0;
 export const WALL_SHAPE_THIN = 1;
 export const WALL_SHAPE_SOLID_NORTH_OPEN = 17;
 export const WALL_SHAPE_SOLID = 18;
+export const WALL_SHAPE_DOOR_VERTICAL = 19;
 /** Kit layout (scripts/lib/wall-autotile.ts): tiles 16–19 are thick walls, +2 when the north is open. */
 const KIT_SOLID_BASE = 16;
 const KIT_SOLID_COUNT = 4;

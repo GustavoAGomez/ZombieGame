@@ -4,7 +4,7 @@ import { buildRoom01Map } from '../../../scripts/gen-placeholder-map';
 import { contextFor, createMansionContext } from '../../test/fixtures';
 import { updateBullets } from '../systems/BulletSystem';
 import { BLOCK_BULLET, BLOCK_SIGHT, buildCollisionGrid, cellBlocks, pointBlocksShaped, segmentClearShaped, segmentHitShaped } from './CollisionGrid';
-import { WALL_SHAPE_FULL, WALL_SHAPE_SOLID_NORTH_OPEN, WALL_SHAPE_THIN, parseMap } from './MapLoader';
+import { WALL_SHAPE_DOOR_VERTICAL, WALL_SHAPE_FULL, WALL_SHAPE_SOLID_NORTH_OPEN, WALL_SHAPE_THIN, parseMap } from './MapLoader';
 import type { TiledMap, TiledTileLayer } from './tiled';
 
 const T = 32;
@@ -168,5 +168,33 @@ describe('wall shapes on the mansion', () => {
     let thin = 0;
     for (const shape of mansion.shapes) if (shape >= WALL_SHAPE_THIN && shape < WALL_SHAPE_THIN + 16) thin++;
     expect(thin).toBeGreaterThan(500);
+  });
+
+  it('lets no horizontal shot or look cross a vertical wall, closed doors included', () => {
+    const { grid: mansion } = createMansionContext();
+    const ts = mansion.tileSize;
+    // A wall stands from y 25 of its tile even at the north end of a run (its cap is drawn above).
+    const base = 25;
+    const free = (x: number, y: number): boolean => !cellBlocks(mansion, x, y, BLOCK_SIGHT);
+    let pairs = 0;
+    let doorPairs = 0;
+    const leaks: string[] = [];
+    for (let ty = 0; ty + 1 < mansion.height; ty++) {
+      for (let tx = 1; tx + 1 < mansion.width; tx++) {
+        // Two cells of a vertical wall with floor (or a see-through window) on both sides.
+        if (free(tx, ty) || free(tx, ty + 1)) continue;
+        if (!free(tx - 1, ty) || !free(tx + 1, ty) || !free(tx - 1, ty + 1) || !free(tx + 1, ty + 1)) continue;
+        pairs++;
+        if (mansion.shapes[(ty + 1) * mansion.width + tx] === WALL_SHAPE_DOOR_VERTICAL) doorPairs++;
+        for (let y = ty * ts + base; y < (ty + 2) * ts; y += 0.5) {
+          for (const mask of [BLOCK_SIGHT, BLOCK_BULLET]) {
+            if (segmentHitShaped(mansion, (tx - 0.5) * ts, y, (tx + 1.5) * ts, y, mask) === Infinity) leaks.push(`(${tx},${ty}) y ${y} mask ${mask}`);
+          }
+        }
+      }
+    }
+    expect(pairs).toBeGreaterThan(150);
+    expect(doorPairs).toBeGreaterThan(0);
+    expect(leaks).toEqual([]);
   });
 });

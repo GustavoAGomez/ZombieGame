@@ -1802,4 +1802,18 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - El alcance de cada rayo (`waveReach`) se calcula una vez por aterrizaje, en un `Float32Array` por hueco de boss.
   - La banda se pinta como cuadriláteros entre rayos consecutivos, con el borde exterior recortado donde se para cada rayo.
 - **Capa:** las marcas del boss en el suelo (anillo y sombra) bajan a `DEPTH.floorMarks` (1,75), justo bajo las paredes. Así, la parte de arriba de una pared al sur, que la onda cruza antes de llegar a su base, la tapa.
-- **Pendiente aparte:** en 14 de las 170 paredes verticales de la mansión, la celda con cara (una junta o el arranque de un tramo) solo tiene colisión en su base. Queda un hueco de 12 px por el que pasan la vista, las balas y el daño de la onda, y ahora también su dibujo, porque lo sigue fielmente.
+- **Pendiente aparte:** en algunas paredes verticales de la mansión queda un hueco de 12 px por el que pasan la vista, las balas y el daño de la onda, y ahora también su dibujo, porque lo sigue fielmente. Se atribuyó a la celda con cara; era la puerta cerrada (ver «Las puertas verticales cierran la pared»).
+
+## Las puertas verticales cierran la pared (bug)
+
+- **Síntoma:** en algunos tramos verticales de la mansión, la vista, las balas y la onda de los saltos (su daño y su dibujo) cruzaban la pared de este a oeste por una rendija de 12 px.
+- **Causa:** no eran celdas de pared con cara, sino las **puertas cerradas en paredes verticales** (`D` del plano en x 32, filas 25–26 y 38–39; x 47, filas 30–31; x 59, filas 27–28).
+  - Una puerta es una cosa plana: para balas y vista ocupa su casilla desde la altura de vuelo (12 px) hacia abajo.
+  - La franja de la pared de encima llega hasta el borde de su casilla. Entre las dos, y entre las dos casillas de la misma puerta, quedaban 12 px abiertos.
+  - Las celdas de pared ya cerraban el tramo: una pared fina con vecino al norte (pared o puerta) tiene su franja de arriba abajo. Las únicas rendijas de pared que quedan son por encima de la base del extremo norte de un tramo, junto a una ventana o al borde del mapa. Eso es correcto en 3/4: la pared empieza en su base y la ventana deja pasar vista y balas.
+- **Arreglo:** forma nueva `WALL_SHAPE_DOOR_VERTICAL` para cada casilla de una puerta vertical (`axis: vertical`).
+  - Es la forma plana de siempre más la franja de la pared (x 10–21) en esos 12 px de arriba. Así la pared sigue por encima de la puerta sin hueco.
+  - Las puertas horizontales no cambian: una bala que llega del norte se sigue parando cuando se la ve tocar su borde.
+  - Los cuerpos siguen chocando con casillas enteras. No cambia cómo se anda por delante de las caras ni el flow field.
+- **Test** (`WallShapes.test.ts`): recorre cada par de celdas que paran la vista una encima de otra con suelo (o una ventana) a ambos lados, 176 en la mansión, 10 de ellas con alguna casilla de puerta. Lanza rayos horizontales cada medio píxel, desde la base de la de arriba (y 25) hasta abajo de la de abajo, con `BLOCK_SIGHT` y con `BLOCK_BULLET`. Ninguno pasa.
+- **Fuera de alcance:** las paredes sin kit de room01 son cosas planas y tienen la misma rendija entre casilla y casilla de un tramo vertical. room01 solo queda como mapa de pruebas y de reserva; el de juego es la mansión.
