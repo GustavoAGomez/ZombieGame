@@ -1,10 +1,11 @@
 /**
- * The barricades' art (petición del usuario): a window's hole, from PixelLab,
- * fitted into its wall, and the planks the zombies tear off and the players
- * nail back, cut out of the interior wood floor (art the game already has).
- * Pure: frames in, frames out (scripts/compose-windows.ts does the files).
+ * The barricades' art (petición del usuario): the hole a window leaves in its
+ * wall, drawn here, straight and filling almost the whole face, and the
+ * planks the zombies tear off and the players nail back, cut out of the
+ * interior wood floor (art the game already has). Pure: frames in, frames
+ * out (scripts/compose-windows.ts does the files).
  */
-import { blank, opaqueBounds, type Frame } from './sheet';
+import { blank, type Frame } from './sheet';
 
 /** A barricade sheet's frames: frame N shows N planks (0..PLANKS). */
 export const PLANKS = 5;
@@ -44,51 +45,135 @@ export function stamp(dst: Frame, src: Frame, dx: number, dy: number): void {
   }
 }
 
-/**
- * `f` cropped to its drawing and squeezed to `rows` rows by dropping rows
- * from its middle (a window's glass, much alike row to row), so its lintel
- * and its sill stay whole: pixel art is never scaled.
- */
-export function squeezeRows(f: Frame, rows: number): Frame {
-  const b = opaqueBounds(f);
-  if (!b) return blank(0, 0);
-  const all: number[] = [];
-  for (let y = b.minY; y <= b.maxY; y++) all.push(y);
-  const drop = Math.max(0, all.length - rows);
-  const keepTop = Math.floor((all.length - drop) * 0.4);
-  const kept = drop > 0 ? [...all.slice(0, keepTop), ...all.slice(keepTop + drop)] : all;
-  const width = b.maxX - b.minX + 1;
-  const out = blank(width, kept.length);
-  kept.forEach((sy, y) => {
-    for (let x = 0; x < width; x++) {
-      const s = px(f, b.minX + x, sy);
-      out.pixels.set(f.pixels.subarray(s, s + 4), px(out, x, y));
-    }
-  });
-  return out;
+type Rgb = readonly [number, number, number];
+const rgb = (hex: string): Rgb => [Number.parseInt(hex.slice(1, 3), 16), Number.parseInt(hex.slice(3, 5), 16), Number.parseInt(hex.slice(5, 7), 16)];
+
+/** The hole's colours: its darkness (deeper at the top), the wall's thickness, the broken boards and the glass left in it. */
+const HOLE = {
+  darkTop: rgb('#0c0d13'),
+  dark: rgb('#14151d'),
+  darkLow: rgb('#1d1f29'),
+  jamb: rgb('#2e2a27'),
+  jambLit: rgb('#4a443d'),
+  sill: rgb('#8d7b62'),
+  sillDark: rgb('#5e5142'),
+  sillLight: rgb('#b19c7c'),
+  splinter: rgb('#c4ae8a'),
+  glass: rgb('#9fb6cc'),
+  glassLight: rgb('#d8e6f0'),
+  outline: rgb('#1a1612'),
+} as const;
+
+/** A fixed pseudo-random sequence, so the broken edge is the same on every build. */
+function noise(seed: number): () => number {
+  let s = seed;
+  return () => {
+    s = (s * 1103515245 + 12345) & 0x7fffffff;
+    return s / 0x7fffffff;
+  };
 }
 
 /**
- * `f` cropped to its drawing and turned a quarter (its right side up), then
- * cut to its middle `width` columns: a window seen from the front becomes the
- * gap of a vertical wall seen from above (its frame's sides as the sill
- * across the wall). Turning is allowed: the piece shows no front face.
+ * The hole a window leaves in a horizontal wall once its planks are gone
+ * (petición del usuario: aligned with the wall, and more hole than wall):
+ * the face broken open across almost its whole width (columns 2..29) and
+ * height (rows 15..29 of the cell, under the wall's top edge), with a
+ * jagged top edge and sides, a dark outline, splinters of the broken boards
+ * and shards of glass in its corners. Inside, the dark, deeper at the top;
+ * the wall's thickness shows on its left side (in shadow), as a lit sliver
+ * on its right and as a sill at its bottom (light from the top left).
  */
-export function turnAndCut(f: Frame, width: number): Frame {
-  const b = opaqueBounds(f);
-  if (!b) return blank(0, 0);
-  const turnedW = b.maxY - b.minY + 1;
-  const turnedH = b.maxX - b.minX + 1;
-  const cut = Math.max(0, Math.floor((turnedW - width) / 2));
-  const w = Math.min(width, turnedW);
-  const out = blank(w, turnedH);
-  for (let y = 0; y < turnedH; y++) {
-    for (let x = 0; x < w; x++) {
-      const s = px(f, b.minX + y, b.maxY - (x + cut));
-      out.pixels.set(f.pixels.subarray(s, s + 4), px(out, x, y));
+export function brokenHole(): Frame {
+  const rnd = noise(11);
+  const f = blank(32, 32);
+  const x0 = 2;
+  const x1 = 29;
+  const y0 = 15;
+  const y1 = 29;
+  const top: number[] = [];
+  for (let x = x0; x <= x1; x++) top.push(y0 + (rnd() < 0.35 ? 1 : 0) + (rnd() < 0.12 ? 1 : 0));
+  const left: number[] = [];
+  const right: number[] = [];
+  for (let y = y0; y <= y1; y++) {
+    left.push(x0 + (rnd() < 0.3 ? 1 : 0));
+    right.push(x1 - (rnd() < 0.3 ? 1 : 0));
+  }
+  for (let y = y0; y <= y1; y++) {
+    const l = left[y - y0] ?? x0;
+    const r = right[y - y0] ?? x1;
+    for (let x = l; x <= r; x++) {
+      if (y < (top[x - x0] ?? y0)) continue;
+      const depth = (y - y0) / (y1 - y0);
+      let c: Rgb = depth < 0.3 ? HOLE.darkTop : depth < 0.75 ? HOLE.dark : HOLE.darkLow;
+      if (x <= l + 1) c = HOLE.jamb;
+      if (x === r) c = HOLE.jambLit;
+      if (y >= y1 - 2) c = y === y1 ? HOLE.sillDark : y === y1 - 2 ? HOLE.sillLight : HOLE.sill;
+      setRgb(f, x, y, c);
     }
   }
-  return out;
+  for (let x = x0; x <= x1; x++) setRgb(f, x, (top[x - x0] ?? y0) - 1, HOLE.outline);
+  for (let y = y0; y <= y1 - 2; y++) {
+    setRgb(f, (left[y - y0] ?? x0) - 1, y, HOLE.outline);
+    setRgb(f, (right[y - y0] ?? x1) + 1, y, HOLE.outline);
+  }
+  for (const [x, y] of [
+    [5, 16],
+    [6, 16],
+    [13, 15],
+    [21, 16],
+    [22, 16],
+    [26, 15],
+    [4, 21],
+    [27, 19],
+  ] as const)
+    setRgb(f, x, y, HOLE.splinter);
+  for (const [x, y, c] of [
+    [4, 17, HOLE.glass],
+    [5, 18, HOLE.glass],
+    [4, 18, HOLE.glassLight],
+    [26, 17, HOLE.glass],
+    [27, 17, HOLE.glassLight],
+    [25, 18, HOLE.glass],
+  ] as const)
+    setRgb(f, x, y, c);
+  return f;
+}
+
+/**
+ * The same hole in a vertical wall, seen from above: its 12 px strip
+ * (columns 10..21) broken off along rows 5..26, with ragged ends and
+ * splinters; down in the gap the wall's thickness (its left side in shadow,
+ * a lit sliver on its right) and the sill along the middle, lower down.
+ */
+export function brokenGap(): Frame {
+  const rnd = noise(23);
+  const f = blank(32, 32);
+  const x0 = 10;
+  const x1 = 21;
+  const y0 = 5;
+  const y1 = 26;
+  for (let y = y0; y <= y1; y++) {
+    for (let x = x0; x <= x1; x++) {
+      if ((y < y0 + 2 || y > y1 - 2) && rnd() < 0.4) continue;
+      let c: Rgb = HOLE.dark;
+      if (x <= x0 + 1) c = HOLE.jamb;
+      if (x === x1) c = HOLE.jambLit;
+      if (x >= 14 && x <= 17) c = x === 14 ? HOLE.sillDark : x === 17 ? HOLE.sillLight : HOLE.sill;
+      setRgb(f, x, y, c);
+    }
+  }
+  for (let x = x0; x <= x1; x++) {
+    setRgb(f, x, y0 - 1, HOLE.outline);
+    setRgb(f, x, y1 + 1, HOLE.outline);
+  }
+  for (const [x, y] of [
+    [11, 5],
+    [19, 6],
+    [12, 26],
+    [20, 25],
+  ] as const)
+    setRgb(f, x, y, HOLE.splinter);
+  return f;
 }
 
 /**

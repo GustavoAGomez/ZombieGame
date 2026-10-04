@@ -1,9 +1,9 @@
 /**
  * npm run windows:compose — the barricades' sheets (petición del usuario):
- * the window's hole chosen among PixelLab's candidates
- * (art-src/pixellab/windows/), fitted into its wall, and planks cut from
- * the interior wood floor (public/assets/tiles/floors_interior.png, art the
- * game already has). Frame N shows N planks (0..5):
+ * the hole a window leaves in its wall (lib/window-art.ts: broken open,
+ * straight, more hole than wall) and planks cut from the interior wood floor
+ * (public/assets/tiles/floors_interior.png, art the game already has).
+ * Frame N shows N planks (0..5):
  *   window_planks    a window in a horizontal wall: the hole in its face
  *   window_planks_v  a window in a vertical wall: the gap in its top
  *   fence_planks     a gap in a horizontal fence: planks only
@@ -17,38 +17,22 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { contactSheet, type SheetEntry } from './lib/contact-sheet';
 import { decodePng, encodePng } from './lib/png';
 import { buildSheet, cut, type Frame } from './lib/sheet';
-import { barricadeFrames, squeezeRows, turnAndCut, type PlankSlot } from './lib/window-art';
+import { barricadeFrames, brokenGap, brokenHole, type PlankSlot } from './lib/window-art';
 
-/** The holes the user chose: the front one (number 3) and the one for vertical walls (number 2). */
-const HOLE_FRONT = 'art-src/pixellab/windows/frontal/candidates/candidate_2.png';
-const HOLE_TOP = 'art-src/pixellab/windows/vertical/candidates/candidate_1.png';
 /** The light wood floor tile (its boards run across) and its rows free of the seams between boards. */
 const WOOD = { file: 'public/assets/tiles/floors_interior.png', x: 32, y: 0 } as const;
 const WOOD_BANDS = [3, 6, 9, 17, 23] as const;
 
-/** A horizontal wall's face fills rows 14..31 of its cell (18 px under its 7 px top edge). */
-const FACE_TOP = 14;
-const FACE_ROWS = 18;
-/** A vertical wall is a 12 px strip seen from above, columns 10..21. */
-const STRIP_X = 10;
-const STRIP_W = 12;
-
-/** Planks across a window in a horizontal wall: a little askew, overhanging its frame. */
+/** Planks across the hole in a horizontal wall (its rows 15..29): a little askew, nailed to the wall beside it. */
 const FRONT_SLOTS: readonly PlankSlot[] = [
-  { x: 4, y: 15, length: 24, step: 1 },
-  { x: 3, y: 18, length: 26, step: 0 },
-  { x: 4, y: 21, length: 25, step: -1 },
-  { x: 3, y: 24, length: 26, step: 0 },
-  { x: 4, y: 27, length: 24, step: 1 },
+  { x: 3, y: 15, length: 26, step: 1 },
+  { x: 2, y: 18, length: 28, step: 0 },
+  { x: 3, y: 21, length: 27, step: -1 },
+  { x: 2, y: 24, length: 28, step: 0 },
+  { x: 3, y: 26, length: 26, step: 1 },
 ];
-/** Across the gap of a vertical wall: short boards over its 12 px, a little wider than it. */
-const TOP_SLOTS: readonly PlankSlot[] = [
-  { x: 8, y: 7, length: 16, step: 0 },
-  { x: 9, y: 11, length: 15, step: 0 },
-  { x: 8, y: 15, length: 16, step: 0 },
-  { x: 9, y: 19, length: 15, step: 0 },
-  { x: 8, y: 23, length: 16, step: 0 },
-];
+/** Across the gap of a vertical wall (its rows 5..26): short boards over its 12 px, a little wider than it. */
+const TOP_SLOTS: readonly PlankSlot[] = [6, 10, 14, 18, 22].map((y, i) => ({ x: i % 2 ? 9 : 8, y, length: i % 2 ? 15 : 16, step: 0 }));
 /** Across a fence's gap, from post to post. */
 const FENCE_SLOTS: readonly PlankSlot[] = FRONT_SLOTS.map((s) => ({ ...s, x: 0, length: 32 }));
 const FENCE_TOP_SLOTS: readonly PlankSlot[] = [2, 8, 14, 20, 26].map((y, i) => ({ x: 8, y, length: i % 2 === 0 ? 16 : 15, step: 0 }));
@@ -64,11 +48,9 @@ export function composeWindows(root: string, log: (line: string) => void): void 
   const at = (p: string): string => resolve(root, p);
   const floor = readFrame(at(WOOD.file));
   const wood = cut(floor, WOOD.x, WOOD.y, 32, 32);
-  const front = squeezeRows(readFrame(at(HOLE_FRONT)), FACE_ROWS);
-  const top = turnAndCut(readFrame(at(HOLE_TOP)), STRIP_W);
   const sheets: Record<string, Frame[]> = {
-    window_planks: barricadeFrames(front, Math.round((32 - front.width) / 2), FACE_TOP, FRONT_SLOTS, wood, WOOD_BANDS),
-    window_planks_v: barricadeFrames(top, STRIP_X, Math.round((32 - top.height) / 2), TOP_SLOTS, wood, WOOD_BANDS),
+    window_planks: barricadeFrames(brokenHole(), 0, 0, FRONT_SLOTS, wood, WOOD_BANDS),
+    window_planks_v: barricadeFrames(brokenGap(), 0, 0, TOP_SLOTS, wood, WOOD_BANDS),
     fence_planks: barricadeFrames(null, 0, 0, FENCE_SLOTS, wood, WOOD_BANDS),
     fence_planks_v: barricadeFrames(null, 0, 0, FENCE_TOP_SLOTS, wood, WOOD_BANDS),
   };

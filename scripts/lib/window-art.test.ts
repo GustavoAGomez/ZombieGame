@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { parseMap } from '../../src/game/map/MapLoader';
 import { embeddedMansion } from './mansion-fixture';
 import { blank, opaqueBounds, type Frame } from './sheet';
-import { PLANKS, barricadeFrames, plank, squeezeRows, turnAndCut, type PlankSlot } from './window-art';
+import { PLANKS, barricadeFrames, brokenGap, brokenHole, plank, type PlankSlot } from './window-art';
 
 /** The barricades' art (petición del usuario): the window's hole in its wall and the planks over it. */
 
@@ -12,12 +12,10 @@ const opaque = (f: Frame): number => {
   return n;
 };
 
-/** A test drawing: rows coloured by their index (red = row), inside a transparent margin. */
-function rows(width: number, height: number, margin = 2): Frame {
-  const f = blank(width + margin * 2, height + margin * 2);
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) f.pixels.set([y, 100, x, 255], ((y + margin) * f.width + x + margin) * 4);
-  }
+/** A test hole: a block of one colour. */
+function block(width: number, height: number): Frame {
+  const f = blank(width, height);
+  for (let i = 0; i < width * height; i++) f.pixels.set([20, 20, 30, 255], i * 4);
   return f;
 }
 
@@ -28,17 +26,21 @@ const wood = (): Frame => {
 };
 
 describe('window art', () => {
-  it('squeezes a hole to the wall face without scaling: the lintel and the sill stay, the middle goes', () => {
-    const out = squeezeRows(rows(21, 28), 18);
-    expect([out.width, out.height]).toEqual([21, 18]);
-    const red = (y: number): number => out.pixels[(y * out.width) * 4] ?? -1;
-    expect(red(0)).toBe(0);
-    expect(red(17)).toBe(27);
+  it('breaks a horizontal wall open across almost its whole face, straight, under its top edge (petición del usuario)', () => {
+    const hole = brokenHole();
+    const b = opaqueBounds(hole);
+    // Its outline and splinters included: columns 1..30, from right under the top edge (row 13) to row 29.
+    expect(b && b.minX >= 1 && b.maxX <= 30 && b.minY >= 13 && b.maxY <= 29).toBe(true);
+    // More hole than wall: most of the face (32 × 18 px) is gone.
+    expect(opaque(hole)).toBeGreaterThan(32 * 18 * 0.6);
+    // Dark inside: its middle.
+    const i = (22 * 32 + 16) * 4;
+    expect((hole.pixels[i] ?? 255) + (hole.pixels[i + 1] ?? 255) + (hole.pixels[i + 2] ?? 255)).toBeLessThan(120);
   });
 
-  it('turns a hole a quarter and cuts it to a vertical wall strip', () => {
-    const out = turnAndCut(rows(20, 21), 12);
-    expect([out.width, out.height]).toEqual([12, 20]);
+  it('breaks a vertical wall open within its 12 px strip', () => {
+    const b = opaqueBounds(brokenGap());
+    expect(b && b.minX >= 10 && b.maxX <= 21 && b.minY >= 4 && b.maxY <= 27).toBe(true);
   });
 
   it('cuts a plank of wood with a dark outline and a nail near each end', () => {
@@ -52,7 +54,7 @@ describe('window art', () => {
 
   it('frame N shows N planks over the hole; a fence gap shows nothing but its planks', () => {
     const slots: PlankSlot[] = [0, 1, 2, 3, 4].map((i) => ({ x: 2, y: 4 + i * 5, length: 28, step: 0 }));
-    const hole = rows(20, 18, 0);
+    const hole = block(20, 18);
     const window = barricadeFrames(hole, 6, 14, slots, wood(), [0]);
     expect(window).toHaveLength(PLANKS + 1);
     expect(opaqueBounds(window[0]!)).toEqual({ minX: 6, minY: 14, maxX: 25, maxY: 31 });

@@ -1843,3 +1843,8 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 - **Tablones:** 5 posiciones fijas por tipo, que se clavan en el orden 2, 0, 4, 1, 3 (el del centro primero). Cada uno tiene 4 px de alto, contorno oscuro, dos clavos y medio píxel de inclinación en algunos. Los arranca el último que se clavó.
 - **Vallas:** los 3 huecos de valla del jardín tienen hojas propias (`fence_planks`, `fence_planks_v`): solo tablones de poste a poste y el fotograma 0 vacío.
 - **`npm run windows:compose`** monta las cuatro hojas, las marca en el manifiesto y deja la hoja de revisión en `maps/preview/windows/barricadas.png`.
+- **Revisión (petición del usuario):** la ventana de PixelLab, inclinada y pequeña dentro de mucha pared, quedaba irreal. La sustituye un hueco dibujado por código: recto con la pared, más hueco que pared alrededor y con el muro reventado (variante A de dos maquetas, elegida por el usuario frente a un hueco recto con marco).
+  - Ocupa las columnas 2–29 y las filas 15–29 de la cara. Tiene el borde de arriba y los lados irregulares (ruido fijo, igual en cada compilación), contorno oscuro, astillas del revestimiento, cristales en las esquinas, oscuridad más honda arriba, el grosor del muro a los lados y el alféizar abajo.
+  - En la pared vertical, la franja de 12 px rota con los extremos irregulares, el grosor del muro y el alféizar a lo largo del hueco.
+  - Los tablones son los mismos, en posiciones ajustadas al hueco nuevo.
+  - Se retiraron del repositorio los candidatos de PixelLab del hueco anterior (están en el historial; costaron 40 generaciones).
