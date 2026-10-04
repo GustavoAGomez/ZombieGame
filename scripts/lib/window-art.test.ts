@@ -43,6 +43,48 @@ describe('window art', () => {
     expect(b && b.minX >= 10 && b.maxX <= 21 && b.minY >= 4 && b.maxY <= 27).toBe(true);
   });
 
+  it('breaks its edges in steps of 2 px or more and leaves no pixel alone in its colour (petición del usuario: no stray pixels)', () => {
+    const rgbAt = (f: Frame, x: number, y: number): string => {
+      const i = (y * f.width + x) * 4;
+      return (f.pixels[i + 3] ?? 0) === 0 ? '' : `${f.pixels[i]},${f.pixels[i + 1]},${f.pixels[i + 2]}`;
+    };
+    /** Each run of the same first row inside the outline along the hole's top edge (columns 2..29) or the gap's ends (from the top and from the bottom, columns 10..21). */
+    const runs = (edge: number[]): number[] => {
+      const out: number[] = [];
+      edge.forEach((v, i) => (i > 0 && v === edge[i - 1] ? (out[out.length - 1] = (out[out.length - 1] ?? 0) + 1) : out.push(1)));
+      return out;
+    };
+    const firstRow = (f: Frame, x: number, fromBottom: boolean): number => {
+      for (let k = 0; k < f.height; k++) {
+        const y = fromBottom ? f.height - 1 - k : k;
+        const c = rgbAt(f, x, y);
+        if (c && c !== '26,22,18') return y;
+      }
+      return -1;
+    };
+    const hole = brokenHole();
+    const gap = brokenGap();
+    const cols = (a: number, b: number): number[] => Array.from({ length: b - a + 1 }, (_, i) => a + i);
+    for (const edge of [
+      cols(2, 29).map((x) => firstRow(hole, x, false)),
+      cols(10, 21).map((x) => firstRow(gap, x, false)),
+      cols(10, 21).map((x) => firstRow(gap, x, true)),
+    ])
+      expect(Math.min(...runs(edge))).toBeGreaterThanOrEqual(2);
+    // Every splinter, shard and outline pixel has a neighbour of its own colour, or one of the other two colours of its cluster (a shard's light pixel).
+    for (const f of [hole, gap]) {
+      for (let y = 0; y < 32; y++) {
+        for (let x = 0; x < 32; x++) {
+          const c = rgbAt(f, x, y);
+          if (!c) continue;
+          const near = [rgbAt(f, x - 1, y), rgbAt(f, x + 1, y), rgbAt(f, x, y - 1), rgbAt(f, x, y + 1)];
+          const glass = (k: string): boolean => k === '159,182,204' || k === '216,230,240';
+          expect(near.includes(c) || (glass(c) && near.some(glass)), `${x},${y}`).toBe(true);
+        }
+      }
+    }
+  });
+
   it('cuts a plank of wood with a dark outline and a nail near each end', () => {
     const p = plank(wood(), 0, 0, 24);
     expect([p.width, p.height]).toEqual([24, 4]);

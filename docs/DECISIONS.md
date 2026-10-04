@@ -1844,7 +1844,19 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 - **Vallas:** los 3 huecos de valla del jardín tienen hojas propias (`fence_planks`, `fence_planks_v`): solo tablones de poste a poste y el fotograma 0 vacío.
 - **`npm run windows:compose`** monta las cuatro hojas, las marca en el manifiesto y deja la hoja de revisión en `maps/preview/windows/barricadas.png`.
 - **Revisión (petición del usuario):** la ventana de PixelLab, inclinada y pequeña dentro de mucha pared, quedaba irreal. La sustituye un hueco dibujado por código: recto con la pared, más hueco que pared alrededor y con el muro reventado (variante A de dos maquetas, elegida por el usuario frente a un hueco recto con marco).
-  - Ocupa las columnas 2–29 y las filas 15–29 de la cara. Tiene el borde de arriba y los lados irregulares (ruido fijo, igual en cada compilación), contorno oscuro, astillas del revestimiento, cristales en las esquinas, oscuridad más honda arriba, el grosor del muro a los lados y el alféizar abajo.
+  - Ocupa las columnas 2–29 y las filas 15–29 de la cara. Tiene el borde de arriba y los lados irregulares, contorno oscuro, astillas del revestimiento, cristales en las esquinas, oscuridad más honda arriba, el grosor del muro a los lados y el alféizar abajo.
   - En la pared vertical, la franja de 12 px rota con los extremos irregulares, el grosor del muro y el alféizar a lo largo del hueco.
   - Los tablones son los mismos, en posiciones ajustadas al hueco nuevo.
   - Se retiraron del repositorio los candidatos de PixelLab del hueco anterior (están en el historial; costaron 40 generaciones).
+- **Sin píxeles sueltos (petición del usuario):** el usuario vio píxeles sueltos en el hueco y pidió rehacerlo con PixelLab, siguiendo el mismo diseño.
+  - **Intentos con PixelLab, ninguno aprovechable (80 generaciones):**
+    - *Create Image (Pro)* con el dibujo como referencia (20 + 20 generaciones). Los frontales salieron a la mitad de ancho, como una ventanita entre tablas abiertas en forma de lazo, y la franja vertical, como rectángulos blancos con un listón.
+    - *Inpaint* sobre la pared real, con la caja del hueco como máscara (20 + 20). El frontal salió como un rectángulo negro sin alféizar ni borde roto, y el vertical como una tabla de madera.
+    - *correct_pixelart* (0,6 generaciones, sobre el sprite y sobre la pared) y el `repair` del *workbench*. Conservan la forma: el primero solo ajusta la paleta, y el segundo puntúa el dibujo con 99/100 y no encuentra ningún píxel suelto.
+  - **El origen era el dibujo:** el ruido cambiaba la altura del borde columna a columna. La fila de arriba alternaba un píxel de contorno y uno de pared, como un peine, y las astillas y algún cristal eran de un solo píxel.
+  - **Arreglo en `window-art.ts`:**
+    - El borde se rompe a escalones (`profile`): cada tramo tiene 2 px o más, y el ruido desaparece.
+    - El contorno rodea el hueco por vecindad (`outline`), también en los escalones verticales, salvo junto al alféizar, que queda a ras de la pared.
+    - Las astillas van de dos en dos y los cristales en grupos de tres.
+    - Un test comprueba los tramos de 2 px y que ningún píxel quede aislado en su color.
+  - Los candidatos descartados no se guardan en el repositorio; siguen en la galería de PixelLab.

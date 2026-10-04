@@ -64,76 +64,118 @@ const HOLE = {
   outline: rgb('#1a1612'),
 } as const;
 
-/** A fixed pseudo-random sequence, so the broken edge is the same on every build. */
-function noise(seed: number): () => number {
-  let s = seed;
-  return () => {
-    s = (s * 1103515245 + 12345) & 0x7fffffff;
-    return s / 0x7fffffff;
-  };
+/**
+ * A broken edge's profile: how far it bites in at each step along it, given
+ * as runs of [depth, length]. Runs of 2 px or more keep the edge in clean
+ * steps instead of a comb of single pixels (petición del usuario: no stray
+ * pixels).
+ */
+function profile(runs: readonly (readonly [number, number])[]): number[] {
+  return runs.flatMap(([depth, length]) => Array.from({ length }, () => depth));
+}
+
+/**
+ * Outlines `mask` (its cells marked true) inside the box (bx0..bx1, by0..by1):
+ * every cell of the box out of the mask that touches it side by side and
+ * where `edge(x, y)` (the mask cell it touches) allows it.
+ */
+function outline(f: Frame, mask: boolean[][], box: readonly [number, number, number, number], edge: (x: number, y: number) => boolean): void {
+  const [bx0, by0, bx1, by1] = box;
+  const on = (x: number, y: number): boolean => mask[y]?.[x] === true;
+  for (let y = by0; y <= by1; y++) {
+    for (let x = bx0; x <= bx1; x++) {
+      if (on(x, y)) continue;
+      const touches = (
+        [
+          [x - 1, y],
+          [x + 1, y],
+          [x, y - 1],
+          [x, y + 1],
+        ] as const
+      ).some(([nx, ny]) => on(nx, ny) && edge(nx, ny));
+      if (touches) setRgb(f, x, y, HOLE.outline);
+    }
+  }
 }
 
 /**
  * The hole a window leaves in a horizontal wall once its planks are gone
  * (petición del usuario: aligned with the wall, and more hole than wall):
  * the face broken open across almost its whole width (columns 2..29) and
- * height (rows 15..29 of the cell, under the wall's top edge), with a
- * jagged top edge and sides, a dark outline, splinters of the broken boards
- * and shards of glass in its corners. Inside, the dark, deeper at the top;
- * the wall's thickness shows on its left side (in shadow), as a lit sliver
- * on its right and as a sill at its bottom (light from the top left).
+ * height (rows 15..29 of the cell, under the wall's top edge), its top edge
+ * and sides broken in steps of 2 px or more, with a dark outline, a few
+ * splinters of the broken boards and shards of glass in its top corners.
+ * Inside, the dark, deeper at the top; the wall's thickness shows on its
+ * left side (in shadow), as a lit sliver on its right and as a straight
+ * sill at its bottom (light from the top left).
  */
 export function brokenHole(): Frame {
-  const rnd = noise(11);
   const f = blank(32, 32);
   const x0 = 2;
   const x1 = 29;
   const y0 = 15;
   const y1 = 29;
-  const top: number[] = [];
-  for (let x = x0; x <= x1; x++) top.push(y0 + (rnd() < 0.35 ? 1 : 0) + (rnd() < 0.12 ? 1 : 0));
-  const left: number[] = [];
-  const right: number[] = [];
+  const sill = y1 - 2;
+  /** How far the top edge bites down at each column (x0..x1) and the sides in at each row above the sill (y0..sill - 1). */
+  const top = profile([
+    [0, 4],
+    [1, 3],
+    [0, 2],
+    [2, 3],
+    [1, 2],
+    [0, 5],
+    [1, 3],
+    [2, 2],
+    [1, 2],
+    [0, 2],
+  ]);
+  const left = profile([
+    [0, 3],
+    [1, 4],
+    [0, 5],
+  ]);
+  const right = profile([
+    [0, 2],
+    [1, 5],
+    [0, 3],
+    [1, 2],
+  ]);
+  const mask: boolean[][] = Array.from({ length: 32 }, () => Array<boolean>(32).fill(false));
   for (let y = y0; y <= y1; y++) {
-    left.push(x0 + (rnd() < 0.3 ? 1 : 0));
-    right.push(x1 - (rnd() < 0.3 ? 1 : 0));
-  }
-  for (let y = y0; y <= y1; y++) {
-    const l = left[y - y0] ?? x0;
-    const r = right[y - y0] ?? x1;
+    const l = y >= sill ? x0 : x0 + (left[y - y0] ?? 0);
+    const r = y >= sill ? x1 : x1 - (right[y - y0] ?? 0);
     for (let x = l; x <= r; x++) {
-      if (y < (top[x - x0] ?? y0)) continue;
+      if (y < y0 + (top[x - x0] ?? 0)) continue;
+      const row = mask[y];
+      if (row) row[x] = true;
       const depth = (y - y0) / (y1 - y0);
       let c: Rgb = depth < 0.3 ? HOLE.darkTop : depth < 0.75 ? HOLE.dark : HOLE.darkLow;
       if (x <= l + 1) c = HOLE.jamb;
       if (x === r) c = HOLE.jambLit;
-      if (y >= y1 - 2) c = y === y1 ? HOLE.sillDark : y === y1 - 2 ? HOLE.sillLight : HOLE.sill;
+      if (y >= sill) c = y === y1 ? HOLE.sillDark : y === sill ? HOLE.sillLight : HOLE.sill;
       setRgb(f, x, y, c);
     }
   }
-  for (let x = x0; x <= x1; x++) setRgb(f, x, (top[x - x0] ?? y0) - 1, HOLE.outline);
-  for (let y = y0; y <= y1 - 2; y++) {
-    setRgb(f, (left[y - y0] ?? x0) - 1, y, HOLE.outline);
-    setRgb(f, (right[y - y0] ?? x1) + 1, y, HOLE.outline);
-  }
+  // The outline round the break, but not along the sill (it sits flush with the wall).
+  outline(f, mask, [x0 - 1, y0 - 1, x1 + 1, y1], (_x, y) => y < sill);
+  // Broken board ends sticking into the dark, 2 px each, under the top edge.
   for (const [x, y] of [
-    [5, 16],
-    [6, 16],
-    [13, 15],
+    [11, 17],
+    [12, 17],
+    [17, 15],
+    [18, 15],
     [21, 16],
     [22, 16],
-    [26, 15],
-    [4, 21],
-    [27, 19],
   ] as const)
     setRgb(f, x, y, HOLE.splinter);
+  // Shards of glass left in the top corners, 3 px each.
   for (const [x, y, c] of [
-    [4, 17, HOLE.glass],
-    [5, 18, HOLE.glass],
-    [4, 18, HOLE.glassLight],
-    [26, 17, HOLE.glass],
-    [27, 17, HOLE.glassLight],
-    [25, 18, HOLE.glass],
+    [4, 15, HOLE.glassLight],
+    [5, 15, HOLE.glass],
+    [4, 16, HOLE.glass],
+    [27, 16, HOLE.glassLight],
+    [26, 16, HOLE.glass],
+    [27, 17, HOLE.glass],
   ] as const)
     setRgb(f, x, y, c);
   return f;
@@ -141,20 +183,37 @@ export function brokenHole(): Frame {
 
 /**
  * The same hole in a vertical wall, seen from above: its 12 px strip
- * (columns 10..21) broken off along rows 5..26, with ragged ends and
- * splinters; down in the gap the wall's thickness (its left side in shadow,
- * a lit sliver on its right) and the sill along the middle, lower down.
+ * (columns 10..21) broken off along rows 5..26, its two ends broken in
+ * steps of 2 px or more with a dark outline and a splinter each; down in the
+ * gap the wall's thickness (its left side in shadow, a lit sliver on its
+ * right) and the sill along the middle, lower down.
  */
 export function brokenGap(): Frame {
-  const rnd = noise(23);
   const f = blank(32, 32);
   const x0 = 10;
   const x1 = 21;
   const y0 = 5;
   const y1 = 26;
-  for (let y = y0; y <= y1; y++) {
-    for (let x = x0; x <= x1; x++) {
-      if ((y < y0 + 2 || y > y1 - 2) && rnd() < 0.4) continue;
+  /** How far each end bites into the gap at each column (x0..x1). */
+  const top = profile([
+    [1, 2],
+    [0, 3],
+    [2, 2],
+    [0, 2],
+    [1, 3],
+  ]);
+  const bottom = profile([
+    [0, 3],
+    [1, 2],
+    [0, 2],
+    [2, 3],
+    [0, 2],
+  ]);
+  const mask: boolean[][] = Array.from({ length: 32 }, () => Array<boolean>(32).fill(false));
+  for (let x = x0; x <= x1; x++) {
+    for (let y = y0 + (top[x - x0] ?? 0); y <= y1 - (bottom[x - x0] ?? 0); y++) {
+      const row = mask[y];
+      if (row) row[x] = true;
       let c: Rgb = HOLE.dark;
       if (x <= x0 + 1) c = HOLE.jamb;
       if (x === x1) c = HOLE.jambLit;
@@ -162,15 +221,13 @@ export function brokenGap(): Frame {
       setRgb(f, x, y, c);
     }
   }
-  for (let x = x0; x <= x1; x++) {
-    setRgb(f, x, y0 - 1, HOLE.outline);
-    setRgb(f, x, y1 + 1, HOLE.outline);
-  }
+  // The outline across both broken ends, within the wall's strip (its sides are the wall's own edges).
+  outline(f, mask, [x0, y0 - 1, x1, y1 + 1], () => true);
   for (const [x, y] of [
-    [11, 5],
-    [19, 6],
+    [12, 5],
+    [13, 5],
+    [11, 26],
     [12, 26],
-    [20, 25],
   ] as const)
     setRgb(f, x, y, HOLE.splinter);
   return f;
