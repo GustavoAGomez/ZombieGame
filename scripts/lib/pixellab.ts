@@ -166,6 +166,60 @@ export function parsePixelLabMetadata(json: unknown, overrides: TakeOverrides = 
   return { version, animations, warnings };
 }
 
+/**
+ * Builds the animations named in import.json "sources" from the export
+ * animations listed for each (by their export name), in order: every
+ * direction comes from the first listed one that has it. The listed ones
+ * and any other that maps to the same name are left out, so a failed take
+ * stays in the export unused. Notes say where each direction came from.
+ */
+export function applySources(
+  animations: readonly ExportAnimation[],
+  sources: Readonly<Record<string, readonly string[]>>,
+): { animations: ExportAnimation[]; notes: string[] } {
+  const notes: string[] = [];
+  const used = new Set(Object.values(sources).flat());
+  const out = animations.filter((a) => !(a.name in sources) && !used.has(a.sourceName));
+  for (const [name, list] of Object.entries(sources)) {
+    const found = list.map((s) => animations.find((a) => a.sourceName === s));
+    const missing = list.filter((_, i) => !found[i]);
+    if (missing.length > 0) notes.push(`${name}: no hay "${missing.join('", "')}" en el export`);
+    const parts = found.filter((a): a is ExportAnimation => a !== undefined);
+    const first = parts[0];
+    if (!first) continue;
+    const frames = new Map<string, string[]>();
+    const from = new Map<string, string[]>();
+    for (const part of parts) {
+      for (const [dir, paths] of part.frames) {
+        if (frames.has(dir)) continue;
+        frames.set(dir, paths);
+        from.set(part.sourceName, [...(from.get(part.sourceName) ?? []), dir]);
+      }
+    }
+    if (parts.length > 1) notes.push(`${name}: ${[...from].map(([s, dirs]) => `${dirs.join(', ')} de "${s}"`).join('; ')}`);
+    out.push({ name, sourceName: parts.map((p) => p.sourceName).join(' + '), width: first.width, height: first.height, frames });
+  }
+  return { animations: out, notes };
+}
+
+/** Prefix of a frame path that is read mirrored left to right (import.json "mirror"). */
+export const MIRRORED = 'mirror:';
+
+/**
+ * import.json "mirror": { "<direction>": "<direction it mirrors>" }. Each
+ * direction becomes the other one mirrored when the animation has that one,
+ * replacing its own: a boss facing west holds its mallet in the same hand,
+ * mirrored, as facing east.
+ */
+export function mirrorDirections(frames: ReadonlyMap<string, string[]>, mirror: Readonly<Record<string, string>>): Map<string, string[]> {
+  const out = new Map(frames);
+  for (const [to, from] of Object.entries(mirror)) {
+    const source = frames.get(from);
+    if (source) out.set(to, source.map((p) => MIRRORED + p));
+  }
+  return out;
+}
+
 /** Fewest directions an animation needs for the rest to be filled in (death in south, east and west). */
 export const MIN_DIRECTIONS_TO_FILL = 3;
 

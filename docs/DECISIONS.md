@@ -1708,3 +1708,23 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - **Charcos:** 5 por tic a quien esté dentro.
   - Esas bajas no dan puntos a nadie (atacante -1), pero sí pueden soltar botín y salpican sangre.
 - **Entre bosses no hay daño:** ningún golpe de un boss daña a otro boss (los golpes solo recorren jugadores y zombies).
+
+## El arte del Matarife (PixelLab)
+
+- **Personaje:** modo v3 de PixelLab, lienzo de 128 px, vista *high top-down* y la descripción de estilo de los zombis. Salió más musculoso que gordo y se aceptó así. Mide unos 116×118 px, casi 3 veces el alto del zombi normal; sobresale bastante de su huella de 2×2 casillas, algo más que el placeholder (96×110).
+- **Direcciones:** cada animación se generó solo al sur, este y norte. El oeste es el este en espejo (`"mirror"` en su `import.json`), como pedía la spec, y en la animación quieta también las diagonales del oeste, para que el mazo no cambie de mano al pararse.
+- **Tomas:**
+  - Las plantillas de PixelLab no sirven para un cuerpo así: el andar perdía el mazo y la muerte salía con el maniquí del esqueleto.
+  - Se repitieron con animaciones personalizadas (`walk_v3`, `death_v3`), igual que el salto hacia el sur y el este (acababa tumbado) y la embestida hacia el sur (casi no se movía).
+  - Las tomas fallidas se quedan en el export y en la cuenta de PixelLab sin usarse; `"sources"` elige de dónde sale cada dirección.
+  - De frente a cámara (sur), la embestida y el salto siguen moviéndose poco; el código pone el desplazamiento y el arco del salto.
+- **Lienzo:** las animaciones personalizadas llegan en 168 o 172 px con el personaje centrado; todo se importa a 172×172 y los pies quedan en y = 146 (ancla 0,85).
+- **Animaciones guiadas por el estado:** el boss no reproduce sus animaciones a su ritmo. `bossFrame` (`entities/Boss.ts`) elige el fotograma por su fase y su ataque:
+  - La preparación de la embestida se reparte en lo que dura su windup (más corta en el rabioso).
+  - El mazazo levanta el mazo hasta el golpe y lo baja en los fotogramas desde la marca `hit` justo después.
+  - El salto está en el aire entre las marcas `air` y `land` mientras dura su vuelo, y aterriza con el resto.
+  - El rugido dura lo que la fase de rugir, y la muerte se reproduce una vez y se queda en el último fotograma mientras se desvanece.
+  - Andar, embestir y aturdido van en bucle a los fps del manifiesto.
+- **Marcas en el manifiesto:** los fotogramas clave (`marks`) son del arte, no del juego, así que viven en el manifiesto junto a cada animación y no en `balance.ts`.
+- **Placeholder:** si falta el arte, el boss sigue siendo el dibujo provisional del Matarife (cuerpo y mazo), ahora repartido por animaciones en vez de por poses.
+- **Coste:** 112 generaciones (3 del personaje y el resto de animaciones y repeticiones).

@@ -8,8 +8,17 @@
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { MERCHANT, PLAYER, ZOMBIES } from '../src/config/balance';
-import { REQUIRED_ANIMATIONS, REQUIRED_OBJECTS, animationDirections, isAnimationPlaceholder, parseManifest, type Manifest } from '../src/game/assets/manifest';
+import { BOSS, MERCHANT, PLAYER, ZOMBIES } from '../src/config/balance';
+import { BOSS_IDS, BOSSES } from '../src/config/bosses';
+import {
+  REQUIRED_ANIMATIONS,
+  REQUIRED_OBJECTS,
+  animationDirections,
+  bossCharacterKey,
+  isAnimationPlaceholder,
+  parseManifest,
+  type Manifest,
+} from '../src/game/assets/manifest';
 import { parseMap } from '../src/game/map/MapLoader';
 import { colorsOutsidePalette, decodePng, parsePaletteHex, readPngInfo } from './lib/png';
 import { validateMap } from './lib/validate-map';
@@ -77,7 +86,15 @@ export function checkAssets(root: string): CheckReport {
 
   for (const [key, def] of Object.entries(manifest.characters)) {
     if (!SNAKE.test(key)) report.errors.push(`Nombre de personaje no válido "${key}" (usa snake_case)`);
-    const expectedRadius = key === 'player' ? PLAYER.hitboxRadius : key.startsWith('merchant_') ? MERCHANT.radius : ZOMBIES.hitboxRadius;
+    // A boss's body is a box: half its footprint minus the slack (BossBody).
+    const boss = BOSS_IDS.find((id) => key === bossCharacterKey(id));
+    const expectedRadius = boss
+      ? (BOSSES[boss].footprintTiles * manifest.tileSize) / 2 - BOSS.bodySlack
+      : key === 'player'
+        ? PLAYER.hitboxRadius
+        : key.startsWith('merchant_')
+          ? MERCHANT.radius
+          : ZOMBIES.hitboxRadius;
     if (def.hitbox.radius !== expectedRadius) {
       report.warnings.push(`${key}: hitbox.radius ${def.hitbox.radius} ≠ balance.ts (${expectedRadius}); el juego usa balance.ts`);
     }

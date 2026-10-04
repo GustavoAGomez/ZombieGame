@@ -240,6 +240,18 @@ export function fillTransparent(frame: Frame): number {
   return filled;
 }
 
+/** `src` mirrored left to right. */
+export function flipHorizontal(src: Frame): Frame {
+  const out = blank(src.width, src.height);
+  for (let y = 0; y < src.height; y++) {
+    for (let x = 0; x < src.width; x++) {
+      const s = (y * src.width + x) * 4;
+      out.pixels.set(src.pixels.subarray(s, s + 4), (y * src.width + (src.width - 1 - x)) * 4);
+    }
+  }
+  return out;
+}
+
 /** `src` centred on a `width`×`height` canvas, as buildSheet places each frame. */
 export function centerIn(src: Frame, width: number, height: number): Frame {
   const out = blank(width, height);

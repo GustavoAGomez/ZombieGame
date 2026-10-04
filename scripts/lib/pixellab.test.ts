@@ -1,7 +1,18 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { directionRows, nearestDirection, normaliseAnimationName, parsePixelLabMetadata, resolveTakes, selectAnimations, type ExportAnimation } from './pixellab';
+import {
+  applySources,
+  directionRows,
+  MIRRORED,
+  mirrorDirections,
+  nearestDirection,
+  normaliseAnimationName,
+  parsePixelLabMetadata,
+  resolveTakes,
+  selectAnimations,
+  type ExportAnimation,
+} from './pixellab';
 
 const realMetadata: unknown = JSON.parse(
   readFileSync(resolve(import.meta.dirname, '../../art-src/pixellab/player/metadata.json'), 'utf8'),
@@ -229,5 +240,52 @@ describe('resolveTakes', () => {
     const { frames: out, notes } = resolveTakes(frames, { north: 'north-deadbeef' });
     expect(out.get('north')).toEqual(['a.png']);
     expect(notes[0]).toContain('no existe');
+  });
+});
+
+describe('applySources', () => {
+  const exported = (name: string, sourceName: string, dirs: string[]): ExportAnimation => ({
+    name,
+    sourceName,
+    width: 128,
+    height: 128,
+    frames: new Map(dirs.map((d) => [d, [`${sourceName}/${d}.png`]])),
+  });
+  // The boss's export: a failed template walk, its v3 retake, and a leap retaken in two directions.
+  const animations = [
+    exported('walk', 'walk', ['south', 'east']),
+    exported('walk', 'walk_v3', ['south', 'east', 'north']),
+    exported('leap', 'leap', ['south', 'east', 'north']),
+    exported('leap_v2', 'leap_v2', ['south', 'east']),
+    exported('roar', 'roar', ['south', 'east', 'north']),
+  ];
+
+  it('builds each animation from its listed takes, every direction from the first that has it', () => {
+    const { animations: out, notes } = applySources(animations, { walk: ['walk_v3'], leap: ['leap_v2', 'leap'] });
+    expect(out.map((a) => a.name).sort()).toEqual(['leap', 'roar', 'walk']);
+    const leap = out.find((a) => a.name === 'leap');
+    expect(leap?.frames.get('south')).toEqual(['leap_v2/south.png']);
+    expect(leap?.frames.get('north')).toEqual(['leap/north.png']);
+    expect(out.find((a) => a.name === 'walk')?.frames.get('south')).toEqual(['walk_v3/south.png']);
+    expect(notes).toEqual(['leap: south, east de "leap_v2"; north de "leap"']);
+  });
+
+  it('says when a listed take is not in the export', () => {
+    const { notes } = applySources(animations, { walk: ['walk_v4', 'walk_v3'] });
+    expect(notes[0]).toContain('walk_v4');
+  });
+});
+
+describe('mirrorDirections', () => {
+  it('draws a direction as another one mirrored, replacing its own, when that one exists', () => {
+    const frames = new Map([
+      ['east', ['e0.png', 'e1.png']],
+      ['west', ['w0.png']],
+      ['south', ['s0.png']],
+    ]);
+    const out = mirrorDirections(frames, { west: 'east', 'north-west': 'north-east' });
+    expect(out.get('west')).toEqual([`${MIRRORED}e0.png`, `${MIRRORED}e1.png`]);
+    expect(out.has('north-west')).toBe(false);
+    expect(out.get('south')).toEqual(['s0.png']);
   });
 });

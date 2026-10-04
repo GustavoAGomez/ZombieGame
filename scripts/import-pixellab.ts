@@ -16,8 +16,17 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { DIRECTIONS_4, DIRECTIONS_8, type Directions } from '../src/game/assets/manifest';
 import { decodePng, encodePng, parsePaletteHex } from './lib/png';
-import { directionRows, parsePixelLabMetadata, selectAnimations, type ExportAnimation, type TakeOverrides } from './lib/pixellab';
-import { binarizeAlpha, buildSheet, centerIn, croppedPixels, opaqueBounds, quantize, scaleAbout, type Frame } from './lib/sheet';
+import {
+  applySources,
+  directionRows,
+  MIRRORED,
+  mirrorDirections,
+  parsePixelLabMetadata,
+  selectAnimations,
+  type ExportAnimation,
+  type TakeOverrides,
+} from './lib/pixellab';
+import { binarizeAlpha, buildSheet, centerIn, croppedPixels, flipHorizontal, opaqueBounds, quantize, scaleAbout, type Frame } from './lib/sheet';
 
 /** Defaults for animations the manifest does not declare yet. */
 const ANIMATION_DEFAULTS: Record<string, { fps: number; loop: boolean }> = {
@@ -72,6 +81,8 @@ export function applyImport(manifest: Json, asset: string, imported: ImportedAni
     fps: typeof previous.fps === 'number' ? previous.fps : defaults.fps,
     loop: typeof previous.loop === 'boolean' ? previous.loop : defaults.loop,
     directions: imported.directions,
+    // Where things happen in the art (the slam's blow) is the artist's: a new take keeps them.
+    ...(isRecord(previous.marks) ? { marks: previous.marks } : {}),
   };
   character.placeholder = false;
 
@@ -133,9 +144,12 @@ function cutFrame(sheet: Frame, col: number, row: number, w: number, h: number):
   return { width: w, height: h, pixels };
 }
 
-function readFrame(path: string): Frame {
-  const png = decodePng(readFileSync(path));
-  return { width: png.width, height: png.height, pixels: png.pixels };
+/** A frame of the export; a path marked MIRRORED is read mirrored left to right. */
+function readFrame(dir: string, path: string): Frame {
+  const mirrored = path.startsWith(MIRRORED);
+  const png = decodePng(readFileSync(join(dir, mirrored ? path.slice(MIRRORED.length) : path)));
+  const frame = { width: png.width, height: png.height, pixels: png.pixels };
+  return mirrored ? flipHorizontal(frame) : frame;
 }
 
 function importAnimation(
@@ -148,6 +162,7 @@ function importAnimation(
   log: (line: string) => void,
   frameCount?: number,
   scale?: ScaleOption,
+  mirror: Record<string, string> = {},
 ): ImportedAnimation {
   const frameWidth = typeof character.frameWidth === 'number' ? character.frameWidth : anim.width || 48;
   const frameHeight = typeof character.frameHeight === 'number' ? character.frameHeight : anim.height || 48;
@@ -155,7 +170,9 @@ function importAnimation(
   const anchorY = typeof anchorRaw.y === 'number' ? anchorRaw.y : 0.8;
 
   for (const note of anim.notes ?? []) log(`  · ${anim.sourceName}: ${note}`);
-  const { directions, rows: sourceRows, filled } = directionRows(anim.frames, character.directions === 1);
+  const mirrored = Object.keys(mirror).filter((d) => anim.frames.has(mirror[d] ?? ''));
+  if (mirrored.length > 0) log(`  · ${anim.sourceName}: en espejo (import.json): ${mirrored.map((d) => `${d} ← ${mirror[d]}`).join(', ')}`);
+  const { directions, rows: sourceRows, filled } = directionRows(mirrorDirections(anim.frames, mirror), character.directions === 1);
   if (filled.length > 0) log(`  · ${anim.sourceName}: direcciones que faltan con la más cercana (${filled.join(', ')})`);
   // A sheet needs the same frame count in every row: stretch the shorter directions (or
   // squeeze all to the count chosen in import.json, better for a loop where most rows are shorter).
@@ -167,7 +184,7 @@ function importAnimation(
   }
   const rows = sourceRows.map((r) => resampleFrames(r, frames));
 
-  let decoded = rows.map((row) => row.map((rel) => readFrame(join(sourceDir, rel))));
+  let decoded = rows.map((row) => row.map((rel) => readFrame(sourceDir, rel)));
   const odd = decoded.flat().filter((f) => f.width !== frameWidth || f.height !== frameHeight);
   if (odd.length > 0) {
     const sizes = [...new Set(odd.map((f) => `${f.width}×${f.height}`))].join(', ');
@@ -255,6 +272,10 @@ interface ImportOptions {
   scale: Record<string, ScaleOption>;
   /** Other characters that use this art (zombie kinds sharing one zombie). */
   alsoFor: string[];
+  /** Per animation, the export animations it is built from, in order of preference per direction. */
+  sources: Record<string, string[]>;
+  /** Directions drawn as another one mirrored. */
+  mirror: Record<string, string>;
 }
 
 /**
@@ -262,11 +283,13 @@ interface ImportOptions {
  * { "takes": { "<animation>": { "<direction>": "<take folder>" } },
  *   "frames": { "<animation>": <frames per row> },
  *   "scale": { "<animation>": <factor> | { "<direction>" | "*": <factor> } },
- *   "alsoFor": ["<asset>", …] }
+ *   "alsoFor": ["<asset>", …],
+ *   "sources": { "<animation>": ["<export animation>", …] },
+ *   "mirror": { "<direction>": "<direction it mirrors>" } }
  */
 function readOptions(assetDir: string, log: (line: string) => void): ImportOptions {
   const path = join(assetDir, 'import.json');
-  if (!existsSync(path)) return { takes: {}, frames: {}, scale: {}, alsoFor: [] };
+  if (!existsSync(path)) return { takes: {}, frames: {}, scale: {}, alsoFor: [], sources: {}, mirror: {} };
   const json: unknown = JSON.parse(readFileSync(path, 'utf8'));
   const takes = isRecord(json) && isRecord(json.takes) ? json.takes : {};
   const out: TakeOverrides = {};
@@ -285,8 +308,15 @@ function readOptions(assetDir: string, log: (line: string) => void): ImportOptio
     else if (isRecord(value)) scale[anim] = Object.fromEntries(Object.entries(value).filter((e): e is [string, number] => validFactor(e[1])));
   }
   const alsoFor = isRecord(json) && Array.isArray(json.alsoFor) ? json.alsoFor.filter((a): a is string => typeof a === 'string') : [];
+  const sourcesRaw = isRecord(json) && isRecord(json.sources) ? json.sources : {};
+  const sources: Record<string, string[]> = {};
+  for (const [anim, list] of Object.entries(sourcesRaw)) {
+    if (Array.isArray(list)) sources[anim] = list.filter((s): s is string => typeof s === 'string');
+  }
+  const mirrorRaw = isRecord(json) && isRecord(json.mirror) ? json.mirror : {};
+  const mirror = Object.fromEntries(Object.entries(mirrorRaw).filter((e): e is [string, string] => typeof e[1] === 'string'));
   log(`  · import.json: elecciones de tomas para ${Object.keys(out).join(', ') || 'nada'}${alsoFor.length ? `; arte compartido con ${alsoFor.join(', ')}` : ''}`);
-  return { takes: out, frames, scale, alsoFor };
+  return { takes: out, frames, scale, alsoFor, sources, mirror };
 }
 
 /**
@@ -331,7 +361,7 @@ export function importObject(root: string, key: string, manifest: Json, palette:
     return false;
   }
   const { frameWidth, frameHeight, file } = def;
-  const frames = names.map((name) => readFrame(join(dir, name)));
+  const frames = names.map((name) => readFrame(dir, name));
   frames.forEach((f, i) => {
     if (f.width === frameWidth && f.height === frameHeight) return;
     log(`  · ${names[i]}: ${f.width}×${f.height}, centrado en ${frameWidth}×${frameHeight}`);
@@ -398,13 +428,26 @@ export function importAssets(root: string, only: readonly string[], log: (line: 
     for (const exportDir of exports) {
       const parsed = parsePixelLabMetadata(JSON.parse(readFileSync(join(exportDir, 'metadata.json'), 'utf8')), options.takes);
       for (const w of parsed.warnings) log(`  ⚠ ${w}`);
-      const { selected, skipped } = selectAnimations(parsed.animations, character.directions === 1);
+      const sourced = applySources(parsed.animations, options.sources);
+      for (const note of sourced.notes) log(`  · ${note}`);
+      const { selected, skipped } = selectAnimations(sourced.animations, character.directions === 1);
       for (const line of skipped) log(`  ⚠ ${line}`);
       for (const anim of selected) {
         const previous = seen.get(anim.name);
         if (previous) log(`  ⚠ "${anim.name}" aparece en ${previous} y en ${exportDir}; se usa el último`);
         seen.set(anim.name, exportDir);
-        const result = importAnimation(root, asset, exportDir, anim, character, palette, log, options.frames[anim.name], options.scale[anim.name]);
+        const result = importAnimation(
+          root,
+          asset,
+          exportDir,
+          anim,
+          character,
+          palette,
+          log,
+          options.frames[anim.name],
+          options.scale[anim.name],
+          options.mirror,
+        );
         applyImport(manifest, asset, result, hasFile);
         imported++;
       }

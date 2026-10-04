@@ -12,9 +12,8 @@ import {
   ASSET_KEYS,
   DIRECTIONS_4,
   DIRECTIONS_8,
-  BOSS_POSES,
   animationDirections,
-  bossTextureKey,
+  bossCharacterKey,
   characterTextureKey,
   itemSpriteKey,
   objectTextureKey,
@@ -149,6 +148,10 @@ export function createCharacterPlaceholder(
 ): void {
   const anim = def.animations[animation];
   if (!anim) return;
+  if (BOSS_IDS.some((id) => character === bossCharacterKey(id))) {
+    createBossPlaceholder(scene, character, def, animation);
+    return;
+  }
   const look = characterLook(character);
   const rows = animationDirections(def, animation);
   const names = rows === 8 ? DIRECTIONS_8 : rows === 4 ? DIRECTIONS_4 : (['south'] as const);
@@ -753,10 +756,6 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
         drawRubble(ctx, col, ox, oy);
         break;
       default: {
-        if (BOSS_IDS.some((id) => object === bossTextureKey(id))) {
-          drawButcher(ctx, col, ox, oy, w, h);
-          break;
-        }
         const merchant = MERCHANTS.find((m) => object === `merchant_${m.id}`);
         if (merchant) {
           drawMerchant(ctx, merchant.color, ox, oy, w, h);
@@ -840,14 +839,52 @@ function butcherBody(ctx: Ctx, x: number, y: number, w: number, h: number, xEyes
   rect(ctx, BUTCHER.eye, ex + 6, ey, 3, 2);
 }
 
+/** The poses the boss's placeholder draws. */
+type ButcherPose = 'walk_a' | 'walk_b' | 'charge_windup' | 'charge' | 'stunned' | 'slam_windup' | 'slam' | 'leap' | 'land' | 'roar' | 'dead';
+
+/** Size of the placeholder boss's drawing, standing on the anchor of its frame. */
+const BUTCHER_SIZE = { width: 96, height: 110 } as const;
+
+/** The placeholder pose for frame `col` of a boss animation (the slam's blow and the landing by the sheet's marks). */
+function butcherPose(animation: string, col: number, frames: number, marks: Record<string, number> = {}): ButcherPose {
+  switch (animation) {
+    case 'walk':
+      return col % 2 === 0 ? 'walk_a' : 'walk_b';
+    case 'charge_windup':
+    case 'charge':
+    case 'stunned':
+    case 'roar':
+      return animation;
+    case 'slam':
+      return col < (marks.hit ?? Math.floor(frames / 2)) ? 'slam_windup' : 'slam';
+    case 'leap':
+      return col < (marks.land ?? Math.floor(frames / 2)) ? 'leap' : 'land';
+    case 'death':
+      return 'dead';
+    default:
+      return 'walk_a';
+  }
+}
+
+/** A boss's animation drawn as El Matarife's placeholder poses, the same in every direction. */
+function createBossPlaceholder(scene: Phaser.Scene, character: string, def: CharacterDef, animation: string): void {
+  const anim = def.animations[animation];
+  if (!anim) return;
+  const rows = animationDirections(def, animation);
+  const anchorX = Math.round(def.frameWidth * def.anchor.x);
+  const anchorY = Math.round(def.frameHeight * def.anchor.y);
+  const { width, height } = BUTCHER_SIZE;
+  createSheet(scene, characterTextureKey(character, animation), def.frameWidth, def.frameHeight, anim.frames, rows, (ctx, col, _row, ox, oy) =>
+    drawButcher(ctx, butcherPose(animation, col, anim.frames, anim.marks), ox + anchorX - width / 2, oy + anchorY - height, width, height),
+  );
+}
+
 /**
  * El Matarife (spec 07 §8): a rounded body of 64×84 in dark greyish green
  * with a lighter belly, and a brown mallet of 12×40, standing on the bottom
- * edge of its 96×110 frame, facing the camera with the mallet on its right.
- * One simple pose per frame, in BOSS_POSES order.
+ * edge of its 96×110 box, facing the camera with the mallet on its right.
  */
-function drawButcher(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number): void {
-  const pose = BOSS_POSES[frame] ?? 'walk_a';
+function drawButcher(ctx: Ctx, pose: ButcherPose, ox: number, oy: number, w: number, h: number): void {
   const cx = ox + Math.round(w / 2);
   const ground = oy + h;
   // Its two feet; `lift` raises the left one (a step).

@@ -1,0 +1,375 @@
+{
+  "group_id": "eeff52ee-59da-4703-8fba-a08468ac4c2d",
+  "states": [
+    {
+      "character": {
+        "id": "0e18796b-29a1-43a2-8b36-1383e73ff1ec",
+        "name": "Idle",
+        "prompt": "El Matarife, a gigantic obese zombie butcher about three times the size of a normal zombie, hunched massive body, huge bloated belly, small bald head sunk between broad shoulders, stained dirty butcher's apron over torn clothes, thick heavy arms, holding a giant wooden sledgehammer mallet in one hand, pale sickly grey-green skin with dark red-brown stains, small glowing pale-yellow eyes, open jaw, desaturated cold palette of pale grey-green, blue-grey and charcoal with dark red-brown stains, dark 1px outline, light coming from top-left, clear readable silhouette, game sprite",
+        "size": {
+          "width": 128,
+          "height": 128
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-10-04T14:16:40.831270+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {
+          "death_v3": {
+            "south": [
+              "Idle/animations/death_v3/south/frame_000.png",
+              "Idle/animations/death_v3/south/frame_001.png",
+              "Idle/animations/death_v3/south/frame_002.png",
+              "Idle/animations/death_v3/south/frame_003.png",
+              "Idle/animations/death_v3/south/frame_004.png",
+              "Idle/animations/death_v3/south/frame_005.png",
+              "Idle/animations/death_v3/south/frame_006.png",
+              "Idle/animations/death_v3/south/frame_007.png",
+              "Idle/animations/death_v3/south/frame_008.png"
+            ],
+            "east": [
+              "Idle/animations/death_v3/east/frame_000.png",
+              "Idle/animations/death_v3/east/frame_001.png",
+              "Idle/animations/death_v3/east/frame_002.png",
+              "Idle/animations/death_v3/east/frame_003.png",
+              "Idle/animations/death_v3/east/frame_004.png",
+              "Idle/animations/death_v3/east/frame_005.png",
+              "Idle/animations/death_v3/east/frame_006.png",
+              "Idle/animations/death_v3/east/frame_007.png",
+              "Idle/animations/death_v3/east/frame_008.png"
+            ],
+            "north": [
+              "Idle/animations/death_v3/north/frame_000.png",
+              "Idle/animations/death_v3/north/frame_001.png",
+              "Idle/animations/death_v3/north/frame_002.png",
+              "Idle/animations/death_v3/north/frame_003.png",
+              "Idle/animations/death_v3/north/frame_004.png",
+              "Idle/animations/death_v3/north/frame_005.png",
+              "Idle/animations/death_v3/north/frame_006.png",
+              "Idle/animations/death_v3/north/frame_007.png",
+              "Idle/animations/death_v3/north/frame_008.png"
+            ]
+          },
+          "death": {
+            "north": [
+              "Idle/animations/death/north/frame_000.png",
+              "Idle/animations/death/north/frame_001.png",
+              "Idle/animations/death/north/frame_002.png",
+              "Idle/animations/death/north/frame_003.png",
+              "Idle/animations/death/north/frame_004.png",
+              "Idle/animations/death/north/frame_005.png",
+              "Idle/animations/death/north/frame_006.png"
+            ],
+            "south": [
+              "Idle/animations/death/south/frame_000.png",
+              "Idle/animations/death/south/frame_001.png",
+              "Idle/animations/death/south/frame_002.png",
+              "Idle/animations/death/south/frame_003.png",
+              "Idle/animations/death/south/frame_004.png",
+              "Idle/animations/death/south/frame_005.png",
+              "Idle/animations/death/south/frame_006.png"
+            ],
+            "east": [
+              "Idle/animations/death/east/frame_000.png",
+              "Idle/animations/death/east/frame_001.png",
+              "Idle/animations/death/east/frame_002.png",
+              "Idle/animations/death/east/frame_003.png",
+              "Idle/animations/death/east/frame_004.png",
+              "Idle/animations/death/east/frame_005.png",
+              "Idle/animations/death/east/frame_006.png"
+            ]
+          },
+          "slam": {
+            "north": [
+              "Idle/animations/slam/north/frame_000.png",
+              "Idle/animations/slam/north/frame_001.png",
+              "Idle/animations/slam/north/frame_002.png",
+              "Idle/animations/slam/north/frame_003.png",
+              "Idle/animations/slam/north/frame_004.png",
+              "Idle/animations/slam/north/frame_005.png",
+              "Idle/animations/slam/north/frame_006.png",
+              "Idle/animations/slam/north/frame_007.png",
+              "Idle/animations/slam/north/frame_008.png"
+            ],
+            "east": [
+              "Idle/animations/slam/east/frame_000.png",
+              "Idle/animations/slam/east/frame_001.png",
+              "Idle/animations/slam/east/frame_002.png",
+              "Idle/animations/slam/east/frame_003.png",
+              "Idle/animations/slam/east/frame_004.png",
+              "Idle/animations/slam/east/frame_005.png",
+              "Idle/animations/slam/east/frame_006.png",
+              "Idle/animations/slam/east/frame_007.png",
+              "Idle/animations/slam/east/frame_008.png"
+            ],
+            "south": [
+              "Idle/animations/slam/south/frame_000.png",
+              "Idle/animations/slam/south/frame_001.png",
+              "Idle/animations/slam/south/frame_002.png",
+              "Idle/animations/slam/south/frame_003.png",
+              "Idle/animations/slam/south/frame_004.png",
+              "Idle/animations/slam/south/frame_005.png",
+              "Idle/animations/slam/south/frame_006.png",
+              "Idle/animations/slam/south/frame_007.png",
+              "Idle/animations/slam/south/frame_008.png"
+            ]
+          },
+          "charge": {
+            "south": [
+              "Idle/animations/charge/south/frame_000.png",
+              "Idle/animations/charge/south/frame_001.png",
+              "Idle/animations/charge/south/frame_002.png",
+              "Idle/animations/charge/south/frame_003.png",
+              "Idle/animations/charge/south/frame_004.png",
+              "Idle/animations/charge/south/frame_005.png"
+            ],
+            "east": [
+              "Idle/animations/charge/east/frame_000.png",
+              "Idle/animations/charge/east/frame_001.png",
+              "Idle/animations/charge/east/frame_002.png",
+              "Idle/animations/charge/east/frame_003.png",
+              "Idle/animations/charge/east/frame_004.png",
+              "Idle/animations/charge/east/frame_005.png"
+            ],
+            "north": [
+              "Idle/animations/charge/north/frame_000.png",
+              "Idle/animations/charge/north/frame_001.png",
+              "Idle/animations/charge/north/frame_002.png",
+              "Idle/animations/charge/north/frame_003.png",
+              "Idle/animations/charge/north/frame_004.png",
+              "Idle/animations/charge/north/frame_005.png"
+            ]
+          },
+          "roar": {
+            "north": [
+              "Idle/animations/roar/north/frame_000.png",
+              "Idle/animations/roar/north/frame_001.png",
+              "Idle/animations/roar/north/frame_002.png",
+              "Idle/animations/roar/north/frame_003.png",
+              "Idle/animations/roar/north/frame_004.png",
+              "Idle/animations/roar/north/frame_005.png",
+              "Idle/animations/roar/north/frame_006.png",
+              "Idle/animations/roar/north/frame_007.png",
+              "Idle/animations/roar/north/frame_008.png"
+            ],
+            "east": [
+              "Idle/animations/roar/east/frame_000.png",
+              "Idle/animations/roar/east/frame_001.png",
+              "Idle/animations/roar/east/frame_002.png",
+              "Idle/animations/roar/east/frame_003.png",
+              "Idle/animations/roar/east/frame_004.png",
+              "Idle/animations/roar/east/frame_005.png",
+              "Idle/animations/roar/east/frame_006.png",
+              "Idle/animations/roar/east/frame_007.png",
+              "Idle/animations/roar/east/frame_008.png"
+            ],
+            "south": [
+              "Idle/animations/roar/south/frame_000.png",
+              "Idle/animations/roar/south/frame_001.png",
+              "Idle/animations/roar/south/frame_002.png",
+              "Idle/animations/roar/south/frame_003.png",
+              "Idle/animations/roar/south/frame_004.png",
+              "Idle/animations/roar/south/frame_005.png",
+              "Idle/animations/roar/south/frame_006.png",
+              "Idle/animations/roar/south/frame_007.png",
+              "Idle/animations/roar/south/frame_008.png"
+            ]
+          },
+          "walk_v3": {
+            "east": [
+              "Idle/animations/walk_v3/east/frame_000.png",
+              "Idle/animations/walk_v3/east/frame_001.png",
+              "Idle/animations/walk_v3/east/frame_002.png",
+              "Idle/animations/walk_v3/east/frame_003.png",
+              "Idle/animations/walk_v3/east/frame_004.png",
+              "Idle/animations/walk_v3/east/frame_005.png",
+              "Idle/animations/walk_v3/east/frame_006.png",
+              "Idle/animations/walk_v3/east/frame_007.png"
+            ],
+            "south": [
+              "Idle/animations/walk_v3/south/frame_000.png",
+              "Idle/animations/walk_v3/south/frame_001.png",
+              "Idle/animations/walk_v3/south/frame_002.png",
+              "Idle/animations/walk_v3/south/frame_003.png",
+              "Idle/animations/walk_v3/south/frame_004.png",
+              "Idle/animations/walk_v3/south/frame_005.png",
+              "Idle/animations/walk_v3/south/frame_006.png",
+              "Idle/animations/walk_v3/south/frame_007.png"
+            ],
+            "north": [
+              "Idle/animations/walk_v3/north/frame_000.png",
+              "Idle/animations/walk_v3/north/frame_001.png",
+              "Idle/animations/walk_v3/north/frame_002.png",
+              "Idle/animations/walk_v3/north/frame_003.png",
+              "Idle/animations/walk_v3/north/frame_004.png",
+              "Idle/animations/walk_v3/north/frame_005.png",
+              "Idle/animations/walk_v3/north/frame_006.png",
+              "Idle/animations/walk_v3/north/frame_007.png"
+            ]
+          },
+          "leap_v2": {
+            "east": [
+              "Idle/animations/leap_v2/east/frame_000.png",
+              "Idle/animations/leap_v2/east/frame_001.png",
+              "Idle/animations/leap_v2/east/frame_002.png",
+              "Idle/animations/leap_v2/east/frame_003.png",
+              "Idle/animations/leap_v2/east/frame_004.png",
+              "Idle/animations/leap_v2/east/frame_005.png",
+              "Idle/animations/leap_v2/east/frame_006.png",
+              "Idle/animations/leap_v2/east/frame_007.png",
+              "Idle/animations/leap_v2/east/frame_008.png"
+            ],
+            "south": [
+              "Idle/animations/leap_v2/south/frame_000.png",
+              "Idle/animations/leap_v2/south/frame_001.png",
+              "Idle/animations/leap_v2/south/frame_002.png",
+              "Idle/animations/leap_v2/south/frame_003.png",
+              "Idle/animations/leap_v2/south/frame_004.png",
+              "Idle/animations/leap_v2/south/frame_005.png",
+              "Idle/animations/leap_v2/south/frame_006.png",
+              "Idle/animations/leap_v2/south/frame_007.png",
+              "Idle/animations/leap_v2/south/frame_008.png"
+            ]
+          },
+          "stunned": {
+            "east": [
+              "Idle/animations/stunned/east/frame_000.png",
+              "Idle/animations/stunned/east/frame_001.png",
+              "Idle/animations/stunned/east/frame_002.png",
+              "Idle/animations/stunned/east/frame_003.png",
+              "Idle/animations/stunned/east/frame_004.png",
+              "Idle/animations/stunned/east/frame_005.png"
+            ],
+            "south": [
+              "Idle/animations/stunned/south/frame_000.png",
+              "Idle/animations/stunned/south/frame_001.png",
+              "Idle/animations/stunned/south/frame_002.png",
+              "Idle/animations/stunned/south/frame_003.png",
+              "Idle/animations/stunned/south/frame_004.png",
+              "Idle/animations/stunned/south/frame_005.png"
+            ],
+            "north": [
+              "Idle/animations/stunned/north/frame_000.png",
+              "Idle/animations/stunned/north/frame_001.png",
+              "Idle/animations/stunned/north/frame_002.png",
+              "Idle/animations/stunned/north/frame_003.png",
+              "Idle/animations/stunned/north/frame_004.png",
+              "Idle/animations/stunned/north/frame_005.png"
+            ]
+          },
+          "walk": {
+            "east": [
+              "Idle/animations/walk/east/frame_000.png",
+              "Idle/animations/walk/east/frame_001.png",
+              "Idle/animations/walk/east/frame_002.png",
+              "Idle/animations/walk/east/frame_003.png",
+              "Idle/animations/walk/east/frame_004.png",
+              "Idle/animations/walk/east/frame_005.png",
+              "Idle/animations/walk/east/frame_006.png",
+              "Idle/animations/walk/east/frame_007.png"
+            ],
+            "south": [
+              "Idle/animations/walk/south/frame_000.png",
+              "Idle/animations/walk/south/frame_001.png",
+              "Idle/animations/walk/south/frame_002.png",
+              "Idle/animations/walk/south/frame_003.png",
+              "Idle/animations/walk/south/frame_004.png",
+              "Idle/animations/walk/south/frame_005.png",
+              "Idle/animations/walk/south/frame_006.png",
+              "Idle/animations/walk/south/frame_007.png"
+            ]
+          },
+          "leap": {
+            "north": [
+              "Idle/animations/leap/north/frame_000.png",
+              "Idle/animations/leap/north/frame_001.png",
+              "Idle/animations/leap/north/frame_002.png",
+              "Idle/animations/leap/north/frame_003.png",
+              "Idle/animations/leap/north/frame_004.png",
+              "Idle/animations/leap/north/frame_005.png",
+              "Idle/animations/leap/north/frame_006.png",
+              "Idle/animations/leap/north/frame_007.png",
+              "Idle/animations/leap/north/frame_008.png"
+            ],
+            "south": [
+              "Idle/animations/leap/south/frame_000.png",
+              "Idle/animations/leap/south/frame_001.png",
+              "Idle/animations/leap/south/frame_002.png",
+              "Idle/animations/leap/south/frame_003.png",
+              "Idle/animations/leap/south/frame_004.png",
+              "Idle/animations/leap/south/frame_005.png",
+              "Idle/animations/leap/south/frame_006.png",
+              "Idle/animations/leap/south/frame_007.png",
+              "Idle/animations/leap/south/frame_008.png"
+            ],
+            "east": [
+              "Idle/animations/leap/east/frame_000.png",
+              "Idle/animations/leap/east/frame_001.png",
+              "Idle/animations/leap/east/frame_002.png",
+              "Idle/animations/leap/east/frame_003.png",
+              "Idle/animations/leap/east/frame_004.png",
+              "Idle/animations/leap/east/frame_005.png",
+              "Idle/animations/leap/east/frame_006.png",
+              "Idle/animations/leap/east/frame_007.png",
+              "Idle/animations/leap/east/frame_008.png"
+            ]
+          },
+          "charge_windup": {
+            "north": [
+              "Idle/animations/charge_windup/north/frame_000.png",
+              "Idle/animations/charge_windup/north/frame_001.png",
+              "Idle/animations/charge_windup/north/frame_002.png",
+              "Idle/animations/charge_windup/north/frame_003.png",
+              "Idle/animations/charge_windup/north/frame_004.png",
+              "Idle/animations/charge_windup/north/frame_005.png",
+              "Idle/animations/charge_windup/north/frame_006.png"
+            ],
+            "east": [
+              "Idle/animations/charge_windup/east/frame_000.png",
+              "Idle/animations/charge_windup/east/frame_001.png",
+              "Idle/animations/charge_windup/east/frame_002.png",
+              "Idle/animations/charge_windup/east/frame_003.png",
+              "Idle/animations/charge_windup/east/frame_004.png",
+              "Idle/animations/charge_windup/east/frame_005.png",
+              "Idle/animations/charge_windup/east/frame_006.png"
+            ],
+            "south": [
+              "Idle/animations/charge_windup/south/frame_000.png",
+              "Idle/animations/charge_windup/south/frame_001.png",
+              "Idle/animations/charge_windup/south/frame_002.png",
+              "Idle/animations/charge_windup/south/frame_003.png",
+              "Idle/animations/charge_windup/south/frame_004.png",
+              "Idle/animations/charge_windup/south/frame_005.png",
+              "Idle/animations/charge_windup/south/frame_006.png"
+            ]
+          },
+          "charge_v2": {
+            "south": [
+              "Idle/animations/charge_v2/south/frame_000.png",
+              "Idle/animations/charge_v2/south/frame_001.png",
+              "Idle/animations/charge_v2/south/frame_002.png",
+              "Idle/animations/charge_v2/south/frame_003.png",
+              "Idle/animations/charge_v2/south/frame_004.png",
+              "Idle/animations/charge_v2/south/frame_005.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-10-04T14:44:31.368518"
+}

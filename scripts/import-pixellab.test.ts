@@ -17,6 +17,19 @@ afterEach(() => {
 });
 
 describe('applyImport', () => {
+  it('keeps the marks of an animation imported again (where the boss blow lands)', () => {
+    const manifest = {
+      characters: {
+        boss: {
+          directions: 4,
+          animations: { slam: { file: 'sprites/boss/slam.png', frames: 9, fps: 12, loop: false, marks: { hit: 7 } } },
+        },
+      },
+    };
+    applyImport(manifest, 'boss', { name: 'slam', frames: 9, directions: 4, file: 'sprites/boss/slam.png' }, () => true);
+    expect(manifest.characters.boss.animations.slam).toMatchObject({ frames: 9, fps: 12, marks: { hit: 7 } });
+  });
+
   it('marks the imported animation as real and the rest as placeholders', () => {
     const manifest = {
       characters: {

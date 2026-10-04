@@ -290,6 +290,90 @@
           "loop": false
         }
       }
+    },
+    "boss_butcher": {
+      "frameWidth": 172,
+      "frameHeight": 172,
+      "anchor": {
+        "x": 0.5,
+        "y": 0.85
+      },
+      "hitbox": {
+        "radius": 30
+      },
+      "directions": 8,
+      "placeholder": false,
+      "animations": {
+        "idle": {
+          "file": "sprites/boss_butcher/idle.png",
+          "frames": 1,
+          "fps": 6,
+          "loop": true
+        },
+        "walk": {
+          "file": "sprites/boss_butcher/walk.png",
+          "frames": 8,
+          "fps": 8,
+          "loop": true,
+          "directions": 4
+        },
+        "charge_windup": {
+          "file": "sprites/boss_butcher/charge_windup.png",
+          "frames": 7,
+          "fps": 8,
+          "loop": false,
+          "directions": 4
+        },
+        "charge": {
+          "file": "sprites/boss_butcher/charge.png",
+          "frames": 6,
+          "fps": 12,
+          "loop": true,
+          "directions": 4
+        },
+        "stunned": {
+          "file": "sprites/boss_butcher/stunned.png",
+          "frames": 6,
+          "fps": 6,
+          "loop": true,
+          "directions": 4
+        },
+        "slam": {
+          "file": "sprites/boss_butcher/slam.png",
+          "frames": 9,
+          "fps": 12,
+          "loop": false,
+          "directions": 4,
+          "marks": {
+            "hit": 7
+          }
+        },
+        "leap": {
+          "file": "sprites/boss_butcher/leap.png",
+          "frames": 9,
+          "fps": 10,
+          "loop": false,
+          "directions": 4,
+          "marks": {
+            "air": 2,
+            "land": 6
+          }
+        },
+        "roar": {
+          "file": "sprites/boss_butcher/roar.png",
+          "frames": 9,
+          "fps": 9,
+          "loop": false,
+          "directions": 4
+        },
+        "death": {
+          "file": "sprites/boss_butcher/death.png",
+          "frames": 9,
+          "fps": 8,
+          "loop": false,
+          "directions": 4
+        }
+      }
     }
   },
   "tilesets": {
@@ -481,13 +565,6 @@
       "frameWidth": 12,
       "frameHeight": 12,
       "frames": 2,
-      "placeholder": true
-    },
-    "boss_butcher": {
-      "file": "sprites/objects/boss_butcher.png",
-      "frameWidth": 96,
-      "frameHeight": 110,
-      "frames": 11,
       "placeholder": true
     },
     "boss_rubble": {

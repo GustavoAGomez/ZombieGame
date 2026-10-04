@@ -24,6 +24,11 @@ export interface AnimationDef {
   placeholder?: boolean;
   /** Rows of this sheet when they differ from the character's (a 4-way climb in an 8-way zombie). */
   directions?: Directions;
+  /**
+   * Frames where something happens in the art, by name (the boss's slam:
+   * its mallet hits the floor on frame `hit`). Each is a frame index.
+   */
+  marks?: Record<string, number>;
 }
 
 export interface CharacterDef {
@@ -108,11 +113,19 @@ export const DIRECTIONS_8 = [
 /** Row order for sheets declared with "directions": 4. */
 export const DIRECTIONS_4 = ['south', 'east', 'north', 'west'] as const;
 
+/**
+ * A boss's animations (spec 07 §8): standing, walking, each stage of its
+ * attacks, its roar and its fall. BossView picks the frame from its state.
+ */
+export const BOSS_ANIMATIONS = ['idle', 'walk', 'charge_windup', 'charge', 'stunned', 'slam', 'leap', 'roar', 'death'] as const;
+export type BossAnimation = (typeof BOSS_ANIMATIONS)[number];
+
 /** Minimum animations each character must provide (docs/ASSETS.md §3). */
 export const REQUIRED_ANIMATIONS: Readonly<Record<string, readonly string[]>> = {
   player: ['idle', 'walk', 'shoot', 'dash', 'death'],
   zombie_walker: ['walk', 'attack', 'death'],
   zombie_runner: ['walk', 'attack', 'death'],
+  ...Object.fromEntries(BOSS_IDS.map((id) => [bossCharacterKey(id), BOSS_ANIMATIONS])),
 };
 
 /** Map objects that must exist, one per wall orientation (docs/ASSETS.md §4). */
@@ -129,7 +142,6 @@ export const REQUIRED_OBJECTS: readonly string[] = [
   'smoke_puff',
   'offscreen_arrow',
   ...ITEM_IDS.map((id) => itemSpriteKey(id)),
-  ...BOSS_IDS.map((id) => bossTextureKey(id)),
   'boss_rubble',
 ];
 
@@ -211,18 +223,12 @@ export function itemSpriteKey(id: ItemId): string {
 }
 
 /**
- * A boss's sheet (spec 07 §8): `boss_<id>`, one pose per frame in
- * BOSS_POSES order, drawn facing the camera with its mallet on its right
- * (mirrored when it faces west), standing on the bottom edge of its
- * footprint.
+ * A boss's character (spec 07 §8): `boss_<id>`, with BOSS_ANIMATIONS,
+ * standing on its anchor at the bottom edge of its footprint.
  */
-export function bossTextureKey(id: BossId): string {
+export function bossCharacterKey(id: BossId): string {
   return `boss_${id}`;
 }
-
-/** The poses of a boss's sheet, in frame order. */
-export const BOSS_POSES = ['walk_a', 'walk_b', 'charge_windup', 'charge', 'stunned', 'slam_windup', 'slam', 'leap', 'land', 'roar', 'dead'] as const;
-export type BossPose = (typeof BOSS_POSES)[number];
 
 export const MANIFEST_URL = 'assets/manifest.json';
 export const ASSETS_BASE_URL = 'assets/';
@@ -273,13 +279,26 @@ export function parseManifest(json: unknown): Manifest {
       if (a.directions !== undefined && !isDirections(a.directions)) {
         throw new ManifestError(`${aw}.directions must be 1, 4 or 8`);
       }
+      const frames = positive(a.frames, `${aw}.frames`);
+      let marks: Record<string, number> | undefined;
+      if (a.marks !== undefined) {
+        if (!isRecord(a.marks)) throw new ManifestError(`${aw}.marks must be an object`);
+        marks = {};
+        for (const [name, frame] of Object.entries(a.marks)) {
+          if (typeof frame !== 'number' || !Number.isInteger(frame) || frame < 0 || frame >= frames) {
+            throw new ManifestError(`${aw}.marks.${name} must be a frame index under ${frames}`);
+          }
+          marks[name] = frame;
+        }
+      }
       animations[anim] = {
         file: text(a.file, `${aw}.file`),
-        frames: positive(a.frames, `${aw}.frames`),
+        frames,
         fps: positive(a.fps, `${aw}.fps`),
         loop: a.loop === true,
         placeholder: a.placeholder === true,
         ...(a.directions !== undefined ? { directions: a.directions } : {}),
+        ...(marks ? { marks } : {}),
       };
     }
     let muzzle: [number, number][] | undefined;

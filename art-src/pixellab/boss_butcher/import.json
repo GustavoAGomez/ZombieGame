@@ -1,0 +1,9 @@
+{
+  "sources": {
+    "walk": ["walk_v3"],
+    "death": ["death_v3"],
+    "leap": ["leap_v2", "leap"],
+    "charge": ["charge_v2", "charge"]
+  },
+  "mirror": { "west": "east", "south-west": "south-east", "north-west": "north-east" }
+}
