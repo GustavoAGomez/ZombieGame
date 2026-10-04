@@ -1817,3 +1817,22 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - Los cuerpos siguen chocando con casillas enteras. No cambia cómo se anda por delante de las caras ni el flow field.
 - **Test** (`WallShapes.test.ts`): recorre cada par de celdas que paran la vista una encima de otra con suelo (o una ventana) a ambos lados, 176 en la mansión, 10 de ellas con alguna casilla de puerta. Lanza rayos horizontales cada medio píxel, desde la base de la de arriba (y 25) hasta abajo de la de abajo, con `BLOCK_SIGHT` y con `BLOCK_BULLET`. Ninguno pasa.
 - **Fuera de alcance:** las paredes sin kit de room01 son cosas planas y tienen la misma rendija entre casilla y casilla de un tramo vertical. room01 solo queda como mapa de pruebas y de reserva; el de juego es la mansión.
+- **Después:** se generalizó a todas las cosas planas apiladas, room01 incluido (ver «Ninguna rendija entre cosas planas apiladas»). La forma `WALL_SHAPE_DOOR_VERTICAL` desaparece.
+
+## Ninguna rendija entre cosas planas apiladas (petición del usuario)
+
+- **Petición:** aplicar el arreglo de las puertas verticales al resto del mapa que tenga el mismo problema.
+- **Barrido:** cada pareja de casillas, una encima de otra, que paran lo mismo (la vista o las balas), con rayos horizontales a través de su columna cada medio píxel.
+  - **Vista:** tras el arreglo de las puertas ya no quedaba ninguna rendija.
+  - **Balas:** 80 juntas abiertas en los **muebles de varias filas** (coches, árboles, estanterías, sofás, mesas, el piano, la caldera…), entre dos muebles pegados de norte a sur (una estantería y una mesa de lectura) y entre las dos casillas de una puerta. Una bala horizontal atravesaba el coche entre sus dos filas.
+- **Cuándo es una rendija:** la parte de arriba de una cosa plana (por encima de la altura de vuelo) queda abierta. Si lo que tiene justo al norte se dibuja hasta el borde de abajo de su casilla, una bala que pase por ahí se ve cruzándolo.
+- **Regla** (`rectsOf`, en `CollisionGrid`): una cosa plana (mueble, vitrina, puerta o pared sin kit) que tiene justo al norte algo que para lo mismo:
+  - si es otra cosa plana, ocupa su casilla entera;
+  - si es una pared fina que sigue al sur (una puerta en una pared vertical), la franja de la pared sigue por encima de su parte plana, como antes;
+  - bajo la cara de una pared (un tramo horizontal, un extremo o un muro grueso) sigue abierta: la bala pasa por delante de la cara, como en el resto del modelo 3/4. Tampoco cambia el suelo que queda entre un mueble y la base de la pared que tiene al sur.
+- **Se calcula en cada consulta**, sin forma guardada, así que sigue a las puertas que se abren y a los muebles que aplasta un boss. Sustituye a `WALL_SHAPE_DOOR_VERTICAL`. El modo HITBOX lo dibuja igual.
+- **En juego:** desde el norte la bala se sigue parando al tocar el borde de arriba de la primera fila, y pegado a un mueble por el sur se sigue pudiendo disparar de lado. Lo único que cambia es que ya no se cruza un mueble de varias filas, una puerta ni las paredes planas de room01 por sus juntas. Los cuerpos siguen chocando con casillas enteras.
+- **Tests** (`WallShapes.test.ts`):
+  - las 80 juntas de cosas planas apiladas de la mansión, sin ninguna bala que las cruce;
+  - los 176 tramos verticales de pared, como antes;
+  - en room01, la pared oeste y la puerta vertical D2 cerradas a cualquier altura, y su pared sur todavía plana con suelo al norte.

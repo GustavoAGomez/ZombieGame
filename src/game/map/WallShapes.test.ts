@@ -4,7 +4,7 @@ import { buildRoom01Map } from '../../../scripts/gen-placeholder-map';
 import { contextFor, createMansionContext } from '../../test/fixtures';
 import { updateBullets } from '../systems/BulletSystem';
 import { BLOCK_BULLET, BLOCK_SIGHT, buildCollisionGrid, cellBlocks, pointBlocksShaped, segmentClearShaped, segmentHitShaped } from './CollisionGrid';
-import { WALL_SHAPE_DOOR_VERTICAL, WALL_SHAPE_FULL, WALL_SHAPE_SOLID_NORTH_OPEN, WALL_SHAPE_THIN, parseMap } from './MapLoader';
+import { WALL_SHAPE_FULL, WALL_SHAPE_SOLID_NORTH_OPEN, WALL_SHAPE_THIN, parseMap } from './MapLoader';
 import type { TiledMap, TiledTileLayer } from './tiled';
 
 const T = 32;
@@ -86,9 +86,9 @@ describe('wall shapes', () => {
     // Thick wall open to the north: the whole width, from the base.
     expect(pointBlocksShaped(grid, ...at(16, 5, 2, 10), BLOCK_BULLET)).toBe(false);
     expect(pointBlocksShaped(grid, ...at(16, 5, 2, 28), BLOCK_BULLET)).toBe(true);
-    // Room01's plain walls are flat squares: they block from the bullets' flight height down.
-    expect(pointBlocksShaped(grid, ...at(3, 6, 1, BULLETS.flightHeight - 1), BLOCK_BULLET)).toBe(false);
-    expect(pointBlocksShaped(grid, ...at(3, 6, 1, BULLETS.flightHeight + 1), BLOCK_BULLET)).toBe(true);
+    // Room01's plain walls are flat squares: they block from the bullets' flight height down (its south wall, floor to the north).
+    expect(pointBlocksShaped(grid, ...at(5, 13, 1, BULLETS.flightHeight - 1), BLOCK_BULLET)).toBe(false);
+    expect(pointBlocksShaped(grid, ...at(5, 13, 1, BULLETS.flightHeight + 1), BLOCK_BULLET)).toBe(true);
   });
 
   it('finds where a segment first meets a wall, and lets it pass beside one', () => {
@@ -160,6 +160,21 @@ describe('flat blockers', () => {
     expect((down?.y ?? 0) + (down?.drawY ?? 0)).toBeCloseTo(13 * T);
     expect(along?.x).toBeGreaterThan(9 * T);
   });
+
+  it('close their top right under another flat thing: no slit in a vertical run of them', () => {
+    /** Heights (px) where a horizontal segment from x0 to x1 gets through, every half pixel from y0 to y1. */
+    const open = (x0: number, x1: number, y0: number, y1: number, mask: number): number[] => {
+      const out: number[] = [];
+      for (let y = y0; y < y1; y += 0.5) if (segmentClearShaped(grid, x0, y, x1, y, mask)) out.push(y);
+      return out;
+    };
+    // Room01's west wall (x 3): the top of (3, 6) is closed too.
+    expect(pointBlocksShaped(grid, ...at(3, 6, 1, 1), BLOCK_BULLET)).toBe(true);
+    expect(open(2 * T + 16, 4 * T + 16, 4 * T, 7 * T, BLOCK_BULLET)).toEqual([]);
+    // Door D2 (x 20, y 17–18, closed) under the wall at y 16.
+    expect(open(19 * T + 16, 21 * T + 16, 16 * T, 19 * T, BLOCK_BULLET)).toEqual([]);
+    expect(open(19 * T + 16, 21 * T + 16, 16 * T, 19 * T, BLOCK_SIGHT)).toEqual([]);
+  });
 });
 
 describe('wall shapes on the mansion', () => {
@@ -171,8 +186,9 @@ describe('wall shapes on the mansion', () => {
   });
 
   it('lets no horizontal shot or look cross a vertical wall, closed doors included', () => {
-    const { grid: mansion } = createMansionContext();
+    const { grid: mansion, map: plan } = createMansionContext();
     const ts = mansion.tileSize;
+    const doorTiles = new Set(plan.doors.flatMap((d) => d.tiles.map((t) => t.y * mansion.width + t.x)));
     // A wall stands from y 25 of its tile even at the north end of a run (its cap is drawn above).
     const base = 25;
     const free = (x: number, y: number): boolean => !cellBlocks(mansion, x, y, BLOCK_SIGHT);
@@ -185,7 +201,7 @@ describe('wall shapes on the mansion', () => {
         if (free(tx, ty) || free(tx, ty + 1)) continue;
         if (!free(tx - 1, ty) || !free(tx + 1, ty) || !free(tx - 1, ty + 1) || !free(tx + 1, ty + 1)) continue;
         pairs++;
-        if (mansion.shapes[(ty + 1) * mansion.width + tx] === WALL_SHAPE_DOOR_VERTICAL) doorPairs++;
+        if (doorTiles.has(ty * mansion.width + tx) || doorTiles.has((ty + 1) * mansion.width + tx)) doorPairs++;
         for (let y = ty * ts + base; y < (ty + 2) * ts; y += 0.5) {
           for (const mask of [BLOCK_SIGHT, BLOCK_BULLET]) {
             if (segmentHitShaped(mansion, (tx - 0.5) * ts, y, (tx + 1.5) * ts, y, mask) === Infinity) leaks.push(`(${tx},${ty}) y ${y} mask ${mask}`);
@@ -195,6 +211,26 @@ describe('wall shapes on the mansion', () => {
     }
     expect(pairs).toBeGreaterThan(150);
     expect(doorPairs).toBeGreaterThan(0);
+    expect(leaks).toEqual([]);
+  });
+
+  it('lets no horizontal shot cross furniture, weapon cases or doors stacked north to south', () => {
+    const { grid: mansion } = createMansionContext();
+    const ts = mansion.tileSize;
+    const flat = (x: number, y: number): boolean => cellBlocks(mansion, x, y, BLOCK_BULLET) && mansion.shapes[y * mansion.width + x] === WALL_SHAPE_FULL;
+    let joints = 0;
+    const leaks: string[] = [];
+    for (let ty = 0; ty + 1 < mansion.height; ty++) {
+      for (let tx = 0; tx < mansion.width; tx++) {
+        if (!flat(tx, ty) || !flat(tx, ty + 1)) continue;
+        joints++;
+        // Across their column, from the flat top of the upper one to the bottom of the lower one.
+        for (let y = ty * ts + BULLETS.flightHeight; y < (ty + 2) * ts; y += 0.5) {
+          if (segmentClearShaped(mansion, tx * ts, y, (tx + 1) * ts - 0.01, y, BLOCK_BULLET)) leaks.push(`(${tx},${ty}) y ${y}`);
+        }
+      }
+    }
+    expect(joints).toBeGreaterThan(50);
     expect(leaks).toEqual([]);
   });
 });

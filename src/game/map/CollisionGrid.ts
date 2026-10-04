@@ -3,7 +3,6 @@ import {
   TILE_COLLIDES,
   TILE_VOID,
   TILE_WATER,
-  WALL_SHAPE_DOOR_VERTICAL,
   WALL_SHAPE_FULL,
   WALL_SHAPE_SOLID,
   WALL_SHAPE_SOLID_NORTH_OPEN,
@@ -102,7 +101,7 @@ export function setDoorBlocking(grid: CollisionGrid, door: MapDoor, closed: bool
   for (const t of door.tiles) {
     if (t.x < 0 || t.y < 0 || t.x >= grid.width || t.y >= grid.height) continue;
     grid.cells[t.y * grid.width + t.x] = closed ? BLOCK_ALL : 0;
-    grid.shapes[t.y * grid.width + t.x] = door.axis === 'vertical' ? WALL_SHAPE_DOOR_VERTICAL : WALL_SHAPE_FULL;
+    grid.shapes[t.y * grid.width + t.x] = WALL_SHAPE_FULL;
   }
 }
 
@@ -135,14 +134,10 @@ type Rect = readonly [x0: number, y0: number, x1: number, y1: number];
  * - something flat drawn on its tile (furniture, doors, walls without a kit)
  *   from the flight height down: a bullet coming from the north stops as it
  *   visibly reaches the top edge, and one fired by a player standing right
- *   in front of it still flies;
- * - a closed door in a vertical wall, flat too, plus the wall's strip over
- *   the part above its flat top: the strip of the wall (or door tile) to
- *   its north reaches the bottom of its tile, so a shot or a look from the
- *   east or the west finds no gap at the joint.
+ *   in front of it still flies (unless something stands right north of
+ *   it, see rectsOf).
  */
 function shapeRects(shape: number): readonly Rect[] {
-  if (shape === WALL_SHAPE_DOOR_VERTICAL) return [[STRIP_X0, 0, STRIP_X1, FLAT_TOP], ...FLAT];
   if (shape === WALL_SHAPE_SOLID_NORTH_OPEN) return [[0, BASE_Y, KIT_TILE, KIT_TILE]];
   if (shape === WALL_SHAPE_SOLID) return FULL_TILE;
   if (shape < WALL_SHAPE_THIN || shape >= WALL_SHAPE_THIN + 16) return FLAT;
@@ -157,17 +152,39 @@ const FULL_TILE: readonly Rect[] = [[0, 0, KIT_TILE, KIT_TILE]];
 /** Flat things block from the bullets' flight height down (see shapeRects). */
 const FLAT_TOP = Math.min(KIT_TILE, BULLETS.flightHeight);
 const FLAT: readonly Rect[] = [[0, FLAT_TOP, KIT_TILE, KIT_TILE]];
-const SHAPE_RECTS: readonly (readonly Rect[])[] = Array.from({ length: WALL_SHAPE_DOOR_VERTICAL + 1 }, (_, shape) => shapeRects(shape));
+/** A flat thing in the line of a vertical wall (a door): the wall's strip goes on over its flat top. */
+const FLAT_UNDER_STRIP: readonly Rect[] = [[STRIP_X0, 0, STRIP_X1, FLAT_TOP], ...FLAT];
+const SHAPE_RECTS: readonly (readonly Rect[])[] = Array.from({ length: WALL_SHAPE_SOLID + 1 }, (_, shape) => shapeRects(shape));
 
-function rectsOf(grid: CollisionGrid, index: number): readonly Rect[] {
-  return SHAPE_RECTS[grid.shapes[index] ?? WALL_SHAPE_FULL] ?? FULL_TILE;
+/**
+ * The shape of blocking cell (tx, ty) for `mask`. A flat thing leaves open
+ * the top of its tile, above the flight height; that gap is a slit when
+ * what stands right north of it (blocking the same) is drawn down to the
+ * bottom of its own tile: a shot through it would be seen crossing that
+ * thing. So a flat thing closes its top under another flat thing (the rows
+ * of a piece of furniture, two pieces against each other, the tiles of a
+ * door), and under a thin wall that goes on south (a door in a vertical
+ * wall) the wall's strip goes on over it. Under the face of a wall it
+ * stays open: a shot there flies in front of the face. Worked out on each
+ * query, so it follows doors opening and furniture being crushed.
+ */
+function rectsOf(grid: CollisionGrid, tx: number, ty: number, mask: number): readonly Rect[] {
+  const index = ty * grid.width + tx;
+  const shape = grid.shapes[index] ?? WALL_SHAPE_FULL;
+  if (shape === WALL_SHAPE_FULL && ty > 0 && cellBlocks(grid, tx, ty - 1, mask)) {
+    const above = grid.shapes[index - grid.width] ?? WALL_SHAPE_FULL;
+    if (above === WALL_SHAPE_FULL) return FULL_TILE;
+    // A thin wall whose mask has S (4) goes on south: its strip reaches the bottom of its tile.
+    if (above >= WALL_SHAPE_THIN && above < WALL_SHAPE_THIN + 16 && ((above - WALL_SHAPE_THIN) & 4) !== 0) return FLAT_UNDER_STRIP;
+  }
+  return SHAPE_RECTS[shape] ?? FULL_TILE;
 }
 
-/** World-px rectangles [x0, y0, x1, y1] a blocking cell covers for bullets and sight (debug drawing). */
-export function cellShapeRects(grid: CollisionGrid, tx: number, ty: number): Rect[] {
+/** World-px rectangles [x0, y0, x1, y1] a blocking cell covers for `mask` (debug drawing: bullets by default). */
+export function cellShapeRects(grid: CollisionGrid, tx: number, ty: number, mask = BLOCK_BULLET): Rect[] {
   const ts = grid.tileSize;
   const k = KIT_TILE / ts;
-  return rectsOf(grid, ty * grid.width + tx).map(([x0, y0, x1, y1]) => [tx * ts + x0 / k, ty * ts + y0 / k, tx * ts + x1 / k, ty * ts + y1 / k] as const);
+  return rectsOf(grid, tx, ty, mask).map(([x0, y0, x1, y1]) => [tx * ts + x0 / k, ty * ts + y0 / k, tx * ts + x1 / k, ty * ts + y1 / k] as const);
 }
 
 /** Like pointBlocks, but inside a wall tile only on the wall's base. */
@@ -180,14 +197,15 @@ export function pointBlocksShaped(grid: CollisionGrid, x: number, y: number, mas
   const k = KIT_TILE / ts;
   const lx = (x - tx * ts) * k;
   const ly = (y - ty * ts) * k;
-  return rectsOf(grid, ty * grid.width + tx).some(([x0, y0, x1, y1]) => lx >= x0 && lx < x1 && ly >= y0 && ly < y1);
+  return rectsOf(grid, tx, ty, mask).some(([x0, y0, x1, y1]) => lx >= x0 && lx < x1 && ly >= y0 && ly < y1);
 }
 
 /**
  * Where the segment from (x0, y0) to (x1, y1) first touches something
  * matching `mask`, as a fraction of its length (0..1), or Infinity when it
- * gets through. Walls count only on their base (shapes); doors, furniture
- * and the outside of the map, as whole tiles.
+ * gets through. Walls count only on their base, flat things (doors,
+ * furniture) by their shape too (rectsOf); the outside of the map, as
+ * whole tiles.
  */
 export function segmentHitShaped(grid: CollisionGrid, x0: number, y0: number, x1: number, y1: number, mask: number): number {
   const ts = grid.tileSize;
@@ -209,7 +227,7 @@ export function segmentHitShaped(grid: CollisionGrid, x0: number, y0: number, x1
     if (cellBlocks(grid, tx, ty, mask)) {
       // Cells are visited in order along the segment: the first hit found is the nearest.
       const inside = tx >= 0 && ty >= 0 && tx < grid.width && ty < grid.height;
-      const rects = inside ? rectsOf(grid, ty * grid.width + tx) : FULL_TILE;
+      const rects = inside ? rectsOf(grid, tx, ty, mask) : FULL_TILE;
       let best = Infinity;
       for (const [rx0, ry0, rx1, ry1] of rects) {
         const t = segmentRectEntry(x0, y0, dx, dy, tx * ts + rx0 / k, ty * ts + ry0 / k, tx * ts + rx1 / k, ty * ts + ry1 / k);
