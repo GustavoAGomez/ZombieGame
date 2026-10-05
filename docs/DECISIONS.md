@@ -1860,3 +1860,19 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
     - Las astillas van de dos en dos y los cristales en grupos de tres.
     - Un test comprueba los tramos de 2 px y que ningún píxel quede aislado en su color.
   - Los candidatos descartados no se guardan en el repositorio; siguen en la galería de PixelLab.
+
+## El atrezo con arte (petición del usuario)
+
+- **Encargo:** el usuario dio 50 generaciones de PixelLab para el atrezo pendiente (61 objetos, todos placeholder), primero con el arte que ya hubiera.
+- **Lo que ya había (gratis):** la farola y el árbol de la cuenta de PixelLab, y una mancha de los decals del asfalto como mancha de aceite. El árbol, de un verde vivo, va con la saturación a la mitad (petición del usuario) para casar con el césped seco. En la cuenta no había nada más que sirviera.
+- **Lo generado (46 generaciones):**
+  - *Create 1-Direction Object* con una descripción por hueco (`item_descriptions`): una tanda de 32 px con 64 huecos (20 objetos, 3 o 4 candidatos cada uno) y otra de 64 px con 16 objetos (un candidato cada uno). Cada tanda costó 20 generaciones.
+  - El coche aparcado, con Pro Flash (6 generaciones).
+  - Todos con el mismo estilo en el prompt (vista 3/4 alta, casa abandonada, paleta apagada, luz desde arriba a la izquierda; contorno oscuro en los que bloquean y sin contorno en los de suelo) y un recorte del jugador como referencia de estilo.
+- **Elección (usuario):**
+  - De la tanda de 32 px entran los 20, con los candidatos que propuse.
+  - La de 64 px salió en diagonal, casi en isométrica, y desentona con las paredes rectas. Solo entran los 6 que lo disimulan (cajas, caldera, depósito, colchón, alfombra del hogar y estantería metálica corta); los otros 10 siguen como placeholder y su nota está en `docs/ASSETS-TODO.md`.
+  - El coche salió de frente en vez de atravesado. Las dos huellas de `prop_coche` pasan en el plano de 4×2 a 2×2 casillas y el coche queda aparcado de frente.
+- **Arte más grande que su huella:** `MapView` centra cada mueble sobre la base de su huella (antes lo alineaba a la izquierda). Así el árbol (96×105 sobre 64×64) sobresale por los dos lados y la farola (32×80) crece hacia arriba. La colisión sigue siendo la huella.
+- **Quedan 31 objetos:** los 10 descartados y los 21 grandes (96 px o más: mesa del comedor, sofá, estanterías largas, setos, coches de la calle y del garaje, escalera derrumbada…).
+

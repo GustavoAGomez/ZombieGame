@@ -35,6 +35,11 @@ su caja delimitadora sobre el fondo transparente.
 - weapon_icon: las 6 armas de perfil (32×16, de 30-31 px de ancho para que sobresalgan del hueco; la pistola, en espejo). Los PNG de la carpeta son los candidatos de PixelLab tal cual; muchos venían «enrollados» (trozos pegados al borde contrario del lienzo), y en `retocado/` están desenrollados, recortados, centrados y con una paleta común de 32 colores.
 - icon_reload, icon_repair, icon_knife, icon_dash: los símbolos de los botones redondos (36×36, más grandes que el botón para que sobresalgan): cargador doble, martillo cruzado con llave inglesa, cuchillo y bota con líneas de velocidad. En `retocado/`, desenrollados y centrados.
 - flame: 3 lenguas de fuego de PixelLab (8×12) con la paleta del fuego del agujero: centrada, inclinada a la derecha y esa misma en espejo, recortadas y apoyadas en el borde inferior en `retocado/`.
+- prop_*: el atrezo del mapa, un PNG por objeto tal como sale de PixelLab, salvo dos:
+  - 20 objetos de 32 px (tanda de *Create 1-Direction Object* con una descripción por hueco) y 6 de 64 px (las cajas, la caldera, el depósito, el colchón, la alfombra del hogar y la estantería metálica corta, de 64×64 sobre su huella de 32×64).
+  - prop_coche (Pro Flash, de frente, 57×55 en un lienzo de 128×64 que el importador centra en 64×64), prop_farola (20×80) y prop_arbol (95×105), estos dos ya en la cuenta.
+  - prop_arbol: en `retocado/`, con la saturación a la mitad para casar con el césped seco.
+  - prop_mancha_aceite: no es de PixelLab como objeto. Es la mancha negra de `decals_asphalt` (celda 2,3), recortada sola y centrada en 32×32 en `retocado/`.
 
 ---
 

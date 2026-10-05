@@ -86,12 +86,12 @@ export class MapView {
       this.onCell(image, Math.floor((decal.x + tileset.tileWidth / 2) / ts), Math.floor((decal.y - tileset.tileHeight / 2) / ts));
     }
 
-    // Furniture: anchored at the bottom of its footprint (taller art grows upwards); with collision it is y-sorted.
+    // Furniture: centred on the bottom of its footprint (taller art grows upwards, wider art to both sides); with collision it is y-sorted.
     for (const prop of map.props) {
       const bottom = prop.y + prop.height;
       const image = scene.add
-        .image(prop.x, bottom, objectTextureKey(prop.key))
-        .setOrigin(0, 1)
+        .image(prop.x + prop.width / 2, bottom, objectTextureKey(prop.key))
+        .setOrigin(0.5, 1)
         .setFlip(prop.flipX, prop.flipY)
         .setDepth(prop.collides ? actorDepth(bottom) : DEPTH.floorProps);
       const tile = prop.tiles[0];

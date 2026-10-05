@@ -308,8 +308,8 @@ ssaaaaasgssFgggggggggssggFgggggddgggggggFgggsssggggggggggFggssggggggggFggssggggg
 | J13 | prop_bidon | 70,9 | sí | — | Jardín. Bidón junto al cobertizo |
 | T1 | prop_coche_accidentado | 2,47 5,48 | sí | — | Calle. Coche atravesado en la calle lateral tras chocar con la farola |
 | T2 | prop_farola_caida | 6,46 7,46 | no | — | Calle. Farola derribada por el coche |
-| T3 | prop_coche | 20,58 23,59 | sí | — | Calle. Coche aparcado |
-| T4 | prop_coche | 46,55 49,56 | sí | h | Calle. Coche aparcado |
+| T3 | prop_coche | 21,58 22,59 | sí | — | Calle. Coche aparcado de frente |
+| T4 | prop_coche | 47,55 48,56 | sí | h | Calle. Coche aparcado de frente |
 | T5 | prop_buzon | 34,50 | sí | — | Calle. Buzón junto al sendero |
 | T6 | prop_cubo_basura | 60,50 | sí | — | Calle. Cubos de basura junto a la entrada de coches |
 | T7 | prop_farola | 25,53 | sí | — | Calle. Farola |
