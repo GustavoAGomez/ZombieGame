@@ -202,11 +202,11 @@ Una entrada por archivo de sonido, con su clave en snake_case:
   - `sfxr`: `params`, que puede ser el JSON de sfxr.me, su enlace (`https://sfxr.me/#…`) o el código base58 del enlace, más `seed`, la semilla del ruido. Con la misma semilla sale el mismo archivo; con otra, otra variante del mismo ruido.
   - `layers`: `layers`, una lista de `{ "recipe": {…}, "gain": 0..1, "delay": segundos }`.
   - Todas aceptan `lowpass` (Hz, o `null`). Por defecto, `notes` y `sfxr` cortan por encima de 8 kHz, y `layers` no añade filtro.
-  - En la receta de un archivo, además: `loop: true` (sin recorte ni fundido; la cola se funde con el principio a lo largo de `crossfade` segundos) y `length` (los segundos que dura el archivo, rellenando con silencio o cortando).
+  - En la receta de un archivo, además: `loop: true` (sin recorte ni fundido; la cola se funde con el principio a lo largo de `crossfade` segundos) y `length` (los segundos que dura el archivo, rellenando con silencio o cortando; el silencio del final se conserva, como en el sorteo de la Mano).
 - **`assets:check`** comprueba que:
   - cada variante del catálogo tenga entrada y archivo;
   - los efectos sean WAV mono de 44,1 kHz y 16 bits, y su duración coincida con la del manifiesto;
-  - todos juntos ocupen menos de 2 MB.
+  - todos juntos ocupen menos de 3,5 MB (la spec decía 2 MB; ver `docs/DECISIONS.md`).
 
 ## 5. Mapas (Tiled JSON, `.tmj`)
 

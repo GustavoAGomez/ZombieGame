@@ -11,8 +11,8 @@ export type AudioBus = 'sfx' | 'ui' | 'music';
 /** With the global limit full, the lowest priority (and oldest) voice is cut. */
 export type AudioPriority = 'low' | 'normal' | 'high';
 
-/** The four families of spec 08 §3.1, and the music. */
-export type SoundFamily = 'hit' | 'reward' | 'threat' | 'ui' | 'music';
+/** The four families of spec 08 §3.1, the banners and short melodies (§5.5), and the music. */
+export type SoundFamily = 'hit' | 'reward' | 'threat' | 'ui' | 'jingle' | 'music';
 
 /** A streak that raises a sound's pitch on each repetition (spec 08 §3.3). */
 export type LadderId = 'kill' | 'repair' | 'upgrade';
@@ -73,6 +73,18 @@ export const AUDIO = {
   loopFadeOut: 0.2,
   /** The laser's hum at full heat, as a playback rate: a fifth up, so its rise says how near it is to overheating (§5.1). */
   laserHotRate: 1.5,
+  /** Steps of a streak, semitones over the base note (§3.3): the scale's degrees; past the last it stays there. */
+  ladderSteps: [0, 3, 5, 7, 10, 12, 15, 17] as const,
+  /** Seconds without a repetition that take a streak back to its first step (§3.3); `upgrade` goes by level. */
+  ladderWindows: { kill: 1.5, repair: 2 },
+  /** The two notes of a room unlocked, after the door's bolt (§5.2), seconds. */
+  zoneFanfareDelay: 0.3,
+  /** The boss's longest melody, after its collapse (§5.4), seconds. */
+  bossDeadJingleDelay: 1.2,
+  /** The game over melody, once the death has sounded (§7: the music fades out in 1 s), seconds. */
+  gameOverJingleDelay: 1,
+  /** SIMULAR RACHA in the sound test (§8): kills in a row and the time between them, seconds. */
+  testStreak: { kills: 8, every: 0.25 },
 } as const;
 
 /** The sound of each weapon's shot or sweep (spec 08 §5.1); the beam and the jet are loops. */
@@ -99,18 +111,19 @@ export const AUDIO_GEN = {
   lowpass: 8000,
   /** The one scale of every note (§3.2 rule 1): A minor pentatonic. */
   scale: ['A', 'C', 'D', 'E', 'G'] as const,
-  /** Steps of a streak, semitones over the base note (§3.3). */
-  ladderSteps: [0, 3, 5, 7, 10, 12, 15, 17] as const,
-  /** Each family's length range, seconds (§3.1). The music has none. */
-  familyDurations: { hit: [0.06, 0.25], reward: [0.08, 0.6], threat: [0.15, 1], ui: [0.03, 0.12] } satisfies Record<Exclude<SoundFamily, 'music'>, readonly [number, number]>,
+  /** Each family's length range, seconds (§3.1; the banners up to 2 s, §5.5). The music has none. */
+  familyDurations: { hit: [0.06, 0.25], reward: [0.08, 0.6], threat: [0.15, 1], ui: [0.03, 0.12], jingle: [0.3, 2] } satisfies Record<
+    Exclude<SoundFamily, 'music'>,
+    readonly [number, number]
+  >,
   /** Report: samples at full scale in a row that count as clipping. */
   clipRun: 3,
   /** Report: two variants whose length, brightness and loudness differ less than this are «almost identical». */
   similar: { duration: 0.02, brightness: 0.02, loudnessDb: 0.3 },
   /** Report: the brightness analysis window (samples, a power of 2). */
   fftSize: 1024,
-  /** Every generated effect together under this (§2), bytes. */
-  budgetBytes: 2 * 1024 * 1024,
+  /** Every generated effect together under this, bytes (§2 said 2 MB; raised by the user to keep 44.1 kHz, docs/DECISIONS.md). */
+  budgetBytes: 3.5 * 1024 * 1024,
 } as const;
 
 /** The default of every catalog field a sound does not set. */
@@ -152,8 +165,49 @@ export const SOUNDS: readonly SoundDef[] = [
   sound({ id: 'player.hurt', family: 'threat', variants: ['player_hurt'], bus: 'sfx', volume: 0.8, pitchVar: 4, maxVoices: 1, minInterval: 0.15, priority: 'high' }),
   sound({ id: 'player.death', family: 'threat', variants: ['player_death'], bus: 'sfx', volume: 0.9, maxVoices: 1, priority: 'high', duck: true }),
   sound({ id: 'player.heartbeat', family: 'threat', variants: ['player_heartbeat'], bus: 'sfx', volume: 0.7, maxVoices: 1, priority: 'high', loop: true }),
+  // §5.2 Rewards: tonal, bright, in the scale, ending up. The streaks go without a random pitch, to stay in tune.
+  sound({ id: 'reward.hit', family: 'reward', variants: ['reward_hit'], bus: 'sfx', volume: 0.3, pitchVar: 3, maxVoices: 3, minInterval: 0.04, priority: 'low' }),
+  sound({ id: 'reward.kill', family: 'reward', variants: ['reward_kill'], bus: 'sfx', volume: 0.6, maxVoices: 3, minInterval: 0.03, ladder: 'kill' }),
+  sound({ id: 'reward.repair', family: 'reward', variants: ['reward_repair'], bus: 'sfx', volume: 0.6, ladder: 'repair' }),
+  sound({ id: 'pickup.ammo', family: 'reward', variants: ['pickup_ammo'], bus: 'sfx', volume: 0.7 }),
+  sound({ id: 'pickup.health', family: 'reward', variants: ['pickup_health'], bus: 'sfx', volume: 0.7 }),
+  sound({ id: 'pickup.item', family: 'reward', variants: ['pickup_item'], bus: 'sfx', volume: 0.75, priority: 'high' }),
+  sound({ id: 'buy.cash', family: 'reward', variants: ['buy_cash'], bus: 'sfx', volume: 0.6 }),
+  sound({ id: 'buy.door', family: 'reward', variants: ['buy_door'], bus: 'sfx', volume: 0.8, priority: 'high', positional: true }),
+  sound({ id: 'buy.zone', family: 'reward', variants: ['buy_zone'], bus: 'sfx', volume: 0.7, priority: 'high' }),
+  sound({ id: 'buy.weapon', family: 'reward', variants: ['buy_weapon'], bus: 'sfx', volume: 0.75, priority: 'high' }),
+  sound({ id: 'buy.merchant', family: 'reward', variants: ['buy_merchant'], bus: 'sfx', volume: 0.7 }),
+  sound({ id: 'buy.upgrade', family: 'reward', variants: ['buy_upgrade'], bus: 'sfx', volume: 0.75, priority: 'high', ladder: 'upgrade' }),
+  sound({ id: 'buy.special', family: 'reward', variants: ['buy_special'], bus: 'sfx', volume: 0.8, priority: 'high' }),
+  sound({ id: 'boost.on', family: 'reward', variants: ['boost_on'], bus: 'sfx', volume: 0.7 }),
+  sound({ id: 'denied', family: 'ui', variants: ['denied'], bus: 'sfx', volume: 0.55, maxVoices: 1, minInterval: 0.15 }),
+  // The same two notes as `denied`, quieter.
+  sound({ id: 'item.cantUse', family: 'ui', variants: ['denied'], bus: 'sfx', volume: 0.35, maxVoices: 1, minInterval: 0.15 }),
+  sound({ id: 'item.splash', family: 'reward', variants: ['item_splash'], bus: 'sfx', volume: 0.7, positional: true }),
+  sound({ id: 'ritual.done', family: 'jingle', variants: ['ritual_done'], bus: 'sfx', volume: 0.9, maxVoices: 1, priority: 'high', duck: true }),
+  sound({ id: 'merchant.arrive', family: 'reward', variants: ['merchant_arrive'], bus: 'sfx', volume: 0.7 }),
+  // §5.3 The Demon's Hand.
+  sound({ id: 'hand.pay.money', family: 'reward', variants: ['hand_pay_money'], bus: 'sfx', volume: 0.7, maxVoices: 1 }),
+  sound({ id: 'hand.pay.blood', family: 'threat', variants: ['hand_pay_blood'], bus: 'sfx', volume: 0.8, maxVoices: 1 }),
+  sound({ id: 'hand.roll', family: 'jingle', variants: ['hand_roll'], bus: 'sfx', volume: 0.55, maxVoices: 1, priority: 'high' }),
+  sound({ id: 'hand.offer', family: 'reward', variants: ['hand_offer'], bus: 'sfx', volume: 0.7, maxVoices: 1, priority: 'high' }),
+  sound({ id: 'hand.offer.special', family: 'reward', variants: ['hand_offer_special'], bus: 'sfx', volume: 0.85, maxVoices: 1, priority: 'high', duck: true }),
+  sound({ id: 'hand.taken', family: 'reward', variants: ['hand_taken'], bus: 'sfx', volume: 0.7, maxVoices: 1 }),
+  sound({ id: 'hand.refund', family: 'threat', variants: ['hand_refund'], bus: 'sfx', volume: 0.75, maxVoices: 1 }),
+  sound({ id: 'hand.moved', family: 'threat', variants: ['hand_moved'], bus: 'sfx', volume: 0.6, maxVoices: 1 }),
+  // §5.5 Banners and short melodies: on the effects bus, so they sound with the music off.
+  sound({ id: 'jingle.round.start', family: 'jingle', variants: ['jingle_round_start'], bus: 'sfx', volume: 0.75, maxVoices: 1, priority: 'high', duck: true }),
+  sound({ id: 'jingle.round.boss', family: 'jingle', variants: ['jingle_round_boss'], bus: 'sfx', volume: 0.85, maxVoices: 1, priority: 'high', duck: true }),
+  sound({ id: 'jingle.round.clear', family: 'jingle', variants: ['jingle_round_clear'], bus: 'sfx', volume: 0.8, maxVoices: 1, priority: 'high', duck: true }),
+  sound({ id: 'jingle.boss.dead', family: 'jingle', variants: ['jingle_boss_dead'], bus: 'sfx', volume: 0.85, maxVoices: 1, priority: 'high', duck: true }),
+  sound({ id: 'jingle.gameover', family: 'jingle', variants: ['jingle_gameover'], bus: 'sfx', volume: 0.8, maxVoices: 1, priority: 'high', duck: true }),
   // §5.6 Interface.
   sound({ id: 'ui.tap', family: 'ui', variants: ['ui_tap'], bus: 'ui', volume: 0.5, pitchVar: 3, maxVoices: 2, minInterval: 0.03, priority: 'low' }),
+  sound({ id: 'ui.shop.open', family: 'ui', variants: ['ui_shop_open'], bus: 'ui', volume: 0.5, maxVoices: 1 }),
+  sound({ id: 'ui.shop.close', family: 'ui', variants: ['ui_shop_close'], bus: 'ui', volume: 0.45, maxVoices: 1 }),
+  sound({ id: 'ui.pause.open', family: 'ui', variants: ['ui_pause_open'], bus: 'ui', volume: 0.5, maxVoices: 1 }),
+  sound({ id: 'ui.pause.close', family: 'ui', variants: ['ui_pause_close'], bus: 'ui', volume: 0.5, maxVoices: 1 }),
+  sound({ id: 'ui.play', family: 'ui', variants: ['ui_play'], bus: 'ui', volume: 0.7, maxVoices: 1 }),
 ];
 
 const BY_ID = new Map(SOUNDS.map((s) => [s.id, s]));

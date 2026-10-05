@@ -19,7 +19,7 @@ export class TitleScene extends Phaser.Scene {
     const screen = new TitleScreen(services.hudRoot, () => {
       // The JUGAR tap lets the sound out (spec 08 §2): it must happen inside the gesture.
       services.audio.unlock();
-      services.audio.playUi('ui.tap');
+      services.audio.playUi('ui.play');
       this.scene.start(SCENE_KEYS.game, this.sceneData);
     });
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => screen.destroy());

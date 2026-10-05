@@ -68,12 +68,12 @@ export function updateInteractions(ctx: SimContext, dt: number): void {
       p.contextAction = 'portal';
       p.contextTarget = portal;
       updateRepair(ctx, p, undefined, -1, dt);
-      if (cmd?.actionPressed && isPortalBuyable(ctx.map, ctx.state, portal)) tryBuyPortal(ctx, p, portal);
+      if (cmd?.actionPressed && !(isPortalBuyable(ctx.map, ctx.state, portal) && tryBuyPortal(ctx, p, portal))) deny(ctx, p);
     } else if (useBuy) {
       p.contextAction = 'door';
       p.contextTarget = door;
       updateRepair(ctx, p, undefined, -1, dt);
-      if (cmd?.actionPressed) tryBuyDoor(ctx, p, door);
+      if (cmd?.actionPressed && !tryBuyDoor(ctx, p, door)) deny(ctx, p);
     } else if (window >= 0) {
       p.contextAction = 'repair';
       p.contextTarget = window;
@@ -92,10 +92,15 @@ export function updateInteractions(ctx: SimContext, dt: number): void {
       } else if (item >= 0) {
         p.contextAction = 'pickup';
         p.contextTarget = item;
-        if (cmd?.actionPressed) pickUpItem(ctx, p, item);
+        if (cmd?.actionPressed && !pickUpItem(ctx, p, item)) deny(ctx, p);
       }
     }
   }
+}
+
+/** The tap could not act (short of money, locked, no room): its sound (spec 08 §5.2). */
+function deny(ctx: SimContext, p: PlayerState): void {
+  ctx.events.emit('action:denied', { playerId: p.id });
 }
 
 function clearContext(p: PlayerState): void {

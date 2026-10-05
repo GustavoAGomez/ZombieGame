@@ -17,7 +17,7 @@ export interface Report {
   warnings: string[];
 }
 
-const FAMILY_NAMES: Readonly<Record<SoundFamily, string>> = { hit: 'Golpe', reward: 'Premio', threat: 'Amenaza', ui: 'Interfaz', music: 'Música' };
+const FAMILY_NAMES: Readonly<Record<SoundFamily, string>> = { hit: 'Golpe', reward: 'Premio', threat: 'Amenaza', ui: 'Interfaz', jingle: 'Carteles', music: 'Música' };
 
 const ms = (seconds: number): string => `${Math.round(seconds * 1000)} ms`;
 const db = (value: number): string => (Number.isFinite(value) ? `${value.toFixed(1)} dB` : '−∞');

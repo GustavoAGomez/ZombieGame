@@ -1,0 +1,36 @@
+{
+  "type": "layers",
+  "layers": [
+    {
+      "recipe": {
+        "type": "sfxr",
+        "seed": 1,
+        "params": {
+          "wave_type": 0,
+          "p_base_freq": 0.5,
+          "p_freq_ramp": -0.4,
+          "p_env_sustain": 0.01,
+          "p_env_decay": 0.08
+        }
+      },
+      "gain": 0.6,
+      "delay": 0
+    },
+    {
+      "recipe": {
+        "type": "notes",
+        "wave": "square",
+        "attack": 0.002,
+        "decay": 0.06,
+        "notes": [
+          [
+            "A5",
+            0.14
+          ]
+        ]
+      },
+      "gain": 0.7,
+      "delay": 0.01
+    }
+  ]
+}

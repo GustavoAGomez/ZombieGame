@@ -34,7 +34,9 @@ export const STRINGS = {
     /** Spec 08 §8: every sound of the catalog, by family. */
     soundTest: 'PRUEBA DE SONIDOS',
     soundBack: 'VOLVER',
-    soundFamilies: { hit: 'GOLPE', reward: 'PREMIO', threat: 'AMENAZA', ui: 'INTERFAZ', music: 'MÚSICA' } satisfies Record<SoundFamily, string>,
+    soundFamilies: { hit: 'GOLPE', reward: 'PREMIO', threat: 'AMENAZA', ui: 'INTERFAZ', jingle: 'CARTELES', music: 'MÚSICA' } satisfies Record<SoundFamily, string>,
+    /** Spec 08 §8: 8 kills in a row, to hear the streak rise. */
+    soundStreak: 'SIMULAR RACHA',
     soundStats: (voices: number, dropped: number, last: string, state: string): string =>
       `VOCES ${voices} · DESCARTADAS ${dropped}${last ? ` (ÚLTIMA: ${last})` : ''} · AUDIO: ${state.toUpperCase()}`,
     nextRound: 'RONDA +1',

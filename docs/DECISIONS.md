@@ -1909,3 +1909,36 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 - **El latido se genera ya en S2** porque está en la §5.1, pero empieza a sonar en S4, que es la fase de la vida baja.
 - **Graves que se oigan en un móvil:** los golpes graves llevan una capa de 150–250 Hz además de la fundamental. Un altavoz de móvil apenas reproduce lo que hay por debajo de unos 200 Hz.
 
+## Audio: premios, rachas, la Mano, carteles e interfaz (spec 08, fase S3)
+
+- **Presupuesto de 3,5 MB (decisión del usuario).** A 44,1 kHz, los efectos de S1 a S3 ya ocupaban 2,1 MB, y con los de S4 no cabían en los 2 MB de la spec. De las tres opciones (bajar a 22,05 kHz, recortar sonidos o subir el límite), el usuario eligió subir el límite: se mantienen WAV mono de 44,1 kHz y 16 bits. `assets:check` falla por encima de 3,5 MB.
+- **Familia `jingle` (Carteles).** Los carteles y las melodías de §5.5 duran hasta 2 s, más que un Premio (80–600 ms), y la spec no les daba familia. El informe les aplica el rango de 0,3 a 2 s. También entran en esta familia el ritual completado (una «subida mágica larga») y el sorteo de la Mano (2 s).
+- **Brillo de cada familia:**
+  - El informe avisaba de que los golpes de S2 con ruido de aire (katana, cuchillo, esquiva, recargas, cambio de arma, escopeta) eran más brillantes que los premios. La §3.1 los quiere «graves y medios», así que llevan un corte de agudos en 3 kHz, y el corte metálico de la katana baja una octava (E5 y A5).
+  - Los premios más apagados suben de octava: la vida (C6–A6, con una capa cuadrada suave que conserva su calidez) y el brillo del mago.
+- **Rachas** (`AUDIO.ladderSteps`):
+  - Suben el tono de todo el sonido con la velocidad de reproducción, sin generar un archivo por peldaño.
+  - `kill` y `repair` suben un peldaño en cada repetición dentro de su ventana (1,5 s y 2 s) y vuelven al primero al pasarla. `upgrade` toma el peldaño del nivel comprado.
+  - La racha sube aunque un límite descarte esa reproducción, porque cuenta bajas, no sonidos.
+  - Los sonidos con racha no llevan variación de tono al azar, para que no se desafinen.
+- **Datos nuevos en eventos:**
+  - `hand:paid` lleva `mock`: cuando la Mano se burla no hay sorteo, así que no suena `hand.roll`.
+  - `money:spent` lleva `source` (`shop`, `case` o `hand`): la caja registradora no suena al pagar a la Mano, que ya tiene sus monedas cayendo al fuego.
+  - `merchant:purchase` lleva el nivel de la mejora (`level`).
+- **Eventos nuevos:** `barricade:repaired`, también cuando el tablón ya no da puntos, y `action:denied`, que salta en:
+  - una puerta o un portal sin dinero, o un portal bloqueado;
+  - una vitrina o la Mano sin dinero;
+  - un objeto sin hueco en el inventario;
+  - una compra que la tienda rechaza.
+- **Retrasos:**
+  - La fanfarria de sala suena 0,3 s después del cerrojo.
+  - El sorteo de la Mano empieza cuando el puño ha subido (`HAND.risingTime`) y dura `HAND.rollingTime`: su receta tiene `length` 2 s y un test comprueba que coinciden.
+  - El chapuzón suena donde cae el objeto, `ITEMS.throwTime` después del lanzamiento.
+  - La melodía del boss muerto suena 1,2 s después, cuando habrá terminado su derrumbe (S4).
+  - El fin de partida suena 1 s después, para no pisar la muerte del jugador (§7).
+- **`item.cantUse`** usa el mismo archivo que `denied` («igual que denied, más bajo»), con menos volumen.
+- **La interfaz:**
+  - JUGAR suena con `ui.play`.
+  - La tienda suena al abrirse y al cerrarse.
+  - La pausa suena al abrirla y al cerrarla. Al ir a segundo plano no se oye, porque el audio ya está suspendido.
+

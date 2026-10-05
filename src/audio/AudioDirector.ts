@@ -1,4 +1,5 @@
-import { AUDIO, SOUNDS, WEAPON_FIRE_SOUND, type AudioPriority, type SoundDef, type VolumeLevel } from '../config/audio';
+import { AUDIO, SOUNDS, WEAPON_FIRE_SOUND, type AudioPriority, type LadderId, type SoundDef, type VolumeLevel } from '../config/audio';
+import { HAND, ITEMS } from '../config/balance';
 import type { EventBus } from '../core/EventBus';
 import type { AudioDef } from '../game/assets/manifest';
 import type { AudioOutput, Voice } from './AudioEngine';
@@ -51,8 +52,10 @@ export interface AudioStats {
 /** The debug panel's view of the director: every sound, played as in the game. */
 export interface SoundTest {
   readonly sounds: readonly SoundDef[];
-  /** Plays a sound; a loop starts, and stops on the next test of it. */
+  /** Plays a sound with its streak; a loop starts, and stops on the next test of it. */
   test(id: string): void;
+  /** SIMULAR RACHA (§8): kills in a row, to hear the streak rise. */
+  simulateStreak(): void;
   stats(): AudioStats;
 }
 
@@ -67,8 +70,12 @@ interface ActiveVoice {
 }
 
 interface PlayRequest {
-  /** Playback rate before the pitch variation (a loop's own, a streak's). */
+  /** Playback rate before the pitch variation (a loop's own). */
   rate?: number;
+  /** Seconds from now until it starts. */
+  delay?: number;
+  /** The upgrade level bought (1, 2, 3): the step of the `upgrade` streak. */
+  level?: number;
 }
 
 const RANK: Readonly<Record<AudioPriority, number>> = { low: 0, normal: 1, high: 2 };
@@ -82,6 +89,8 @@ export interface DirectorOptions {
   /** 0..1, for the variants and the pitch: the audio is presentation, it never touches the game's RNG. */
   random?: () => number;
   catalog?: readonly SoundDef[];
+  /** Runs `run` in `seconds` (SIMULAR RACHA). */
+  schedule?: (run: () => void, seconds: number) => void;
 }
 
 /**
@@ -105,6 +114,13 @@ export class AudioDirector implements GameAudio, SoundTest {
   private paused = false;
   /** The continuous weapon whose loop is playing. */
   private firing: ContinuousWeapon | null = null;
+  /** Each time streak's step and when it last rose (§3.3). */
+  private readonly streaks = new Map<LadderId, { step: number; at: number }>();
+  /** The local player's shop panel is open (its open and close sounds). */
+  private shopOpen = false;
+  /** The sound test's upgrade level, 1 → 2 → 3 → 1. */
+  private testLevel = 0;
+  private readonly schedule: (run: () => void, seconds: number) => void;
   private dropped = 0;
   private lastDropped = '';
 
@@ -118,6 +134,7 @@ export class AudioDirector implements GameAudio, SoundTest {
     this.byId = new Map(this.sounds.map((s) => [s.id, s]));
     this.clock = options.clock ?? (() => performance.now() / 1000);
     this.random = options.random ?? Math.random;
+    this.schedule = options.schedule ?? ((run, seconds) => void setTimeout(run, seconds * 1000));
     settings.onChange(() => this.applyLevels());
     this.applyLevels();
     if (events) this.listen(events);
@@ -159,7 +176,13 @@ export class AudioDirector implements GameAudio, SoundTest {
     const def = this.byId.get(id);
     if (def?.loop && this.loops.has(id)) this.stopLoop(id, AUDIO.loopFadeOut);
     else if (def?.loop) this.startLoop(id, 1);
+    else if (def?.ladder === 'upgrade') this.play(id, { level: (this.testLevel = (this.testLevel % 3) + 1) });
     else this.play(id);
+  }
+
+  simulateStreak(): void {
+    const { kills, every } = AUDIO.testStreak;
+    for (let i = 0; i < kills; i++) this.schedule(() => this.play('reward.kill'), i * every);
   }
 
   stats(): AudioStats {
@@ -188,6 +211,81 @@ export class AudioDirector implements GameAudio, SoundTest {
     events.on('player:died', (e) => mine(e.playerId, 'player.death'));
     events.on('zombie:hit', (e) => this.play(e.weapon === 'katana' ? 'weapon.katana.hit' : 'impact.flesh'));
     events.on('fire:blast', () => this.play('weapon.flame.blast'));
+
+    // §5.2 Rewards: the local player's.
+    events.on('points:gained', (e) => {
+      if (e.reason === 'hit') mine(e.playerId, 'reward.hit');
+      else if (e.reason === 'kill') mine(e.playerId, 'reward.kill');
+    });
+    events.on('barricade:repaired', (e) => mine(e.playerId, 'reward.repair'));
+    events.on('pickup:collected', (e) => mine(e.playerId, e.kind === 'ammo' ? 'pickup.ammo' : 'pickup.health'));
+    events.on('item:picked', (e) => mine(e.playerId, 'pickup.item'));
+    // The till for the shops and the weapon cases; the hand has its own coins falling into the fire.
+    events.on('money:spent', (e) => {
+      if (e.source !== 'hand') mine(e.playerId, 'buy.cash');
+    });
+    events.on('door:opened', () => this.play('buy.door'));
+    events.on('portal:opened', () => this.play('buy.door'));
+    events.on('zone:unlocked', () => this.play('buy.zone', { delay: AUDIO.zoneFanfareDelay }));
+    events.on('weaponCase:purchase', (e) => mine(e.playerId, 'buy.weapon'));
+    events.on('merchant:purchase', (e) => {
+      if (!local(e.playerId)) return;
+      if (e.item.startsWith('upgrade_')) this.play('buy.upgrade', { level: e.level ?? 1 });
+      else this.play(e.item === 'weapon_special' ? 'buy.special' : 'buy.merchant');
+    });
+    events.on('boost:activated', (e) => mine(e.playerId, 'boost.on'));
+    events.on('action:denied', (e) => mine(e.playerId, 'denied'));
+    events.on('item:cantUse', (e) => mine(e.playerId, 'item.cantUse'));
+    // The splash where the item lands, ITEMS.throwTime after the throw.
+    events.on('item:thrown', () => this.play('item.splash', { delay: ITEMS.throwTime }));
+    events.on('activation:completed', () => this.play('ritual.done'));
+    // Merchants that only change spot do not sound: they would come with the round's banner.
+    events.on('merchant:moved', (e) => {
+      if (e.first) this.play('merchant.arrive');
+    });
+
+    // §5.3 The Demon's Hand: its draw ticks while it rolls, after the fist has risen.
+    events.on('hand:paid', (e) => {
+      this.play(e.blood ? 'hand.pay.blood' : 'hand.pay.money');
+      if (!e.mock) this.play('hand.roll', { delay: HAND.risingTime });
+    });
+    events.on('hand:offer', (e) => this.play(e.special ? 'hand.offer.special' : 'hand.offer'));
+    events.on('hand:taken', () => this.play('hand.taken'));
+    events.on('hand:refunded', () => this.play('hand.refund'));
+    events.on('hand:moved', () => this.play('hand.moved'));
+
+    // §5.5 Banners and short melodies.
+    events.on('round:changed', (e) => this.play(e.boss ? 'jingle.round.boss' : 'jingle.round.start'));
+    events.on('round:cleared', () => this.play('jingle.round.clear'));
+    events.on('boss:killed', () => this.play('jingle.boss.dead', { delay: AUDIO.bossDeadJingleDelay }));
+    events.on('game:over', () => this.play('jingle.gameover', { delay: AUDIO.gameOverJingleDelay }));
+
+    // §5.6 The shop panel opening and closing.
+    events.on('shop:state', (e) => {
+      const open = e.merchant !== null;
+      if (open === this.shopOpen) return;
+      this.shopOpen = open;
+      this.play(open ? 'ui.shop.open' : 'ui.shop.close');
+    });
+  }
+
+  /**
+   * A streak's playback rate (§3.3): `kill` and `repair` rise a step with each
+   * repetition inside their window and go back to the first after it;
+   * `upgrade` takes the step of the level bought. Past the last step it stays.
+   */
+  private ladderRate(ladder: LadderId, now: number, level: number | undefined): number {
+    const steps = AUDIO.ladderSteps;
+    let step: number;
+    if (ladder === 'upgrade') {
+      step = Math.max(0, (level ?? 1) - 1);
+    } else {
+      const streak = this.streaks.get(ladder);
+      step = streak && now - streak.at <= AUDIO.ladderWindows[ladder] ? streak.step + 1 : 0;
+      step = Math.min(step, steps.length - 1);
+      this.streaks.set(ladder, { step, at: now });
+    }
+    return 2 ** ((steps[Math.min(step, steps.length - 1)] ?? 0) / 12);
   }
 
   /** The laser's hum rises with its heat; anything else plays as recorded. */
@@ -220,6 +318,8 @@ export class AudioDirector implements GameAudio, SoundTest {
     if (this.paused && def.bus === 'sfx') return null;
     const now = this.clock();
     this.prune(now);
+    // The streak rises with every repetition, even one a limit drops.
+    const ladder = def.ladder ? this.ladderRate(def.ladder, now, request.level) : 1;
     const last = this.lastPlay.get(id);
     if (last !== undefined && now - last < def.minInterval) return this.drop(id);
     if (this.voices.filter((v) => v.id === id).length >= def.maxVoices) return this.drop(id);
@@ -227,11 +327,20 @@ export class AudioDirector implements GameAudio, SoundTest {
     const key = this.pickVariant(def);
     const duration = key === undefined ? undefined : this.durations[key];
     if (key === undefined || duration === undefined) return null;
-    const rate = (request.rate ?? 1) * (1 + (this.random() * 2 - 1) * (def.pitchVar / 100));
-    const voice = this.engine.play(key, { bus: def.bus, gain: def.volume, rate, pan: 0, loop: def.loop, ...(def.loop ? { fadeIn: AUDIO.loopFadeIn } : {}) });
+    const rate = (request.rate ?? 1) * ladder * (1 + (this.random() * 2 - 1) * (def.pitchVar / 100));
+    const delay = request.delay ?? 0;
+    const voice = this.engine.play(key, {
+      bus: def.bus,
+      gain: def.volume,
+      rate,
+      pan: 0,
+      loop: def.loop,
+      ...(def.loop ? { fadeIn: AUDIO.loopFadeIn } : {}),
+      ...(delay > 0 ? { delay } : {}),
+    });
     this.lastPlay.set(id, now);
     if (!voice) return null;
-    const active: ActiveVoice = { id, bus: def.bus, priority: def.priority, startedAt: now, endsAt: def.loop ? Infinity : now + duration / rate, voice };
+    const active: ActiveVoice = { id, bus: def.bus, priority: def.priority, startedAt: now, endsAt: def.loop ? Infinity : now + delay + duration / rate, voice };
     this.voices.push(active);
     return active;
   }

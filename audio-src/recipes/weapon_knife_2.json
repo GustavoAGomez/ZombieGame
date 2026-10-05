@@ -10,5 +10,6 @@
     "p_lpf_freq": 0.65,
     "p_lpf_ramp": 0.3,
     "p_hpf_freq": 0.28
-  }
+  },
+  "lowpass": 3000
 }

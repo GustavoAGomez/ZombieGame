@@ -47,12 +47,15 @@ describe('DoorSystem · context', () => {
 });
 
 describe('DoorSystem · buying', () => {
-  it('does nothing without enough points', () => {
+  it('does nothing without enough points, but says no (spec 08 §5.2)', () => {
     const ctx = createTestContext();
     const { p } = atD1(ctx);
+    const denied = vi.fn();
+    ctx.events.on('action:denied', denied);
     tap(ctx);
     expect(ctx.state.doorsOpen[0]).toBe(false);
     expect(p.money).toBe(POINTS.startMoney);
+    expect(denied).toHaveBeenCalledWith({ playerId: 0 });
   });
 
   it('opens D1 for 750: floor, corridor unlocked, spawns W4 and W5 active', () => {

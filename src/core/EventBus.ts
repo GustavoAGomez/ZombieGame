@@ -56,13 +56,17 @@ export interface GameEvents {
   'knife:swing': { playerId: number; x: number; y: number; hit: boolean };
   /** A player dashed (spec 08 §5.1). */
   'player:dash': { playerId: number; x: number; y: number };
+  /** A player put a plank back on a window (spec 08 §5.2), with or without points for it. */
+  'barricade:repaired': { playerId: number; x: number; y: number };
+  /** The action button tapped where it cannot act: short of money, a locked portal, no room for an item (spec 08 §5.2). */
+  'action:denied': { playerId: number };
   'pickup:collected': { playerId: number; kind: PickupKind };
   /** A door was bought (medium haptic in phase 9). */
   'door:opened': { doorId: string; playerId: number };
   /** A portal (stairs, ladder, hatch) was bought. */
   'portal:opened': { portalId: string; playerId: number };
-  /** Someone paid the Demon's Hand (spec 06 §3.3), with money or with blood. */
-  'hand:paid': { playerId: number; blood: boolean };
+  /** Someone paid the Demon's Hand (spec 06 §3.3), with money or with blood; `mock`: it is tired, no draw follows. */
+  'hand:paid': { playerId: number; blood: boolean; mock: boolean };
   /** The hand opened with a weapon (spec 06 §3.4): a special one flashes and is named on the HUD. */
   'hand:offer': { weapon: WeaponId; special: boolean };
   /** The one who paid took the hand's weapon. */
@@ -174,12 +178,12 @@ export interface GameEvents {
   'round:changed': { round: number; boss: boolean };
   /** A merchant appeared (`first`) or teleported to another spot at the start of a round (spec 03 §2). */
   'merchant:moved': { merchant: MerchantId; first: boolean };
-  /** Money spent in a shop: "-750$" in red next to the money (spec 03 §3). */
-  'money:spent': { playerId: number; amount: number };
+  /** Money spent in a shop, at a weapon case or at the Demon's Hand: "-750$" in red next to the money (spec 03 §3). */
+  'money:spent': { playerId: number; amount: number; source: 'shop' | 'case' | 'hand' };
   /** Bought at a weapon case: the weapon itself or its ammo (spec 04 §3). Medium vibration. */
   'weaponCase:purchase': { playerId: number; weapon: WeaponId; ammo: boolean };
-  /** Something was bought from a merchant (medium haptic). */
-  'merchant:purchase': { playerId: number; merchant: MerchantId; item: MerchantItemId };
+  /** Something was bought from a merchant (medium haptic); an upgrade says the level it reached (1, 2, 3). */
+  'merchant:purchase': { playerId: number; merchant: MerchantId; item: MerchantItemId; level?: number };
   /** The local player's shop panel: closed, or open with one row per item still sold. */
   'shop:state': {
     merchant: MerchantId | null;

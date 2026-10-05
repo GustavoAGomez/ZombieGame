@@ -1272,6 +1272,91 @@
     }
   },
   "audio": {
+    "boost_on": {
+      "file": "audio/sfx/boost_on.wav",
+      "duration": 0.27,
+      "placeholder": false
+    },
+    "buy_cash": {
+      "file": "audio/sfx/buy_cash.wav",
+      "duration": 0.4497,
+      "placeholder": false
+    },
+    "buy_door": {
+      "file": "audio/sfx/buy_door.wav",
+      "duration": 0.4798,
+      "placeholder": false
+    },
+    "buy_merchant": {
+      "file": "audio/sfx/buy_merchant.wav",
+      "duration": 0.3799,
+      "placeholder": false
+    },
+    "buy_special": {
+      "file": "audio/sfx/buy_special.wav",
+      "duration": 0.5699,
+      "placeholder": false
+    },
+    "buy_upgrade": {
+      "file": "audio/sfx/buy_upgrade.wav",
+      "duration": 0.3599,
+      "placeholder": false
+    },
+    "buy_weapon": {
+      "file": "audio/sfx/buy_weapon.wav",
+      "duration": 0.3999,
+      "placeholder": false
+    },
+    "buy_zone": {
+      "file": "audio/sfx/buy_zone.wav",
+      "duration": 0.3999,
+      "placeholder": false
+    },
+    "denied": {
+      "file": "audio/sfx/denied.wav",
+      "duration": 0.1149,
+      "placeholder": false
+    },
+    "hand_moved": {
+      "file": "audio/sfx/hand_moved.wav",
+      "duration": 0.5969,
+      "placeholder": false
+    },
+    "hand_offer": {
+      "file": "audio/sfx/hand_offer.wav",
+      "duration": 0.3999,
+      "placeholder": false
+    },
+    "hand_offer_special": {
+      "file": "audio/sfx/hand_offer_special.wav",
+      "duration": 0.5399,
+      "placeholder": false
+    },
+    "hand_pay_blood": {
+      "file": "audio/sfx/hand_pay_blood.wav",
+      "duration": 0.1799,
+      "placeholder": false
+    },
+    "hand_pay_money": {
+      "file": "audio/sfx/hand_pay_money.wav",
+      "duration": 0.2862,
+      "placeholder": false
+    },
+    "hand_refund": {
+      "file": "audio/sfx/hand_refund.wav",
+      "duration": 0.5397,
+      "placeholder": false
+    },
+    "hand_roll": {
+      "file": "audio/sfx/hand_roll.wav",
+      "duration": 2,
+      "placeholder": false
+    },
+    "hand_taken": {
+      "file": "audio/sfx/hand_taken.wav",
+      "duration": 0.1797,
+      "placeholder": false
+    },
     "impact_flesh_1": {
       "file": "audio/sfx/impact_flesh_1.wav",
       "duration": 0.0673,
@@ -1285,6 +1370,56 @@
     "impact_flesh_3": {
       "file": "audio/sfx/impact_flesh_3.wav",
       "duration": 0.0671,
+      "placeholder": false
+    },
+    "item_splash": {
+      "file": "audio/sfx/item_splash.wav",
+      "duration": 0.2805,
+      "placeholder": false
+    },
+    "jingle_boss_dead": {
+      "file": "audio/sfx/jingle_boss_dead.wav",
+      "duration": 1.8898,
+      "placeholder": false
+    },
+    "jingle_gameover": {
+      "file": "audio/sfx/jingle_gameover.wav",
+      "duration": 1.5999,
+      "placeholder": false
+    },
+    "jingle_round_boss": {
+      "file": "audio/sfx/jingle_round_boss.wav",
+      "duration": 1.0899,
+      "placeholder": false
+    },
+    "jingle_round_clear": {
+      "file": "audio/sfx/jingle_round_clear.wav",
+      "duration": 1.0197,
+      "placeholder": false
+    },
+    "jingle_round_start": {
+      "file": "audio/sfx/jingle_round_start.wav",
+      "duration": 0.8499,
+      "placeholder": false
+    },
+    "merchant_arrive": {
+      "file": "audio/sfx/merchant_arrive.wav",
+      "duration": 0.4797,
+      "placeholder": false
+    },
+    "pickup_ammo": {
+      "file": "audio/sfx/pickup_ammo.wav",
+      "duration": 0.29,
+      "placeholder": false
+    },
+    "pickup_health": {
+      "file": "audio/sfx/pickup_health.wav",
+      "duration": 0.3598,
+      "placeholder": false
+    },
+    "pickup_item": {
+      "file": "audio/sfx/pickup_item.wav",
+      "duration": 0.3799,
       "placeholder": false
     },
     "player_dash": {
@@ -1305,6 +1440,51 @@
     "player_hurt": {
       "file": "audio/sfx/player_hurt.wav",
       "duration": 0.2083,
+      "placeholder": false
+    },
+    "reward_hit": {
+      "file": "audio/sfx/reward_hit.wav",
+      "duration": 0.0894,
+      "placeholder": false
+    },
+    "reward_kill": {
+      "file": "audio/sfx/reward_kill.wav",
+      "duration": 0.1499,
+      "placeholder": false
+    },
+    "reward_repair": {
+      "file": "audio/sfx/reward_repair.wav",
+      "duration": 0.1097,
+      "placeholder": false
+    },
+    "ritual_done": {
+      "file": "audio/sfx/ritual_done.wav",
+      "duration": 1.2625,
+      "placeholder": false
+    },
+    "ui_pause_close": {
+      "file": "audio/sfx/ui_pause_close.wav",
+      "duration": 0.1099,
+      "placeholder": false
+    },
+    "ui_pause_open": {
+      "file": "audio/sfx/ui_pause_open.wav",
+      "duration": 0.1099,
+      "placeholder": false
+    },
+    "ui_play": {
+      "file": "audio/sfx/ui_play.wav",
+      "duration": 0.1149,
+      "placeholder": false
+    },
+    "ui_shop_close": {
+      "file": "audio/sfx/ui_shop_close.wav",
+      "duration": 0.0805,
+      "placeholder": false
+    },
+    "ui_shop_open": {
+      "file": "audio/sfx/ui_shop_open.wav",
+      "duration": 0.1004,
       "placeholder": false
     },
     "ui_tap": {
@@ -1334,27 +1514,27 @@
     },
     "weapon_katana_hit": {
       "file": "audio/sfx/weapon_katana_hit.wav",
-      "duration": 0.0894,
+      "duration": 0.0896,
       "placeholder": false
     },
     "weapon_katana_swing_1": {
       "file": "audio/sfx/weapon_katana_swing_1.wav",
-      "duration": 0.1498,
+      "duration": 0.1495,
       "placeholder": false
     },
     "weapon_katana_swing_2": {
       "file": "audio/sfx/weapon_katana_swing_2.wav",
-      "duration": 0.1499,
+      "duration": 0.1493,
       "placeholder": false
     },
     "weapon_knife_1": {
       "file": "audio/sfx/weapon_knife_1.wav",
-      "duration": 0.0815,
+      "duration": 0.0812,
       "placeholder": false
     },
     "weapon_knife_2": {
       "file": "audio/sfx/weapon_knife_2.wav",
-      "duration": 0.0816,
+      "duration": 0.0817,
       "placeholder": false
     },
     "weapon_laser_loop": {
@@ -1369,42 +1549,42 @@
     },
     "weapon_pistol_fire_1": {
       "file": "audio/sfx/weapon_pistol_fire_1.wav",
-      "duration": 0.0975,
+      "duration": 0.0977,
       "placeholder": false
     },
     "weapon_pistol_fire_2": {
       "file": "audio/sfx/weapon_pistol_fire_2.wav",
-      "duration": 0.1071,
+      "duration": 0.1072,
       "placeholder": false
     },
     "weapon_reload_end": {
       "file": "audio/sfx/weapon_reload_end.wav",
-      "duration": 0.109,
+      "duration": 0.1094,
       "placeholder": false
     },
     "weapon_reload_start": {
       "file": "audio/sfx/weapon_reload_start.wav",
-      "duration": 0.0642,
+      "duration": 0.0643,
       "placeholder": false
     },
     "weapon_shotgun_fire": {
       "file": "audio/sfx/weapon_shotgun_fire.wav",
-      "duration": 0.244,
+      "duration": 0.2441,
       "placeholder": false
     },
     "weapon_smg_fire_1": {
       "file": "audio/sfx/weapon_smg_fire_1.wav",
-      "duration": 0.0631,
+      "duration": 0.0632,
       "placeholder": false
     },
     "weapon_smg_fire_2": {
       "file": "audio/sfx/weapon_smg_fire_2.wav",
-      "duration": 0.0631,
+      "duration": 0.0633,
       "placeholder": false
     },
     "weapon_smg_fire_3": {
       "file": "audio/sfx/weapon_smg_fire_3.wav",
-      "duration": 0.0632,
+      "duration": 0.0633,
       "placeholder": false
     },
     "weapon_switch": {

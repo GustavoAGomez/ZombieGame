@@ -1,0 +1,60 @@
+{
+  "type": "layers",
+  "layers": [
+    {
+      "recipe": {
+        "type": "notes",
+        "wave": "square",
+        "attack": 0.004,
+        "decay": 0.3,
+        "notes": [
+          [
+            "E4",
+            0.2
+          ],
+          [
+            "C4",
+            0.2
+          ],
+          [
+            "A3",
+            0.5
+          ]
+        ]
+      },
+      "gain": 0.7,
+      "delay": 0
+    },
+    {
+      "recipe": {
+        "type": "sfxr",
+        "seed": 88,
+        "params": {
+          "wave_type": 3,
+          "p_base_freq": 0.12,
+          "p_env_attack": 0.1,
+          "p_env_sustain": 0.3,
+          "p_env_decay": 0.5,
+          "p_lpf_freq": 0.3
+        }
+      },
+      "gain": 0.8,
+      "delay": 0.3
+    },
+    {
+      "recipe": {
+        "type": "sfxr",
+        "seed": 1,
+        "params": {
+          "wave_type": 2,
+          "p_base_freq": 0.1,
+          "p_env_attack": 0.05,
+          "p_env_sustain": 0.3,
+          "p_env_decay": 0.5
+        }
+      },
+      "gain": 0.6,
+      "delay": 0.3
+    }
+  ]
+}

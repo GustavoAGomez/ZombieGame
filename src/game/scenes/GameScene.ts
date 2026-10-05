@@ -284,6 +284,7 @@ export class GameScene extends Phaser.Scene {
   private setPaused(paused: boolean): void {
     if (this.overShown || paused === this.paused) return;
     this.paused = paused;
+    this.services.audio.playUi(paused ? 'ui.pause.open' : 'ui.pause.close');
     this.pauseMenu[paused ? 'show' : 'hide']();
     this.pauseButton.visible = !paused;
     // The HUD's notices freeze too (hud.css).

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { AUDIO, SOUNDS, type AudioBus, type SoundDef, type VolumeLevel } from '../config/audio';
+import { HAND, ITEMS } from '../config/balance';
 import { EventBus } from '../core/EventBus';
 import type { AudioDef } from '../game/assets/manifest';
 import { AudioDirector, QUIET_SNAPSHOT, type AudioSettings } from './AudioDirector';
@@ -168,12 +169,17 @@ function gameSetup() {
   const engine = new FakeEngine();
   const events = new EventBus();
   let now = 0;
-  const director = new AudioDirector(engine, new FakeSettings(), events, { clock: () => now, random: () => 0.5 });
+  const scheduled: [() => void, number][] = [];
+  const director = new AudioDirector(engine, new FakeSettings(), events, {
+    clock: () => now,
+    random: () => 0.5,
+    schedule: (run, seconds) => scheduled.push([run, seconds]),
+  });
   const defs: Record<string, AudioDef> = {};
   for (const s of SOUNDS) for (const v of s.variants) defs[v] = { file: `audio/sfx/${v}.wav`, duration: 0.2, placeholder: false };
   director.load(defs, 'assets/');
   const keys = (): string[] => engine.played.map((p) => p.key);
-  return { engine, events, director, keys, advance: (seconds: number) => (now += seconds) };
+  return { engine, events, director, keys, scheduled, advance: (seconds: number) => (now += seconds) };
 }
 
 describe('AudioDirector: weapons and the player (spec 08 §5.1)', () => {
@@ -243,6 +249,115 @@ describe('AudioDirector: weapons and the player (spec 08 §5.1)', () => {
     director.test('weapon.flame.loop');
     expect(engine.played).toHaveLength(1);
     expect(engine.played[0]?.stopped).toBe(true);
+  });
+});
+
+describe('AudioDirector: rewards, the hand, banners and menus (spec 08 §5.2–5.6)', () => {
+  it('asks each event for its sound', () => {
+    const { events, keys, advance } = gameSetup();
+    const cases: [() => void, string][] = [
+      [() => events.emit('points:gained', { playerId: 0, amount: 10, reason: 'hit' }), 'reward_hit'],
+      [() => events.emit('points:gained', { playerId: 0, amount: 60, reason: 'kill' }), 'reward_kill'],
+      [() => events.emit('barricade:repaired', { playerId: 0, x: 0, y: 0 }), 'reward_repair'],
+      [() => events.emit('pickup:collected', { playerId: 0, kind: 'ammo' }), 'pickup_ammo'],
+      [() => events.emit('pickup:collected', { playerId: 0, kind: 'health' }), 'pickup_health'],
+      [() => events.emit('item:picked', { playerId: 0, item: 'worn_wand' }), 'pickup_item'],
+      [() => events.emit('money:spent', { playerId: 0, amount: 750, source: 'shop' }), 'buy_cash'],
+      [() => events.emit('door:opened', { doorId: 'd1', playerId: 0 }), 'buy_door'],
+      [() => events.emit('portal:opened', { portalId: 'p1', playerId: 0 }), 'buy_door'],
+      [() => events.emit('zone:unlocked', { zone: 'cocina' }), 'buy_zone'],
+      [() => events.emit('weaponCase:purchase', { playerId: 0, weapon: 'smg', ammo: false }), 'buy_weapon'],
+      [() => events.emit('merchant:purchase', { playerId: 0, merchant: 'blue', item: 'max_ammo' }), 'buy_merchant'],
+      [() => events.emit('merchant:purchase', { playerId: 0, merchant: 'red', item: 'upgrade_damage', level: 2 }), 'buy_upgrade'],
+      [() => events.emit('merchant:purchase', { playerId: 0, merchant: 'gold', item: 'weapon_special' }), 'buy_special'],
+      [() => events.emit('boost:activated', { playerId: 0, boost: 'speed' }), 'boost_on'],
+      [() => events.emit('action:denied', { playerId: 0 }), 'denied'],
+      [() => events.emit('item:cantUse', { playerId: 0, slot: 0 }), 'denied'],
+      [() => events.emit('item:thrown', { playerId: 0, item: 'worn_wand', activation: 'summon_red_merchant', fromX: 0, fromY: 0, toX: 0, toY: 0, time: 0 }), 'item_splash'],
+      [() => events.emit('activation:completed', { playerId: 0, activation: 'summon_red_merchant', effect: { kind: 'summon_merchant', merchant: 'red' } }), 'ritual_done'],
+      [() => events.emit('merchant:moved', { merchant: 'blue', first: true }), 'merchant_arrive'],
+      [() => events.emit('hand:paid', { playerId: 0, blood: false, mock: true }), 'hand_pay_money'],
+      [() => events.emit('hand:paid', { playerId: 0, blood: true, mock: true }), 'hand_pay_blood'],
+      [() => events.emit('hand:offer', { weapon: 'smg', special: false }), 'hand_offer'],
+      [() => events.emit('hand:offer', { weapon: 'laser', special: true }), 'hand_offer_special'],
+      [() => events.emit('hand:taken', { playerId: 0, weapon: 'smg' }), 'hand_taken'],
+      [() => events.emit('hand:refunded', { playerId: 0, blood: false, amount: 950 }), 'hand_refund'],
+      [() => events.emit('hand:moved', { zone: 'cocina' }), 'hand_moved'],
+      [() => events.emit('round:changed', { round: 2, boss: false }), 'jingle_round_start'],
+      [() => events.emit('round:changed', { round: 5, boss: true }), 'jingle_round_boss'],
+      [() => events.emit('round:cleared', { round: 2 }), 'jingle_round_clear'],
+      [() => events.emit('boss:killed', { x: 0, y: 0, boss: 'butcher', variant: 'base' }), 'jingle_boss_dead'],
+      [() => events.emit('game:over', { round: 3, score: 100 }), 'jingle_gameover'],
+    ];
+    for (const [emit, key] of cases) {
+      advance(1);
+      const before = keys().length;
+      emit();
+      expect(keys().slice(before).join(), key).toMatch(new RegExp(`^${key}`));
+    }
+  });
+
+  it('starts the draw\'s ticks after the fist rises, the fanfare after the bolt and the splash where the item lands', () => {
+    const { engine, events } = gameSetup();
+    events.emit('hand:paid', { playerId: 0, blood: false, mock: false });
+    events.emit('zone:unlocked', { zone: 'cocina' });
+    events.emit('item:thrown', { playerId: 0, item: 'worn_wand', activation: 'summon_red_merchant', fromX: 0, fromY: 0, toX: 0, toY: 0, time: 0 });
+    const delays = Object.fromEntries(engine.played.map((p) => [p.key, p.options.delay ?? 0]));
+    expect(delays).toMatchObject({ hand_pay_money: 0, hand_roll: HAND.risingTime, buy_zone: AUDIO.zoneFanfareDelay, item_splash: ITEMS.throwTime });
+  });
+
+  it('leaves the till to the shops and cases: the hand has its own coins', () => {
+    const { events, keys } = gameSetup();
+    events.emit('money:spent', { playerId: 0, amount: 950, source: 'hand' });
+    events.emit('money:spent', { playerId: 1, amount: 750, source: 'shop' });
+    expect(keys()).toEqual([]);
+  });
+
+  it('sounds the shop panel only when it opens and when it closes', () => {
+    const { events, keys } = gameSetup();
+    const open = { merchant: 'blue' as const, rows: [] };
+    events.emit('shop:state', open);
+    events.emit('shop:state', open);
+    events.emit('shop:state', { merchant: null, rows: [] });
+    expect(keys()).toEqual(['ui_shop_open', 'ui_shop_close']);
+  });
+});
+
+describe('AudioDirector: streaks (spec 08 §3.3)', () => {
+  const semitones = (rate: number): number => Math.round(12 * Math.log2(rate));
+
+  it('raises a kill a step per kill in a row, stays on the last step and starts again after its window', () => {
+    const { engine, events, advance } = gameSetup();
+    const kill = (): void => events.emit('points:gained', { playerId: 0, amount: 60, reason: 'kill' });
+    for (let i = 0; i < 10; i++) {
+      kill();
+      advance(0.5);
+    }
+    expect(engine.played.map((p) => semitones(p.rate))).toEqual([0, 3, 5, 7, 10, 12, 15, 17, 17, 17]);
+    advance(AUDIO.ladderWindows.kill + 0.1);
+    kill();
+    expect(semitones(engine.played.at(-1)?.rate ?? 0)).toBe(0);
+  });
+
+  it('keeps the repair streak for 2 s, and climbs the upgrade one by the level bought', () => {
+    const { engine, events, advance } = gameSetup();
+    events.emit('barricade:repaired', { playerId: 0, x: 0, y: 0 });
+    advance(1.9);
+    events.emit('barricade:repaired', { playerId: 0, x: 0, y: 0 });
+    expect(semitones(engine.played.at(-1)?.rate ?? 0)).toBe(3);
+    for (const level of [1, 2, 3]) {
+      advance(1);
+      events.emit('merchant:purchase', { playerId: 0, merchant: 'red', item: 'upgrade_ammo', level });
+    }
+    expect(engine.played.slice(-3).map((p) => semitones(p.rate))).toEqual([0, 3, 5]);
+  });
+
+  it('SIMULAR RACHA schedules 8 kills a quarter of a second apart', () => {
+    const { director, scheduled, keys } = gameSetup();
+    director.simulateStreak();
+    expect(scheduled.map(([, s]) => s)).toEqual([0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75]);
+    scheduled[0]?.[0]();
+    expect(keys()).toEqual(['reward_kill']);
   });
 });
 

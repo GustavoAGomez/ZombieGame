@@ -10,6 +10,8 @@ export interface PlayOptions {
   loop?: boolean;
   /** Seconds to rise from silence (a loop's start). */
   fadeIn?: number;
+  /** Seconds from now until it starts (the fanfare after the bolt, the splash where the item lands). */
+  delay?: number;
 }
 
 /** A sound playing. */
@@ -115,9 +117,10 @@ export class WebAudioEngine implements AudioOutput {
     source.playbackRate.value = options.rate;
     source.loop = options.loop === true;
     const gain = ctx.createGain();
+    const start = ctx.currentTime + (options.delay ?? 0);
     if (options.fadeIn) {
-      gain.gain.setValueAtTime(0, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(options.gain, ctx.currentTime + options.fadeIn);
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(options.gain, start + options.fadeIn);
     } else {
       gain.gain.value = options.gain;
     }
@@ -130,7 +133,7 @@ export class WebAudioEngine implements AudioOutput {
       tail = panner;
     }
     tail.connect(bus);
-    source.start();
+    source.start(start);
     let stopped = false;
     source.onended = () => {
       stopped = true;
@@ -140,7 +143,7 @@ export class WebAudioEngine implements AudioOutput {
       stop: (fade = AUDIO.voiceFade) => {
         if (stopped) return;
         stopped = true;
-        const t = ctx.currentTime;
+        const t = Math.max(ctx.currentTime, start);
         gain.gain.setTargetAtTime(0, t, Math.max(fade, 0.001) / 3);
         source.stop(t + fade);
       },

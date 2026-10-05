@@ -256,6 +256,16 @@ export class DebugOverlay {
     sheet.append(head, this.soundStatsEl, tabs, list);
     const sounds = this.sounds;
     if (!sounds) return sheet;
+    // SIMULAR RACHA: 8 kills in a row, to hear the streak rise (§8).
+    const streak = document.createElement('button');
+    streak.type = 'button';
+    streak.className = 'debug-button debug-button--sounds';
+    streak.textContent = STRINGS.debug.soundStreak;
+    streak.addEventListener('pointerup', (e) => {
+      e.preventDefault();
+      sounds.simulateStreak();
+    });
+    head.insertBefore(streak, back);
     const families = [...new Set(sounds.sounds.map((s) => s.family))];
     const show = (family: SoundFamily): void => {
       for (const tab of tabs.children) tab.classList.toggle('is-on', (tab as HTMLElement).dataset.family === family);

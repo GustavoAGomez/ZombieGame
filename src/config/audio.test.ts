@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { parseManifest } from '../game/assets/manifest';
 import { AUDIO, SOUNDS, nextVolumeLevel } from './audio';
+import { HAND } from './balance';
 
 const manifest = parseManifest(JSON.parse(readFileSync(new URL('../../public/assets/manifest.json', import.meta.url), 'utf8')));
 
@@ -22,6 +23,10 @@ describe('sound catalog (spec 08 §1.1)', () => {
       expect(s.maxVoices, s.id).toBeGreaterThanOrEqual(1);
       expect(s.minInterval, s.id).toBeGreaterThanOrEqual(0);
     }
+  });
+
+  it('makes the hand\'s draw last as long as the draw (spec 08 §5.3)', () => {
+    expect(manifest.audio.hand_roll?.duration).toBeCloseTo(HAND.rollingTime, 2);
   });
 
   it('rotates the volume setting ALTO → MEDIO → BAJO → NO → ALTO', () => {

@@ -27,7 +27,10 @@ export function renderFile(file: RecipeFile): Float32Array {
   const sr = AUDIO_GEN.sampleRate;
   let samples = render(file.recipe, sr);
   if (file.length !== null) samples = fitLength(samples, file.length, sr);
-  return file.loop ? finishLoop(samples, file.crossfade, sr) : finish(samples, sr);
+  if (file.loop) return finishLoop(samples, file.crossfade, sr);
+  const finished = finish(samples, sr);
+  // A fixed length keeps its silence at the end (the hand's draw lasts exactly as the draw).
+  return file.length === null ? finished : fitLength(finished, file.length, sr);
 }
 
 export interface GenerateResult {

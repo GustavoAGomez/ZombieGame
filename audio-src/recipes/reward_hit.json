@@ -1,0 +1,12 @@
+{
+  "type": "notes",
+  "wave": "square",
+  "attack": 0.001,
+  "decay": 0.02,
+  "notes": [
+    [
+      "A6",
+      0.09
+    ]
+  ]
+}
