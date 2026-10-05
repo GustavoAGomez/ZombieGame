@@ -45,6 +45,8 @@ export class BootScene extends Phaser.Scene {
     registerItemSprites(manifest.objects, ASSETS_BASE_URL);
     // The weapons and the round buttons' symbols, cut from their sheets.
     registerSheetIcons(manifest.objects, ASSETS_BASE_URL);
+    // Every sound is decoded now, so the first shot has no delay (spec 08 §1).
+    this.services.audio.load(manifest.audio, ASSETS_BASE_URL);
     const assets = new AssetLibrary(manifest);
     assets.queue(this);
     this.load.once(Phaser.Loader.Events.COMPLETE, () => {

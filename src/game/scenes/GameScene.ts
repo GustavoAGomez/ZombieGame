@@ -166,7 +166,7 @@ export class GameScene extends Phaser.Scene {
     this.hud = new Hud(hudRoot, events);
     this.controls = new InputCollector(hudRoot, events);
     this.presenter = new HudPresenter(events, this.map);
-    this.pauseMenu = new PauseMenu(hudRoot, () => this.setPaused(false), () => this.scene.restart(), this.services.preferences);
+    this.pauseMenu = new PauseMenu(hudRoot, () => this.setPaused(false), () => this.scene.restart(), this.services.preferences, this.services.audio.playUi);
     this.pauseButton = new PauseButton(hudRoot, () => this.setPaused(true));
     this.listenToApp();
 
@@ -238,10 +238,12 @@ export class GameScene extends Phaser.Scene {
       this.services.debugActions = null;
       this.stopListeningToApp();
       this.anims.resumeAll();
+      this.services.audio.update({ paused: false });
     });
   }
 
   override update(time: number, delta: number): void {
+    this.services.audio.update({ paused: this.paused });
     if (!this.paused && !this.overShown) this.fixedStep.advance(delta, (dt) => this.step(dt));
     // Before the views: a teleport snaps the camera, which must already be inside the new level.
     this.updateLevel();

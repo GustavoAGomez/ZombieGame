@@ -1270,5 +1270,12 @@
         "height": 10
       }
     }
+  },
+  "audio": {
+    "ui_tap": {
+      "file": "audio/sfx/ui_tap.wav",
+      "duration": 0.0398,
+      "placeholder": false
+    }
   }
 }

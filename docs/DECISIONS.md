@@ -1876,3 +1876,17 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 - **Arte más grande que su huella:** `MapView` centra cada mueble sobre la base de su huella (antes lo alineaba a la izquierda). Así el árbol (96×105 sobre 64×64) sobresale por los dos lados y la farola (32×80) crece hacia arriba. La colisión sigue siendo la huella.
 - **Quedan 31 objetos:** los 10 descartados y los 21 grandes (96 px o más: mesa del comedor, sofá, estanterías largas, setos, coches de la calle y del garaje, escalera derrumbada…).
 
+## Audio: motor y ajustes (spec 08, fase S1)
+
+- **Motor propio fuera de Phaser** (spec 08 §1): `WebAudioEngine` (`src/audio/AudioEngine.ts`) y `AudioDirector` (`src/audio/AudioDirector.ts`). Phaser sigue con `noAudio`.
+- **El contexto se crea al arrancar**, en `BootScene`, para decodificar todos los efectos antes del primer disparo. Nace suspendido y lo despierta el toque de JUGAR, o cualquier otro toque como respaldo (`src/audio/lifecycle.ts`). Ese respaldo sigue activo toda la sesión: si iOS deja el contexto suspendido al volver de segundo plano, el siguiente toque lo reanuda. La primera vez se reproduce además una muestra de silencio, porque los iOS antiguos lo piden.
+- **Segundo plano:** el motor se suspende con `appStateChange` (iOS y Android) y con `visibilitychange` (navegador). Mientras la app está oculta, ningún toque lo despierta.
+- **Límites en el director:** `minInterval`, `maxVoices` y el límite global con prioridades entran ya en S1, porque forman parte de reproducir cualquier sonido. El director lleva la cuenta de las voces con la duración del manifiesto, sin preguntar al motor. El límite global cuenta los efectos y la interfaz, no la música.
+- **Familia en el catálogo:** cada sonido lleva además el campo `family` (golpe, premio, amenaza, interfaz o música). La spec no lo tenía en la tabla del catálogo, pero lo necesitan el panel de prueba, que agrupa por familia, y el informe, que mide la duración según la familia.
+- **`audio:gen` adelantado a S1**, solo con el tipo `notes`, el acabado común y el informe. Así `ui.tap` sale de una receta (`audio-src/recipes/ui_tap.json`) y no de un archivo suelto. `sfxr` y `layers` llegan en S2.
+- **Recetas:** una por clave del manifiesto, `audio-src/recipes/<clave>.json`. Las variantes de un sonido son varias recetas, y el catálogo las agrupa.
+- **Nota fuera de escala:** `audio:gen` falla con una nota que no sea de La menor pentatónica (§3.2, regla 1); no la deja pasar con un aviso.
+- **Ajustes en la pausa:** EFECTOS y MÚSICA van en una fila junto a VIBRACIÓN, no en una columna debajo. En el móvil apaisado, tres botones apilados no caben en la altura. Cada toque cambia el nivel antes de sonar, así que el tic de EFECTOS suena ya al nivel nuevo.
+- **Panel PRUEBA DE SONIDOS:** está dentro de la hoja de depuración, con una pestaña por familia, para no tener que desplazarse (en el móvil no funcionaba). Funciona con partida y sin ella. Muestra las voces activas, las reproducciones descartadas por un límite y el estado del contexto de audio.
+- **jsfxr:** en GitHub tiene licencia Unlicense (dominio público), pero el paquete de npm no la declara. Se decide en S2, que es donde entra el tipo `sfxr`.
+

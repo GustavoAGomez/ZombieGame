@@ -8,6 +8,7 @@
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { AUDIO_GEN, SOUNDS } from '../src/config/audio';
 import { BOSS, MERCHANT, PLAYER, ZOMBIES } from '../src/config/balance';
 import { BOSS_IDS, BOSSES } from '../src/config/bosses';
 import {
@@ -20,6 +21,7 @@ import {
   type Manifest,
 } from '../src/game/assets/manifest';
 import { parseMap } from '../src/game/map/MapLoader';
+import { decodeWav } from './lib/audio/wav';
 import { colorsOutsidePalette, decodePng, parsePaletteHex, readPngInfo } from './lib/png';
 import { validateMap } from './lib/validate-map';
 
@@ -229,7 +231,51 @@ export function checkAssets(root: string): CheckReport {
     }
   }
 
+  checkAudio(assetsDir, manifest, report);
   return report;
+}
+
+/**
+ * Spec 08 §1.2 and §2: every variant of the sound catalog has its manifest
+ * entry and its file, the effects are WAV mono 44.1 kHz 16 bits, and all
+ * of them together stay under the budget.
+ */
+function checkAudio(assetsDir: string, manifest: Manifest, report: CheckReport): void {
+  const ids = new Set<string>();
+  for (const sound of SOUNDS) {
+    if (ids.has(sound.id)) report.errors.push(`audio: el sonido ${sound.id} está dos veces en el catálogo`);
+    ids.add(sound.id);
+    for (const key of sound.variants) {
+      if (!manifest.audio[key]) report.errors.push(`audio: falta "${key}" (${sound.id}) en el manifiesto; ejecuta npm run audio:gen`);
+    }
+  }
+  let sfxBytes = 0;
+  let placeholders = 0;
+  for (const [key, def] of Object.entries(manifest.audio)) {
+    if (!SNAKE.test(key)) report.errors.push(`audio.${key}: nombre no válido (usa snake_case)`);
+    if (def.placeholder) {
+      placeholders++;
+      continue;
+    }
+    const path = resolve(assetsDir, def.file);
+    if (!existsSync(path)) {
+      report.errors.push(`audio.${key}: no existe ${def.file}`);
+      continue;
+    }
+    if (!def.file.startsWith('audio/sfx/')) continue;
+    sfxBytes += statSync(path).size;
+    try {
+      const wav = decodeWav(new Uint8Array(readFileSync(path)));
+      if (wav.channels !== 1 || wav.sampleRate !== AUDIO_GEN.sampleRate || wav.bitsPerSample !== 16) {
+        report.errors.push(`audio.${key}: ${wav.channels} canales a ${wav.sampleRate} Hz y ${wav.bitsPerSample} bits; tiene que ser mono, ${AUDIO_GEN.sampleRate} Hz y 16 bits`);
+      }
+      if (Math.abs(wav.duration - def.duration) > 0.001) report.warnings.push(`audio.${key}: dura ${wav.duration.toFixed(3)} s y el manifiesto dice ${def.duration} s`);
+    } catch (err) {
+      report.errors.push(`audio.${key}: ${def.file} no es un WAV válido (${(err as Error).message})`);
+    }
+  }
+  if (sfxBytes > AUDIO_GEN.budgetBytes) report.errors.push(`audio: los efectos ocupan ${(sfxBytes / 1048576).toFixed(2)} MB (máximo ${AUDIO_GEN.budgetBytes / 1048576} MB)`);
+  report.info.push(`audio: ${SOUNDS.length} sonidos en el catálogo, ${Object.keys(manifest.audio).length} archivos (${placeholders} sin generar), ${(sfxBytes / 1024).toFixed(0)} KB de efectos.`);
 }
 
 function main(): void {

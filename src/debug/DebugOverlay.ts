@@ -1,3 +1,5 @@
+import type { SoundTest } from '../audio/AudioDirector';
+import type { SoundFamily } from '../config/audio';
 import { STRINGS } from '../ui/strings';
 import './debug.css';
 
@@ -72,6 +74,8 @@ const REFRESH_MS = 250;
  * only while a match is running: rounds, money, god mode, drawings
  * (hitboxes, flow field, spots), weapons and their upgrades, boosts,
  * merchants, special items, the Demon's Hand and the bosses.
+ * PRUEBA DE SONIDOS (spec 08 §8) opens a second sheet with every sound of
+ * the catalog, a tab per family, which works with or without a match.
  */
 export class DebugOverlay {
   /** Folded: the stats alone at the top left; a tap on them opens the sheet. */
@@ -79,6 +83,9 @@ export class DebugOverlay {
   /** Open: every button over the whole screen, with a button to fold it back. */
   private readonly sheet: HTMLDivElement;
   private readonly statsEl: HTMLPreElement;
+  /** The sound test: every sound of the catalog, played as in the game. */
+  private readonly soundSheet: HTMLDivElement;
+  private readonly soundStatsEl: HTMLParagraphElement;
   private timer = 0;
   private visible = false;
 
@@ -87,6 +94,7 @@ export class DebugOverlay {
     private readonly readStats: () => DebugStats,
     enabled: boolean,
     actions: () => DebugActions | null = () => null,
+    private readonly sounds: SoundTest | null = null,
   ) {
     this.panel = document.createElement('div');
     this.panel.className = 'debug-panel';
@@ -166,7 +174,22 @@ export class DebugOverlay {
     });
     head.append(title, close);
     this.sheet.append(head, buttons);
-    root.append(this.panel, this.sheet);
+
+    this.soundStatsEl = document.createElement('p');
+    this.soundStatsEl.className = 'debug-sound-stats';
+    this.soundSheet = this.buildSoundSheet();
+    if (this.sounds) {
+      const open = document.createElement('button');
+      open.type = 'button';
+      open.className = 'debug-button debug-button--sounds';
+      open.textContent = STRINGS.debug.soundTest;
+      open.addEventListener('pointerup', (e) => {
+        e.preventDefault();
+        this.setSoundsOpen(true);
+      });
+      buttons.appendChild(open);
+    }
+    root.append(this.panel, this.sheet, this.soundSheet);
 
     const corner = document.createElement('div');
     corner.className = 'debug-corner';
@@ -192,7 +215,80 @@ export class DebugOverlay {
   /** Opens the sheet over the whole screen, or folds it back to the stats at the top left. */
   setOpen(open: boolean): void {
     this.sheet.hidden = !open;
+    this.soundSheet.hidden = true;
     this.panel.hidden = open;
+  }
+
+  /** The sound test over the debug sheet, or back to it. */
+  private setSoundsOpen(open: boolean): void {
+    this.soundSheet.hidden = !open;
+    this.sheet.hidden = open;
+    this.refresh();
+  }
+
+  /**
+   * The sound test (spec 08 §8): a tab per family and a button per sound,
+   * which plays it as the game would (its variant, pitch and limits), and
+   * the voices playing and the plays dropped by a limit.
+   */
+  private buildSoundSheet(): HTMLDivElement {
+    const sheet = document.createElement('div');
+    sheet.className = 'debug-sheet debug-sheet--sounds';
+    sheet.hidden = true;
+    const head = document.createElement('div');
+    head.className = 'debug-sheet__head';
+    const title = document.createElement('span');
+    title.className = 'debug-sheet__title';
+    title.textContent = STRINGS.debug.soundTest;
+    const back = document.createElement('button');
+    back.type = 'button';
+    back.className = 'debug-button debug-sheet__close';
+    back.textContent = STRINGS.debug.soundBack;
+    back.addEventListener('pointerup', (e) => {
+      e.preventDefault();
+      this.setSoundsOpen(false);
+    });
+    head.append(title, back);
+    const tabs = document.createElement('div');
+    tabs.className = 'debug-sound-tabs';
+    const list = document.createElement('div');
+    list.className = 'debug-buttons debug-sound-list';
+    sheet.append(head, this.soundStatsEl, tabs, list);
+    const sounds = this.sounds;
+    if (!sounds) return sheet;
+    const families = [...new Set(sounds.sounds.map((s) => s.family))];
+    const show = (family: SoundFamily): void => {
+      for (const tab of tabs.children) tab.classList.toggle('is-on', (tab as HTMLElement).dataset.family === family);
+      list.replaceChildren();
+      for (const s of sounds.sounds) {
+        if (s.family !== family) continue;
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'debug-button debug-sound';
+        b.textContent = s.id;
+        b.addEventListener('pointerup', (e) => {
+          e.preventDefault();
+          sounds.test(s.id);
+          this.refresh();
+        });
+        list.appendChild(b);
+      }
+    };
+    for (const family of families) {
+      const tab = document.createElement('button');
+      tab.type = 'button';
+      tab.className = 'debug-button debug-sound-tab';
+      tab.dataset.family = family;
+      tab.textContent = STRINGS.debug.soundFamilies[family];
+      tab.addEventListener('pointerup', (e) => {
+        e.preventDefault();
+        show(family);
+      });
+      tabs.appendChild(tab);
+    }
+    const first = families[0];
+    if (first) show(first);
+    return sheet;
   }
 
   setVisible(visible: boolean): void {
@@ -213,6 +309,10 @@ export class DebugOverlay {
       lines.push(`${label}: ${typeof value === 'number' ? Math.round(value) : value}`);
     }
     this.statsEl.textContent = lines.join('\n');
+    if (this.sounds && !this.soundSheet.hidden) {
+      const s = this.sounds.stats();
+      this.soundStatsEl.textContent = STRINGS.debug.soundStats(s.voices, s.dropped, s.lastDropped, s.state);
+    }
   }
 }
 
