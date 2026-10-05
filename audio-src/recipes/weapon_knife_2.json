@@ -1,0 +1,14 @@
+{
+  "type": "sfxr",
+  "seed": 55,
+  "params": {
+    "wave_type": 3,
+    "p_base_freq": 0.5,
+    "p_env_attack": 0.08,
+    "p_env_sustain": 0.03,
+    "p_env_decay": 0.17,
+    "p_lpf_freq": 0.65,
+    "p_lpf_ramp": 0.3,
+    "p_hpf_freq": 0.28
+  }
+}

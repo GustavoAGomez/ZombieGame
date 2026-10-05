@@ -27,6 +27,7 @@ export function updateSpecial(ctx: SimContext, dt: number): void {
       }
       p.dashTimer = DASH.duration;
       p.dashCooldown = DASH.cooldown;
+      ctx.events.emit('player:dash', { playerId: p.id, x: p.x, y: p.y });
     }
 
     if (p.dashTimer > 0) {

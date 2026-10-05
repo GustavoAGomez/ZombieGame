@@ -1,0 +1,52 @@
+{
+  "type": "layers",
+  "layers": [
+    {
+      "recipe": {
+        "type": "notes",
+        "wave": "square",
+        "attack": 0.001,
+        "decay": 0.03,
+        "notes": [
+          [
+            "E6",
+            0.09
+          ]
+        ]
+      },
+      "gain": 0.5,
+      "delay": 0
+    },
+    {
+      "recipe": {
+        "type": "notes",
+        "wave": "square",
+        "attack": 0.001,
+        "decay": 0.025,
+        "notes": [
+          [
+            "A6",
+            0.09
+          ]
+        ]
+      },
+      "gain": 0.35,
+      "delay": 0
+    },
+    {
+      "recipe": {
+        "type": "sfxr",
+        "seed": 43,
+        "params": {
+          "wave_type": 3,
+          "p_base_freq": 0.6,
+          "p_env_sustain": 0.02,
+          "p_env_decay": 0.09,
+          "p_hpf_freq": 0.3
+        }
+      },
+      "gain": 0.6,
+      "delay": 0
+    }
+  ]
+}

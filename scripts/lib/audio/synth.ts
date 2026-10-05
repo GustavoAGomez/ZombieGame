@@ -4,7 +4,8 @@
  * gives the same samples.
  */
 import { lowpass } from './dsp';
-import { noteFrequency, type NotesRecipe, type Recipe, type Wave } from './recipes';
+import { noteFrequency, type LayersRecipe, type NotesRecipe, type Recipe, type Wave } from './recipes';
+import { renderSfxr } from './sfxr';
 
 /** Seconds each note fades out at its end, so a note cut off does not click. */
 const NOTE_RELEASE = 0.002;
@@ -46,6 +47,24 @@ export function renderNotes(recipe: NotesRecipe, sampleRate: number): Float32Arr
   return recipe.lowpass === null ? out : lowpass(out, recipe.lowpass, sampleRate);
 }
 
+/** A `layers` recipe: every layer rendered, scaled and placed at its delay, then mixed. */
+function renderLayers(recipe: LayersRecipe, sampleRate: number): Float32Array {
+  const parts = recipe.layers.map((layer) => ({ samples: render(layer.recipe, sampleRate), gain: layer.gain, offset: Math.round(layer.delay * sampleRate) }));
+  const out = new Float32Array(Math.max(0, ...parts.map((p) => p.offset + p.samples.length)));
+  for (const { samples, gain, offset } of parts) for (let i = 0; i < samples.length; i++) out[offset + i] = (out[offset + i] ?? 0) + (samples[i] ?? 0) * gain;
+  return recipe.lowpass === null ? out : lowpass(out, recipe.lowpass, sampleRate);
+}
+
 export function render(recipe: Recipe, sampleRate: number): Float32Array {
-  return renderNotes(recipe, sampleRate);
+  switch (recipe.type) {
+    case 'notes':
+      return renderNotes(recipe, sampleRate);
+    case 'sfxr': {
+      // jsfxr works at 44.1 kHz, as the game's files.
+      const out = renderSfxr(recipe.params, recipe.seed);
+      return recipe.lowpass === null ? out : lowpass(out, recipe.lowpass, sampleRate);
+    }
+    case 'layers':
+      return renderLayers(recipe, sampleRate);
+  }
 }

@@ -1890,3 +1890,22 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 - **Panel PRUEBA DE SONIDOS:** está dentro de la hoja de depuración, con una pestaña por familia, para no tener que desplazarse (en el móvil no funcionaba). Funciona con partida y sin ella. Muestra las voces activas, las reproducciones descartadas por un límite y el estado del contexto de audio.
 - **jsfxr:** en GitHub tiene licencia Unlicense (dominio público), pero el paquete de npm no la declara. Se decide en S2, que es donde entra el tipo `sfxr`.
 
+## Audio: generador y sonidos de armas y jugador (spec 08, fase S2)
+
+- **Sintetizador sfxr propio, no la dependencia jsfxr.**
+  - jsfxr tiene licencia Unlicense en GitHub, pero el paquete de npm no la declara (no lleva campo `license` ni archivo de licencia).
+  - Además, jsfxr genera el ruido con `Math.random`, y entonces la misma receta no daría los mismos bytes (§4.1).
+  - Por eso `scripts/lib/audio/sfxr.ts` es un port de su algoritmo con el ruido de una semilla fija (`seed` en la receta). Es compatible con sfxr.me: usa los mismos nombres de parámetro, así que su JSON sirve tal cual, y lee sus enlaces base58.
+  - El juego no carga nada de esto: todo se queda en los scripts.
+- **Familias según §3.1, no según el título de §5.1.** La spec agrupa toda la §5.1 como Golpe, pero el sobrecalentamiento del láser, el arma rota, el daño, la muerte y el latido son avisos o daño recibido, así que van como Amenaza. Si fueran Golpe, la regla de duración de 60–250 ms los marcaría a todos.
+- **Campo `loop` en el catálogo:** el láser, el lanzallamas y el latido suenan en bucle hasta que el director los para. El informe no comprueba su duración, porque dura lo que se dispara.
+- **El láser y el lanzallamas suenan con el resumen de cada frame.** Mientras se dispara suena su bucle: entra en 60 ms y se va con una cola de 200 ms. El tono del láser sube con el calor hasta una quinta (`AUDIO.laserHotRate`). Con la pausa se cortan y vuelven al quitarla si se sigue disparando.
+- **Eventos nuevos:**
+  - `weapon:fired` (pistola, SMG, escopeta y el barrido de la katana), `weapon:reload` (al empezar y al acabar), `weapon:empty`, `weapon:switched`, `weapon:overheat`, `knife:swing` y `player:dash`.
+  - `zombie:hit` lleva además el arma cuando suena distinto, que de momento solo es la katana.
+  - `weapon:empty` salta con cada pulsación nueva sobre un arma de balas sin cargador ni reserva, una vez por pulsación aunque se mantenga.
+  - El cuchillo suena con su silbido; si acierta, el golpe sordo es `impact.flesh`, que ya llega por `zombie:hit`.
+- **Solo el jugador local:** los disparos, las recargas, el daño y la esquiva de otro jugador no suenan todavía. En la fase S4 se oirán los disparos de los demás, con su posición. Los impactos y las explosiones del fuego infernal suenan para cualquiera.
+- **El latido se genera ya en S2** porque está en la §5.1, pero empieza a sonar en S4, que es la fase de la vida baja.
+- **Graves que se oigan en un móvil:** los golpes graves llevan una capa de 150–250 Hz además de la fundamental. Un altavoz de móvil apenas reproduce lo que hay por debajo de unos 200 Hz.
+

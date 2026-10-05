@@ -3,6 +3,7 @@
  * holds a volume or a time of its own: it names a sound by its id and the
  * director (src/audio/AudioDirector.ts) looks it up here.
  */
+import type { WeaponId } from './weapons';
 
 /** Where a sound goes: the effects, the menus (it follows the effects' level) or the music. */
 export type AudioBus = 'sfx' | 'ui' | 'music';
@@ -40,6 +41,8 @@ export interface SoundDef {
   ladder: LadderId | null;
   /** The music ducks while it plays. */
   duck: boolean;
+  /** Plays over and over until the director stops it (the laser, the flamethrower, the heartbeat). */
+  loop: boolean;
 }
 
 export const AUDIO = {
@@ -63,7 +66,22 @@ export const AUDIO = {
   compressor: { threshold: -10, knee: 6, ratio: 4, attack: 0.003, release: 0.25 },
   /** Peak of every generated file, in dB (§4.2): the relative volume is the catalog's. */
   peakDb: -1,
+  /** The local player (spec 08 §1.3): what only they hear (their reloads, their wounds). */
+  localPlayerId: 0,
+  /** A loop's start and tail (the flamethrower's roar), seconds. */
+  loopFadeIn: 0.06,
+  loopFadeOut: 0.2,
+  /** The laser's hum at full heat, as a playback rate: a fifth up, so its rise says how near it is to overheating (§5.1). */
+  laserHotRate: 1.5,
 } as const;
+
+/** The sound of each weapon's shot or sweep (spec 08 §5.1); the beam and the jet are loops. */
+export const WEAPON_FIRE_SOUND: Readonly<Partial<Record<WeaponId, string>>> = {
+  pistol: 'weapon.pistol.fire',
+  smg: 'weapon.smg.fire',
+  shotgun: 'weapon.shotgun.fire',
+  katana: 'weapon.katana.swing',
+};
 
 /** The sound generator (npm run audio:gen, spec 08 §4): its format, finish and report. */
 export const AUDIO_GEN = {
@@ -104,6 +122,7 @@ const BASE = {
   positional: false,
   ladder: null,
   duck: false,
+  loop: false,
 } as const satisfies Partial<SoundDef>;
 
 function sound(def: Pick<SoundDef, 'id' | 'family' | 'variants' | 'bus' | 'volume'> & Partial<SoundDef>): SoundDef {
@@ -112,7 +131,28 @@ function sound(def: Pick<SoundDef, 'id' | 'family' | 'variants' | 'bus' | 'volum
 
 /** The catalog (spec 08 §5): one entry per sound id. */
 export const SOUNDS: readonly SoundDef[] = [
-  // §5.6 Interface. S1's test sound.
+  // §5.1 Weapons and the player. The families follow §3.1 (warnings, wounds and death are threats).
+  sound({ id: 'weapon.pistol.fire', family: 'hit', variants: ['weapon_pistol_fire_1', 'weapon_pistol_fire_2'], bus: 'sfx', volume: 0.75, pitchVar: 4, maxVoices: 4, minInterval: 0.03 }),
+  sound({ id: 'weapon.smg.fire', family: 'hit', variants: ['weapon_smg_fire_1', 'weapon_smg_fire_2', 'weapon_smg_fire_3'], bus: 'sfx', volume: 0.45, pitchVar: 5, maxVoices: 4, minInterval: 0.04, priority: 'low' }),
+  sound({ id: 'weapon.shotgun.fire', family: 'hit', variants: ['weapon_shotgun_fire'], bus: 'sfx', volume: 0.95, pitchVar: 3, maxVoices: 2, priority: 'high' }),
+  sound({ id: 'weapon.katana.swing', family: 'hit', variants: ['weapon_katana_swing_1', 'weapon_katana_swing_2'], bus: 'sfx', volume: 0.6, pitchVar: 6 }),
+  sound({ id: 'weapon.katana.hit', family: 'hit', variants: ['weapon_katana_hit'], bus: 'sfx', volume: 0.55, pitchVar: 4, maxVoices: 3, minInterval: 0.05 }),
+  sound({ id: 'weapon.laser.loop', family: 'hit', variants: ['weapon_laser_loop'], bus: 'sfx', volume: 0.4, maxVoices: 1, priority: 'high', loop: true }),
+  sound({ id: 'weapon.laser.overheat', family: 'threat', variants: ['weapon_laser_overheat'], bus: 'sfx', volume: 0.7, maxVoices: 1, priority: 'high' }),
+  sound({ id: 'weapon.flame.loop', family: 'hit', variants: ['weapon_flame_loop'], bus: 'sfx', volume: 0.5, maxVoices: 1, priority: 'high', loop: true }),
+  sound({ id: 'weapon.flame.blast', family: 'hit', variants: ['weapon_flame_blast'], bus: 'sfx', volume: 0.7, pitchVar: 6, maxVoices: 3, minInterval: 0.05, positional: true }),
+  sound({ id: 'weapon.knife', family: 'hit', variants: ['weapon_knife_1', 'weapon_knife_2'], bus: 'sfx', volume: 0.55, pitchVar: 6 }),
+  sound({ id: 'weapon.reload.start', family: 'hit', variants: ['weapon_reload_start'], bus: 'sfx', volume: 0.5, maxVoices: 1 }),
+  sound({ id: 'weapon.reload.end', family: 'hit', variants: ['weapon_reload_end'], bus: 'sfx', volume: 0.55, maxVoices: 1 }),
+  sound({ id: 'weapon.empty', family: 'hit', variants: ['weapon_empty'], bus: 'sfx', volume: 0.5, maxVoices: 1, minInterval: 0.1 }),
+  sound({ id: 'weapon.switch', family: 'hit', variants: ['weapon_switch'], bus: 'sfx', volume: 0.45, maxVoices: 1 }),
+  sound({ id: 'weapon.broken', family: 'threat', variants: ['weapon_broken'], bus: 'sfx', volume: 0.75, maxVoices: 1, priority: 'high' }),
+  sound({ id: 'impact.flesh', family: 'hit', variants: ['impact_flesh_1', 'impact_flesh_2', 'impact_flesh_3'], bus: 'sfx', volume: 0.5, pitchVar: 8, maxVoices: 4, minInterval: 0.04, priority: 'low', positional: true }),
+  sound({ id: 'player.dash', family: 'hit', variants: ['player_dash'], bus: 'sfx', volume: 0.55, pitchVar: 4, maxVoices: 1 }),
+  sound({ id: 'player.hurt', family: 'threat', variants: ['player_hurt'], bus: 'sfx', volume: 0.8, pitchVar: 4, maxVoices: 1, minInterval: 0.15, priority: 'high' }),
+  sound({ id: 'player.death', family: 'threat', variants: ['player_death'], bus: 'sfx', volume: 0.9, maxVoices: 1, priority: 'high', duck: true }),
+  sound({ id: 'player.heartbeat', family: 'threat', variants: ['player_heartbeat'], bus: 'sfx', volume: 0.7, maxVoices: 1, priority: 'high', loop: true }),
+  // §5.6 Interface.
   sound({ id: 'ui.tap', family: 'ui', variants: ['ui_tap'], bus: 'ui', volume: 0.5, pitchVar: 3, maxVoices: 2, minInterval: 0.03, priority: 'low' }),
 ];
 

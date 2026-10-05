@@ -10,8 +10,8 @@ import { basename, dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { AUDIO_GEN, SOUNDS } from '../src/config/audio';
 import { measure } from './lib/audio/analyze';
-import { finish } from './lib/audio/dsp';
-import { parseRecipe } from './lib/audio/recipes';
+import { finish, finishLoop, fitLength } from './lib/audio/dsp';
+import { parseRecipeFile, type RecipeFile } from './lib/audio/recipes';
 import { buildReport, type ReportRow } from './lib/audio/report';
 import { render } from './lib/audio/synth';
 import { decodeWav, encodeWav } from './lib/audio/wav';
@@ -21,6 +21,14 @@ const KEY = /^[a-z][a-z0-9_]*$/;
 const PLACEHOLDER_DURATION = 0.1;
 
 type Json = Record<string, unknown>;
+
+/** A recipe file to its finished samples: the common finish, or a loop's. */
+export function renderFile(file: RecipeFile): Float32Array {
+  const sr = AUDIO_GEN.sampleRate;
+  let samples = render(file.recipe, sr);
+  if (file.length !== null) samples = fitLength(samples, file.length, sr);
+  return file.loop ? finishLoop(samples, file.crossfade, sr) : finish(samples, sr);
+}
 
 export interface GenerateResult {
   generated: number;
@@ -42,8 +50,7 @@ export function generateAudio(root: string, log: (line: string) => void): Genera
   for (const name of names) {
     const key = basename(name, '.json');
     if (!KEY.test(key)) throw new Error(`audio-src/recipes/${name}: el nombre tiene que ser la clave del manifiesto en snake_case`);
-    const recipe = parseRecipe(JSON.parse(readFileSync(resolve(recipesDir, name), 'utf8')), name);
-    const samples = finish(render(recipe, AUDIO_GEN.sampleRate), AUDIO_GEN.sampleRate);
+    const samples = renderFile(parseRecipeFile(JSON.parse(readFileSync(resolve(recipesDir, name), 'utf8')), name));
     if (samples.length === 0) throw new Error(`audio-src/recipes/${name}: la receta no suena (todo silencio)`);
     const bytes = encodeWav(samples, AUDIO_GEN.sampleRate);
     const file = `audio/sfx/${key}.wav`;

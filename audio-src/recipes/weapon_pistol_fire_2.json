@@ -1,0 +1,55 @@
+{
+  "type": "layers",
+  "layers": [
+    {
+      "recipe": {
+        "type": "sfxr",
+        "seed": 12,
+        "params": {
+          "wave_type": 3,
+          "p_base_freq": 0.52,
+          "p_env_sustain": 0.05,
+          "p_env_punch": 0.4,
+          "p_env_decay": 0.19,
+          "p_lpf_freq": 0.85,
+          "p_hpf_freq": 0.12
+        }
+      },
+      "gain": 0.7,
+      "delay": 0
+    },
+    {
+      "recipe": {
+        "type": "sfxr",
+        "seed": 1,
+        "params": {
+          "wave_type": 0,
+          "p_base_freq": 0.31,
+          "p_duty": 0.3,
+          "p_freq_ramp": -0.3,
+          "p_env_sustain": 0.06,
+          "p_env_punch": 0.3,
+          "p_env_decay": 0.21,
+          "p_lpf_freq": 0.7
+        }
+      },
+      "gain": 0.9,
+      "delay": 0
+    },
+    {
+      "recipe": {
+        "type": "sfxr",
+        "seed": 1,
+        "params": {
+          "wave_type": 2,
+          "p_base_freq": 0.2,
+          "p_freq_ramp": -0.3,
+          "p_env_sustain": 0.05,
+          "p_env_decay": 0.18
+        }
+      },
+      "gain": 0.8,
+      "delay": 0
+    }
+  ]
+}

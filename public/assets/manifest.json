@@ -1272,9 +1272,144 @@
     }
   },
   "audio": {
+    "impact_flesh_1": {
+      "file": "audio/sfx/impact_flesh_1.wav",
+      "duration": 0.0673,
+      "placeholder": false
+    },
+    "impact_flesh_2": {
+      "file": "audio/sfx/impact_flesh_2.wav",
+      "duration": 0.0669,
+      "placeholder": false
+    },
+    "impact_flesh_3": {
+      "file": "audio/sfx/impact_flesh_3.wav",
+      "duration": 0.0671,
+      "placeholder": false
+    },
+    "player_dash": {
+      "file": "audio/sfx/player_dash.wav",
+      "duration": 0.1605,
+      "placeholder": false
+    },
+    "player_death": {
+      "file": "audio/sfx/player_death.wav",
+      "duration": 0.8491,
+      "placeholder": false
+    },
+    "player_heartbeat": {
+      "file": "audio/sfx/player_heartbeat.wav",
+      "duration": 0.85,
+      "placeholder": false
+    },
+    "player_hurt": {
+      "file": "audio/sfx/player_hurt.wav",
+      "duration": 0.2083,
+      "placeholder": false
+    },
     "ui_tap": {
       "file": "audio/sfx/ui_tap.wav",
       "duration": 0.0398,
+      "placeholder": false
+    },
+    "weapon_broken": {
+      "file": "audio/sfx/weapon_broken.wav",
+      "duration": 0.3497,
+      "placeholder": false
+    },
+    "weapon_empty": {
+      "file": "audio/sfx/weapon_empty.wav",
+      "duration": 0.0735,
+      "placeholder": false
+    },
+    "weapon_flame_blast": {
+      "file": "audio/sfx/weapon_flame_blast.wav",
+      "duration": 0.2242,
+      "placeholder": false
+    },
+    "weapon_flame_loop": {
+      "file": "audio/sfx/weapon_flame_loop.wav",
+      "duration": 1.05,
+      "placeholder": false
+    },
+    "weapon_katana_hit": {
+      "file": "audio/sfx/weapon_katana_hit.wav",
+      "duration": 0.0894,
+      "placeholder": false
+    },
+    "weapon_katana_swing_1": {
+      "file": "audio/sfx/weapon_katana_swing_1.wav",
+      "duration": 0.1498,
+      "placeholder": false
+    },
+    "weapon_katana_swing_2": {
+      "file": "audio/sfx/weapon_katana_swing_2.wav",
+      "duration": 0.1499,
+      "placeholder": false
+    },
+    "weapon_knife_1": {
+      "file": "audio/sfx/weapon_knife_1.wav",
+      "duration": 0.0815,
+      "placeholder": false
+    },
+    "weapon_knife_2": {
+      "file": "audio/sfx/weapon_knife_2.wav",
+      "duration": 0.0816,
+      "placeholder": false
+    },
+    "weapon_laser_loop": {
+      "file": "audio/sfx/weapon_laser_loop.wav",
+      "duration": 0.6,
+      "placeholder": false
+    },
+    "weapon_laser_overheat": {
+      "file": "audio/sfx/weapon_laser_overheat.wav",
+      "duration": 0.44,
+      "placeholder": false
+    },
+    "weapon_pistol_fire_1": {
+      "file": "audio/sfx/weapon_pistol_fire_1.wav",
+      "duration": 0.0975,
+      "placeholder": false
+    },
+    "weapon_pistol_fire_2": {
+      "file": "audio/sfx/weapon_pistol_fire_2.wav",
+      "duration": 0.1071,
+      "placeholder": false
+    },
+    "weapon_reload_end": {
+      "file": "audio/sfx/weapon_reload_end.wav",
+      "duration": 0.109,
+      "placeholder": false
+    },
+    "weapon_reload_start": {
+      "file": "audio/sfx/weapon_reload_start.wav",
+      "duration": 0.0642,
+      "placeholder": false
+    },
+    "weapon_shotgun_fire": {
+      "file": "audio/sfx/weapon_shotgun_fire.wav",
+      "duration": 0.244,
+      "placeholder": false
+    },
+    "weapon_smg_fire_1": {
+      "file": "audio/sfx/weapon_smg_fire_1.wav",
+      "duration": 0.0631,
+      "placeholder": false
+    },
+    "weapon_smg_fire_2": {
+      "file": "audio/sfx/weapon_smg_fire_2.wav",
+      "duration": 0.0631,
+      "placeholder": false
+    },
+    "weapon_smg_fire_3": {
+      "file": "audio/sfx/weapon_smg_fire_3.wav",
+      "duration": 0.0632,
+      "placeholder": false
+    },
+    "weapon_switch": {
+      "file": "audio/sfx/weapon_switch.wav",
+      "duration": 0.0651,
       "placeholder": false
     }
   }

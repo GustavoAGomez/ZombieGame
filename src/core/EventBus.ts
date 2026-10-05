@@ -41,7 +41,21 @@ export interface GameEvents {
    * A bullet or the knife hit a zombie (or a boss): blood sprays from (x, y), where the
    * hit is drawn, along (dirX, dirY); it falls to the zombie's feet (groundY).
    */
-  'zombie:hit': { x: number; y: number; groundY: number; dirX: number; dirY: number; killed: boolean };
+  'zombie:hit': { x: number; y: number; groundY: number; dirX: number; dirY: number; killed: boolean; weapon?: WeaponId };
+  /** A player fired a bullet weapon or swept the katana (spec 08 §5.1): its sound. */
+  'weapon:fired': { playerId: number; weapon: WeaponId; x: number; y: number };
+  /** A reload began or finished (spec 08 §5.1). */
+  'weapon:reload': { playerId: number; weapon: WeaponId; phase: 'start' | 'end' };
+  /** The trigger pressed with nothing in the magazine nor in reserve (spec 08 §5.1): a dry click. */
+  'weapon:empty': { playerId: number; weapon: WeaponId };
+  /** A player took another weapon in hand (spec 08 §5.1). */
+  'weapon:switched': { playerId: number; weapon: WeaponId };
+  /** A beam weapon ran dry and overheated (spec 08 §5.1). */
+  'weapon:overheat': { playerId: number; weapon: WeaponId };
+  /** A knife slash (spec 08 §5.1), and whether it hit someone. */
+  'knife:swing': { playerId: number; x: number; y: number; hit: boolean };
+  /** A player dashed (spec 08 §5.1). */
+  'player:dash': { playerId: number; x: number; y: number };
   'pickup:collected': { playerId: number; kind: PickupKind };
   /** A door was bought (medium haptic in phase 9). */
   'door:opened': { doorId: string; playerId: number };

@@ -89,7 +89,7 @@ export function damageBoss(ctx: SimContext, b: BossState, amount: number, attack
   }
   if (attacker >= 0 && hitPoints > 0) awardPoints(ctx, attacker, hitPoints, 'hit');
   const feet = bossFeetY(b, ctx.map.tileSize);
-  if (hit) ctx.events.emit('zombie:hit', { x: hit.x, y: hit.y, groundY: feet, dirX: hit.dirX, dirY: hit.dirY, killed: b.hp <= 0 });
+  if (hit) ctx.events.emit('zombie:hit', { x: hit.x, y: hit.y, groundY: feet, dirX: hit.dirX, dirY: hit.dirY, killed: b.hp <= 0, weapon: hit.weapon });
   if (b.hp > 0) return false;
   killBoss(ctx, b);
   return true;

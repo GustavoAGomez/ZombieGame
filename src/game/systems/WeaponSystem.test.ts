@@ -468,3 +468,60 @@ describe('shots from the drawn muzzle', () => {
     expect(b.prevY + b.drawY).toBeCloseTo(p.y - 23);
   });
 });
+
+describe('WeaponSystem · sound events (spec 08 §5.1)', () => {
+  function heard(ctx: ReturnType<typeof createTestContext>) {
+    const log: string[] = [];
+    ctx.events.on('weapon:fired', (e) => log.push(`fired:${e.weapon}`));
+    ctx.events.on('weapon:reload', (e) => log.push(`reload:${e.phase}`));
+    ctx.events.on('weapon:empty', (e) => log.push(`empty:${e.weapon}`));
+    ctx.events.on('weapon:switched', (e) => log.push(`switched:${e.weapon}`));
+    ctx.events.on('knife:swing', (e) => log.push(`knife:${e.hit ? 'hit' : 'miss'}`));
+    ctx.events.on('player:dash', () => log.push('dash'));
+    return log;
+  }
+
+  it('tells each shot, and the reload that follows an empty magazine, at its start and end', () => {
+    const ctx = withSmg(createTestContext());
+    const log = heard(ctx);
+    player(ctx).weapons[0]!.magazine = 1;
+    holdFire(ctx);
+    stepSimulation(ctx, 1 / 60);
+    command(ctx).fire = false;
+    runTicks(ctx, Math.round(WEAPONS.pistol.reloadTime * 60) + 3, stepSimulation);
+    expect(log).toEqual(['fired:pistol', 'reload:start', 'reload:end']);
+  });
+
+  it('clicks dry once per press with nothing in the magazine nor in reserve', () => {
+    const ctx = withSmg(createTestContext());
+    const log = heard(ctx);
+    const slot = player(ctx).weapons[0]!;
+    slot.magazine = 0;
+    slot.reserve = 0;
+    const cmd = command(ctx);
+    // Two presses: held for half a second, released, pressed again.
+    cmd.fire = true;
+    runTicks(ctx, 30, stepSimulation);
+    cmd.fire = false;
+    stepSimulation(ctx, 1 / 60);
+    cmd.fire = true;
+    stepSimulation(ctx, 1 / 60);
+    expect(log.filter((l) => l === 'empty:pistol')).toHaveLength(2);
+  });
+
+  it('tells a switch, a knife slash and a dash', () => {
+    const ctx = withSmg(createTestContext());
+    const log = heard(ctx);
+    const cmd = command(ctx);
+    cmd.switchWeapon = true;
+    stepSimulation(ctx, 1 / 60);
+    cmd.switchWeapon = false;
+    cmd.melee = true;
+    stepSimulation(ctx, 1 / 60);
+    cmd.melee = false;
+    cmd.special = true;
+    stepSimulation(ctx, 1 / 60);
+    expect(log).toEqual(['switched:smg', 'knife:miss', 'dash']);
+    expect(MELEE.cooldown).toBeGreaterThan(0);
+  });
+});

@@ -197,6 +197,12 @@ Una entrada por archivo de sonido, con su clave en snake_case:
 - **`loopStart` y `loopEnd`:** solo la música (fase S6), en segundos.
 - El código nunca nombra estas claves. Las nombra el catálogo (`src/config/audio.ts`): cada sonido (`ui.tap`, `weapon.pistol.fire`…) lista sus variantes, de 1 a 4, que son claves de esta sección.
 - **De dónde salen:** `npm run audio:gen` genera cada efecto desde su receta, `audio-src/recipes/<clave>.json`, y escribe aquí su entrada. A una variante del catálogo sin receta le pone una entrada `placeholder`. El informe con las medidas y los avisos queda en `audio-src/preview/report.md`.
+- **Recetas** (`audio-src/recipes/<clave>.json`), de tres tipos:
+  - `notes`: `wave` (`square`, `triangle` o `sine`), `attack` y `decay` en segundos (`decay: null` mantiene la nota) y `notes`, una lista de `[nota, segundos]` o `[nota, segundos, volumen]`, con `null` como silencio. Solo admite notas de La menor pentatónica (A, C, D, E y G).
+  - `sfxr`: `params`, que puede ser el JSON de sfxr.me, su enlace (`https://sfxr.me/#…`) o el código base58 del enlace, más `seed`, la semilla del ruido. Con la misma semilla sale el mismo archivo; con otra, otra variante del mismo ruido.
+  - `layers`: `layers`, una lista de `{ "recipe": {…}, "gain": 0..1, "delay": segundos }`.
+  - Todas aceptan `lowpass` (Hz, o `null`). Por defecto, `notes` y `sfxr` cortan por encima de 8 kHz, y `layers` no añade filtro.
+  - En la receta de un archivo, además: `loop: true` (sin recorte ni fundido; la cola se funde con el principio a lo largo de `crossfade` segundos) y `length` (los segundos que dura el archivo, rellenando con silencio o cortando).
 - **`assets:check`** comprueba que:
   - cada variante del catálogo tenga entrada y archivo;
   - los efectos sean WAV mono de 44,1 kHz y 16 bits, y su duración coincida con la del manifiesto;

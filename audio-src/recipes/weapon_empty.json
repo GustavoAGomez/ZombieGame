@@ -1,0 +1,35 @@
+{
+  "type": "layers",
+  "layers": [
+    {
+      "recipe": {
+        "type": "sfxr",
+        "seed": 1,
+        "params": {
+          "wave_type": 0,
+          "p_base_freq": 0.2,
+          "p_env_sustain": 0.02,
+          "p_env_decay": 0.09,
+          "p_lpf_freq": 0.6
+        }
+      },
+      "gain": 1,
+      "delay": 0
+    },
+    {
+      "recipe": {
+        "type": "sfxr",
+        "seed": 59,
+        "params": {
+          "wave_type": 3,
+          "p_base_freq": 0.25,
+          "p_env_sustain": 0.02,
+          "p_env_decay": 0.18,
+          "p_lpf_freq": 0.4
+        }
+      },
+      "gain": 0.35,
+      "delay": 0
+    }
+  ]
+}

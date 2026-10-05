@@ -35,7 +35,8 @@ export function buildReport(rows: readonly ReportRow[], catalog: readonly SoundD
       warnings.push(`${key}: no lo usa ningún sonido del catálogo (src/config/audio.ts)`);
       continue;
     }
-    if (sound.family !== 'music') {
+    // A loop has no length of its own: it lasts as long as its weapon fires.
+    if (sound.family !== 'music' && !sound.loop) {
       const [min, max] = AUDIO_GEN.familyDurations[sound.family];
       if (m.duration < min || m.duration > max) {
         warnings.push(`${key}: dura ${ms(m.duration)}, fuera del rango de ${FAMILY_NAMES[sound.family]} (${ms(min)}–${ms(max)})`);

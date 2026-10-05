@@ -68,3 +68,30 @@ export function finish(samples: Float32Array, sampleRate: number): Float32Array 
   }
   return out;
 }
+
+/** Silence added at the end, or the end cut, so it lasts `seconds`. */
+export function fitLength(samples: Float32Array, seconds: number, sampleRate: number): Float32Array {
+  const out = new Float32Array(Math.round(seconds * sampleRate));
+  out.set(samples.subarray(0, out.length));
+  return out;
+}
+
+/**
+ * A loop's finish: no trimming nor fade (it never ends), the peak at −1 dB,
+ * and its last `crossfade` seconds blended into its start (equal power) and
+ * dropped, so the end runs into the start without a jump.
+ */
+export function finishLoop(samples: Float32Array, crossfade: number, sampleRate: number): Float32Array {
+  const n = Math.min(Math.round(crossfade * sampleRate), Math.floor(samples.length / 2));
+  const out = samples.slice(0, samples.length - n);
+  for (let i = 0; i < n; i++) {
+    const t = (i + 0.5) / n;
+    const tail = samples[samples.length - n + i] ?? 0;
+    out[i] = (out[i] ?? 0) * Math.sin((t * Math.PI) / 2) + tail * Math.cos((t * Math.PI) / 2);
+  }
+  const p = peak(out);
+  if (p === 0) return out;
+  const gain = dbToGain(AUDIO_GEN.peakDb) / p;
+  for (let i = 0; i < out.length; i++) out[i] = (out[i] ?? 0) * gain;
+  return out;
+}

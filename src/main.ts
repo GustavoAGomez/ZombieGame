@@ -33,14 +33,15 @@ const gameRoot = requireElement('game');
 const hudRoot = requireElement('hud');
 mountRotateOverlay(document.body);
 
+const events = new EventBus();
 const preferences = new Preferences();
 // Sound outside Phaser (spec 08 §1): the DOM menus sound too, with one engine, volume and unlock.
 const audioEngine = new WebAudioEngine();
 keepAudioAlive(audioEngine);
-const audio = new AudioDirector(audioEngine, preferences);
+const audio = new AudioDirector(audioEngine, preferences, events);
 
 const services: Services = {
-  events: new EventBus(),
+  events,
   hudRoot,
   debug: isDebugRequested(),
   stats: { fps: 0 },
