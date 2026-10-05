@@ -1,0 +1,223 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Jadeo de ataque grabado y un zarpazo de aire.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/452318_attack_4_the_ridge_host.ogg",
+                "process": {
+                  "end": 0.45,
+                  "lowcut": 120,
+                  "fadeOut": 0.12
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/733889_whoosh_02.ogg",
+                "process": {
+                  "end": 0.25,
+                  "semitones": -2,
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.15
+            }
+          ],
+          "process": {
+            "length": 0.6,
+            "fadeOut": 0.15
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/452319_attack_3_the_ridge_host.ogg",
+                "process": {
+                  "end": 0.45,
+                  "lowcut": 120,
+                  "fadeOut": 0.12
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/733889_whoosh_02.ogg",
+                "process": {
+                  "end": 0.25,
+                  "semitones": -2,
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.15
+            }
+          ],
+          "process": {
+            "length": 0.6,
+            "fadeOut": 0.15
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Un salto de zombi y la muerte de otro como jadeos, con un barrido.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/560589_z_jump_02a.ogg",
+                "process": {
+                  "end": 0.45,
+                  "lowcut": 120,
+                  "fadeOut": 0.12
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/389590_swing_woosh.ogg",
+                "process": {
+                  "semitones": -1,
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.15
+            }
+          ],
+          "process": {
+            "length": 0.6,
+            "fadeOut": 0.15
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/452333_death_5_the_ridge_host.ogg",
+                "process": {
+                  "end": 0.45,
+                  "lowcut": 120,
+                  "fadeOut": 0.12
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/389590_swing_woosh.ogg",
+                "process": {
+                  "semitones": -1,
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.15
+            }
+          ],
+          "process": {
+            "length": 0.6,
+            "fadeOut": 0.15
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Criaturas ásperas de OpenGameArt con un barrido pesado.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/creature_misc_03.ogg",
+                "process": {
+                  "semitones": -3,
+                  "lowcut": 120
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/475131_fx_swoosh_super_heavy_for_swords_sticks_.ogg",
+                "process": {
+                  "end": 0.3,
+                  "lowcut": 150,
+                  "fadeOut": 0.1
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.15
+            }
+          ],
+          "process": {
+            "length": 0.6,
+            "fadeOut": 0.15
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/creature_misc_04.ogg",
+                "process": {
+                  "semitones": -3,
+                  "lowcut": 120
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/475131_fx_swoosh_super_heavy_for_swords_sticks_.ogg",
+                "process": {
+                  "end": 0.3,
+                  "lowcut": 150,
+                  "fadeOut": 0.1
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.15
+            }
+          ],
+          "process": {
+            "length": 0.6,
+            "fadeOut": 0.15
+          }
+        }
+      ]
+    }
+  }
+}

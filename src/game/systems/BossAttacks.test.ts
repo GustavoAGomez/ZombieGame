@@ -28,10 +28,14 @@ describe('the charge (spec 07 §4.1)', () => {
     const p = player(ctx);
     p.x = p.prevX = 400;
     p.y = p.prevY = 272;
+    const windups: string[] = [];
+    ctx.events.on('boss:windup', (e) => windups.push(e.attack));
     const b = charging(ctx, 200, 272);
     stepSimulation(ctx, 1 / 60);
     expect(b.stage).toBe('windup');
     expect(b.aimX).toBeCloseTo(1);
+    // Its own sound, the attack's second warning (spec 08 §6.4).
+    expect(windups).toEqual(['charge']);
     // It follows the player while it can…
     p.y = p.prevY = 320;
     stepSimulation(ctx, 1 / 60);

@@ -10,6 +10,8 @@ export interface PlayOptions {
   loop?: boolean;
   /** Seconds to rise from silence (a loop's start). */
   fadeIn?: number;
+  /** It may move while it plays (a boss's loop): its pan can change even from the centre. */
+  positional?: boolean;
 }
 
 /** A sound playing. */
@@ -18,6 +20,8 @@ export interface Voice {
   stop(fade?: number): void;
   /** Changes its playback rate while it plays (the laser's hum rising with the heat). */
   setRate(rate: number): void;
+  /** Moves it while it plays (a boss's loop following the boss): its gain and pan. */
+  place(gain: number, pan: number): void;
 }
 
 /**
@@ -123,8 +127,9 @@ export class WebAudioEngine implements AudioOutput {
     }
     source.connect(gain);
     let tail: AudioNode = gain;
-    if (options.pan !== 0 && typeof ctx.createStereoPanner === 'function') {
-      const panner = ctx.createStereoPanner();
+    let panner: StereoPannerNode | null = null;
+    if ((options.pan !== 0 || options.positional) && typeof ctx.createStereoPanner === 'function') {
+      panner = ctx.createStereoPanner();
       panner.pan.value = options.pan;
       gain.connect(panner);
       tail = panner;
@@ -146,6 +151,11 @@ export class WebAudioEngine implements AudioOutput {
       },
       setRate: (rate) => {
         if (!stopped) source.playbackRate.setTargetAtTime(rate, ctx.currentTime, 0.02);
+      },
+      place: (g, pan) => {
+        if (stopped) return;
+        gain.gain.setTargetAtTime(g, ctx.currentTime, 0.05);
+        panner?.pan.setTargetAtTime(pan, ctx.currentTime, 0.05);
       },
     };
   }

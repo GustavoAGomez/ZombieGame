@@ -2,7 +2,8 @@ import { App } from '@capacitor/app';
 import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
 import Phaser from 'phaser';
 import { QUIET_SNAPSHOT, type AudioSnapshot } from '../../audio/AudioDirector';
-import { DEBUG, SIM, type BoostKind } from '../../config/balance';
+import { AUDIO } from '../../config/audio';
+import { DEBUG, PLAYER, SIM, type BoostKind } from '../../config/balance';
 import { DISPLAY, computeWorldZoom } from '../../config/display';
 import { FixedStep } from '../../core/FixedStep';
 import { createGameState, type GameState } from '../../core/GameState';
@@ -211,6 +212,8 @@ export class GameScene extends Phaser.Scene {
 
     const camera = this.cameras.main;
     this.levels = computeLevels(this.map);
+    // What happens on another level is not heard (spec 08 §3.5).
+    this.services.audio.setLevels((x, y) => levelAt(this.map, x, y));
     this.currentLevel = -1;
     this.updateLevel();
     camera.setRoundPixels(true);
@@ -243,6 +246,7 @@ export class GameScene extends Phaser.Scene {
       this.stopListeningToApp();
       this.anims.resumeAll();
       this.services.audio.update(QUIET_SNAPSHOT);
+      this.services.audio.setLevels(null);
     });
   }
 
@@ -277,6 +281,38 @@ export class GameScene extends Phaser.Scene {
     s.paused = this.paused;
     s.continuous = p && isPlayerAlive(p) ? (p.beamOn ? 'laser' : p.coneOn ? 'flamethrower' : null) : null;
     s.heat = slot && s.continuous === 'laser' ? 1 - slot.battery : 0;
+    // Where it is all heard from, and low health (spec 08 §3.5).
+    s.x = p?.x ?? 0;
+    s.y = p?.y ?? 0;
+    s.level = p ? this.currentLevel : -1;
+    s.lowHealth = p !== undefined && p.hp > 0 && p.hp < PLAYER.lowHpThreshold;
+    // The zombies near enough to groan, and the nearest one (spec 08 §6.4).
+    s.zombiesNear = 0;
+    let nearest = AUDIO.groanRange ** 2;
+    for (const z of this.state.zombies) {
+      if (!p || !isZombieAlive(z)) continue;
+      const d = (z.x - p.x) ** 2 + (z.y - p.y) ** 2;
+      if (d > AUDIO.groanRange ** 2) continue;
+      s.zombiesNear++;
+      if (d <= nearest) {
+        nearest = d;
+        s.nearestZombieX = z.x;
+        s.nearestZombieY = z.y;
+      }
+    }
+    // A boss galloping or stunned: its loops follow it.
+    s.bossCharging = false;
+    s.bossStunned = false;
+    for (const b of this.state.bosses) {
+      if (b.phase !== 'attacking') continue;
+      const charging = b.attack === 'charge' && b.stage === 'run';
+      if (!charging && b.stage !== 'stunned') continue;
+      s.bossCharging ||= charging;
+      s.bossStunned ||= b.stage === 'stunned';
+      s.bossX = b.x;
+      s.bossY = b.y;
+      break;
+    }
     this.services.audio.update(s);
   }
 

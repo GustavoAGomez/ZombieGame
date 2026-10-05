@@ -1,0 +1,130 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Un palo de madera que se parte, sobre el golpe de un tablón.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/868643_break_off_wood_stick_1.ogg",
+                "process": {
+                  "lowcut": 180
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPlank_medium_000.ogg",
+                "process": {
+                  "end": 0.45,
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.7,
+              "delay": 0.02
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.15,
+            "length": 0.5,
+            "fadeOut": 0.15
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/868644_break_off_wood_stick_2.ogg",
+                "process": {
+                  "lowcut": 180
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPlank_medium_001.ogg",
+                "process": {
+                  "end": 0.45,
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.7,
+              "delay": 0.02
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.15,
+            "length": 0.5,
+            "fadeOut": 0.15
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Cajas de madera que se rompen.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/856629_crate_break2.ogg",
+          "process": {
+            "start": 0.16,
+            "end": 0.8,
+            "lowcut": 150,
+            "fadeOut": 0.2
+          }
+        },
+        {
+          "type": "file",
+          "source": "library/freesound/856631_crate_break4.ogg",
+          "process": {
+            "start": 0.1,
+            "end": 0.6,
+            "semitones": -1.5,
+            "lowcut": 150,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Otras cajas rompiéndose, con astillas.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/66777_crate_break_1.ogg",
+          "process": {
+            "start": 0.22,
+            "end": 0.85,
+            "lowcut": 150,
+            "fadeOut": 0.2
+          }
+        },
+        {
+          "type": "file",
+          "source": "library/freesound/66778_crate_break_2.ogg",
+          "process": {
+            "start": 0.18,
+            "end": 0.8,
+            "lowcut": 150,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    }
+  }
+}

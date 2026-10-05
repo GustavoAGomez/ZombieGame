@@ -1,0 +1,149 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Un yunque cinco semitonos más grave, una pisada enorme y el suelo que se agrieta.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/386106_anvil_lokomo_a_100_kg_hammer_on_back_1_t.ogg",
+                "process": {
+                  "semitones": -5,
+                  "end": 0.6
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/813053_big_robot_footstep_002.ogg",
+                "process": {
+                  "end": 0.6,
+                  "lowcut": 100
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/504076_wood_floor_crack_1_5.ogg"
+              },
+              "gain": 0.7,
+              "delay": 0.05
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.15,
+            "length": 0.9,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Metal pesado de Kenney, ladrillos y una grieta.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactMetal_heavy_001.ogg",
+                "process": {
+                  "semitones": -3
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/232396_bricks.ogg",
+                "process": {
+                  "lowcut": 120
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/262634_ice_crack_2.ogg",
+                "process": {
+                  "start": 0.1,
+                  "end": 0.7,
+                  "highcut": 6000
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.05
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.15,
+            "length": 0.9,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Un yunque muy grave, una piedra grande y el suelo que cruje.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/386103_anvil_lokomo_a_100_kg_hammer_on_horn_1_t.ogg",
+                "process": {
+                  "semitones": -7,
+                  "end": 0.6
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/536803_stone.ogg",
+                "process": {
+                  "lowcut": 120,
+                  "end": 0.8
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/504078_wood_floor_crack_1_3.ogg"
+              },
+              "gain": 0.7,
+              "delay": 0.05
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.15,
+            "length": 0.9,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1952,3 +1952,26 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - `assets:check` avisa, sin fallar, si faltan los archivos de los candidatos.
 - **La pausa** suena al abrirse y al cerrarse (`ui.pause.open` y `ui.pause.close`). CONTINUAR ya no suena como un toque, para no sonar dos veces. JUGAR suena con `ui.play`.
 
+## Audio: amenazas, posición, límite de voces y vida baja (spec 08, fase S4)
+
+- **Eventos nuevos:**
+  - `zombie:attack`: al empezar la preparación del golpe.
+  - `zombie:crippled`: una sola vez, cuando el zombi pierde las piernas.
+  - `barricade:plankBroken`: en el centro de la ventana.
+  - `boss:windup`: al empezar cada ataque. Del mazazo, solo antes del primer golpe; los siguientes ya suenan con `boss:slam`.
+  - `door:opened` y `portal:opened` llevan su posición, para que la puerta suene donde está.
+- **`boss.dizzy.loop`:** id nuevo para el bucle de campanillas mareadas, que sigue a `boss.stunned` (el choque) mientras dura el aturdimiento.
+- **Desde dónde se oye:** desde el jugador local, con el resumen de cada frame (posición y nivel). Los niveles salen de `levelAt` del mapa, que `GameScene` le da al director.
+  - Un punto sin zona (una puerta, una ventana, fuera del mapa) cuenta como del mismo nivel.
+  - Sin partida (pantalla de título, panel de prueba), nada se coloca: todo suena al centro y a volumen completo.
+- **Qué suena en cualquier nivel:** el aviso del boss que cae y las tres preparaciones de sus ataques, que son «los avisos del boss» de §3.5. Los carteles no tienen posición.
+- **Qué es posicional:**
+  - los impactos, la bocanada del lanzallamas, las puertas, el chapuzón, los gruñidos, los zarpazos, el crujido y la rotura de tablones;
+  - el galope y las campanillas del boss, que siguen al boss frame a frame.
+  
+  El resto de sonidos del boss son grandes y no se colocan, pero no suenan si el boss está en otro nivel.
+- **Gruñidos:** suenan si hay un zombi a menos de 400 px. Gruñe el más cercano, cada 2 a 5 s al azar, y nunca dos a la vez (`maxVoices` 1).
+- **Vida baja:** el latido suena 5 s al bajar de `PLAYER.lowHpThreshold`. No vuelve hasta que la vida suba y vuelva a bajar. Si la pausa lo corta, tampoco vuelve.
+- **SIMULAR COMBATE**, para el criterio de S4 (20 zombies y la SMG): añade una multitud alrededor del jugador, con un zarpazo cada 4 disparos y un gruñido cada 25. Un test comprueba que nunca se pasa de 12 voces y que los disparos siguen sonando.
+- **Presupuesto:** los efectos ocupan 7,0 MB de los 8. Lo que más pesa son los sonidos estéreo largos (carteles, compras grandes, el boss). Si al elegir candidatos se pasara, se harían mono los menos importantes.
+

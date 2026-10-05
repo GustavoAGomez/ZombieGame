@@ -3,7 +3,7 @@ import type { AmmoKind, UpgradeKind, WeaponId } from '../config/weapons';
 import type { MerchantId, MerchantItemId } from '../config/merchants';
 import type { ActivationEffect, ActivationId } from '../config/activations';
 import type { ItemId } from '../config/items';
-import type { BossId, BossVariantId } from '../config/bosses';
+import type { BossAttackId, BossId, BossVariantId } from '../config/bosses';
 import type { ShopItemStatus } from './shop';
 
 /**
@@ -60,11 +60,19 @@ export interface GameEvents {
   'barricade:repaired': { playerId: number; x: number; y: number };
   /** A tap that could not be done (spec 08 §6.2): not enough money, a locked portal, a full inventory. */
   'action:denied': { playerId: number };
+  /** A zombie starts drawing back its blow (spec 08 §6.4): its sound warns before the hit lands. */
+  'zombie:attack': { x: number; y: number };
+  /** A zombie lost its legs and crawls from now on (spec 08 §6.4). */
+  'zombie:crippled': { x: number; y: number };
+  /** A zombie tore a plank off a window (spec 08 §6.4), at the window. */
+  'barricade:plankBroken': { x: number; y: number };
+  /** A boss starts an attack (spec 07 §4, spec 08 §6.4): its windup's sound is the attack's second warning. */
+  'boss:windup': { x: number; y: number; attack: BossAttackId };
   'pickup:collected': { playerId: number; kind: PickupKind };
   /** A door was bought (medium haptic in phase 9). */
-  'door:opened': { doorId: string; playerId: number };
+  'door:opened': { doorId: string; playerId: number; x: number; y: number };
   /** A portal (stairs, ladder, hatch) was bought. */
-  'portal:opened': { portalId: string; playerId: number };
+  'portal:opened': { portalId: string; playerId: number; x: number; y: number };
   /** Someone paid the Demon's Hand (spec 06 §3.3), with money or with blood. */
   'hand:paid': { playerId: number; blood: boolean };
   /** The paid hand starts drawing (spec 06 §3.4, spec 08 §6.3): weapon outlines roll over it for HAND.rollingTime. */

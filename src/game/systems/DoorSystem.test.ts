@@ -73,7 +73,7 @@ describe('DoorSystem · buying', () => {
     expect(p.money).toBe(250);
     expect(ctx.state.zonesUnlocked).toEqual([true, true, false]);
     for (const t of d1.tiles) expect(cellBlocks(ctx.grid, t.x, t.y, BLOCK_PLAYER)).toBe(false);
-    expect(opened).toHaveBeenCalledWith({ doorId: 'D1', playerId: 0 });
+    expect(opened).toHaveBeenCalledWith({ doorId: 'D1', playerId: 0, x: ctx.map.doors[0]!.center.x, y: ctx.map.doors[0]!.center.y });
 
     expect(spawnWeight(ctx, w4)).toBeGreaterThan(0);
     expect(spawnWeight(ctx, w5)).toBeGreaterThan(0);

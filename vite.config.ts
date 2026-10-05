@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'vitest/config';
-import { stripCandidates } from './scripts/lib/audio/strip-candidates';
+import { stripCandidates } from './scripts/lib/audio/strip-candidates.ts';
 
 export default defineConfig({
   // Relative base so the build works inside Capacitor's file-less WebView origin.

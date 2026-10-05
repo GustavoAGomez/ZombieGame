@@ -1,0 +1,167 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Campanillas de cristal que dan vueltas: Mi-Do-La-Do, en bucle.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "E6",
+                    0.18
+                  ],
+                  [
+                    "C6",
+                    0.18
+                  ],
+                  [
+                    "A5",
+                    0.18
+                  ],
+                  [
+                    "C6",
+                    0.18
+                  ],
+                  [
+                    "E6",
+                    0
+                  ]
+                ],
+                "duration": 0.3
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "length": 0.84
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Campanas La-Mi-Do-Mi, más redondas, en bucle.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "A6",
+                    0.2
+                  ],
+                  [
+                    "E6",
+                    0.2
+                  ],
+                  [
+                    "C6",
+                    0.2
+                  ],
+                  [
+                    "E6",
+                    0.2
+                  ],
+                  [
+                    "A6",
+                    0
+                  ]
+                ],
+                "duration": 0.35
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "length": 0.92
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Cristal y campana Si-Re-Si-Sol, mareados, en bucle.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "B5",
+                    0.16
+                  ],
+                  [
+                    "D6",
+                    0.16
+                  ],
+                  [
+                    "B5",
+                    0.16
+                  ],
+                  [
+                    "G5",
+                    0.16
+                  ],
+                  [
+                    "B5",
+                    0
+                  ]
+                ],
+                "duration": 0.3
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "B6",
+                    0.16
+                  ],
+                  [
+                    "D7",
+                    0.16
+                  ],
+                  [
+                    "B6",
+                    0.16
+                  ],
+                  [
+                    "G6",
+                    0.16
+                  ],
+                  [
+                    "B6",
+                    0
+                  ]
+                ],
+                "duration": 0.2
+              },
+              "gain": 0.3
+            }
+          ],
+          "process": {
+            "length": 0.76
+          }
+        }
+      ]
+    }
+  }
+}

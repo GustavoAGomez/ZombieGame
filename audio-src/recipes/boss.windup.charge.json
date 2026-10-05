@@ -1,0 +1,175 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "EMBESTIDA: dos resoplidos de caballo, más graves (de toro), y pezuñas que escarban la piedra.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/475479_horse_snort_2.ogg",
+                "process": {
+                  "semitones": -5,
+                  "lowcut": 120
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/475480_horse_snort_1.ogg",
+                "process": {
+                  "semitones": -6,
+                  "lowcut": 120
+                }
+              },
+              "gain": 1,
+              "delay": 0.35
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/743244_move_stone_rune_2.ogg",
+                "process": {
+                  "lowcut": 200
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.7
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/743243_move_stone_rune_1.ogg",
+                "process": {
+                  "lowcut": 200
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.85
+            }
+          ],
+          "process": {
+            "length": 1.1,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "EMBESTIDA: dos resoplidos lejanos y pasos que escarban.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/868302_horses_snort_distant.ogg",
+                "process": {
+                  "semitones": -4,
+                  "lowcut": 120
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/868302_horses_snort_distant.ogg",
+                "process": {
+                  "semitones": -5,
+                  "lowcut": 120
+                }
+              },
+              "gain": 1,
+              "delay": 0.35
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/footstep_concrete_000.ogg",
+                "process": {
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.7
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/footstep_concrete_002.ogg",
+                "process": {
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.85
+            }
+          ],
+          "process": {
+            "length": 1.1,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "EMBESTIDA: un resoplido, una llamada ronca de bestia y pezuñas.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/475479_horse_snort_2.ogg",
+                "process": {
+                  "semitones": -6,
+                  "lowcut": 120
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/529463_small_dino_raspy_calls.ogg",
+                "process": {
+                  "semitones": -7,
+                  "end": 0.5,
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.3
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/743244_move_stone_rune_2.ogg",
+                "process": {
+                  "lowcut": 200
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.75
+            }
+          ],
+          "process": {
+            "length": 1.1,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    }
+  }
+}

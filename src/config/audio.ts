@@ -3,7 +3,7 @@
  * holds a volume or a time of its own: it names a sound by its id and the
  * director (src/audio/AudioDirector.ts) looks it up here.
  */
-import { HAND } from './balance';
+import { BOSS, HAND } from './balance';
 import type { MerchantId } from './merchants';
 import type { WeaponId } from './weapons';
 
@@ -85,9 +85,11 @@ export const AUDIO = {
   /**
    * The sound test's SIMULAR COMBATE (§8): the SMG firing for `seconds` at
    * its fire rate, `hitsIn10` of every 10 shots hitting and a kill every
-   * `killEvery` hits, to hear the mix.
+   * `killEvery` hits, to hear the mix; and around the player a crowd
+   * (§9, S4: 20 zombies), one of them striking every `attackEvery` shots
+   * and groaning every `groanEvery`, within `crowdRadius` px.
    */
-  combatTest: { seconds: 5, hitsIn10: 7, killEvery: 6 },
+  combatTest: { seconds: 5, hitsIn10: 7, killEvery: 6, attackEvery: 4, groanEvery: 25, crowdRadius: 300 },
   /**
    * Streaks (§3.4): the shine layer's rungs, semitones over its own note
    * (it stays on the last one), and how long a streak waits for the next
@@ -104,6 +106,19 @@ export const AUDIO = {
   /** `jingle.boss.dead` after the boss's own fall (§6.4), and `jingle.gameover` after the player's death, seconds. */
   bossDeadJingleDelay: 1.2,
   gameOverJingleDelay: 1,
+  /**
+   * Where a positional sound plays (§3.5): at full volume within `near` px
+   * of the local player, falling in a line to `minGain` at `far` px and
+   * beyond; panned left or right by its side, `maxPan` at most.
+   */
+  position: { near: 160, far: 480, minGain: 0.25, maxPan: 0.7 },
+  /** What sounds on any level, not only the local player's (§3.5): the boss's warnings. The banners have no place. */
+  anyLevel: ['boss.warning', 'boss.windup.charge', 'boss.windup.slam', 'boss.windup.leap'] as readonly string[],
+  /** Zombies groan (§6.4) when one is within this many px, one groan every 2 to 5 s, never two at once. */
+  groanRange: 400,
+  groanInterval: [2, 5] as const,
+  /** Low health (§3.5): the heartbeat sounds for this long, seconds, and not again until health rises and falls. */
+  heartbeatTime: 5,
 } as const;
 
 /** Which variant of a wizard's own sounds (`keyed`) is whose (§3.3: each wizard has its signature). */
@@ -263,6 +278,22 @@ export const SOUNDS: readonly SoundDef[] = [
   sound({ id: 'hand.taken', family: 'reward', variants: keys('hand.taken'), bus: 'sfx', volume: 0.65, maxVoices: 1 }),
   sound({ id: 'hand.refund', family: 'threat', variants: keys('hand.refund'), bus: 'sfx', volume: 0.75, maxVoices: 1 }),
   sound({ id: 'hand.moved', family: 'threat', variants: keys('hand.moved'), bus: 'sfx', volume: 0.6, maxVoices: 1 }),
+  // §6.4 Threats. `boss.dizzy.loop` is the stunned boss's dizzy bells, the loop that follows `boss.stunned`.
+  sound({ id: 'zombie.groan', family: 'threat', variants: keys('zombie.groan', 4), bus: 'sfx', volume: 0.45, pitchVar: 6, maxVoices: 1, priority: 'low', positional: true }),
+  sound({ id: 'zombie.attack', family: 'threat', variants: keys('zombie.attack', 2), bus: 'sfx', volume: 0.6, pitchVar: 6, maxVoices: 3, minInterval: 0.08, positional: true }),
+  sound({ id: 'zombie.crawl', family: 'threat', variants: keys('zombie.crawl'), bus: 'sfx', volume: 0.5, pitchVar: 6, maxVoices: 2, priority: 'low', positional: true }),
+  sound({ id: 'barricade.break', family: 'threat', variants: keys('barricade.break', 2), bus: 'sfx', volume: 0.6, pitchVar: 5, maxVoices: 2, minInterval: 0.1, positional: true }),
+  sound({ id: 'boss.warning', family: 'threat', variants: keys('boss.warning'), bus: 'sfx', volume: 0.85, maxVoices: 2, priority: 'high', duck: true, length: BOSS.warningTime }),
+  sound({ id: 'boss.landed', family: 'threat', variants: keys('boss.landed'), bus: 'sfx', volume: 1, maxVoices: 2, priority: 'high' }),
+  sound({ id: 'boss.roar', family: 'threat', variants: keys('boss.roar'), bus: 'sfx', volume: 0.9, maxVoices: 1, priority: 'high', duck: true }),
+  sound({ id: 'boss.windup.charge', family: 'threat', variants: keys('boss.windup.charge'), bus: 'sfx', volume: 0.85, maxVoices: 2, priority: 'high' }),
+  sound({ id: 'boss.windup.slam', family: 'threat', variants: keys('boss.windup.slam'), bus: 'sfx', volume: 0.85, maxVoices: 2, priority: 'high' }),
+  sound({ id: 'boss.windup.leap', family: 'threat', variants: keys('boss.windup.leap'), bus: 'sfx', volume: 0.85, maxVoices: 2, priority: 'high' }),
+  sound({ id: 'boss.charge.loop', family: 'threat', variants: keys('boss.charge.loop'), bus: 'sfx', volume: 0.7, maxVoices: 1, priority: 'high', positional: true, loop: true }),
+  sound({ id: 'boss.slam', family: 'threat', variants: keys('boss.slam'), bus: 'sfx', volume: 0.9, maxVoices: 2, priority: 'high' }),
+  sound({ id: 'boss.stunned', family: 'threat', variants: keys('boss.stunned'), bus: 'sfx', volume: 0.85, maxVoices: 1, priority: 'high' }),
+  sound({ id: 'boss.dizzy.loop', family: 'threat', variants: keys('boss.dizzy.loop'), bus: 'sfx', volume: 0.45, maxVoices: 1, priority: 'high', positional: true, loop: true }),
+  sound({ id: 'boss.killed', family: 'threat', variants: keys('boss.killed'), bus: 'sfx', volume: 1, maxVoices: 1, priority: 'high', duck: true }),
   // §6.5 Banners and short melodies: through the effects bus, so they sound without music.
   sound({ id: 'jingle.round.start', family: 'jingle', variants: keys('jingle.round.start'), bus: 'sfx', volume: 0.8, maxVoices: 1, priority: 'high', duck: true }),
   sound({ id: 'jingle.round.boss', family: 'jingle', variants: keys('jingle.round.boss'), bus: 'sfx', volume: 0.85, maxVoices: 1, priority: 'high', duck: true }),

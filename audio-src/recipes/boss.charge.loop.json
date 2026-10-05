@@ -1,0 +1,59 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Galope grabado, cinco semitonos más grave (más pesado), en bucle.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/468030_gallop2.ogg",
+          "process": {
+            "start": 0.15,
+            "end": 1.85,
+            "semitones": -5,
+            "lowcut": 100
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Un galope que ya era un bucle, siete semitonos más grave.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/197212_horse_gallop_loopable.ogg",
+          "process": {
+            "semitones": -7,
+            "lowcut": 100
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Otro galope, cuatro semitonos más grave, con un golpe sordo en cada pisada.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/468031_gallop.ogg",
+                "process": {
+                  "start": 0.3,
+                  "end": 2.3,
+                  "semitones": -4,
+                  "lowcut": 100
+                }
+              },
+              "gain": 1
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

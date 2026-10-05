@@ -62,7 +62,7 @@ export function tryBuyDoor(ctx: SimContext, p: PlayerState, index: number): bool
     return false;
   }
   unlockZone(ctx, target);
-  ctx.events.emit('door:opened', { doorId: door.id, playerId: p.id });
+  ctx.events.emit('door:opened', { doorId: door.id, playerId: p.id, x: door.center.x, y: door.center.y });
   return true;
 }
 

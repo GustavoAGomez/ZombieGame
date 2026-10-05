@@ -37,7 +37,10 @@ export function damageZombie(
   hitPoints: number = POINTS.hit,
 ): boolean {
   if (!isZombieAlive(z)) return false;
+  const walked = z.hp > ZOMBIES.crawlAtHp;
   z.hp -= amount;
+  // Legless from now on (spec 08 §6.4): a wet crunch.
+  if (walked && z.hp > 0 && z.hp <= ZOMBIES.crawlAtHp) ctx.events.emit('zombie:crippled', { x: z.x, y: z.y });
   if (attacker >= 0 && hitPoints > 0) awardPoints(ctx, attacker, hitPoints, 'hit');
   if (hit) ctx.events.emit('zombie:hit', { x: hit.x, y: hit.y, groundY: z.y, dirX: hit.dirX, dirY: hit.dirY, killed: z.hp <= 0, weapon: hit.weapon });
   if (z.hp > 0) return false;

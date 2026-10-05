@@ -5,9 +5,48 @@ Bandas: porcentaje de la energía por debajo de 100 Hz, 100–250, 250–1000, 1
 
 | Archivo | Sonido | Cand. | Familia | Canales | Duración | Cola | Pico | Volumen medio | Brillo | Tono | Bandas (%) |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| barricade_break_1__a | barricade.break | A ✓ | Amenaza | mono | 253 ms | 143 ms | -1.0 dB | -24.4 dB | 7920 Hz | 201 Hz | 2 · 63 · 12 · 8 · 16 |
+| barricade_break_2__a | barricade.break | A ✓ | Amenaza | mono | 279 ms | 149 ms | -1.0 dB | -24.1 dB | 6624 Hz | 177 Hz | 7 · 61 · 14 · 5 · 13 |
+| barricade_break_1__b | barricade.break | B | Amenaza | mono | 626 ms | 66 ms | -1.0 dB | -21.5 dB | 3949 Hz | 403 Hz | 0 · 1 · 37 · 55 · 7 |
+| barricade_break_2__b | barricade.break | B | Amenaza | mono | 534 ms | 204 ms | -1.0 dB | -21.0 dB | 3520 Hz | 1388 Hz | 0 · 0 · 18 · 78 · 4 |
+| barricade_break_1__c | barricade.break | C | Amenaza | mono | 561 ms | 91 ms | -1.0 dB | -29.2 dB | 4372 Hz | 1540 Hz | 0 · 3 · 30 · 58 · 9 |
+| barricade_break_2__c | barricade.break | C | Amenaza | mono | 594 ms | 94 ms | -1.0 dB | -27.5 dB | 4193 Hz | 303 Hz | 0 · 5 · 38 · 50 · 6 |
 | boost_on__a | boost.on | A ✓ | Premio | mono | 681 ms | 141 ms | -1.0 dB | -21.7 dB | 4244 Hz | 1763 Hz | 0 · 1 · 9 · 86 · 4 |
 | boost_on__b | boost.on | B | Premio | mono | 687 ms | 97 ms | -1.0 dB | -14.4 dB | 2990 Hz | 1116 Hz | 0 · 2 · 39 · 58 · 2 |
 | boost_on__c | boost.on | C | Premio | mono | 620 ms | 150 ms | -1.0 dB | -20.7 dB | 4915 Hz | 289 Hz | 2 · 2 · 32 · 57 · 7 |
+| boss_charge_loop__a | boss.charge.loop | A ✓ | Amenaza (bucle) | mono | 2144 ms | 54 ms | -1.0 dB | -21.8 dB | 626 Hz | 212 Hz | 2 · 32 · 64 · 2 · 0 |
+| boss_charge_loop__b | boss.charge.loop | B | Amenaza (bucle) | mono | 4211 ms | 131 ms | -1.0 dB | -25.6 dB | 1855 Hz | 554 Hz | 0 · 1 · 78 · 21 · 0 |
+| boss_charge_loop__c | boss.charge.loop | C | Amenaza (bucle) | mono | 2400 ms | 30 ms | -1.0 dB | -23.5 dB | 839 Hz | 232 Hz | 1 · 23 · 72 · 3 · 0 |
+| boss_dizzy_loop__a | boss.dizzy.loop | A ✓ | Amenaza (bucle) | mono | 720 ms | 80 ms | -1.0 dB | -16.2 dB | 1950 Hz | 1042 Hz | 0 · 0 · 25 · 74 · 1 |
+| boss_dizzy_loop__b | boss.dizzy.loop | B | Amenaza (bucle) | mono | 800 ms | 70 ms | -1.0 dB | -17.7 dB | 1697 Hz | 1322 Hz | 0 · 0 · 16 · 84 · 0 |
+| boss_dizzy_loop__c | boss.dizzy.loop | C | Amenaza (bucle) | mono | 640 ms | 60 ms | -1.0 dB | -15.7 dB | 2060 Hz | 989 Hz | 0 · 0 · 61 · 38 · 1 |
+| boss_killed__a | boss.killed | A ✓ | Amenaza | estéreo | 1443 ms | 223 ms | -1.0 dB | -15.2 dB | 2328 Hz | 197 Hz | 3 · 29 · 47 · 20 · 1 |
+| boss_killed__b | boss.killed | B | Amenaza | estéreo | 1407 ms | 287 ms | -1.0 dB | -24.1 dB | 1506 Hz | 158 Hz | 14 · 58 · 20 · 8 · 0 |
+| boss_killed__c | boss.killed | C | Amenaza | estéreo | 1414 ms | 324 ms | -1.0 dB | -24.5 dB | 6184 Hz | 510 Hz | 3 · 11 · 56 · 19 · 11 |
+| boss_landed__a | boss.landed | A ✓ | Amenaza | estéreo | 1359 ms | 359 ms | -1.0 dB | -18.4 dB | 4319 Hz | 128 Hz | 19 · 45 · 24 · 11 · 2 |
+| boss_landed__b | boss.landed | B | Amenaza | estéreo | 1319 ms | 349 ms | -1.0 dB | -22.7 dB | 3135 Hz | 129 Hz | 21 · 59 · 16 · 3 · 1 |
+| boss_landed__c | boss.landed | C | Amenaza | estéreo | 1395 ms | 285 ms | -1.0 dB | -17.4 dB | 3810 Hz | 154 Hz | 5 · 29 · 45 · 18 · 3 |
+| boss_roar__a | boss.roar | A ✓ | Amenaza | mono | 1105 ms | 145 ms | -1.0 dB | -15.1 dB | 1493 Hz | 177 Hz | 1 · 20 · 38 · 40 · 0 |
+| boss_roar__b | boss.roar | B | Amenaza | mono | 1015 ms | 185 ms | -1.0 dB | -12.7 dB | 1671 Hz | 228 Hz | 1 · 43 · 53 · 3 · 0 |
+| boss_roar__c | boss.roar | C | Amenaza | mono | 1079 ms | 129 ms | -1.0 dB | -16.6 dB | 2843 Hz | 188 Hz | 4 · 49 · 31 · 15 · 2 |
+| boss_slam__a | boss.slam | A ✓ | Amenaza | mono | 801 ms | 181 ms | -1.0 dB | -16.0 dB | 2566 Hz | 107 Hz | 21 · 27 · 19 · 32 · 1 |
+| boss_slam__b | boss.slam | B | Amenaza | mono | 703 ms | 273 ms | -1.0 dB | -19.3 dB | 3199 Hz | 1131 Hz | 1 · 5 · 20 · 73 · 1 |
+| boss_slam__c | boss.slam | C | Amenaza | mono | 871 ms | 91 ms | -1.0 dB | -15.6 dB | 1386 Hz | 131 Hz | 19 · 59 · 17 · 6 · 0 |
+| boss_stunned__a | boss.stunned | A ✓ | Amenaza | mono | 763 ms | 133 ms | -1.0 dB | -17.3 dB | 3266 Hz | 155 Hz | 5 · 15 · 31 · 48 · 2 |
+| boss_stunned__b | boss.stunned | B | Amenaza | mono | 811 ms | 171 ms | -1.0 dB | -18.4 dB | 2475 Hz | 168 Hz | 5 · 39 · 45 · 9 · 1 |
+| boss_stunned__c | boss.stunned | C | Amenaza | mono | 868 ms | 108 ms | -1.0 dB | -15.7 dB | 2312 Hz | 174 Hz | 4 · 22 · 52 · 21 · 1 |
+| boss_warning__a | boss.warning | A ✓ | Amenaza | mono | 2998 ms | 38 ms | -1.0 dB | -14.3 dB | 3026 Hz | 1682 Hz | 0 · 0 · 3 · 96 · 0 |
+| boss_warning__b | boss.warning | B | Amenaza | mono | 2998 ms | 68 ms | -1.0 dB | -13.4 dB | 2955 Hz | 315 Hz | 0 · 0 · 94 · 6 · 0 |
+| boss_warning__c | boss.warning | C | Amenaza | mono | 2988 ms | 78 ms | -1.0 dB | -14.6 dB | 2392 Hz | 1737 Hz | 0 · 0 · 0 · 100 · 0 |
+| boss_windup_charge__a | boss.windup.charge | A ✓ | Amenaza | mono | 1097 ms | 47 ms | -1.0 dB | -17.9 dB | 3131 Hz | 570 Hz | 2 · 6 · 64 · 26 · 2 |
+| boss_windup_charge__b | boss.windup.charge | B | Amenaza | mono | 1064 ms | 64 ms | -1.0 dB | -15.0 dB | 1523 Hz | 673 Hz | 1 · 8 · 46 · 45 · 0 |
+| boss_windup_charge__c | boss.windup.charge | C | Amenaza | mono | 1096 ms | 66 ms | -1.0 dB | -18.4 dB | 3180 Hz | 981 Hz | 1 · 2 · 44 · 49 · 4 |
+| boss_windup_leap__a | boss.windup.leap | A ✓ | Amenaza | mono | 825 ms | 85 ms | -1.0 dB | -14.3 dB | 1802 Hz | 509 Hz | 0 · 5 · 60 · 34 · 0 |
+| boss_windup_leap__b | boss.windup.leap | B | Amenaza | mono | 965 ms | 155 ms | -1.0 dB | -18.9 dB | 2270 Hz | 809 Hz | 0 · 2 · 90 · 5 · 3 |
+| boss_windup_leap__c | boss.windup.leap | C | Amenaza | mono | 825 ms | 405 ms | -1.0 dB | -15.9 dB | 2703 Hz | 580 Hz | 0 · 5 · 85 · 9 · 1 |
+| boss_windup_slam__a | boss.windup.slam | A ✓ | Amenaza | mono | 666 ms | 26 ms | -1.0 dB | -20.8 dB | 5229 Hz | 366 Hz | 0 · 3 · 37 · 40 · 20 |
+| boss_windup_slam__b | boss.windup.slam | B | Amenaza | mono | 890 ms | 120 ms | -1.0 dB | -17.8 dB | 4219 Hz | 1470 Hz | 1 · 8 · 40 · 43 · 9 |
+| boss_windup_slam__c | boss.windup.slam | C | Amenaza | mono | 755 ms | 475 ms | -1.0 dB | -21.8 dB | 4975 Hz | 1001 Hz | 0 · 4 · 43 · 42 · 11 |
 | buy_cash__a | buy.cash | A ✓ | Premio | mono | 357 ms | 117 ms | -1.0 dB | -21.2 dB | 7504 Hz | 1762 Hz | 0 · 2 · 8 · 69 · 22 |
 | buy_cash__b | buy.cash | B | Premio | mono | 331 ms | 151 ms | -1.0 dB | -23.4 dB | 3716 Hz | 1323 Hz | 0 · 0 · 15 · 76 · 9 |
 | buy_cash__c | buy.cash | C | Premio | mono | 490 ms | 60 ms | -1.0 dB | -21.9 dB | 4533 Hz | 4132 Hz | 0 · 0 · 29 · 56 · 15 |
@@ -248,14 +287,71 @@ Bandas: porcentaje de la energía por debajo de 100 Hz, 100–250, 250–1000, 1
 | weapon_switch__a | weapon.switch | A ✓ | Golpe | mono | 202 ms | 2 ms | -1.0 dB | -18.9 dB | 4789 Hz | 177 Hz | 3 · 19 · 42 · 24 · 12 |
 | weapon_switch__b | weapon.switch | B | Golpe | mono | 205 ms | 45 ms | -1.0 dB | -18.3 dB | 6632 Hz | 681 Hz | 1 · 1 · 13 · 26 · 58 |
 | weapon_switch__c | weapon.switch | C | Golpe | mono | 250 ms | 30 ms | -1.0 dB | -16.5 dB | 4413 Hz | 80 Hz | 18 · 14 · 40 · 24 · 5 |
+| zombie_attack_1__a | zombie.attack | A ✓ | Amenaza | mono | 449 ms | 9 ms | -1.0 dB | -16.0 dB | 2664 Hz | 359 Hz | 1 · 16 · 77 · 5 · 1 |
+| zombie_attack_2__a | zombie.attack | A ✓ | Amenaza | mono | 437 ms | 17 ms | -1.0 dB | -13.2 dB | 2139 Hz | 351 Hz | 0 · 15 · 67 · 17 · 0 |
+| zombie_attack_1__b | zombie.attack | B | Amenaza | mono | 362 ms | 42 ms | -1.0 dB | -14.4 dB | 2441 Hz | 212 Hz | 7 · 38 · 45 · 10 · 1 |
+| zombie_attack_2__b | zombie.attack | B | Amenaza | mono | 402 ms | 112 ms | -1.0 dB | -15.0 dB | 2417 Hz | 326 Hz | 0 · 7 · 88 · 4 · 1 |
+| zombie_attack_1__c | zombie.attack | C | Amenaza | mono | 541 ms | 131 ms | -1.0 dB | -17.9 dB | 3721 Hz | 2183 Hz | 0 · 2 · 18 · 78 · 3 |
+| zombie_attack_2__c | zombie.attack | C | Amenaza | mono | 403 ms | 83 ms | -1.0 dB | -20.5 dB | 4296 Hz | 3188 Hz | 0 · 2 · 19 · 74 · 6 |
+| zombie_crawl__a | zombie.crawl | A ✓ | Amenaza | mono | 382 ms | 102 ms | -1.0 dB | -24.6 dB | 5187 Hz | 1204 Hz | 0 · 0 · 11 · 56 · 33 |
+| zombie_crawl__b | zombie.crawl | B | Amenaza | mono | 323 ms | 173 ms | -1.0 dB | -19.4 dB | 4497 Hz | 1268 Hz | 0 · 0 · 29 · 64 · 7 |
+| zombie_crawl__c | zombie.crawl | C | Amenaza | mono | 375 ms | 195 ms | -1.0 dB | -22.1 dB | 5568 Hz | 1344 Hz | 0 · 4 · 19 · 62 · 14 |
+| zombie_groan_1__a | zombie.groan | A ✓ | Amenaza | mono | 798 ms | 128 ms | -1.0 dB | -15.0 dB | 1895 Hz | 243 Hz | 0 · 11 · 47 · 41 · 1 |
+| zombie_groan_2__a | zombie.groan | A ✓ | Amenaza | mono | 716 ms | 216 ms | -1.0 dB | -22.6 dB | 2187 Hz | 813 Hz | 1 · 1 · 65 · 32 · 1 |
+| zombie_groan_3__a | zombie.groan | A ✓ | Amenaza | mono | 661 ms | 191 ms | -1.0 dB | -18.5 dB | 2547 Hz | 656 Hz | 0 · 1 · 28 · 69 · 2 |
+| zombie_groan_4__a | zombie.groan | A ✓ | Amenaza | mono | 1009 ms | 149 ms | -1.0 dB | -15.3 dB | 1231 Hz | 1204 Hz | 0 · 0 · 30 · 70 · 0 |
+| zombie_groan_1__b | zombie.groan | B | Amenaza | mono | 885 ms | 55 ms | -1.0 dB | -12.2 dB | 495 Hz | 271 Hz | 9 · 46 · 45 · 0 · 0 |
+| zombie_groan_2__b | zombie.groan | B | Amenaza | mono | 911 ms | 41 ms | -1.0 dB | -16.7 dB | 793 Hz | 280 Hz | 2 · 25 · 72 · 1 · 0 |
+| zombie_groan_3__b | zombie.groan | B | Amenaza | mono | 910 ms | 70 ms | -1.0 dB | -14.7 dB | 457 Hz | 354 Hz | 2 · 13 · 83 · 2 · 0 |
+| zombie_groan_4__b | zombie.groan | B | Amenaza | mono | 863 ms | 273 ms | -1.0 dB | -15.5 dB | 2480 Hz | 360 Hz | 0 · 2 · 90 · 7 · 1 |
+| zombie_groan_1__c | zombie.groan | C | Amenaza | mono | 833 ms | 183 ms | -1.0 dB | -16.1 dB | 486 Hz | 317 Hz | 4 · 24 · 71 · 1 · 0 |
+| zombie_groan_2__c | zombie.groan | C | Amenaza | mono | 635 ms | 165 ms | -1.0 dB | -15.8 dB | 572 Hz | 575 Hz | 4 · 28 · 67 · 2 · 0 |
+| zombie_groan_3__c | zombie.groan | C | Amenaza | mono | 921 ms | 171 ms | -1.0 dB | -17.1 dB | 1068 Hz | 984 Hz | 0 · 0 · 76 · 23 · 0 |
+| zombie_groan_4__c | zombie.groan | C | Amenaza | mono | 586 ms | 146 ms | -1.0 dB | -15.9 dB | 1152 Hz | 914 Hz | 0 · 0 · 56 · 44 · 0 |
 
 Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.
 
 ## Candidatos
 
+- **barricade.break A** (en el juego): Un palo de madera que se parte, sobre el golpe de un tablón.
+- **barricade.break B**: Cajas de madera que se rompen.
+- **barricade.break C**: Otras cajas rompiéndose, con astillas.
 - **boost.on A** (en el juego): Aire que acelera de 300 a 3000 Hz y un cristal que se abre en La 6.
 - **boost.on B**: Una subida de energía grabada y un Mi 6 de cristal.
 - **boost.on C**: Subida corta de menú, aire y un acorde de cristal La-Do-Mi.
+- **boss.charge.loop A** (en el juego): Galope grabado, cinco semitonos más grave (más pesado), en bucle.
+- **boss.charge.loop B**: Un galope que ya era un bucle, siete semitonos más grave.
+- **boss.charge.loop C**: Otro galope, cuatro semitonos más grave, con un golpe sordo en cada pisada.
+- **boss.dizzy.loop A** (en el juego): Campanillas de cristal que dan vueltas: Mi-Do-La-Do, en bucle.
+- **boss.dizzy.loop B**: Campanas La-Mi-Do-Mi, más redondas, en bucle.
+- **boss.dizzy.loop C**: Cristal y campana Si-Re-Si-Sol, mareados, en bucle.
+- **boss.killed A** (en el juego): Estéreo: un derrumbe largo de escombros, una pisada enorme y un último gruñido.
+- **boss.killed B**: Estéreo: rocas que caen, un cuerpo enorme que se desploma y un rugido que se apaga.
+- **boss.killed C**: Estéreo: escombros, una caída pesada sobre tierra y un rugido corto subido para el móvil.
+- **boss.landed A** (en el juego): Estéreo: una pisada enorme, escombros que caen, una explosión sorda y peso a 110 Hz, con sala.
+- **boss.landed B**: Estéreo: un tom enorme, una piedra grande y rocas.
+- **boss.landed C**: Estéreo: otra pisada enorme, un derrumbe de escombros y un timbal en La.
+- **boss.roar A** (en el juego): Rugido de monstruo grabado con un rugido de OpenGameArt debajo.
+- **boss.roar B**: Otro rugido, más agudo, con un rugido corto y grave subido para el móvil.
+- **boss.roar C**: Un rugido largo de bestia y otro de OpenGameArt.
+- **boss.slam A** (en el juego): Un yunque cinco semitonos más grave, una pisada enorme y el suelo que se agrieta.
+- **boss.slam B**: Metal pesado de Kenney, ladrillos y una grieta.
+- **boss.slam C**: Un yunque muy grave, una piedra grande y el suelo que cruje.
+- **boss.stunned A** (en el juego): Choque contra la pared: ladrillos, una pisada enorme y un golpe metálico.
+- **boss.stunned B**: Choque: una roca, un puñetazo pesado y cosas que caen.
+- **boss.stunned C**: Choque: escombros que se rompen y un tom enorme.
+- **boss.warning A** (en el juego): Una bomba que cae, grabada y bajada cinco semitonos, sobre aire que baja de 800 a 150 Hz.
+- **boss.warning B**: Aire que cae de 1500 a 200 Hz con un acorde La-Mi que se hunde una octava.
+- **boss.warning C**: La bomba que cae, deslizándose más abajo, con un retumbo de rocas que crece.
+- **boss.windup.charge A** (en el juego): EMBESTIDA: dos resoplidos de caballo, más graves (de toro), y pezuñas que escarban la piedra.
+- **boss.windup.charge B**: EMBESTIDA: dos resoplidos lejanos y pasos que escarban.
+- **boss.windup.charge C**: EMBESTIDA: un resoplido, una llamada ronca de bestia y pezuñas.
+- **boss.windup.leap A** (en el juego): SALTO: un gruñido de esfuerzo cinco semitonos más grave y el suelo de madera que cruje.
+- **boss.windup.leap B**: SALTO: otro esfuerzo, más grave, y un crujido como de hielo.
+- **boss.windup.leap C**: SALTO: un esfuerzo corto, el suelo que cruje y una piedra.
+- **boss.windup.slam A** (en el juego): MAZAZO: un barrido de aire pesado al revés (el mazo que sube) con cadenas y metal.
+- **boss.windup.slam B**: MAZAZO: aire que sube de 200 a 900 Hz, cadenas y un yunque muy suave.
+- **boss.windup.slam C**: MAZAZO: el barrido pesado y el roce de metal del yunque.
 - **buy.cash A** (en el juego): Bolsa de monedas pesada, monedas de Kenney y una campanilla en La 6.
 - **buy.cash B**: Monedas de OpenGameArt con una campanilla en Mi 6.
 - **buy.cash C**: Monedas que caen sobre la mesa y una campanita real afinada en La 5.
@@ -427,6 +523,15 @@ Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.
 - **weapon.switch A** (en el juego): Roce de tela (Kenney) con el pestillo metálico detrás.
 - **weapon.switch B**: Desenfundar una pistola grabado (el tramo del metal) sobre tela.
 - **weapon.switch C**: Chaqueta que se mueve, cuero y una hebilla.
+- **zombie.attack A** (en el juego): Jadeo de ataque grabado y un zarpazo de aire.
+- **zombie.attack B**: Un salto de zombi y la muerte de otro como jadeos, con un barrido.
+- **zombie.attack C**: Criaturas ásperas de OpenGameArt con un barrido pesado.
+- **zombie.crawl A** (en el juego): Hueso que cruje y algo húmedo que se aplasta.
+- **zombie.crawl B**: Huesos que se rompen y una salpicadura.
+- **zombie.crawl C**: Un crujido de hueso y una salpicadura húmeda.
+- **zombie.groan A** (en el juego): Gruñidos de zombi grabados, tres semitonos más graves, cortos.
+- **zombie.groan B**: Lamentos de zombi más largos y graves.
+- **zombie.groan C**: Criaturas de OpenGameArt y gemidos graves de Freesound.
 
 ## Avisos
 

@@ -1,0 +1,145 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Choque contra la pared: ladrillos, una pisada enorme y un golpe metálico.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/232396_bricks.ogg",
+                "process": {
+                  "lowcut": 120
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/813054_big_robot_footstep_003.ogg",
+                "process": {
+                  "start": 0.15,
+                  "end": 0.8,
+                  "lowcut": 100
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/360302_hit_with_something.ogg",
+                "process": {
+                  "lowcut": 150,
+                  "end": 0.6
+                }
+              },
+              "gain": 0.5
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.15,
+            "length": 0.9,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Choque: una roca, un puñetazo pesado y cosas que caen.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/159419_120619_10_single_rock.ogg",
+                "process": {
+                  "start": 0.26,
+                  "end": 1.0,
+                  "lowcut": 120
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPunch_heavy_000.ogg",
+                "process": {
+                  "lowcut": 110
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/461696_aggressive_clatter_01.ogg",
+                "process": {
+                  "end": 0.8,
+                  "fadeOut": 0.3
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.05
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.15,
+            "length": 0.9,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Choque: escombros que se rompen y un tom enorme.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/848472_vintage_debris_smash.ogg",
+                "process": {
+                  "end": 0.9,
+                  "fadeOut": 0.3
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/687924_jh_big_tom_2_f_1_5_sec.ogg",
+                "process": {
+                  "lowcut": 110,
+                  "end": 0.8
+                }
+              },
+              "gain": 0.7
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.15,
+            "length": 0.9,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    }
+  }
+}

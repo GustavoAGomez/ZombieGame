@@ -17,10 +17,46 @@ export interface AudioSnapshot {
   continuous: ContinuousWeapon | null;
   /** The laser's heat, 0..1 (1: about to overheat): its hum rises with it. */
   heat: number;
+  /** The local player, where everything is heard from (§3.5): position and level (−1: no match, nothing is placed). */
+  x: number;
+  y: number;
+  level: number;
+  /** Health under PLAYER.lowHpThreshold: the heartbeat (§3.5). */
+  lowHealth: boolean;
+  /** Zombies within AUDIO.groanRange, and where the nearest one is: the groans (§6.4). */
+  zombiesNear: number;
+  nearestZombieX: number;
+  nearestZombieY: number;
+  /** A boss charging or stunned, and where: its gallop and its dizzy bells (§6.4). */
+  bossCharging: boolean;
+  bossStunned: boolean;
+  bossX: number;
+  bossY: number;
 }
 
-/** No match: nothing fires, nothing is paused. */
-export const QUIET_SNAPSHOT: Readonly<AudioSnapshot> = { paused: false, continuous: null, heat: 0 };
+/** No match: nothing fires, nothing is paused, nobody listens from anywhere. */
+export const QUIET_SNAPSHOT: Readonly<AudioSnapshot> = {
+  paused: false,
+  continuous: null,
+  heat: 0,
+  x: 0,
+  y: 0,
+  level: -1,
+  lowHealth: false,
+  zombiesNear: 0,
+  nearestZombieX: 0,
+  nearestZombieY: 0,
+  bossCharging: false,
+  bossStunned: false,
+  bossX: 0,
+  bossY: 0,
+};
+
+/** A world point. */
+interface Place {
+  x: number;
+  y: number;
+}
 
 /** The volume settings the director follows (the device preferences, src/native/preferences.ts). */
 export interface AudioSettings {
@@ -38,6 +74,8 @@ export interface GameAudio {
   /** A menu or HUD sound (§5.6): DOM components get only this function (it keeps its `this`). */
   readonly playUi: (id: string) => void;
   update(snapshot: Readonly<AudioSnapshot>): void;
+  /** The map's level at a point (−1: none, a door, outside): what happens on another level is not heard (§3.5). */
+  setLevels(levelAt: ((x: number, y: number) => number) | null): void;
 }
 
 /** What the sound test panel shows (spec 08 §8). */
@@ -62,7 +100,7 @@ export interface SoundTest {
   pickOf(id: string): { letter: AudioCandidate; pending: boolean } | null;
   /** Plays candidate `letter` of a sound, as the game would play it. */
   testCandidate(id: string, letter: AudioCandidate): void;
-  /** SIMULAR COMBATE: the SMG firing with hits and kills for a few seconds, to hear the mix. */
+  /** SIMULAR COMBATE: the SMG firing with hits and kills, among a crowd of zombies, for a few seconds, to hear the mix. */
   simulateCombat(): void;
   /** SIMULAR RACHA: kills in a row, to hear the kill streak climb. */
   simulateStreak(): void;
@@ -77,6 +115,8 @@ interface ActiveVoice {
   /** Infinity for a loop. */
   endsAt: number;
   voice: Voice;
+  /** Its gain before its place (the catalog's volume). */
+  gain: number;
 }
 
 interface PlayRequest {
@@ -89,6 +129,8 @@ interface PlayRequest {
   variant?: number;
   /** A streak's rung (§3.4): its shine layer plays this many steps up the ladder. */
   rung?: number;
+  /** Where it happens: another level silences it, and a positional sound is placed (§3.5). */
+  at?: Place;
 }
 
 /** A candidate's files: its variants and, for a streak sound, their shine layers. */
@@ -145,6 +187,14 @@ export class AudioDirector implements GameAudio, SoundTest {
   private shop: MerchantId | null = null;
   /** The hand's draw, stopped as soon as it opens. */
   private handRoll: ActiveVoice | null = null;
+  /** Where the local player listens from, and the map's levels (§3.5). */
+  private listener: { x: number; y: number; level: number } = { x: 0, y: 0, level: -1 };
+  private levelAt: ((x: number, y: number) => number) | null = null;
+  /** When the next groan may come (§6.4), seconds on the clock. */
+  private nextGroan = 0;
+  /** Low health (§3.5): the last frame's, and when its heartbeat ends. */
+  private wasLow = false;
+  private heartbeatUntil = 0;
   private dropped = 0;
   private lastDropped = '';
 
@@ -208,7 +258,12 @@ export class AudioDirector implements GameAudio, SoundTest {
     this.play(id);
   };
 
+  setLevels(levelAt: ((x: number, y: number) => number) | null): void {
+    this.levelAt = levelAt;
+  }
+
   update(snapshot: Readonly<AudioSnapshot>): void {
+    this.listener = { x: snapshot.x, y: snapshot.y, level: snapshot.level };
     if (snapshot.paused !== this.paused) {
       this.paused = snapshot.paused;
       if (this.paused) this.stopBus('sfx');
@@ -223,6 +278,66 @@ export class AudioDirector implements GameAudio, SoundTest {
     } else if (firing) {
       this.loops.get(CONTINUOUS_LOOP[firing])?.voice.setRate(this.heatRate(firing, snapshot.heat));
     }
+    this.updateThreats(snapshot);
+  }
+
+  /**
+   * The continuous threats (§6.4) and low health (§3.5): a groan of the
+   * nearest zombie every 2 to 5 s, the boss's gallop and dizzy bells
+   * following it, and the heartbeat for its first seconds.
+   */
+  private updateThreats(s: Readonly<AudioSnapshot>): void {
+    const now = this.clock();
+    if (!this.paused && s.zombiesNear > 0 && now >= this.nextGroan) {
+      this.play('zombie.groan', { at: { x: s.nearestZombieX, y: s.nearestZombieY } });
+      const [min, max] = AUDIO.groanInterval;
+      this.nextGroan = now + min + this.random() * (max - min);
+    }
+    const boss = { x: s.bossX, y: s.bossY };
+    this.follow('boss.charge.loop', !this.paused && s.bossCharging, boss);
+    this.follow('boss.dizzy.loop', !this.paused && s.bossStunned, boss);
+    // The heartbeat only for its first seconds: a lasting one would be unbearable (health never comes back by itself).
+    if (s.lowHealth && !this.wasLow && !this.paused) {
+      this.startLoop('player.heartbeat', {});
+      this.heartbeatUntil = now + AUDIO.heartbeatTime;
+    }
+    if (this.loops.has('player.heartbeat') && (!s.lowHealth || now >= this.heartbeatUntil)) this.stopLoop('player.heartbeat', AUDIO.loopFadeOut);
+    this.wasLow = s.lowHealth;
+  }
+
+  /** A loop that sounds while `on`, where `at` is (on its level only), moving with it. */
+  private follow(id: string, on: boolean, at: Place): void {
+    const v = this.loops.get(id);
+    if (!on || !this.sameLevel(id, at)) {
+      if (v) this.stopLoop(id, AUDIO.loopFadeOut);
+      return;
+    }
+    if (!v) this.startLoop(id, { at });
+    else v.voice.place(v.gain * this.distanceGain(at), this.panOf(at));
+  }
+
+  /** Whether `at` is on the local player's level (or the sound is heard on every one). Unknown levels count as the same. */
+  private sameLevel(id: string, at: Place): boolean {
+    if (AUDIO.anyLevel.includes(id)) return true;
+    const level = this.levelAt?.(at.x, at.y) ?? -1;
+    return level < 0 || this.listener.level < 0 || level === this.listener.level;
+  }
+
+  /** Full within `near`, down in a line to `minGain` at `far` (§3.5); full while nobody listens. */
+  private distanceGain(at: Place): number {
+    if (this.listener.level < 0) return 1;
+    const { near, far, minGain } = AUDIO.position;
+    const d = Math.hypot(at.x - this.listener.x, at.y - this.listener.y);
+    if (d <= near) return 1;
+    if (d >= far) return minGain;
+    return 1 - ((d - near) / (far - near)) * (1 - minGain);
+  }
+
+  /** Left or right by its side of the listener, at most `maxPan` (§3.5). */
+  private panOf(at: Place): number {
+    if (this.listener.level < 0) return 0;
+    const { far, maxPan } = AUDIO.position;
+    return Math.max(-1, Math.min(1, (at.x - this.listener.x) / far)) * maxPan;
   }
 
   /** Plays a sound as the game would: a loop starts or stops, and a streak climbs (the upgrade one by levels 1, 2, 3 in turn). */
@@ -240,14 +355,22 @@ export class AudioDirector implements GameAudio, SoundTest {
   }
 
   simulateCombat(): void {
-    const { seconds, hitsIn10, killEvery } = AUDIO.combatTest;
+    const { seconds, hitsIn10, killEvery, attackEvery, groanEvery, crowdRadius } = AUDIO.combatTest;
     const shots = Math.round(seconds * WEAPONS.smg.fireRate);
+    // Somewhere in the crowd around the player (in the middle, out of a match).
+    const around = (): Place => {
+      const angle = this.random() * 2 * Math.PI;
+      const r = crowdRadius * (0.3 + 0.7 * this.random());
+      return { x: this.listener.x + Math.cos(angle) * r, y: this.listener.y + Math.sin(angle) * r };
+    };
     let hits = 0;
     for (let i = 0; i < shots; i++) {
       this.schedule(i / WEAPONS.smg.fireRate, () => {
         this.play('weapon.smg.fire');
+        if (i % attackEvery === 0) this.play('zombie.attack', { at: around() });
+        if (i % groanEvery === 0) this.play('zombie.groan', { at: around() });
         if (i % 10 >= hitsIn10) return;
-        this.play('impact.flesh');
+        this.play('impact.flesh', { at: around() });
         if (++hits % killEvery === 0) this.test('reward.kill');
       });
     }
@@ -276,9 +399,24 @@ export class AudioDirector implements GameAudio, SoundTest {
     events.on('player:dash', (e) => mine(e.playerId, 'player.dash'));
     events.on('player:damaged', (e) => mine(e.playerId, 'player.hurt'));
     events.on('player:died', (e) => mine(e.playerId, 'player.death'));
-    events.on('zombie:hit', (e) => this.play(e.weapon === 'katana' ? 'weapon.katana.hit' : 'impact.flesh'));
-    events.on('fire:blast', () => this.play('weapon.flame.blast'));
+    events.on('zombie:hit', (e) => this.play(e.weapon === 'katana' ? 'weapon.katana.hit' : 'impact.flesh', { at: e }));
+    events.on('fire:blast', (e) => this.play('weapon.flame.blast', { at: e }));
+    this.listenThreats(events);
     this.listenRewards(events, mine);
+  }
+
+  /** The events of §6.4, each where it happens. */
+  private listenThreats(events: EventBus): void {
+    events.on('zombie:attack', (e) => this.play('zombie.attack', { at: e }));
+    events.on('zombie:crippled', (e) => this.play('zombie.crawl', { at: e }));
+    events.on('barricade:plankBroken', (e) => this.play('barricade.break', { at: e }));
+    events.on('boss:warning', (e) => this.play('boss.warning', { at: e }));
+    events.on('boss:landed', (e) => this.play('boss.landed', { at: e }));
+    events.on('boss:roar', (e) => this.play('boss.roar', { at: e }));
+    events.on('boss:windup', (e) => this.play(`boss.windup.${e.attack}`, { at: e }));
+    events.on('boss:slam', (e) => this.play('boss.slam', { at: e }));
+    events.on('boss:stunned', (e) => this.play('boss.stunned', { at: e }));
+    events.on('boss:killed', (e) => this.play('boss.killed', { at: e }));
   }
 
   /**
@@ -300,8 +438,8 @@ export class AudioDirector implements GameAudio, SoundTest {
     events.on('pickup:collected', (e) => mine(e.playerId, e.kind === 'ammo' ? 'pickup.ammo' : 'pickup.health'));
     events.on('item:picked', (e) => mine(e.playerId, 'pickup.item'));
     events.on('money:spent', (e) => mine(e.playerId, 'buy.cash'));
-    events.on('door:opened', () => this.play('buy.door'));
-    events.on('portal:opened', () => this.play('buy.door'));
+    events.on('door:opened', (e) => this.play('buy.door', { at: e }));
+    events.on('portal:opened', (e) => this.play('buy.door', { at: e }));
     events.on('zone:unlocked', () => this.schedule(AUDIO.zoneDelay, () => this.play('buy.zone')));
     // At a case, ammo sounds like picking ammo up; a weapon, like the case's own.
     events.on('weaponCase:purchase', (e) => mine(e.playerId, e.ammo ? 'pickup.ammo' : 'buy.weapon'));
@@ -315,7 +453,7 @@ export class AudioDirector implements GameAudio, SoundTest {
     events.on('action:denied', (e) => mine(e.playerId, 'denied'));
     events.on('item:cantUse', (e) => mine(e.playerId, 'item.cantUse'));
     // The splash when it lands, a moment after the throw.
-    events.on('item:thrown', () => this.schedule(ITEMS.throwTime, () => this.play('item.splash')));
+    events.on('item:thrown', (e) => this.schedule(ITEMS.throwTime, () => this.play('item.splash', { at: { x: e.toX, y: e.toY } })));
     events.on('activation:completed', () => this.play('ritual.done'));
     events.on('merchant:moved', (e) => {
       if (e.first) this.play('merchant.arrive', { variant: MERCHANT_VARIANT[e.merchant] });
@@ -393,6 +531,8 @@ export class AudioDirector implements GameAudio, SoundTest {
     const def = this.byId.get(id);
     if (!def) return null;
     if (this.paused && def.bus === 'sfx') return null;
+    // On another level it does not sound at all (§3.5): not a drop.
+    if (request.at && !this.sameLevel(id, request.at)) return null;
     const now = this.clock();
     this.prune(now);
     const last = this.lastPlay.get(id);
@@ -405,7 +545,10 @@ export class AudioDirector implements GameAudio, SoundTest {
     const duration = key === undefined ? undefined : this.durations[key];
     if (key === undefined || duration === undefined) return null;
     const rate = (request.rate ?? 1) * (1 + (this.random() * 2 - 1) * (def.pitchVar / 100));
-    const options = { bus: def.bus, gain: def.volume, rate, pan: 0, loop: def.loop, ...(def.loop ? { fadeIn: AUDIO.loopFadeIn } : {}) };
+    const at = def.positional ? request.at : undefined;
+    const gain = at ? def.volume * this.distanceGain(at) : def.volume;
+    const pan = at ? this.panOf(at) : 0;
+    const options = { bus: def.bus, gain, rate, pan, loop: def.loop, positional: def.positional, ...(def.loop ? { fadeIn: AUDIO.loopFadeIn } : {}) };
     const body = this.engine.play(key, options);
     this.lastPlay.set(id, now);
     if (!body) return null;
@@ -418,11 +561,11 @@ export class AudioDirector implements GameAudio, SoundTest {
       const shineRate = rate * 2 ** ((AUDIO.ladder.steps[request.rung ?? 0] ?? 0) / 12);
       const shine = this.engine.play(shineKey, { ...options, rate: shineRate });
       if (shine) {
-        voice = { stop: (fade) => (body.stop(fade), shine.stop(fade)), setRate: (r) => body.setRate(r) };
+        voice = { stop: (fade) => (body.stop(fade), shine.stop(fade)), setRate: (r) => body.setRate(r), place: (g, p) => (body.place(g, p), shine.place(g, p)) };
         ends = Math.max(ends, shineDuration / shineRate);
       }
     }
-    const active: ActiveVoice = { id, bus: def.bus, priority: def.priority, startedAt: now, endsAt: def.loop ? Infinity : now + ends, voice };
+    const active: ActiveVoice = { id, bus: def.bus, priority: def.priority, startedAt: now, endsAt: def.loop ? Infinity : now + ends, voice, gain: def.volume };
     this.voices.push(active);
     return active;
   }

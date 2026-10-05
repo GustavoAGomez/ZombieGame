@@ -83,7 +83,7 @@ export function tryBuyPortal(ctx: SimContext, p: PlayerState, index: number): bo
     return false;
   }
   unlockZone(ctx, target);
-  ctx.events.emit('portal:opened', { portalId: portal.id, playerId: p.id });
+  ctx.events.emit('portal:opened', { portalId: portal.id, playerId: p.id, x: portal.center.x, y: portal.center.y });
   return true;
 }
 

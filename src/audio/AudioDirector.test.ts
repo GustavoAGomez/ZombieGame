@@ -23,7 +23,7 @@ class FakeEngine implements AudioOutput {
   play(key: string, options: PlayOptions): Voice {
     const entry = { key, options, stopped: false, rate: options.rate };
     this.played.push(entry);
-    return { stop: () => (entry.stopped = true), setRate: (r) => (entry.rate = r) };
+    return { stop: () => (entry.stopped = true), setRate: (r) => (entry.rate = r), place: () => undefined };
   }
   setBusGain(bus: AudioBus, gain: number): void {
     this.gains[bus] = gain;
@@ -232,8 +232,8 @@ describe('AudioDirector: weapons and the player (spec 08 §6.1)', () => {
       [() => events.emit('pickup:collected', { playerId: 0, kind: 'health' }), 'pickup_health'],
       [() => events.emit('item:picked', { playerId: 0, item: 'worn_wand' }), 'pickup_item'],
       [() => events.emit('money:spent', { playerId: 0, amount: 750 }), 'buy_cash'],
-      [() => events.emit('door:opened', { doorId: 'D1', playerId: 0 }), 'buy_door'],
-      [() => events.emit('portal:opened', { portalId: 'P1', playerId: 0 }), 'buy_door'],
+      [() => events.emit('door:opened', { doorId: 'D1', playerId: 0, x: 0, y: 0 }), 'buy_door'],
+      [() => events.emit('portal:opened', { portalId: 'P1', playerId: 0, x: 0, y: 0 }), 'buy_door'],
       [() => events.emit('zone:unlocked', { zone: 'cocina' }), 'buy_zone'],
       [() => events.emit('weaponCase:purchase', { playerId: 0, weapon: 'smg', ammo: false }), 'buy_weapon'],
       [() => events.emit('weaponCase:purchase', { playerId: 0, weapon: 'smg', ammo: true }), 'pickup_ammo'],
@@ -257,10 +257,22 @@ describe('AudioDirector: weapons and the player (spec 08 §6.1)', () => {
       [() => events.emit('round:changed', { round: 2, boss: false }), 'jingle_round_start'],
       [() => events.emit('round:changed', { round: 5, boss: true }), 'jingle_round_boss'],
       [() => events.emit('round:cleared', { round: 2 }), 'jingle_round_clear'],
-      [() => events.emit('boss:killed', { x: 0, y: 0, boss: 'butcher', variant: 'base' }), 'jingle_boss_dead'],
       [() => events.emit('game:over', { round: 3, score: 100 }), 'jingle_gameover'],
       [() => events.emit('shop:state', { merchant: 'blue', rows: [] }), 'ui_shop_open_blue'],
       [() => events.emit('shop:state', { merchant: null, rows: [] }), 'ui_shop_close_blue'],
+      // §6.4.
+      [() => events.emit('zombie:attack', { x: 0, y: 0 }), 'zombie_attack'],
+      [() => events.emit('zombie:crippled', { x: 0, y: 0 }), 'zombie_crawl'],
+      [() => events.emit('barricade:plankBroken', { x: 0, y: 0 }), 'barricade_break'],
+      [() => events.emit('boss:warning', { x: 0, y: 0 }), 'boss_warning'],
+      [() => events.emit('boss:landed', { x: 0, y: 0 }), 'boss_landed'],
+      [() => events.emit('boss:roar', { x: 0, y: 0 }), 'boss_roar'],
+      [() => events.emit('boss:windup', { x: 0, y: 0, attack: 'charge' }), 'boss_windup_charge'],
+      [() => events.emit('boss:windup', { x: 0, y: 0, attack: 'slam' }), 'boss_windup_slam'],
+      [() => events.emit('boss:windup', { x: 0, y: 0, attack: 'leap' }), 'boss_windup_leap'],
+      [() => events.emit('boss:slam', { x: 0, y: 0 }), 'boss_slam'],
+      [() => events.emit('boss:stunned', { x: 0, y: 0 }), 'boss_stunned'],
+      [() => events.emit('boss:killed', { x: 0, y: 0, boss: 'butcher', variant: 'base' }), 'boss_killed,jingle_boss_dead'],
     );
     for (const [emit, key] of cases) {
       advance(1);
@@ -314,6 +326,30 @@ describe('AudioDirector: weapons and the player (spec 08 §6.1)', () => {
     const keys = engine.played.map((p) => p.key);
     expect(keys.filter((k) => k.startsWith('weapon_smg_fire')).length).toBeGreaterThan(0);
     expect(keys.filter((k) => k.startsWith('impact_flesh')).length).toBeGreaterThan(0);
+  });
+
+  it('never goes past the global limit with the SMG among 20 zombies (§9, S4)', () => {
+    const engine = new FakeEngine();
+    let now = 0;
+    const runs: { at: number; run: () => void }[] = [];
+    let r = 0;
+    const director = new AudioDirector(engine, new FakeSettings(), null, { clock: () => now, random: () => (r = (r * 9301 + 49297) % 233280) / 233280, schedule: (at, run) => runs.push({ at, run }) });
+    const defs: Record<string, AudioDef> = {};
+    for (const s of SOUNDS) for (const v of [...s.variants, ...s.shine]) defs[v] = { file: `audio/sfx/${v}.wav`, duration: 0.5, placeholder: false };
+    director.load(defs, 'assets/');
+    director.update({ ...QUIET_SNAPSHOT, x: 500, y: 500, level: 0, zombiesNear: 20, nearestZombieX: 560, nearestZombieY: 500 });
+    director.simulateCombat();
+    let most = 0;
+    for (const run of runs.sort((a, b) => a.at - b.at)) {
+      now = run.at;
+      run.run();
+      director.update({ ...QUIET_SNAPSHOT, x: 500, y: 500, level: 0, zombiesNear: 20, nearestZombieX: 560, nearestZombieY: 500 });
+      most = Math.max(most, director.stats().voices);
+    }
+    expect(most).toBeLessThanOrEqual(AUDIO.maxVoices);
+    expect(engine.played.some((p) => p.key.startsWith('zombie_attack'))).toBe(true);
+    // The low priority ones (impacts, groans) give way first: the shots go on.
+    expect(engine.played.filter((p) => p.key.startsWith('weapon_smg_fire')).length).toBeGreaterThan(20);
   });
 
   it('in the sound test, a loop starts and stops on the next tap', () => {
@@ -386,7 +422,7 @@ describe('AudioDirector: rewards, streaks, the hand and the banners (spec 08 §3
     events.emit('barricade:repaired', { playerId: 2, x: 0, y: 0 });
     expect(keys()).toEqual([]);
     // A door, though, is heard by everyone.
-    events.emit('door:opened', { doorId: 'D1', playerId: 1 });
+    events.emit('door:opened', { doorId: 'D1', playerId: 1, x: 0, y: 0 });
     expect(keys()).toEqual(['buy_door']);
   });
 
@@ -414,6 +450,95 @@ describe('AudioDirector: rewards, streaks, the hand and the banners (spec 08 §3
       r.run();
     }
     expect(shineSteps(engine, 'reward_kill')).toEqual(AUDIO.ladder.steps.slice(0, AUDIO.streakTest.kills));
+  });
+});
+
+describe('AudioDirector: place, levels, threats and low health (spec 08 §3.5, §6.4)', () => {
+  /** A match: the local player at (1000, 1000) on level 0, the map's level 1 east of x 3000. */
+  function match() {
+    const g = gameSetup();
+    g.director.setLevels((x) => (x > 3000 ? 1 : 0));
+    const snapshot = { ...QUIET_SNAPSHOT, x: 1000, y: 1000, level: 0 };
+    g.director.update(snapshot);
+    return { ...g, snapshot };
+  }
+
+  it('places a positional sound: full near, down to a quarter far, panned by its side', () => {
+    const { engine, events, advance } = match();
+    const { near, far, minGain, maxPan } = AUDIO.position;
+    const hitAt = (x: number) => {
+      advance(1);
+      events.emit('zombie:hit', { x, y: 1000, groundY: 1000, dirX: 1, dirY: 0, killed: false });
+      return engine.played.at(-1)?.options;
+    };
+    const volume = SOUNDS.find((s) => s.id === 'impact.flesh')?.volume ?? 0;
+    expect(hitAt(1000 + near / 2)).toMatchObject({ gain: volume, pan: (near / 2 / far) * maxPan });
+    expect(hitAt(1000 - (near + far) / 2)?.gain).toBeCloseTo(volume * (1 + minGain) / 2);
+    expect(hitAt(1000 - far * 2)).toMatchObject({ gain: volume * minGain, pan: -maxPan });
+  });
+
+  it('does not sound what happens on another level, except the boss\'s warnings', () => {
+    const { events, keys, advance } = match();
+    events.emit('zombie:hit', { x: 3500, y: 1000, groundY: 1000, dirX: 1, dirY: 0, killed: false });
+    events.emit('boss:slam', { x: 3500, y: 1000 });
+    events.emit('door:opened', { doorId: 'D9', playerId: 1, x: 3500, y: 1000 });
+    expect(keys()).toEqual([]);
+    advance(1);
+    events.emit('boss:warning', { x: 3500, y: 1000 });
+    events.emit('boss:windup', { x: 3500, y: 1000, attack: 'leap' });
+    expect(keys()).toEqual(['boss_warning', 'boss_windup_leap']);
+  });
+
+  it('groans for the nearest zombie every 2 to 5 s, never two at once', () => {
+    const { director, keys, advance, snapshot } = match();
+    const near = { ...snapshot, zombiesNear: 6, nearestZombieX: 1100, nearestZombieY: 1000 };
+    let last = -Infinity;
+    const gaps: number[] = [];
+    for (let t = 0; t < 30; t += 0.1) {
+      const before = keys().length;
+      director.update(near);
+      if (keys().length > before) {
+        gaps.push(t - last);
+        last = t;
+      }
+      advance(0.1);
+    }
+    expect(keys().every((k) => k.startsWith('zombie_groan'))).toBe(true);
+    for (const gap of gaps.slice(1)) {
+      expect(gap).toBeGreaterThanOrEqual(AUDIO.groanInterval[0] - 0.11);
+      expect(gap).toBeLessThanOrEqual(AUDIO.groanInterval[1] + 0.11);
+    }
+  });
+
+  it('beats the heart for 5 s when health falls low, and not again until it rises and falls', () => {
+    const { engine, director, advance, snapshot } = match();
+    const low = { ...snapshot, lowHealth: true };
+    director.update(low);
+    const beat = engine.played.at(-1);
+    expect([beat?.key, beat?.options.loop]).toEqual(['player_heartbeat', true]);
+    advance(AUDIO.heartbeatTime - 0.1);
+    director.update(low);
+    expect(beat?.stopped).toBe(false);
+    advance(0.2);
+    director.update(low);
+    expect(beat?.stopped).toBe(true);
+    advance(10);
+    director.update(low);
+    expect(engine.played.filter((p) => p.key === 'player_heartbeat')).toHaveLength(1);
+    director.update(snapshot);
+    director.update(low);
+    expect(engine.played.filter((p) => p.key === 'player_heartbeat')).toHaveLength(2);
+  });
+
+  it('gallops while the boss charges and rings dizzy while it is stunned, on its level', () => {
+    const { engine, director, keys, snapshot } = match();
+    director.update({ ...snapshot, bossCharging: true, bossX: 1200, bossY: 1000 });
+    director.update({ ...snapshot, bossStunned: true, bossX: 1300, bossY: 1000 });
+    director.update(snapshot);
+    expect(keys()).toEqual(['boss_charge_loop', 'boss_dizzy_loop']);
+    expect(engine.played.map((p) => p.stopped)).toEqual([true, true]);
+    director.update({ ...snapshot, bossCharging: true, bossX: 3500, bossY: 1000 });
+    expect(keys()).toHaveLength(2);
   });
 });
 

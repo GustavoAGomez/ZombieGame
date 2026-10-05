@@ -1,0 +1,134 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Una bomba que cae, grabada y bajada cinco semitonos, sobre aire que baja de 800 a 150 Hz.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/506313_falling_bomb.ogg",
+                "process": {
+                  "semitones": -5,
+                  "lowcut": 150,
+                  "fadeIn": 0.3
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "air",
+                "freq": 800,
+                "freqEnd": 150,
+                "duration": 3.0,
+                "width": 1,
+                "seed": 31
+              },
+              "gain": 0.6
+            }
+          ],
+          "process": {
+            "length": 3.0,
+            "fadeOut": 0.12
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Aire que cae de 1500 a 200 Hz con un acorde La-Mi que se hunde una octava.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "air",
+                "freq": 1500,
+                "freqEnd": 200,
+                "duration": 3.0,
+                "width": 1.5,
+                "seed": 32
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "pad",
+                "notes": [
+                  [
+                    "A4",
+                    0
+                  ],
+                  [
+                    "E5",
+                    0
+                  ]
+                ],
+                "duration": 3.0,
+                "attack": 0.3,
+                "width": 10,
+                "process": {
+                  "glide": -12
+                }
+              },
+              "gain": 0.4
+            }
+          ],
+          "process": {
+            "length": 3.0,
+            "fadeOut": 0.12
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "La bomba que cae, deslizándose más abajo, con un retumbo de rocas que crece.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/506313_falling_bomb.ogg",
+                "process": {
+                  "semitones": -2,
+                  "glide": -5,
+                  "lowcut": 150,
+                  "fadeIn": 0.3
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/426318_rocks_falling.ogg",
+                "process": {
+                  "lowcut": 150,
+                  "fadeIn": 1.5
+                }
+              },
+              "gain": 0.4,
+              "delay": 0.4
+            }
+          ],
+          "process": {
+            "length": 3.0,
+            "fadeOut": 0.12
+          }
+        }
+      ]
+    }
+  }
+}

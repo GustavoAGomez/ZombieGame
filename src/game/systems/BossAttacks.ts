@@ -113,6 +113,7 @@ export function startAttack(ctx: SimContext, b: BossState, attack: BossAttackId,
   b.hitPlayers = 0;
   b.count = 0;
   aimAt(b, target);
+  ctx.events.emit('boss:windup', { x: b.x, y: b.y, attack });
   if (attack === 'charge') {
     setStage(ctx, b, 'windup', chargeWindup(b));
     b.runLeft = BOSSES[b.boss].charge.distance;
