@@ -88,6 +88,27 @@ function uiRect(value: unknown, where: string): UiRect | undefined {
   return { x: Number(value.x) || 0, y: Number(value.y) || 0, width: positive(value.width, `${where}.width`), height: positive(value.height, `${where}.height`) };
 }
 
+/**
+ * A sound file (spec 08 §1.2): WAV for the effects, with its length in
+ * seconds; the music also says where its loop starts and ends.
+ */
+/** A candidate of a sound (spec 08 §4.4). */
+export type AudioCandidate = 'A' | 'B' | 'C';
+
+export interface AudioDef {
+  file: string;
+  duration: number;
+  /** No file yet: the sound is silence, never an error (CLAUDE.md rule 5). */
+  placeholder: boolean;
+  loopStart?: number;
+  loopEnd?: number;
+  /** A candidate's file (spec 08 §4.4): only the debug build loads it, for the sound test. */
+  candidate?: AudioCandidate;
+  /** A game file: the candidate it comes from, and whether that one is still to be chosen (A plays meanwhile). */
+  picked?: AudioCandidate;
+  pending?: boolean;
+}
+
 export interface Manifest {
   tileSize: number;
   characters: Record<string, CharacterDef>;
@@ -96,6 +117,8 @@ export interface Manifest {
   maps: Record<string, string>;
   /** HUD skin pieces (npm run hud:import); without them the HUD keeps its CSS-only look. */
   ui: Record<string, UiPieceDef>;
+  /** Sound files by key (npm run audio:gen); the catalog in src/config/audio.ts names them. */
+  audio: Record<string, AudioDef>;
 }
 
 /** Row order of character sheets (same as PixelLab). */
@@ -382,7 +405,39 @@ export function parseManifest(json: unknown): Manifest {
     };
   }
 
-  return { tileSize, characters, tilesets, objects, maps, ui };
+  const audio: Record<string, AudioDef> = {};
+  for (const [key, raw] of Object.entries(section(json.audio, 'audio'))) {
+    const where = `audio.${key}`;
+    if (!isRecord(raw)) throw new ManifestError(`${where} must be an object`);
+    const loop = (field: 'loopStart' | 'loopEnd'): number | undefined => {
+      const value = raw[field];
+      if (value === undefined) return undefined;
+      if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) throw new ManifestError(`${where}.${field} must be a number of seconds`);
+      return value;
+    };
+    const loopStart = loop('loopStart');
+    const loopEnd = loop('loopEnd');
+    const letter = (field: 'candidate' | 'picked'): AudioCandidate | undefined => {
+      const value = raw[field];
+      if (value === undefined) return undefined;
+      if (value !== 'A' && value !== 'B' && value !== 'C') throw new ManifestError(`${where}.${field} must be A, B or C`);
+      return value;
+    };
+    const candidate = letter('candidate');
+    const picked = letter('picked');
+    audio[key] = {
+      file: text(raw.file, `${where}.file`),
+      duration: positive(raw.duration, `${where}.duration`),
+      placeholder: raw.placeholder === true,
+      ...(loopStart !== undefined ? { loopStart } : {}),
+      ...(loopEnd !== undefined ? { loopEnd } : {}),
+      ...(candidate ? { candidate } : {}),
+      ...(picked ? { picked } : {}),
+      ...(raw.pending === true ? { pending: true } : {}),
+    };
+  }
+
+  return { tileSize, characters, tilesets, objects, maps, ui, audio };
 }
 
 /**

@@ -2,6 +2,9 @@ import Phaser from 'phaser';
 import '@fontsource/press-start-2p/latin-400.css';
 import '@fontsource/silkscreen/latin-400.css';
 import './ui/global.css';
+import { AudioDirector } from './audio/AudioDirector';
+import { WebAudioEngine } from './audio/AudioEngine';
+import { keepAudioAlive } from './audio/lifecycle';
 import { COLORS, applyThemeTokens } from './config/theme';
 import { blockZoom } from './ui/noZoom';
 import { EventBus } from './core/EventBus';
@@ -30,6 +33,12 @@ const gameRoot = requireElement('game');
 const hudRoot = requireElement('hud');
 mountRotateOverlay(document.body);
 
+const preferences = new Preferences();
+// Sound outside Phaser (spec 08 §1): the DOM menus sound too, with one engine, volume and unlock.
+const audioEngine = new WebAudioEngine();
+keepAudioAlive(audioEngine);
+const audio = new AudioDirector(audioEngine, preferences);
+
 const services: Services = {
   events: new EventBus(),
   hudRoot,
@@ -38,7 +47,8 @@ const services: Services = {
   startRound: requestedStartRound(),
   mapKey: requestedMap(),
   debugActions: null,
-  preferences: new Preferences(),
+  preferences,
+  audio,
 };
 
 new HapticFeedback(services.events, services.preferences);
@@ -56,6 +66,7 @@ const game = new Phaser.Game({
   scale: { mode: Phaser.Scale.NONE, autoRound: true },
   // Touch controls are DOM elements; Phaser does not need to listen to input.
   input: { keyboard: false, mouse: false, touch: false, gamepad: false },
+  // The sound is our own engine (src/audio/): Phaser makes none.
   audio: { noAudio: true },
   banner: false,
   scene: [new BootScene(services), new TitleScene(), new GameScene(), new GameOverScene()],
@@ -71,6 +82,7 @@ new DebugOverlay(
   },
   services.debug,
   () => services.debugActions,
+  audio,
 );
 
 if (services.debug) {

@@ -20,11 +20,16 @@ art-src/
   pixellab/<asset>/      exports de PixelLab tal cual, sin tocar
   aseprite/              archivos .aseprite retocados (opcional)
   tiled/                 proyecto de Tiled (.tmx/.tsx de trabajo)
+audio-src/
+  recipes/<id>.json       recetas de cada sonido, con sus candidatos (npm run audio:gen)
+  preview/report.md       informe de audio:gen
 public/assets/
   manifest.json
   sprites/<asset>/<animacion>.png
   tiles/<tileset>.png
   maps/<mapa>.tmj
+  audio/sfx/<clave>.wav          los efectos del juego (el candidato elegido)
+  audio/candidates/<clave>__<a|b|c>.wav   candidatos aún sin elegir (solo los carga el debug)
 ```
 
 ## 3. Sprites de personajes
@@ -176,6 +181,38 @@ Nombres válidos: `ringLarge`, `ringMedium`, `ringSmall`, `hexagon`, `octagon`, 
   - reparar: un borde ámbar de 2 px alrededor de la placa que parpadea.
 
   Si falta alguna pieza, el HUD conserva su aspecto solo con CSS.
+
+### Sonidos (`audio`, spec 08)
+
+Una entrada por archivo de sonido, con su clave en snake_case:
+
+```json
+"audio": {
+  "ui_tap": { "file": "audio/sfx/ui_tap.wav", "duration": 0.0928, "placeholder": false, "picked": "A", "pending": true },
+  "ui_tap__b": { "file": "audio/candidates/ui_tap__b.wav", "duration": 0.0818, "placeholder": false, "candidate": "B" }
+}
+```
+
+- **`file`:** ruta dentro de `public/assets/`. Los efectos son WAV de 44,1 kHz y 16 bits: mono los posicionales y los frecuentes, estéreo solo los grandes que no son posicionales.
+- **`duration`:** segundos. El director la usa para saber cuándo queda libre una voz.
+- **`placeholder`:** `true` si todavía no hay archivo. El sonido es silencio, nunca un error.
+- **`picked` y `pending`:** el candidato del que sale un archivo del juego y, con `pending`, que todavía no se ha elegido (mientras tanto suena A).
+- **`candidate`:** un archivo candidato (A, B o C). Solo se carga con el debug activo, para compararlos en PRUEBA DE SONIDOS.
+- **`loopStart` y `loopEnd`:** solo la música (fase S5), en segundos.
+- **Claves:** el código nunca nombra estas claves. Las nombra el catálogo (`src/config/audio.ts`): cada sonido (`ui.tap`, `weapon.pistol.fire`…) lista sus variantes, de 1 a 4, que son claves de esta sección. La clave de un candidato es la de la variante con `__a`, `__b` o `__c`.
+- **De dónde salen:** `npm run audio:gen` monta cada sonido desde su receta, `audio-src/recipes/<id>.json`, y escribe aquí sus entradas.
+  - **Formato de la receta:** `{ "chosen": null, "candidates": { "A": { "about": "…", "channels": 1, "variants": [ … ] }, "B": … } }`.
+  - **Sin candidato elegido** (`chosen` a `null`): el juego suena con A y los tres candidatos van a `audio/candidates/`.
+  - **Con uno elegido:** solo sale ese, y los demás se quedan en la receta.
+  - **Sin receta:** a una variante del catálogo que no tiene receta le pone una entrada `placeholder`.
+  - **Informe:** las medidas y los avisos quedan en `audio-src/preview/report.md`.
+- **Tipos de receta en S1:**
+  - `synth`, una capa hecha por código con `timbre` (`bell`, `glass`, `sub`, `air` o `pad`) y sus parámetros: `note` o `notes` (solo de La menor), `duration`, `attack`, `freq`, `freqEnd`, `width` y `seed`.
+  - `layers`: `{ "recipe": {…}, "gain": 0..1, "delay": segundos }`.
+- **`assets:check`** comprueba que:
+  - cada variante del catálogo tenga entrada y archivo;
+  - los efectos sean WAV de 44,1 kHz y 16 bits, mono o estéreo (y avisa de un estéreo en un sonido posicional), y su duración coincida con la del manifiesto;
+  - los efectos del juego ocupen menos de 8 MB (los candidatos no cuentan).
 
 ## 5. Mapas (Tiled JSON, `.tmj`)
 

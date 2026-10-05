@@ -1270,5 +1270,32 @@
         "height": 10
       }
     }
+  },
+  "audio": {
+    "ui_tap": {
+      "file": "audio/sfx/ui_tap.wav",
+      "duration": 0.0935,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "ui_tap__a": {
+      "file": "audio/candidates/ui_tap__a.wav",
+      "duration": 0.0935,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "ui_tap__b": {
+      "file": "audio/candidates/ui_tap__b.wav",
+      "duration": 0.0822,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "ui_tap__c": {
+      "file": "audio/candidates/ui_tap__c.wav",
+      "duration": 0.1173,
+      "placeholder": false,
+      "candidate": "C"
+    }
   }
 }

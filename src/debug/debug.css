@@ -99,3 +99,49 @@
   color: var(--ink);
   background: var(--amber);
 }
+
+/* Spec 08 §8: the sound test. */
+.debug-button--sounds {
+  color: var(--ink);
+  background: var(--amber);
+}
+
+.debug-sound-stats {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 9px;
+  color: var(--muted);
+}
+
+.debug-sound-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.debug-sound-tab {
+  min-width: 96px;
+}
+
+.debug-sound-list {
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+
+.debug-sound {
+  text-transform: none;
+}
+
+.debug-sound-cell {
+  display: flex;
+  gap: 2px;
+}
+
+.debug-sound-cell .debug-sound {
+  flex: 1;
+  min-width: 0;
+}
+
+.debug-sound-candidate {
+  width: 30px;
+  flex: none;
+}

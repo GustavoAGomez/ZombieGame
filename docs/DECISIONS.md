@@ -1876,3 +1876,25 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 - **Arte más grande que su huella:** `MapView` centra cada mueble sobre la base de su huella (antes lo alineaba a la izquierda). Así el árbol (96×105 sobre 64×64) sobresale por los dos lados y la farola (32×80) crece hacia arriba. La colisión sigue siendo la huella.
 - **Quedan 31 objetos:** los 10 descartados y los 21 grandes (96 px o más: mesa del comedor, sofá, estanterías largas, setos, coches de la calle y del garaje, escalera derrumbada…).
 
+## Audio: rehecho con la spec 08 nueva, fase S1 (petición del usuario)
+
+- **Se deshizo todo el trabajo de la spec 08 anterior** (un commit de revert de las fases S1 a S4) para rehacerla con la nueva: sonidos grabados y montados por capas, candidatos, créditos y música. El motor, las preferencias, los ajustes de la pausa, el desbloqueo, el segundo plano y el panel de prueba de entonces encajan con la spec nueva y se recuperaron tal cual. Sus decisiones siguen valiendo:
+  - el contexto de audio se crea al arrancar y lo despierta el toque de JUGAR, o cualquier otro toque como respaldo; en segundo plano se suspende y ningún toque lo despierta hasta volver;
+  - `minInterval`, `maxVoices` y el límite global con prioridades están en el director, que lleva la cuenta de las voces con la duración del manifiesto;
+  - EFECTOS y MÚSICA van en una fila junto a VIBRACIÓN, porque en el móvil apaisado no caben apilados;
+  - el panel PRUEBA DE SONIDOS tiene una pestaña por familia para no desplazarse, funciona con partida y sin ella, y muestra las voces, las descartadas y el estado del contexto.
+- **Familia `jingle` (Carteles):** los carteles de §6.5 duran hasta 2,5 s y no caben en las cuatro familias de §3.2. Cada familia tiene además una cola máxima en el informe:
+  - 300 ms los golpes y 150 ms la interfaz (los sonidos frecuentes, §3.3 regla 6);
+  - 600 ms los premios;
+  - 1 s las amenazas;
+  - 1,5 s los carteles.
+- **Candidatos:**
+  - Cada sonido tiene una receta, `audio-src/recipes/<id>.json`, con hasta tres candidatos y `chosen`.
+  - Mientras `chosen` es `null`, el juego suena con A y los tres candidatos se escriben en `public/assets/audio/candidates/`, que solo se cargan con el debug activo.
+  - Elegido uno, solo sale ese, y los demás se quedan en la receta sin ocupar sitio en el juego.
+  - El panel marca el candidato que suena, y un «?» indica que está pendiente.
+  - La elección se pide por el chat: el panel no puede escribir en el repositorio.
+  - Los candidatos no cuentan para el presupuesto de 8 MB.
+- **`audio:gen` desde S1, con capas sintéticas, mezcla, acabado e informe**, para que `ui.tap` salga de una receta. El taller completo (fuentes grabadas, proceso, créditos) llega en S2.
+- **La menor natural:** las notas válidas son A, B, C, D, E, F y G, sin alteraciones. `audio:gen` falla con una nota fuera de la tonalidad.
+
