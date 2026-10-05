@@ -1,6 +1,7 @@
 import { App } from '@capacitor/app';
 import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
 import Phaser from 'phaser';
+import { QUIET_SNAPSHOT, type AudioSnapshot } from '../../audio/AudioDirector';
 import { DEBUG, SIM, type BoostKind } from '../../config/balance';
 import { DISPLAY, computeWorldZoom } from '../../config/display';
 import { FixedStep } from '../../core/FixedStep';
@@ -47,6 +48,7 @@ import { cameraBounds, computeLevels, type MapLevels } from '../map/levels';
 import type { Services } from '../services';
 import { activeBulletCount } from '../systems/BulletSystem';
 import { isZombieAlive } from '../systems/Combat';
+import { isPlayerAlive } from '../systems/HealthSystem';
 import { createBossNavs, createNav, type SimContext } from '../systems/SimContext';
 import { stepSimulation } from '../systems/Simulation';
 import { roundsSurvived, startRound } from '../systems/WaveSystem';
@@ -114,6 +116,8 @@ export class GameScene extends Phaser.Scene {
   private pauseMenu!: PauseMenu;
   /** The match is frozen behind the pause menu. */
   private paused = false;
+  /** Filled in place every frame for the audio (spec 08 §1.3): no garbage. */
+  private readonly audioSnapshot: AudioSnapshot = { ...QUIET_SNAPSHOT };
   /** ms since the match ended; the game over screen shows after GAME_OVER_DELAY_MS. */
   private overFor = 0;
   private overShown = false;
@@ -238,12 +242,12 @@ export class GameScene extends Phaser.Scene {
       this.services.debugActions = null;
       this.stopListeningToApp();
       this.anims.resumeAll();
-      this.services.audio.update({ paused: false });
+      this.services.audio.update(QUIET_SNAPSHOT);
     });
   }
 
   override update(time: number, delta: number): void {
-    this.services.audio.update({ paused: this.paused });
+    this.updateAudio();
     if (!this.paused && !this.overShown) this.fixedStep.advance(delta, (dt) => this.step(dt));
     // Before the views: a teleport snaps the camera, which must already be inside the new level.
     this.updateLevel();
@@ -263,6 +267,17 @@ export class GameScene extends Phaser.Scene {
     this.presenter.publish(this.state);
     this.updateStats();
     this.checkGameOver(delta);
+  }
+
+  /** What the audio needs every frame (spec 08 §1.3): the pause, and the local player's beam or jet and the laser's heat. */
+  private updateAudio(): void {
+    const s = this.audioSnapshot;
+    const p = this.state.players[0];
+    const slot = p ? p.weapons[p.activeSlot] : undefined;
+    s.paused = this.paused;
+    s.continuous = p && isPlayerAlive(p) ? (p.beamOn ? 'laser' : p.coneOn ? 'flamethrower' : null) : null;
+    s.heat = slot && s.continuous === 'laser' ? 1 - slot.battery : 0;
+    this.services.audio.update(s);
   }
 
   /** Freezes or resumes the match behind the pause menu (spec 01 §2.5). */

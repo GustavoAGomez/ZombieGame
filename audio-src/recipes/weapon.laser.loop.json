@@ -1,0 +1,182 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Acorde sostenido La-Mi con brillo de cristal arriba, zumbido eléctrico y el haz de un láser grabado.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "pad",
+                "notes": [
+                  [
+                    "A4",
+                    0
+                  ],
+                  [
+                    "E5",
+                    0
+                  ],
+                  [
+                    "A6",
+                    0,
+                    0.3
+                  ]
+                ],
+                "duration": 2.4,
+                "attack": 0.05,
+                "width": 12,
+                "process": {
+                  "start": 0.1,
+                  "end": 1.6
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/222678_ac_buzz_03.ogg",
+                "process": {
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.35
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/245154_laser_1_main_loop.ogg",
+                "process": {
+                  "start": 0.2,
+                  "end": 1.7,
+                  "highcut": 5000
+                }
+              },
+              "gain": 0.3
+            }
+          ]
+        }
+      ]
+    },
+    "B": {
+      "about": "Diente de sierra grabado en Do 3 como vibración, con brillo Do-Mi arriba y el haz grabado.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/853042_saw_c3_b1hz_loop.ogg",
+                "process": {
+                  "lowcut": 120,
+                  "highcut": 2500
+                }
+              },
+              "gain": 0.7
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "pad",
+                "notes": [
+                  [
+                    "C6",
+                    0
+                  ],
+                  [
+                    "E6",
+                    0
+                  ]
+                ],
+                "duration": 1.6,
+                "attack": 0.05,
+                "width": 10,
+                "process": {
+                  "start": 0.05,
+                  "end": 1.05
+                }
+              },
+              "gain": 0.35
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/245154_laser_1_main_loop.ogg",
+                "process": {
+                  "start": 0.2,
+                  "end": 1.2,
+                  "highcut": 6000
+                }
+              },
+              "gain": 0.25
+            }
+          ]
+        }
+      ]
+    },
+    "C": {
+      "about": "Motor eléctrico grabado como base, con La-Mi agudo y otro zumbido eléctrico.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/700034_electric_train_motor_idle_loop_queenslan.ogg",
+                "process": {
+                  "start": 0.2,
+                  "end": 2.2,
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "pad",
+                "notes": [
+                  [
+                    "A5",
+                    0
+                  ],
+                  [
+                    "E6",
+                    0
+                  ]
+                ],
+                "duration": 2.6,
+                "attack": 0.05,
+                "width": 10,
+                "process": {
+                  "start": 0.1,
+                  "end": 2.1
+                }
+              },
+              "gain": 0.35
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/222679_ac_buzz_02.ogg",
+                "process": {
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.3
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

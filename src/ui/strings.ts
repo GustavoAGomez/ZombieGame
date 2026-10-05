@@ -34,6 +34,7 @@ export const STRINGS = {
     /** Spec 08 §8: every sound of the catalog, by family. */
     soundTest: 'PRUEBA DE SONIDOS',
     soundBack: 'VOLVER',
+    simulateCombat: 'SIMULAR COMBATE',
     soundFamilies: { hit: 'GOLPE', reward: 'PREMIO', threat: 'AMENAZA', ui: 'INTERFAZ', jingle: 'CARTELES', music: 'MÚSICA' } satisfies Record<SoundFamily, string>,
     soundStats: (voices: number, dropped: number, last: string, state: string): string =>
       `VOCES ${voices} · DESCARTADAS ${dropped}${last ? ` (ÚLTIMA: ${last})` : ''} · AUDIO: ${state.toUpperCase()}`,

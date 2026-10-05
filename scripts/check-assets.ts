@@ -21,6 +21,7 @@ import {
   type Manifest,
 } from '../src/game/assets/manifest';
 import { parseMap } from '../src/game/map/MapLoader';
+import { Credits, recipeSources } from './lib/audio/credits';
 import { decodeWav } from './lib/audio/wav';
 import { colorsOutsidePalette, decodePng, parsePaletteHex, readPngInfo } from './lib/png';
 import { validateMap } from './lib/validate-map';
@@ -232,7 +233,27 @@ export function checkAssets(root: string): CheckReport {
   }
 
   checkAudio(assetsDir, manifest, report);
+  checkAudioSources(root, report);
   return report;
+}
+
+/** Spec 08 §5.1: every source a recipe uses exists and has its licence record. */
+export function checkAudioSources(root: string, report: CheckReport): void {
+  const audioSrc = resolve(root, 'audio-src');
+  let used: Map<string, string[]>;
+  try {
+    used = recipeSources(resolve(audioSrc, 'recipes'));
+  } catch (err) {
+    report.errors.push(`audio-src/recipes: ${(err as Error).message}`);
+    return;
+  }
+  const credits = new Credits(audioSrc);
+  for (const [source, sounds] of used) {
+    if (!existsSync(resolve(audioSrc, source))) report.errors.push(`audio: ${sounds.join(', ')} usa audio-src/${source}, que no existe`);
+    const found = credits.of(source);
+    if ('problem' in found) report.errors.push(`audio: ${found.problem}`);
+  }
+  report.info.push(`audio: ${used.size} archivos de origen en las recetas, todos con su ficha de licencia si no hay errores arriba.`);
 }
 
 /**

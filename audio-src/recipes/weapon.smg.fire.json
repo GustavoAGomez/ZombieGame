@@ -1,0 +1,459 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Thompson y M3 grabadas, con un golpe grave corto y sin sala.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/258198_thompson_smg_shot.ogg",
+                "process": {
+                  "end": 0.16,
+                  "lowcut": 150,
+                  "highcut": 8000
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 170,
+                "duration": 0.06
+              },
+              "gain": 0.3
+            }
+          ],
+          "process": {
+            "threshold": -16,
+            "ratio": 3,
+            "length": 0.15,
+            "fadeOut": 0.07
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/258198_thompson_smg_shot.ogg",
+                "process": {
+                  "end": 0.16,
+                  "lowcut": 150,
+                  "highcut": 8000,
+                  "semitones": 1.1
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 180,
+                "duration": 0.06
+              },
+              "gain": 0.3
+            }
+          ],
+          "process": {
+            "threshold": -16,
+            "ratio": 3,
+            "length": 0.15,
+            "fadeOut": 0.07
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/258257_m3_grease_gun_firing.ogg",
+                "process": {
+                  "end": 0.16,
+                  "lowcut": 150,
+                  "highcut": 8000
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 165,
+                "duration": 0.06
+              },
+              "gain": 0.3
+            }
+          ],
+          "process": {
+            "threshold": -16,
+            "ratio": 3,
+            "length": 0.15,
+            "fadeOut": 0.07
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/258257_m3_grease_gun_firing.ogg",
+                "process": {
+                  "end": 0.16,
+                  "lowcut": 150,
+                  "highcut": 8000,
+                  "semitones": -0.8
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 160,
+                "duration": 0.06
+              },
+              "gain": 0.3
+            }
+          ],
+          "process": {
+            "threshold": -16,
+            "ratio": 3,
+            "length": 0.15,
+            "fadeOut": 0.07
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Los disparos de pistola de A subidos de tono y recortados: misma familia, más ligera.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/344143_gunshot_001.ogg",
+                "process": {
+                  "end": 0.14,
+                  "lowcut": 150,
+                  "highcut": 8000,
+                  "semitones": 3
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 180,
+                "duration": 0.06
+              },
+              "gain": 0.3
+            }
+          ],
+          "process": {
+            "threshold": -16,
+            "ratio": 3,
+            "length": 0.15,
+            "fadeOut": 0.07
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/344142_gunshot_002.ogg",
+                "process": {
+                  "end": 0.14,
+                  "lowcut": 150,
+                  "highcut": 8000,
+                  "semitones": 3.5
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 185,
+                "duration": 0.06
+              },
+              "gain": 0.3
+            }
+          ],
+          "process": {
+            "threshold": -16,
+            "ratio": 3,
+            "length": 0.15,
+            "fadeOut": 0.07
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/344143_gunshot_001.ogg",
+                "process": {
+                  "end": 0.14,
+                  "lowcut": 150,
+                  "highcut": 8000,
+                  "semitones": 4.2
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 190,
+                "duration": 0.06
+              },
+              "gain": 0.3
+            }
+          ],
+          "process": {
+            "threshold": -16,
+            "ratio": 3,
+            "length": 0.15,
+            "fadeOut": 0.07
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/344142_gunshot_002.ogg",
+                "process": {
+                  "end": 0.14,
+                  "lowcut": 150,
+                  "highcut": 8000,
+                  "semitones": 2.6
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 175,
+                "duration": 0.06
+              },
+              "gain": 0.3
+            }
+          ],
+          "process": {
+            "threshold": -16,
+            "ratio": 3,
+            "length": 0.15,
+            "fadeOut": 0.07
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "MP5 y PPSh grabadas con un tic metálico.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/865993_mp5_fire.ogg",
+                "process": {
+                  "end": 0.16,
+                  "lowcut": 150,
+                  "highcut": 8000
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 170,
+                "duration": 0.06
+              },
+              "gain": 0.3
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/metalClick.ogg",
+                "process": {
+                  "start": 0.06,
+                  "end": 0.1
+                }
+              },
+              "gain": 0.15
+            }
+          ],
+          "process": {
+            "threshold": -16,
+            "ratio": 3,
+            "length": 0.15,
+            "fadeOut": 0.07
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/865993_mp5_fire.ogg",
+                "process": {
+                  "end": 0.16,
+                  "lowcut": 150,
+                  "highcut": 8000,
+                  "semitones": 1
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 180,
+                "duration": 0.06
+              },
+              "gain": 0.3
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/metalClick.ogg",
+                "process": {
+                  "start": 0.06,
+                  "end": 0.1
+                }
+              },
+              "gain": 0.15
+            }
+          ],
+          "process": {
+            "threshold": -16,
+            "ratio": 3,
+            "length": 0.15,
+            "fadeOut": 0.07
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/579531_ppsh_shooting.ogg",
+                "process": {
+                  "end": 0.16,
+                  "lowcut": 150,
+                  "highcut": 8000
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 170,
+                "duration": 0.06
+              },
+              "gain": 0.3
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/metalClick.ogg",
+                "process": {
+                  "start": 0.06,
+                  "end": 0.1
+                }
+              },
+              "gain": 0.15
+            }
+          ],
+          "process": {
+            "threshold": -16,
+            "ratio": 3,
+            "length": 0.15,
+            "fadeOut": 0.07
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/579531_ppsh_shooting.ogg",
+                "process": {
+                  "end": 0.16,
+                  "lowcut": 150,
+                  "highcut": 8000,
+                  "semitones": -1
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 165,
+                "duration": 0.06
+              },
+              "gain": 0.3
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/metalClick.ogg",
+                "process": {
+                  "start": 0.06,
+                  "end": 0.1
+                }
+              },
+              "gain": 0.15
+            }
+          ],
+          "process": {
+            "threshold": -16,
+            "ratio": 3,
+            "length": 0.15,
+            "fadeOut": 0.07
+          }
+        }
+      ]
+    }
+  }
+}

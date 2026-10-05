@@ -1,0 +1,167 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "El haz grabado cae una octava, con vapor y cristales que rebotan.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/245154_laser_1_main_loop.ogg",
+                "process": {
+                  "start": 0.2,
+                  "end": 1.0,
+                  "highcut": 6000,
+                  "glide": -12,
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/234782_steam_hiss.ogg",
+                "process": {
+                  "start": 0.3,
+                  "end": 1.1,
+                  "fadeIn": 0.05,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.15
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/203378_glass_shard_bounce_2.ogg",
+                "process": {
+                  "end": 0.4
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.05
+            }
+          ],
+          "process": {
+            "length": 1.0,
+            "fadeOut": 0.35
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Disparo láser grabado que baja siete semitonos, soplo de vapor y cristal golpeado.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/811629_laser.ogg",
+                "process": {
+                  "end": 0.9,
+                  "glide": -7,
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/623817_single_steam_train_chuff.ogg",
+                "process": {
+                  "lowcut": 200
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactGlass_heavy_001.ogg"
+              },
+              "gain": 0.6
+            }
+          ],
+          "process": {
+            "length": 1.0,
+            "fadeOut": 0.35
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "El acorde del láser que se hunde una octava, vapor largo y un golpe de cristal duro.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "pad",
+                "notes": [
+                  [
+                    "A5",
+                    0
+                  ],
+                  [
+                    "E6",
+                    0
+                  ]
+                ],
+                "duration": 1.0,
+                "attack": 0.01,
+                "width": 10,
+                "process": {
+                  "glide": -12
+                }
+              },
+              "gain": 0.6
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/234782_steam_hiss.ogg",
+                "process": {
+                  "start": 0.3,
+                  "end": 1.2,
+                  "fadeIn": 0.05,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/418194_hard_glass_impact.ogg",
+                "process": {
+                  "lowcut": 300,
+                  "end": 0.4
+                }
+              },
+              "gain": 0.6
+            }
+          ],
+          "process": {
+            "length": 1.1,
+            "fadeOut": 0.4
+          }
+        }
+      ]
+    }
+  }
+}

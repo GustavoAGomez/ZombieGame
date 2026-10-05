@@ -36,8 +36,10 @@ export function updateWeapons(ctx: SimContext, dt: number): void {
     const cmd = commands[i];
     if (!p || !cmd || p.hp <= 0) continue;
     tickTimers(p, cmd, dt);
-    handleSwitch(p, cmd);
-    handleReload(p, cmd, dt);
+    handleSwitch(ctx, p, cmd);
+    handleReload(ctx, p, cmd, dt);
+    // A fresh press of an empty gun clicks (spec 08 §6.1); `firing` is still last tick's.
+    if (cmd.fire && !p.firing) clickIfEmpty(ctx, p);
     updateTrigger(p, cmd, dt);
     updateAim(ctx, p, cmd);
     p.beamOn = false;
@@ -78,7 +80,7 @@ function tickTimers(p: PlayerState, cmd: InputCommand, dt: number): void {
 }
 
 /** Picks the weapon of a HUD slot (or the next one with the keyboard), taking the switch time. */
-function handleSwitch(p: PlayerState, cmd: InputCommand): void {
+function handleSwitch(ctx: SimContext, p: PlayerState, cmd: InputCommand): void {
   let slot = -1;
   if (cmd.selectWeapon >= 0 && cmd.selectWeapon < p.weapons.length) slot = cmd.selectWeapon;
   else if (cmd.switchWeapon && p.weapons.length > 1) slot = (p.activeSlot + 1) % p.weapons.length;
@@ -87,14 +89,16 @@ function handleSwitch(p: PlayerState, cmd: InputCommand): void {
   p.switchTimer = LOADOUT.switchTime;
   p.reloadTimer = 0; // switching cancels a reload in progress
   p.fireCooldown = Math.max(p.fireCooldown, 0);
+  const weapon = p.weapons[slot];
+  if (weapon) ctx.events.emit('weapon:switched', { playerId: p.id, weapon: weapon.id });
 }
 
-function handleReload(p: PlayerState, cmd: InputCommand, dt: number): void {
+function handleReload(ctx: SimContext, p: PlayerState, cmd: InputCommand, dt: number): void {
   const slot = p.weapons[p.activeSlot];
   if (!slot) return;
   // Manual reload: only with room in the magazine and bullets in reserve.
   if (cmd.reload && p.reloadTimer <= 0 && p.switchTimer <= 0 && slot.magazine < magazineSize(slot) && slot.reserve > 0) {
-    p.reloadTimer = reloadTime(slot);
+    startReload(ctx, p, slot);
     return;
   }
   if (p.reloadTimer > 0) {
@@ -105,13 +109,25 @@ function handleReload(p: PlayerState, cmd: InputCommand, dt: number): void {
       const taken = Math.min(needed, slot.reserve);
       slot.magazine += taken;
       slot.reserve -= taken;
+      ctx.events.emit('weapon:reload', { playerId: p.id, weapon: slot.id, phase: 'end' });
     }
     return;
   }
   // Automatic reload as soon as the magazine is empty (not during a switch).
-  if (slot.magazine === 0 && slot.reserve > 0 && p.switchTimer <= 0) {
-    p.reloadTimer = reloadTime(slot);
-  }
+  if (slot.magazine === 0 && slot.reserve > 0 && p.switchTimer <= 0) startReload(ctx, p, slot);
+}
+
+function startReload(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
+  p.reloadTimer = reloadTime(slot);
+  ctx.events.emit('weapon:reload', { playerId: p.id, weapon: slot.id, phase: 'start' });
+}
+
+/** A gun in hand with nothing in the magazine nor in reserve, not reloading nor switching: a dry click. */
+function clickIfEmpty(ctx: SimContext, p: PlayerState): void {
+  const slot = p.weapons[p.activeSlot];
+  if (!slot || WEAPONS[slot.id].attack !== 'bullets') return;
+  if (slot.magazine > 0 || slot.reserve > 0 || p.reloadTimer > 0 || p.switchTimer > 0) return;
+  ctx.events.emit('weapon:empty', { playerId: p.id, weapon: slot.id });
 }
 
 function updateAim(ctx: SimContext, p: PlayerState, cmd: InputCommand): void {
@@ -279,6 +295,7 @@ function sweep(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
     if (slot.uses === 0) ctx.events.emit('weapon:broken', { playerId: p.id, weapon: slot.id, lost: false });
   }
   p.lastAttackTick = state.tick;
+  ctx.events.emit('weapon:fired', { playerId: p.id, weapon: slot.id, x: p.x, y: p.y });
   const minCos = Math.cos(degToRad(def.arc ?? 0) / 2);
   const damage = bulletDamage(slot) * damageFactor(p);
   let kills = 0;
@@ -293,13 +310,13 @@ function sweep(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
     const uy = dist > 0 ? dy / dist : p.aimY;
     if (ux * p.aimX + uy * p.aimY < minCos) continue;
     if (!segmentClearShaped(ctx.grid, p.x, p.y, z.x, z.y, BLOCK_BULLET)) continue;
-    if (damageZombie(ctx, z, damage, p.id, bodyHitPoint(z, ux, uy), POINTS.meleeHit)) kills++;
+    if (damageZombie(ctx, z, damage, p.id, { ...bodyHitPoint(z, ux, uy), weapon: slot.id }, POINTS.meleeHit)) kills++;
     else knockZombie(ctx, z, ux, uy, def.knockback ?? 0);
   }
   // Every boss the arc reaches is cut too (never pushed).
   for (const b of state.bosses) {
     if (bossMeleeReach(ctx, b, p.x, p.y, p.aimX, p.aimY, def.range, minCos) === Infinity) continue;
-    if (damageBoss(ctx, b, damage, p.id, bossBodyPoint(b, ctx.map.tileSize, p.aimX, p.aimY), POINTS.meleeHit)) kills++;
+    if (damageBoss(ctx, b, damage, p.id, { ...bossBodyPoint(b, ctx.map.tileSize, p.aimX, p.aimY), weapon: slot.id }, POINTS.meleeHit)) kills++;
   }
   // "Filo de sangre" (the katana's special): each kill heals, up to a cap per sweep.
   if (slot.special && def.special === 'blood_edge' && kills > 0) {
@@ -327,6 +344,7 @@ function shoot(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
   p.fireCooldown += 1 / fireRate(slot);
   p.lastAttackTick = state.tick;
   p.lastShotTick = state.tick;
+  ctx.events.emit('weapon:fired', { playerId: p.id, weapon: slot.id, x: p.x, y: p.y });
 
   const aim = Math.atan2(p.aimY, p.aimX);
   const spread = stats.spread ?? 0;
@@ -439,6 +457,7 @@ function handleMelee(ctx: SimContext, p: PlayerState, turn: boolean): void {
   p.meleeTick = ctx.state.tick;
   p.meleeRange = MELEE.range;
   p.facing = p.meleeAngle;
+  ctx.events.emit('knife:swing', { playerId: p.id, x: p.x, y: p.y, hit: z !== undefined || boss !== undefined });
   if (z) damageZombie(ctx, z, MELEE.damage * damageFactor(p), p.id, bodyHitPoint(z, dirX, dirY), POINTS.meleeHit);
   else if (boss) damageBoss(ctx, boss, MELEE.damage * damageFactor(p), p.id, bossBodyPoint(boss, ctx.map.tileSize, dirX, dirY), POINTS.meleeHit);
 }

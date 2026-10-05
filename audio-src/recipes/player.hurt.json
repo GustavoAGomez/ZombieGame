@@ -1,0 +1,225 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Puñetazo medio y un gruñido corto de dolor (MrFossy).",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPunch_medium_002.ogg",
+                "process": {
+                  "end": 0.2,
+                  "lowcut": 100
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/547203_voice_adultmale_paingrunts_01.ogg",
+                "process": {
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.02
+            }
+          ],
+          "process": {
+            "length": 0.36,
+            "fadeOut": 0.1
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPunch_medium_002.ogg",
+                "process": {
+                  "end": 0.2,
+                  "lowcut": 100
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/547202_voice_adultmale_paingrunts_02.ogg",
+                "process": {
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.02
+            }
+          ],
+          "process": {
+            "length": 0.36,
+            "fadeOut": 0.1
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Golpe sordo con el peso en 180 Hz y otros dos gruñidos.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactSoft_heavy_000.ogg",
+                "process": {
+                  "end": 0.25,
+                  "lowcut": 150,
+                  "peaks": [
+                    {
+                      "freq": 180,
+                      "gainDb": 5,
+                      "q": 1
+                    }
+                  ]
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/547195_voice_adultmale_paingrunts_12.ogg",
+                "process": {
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.02
+            }
+          ],
+          "process": {
+            "length": 0.36,
+            "fadeOut": 0.1
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactSoft_heavy_000.ogg",
+                "process": {
+                  "end": 0.25,
+                  "lowcut": 150,
+                  "peaks": [
+                    {
+                      "freq": 180,
+                      "gainDb": 5,
+                      "q": 1
+                    }
+                  ]
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/547196_voice_adultmale_paingrunts_17.ogg",
+                "process": {
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.02
+            }
+          ],
+          "process": {
+            "length": 0.36,
+            "fadeOut": 0.1
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Golpe contra el suelo de madera y gruñidos más largos.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/447922_thud_falling_on_wooden_floor_snapping_br.ogg",
+                "process": {
+                  "end": 0.25,
+                  "lowcut": 100
+                }
+              },
+              "gain": 0.7
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/547205_voice_adultmale_paingrunts_07.ogg",
+                "process": {
+                  "end": 0.3,
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.02
+            }
+          ],
+          "process": {
+            "length": 0.38,
+            "fadeOut": 0.12
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/447922_thud_falling_on_wooden_floor_snapping_br.ogg",
+                "process": {
+                  "end": 0.25,
+                  "lowcut": 100
+                }
+              },
+              "gain": 0.7
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/547208_voice_adultmale_paingrunts_10.ogg",
+                "process": {
+                  "end": 0.3,
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.02
+            }
+          ],
+          "process": {
+            "length": 0.38,
+            "fadeOut": 0.12
+          }
+        }
+      ]
+    }
+  }
+}

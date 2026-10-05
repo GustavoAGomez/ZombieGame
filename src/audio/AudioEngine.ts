@@ -8,12 +8,16 @@ export interface PlayOptions {
   rate: number;
   pan: number;
   loop?: boolean;
+  /** Seconds to rise from silence (a loop's start). */
+  fadeIn?: number;
 }
 
 /** A sound playing. */
 export interface Voice {
   /** Fades it out over `fade` seconds and stops it. */
   stop(fade?: number): void;
+  /** Changes its playback rate while it plays (the laser's hum rising with the heat). */
+  setRate(rate: number): void;
 }
 
 /**
@@ -111,7 +115,12 @@ export class WebAudioEngine implements AudioOutput {
     source.playbackRate.value = options.rate;
     source.loop = options.loop === true;
     const gain = ctx.createGain();
-    gain.gain.value = options.gain;
+    if (options.fadeIn) {
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(options.gain, ctx.currentTime + options.fadeIn);
+    } else {
+      gain.gain.value = options.gain;
+    }
     source.connect(gain);
     let tail: AudioNode = gain;
     if (options.pan !== 0 && typeof ctx.createStereoPanner === 'function') {
@@ -134,6 +143,9 @@ export class WebAudioEngine implements AudioOutput {
         const t = ctx.currentTime;
         gain.gain.setTargetAtTime(0, t, Math.max(fade, 0.001) / 3);
         source.stop(t + fade);
+      },
+      setRate: (rate) => {
+        if (!stopped) source.playbackRate.setTargetAtTime(rate, ctx.currentTime, 0.02);
       },
     };
   }

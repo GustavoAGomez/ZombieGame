@@ -206,13 +206,33 @@ Una entrada por archivo de sonido, con su clave en snake_case:
   - **Con uno elegido:** solo sale ese, y los demás se quedan en la receta.
   - **Sin receta:** a una variante del catálogo que no tiene receta le pone una entrada `placeholder`.
   - **Informe:** las medidas y los avisos quedan en `audio-src/preview/report.md`.
-- **Tipos de receta en S1:**
+- **Tipos de receta:**
+  - `file`, una fuente grabada: `{ "type": "file", "source": "library/<origen>/<archivo>.ogg" }`, con la ruta desde `audio-src/` (de `library/` o de `generated/`). ffmpeg la decodifica y se normaliza a escala completa tras su recorte, así que el `gain` de una capa no depende del volumen al que se grabó.
   - `synth`, una capa hecha por código con `timbre` (`bell`, `glass`, `sub`, `air` o `pad`) y sus parámetros: `note` o `notes` (solo de La menor), `duration`, `attack`, `freq`, `freqEnd`, `width` y `seed`.
   - `layers`: `{ "recipe": {…}, "gain": 0..1, "delay": segundos }`.
+- **Proceso (`process`, en cualquier receta y en este orden), todo opcional:**
+  - `start` y `end`: el recorte, en segundos;
+  - `reverse`: al revés;
+  - `semitones` (tono y velocidad juntos) y `glide` (semitonos de más o de menos al final: un tono que se desliza);
+  - `lowcut`, `highcut` (Hz) y `peaks`: `[{ "freq": Hz, "gainDb": dB, "q": 1 }]`;
+  - `threshold` (dBFS) y `ratio` para comprimir, y `drive` (0 a 1) para saturar;
+  - `reverb` (`room` o `hall`) y `wet`;
+  - `width`: 0 mono, 1 tal cual, hasta 2 más ancho;
+  - `gainDb`;
+  - `length`: la longitud final, que corta también la cola de la reverberación o rellena con silencio;
+  - `fadeIn` y `fadeOut`.
+- **Acabado común:** el archivo empieza donde el sonido llega a −40 dB de su pico (lo de antes es ruido de sala), tras 1 ms de fundido; termina con al menos 5 ms de fundido; no tiene nada por debajo de 60 Hz y su pico está a −1 dB.
+- **Bucles** (los sonidos con `loop` en el catálogo: láser, lanzallamas, latido): sin recorte ni fundidos. Sus últimos 120 ms se funden con el principio, para que se repitan sin costura ni clic.
+- **Fuentes y licencias (`audio-src/library/<origen>/`, `audio-src/generated/`):**
+  - Cada carpeta lleva un `credits.json` con `origin`, `author`, `license` y `url`, que valen para todos sus archivos; en `files`, los de cada archivo (por ejemplo, el autor y el enlace de cada sonido de Freesound).
+  - De `library/` solo vale CC0. Un archivo de `generated/` necesita además `prompt` y `model`.
+  - `audio:gen` escribe `docs/AUDIO-CREDITS.md`, con una fila por archivo de origen que use alguna receta.
+- **`npm run audio:search "<consulta>" [--count 5] [--max 4]`:** busca en Freesound con el filtro CC0 y descarga los mejores resultados a `library/freesound/`, cada uno con su ficha. La clave sale de `FREESOUND_API_KEY` (el entorno o `.env`, fuera de git). Con la clave solo se pueden bajar las previsualizaciones (OGG de alta calidad).
 - **`assets:check`** comprueba que:
   - cada variante del catálogo tenga entrada y archivo;
   - los efectos sean WAV de 44,1 kHz y 16 bits, mono o estéreo (y avisa de un estéreo en un sonido posicional), y su duración coincida con la del manifiesto;
-  - los efectos del juego ocupen menos de 8 MB (los candidatos no cuentan).
+  - los efectos del juego ocupen menos de 8 MB (los candidatos no cuentan);
+  - cada fuente que usa una receta exista y tenga su ficha de licencia completa. Si falta una, falla.
 
 ## 5. Mapas (Tiled JSON, `.tmj`)
 

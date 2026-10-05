@@ -1,0 +1,120 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Roce de tela (Kenney) con el pestillo metálico detrás.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/cloth4.ogg",
+                "process": {
+                  "end": 0.2
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/metalLatch.ogg",
+                "process": {
+                  "end": 0.1
+                }
+              },
+              "gain": 0.35,
+              "delay": 0.06
+            }
+          ],
+          "process": {
+            "length": 0.25,
+            "fadeOut": 0.08
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Desenfundar una pistola grabado (el tramo del metal) sobre tela.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/688765_unholster_gun.ogg",
+                "process": {
+                  "start": 0.25,
+                  "end": 0.5
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/cloth2.ogg",
+                "process": {
+                  "end": 0.2
+                }
+              },
+              "gain": 0.6
+            }
+          ],
+          "process": {
+            "length": 0.26,
+            "fadeOut": 0.08
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Chaqueta que se mueve, cuero y una hebilla.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/494797_jacket_cloth_rustle_9.ogg",
+                "process": {
+                  "end": 0.25
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/handleSmallLeather2.ogg"
+              },
+              "gain": 0.5
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/beltHandle1.ogg",
+                "process": {
+                  "end": 0.12
+                }
+              },
+              "gain": 0.25,
+              "delay": 0.08
+            }
+          ],
+          "process": {
+            "length": 0.26,
+            "fadeOut": 0.08
+          }
+        }
+      ]
+    }
+  }
+}

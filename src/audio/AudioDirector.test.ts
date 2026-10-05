@@ -1,13 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { AUDIO, type AudioBus, type SoundDef, type VolumeLevel } from '../config/audio';
+import { AUDIO, SOUNDS, type AudioBus, type SoundDef, type VolumeLevel } from '../config/audio';
+import { WEAPONS } from '../config/weapons';
+import { EventBus } from '../core/EventBus';
 import type { AudioDef } from '../game/assets/manifest';
-import { AudioDirector, type AudioSettings } from './AudioDirector';
+import { AudioDirector, QUIET_SNAPSHOT, type AudioSettings } from './AudioDirector';
 import type { AudioOutput, PlayOptions, Voice } from './AudioEngine';
 import { WebAudioEngine } from './AudioEngine';
 
 /** An engine that records what it is asked to play. */
 class FakeEngine implements AudioOutput {
-  readonly played: { key: string; options: PlayOptions; stopped: boolean }[] = [];
+  readonly played: { key: string; options: PlayOptions; stopped: boolean; rate: number }[] = [];
   readonly gains: Partial<Record<AudioBus, number>> = {};
   unlocked = 0;
   readonly state = 'running';
@@ -19,9 +21,9 @@ class FakeEngine implements AudioOutput {
     this.unlocked++;
   }
   play(key: string, options: PlayOptions): Voice {
-    const entry = { key, options, stopped: false };
+    const entry = { key, options, stopped: false, rate: options.rate };
     this.played.push(entry);
-    return { stop: () => (entry.stopped = true) };
+    return { stop: () => (entry.stopped = true), setRate: (r) => (entry.rate = r) };
   }
   setBusGain(bus: AudioBus, gain: number): void {
     this.gains[bus] = gain;
@@ -45,7 +47,7 @@ class FakeSettings implements AudioSettings {
   }
 }
 
-const base = { pitchVar: 0, maxVoices: 2, minInterval: 0, priority: 'normal', positional: false, ladder: null, duck: false } as const;
+const base = { pitchVar: 0, maxVoices: 2, minInterval: 0, priority: 'normal', positional: false, ladder: null, duck: false, loop: false } as const;
 const CATALOG: SoundDef[] = [
   { ...base, id: 'ui.tap', family: 'ui', variants: ['ui_tap'], bus: 'ui', volume: 0.5, pitchVar: 3, minInterval: 0.03, priority: 'low' },
   { ...base, id: 'shot', family: 'hit', variants: ['shot_1', 'shot_2', 'shot_3'], bus: 'sfx', volume: 0.8, maxVoices: 20 },
@@ -62,7 +64,7 @@ function setup(randoms: number[] = [0.5]) {
   const settings = new FakeSettings();
   let now = 0;
   let r = 0;
-  const director = new AudioDirector(engine, settings, { clock: () => now, random: () => randoms[r++ % randoms.length] ?? 0.5, catalog: CATALOG });
+  const director = new AudioDirector(engine, settings, null, { clock: () => now, random: () => randoms[r++ % randoms.length] ?? 0.5, catalog: CATALOG });
   director.load(DEFS, 'assets/');
   return { engine, settings, director, advance: (s: number) => (now += s) };
 }
@@ -148,13 +150,13 @@ describe('AudioDirector (spec 08 §1)', () => {
   it('in pause, stops the effects and keeps the menus, the music at 40 %', () => {
     const { engine, director } = setup();
     director.test('shot');
-    director.update({ paused: true });
+    director.update({ ...QUIET_SNAPSHOT, paused: true });
     expect(engine.played[0]?.stopped).toBe(true);
     expect(engine.gains).toEqual({ sfx: 0, ui: 1, music: AUDIO.musicGain * AUDIO.pausedMusic });
     director.test('shot');
     director.playUi('ui.tap');
     expect(engine.played.map((p) => p.options.bus)).toEqual(['sfx', 'ui']);
-    director.update({ paused: false });
+    director.update(QUIET_SNAPSHOT);
     expect(engine.gains.sfx).toBe(1);
   });
 
@@ -183,6 +185,105 @@ describe('AudioDirector: candidates (spec 08 §4.4, §8)', () => {
     expect(director.candidatesOf('ui.tap')).toEqual(['A', 'B']);
     director.testCandidate('ui.tap', 'B');
     expect(engine.played.at(-1)?.key).toBe('ui_tap__b');
+  });
+});
+
+/** The real catalog with every file present, listening to a bus. */
+function gameSetup() {
+  const engine = new FakeEngine();
+  const events = new EventBus();
+  let now = 0;
+  const director = new AudioDirector(engine, new FakeSettings(), events, { clock: () => now, random: () => 0.5 });
+  const defs: Record<string, AudioDef> = {};
+  for (const s of SOUNDS) for (const v of s.variants) defs[v] = { file: `audio/sfx/${v}.wav`, duration: 0.2, placeholder: false };
+  director.load(defs, 'assets/');
+  const keys = (): string[] => engine.played.map((p) => p.key);
+  return { engine, events, director, keys, advance: (seconds: number) => (now += seconds) };
+}
+
+describe('AudioDirector: weapons and the player (spec 08 §6.1)', () => {
+  it('asks each event for its sound', () => {
+    const cases: [() => void, string][] = [];
+    const { events, keys, advance } = gameSetup();
+    cases.push(
+      [() => events.emit('weapon:fired', { playerId: 0, weapon: 'pistol', x: 0, y: 0 }), 'weapon_pistol_fire'],
+      [() => events.emit('weapon:fired', { playerId: 0, weapon: 'smg', x: 0, y: 0 }), 'weapon_smg_fire'],
+      [() => events.emit('weapon:fired', { playerId: 0, weapon: 'shotgun', x: 0, y: 0 }), 'weapon_shotgun_fire'],
+      [() => events.emit('weapon:fired', { playerId: 0, weapon: 'katana', x: 0, y: 0 }), 'weapon_katana_swing'],
+      [() => events.emit('zombie:hit', { x: 0, y: 0, groundY: 0, dirX: 1, dirY: 0, killed: false, weapon: 'katana' }), 'weapon_katana_hit'],
+      [() => events.emit('weapon:overheat', { playerId: 0, weapon: 'laser' }), 'weapon_laser_overheat'],
+      [() => events.emit('fire:blast', { x: 0, y: 0 }), 'weapon_flame_blast'],
+      [() => events.emit('knife:swing', { playerId: 0, x: 0, y: 0, hit: false }), 'weapon_knife'],
+      [() => events.emit('weapon:reload', { playerId: 0, weapon: 'pistol', phase: 'start' }), 'weapon_reload_start'],
+      [() => events.emit('weapon:reload', { playerId: 0, weapon: 'pistol', phase: 'end' }), 'weapon_reload_end'],
+      [() => events.emit('weapon:empty', { playerId: 0, weapon: 'pistol' }), 'weapon_empty'],
+      [() => events.emit('weapon:switched', { playerId: 0, weapon: 'smg' }), 'weapon_switch'],
+      [() => events.emit('weapon:broken', { playerId: 0, weapon: 'katana', lost: false }), 'weapon_broken'],
+      [() => events.emit('zombie:hit', { x: 0, y: 0, groundY: 0, dirX: 1, dirY: 0, killed: false }), 'impact_flesh'],
+      [() => events.emit('player:dash', { playerId: 0, x: 0, y: 0 }), 'player_dash'],
+      [() => events.emit('player:damaged', { playerId: 0, hp: 50, maxHp: 100, x: 0, y: 0, fromX: 1, fromY: 0 }), 'player_hurt'],
+      [() => events.emit('player:died', { playerId: 0 }), 'player_death'],
+    );
+    for (const [emit, key] of cases) {
+      advance(1);
+      const before = keys().length;
+      emit();
+      expect(keys().slice(before).join(), key).toMatch(new RegExp(`^${key}`));
+    }
+  });
+
+  it('does not play the local player\'s own sounds for another player', () => {
+    const { events, keys } = gameSetup();
+    events.emit('weapon:fired', { playerId: 1, weapon: 'pistol', x: 0, y: 0 });
+    events.emit('weapon:reload', { playerId: 1, weapon: 'pistol', phase: 'start' });
+    events.emit('player:damaged', { playerId: 1, hp: 50, maxHp: 100, x: 0, y: 0, fromX: 1, fromY: 0 });
+    events.emit('player:dash', { playerId: 2, x: 0, y: 0 });
+    expect(keys()).toEqual([]);
+  });
+
+  it('loops the laser while it fires, its pitch rising with the heat, and stops it with the trigger or the pause', () => {
+    const { engine, director, keys } = gameSetup();
+    director.update({ ...QUIET_SNAPSHOT, continuous: 'laser', heat: 0 });
+    expect(keys()).toEqual(['weapon_laser_loop']);
+    const loop = engine.played[0];
+    expect(loop?.options.loop).toBe(true);
+    director.update({ ...QUIET_SNAPSHOT, continuous: 'laser', heat: 1 });
+    expect(loop?.rate).toBeCloseTo(AUDIO.laserHotRate);
+    expect(keys()).toHaveLength(1);
+    director.update({ ...QUIET_SNAPSHOT, continuous: 'laser', heat: 1, paused: true });
+    expect(loop?.stopped).toBe(true);
+    // Back from the pause, still firing: it starts again.
+    director.update({ ...QUIET_SNAPSHOT, continuous: 'laser', heat: 0.5 });
+    expect(keys()).toEqual(['weapon_laser_loop', 'weapon_laser_loop']);
+    director.update({ ...QUIET_SNAPSHOT, continuous: 'flamethrower' });
+    expect(engine.played[1]?.stopped).toBe(true);
+    expect(keys().at(-1)).toBe('weapon_flame_loop');
+    director.update(QUIET_SNAPSHOT);
+    expect(engine.played[2]?.stopped).toBe(true);
+  });
+
+  it('SIMULAR COMBATE fires the SMG for a few seconds, with hits', () => {
+    const engine = new FakeEngine();
+    const runs: { at: number; run: () => void }[] = [];
+    const director = new AudioDirector(engine, new FakeSettings(), null, { clock: () => 0, random: () => 0.5, schedule: (at, run) => runs.push({ at, run }) });
+    const defs: Record<string, AudioDef> = {};
+    for (const s of SOUNDS) for (const v of s.variants) defs[v] = { file: `audio/sfx/${v}.wav`, duration: 0.05, placeholder: false };
+    director.load(defs, 'assets/');
+    director.simulateCombat();
+    expect(runs.at(-1)?.at).toBeLessThan(AUDIO.combatTest.seconds);
+    expect(runs).toHaveLength(Math.round(AUDIO.combatTest.seconds * WEAPONS.smg.fireRate));
+    for (const r of runs) r.run();
+    const keys = engine.played.map((p) => p.key);
+    expect(keys.filter((k) => k.startsWith('weapon_smg_fire')).length).toBeGreaterThan(0);
+    expect(keys.filter((k) => k.startsWith('impact_flesh')).length).toBeGreaterThan(0);
+  });
+
+  it('in the sound test, a loop starts and stops on the next tap', () => {
+    const { engine, director } = gameSetup();
+    director.test('weapon.flame.loop');
+    director.test('weapon.flame.loop');
+    expect(engine.played).toHaveLength(1);
+    expect(engine.played[0]?.stopped).toBe(true);
   });
 });
 

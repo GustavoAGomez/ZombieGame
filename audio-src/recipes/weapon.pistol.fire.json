@@ -1,0 +1,417 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Dos disparos de pistola grabados (Brokenphono), golpe grave de 140 Hz, chasquido de cerrojo y sala corta.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/344143_gunshot_001.ogg",
+                "process": {
+                  "end": 0.4,
+                  "lowcut": 90
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 140,
+                "duration": 0.14
+              },
+              "gain": 0.45
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/metalLatch.ogg",
+                "process": {
+                  "end": 0.05,
+                  "highcut": 7000
+                }
+              },
+              "gain": 0.2
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.12,
+            "threshold": -14,
+            "ratio": 3,
+            "length": 0.34,
+            "fadeOut": 0.14
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/344142_gunshot_002.ogg",
+                "process": {
+                  "end": 0.4,
+                  "lowcut": 90
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 140,
+                "duration": 0.14
+              },
+              "gain": 0.45
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/metalLatch.ogg",
+                "process": {
+                  "end": 0.05,
+                  "highcut": 7000
+                }
+              },
+              "gain": 0.2
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.12,
+            "threshold": -14,
+            "ratio": 3,
+            "length": 0.34,
+            "fadeOut": 0.14
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/344143_gunshot_001.ogg",
+                "process": {
+                  "end": 0.4,
+                  "lowcut": 90,
+                  "semitones": -1.2
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 130,
+                "duration": 0.14
+              },
+              "gain": 0.45
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/metalLatch.ogg",
+                "process": {
+                  "end": 0.05,
+                  "highcut": 7000
+                }
+              },
+              "gain": 0.2
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.12,
+            "threshold": -14,
+            "ratio": 3,
+            "length": 0.34,
+            "fadeOut": 0.14
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Tres pistolas distintas (Glock 19X, pistola sola, 9 mm) con el clic metálico de Kenney y sala corta.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/828786_glock_19x.ogg",
+                "process": {
+                  "end": 0.35,
+                  "lowcut": 90
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 150,
+                "duration": 0.12
+              },
+              "gain": 0.4
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/metalClick.ogg",
+                "process": {
+                  "start": 0.06,
+                  "end": 0.12
+                }
+              },
+              "gain": 0.25
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.12,
+            "threshold": -14,
+            "ratio": 3,
+            "length": 0.32,
+            "fadeOut": 0.14
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/371440_single_pistol_gunshot_2.ogg",
+                "process": {
+                  "end": 0.35,
+                  "lowcut": 110
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 140,
+                "duration": 0.12
+              },
+              "gain": 0.4
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/metalClick.ogg",
+                "process": {
+                  "start": 0.06,
+                  "end": 0.12
+                }
+              },
+              "gain": 0.25
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.12,
+            "threshold": -14,
+            "ratio": 3,
+            "length": 0.32,
+            "fadeOut": 0.14
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/470198_9mm_pop_shot.ogg",
+                "process": {
+                  "end": 0.35,
+                  "lowcut": 90
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 130,
+                "duration": 0.14
+              },
+              "gain": 0.5
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/metalClick.ogg",
+                "process": {
+                  "start": 0.06,
+                  "end": 0.12
+                }
+              },
+              "gain": 0.25
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.12,
+            "threshold": -14,
+            "ratio": 3,
+            "length": 0.32,
+            "fadeOut": 0.14
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Más seco y con más pegada: sin sala, saturación suave, golpe grave de 160 Hz y un toque de metal.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/371440_single_pistol_gunshot_2.ogg",
+                "process": {
+                  "end": 0.3,
+                  "highcut": 9000,
+                  "lowcut": 100
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 160,
+                "duration": 0.1
+              },
+              "gain": 0.5
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactMetal_light_000.ogg",
+                "process": {
+                  "end": 0.08
+                }
+              },
+              "gain": 0.18
+            }
+          ],
+          "process": {
+            "threshold": -20,
+            "ratio": 4,
+            "drive": 0.3,
+            "length": 0.22,
+            "fadeOut": 0.1
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/344142_gunshot_002.ogg",
+                "process": {
+                  "end": 0.3,
+                  "highcut": 9000,
+                  "lowcut": 100
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 160,
+                "duration": 0.1
+              },
+              "gain": 0.5
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactMetal_light_000.ogg",
+                "process": {
+                  "end": 0.08
+                }
+              },
+              "gain": 0.18
+            }
+          ],
+          "process": {
+            "threshold": -20,
+            "ratio": 4,
+            "drive": 0.3,
+            "length": 0.22,
+            "fadeOut": 0.1
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/803497_pocket_pistol_gunshot_2_outside_of_room.ogg",
+                "process": {
+                  "end": 0.3,
+                  "highcut": 9000,
+                  "lowcut": 100
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 160,
+                "duration": 0.1
+              },
+              "gain": 0.5
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactMetal_light_000.ogg",
+                "process": {
+                  "end": 0.08
+                }
+              },
+              "gain": 0.18
+            }
+          ],
+          "process": {
+            "threshold": -20,
+            "ratio": 4,
+            "drive": 0.3,
+            "length": 0.22,
+            "fadeOut": 0.1
+          }
+        }
+      ]
+    }
+  }
+}

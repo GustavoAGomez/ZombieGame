@@ -1,0 +1,168 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Cortes de cuchillo de Kenney con un soplo corto subido de tono.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/knifeSlice.ogg",
+                "process": {
+                  "end": 0.25,
+                  "lowcut": 200
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/733889_whoosh_02.ogg",
+                "process": {
+                  "end": 0.15,
+                  "semitones": 3,
+                  "lowcut": 200
+                }
+              },
+              "gain": 0.4
+            }
+          ],
+          "process": {
+            "length": 0.24,
+            "fadeOut": 0.08
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/knifeSlice2.ogg",
+                "process": {
+                  "start": 0.12,
+                  "end": 0.36,
+                  "lowcut": 200
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/733889_whoosh_02.ogg",
+                "process": {
+                  "end": 0.15,
+                  "semitones": 4,
+                  "lowcut": 200
+                }
+              },
+              "gain": 0.4
+            }
+          ],
+          "process": {
+            "length": 0.24,
+            "fadeOut": 0.08
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Tajos de espada grabados, tres semitonos más agudos y más cortos.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/868049_sword_slash.ogg",
+          "process": {
+            "end": 0.22,
+            "semitones": 3,
+            "lowcut": 200,
+            "fadeOut": 0.06
+          }
+        },
+        {
+          "type": "file",
+          "source": "library/freesound/442903_slash.ogg",
+          "process": {
+            "end": 0.22,
+            "semitones": 3,
+            "lowcut": 200,
+            "fadeOut": 0.06
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Desenvainar un cuchillo (Kenney) sobre un barrido de aire agudo.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/drawKnife1.ogg",
+                "process": {
+                  "start": 0.04,
+                  "end": 0.3
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/389590_swing_woosh.ogg",
+                "process": {
+                  "semitones": 4
+                }
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "length": 0.26,
+            "fadeOut": 0.08
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/drawKnife2.ogg",
+                "process": {
+                  "start": 0.04,
+                  "end": 0.3
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/389590_swing_woosh.ogg",
+                "process": {
+                  "semitones": 5
+                }
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "length": 0.26,
+            "fadeOut": 0.08
+          }
+        }
+      ]
+    }
+  }
+}

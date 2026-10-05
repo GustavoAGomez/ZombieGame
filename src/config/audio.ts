@@ -3,6 +3,7 @@
  * holds a volume or a time of its own: it names a sound by its id and the
  * director (src/audio/AudioDirector.ts) looks it up here.
  */
+import type { WeaponId } from './weapons';
 
 /** Where a sound goes: the effects, the menus (it follows the effects' level) or the music. */
 export type AudioBus = 'sfx' | 'ui' | 'music';
@@ -40,6 +41,8 @@ export interface SoundDef {
   ladder: LadderId | null;
   /** The music ducks while it plays. */
   duck: boolean;
+  /** Plays over and over until the director stops it (the laser, the flamethrower, the heartbeat). */
+  loop: boolean;
 }
 
 export const AUDIO = {
@@ -61,7 +64,28 @@ export const AUDIO = {
   voiceFade: 0.03,
   /** The master bus limiter, so many sounds at once never clip (§1). */
   compressor: { threshold: -10, knee: 6, ratio: 4, attack: 0.003, release: 0.25 },
+  /** The local player (spec 08 §1.3): what only they hear (their shots, reloads and wounds). */
+  localPlayerId: 0,
+  /** A loop's start and its tail when it stops (the flamethrower's roar dying into embers), seconds. */
+  loopFadeIn: 0.06,
+  loopFadeOut: 0.25,
+  /** The laser's hum at full heat, as a playback rate: a fifth up, so its rise says how near it is to overheating (§6.1). */
+  laserHotRate: 1.5,
+  /**
+   * The sound test's SIMULAR COMBATE (§8): the SMG firing for `seconds` at
+   * its fire rate, `hitsIn10` of every 10 shots hitting and a kill every
+   * `killEvery` hits, to hear the mix.
+   */
+  combatTest: { seconds: 5, hitsIn10: 7, killEvery: 6 },
 } as const;
+
+/** The sound of each weapon's shot or sweep (spec 08 §6.1); the beam and the jet are loops. */
+export const WEAPON_FIRE_SOUND: Readonly<Partial<Record<WeaponId, string>>> = {
+  pistol: 'weapon.pistol.fire',
+  smg: 'weapon.smg.fire',
+  shotgun: 'weapon.shotgun.fire',
+  katana: 'weapon.katana.swing',
+};
 
 /** The sound workshop (npm run audio:gen, spec 08 §4): its format, finish and report. */
 export const AUDIO_GEN = {
@@ -73,6 +97,9 @@ export const AUDIO_GEN = {
   fadeOut: 0.005,
   /** The sound starts within this, seconds (§4.2). */
   maxLeadingSilence: 0.005,
+  /** A file starts where the sound first reaches this, dB under its peak (a recording's room noise before it is cut), after a fade-in of `onsetFade` s. */
+  onsetDb: -40,
+  onsetFade: 0.001,
   /** Nothing under this (§4.2, §3.3 rule 4), Hz. */
   highpass: 60,
   /** Under this (dB under the peak) a sample counts as silence when trimming and measuring. */
@@ -105,6 +132,8 @@ export const AUDIO_GEN = {
   fftSize: 1024,
   /** Every effect together under this (§2), bytes. */
   budgetBytes: 8 * 1024 * 1024,
+  /** A loop's end is blended into its start over this, so it repeats without a seam or a click, seconds. */
+  loopCrossfade: 0.12,
 } as const;
 
 /** The default of every catalog field a sound does not set. */
@@ -116,15 +145,43 @@ const BASE = {
   positional: false,
   ladder: null,
   duck: false,
+  loop: false,
 } as const satisfies Partial<SoundDef>;
 
 function sound(def: Pick<SoundDef, 'id' | 'family' | 'variants' | 'bus' | 'volume'> & Partial<SoundDef>): SoundDef {
   return { ...BASE, ...def };
 }
 
+/** The keys of a sound's files: its id with underscores, and _1.._n with several variants. */
+function keys(id: string, count = 1): string[] {
+  const base = id.replace(/\./g, '_');
+  return count === 1 ? [base] : Array.from({ length: count }, (_, i) => `${base}_${i + 1}`);
+}
+
 /** The catalog (spec 08 §6): one entry per sound id. */
 export const SOUNDS: readonly SoundDef[] = [
-  // §6.6 Interface. S1's test sound.
+  // §6.1 Weapons and the player. Wounds, death, the heartbeat and what breaks are measured as threats (§3.2).
+  sound({ id: 'weapon.pistol.fire', family: 'hit', variants: keys('weapon.pistol.fire', 3), bus: 'sfx', volume: 0.75, pitchVar: 4, maxVoices: 4, minInterval: 0.03 }),
+  sound({ id: 'weapon.smg.fire', family: 'hit', variants: keys('weapon.smg.fire', 4), bus: 'sfx', volume: 0.5, pitchVar: 5, maxVoices: 4, minInterval: 0.04, priority: 'low' }),
+  sound({ id: 'weapon.shotgun.fire', family: 'hit', variants: keys('weapon.shotgun.fire'), bus: 'sfx', volume: 0.95, pitchVar: 3, maxVoices: 2, priority: 'high' }),
+  sound({ id: 'weapon.katana.swing', family: 'hit', variants: keys('weapon.katana.swing', 3), bus: 'sfx', volume: 0.6, pitchVar: 6 }),
+  sound({ id: 'weapon.katana.hit', family: 'hit', variants: keys('weapon.katana.hit'), bus: 'sfx', volume: 0.6, pitchVar: 5, maxVoices: 3, minInterval: 0.05 }),
+  sound({ id: 'weapon.laser.loop', family: 'hit', variants: keys('weapon.laser.loop'), bus: 'sfx', volume: 0.4, maxVoices: 1, priority: 'high', loop: true }),
+  sound({ id: 'weapon.laser.overheat', family: 'threat', variants: keys('weapon.laser.overheat'), bus: 'sfx', volume: 0.7, maxVoices: 1, priority: 'high' }),
+  sound({ id: 'weapon.flame.loop', family: 'hit', variants: keys('weapon.flame.loop'), bus: 'sfx', volume: 0.5, maxVoices: 1, priority: 'high', loop: true }),
+  sound({ id: 'weapon.flame.blast', family: 'hit', variants: keys('weapon.flame.blast'), bus: 'sfx', volume: 0.7, pitchVar: 6, maxVoices: 3, minInterval: 0.05, positional: true }),
+  sound({ id: 'weapon.knife', family: 'hit', variants: keys('weapon.knife', 2), bus: 'sfx', volume: 0.55, pitchVar: 6 }),
+  sound({ id: 'weapon.reload.start', family: 'hit', variants: keys('weapon.reload.start'), bus: 'sfx', volume: 0.5, maxVoices: 1 }),
+  sound({ id: 'weapon.reload.end', family: 'hit', variants: keys('weapon.reload.end'), bus: 'sfx', volume: 0.55, maxVoices: 1 }),
+  sound({ id: 'weapon.empty', family: 'hit', variants: keys('weapon.empty'), bus: 'sfx', volume: 0.45, maxVoices: 1, minInterval: 0.1 }),
+  sound({ id: 'weapon.switch', family: 'hit', variants: keys('weapon.switch'), bus: 'sfx', volume: 0.45, pitchVar: 4, maxVoices: 1, minInterval: 0.05 }),
+  sound({ id: 'weapon.broken', family: 'threat', variants: keys('weapon.broken'), bus: 'sfx', volume: 0.7, maxVoices: 1, priority: 'high' }),
+  sound({ id: 'impact.flesh', family: 'hit', variants: keys('impact.flesh', 4), bus: 'sfx', volume: 0.5, pitchVar: 8, maxVoices: 4, minInterval: 0.04, priority: 'low', positional: true }),
+  sound({ id: 'player.dash', family: 'hit', variants: keys('player.dash'), bus: 'sfx', volume: 0.55, pitchVar: 4, maxVoices: 1 }),
+  sound({ id: 'player.hurt', family: 'threat', variants: keys('player.hurt', 2), bus: 'sfx', volume: 0.7, pitchVar: 4, maxVoices: 1, minInterval: 0.2, priority: 'high' }),
+  sound({ id: 'player.death', family: 'threat', variants: keys('player.death'), bus: 'sfx', volume: 0.9, maxVoices: 1, priority: 'high', duck: true }),
+  sound({ id: 'player.heartbeat', family: 'threat', variants: keys('player.heartbeat'), bus: 'sfx', volume: 0.7, maxVoices: 1, priority: 'high', loop: true }),
+  // §6.6 Interface.
   sound({ id: 'ui.tap', family: 'ui', variants: ['ui_tap'], bus: 'ui', volume: 0.5, pitchVar: 3, maxVoices: 2, minInterval: 0.03, priority: 'low' }),
 ];
 

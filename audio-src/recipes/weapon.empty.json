@@ -1,0 +1,77 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Pistola de 9 mm disparada en seco, sin agudos de más.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/674568_9mm_handgun_being_dry_fired.ogg",
+          "process": {
+            "end": 0.12,
+            "highcut": 6000,
+            "fadeOut": 0.04
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Gatillo de Glock cuatro semitonos más grave.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/842748_glock_17_trigger_pull.ogg",
+          "process": {
+            "end": 0.25,
+            "semitones": -4,
+            "lowcut": 300,
+            "highcut": 5000,
+            "reverb": "room",
+            "wet": 0.15,
+            "length": 0.12,
+            "fadeOut": 0.05
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Clic metálico de Kenney y un cerrojo, dos semitonos más graves.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/metalClick.ogg",
+                "process": {
+                  "start": 0.06,
+                  "end": 0.16
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/lock_01.ogg",
+                "process": {
+                  "end": 0.08
+                }
+              },
+              "gain": 0.5
+            }
+          ],
+          "process": {
+            "semitones": -2,
+            "length": 0.12,
+            "fadeOut": 0.04
+          }
+        }
+      ]
+    }
+  }
+}

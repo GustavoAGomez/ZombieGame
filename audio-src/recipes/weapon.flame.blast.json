@@ -1,0 +1,134 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Soplo grabado, fuego grabado sin graves y golpe de 110 Hz.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/683178_whoosh.ogg",
+                "process": {
+                  "end": 0.35
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/530355_fire.ogg",
+                "process": {
+                  "start": 0.02,
+                  "end": 0.4,
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 110,
+                "duration": 0.2
+              },
+              "gain": 0.4
+            }
+          ],
+          "process": {
+            "length": 0.38,
+            "fadeOut": 0.15
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Hechizo de fuego (OpenGameArt) con la bocanada de un lanzallamas y golpe de 120 Hz.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/spell_fire_07.ogg",
+                "process": {
+                  "end": 0.4
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/831929_flamethrower.ogg",
+                "process": {
+                  "end": 0.4,
+                  "lowcut": 110
+                }
+              },
+              "gain": 0.7
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 120,
+                "duration": 0.18
+              },
+              "gain": 0.4
+            }
+          ],
+          "process": {
+            "length": 0.38,
+            "fadeOut": 0.15
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "El arranque de una llamarada grabada con aire que sube.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/447941_blast_flamethrower_cooldown.ogg",
+                "process": {
+                  "end": 0.4,
+                  "lowcut": 160
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "air",
+                "freq": 400,
+                "freqEnd": 1200,
+                "duration": 0.3,
+                "width": 1,
+                "seed": 7
+              },
+              "gain": 0.5
+            }
+          ],
+          "process": {
+            "length": 0.38,
+            "fadeOut": 0.15
+          }
+        }
+      ]
+    }
+  }
+}

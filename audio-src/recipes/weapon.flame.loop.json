@@ -1,0 +1,137 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Lanzallamas grabado en su tramo continuo, con crepitar de brasas.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/459884_flamethrower.ogg",
+                "process": {
+                  "start": 0.3,
+                  "end": 2.0,
+                  "lowcut": 100
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/650574_fire_crackling_loop.ogg",
+                "process": {
+                  "start": 0.5,
+                  "end": 2.2
+                }
+              },
+              "gain": 0.35
+            }
+          ]
+        }
+      ]
+    },
+    "B": {
+      "about": "Llama continua grabada (sin graves que el móvil no da), realce a 700 Hz, crepitar y soplo.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/581078_flame_loop.ogg",
+                "process": {
+                  "start": 1.0,
+                  "end": 3.0,
+                  "lowcut": 160,
+                  "peaks": [
+                    {
+                      "freq": 700,
+                      "gainDb": 4,
+                      "q": 0.8
+                    }
+                  ]
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/422850_fire_crackle_02.ogg",
+                "process": {
+                  "start": 0.2,
+                  "end": 2.2
+                }
+              },
+              "gain": 0.3
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/447941_blast_flamethrower_cooldown.ogg",
+                "process": {
+                  "start": 0.4,
+                  "end": 2.4,
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.5
+            }
+          ]
+        }
+      ]
+    },
+    "C": {
+      "about": "Llamarada sostenida, fuego de estufa brillante y un soplo de fuego grave.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/447941_blast_flamethrower_cooldown.ogg",
+                "process": {
+                  "start": 0.3,
+                  "end": 1.7,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/478796_stove_fire_loop.ogg",
+                "process": {
+                  "end": 1.4
+                }
+              },
+              "gain": 0.4
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/260554_basic_fire_whoosh.ogg",
+                "process": {
+                  "start": 0.6,
+                  "end": 2.0,
+                  "lowcut": 160
+                }
+              },
+              "gain": 0.5
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -35,12 +35,13 @@ export function buildReport(rows: readonly ReportRow[]): Report {
   const warnings: string[] = [];
 
   for (const { key, sound, measures: m } of rows) {
-    if (sound.family !== 'music') {
+    // A loop has no length, tail nor start of its own: it repeats while it sounds.
+    if (sound.family !== 'music' && !sound.loop) {
       const { duration: [min, max], tail } = AUDIO_GEN.families[sound.family];
       if (m.duration < min || m.duration > max) warnings.push(`${key}: dura ${ms(m.duration)}, fuera del rango de ${FAMILY_NAMES[sound.family]} (${ms(min)}–${ms(max)})`);
       if (m.tail > tail) warnings.push(`${key}: cola de ${ms(m.tail)}, más que el máximo de ${FAMILY_NAMES[sound.family]} (${ms(tail)})`);
     }
-    if (m.leadingSilence > AUDIO_GEN.maxLeadingSilence) warnings.push(`${key}: ${ms(m.leadingSilence)} de silencio al principio`);
+    if (!sound.loop && m.leadingSilence > AUDIO_GEN.maxLeadingSilence) warnings.push(`${key}: ${ms(m.leadingSilence)} de silencio al principio`);
     if (m.clippedRuns > 0) warnings.push(`${key}: saturado (${m.clippedRuns} tramos recortados)`);
     const low = m.bands[0] ?? 0;
     if (low > AUDIO_GEN.maxLowShare) warnings.push(`${key}: ${pct(low)} % de la energía por debajo de 100 Hz: en el móvil no se oirá`);
@@ -89,7 +90,7 @@ export function buildReport(rows: readonly ReportRow[]): Report {
     '|---|---|---|---|---|---|---|---|---|---|---|',
     ...rows.map(
       ({ key, sound, letter, inGame: game, measures: m }) =>
-        `| ${key} | ${sound.id} | ${letter}${game ? ' ✓' : ''} | ${FAMILY_NAMES[sound.family]} | ${m.channels === 1 ? 'mono' : 'estéreo'} | ${ms(m.duration)} | ${ms(m.tail)} | ${db(m.peakDb)} | ${db(m.loudnessDb)} | ${hz(m.brightness)} | ${m.bands.map(pct).join(' · ')} |`,
+        `| ${key} | ${sound.id} | ${letter}${game ? ' ✓' : ''} | ${FAMILY_NAMES[sound.family]}${sound.loop ? ' (bucle)' : ''} | ${m.channels === 1 ? 'mono' : 'estéreo'} | ${ms(m.duration)} | ${ms(m.tail)} | ${db(m.peakDb)} | ${db(m.loudnessDb)} | ${hz(m.brightness)} | ${m.bands.map(pct).join(' · ')} |`,
     ),
     '',
     'Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.',

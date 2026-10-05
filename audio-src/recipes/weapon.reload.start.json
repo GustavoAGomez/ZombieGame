@@ -1,0 +1,105 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Cargador de pistola pequeña saliendo, con roce de cuero.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/719243_a_small_pistol_s_magazine_being_removed.ogg",
+                "process": {
+                  "end": 0.32
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/handleSmallLeather2.ogg"
+              },
+              "gain": 0.2
+            }
+          ],
+          "process": {
+            "length": 0.32,
+            "fadeOut": 0.08
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "La primera mitad de una recarga grabada (el cargador sale) con un clic metálico.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/455921_pistol_magazine_reload_only.ogg",
+                "process": {
+                  "end": 0.2
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/metalClick.ogg",
+                "process": {
+                  "start": 0.06,
+                  "end": 0.14
+                }
+              },
+              "gain": 0.3
+            }
+          ],
+          "process": {
+            "length": 0.24,
+            "fadeOut": 0.06
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Cargador de Makarov, dos semitonos más grave, con hebilla.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/871580_pm_makarov_pistol_magazine.ogg",
+                "process": {
+                  "semitones": -2
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/beltHandle1.ogg"
+              },
+              "gain": 0.25
+            }
+          ],
+          "process": {
+            "length": 0.36,
+            "fadeOut": 0.1
+          }
+        }
+      ]
+    }
+  }
+}

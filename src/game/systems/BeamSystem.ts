@@ -42,6 +42,7 @@ export function fireBeam(ctx: SimContext, p: PlayerState, slot: WeaponSlotState,
     slot.battery = 0;
     slot.overheat = battery.overheatTime;
     slot.overheats++;
+    ctx.events.emit('weapon:overheat', { playerId: p.id, weapon: slot.id });
     if (battery.breaksAfter !== undefined && slot.overheats >= battery.breaksAfter) {
       p.beamOn = false;
       removeWeapon(p, p.weapons.indexOf(slot));

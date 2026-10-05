@@ -90,29 +90,57 @@ export function normalize(a: Audio, db: number): Audio {
 }
 
 /**
- * The common finish (spec 08 §4.2): nothing under 60 Hz, the silence at
- * both ends trimmed (the sound starts at once), at least 5 ms of fade at
- * the end so it never clicks, and the peak at −1 dB (the relative volume
- * is the catalog's).
+ * The common finish (spec 08 §4.2): nothing under 60 Hz, trimmed at both
+ * ends (it starts at its onset, so at once), at least 5 ms of fade at the
+ * end so it never clicks, and the peak at −1 dB (the relative volume is
+ * the catalog's).
  */
 export function finish(input: Audio): Audio {
   const a = eachChannel(input, (ch) => biquad(ch, 'highpass', AUDIO_GEN.highpass, input.sampleRate));
   const p = peakOf(a);
   if (p === 0) return { sampleRate: a.sampleRate, channels: a.channels.map(() => new Float32Array(0)) };
-  const floor = p * dbToGain(AUDIO_GEN.silenceDb);
   const n = frames(a);
-  const loud = (i: number): boolean => a.channels.some((ch) => Math.abs(ch[i] ?? 0) >= floor);
+  const above = (i: number, floor: number): boolean => a.channels.some((ch) => Math.abs(ch[i] ?? 0) >= floor);
+  // It starts where it first reaches onsetDb (whatever came before is room noise), after a short fade-in…
+  const onset = p * dbToGain(AUDIO_GEN.onsetDb);
   let start = 0;
-  while (start < n && !loud(start)) start++;
+  while (start < n && !above(start, onset)) start++;
+  const fadeIn = Math.min(start, Math.round(AUDIO_GEN.onsetFade * a.sampleRate));
+  start -= fadeIn;
+  // …and ends where it falls under silenceDb for good, with a fade-out.
+  const floor = p * dbToGain(AUDIO_GEN.silenceDb);
   let end = n;
-  while (end > start && !loud(end - 1)) end--;
+  while (end > start && !above(end - 1, floor)) end--;
   const fade = Math.min(end - start, Math.round(AUDIO_GEN.fadeOut * a.sampleRate));
   const trimmed = eachChannel(a, (ch) => {
     const out = ch.slice(start, end);
+    for (let i = 0; i < fadeIn; i++) out[i] = (out[i] ?? 0) * (i / fadeIn);
     for (let i = 0; i < fade; i++) out[out.length - 1 - i] = (out[out.length - 1 - i] ?? 0) * (i / fade);
     return out;
   });
   return normalize(trimmed, AUDIO_GEN.peakDb);
+}
+
+/**
+ * The finish of a loop (the laser, the flamethrower, the heartbeat): nothing
+ * under 60 Hz and the peak at −1 dB like any file, but no trim nor fades.
+ * Its last `AUDIO_GEN.loopCrossfade` seconds are blended into its start
+ * (equal power), so its end runs into its start without a seam or a click.
+ */
+export function finishLoop(input: Audio): Audio {
+  const sr = input.sampleRate;
+  const a = eachChannel(input, (ch) => biquad(ch, 'highpass', AUDIO_GEN.highpass, sr));
+  const n = frames(a);
+  const x = Math.min(Math.floor(n / 2), Math.round(AUDIO_GEN.loopCrossfade * sr));
+  const looped = eachChannel(a, (ch) => {
+    const out = ch.slice(0, n - x);
+    for (let i = 0; i < x; i++) {
+      const t = (i / x) * (Math.PI / 2);
+      out[i] = (ch[i] ?? 0) * Math.sin(t) + (ch[n - x + i] ?? 0) * Math.cos(t);
+    }
+    return out;
+  });
+  return normalize(looped, AUDIO_GEN.peakDb);
 }
 
 /** Mixes `src` into `dst` (same channel count, or mono into any) at `offset` frames, scaled by `gain`. */

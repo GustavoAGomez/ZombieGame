@@ -1,0 +1,162 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Caída de un cuerpo grabada, golpe de 100 Hz y campana Mi-Do-La que desciende, con sala grande.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/346692_body_fall_04.ogg",
+                "process": {
+                  "start": 0.45,
+                  "end": 1.1,
+                  "lowcut": 90,
+                  "peaks": [
+                    {
+                      "freq": 160,
+                      "gainDb": 4,
+                      "q": 1
+                    }
+                  ]
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 100,
+                "duration": 0.5
+              },
+              "gain": 0.5
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "E5",
+                    0.3
+                  ],
+                  [
+                    "C5",
+                    0.3
+                  ],
+                  [
+                    "A4",
+                    0
+                  ]
+                ],
+                "duration": 0.9
+              },
+              "gain": 0.45,
+              "delay": 0.15
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.25,
+            "length": 1.45,
+            "fadeOut": 0.5
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Puñetazo pesado y una campana grave de Kenney que se hunde siete semitonos.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPunch_heavy_000.ogg",
+                "process": {
+                  "lowcut": 100
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactBell_heavy_000.ogg",
+                "process": {
+                  "glide": -7
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.05
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.22,
+            "length": 1.45,
+            "fadeOut": 0.5
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Caída pesada sobre tierra y un La 4 de campana que cae cinco semitonos.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/504626_body_fall_v_hvy_dirt.ogg",
+                "process": {
+                  "start": 0.36,
+                  "end": 0.9,
+                  "lowcut": 100
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 110,
+                "duration": 0.4
+              },
+              "gain": 0.4
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "note": "A4",
+                "duration": 1.2,
+                "process": {
+                  "glide": -5
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.1
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.2,
+            "length": 1.45,
+            "fadeOut": 0.5
+          }
+        }
+      ]
+    }
+  }
+}

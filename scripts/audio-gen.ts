@@ -16,7 +16,8 @@ import { basename, dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { AUDIO_GEN, SOUNDS, type SoundDef } from '../src/config/audio';
 import { measure } from './lib/audio/analyze';
-import { finish } from './lib/audio/dsp';
+import { Credits, creditsMarkdown, recipeSources, type CreditRow } from './lib/audio/credits';
+import { finish, finishLoop } from './lib/audio/dsp';
 import { LETTERS, parseSoundRecipes, type Candidate, type Letter, type Recipe } from './lib/audio/recipes';
 import { render } from './lib/audio/render';
 import { buildReport, type ReportRow } from './lib/audio/report';
@@ -32,9 +33,10 @@ export function candidateKey(key: string, letter: Letter): string {
   return `${key}__${letter.toLowerCase()}`;
 }
 
-/** A recipe to the bytes of its finished WAV. */
-export function renderFile(recipe: Recipe, channels: 1 | 2): Uint8Array {
-  return encodeWav(finish(render(recipe, channels, AUDIO_GEN.sampleRate)));
+/** A recipe to the bytes of its finished WAV (a loop's, seamless); its sources' paths start at `sourceRoot` (audio-src/). */
+export function renderFile(recipe: Recipe, channels: 1 | 2, sourceRoot = '', loop = false): Uint8Array {
+  const audio = render(recipe, channels, { sampleRate: AUDIO_GEN.sampleRate, sourceRoot });
+  return encodeWav(loop ? finishLoop(audio) : finish(audio));
 }
 
 export interface GenerateResult {
@@ -89,7 +91,7 @@ export function generateAudio(root: string, log: (line: string) => void): Genera
       if (!inGame && recipes.chosen !== null) continue;
       candidate.variants.forEach((recipe, i) => {
         const key = sound.variants[i] ?? '';
-        const bytes = renderFile(recipe, candidate.channels);
+        const bytes = renderFile(recipe, candidate.channels, at('audio-src'), sound.loop);
         if (inGame) write('sfx', key, bytes, recipes.chosen === null ? { picked: letter, pending: true } : { picked: letter });
         // Until one is chosen, every candidate (A too) goes to the debug build's folder.
         const shown = recipes.chosen === null ? candidateKey(key, letter) : key;
@@ -113,12 +115,23 @@ export function generateAudio(root: string, log: (line: string) => void): Genera
 
   const report = buildReport(rows);
   warnings.push(...report.warnings);
+
+  // The licence of every source (§5.1): docs/AUDIO-CREDITS.md; assets:check fails on a source without one.
+  const credits = new Credits(at('audio-src'));
+  const creditRows: CreditRow[] = [];
+  for (const [source, sounds] of recipeSources(recipesDir)) {
+    const found = credits.of(source);
+    if ('problem' in found) warnings.push(found.problem);
+    else creditRows.push({ source, credit: found.credit, sounds });
+  }
+  writeFileSync(at('docs/AUDIO-CREDITS.md'), creditsMarkdown(creditRows));
   const size = (dir: string): number => readdirSync(dir).reduce((sum, f) => sum + statSync(resolve(dir, f)).size, 0);
   const sfxBytes = size(sfxDir);
   if (sfxBytes > AUDIO_GEN.budgetBytes) warnings.push(`los efectos ocupan ${(sfxBytes / 1048576).toFixed(2)} MB, más que el presupuesto de ${AUDIO_GEN.budgetBytes / 1048576} MB`);
   mkdirSync(at('audio-src/preview'), { recursive: true });
   writeFileSync(at('audio-src/preview/report.md'), report.markdown);
   log(`  ✓ informe → audio-src/preview/report.md (${rows.length} archivos; efectos ${(sfxBytes / 1024).toFixed(0)} KB, candidatos ${(size(candidatesDir) / 1024).toFixed(0)} KB)`);
+  log(`  ✓ créditos → docs/AUDIO-CREDITS.md (${creditRows.length} archivos de origen)`);
   return { generated: rows.length, warnings };
 }
 

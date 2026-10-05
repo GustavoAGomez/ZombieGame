@@ -1,4 +1,5 @@
 import { POINTS, ZOMBIES } from '../../config/balance';
+import type { WeaponId } from '../../config/weapons';
 import type { BloodState, ZombieState } from '../../core/GameState';
 import { random } from '../../core/Rng';
 import { BLOCK_SIGHT, BLOCK_ZOMBIE, moveCircle, segmentClearShaped } from '../map/CollisionGrid';
@@ -17,6 +18,8 @@ export interface HitPoint {
   y: number;
   dirX: number;
   dirY: number;
+  /** The weapon that hit, when it sounds its own way (the katana's cut, spec 08 §6.1). */
+  weapon?: WeaponId;
 }
 
 /**
@@ -36,7 +39,7 @@ export function damageZombie(
   if (!isZombieAlive(z)) return false;
   z.hp -= amount;
   if (attacker >= 0 && hitPoints > 0) awardPoints(ctx, attacker, hitPoints, 'hit');
-  if (hit) ctx.events.emit('zombie:hit', { x: hit.x, y: hit.y, groundY: z.y, dirX: hit.dirX, dirY: hit.dirY, killed: z.hp <= 0 });
+  if (hit) ctx.events.emit('zombie:hit', { x: hit.x, y: hit.y, groundY: z.y, dirX: hit.dirX, dirY: hit.dirY, killed: z.hp <= 0, weapon: hit.weapon });
   if (z.hp > 0) return false;
   if (attacker >= 0) awardPoints(ctx, attacker, POINTS.kill, 'kill');
   // Dying in hellfire, it bursts (spec 06 §2.3): set off by BurnSystem this same tick.

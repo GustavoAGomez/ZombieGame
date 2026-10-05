@@ -126,7 +126,7 @@ export function measure(a: Audio): SoundMeasures {
   let sum = 0;
   for (const ch of a.channels) for (const s of ch) peak = Math.max(peak, Math.abs(s));
   for (const s of samples) sum += s * s;
-  const threshold = peak * 10 ** (-40 / 20);
+  const threshold = peak * dbToGain(AUDIO_GEN.onsetDb);
   let lead = 0;
   while (lead < samples.length && !a.channels.some((ch) => Math.abs(ch[lead] ?? 0) >= threshold)) lead++;
   // Clipping: AUDIO_GEN.clipRun samples or more in a row at full scale.

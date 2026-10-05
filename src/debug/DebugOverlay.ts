@@ -256,9 +256,20 @@ export class DebugOverlay {
     tabs.className = 'debug-sound-tabs';
     const list = document.createElement('div');
     list.className = 'debug-buttons debug-sound-list';
-    sheet.append(head, this.soundStatsEl, tabs, list);
+    const actions = document.createElement('div');
+    actions.className = 'debug-sound-tabs';
+    sheet.append(head, this.soundStatsEl, actions, tabs, list);
     const sounds = this.sounds;
     if (!sounds) return sheet;
+    const combat = document.createElement('button');
+    combat.type = 'button';
+    combat.className = 'debug-button debug-sound-tab';
+    combat.textContent = STRINGS.debug.simulateCombat;
+    combat.addEventListener('pointerup', (e) => {
+      e.preventDefault();
+      sounds.simulateCombat();
+    });
+    actions.appendChild(combat);
     const families = [...new Set(sounds.sounds.map((s) => s.family))];
     let current = families[0];
     this.redrawSounds = () => {

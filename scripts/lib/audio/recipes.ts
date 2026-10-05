@@ -4,6 +4,7 @@
  * (A, B, C) and which one was chosen. A recipe keeps every parameter: the
  * same recipes and sources always give the same files.
  */
+import { NO_PROCESS, type Peak, type Process } from './process';
 import { noteFrequency, SynthError, type Strike, type SynthParams, type Timbre } from './synth';
 
 export const LETTERS = ['A', 'B', 'C'] as const;
@@ -13,6 +14,14 @@ export type Letter = (typeof LETTERS)[number];
 export interface SynthRecipe {
   type: 'synth';
   params: SynthParams;
+  process: Process;
+}
+
+/** A recorded source (§5): a file of audio-src/library/ or audio-src/generated/, by its path from audio-src/. */
+export interface FileRecipe {
+  type: 'file';
+  source: string;
+  process: Process;
 }
 
 /** One layer of a mix, `delay` seconds in, at `gain`. */
@@ -26,9 +35,10 @@ export interface Layer {
 export interface LayersRecipe {
   type: 'layers';
   layers: Layer[];
+  process: Process;
 }
 
-export type Recipe = SynthRecipe | LayersRecipe;
+export type Recipe = SynthRecipe | FileRecipe | LayersRecipe;
 
 /** One candidate of a sound: what it tries, and its files. */
 export interface Candidate {
@@ -77,6 +87,48 @@ function strikes(json: Record<string, unknown>, where: string): Strike[] {
   });
 }
 
+const REVERBS = ['none', 'room', 'hall'] as const;
+
+/** The processing chain of a recipe (§4.2): every field optional. */
+function processOf(raw: unknown, where: string): Process {
+  if (raw === undefined) return { ...NO_PROCESS, peaks: [] };
+  if (!isRecord(raw)) throw new RecipeError(`${where}.process: un objeto con los pasos del proceso`);
+  const at = `${where}.process`;
+  const signed = (value: unknown, field: string, fallback: number): number => {
+    const v = value === undefined ? fallback : value;
+    if (typeof v !== 'number' || !Number.isFinite(v)) throw new RecipeError(`${at}.${field}: tiene que ser un número`);
+    return v;
+  };
+  const hz = (value: unknown, field: string): number | null => (value === undefined || value === null ? null : num(value, `${at}.${field}`, 0, 20));
+  const reverbName = raw.reverb ?? 'none';
+  if (typeof reverbName !== 'string' || !(REVERBS as readonly string[]).includes(reverbName)) throw new RecipeError(`${at}.reverb: none, room o hall`);
+  const peaks = raw.peaks ?? [];
+  if (!Array.isArray(peaks)) throw new RecipeError(`${at}.peaks: [{ "freq": Hz, "gainDb": dB, "q": 1 }]`);
+  return {
+    start: num(raw.start, `${at}.start`, 0),
+    end: raw.end === undefined || raw.end === null ? null : num(raw.end, `${at}.end`, 0),
+    reverse: raw.reverse === true,
+    semitones: signed(raw.semitones, 'semitones', 0),
+    glide: signed(raw.glide, 'glide', 0),
+    lowcut: hz(raw.lowcut, 'lowcut'),
+    highcut: hz(raw.highcut, 'highcut'),
+    peaks: peaks.map((p: unknown, i): Peak => {
+      if (!isRecord(p)) throw new RecipeError(`${at}.peaks[${i}]: { "freq": Hz, "gainDb": dB, "q": 1 }`);
+      return { freq: num(p.freq, `${at}.peaks[${i}].freq`, 1000, 20), gainDb: signed(p.gainDb, `peaks[${i}].gainDb`, 0), q: num(p.q, `${at}.peaks[${i}].q`, 1, 0.1) };
+    }),
+    threshold: signed(raw.threshold, 'threshold', 0),
+    ratio: num(raw.ratio, `${at}.ratio`, 1, 1),
+    drive: num(raw.drive, `${at}.drive`, 0),
+    reverb: reverbName as Process['reverb'],
+    wet: num(raw.wet, `${at}.wet`, 0.2),
+    width: num(raw.width, `${at}.width`, 1),
+    gainDb: signed(raw.gainDb, 'gainDb', 0),
+    length: raw.length === undefined || raw.length === null ? null : num(raw.length, `${at}.length`, 0, 0.001),
+    fadeIn: num(raw.fadeIn, `${at}.fadeIn`, 0),
+    fadeOut: num(raw.fadeOut, `${at}.fadeOut`, 0),
+  };
+}
+
 function synth(json: Record<string, unknown>, where: string): SynthRecipe {
   const timbre = json.timbre;
   if (typeof timbre !== 'string' || !(TIMBRES as readonly string[]).includes(timbre)) throw new RecipeError(`${where}.timbre: ${TIMBRES.join(', ')}`);
@@ -101,6 +153,7 @@ function synth(json: Record<string, unknown>, where: string): SynthRecipe {
       width: num(json.width, `${where}.width`, timbre === 'pad' ? 8 : 1),
       seed: num(json.seed, `${where}.seed`, 1),
     },
+    process: processOf(json.process, where),
   };
 }
 
@@ -110,6 +163,13 @@ export function parseRecipe(json: unknown, where: string): Recipe {
   switch (json.type) {
     case 'synth':
       return synth(json, where);
+    case 'file': {
+      const source = json.source;
+      if (typeof source !== 'string' || !/^(library|generated)\/[^.][^]*\.(ogg|wav|mp3|flac)$/i.test(source)) {
+        throw new RecipeError(`${where}.source: la ruta desde audio-src/ de un archivo de library/ o generated/ (ogg, wav, mp3 o flac)`);
+      }
+      return { type: 'file', source, process: processOf(json.process, where) };
+    }
     case 'layers': {
       if (!Array.isArray(json.layers) || json.layers.length === 0) throw new RecipeError(`${where}.layers: hace falta al menos una capa`);
       const layers = json.layers.map((raw: unknown, i): Layer => {
@@ -117,10 +177,10 @@ export function parseRecipe(json: unknown, where: string): Recipe {
         if (!isRecord(raw)) throw new RecipeError(`${at}: { "recipe": {…}, "gain": 1, "delay": 0 }`);
         return { recipe: parseRecipe(raw.recipe, `${at}.recipe`), gain: num(raw.gain, `${at}.gain`, 1), delay: num(raw.delay, `${at}.delay`, 0) };
       });
-      return { type: 'layers', layers };
+      return { type: 'layers', layers, process: processOf(json.process, where) };
     }
     default:
-      throw new RecipeError(`${where}: tipo de receta «${String(json.type)}» desconocido (synth o layers)`);
+      throw new RecipeError(`${where}: tipo de receta «${String(json.type)}» desconocido (file, synth o layers)`);
   }
 }
 
@@ -137,6 +197,13 @@ function candidate(json: unknown, where: string): Candidate {
     variants: json.variants.map((v: unknown, i) => parseRecipe(v, `${where}.variants[${i}]`)),
     shine: shine.map((v: unknown, i) => parseRecipe(v, `${where}.shine[${i}]`)),
   };
+}
+
+/** Every source a recipe uses (its own and its layers'), by its path from audio-src/. */
+export function sourcesOf(recipe: Recipe): string[] {
+  if (recipe.type === 'file') return [recipe.source];
+  if (recipe.type === 'layers') return recipe.layers.flatMap((l) => sourcesOf(l.recipe));
+  return [];
 }
 
 /** A sound's recipe file: its candidates A, B and C, and the chosen one. */

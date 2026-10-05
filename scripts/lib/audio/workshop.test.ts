@@ -1,11 +1,18 @@
+import { mkdirSync, mkdtempSync, renameSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { AUDIO_GEN, type SoundDef } from '../../../src/config/audio';
 import { renderFile } from '../../audio-gen';
+import { envValue, fileNameOf, parseArgs } from '../../audio-search';
+import { checkAudioSources, type CheckReport } from '../../check-assets';
 import { measure } from './analyze';
+import { Credits, creditsMarkdown } from './credits';
+import { render } from './render';
 import { RecipeError, parseRecipe, parseSoundRecipes } from './recipes';
 import { buildReport, type ReportRow } from './report';
 import { noteFrequency, SynthError } from './synth';
-import { decodeWav } from './wav';
+import { decodeWav, encodeWav } from './wav';
 
 const TAP = {
   type: 'layers',
@@ -29,6 +36,7 @@ const sound = (patch: Partial<SoundDef> = {}): SoundDef => ({
   positional: false,
   ladder: null,
   duck: false,
+  loop: false,
   ...patch,
 });
 const row = (key: string, bytes: Uint8Array, s = sound(), letter = 'A'): ReportRow => ({ key, sound: s, letter, inGame: true, about: '', measures: measure(decodeWav(bytes)) });
@@ -97,5 +105,111 @@ describe('workshop report (spec 08 §4.5)', () => {
     const rumble = gen({ type: 'synth', timbre: 'sub', freq: 70, duration: 0.3 });
     const { warnings } = buildReport([row('r', rumble, sound({ id: 'boss.landed', family: 'threat', variants: ['r'] }))]);
     expect(warnings.some((w) => w.includes('por debajo de 100 Hz'))).toBe(true);
+  });
+});
+
+/** A scratch audio-src/ with one recorded source: 0.1 s of room noise, then a 440 Hz tone of 0.4 s. */
+function scratchSources(credits: unknown = { origin: 'Prueba', author: 'Nadie', license: 'CC0 1.0', url: 'https://example.com' }): string {
+  const root = mkdtempSync(join(tmpdir(), 'audio-src-'));
+  const sr = AUDIO_GEN.sampleRate;
+  const samples = new Float32Array(Math.round(0.5 * sr));
+  for (let i = 0; i < samples.length; i++) samples[i] = i < 0.1 * sr ? 0.002 * Math.sin(i * 7.3) : 0.25 * Math.sin((2 * Math.PI * 440 * i) / sr);
+  mkdirSync(join(root, 'library/test'), { recursive: true });
+  writeFileSync(join(root, 'library/test/tone.wav'), encodeWav({ sampleRate: sr, channels: [samples] }));
+  if (credits) writeFileSync(join(root, 'library/test/credits.json'), JSON.stringify(credits));
+  return root;
+}
+
+describe('recorded sources and the processing chain (spec 08 §4.1, §4.2)', () => {
+  const root = scratchSources();
+  const file = (process?: unknown) => ({ type: 'file', source: 'library/test/tone.wav', ...(process ? { process } : {}) });
+  const render1 = (json: unknown, loop = false) => decodeWav(renderFile(parseRecipe(json, 'test'), 1, root, loop));
+
+  it('decodes a source, starts at its onset (not its room noise) and gives the same bytes every time', () => {
+    const wav = render1(file());
+    expect(measure(wav).leadingSilence).toBeLessThanOrEqual(AUDIO_GEN.maxLeadingSilence);
+    expect(wav.duration).toBeCloseTo(0.4, 2);
+    expect(renderFile(parseRecipe(file(), 't'), 1, root)).toEqual(renderFile(parseRecipe(file(), 't'), 1, root));
+  });
+
+  it('trims, changes the pitch, slides it and sets the final length', () => {
+    expect(render1(file({ start: 0.1, end: 0.3 })).duration).toBeCloseTo(0.2, 2);
+    const up = measure(render1(file({ start: 0.1, semitones: 12 })));
+    expect(up.duration).toBeCloseTo(0.2, 2);
+    expect(up.brightness).toBeGreaterThan(measure(render1(file({ start: 0.1 }))).brightness * 1.6);
+    // Sliding down an octave: longer than as it was, shorter than a whole octave down.
+    const glide = render1(file({ start: 0.1, glide: -12 })).duration;
+    expect(glide).toBeGreaterThan(0.45);
+    expect(glide).toBeLessThan(0.8);
+    expect(render1(file({ start: 0.1, reverb: 'room', wet: 0.3, length: 0.25, fadeOut: 0.05 })).duration).toBeCloseTo(0.25, 2);
+  });
+
+  it('normalizes each recorded source after its trim, so a layer\'s gain is relative to its peak', () => {
+    const peak = (process: unknown): number => {
+      const a = render(parseRecipe(file(process), 't'), 1, { sampleRate: AUDIO_GEN.sampleRate, sourceRoot: root });
+      return Math.max(...(a.channels[0] ?? []).map(Math.abs));
+    };
+    // The tone was recorded at 0.25.
+    expect(peak({ start: 0.1 })).toBeCloseTo(1, 2);
+    expect(peak({ start: 0.1, gainDb: -6 })).toBeCloseTo(0.5, 2);
+  });
+
+  it('finishes a loop without a seam: its end runs into its start', () => {
+    const loop = render1(file({ start: 0.1 }), true);
+    const ch = loop.channels[0] ?? new Float32Array(0);
+    expect(loop.duration).toBeCloseTo(0.4 - AUDIO_GEN.loopCrossfade, 2);
+    // The last sample and the first are neighbours of one 440 Hz wave: at most one step apart.
+    const step = 2 * Math.sin((Math.PI * 440) / AUDIO_GEN.sampleRate) * 0.9;
+    expect(Math.abs((ch[0] ?? 0) - (ch.at(-1) ?? 0))).toBeLessThan(step * 1.5);
+  });
+
+  it('rejects a source outside library/ and generated/', () => {
+    expect(() => parseRecipe({ type: 'file', source: '../secret.wav' }, 'x')).toThrow(RecipeError);
+    expect(() => parseRecipe({ type: 'file', source: 'library/a/b.txt' }, 'x')).toThrow(RecipeError);
+  });
+});
+
+describe('licence records (spec 08 §5.1)', () => {
+  it('finds a source\'s record in its folder, a file\'s own fields over the folder\'s', () => {
+    const root = scratchSources({ origin: 'Freesound', license: 'CC0 1.0', files: { 'tone.wav': { author: 'alguien', url: 'https://freesound.org/s/1/' } } });
+    expect(new Credits(root).of('library/test/tone.wav')).toEqual({ credit: { origin: 'Freesound', author: 'alguien', license: 'CC0 1.0', url: 'https://freesound.org/s/1/' } });
+    expect(new Credits(root).of('library/test/other.wav')).toHaveProperty('problem', expect.stringContaining('falta author, url'));
+  });
+
+  it('takes only CC0 from a library, and asks a generated file for its prompt and model', () => {
+    const root = scratchSources({ origin: 'X', author: 'Y', license: 'CC BY 4.0', url: 'https://example.com' });
+    expect(new Credits(root).of('library/test/tone.wav')).toHaveProperty('problem', expect.stringContaining('solo vale CC0'));
+    expect(new Credits(root).of('generated/a.wav')).toHaveProperty('problem', expect.stringContaining('generated/credits.json'));
+  });
+
+  it('makes assets:check fail when a recipe uses a source without a record', () => {
+    const root = mkdtempSync(join(tmpdir(), 'repo-'));
+    const audioSrc = scratchSources(null);
+    renameSync(audioSrc, join(root, 'audio-src'));
+    mkdirSync(join(root, 'audio-src/recipes'));
+    writeFileSync(join(root, 'audio-src/recipes/ui.tap.json'), JSON.stringify({ chosen: null, candidates: { A: { variants: [{ type: 'file', source: 'library/test/tone.wav' }] } } }));
+    const report: CheckReport = { errors: [], warnings: [], info: [] };
+    checkAudioSources(root, report);
+    expect(report.errors).toEqual([expect.stringContaining('falta audio-src/library/test/credits.json')]);
+    writeFileSync(join(root, 'audio-src/library/test/credits.json'), JSON.stringify({ origin: 'P', author: 'A', license: 'CC0 1.0', url: 'https://example.com' }));
+    const ok: CheckReport = { errors: [], warnings: [], info: [] };
+    checkAudioSources(root, ok);
+    expect(ok.errors).toEqual([]);
+  });
+
+  it('writes one credits row per source', () => {
+    const md = creditsMarkdown([{ source: 'library/test/tone.wav', credit: { origin: 'P', author: 'A|B', license: 'CC0 1.0', url: 'https://x' }, sounds: ['ui.tap'] }]);
+    expect(md).toContain('| `library/test/tone.wav` | P | A\\|B | CC0 1.0 | https://x | ui.tap |');
+  });
+});
+
+describe('audio:search (spec 08 §5.2)', () => {
+  it('reads the key from a .env text without printing it, and names files by id and title', () => {
+    expect(envValue('# x\nOTHER=1\nFREESOUND_API_KEY="abc123"\n', 'FREESOUND_API_KEY')).toBe('abc123');
+    expect(envValue('export FREESOUND_API_KEY=xyz', 'FREESOUND_API_KEY')).toBe('xyz');
+    expect(envValue('FREESOUND_API_KEY=', 'FREESOUND_API_KEY')).toBeUndefined();
+    expect(fileNameOf(123, 'Heavy Door Slam (2).wav')).toBe('123_heavy_door_slam_2.ogg');
+    expect(parseArgs(['pistol', 'shot', '--count', '3', '--max', '2'])).toEqual({ query: 'pistol shot', count: 3, max: 2 });
+    expect(() => parseArgs([])).toThrow(/uso/);
   });
 });

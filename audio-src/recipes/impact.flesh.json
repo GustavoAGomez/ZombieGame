@@ -1,0 +1,415 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Puñetazo medio de Kenney con una salpicadura húmeda encima.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPunch_medium_000.ogg",
+                "process": {
+                  "end": 0.2,
+                  "lowcut": 100
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/460867_splat03.ogg"
+              },
+              "gain": 0.6
+            }
+          ],
+          "process": {
+            "length": 0.2,
+            "fadeOut": 0.08
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPunch_medium_001.ogg",
+                "process": {
+                  "end": 0.2,
+                  "lowcut": 100
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/460868_splat02.ogg"
+              },
+              "gain": 0.6
+            }
+          ],
+          "process": {
+            "length": 0.2,
+            "fadeOut": 0.08
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPunch_medium_002.ogg",
+                "process": {
+                  "end": 0.2,
+                  "lowcut": 100
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/460872_splat06.ogg"
+              },
+              "gain": 0.6
+            }
+          ],
+          "process": {
+            "length": 0.2,
+            "fadeOut": 0.08
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPunch_medium_003.ogg",
+                "process": {
+                  "end": 0.2,
+                  "lowcut": 100
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/460873_splat05.ogg"
+              },
+              "gain": 0.6
+            }
+          ],
+          "process": {
+            "length": 0.2,
+            "fadeOut": 0.08
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Puñetazo pesado con el peso en 200 Hz y una salpicadura.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPunch_heavy_000.ogg",
+                "process": {
+                  "end": 0.22,
+                  "lowcut": 160,
+                  "peaks": [
+                    {
+                      "freq": 200,
+                      "gainDb": 3,
+                      "q": 1
+                    }
+                  ]
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/460876_splat11.ogg"
+              },
+              "gain": 0.5
+            }
+          ],
+          "process": {
+            "length": 0.22,
+            "fadeOut": 0.09
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPunch_heavy_001.ogg",
+                "process": {
+                  "end": 0.22,
+                  "lowcut": 160,
+                  "peaks": [
+                    {
+                      "freq": 200,
+                      "gainDb": 3,
+                      "q": 1
+                    }
+                  ]
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/460867_splat03.ogg"
+              },
+              "gain": 0.5
+            }
+          ],
+          "process": {
+            "length": 0.22,
+            "fadeOut": 0.09
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPunch_heavy_002.ogg",
+                "process": {
+                  "end": 0.22,
+                  "lowcut": 160,
+                  "peaks": [
+                    {
+                      "freq": 200,
+                      "gainDb": 3,
+                      "q": 1
+                    }
+                  ]
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/460868_splat02.ogg"
+              },
+              "gain": 0.5
+            }
+          ],
+          "process": {
+            "length": 0.22,
+            "fadeOut": 0.09
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPunch_heavy_003.ogg",
+                "process": {
+                  "end": 0.22,
+                  "lowcut": 160,
+                  "peaks": [
+                    {
+                      "freq": 200,
+                      "gainDb": 3,
+                      "q": 1
+                    }
+                  ]
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/460872_splat06.ogg"
+              },
+              "gain": 0.5
+            }
+          ],
+          "process": {
+            "length": 0.22,
+            "fadeOut": 0.09
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Golpes de carne grabados (impacto, despojos, bofetada, salpicadura) sobre un golpe blando.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/779805_meaty_damage_impact.ogg",
+                "process": {
+                  "end": 0.25,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactSoft_medium_000.ogg",
+                "process": {
+                  "lowcut": 140,
+                  "peaks": [
+                    {
+                      "freq": 160,
+                      "gainDb": 5,
+                      "q": 1
+                    }
+                  ]
+                }
+              },
+              "gain": 0.5
+            }
+          ],
+          "process": {
+            "length": 0.22,
+            "fadeOut": 0.09
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/504629_gib_sound.ogg",
+                "process": {
+                  "end": 0.22,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactSoft_medium_001.ogg",
+                "process": {
+                  "lowcut": 140,
+                  "peaks": [
+                    {
+                      "freq": 160,
+                      "gainDb": 5,
+                      "q": 1
+                    }
+                  ]
+                }
+              },
+              "gain": 0.5
+            }
+          ],
+          "process": {
+            "length": 0.22,
+            "fadeOut": 0.09
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/770176_kamen_rider_style_smack_punch_impact.ogg",
+                "process": {
+                  "end": 0.2,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactSoft_medium_002.ogg",
+                "process": {
+                  "lowcut": 140,
+                  "peaks": [
+                    {
+                      "freq": 160,
+                      "gainDb": 5,
+                      "q": 1
+                    }
+                  ]
+                }
+              },
+              "gain": 0.5
+            }
+          ],
+          "process": {
+            "length": 0.22,
+            "fadeOut": 0.09
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/719130_splat_2.ogg",
+                "process": {
+                  "end": 0.2,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactSoft_medium_003.ogg",
+                "process": {
+                  "lowcut": 140,
+                  "peaks": [
+                    {
+                      "freq": 160,
+                      "gainDb": 5,
+                      "q": 1
+                    }
+                  ]
+                }
+              },
+              "gain": 0.5
+            }
+          ],
+          "process": {
+            "length": 0.22,
+            "fadeOut": 0.09
+          }
+        }
+      ]
+    }
+  }
+}

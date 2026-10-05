@@ -1898,3 +1898,26 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 - **`audio:gen` desde S1, con capas sintéticas, mezcla, acabado e informe**, para que `ui.tap` salga de una receta. El taller completo (fuentes grabadas, proceso, créditos) llega en S2.
 - **La menor natural:** las notas válidas son A, B, C, D, E, F y G, sin alteraciones. `audio:gen` falla con una nota fuera de la tonalidad.
 
+## Audio: taller, fuentes y sonidos de armas y jugador (spec 08, fase S2)
+
+- **Fuentes de partida:** Kenney (RPG Audio, Impact Sounds, Interface Sounds) y «80 CC0 RPG SFX» de OpenGameArt, enteros y CC0, en `audio-src/library/`, con un `credits.json` por carpeta. De Freesound solo se guardan los archivos que usa alguna receta: el resto de lo que baje `audio:search` se puede borrar y volver a buscar.
+- **El proceso se hace en TypeScript, no con filtros de ffmpeg.** ffmpeg (`ffmpeg-static`) solo decodifica las fuentes a muestras de 44,1 kHz. Así el resultado no depende de la versión de ffmpeg y las mismas recetas dan siempre los mismos bytes. `ffmpeg-static` es GPL-3.0, pero es solo una herramienta de desarrollo: no va en la app.
+- **Freesound solo da previsualizaciones con una clave de API.** Descargar el original exige OAuth2 con un usuario. Usamos la previsualización OGG de alta calidad (unos 192 kbps), que basta para sonidos que se recortan, se procesan y se mezclan. La clave se lee de `FREESOUND_API_KEY` (o de `.env`, fuera de git), va en una cabecera y nunca se imprime ni se escribe. El script comprueba de nuevo que cada resultado sea CC0 antes de guardarlo.
+- **Fichas de licencia:** un `credits.json` por carpeta de fuentes, con los campos de la carpeta y los de cada archivo. Es lo más simple para packs enteros (una ficha) y para Freesound (una por archivo). `docs/AUDIO-CREDITS.md` se genera, no se edita a mano.
+- **Cada fuente grabada se normaliza tras su recorte.** Las bibliotecas vienen a volúmenes muy distintos (de −10 a −55 dB de media). Así el `gain` de una capa se lee igual con cualquier fuente.
+- **El archivo empieza donde el sonido llega a −40 dB de su pico,** el mismo umbral con el que el informe mide el silencio inicial, tras 1 ms de fundido. Una grabación trae ruido de sala antes del golpe, y recortarlo a −50 dB lo dejaba dentro.
+- **Dos pasos más en el proceso:**
+  - `glide`, un tono que se desliza, para el haz que se rompe y la campana que desciende;
+  - `length`, la longitud final, que también corta la cola de la reverberación (así un golpe con sala no pasa de los 400 ms de su familia).
+- **Familias de §6.1:** la sección se titula Golpe, pero la herida, la muerte, el latido, el sobrecalentamiento y el arma rota se miden como Amenaza (§3.2 pone ahí el daño recibido, y dos notas descendentes no caben en 400 ms).
+- **Bucles (láser, lanzallamas, latido):**
+  - El taller funde sus últimos 120 ms con el principio, sin recortar ni fundir los extremos.
+  - El director los arranca con 60 ms de fundido de entrada y los para con 250 ms de salida. Esa es la «cola de brasas» del lanzallamas, en vez de un tercer archivo.
+  - El tono del láser sube con el calor hasta una quinta (×1,5 de velocidad).
+- **El latido es un bucle de un ciclo (unos 70 pulsos por minuto).** Que suene 5 s al bajar la vida es de S4 (vida baja), como dice la tabla de fases. Hasta entonces se oye en el panel. Un latido real tiene casi toda su energía por debajo de 100 Hz, que el altavoz de un móvil no da. Por eso los candidatos lo suben siete semitonos, lo saturan y le suman un golpe sordo filtrado entre 150 y 600 Hz.
+- **Sin posición hasta S4:** `impact.flesh` y `weapon.flame.blast` ya son mono y posicionales en el catálogo, pero suenan centrados hasta que S4 añada la atenuación y el desplazamiento.
+- **De quién son los sonidos:** el disparo, la recarga, el clic en vacío, el cambio de arma, el sobrecalentamiento, el arma rota, el cuchillo, el dash, la herida y la muerte solo suenan para el jugador local. Los impactos (`impact.flesh`, el corte de la katana) y la bocanada del lanzallamas suenan los provoque quien los provoque.
+- **El cuchillo es solo el tajo.** El «golpe blando si acierta» de §6.1 ya lo pone `impact.flesh` con el `zombie:hit` del mismo golpe. Un acierto de katana suena con `weapon.katana.hit` en lugar de `impact.flesh`.
+- **El clic en vacío** solo suena al apretar de nuevo el gatillo con un arma de balas sin cargador ni reserva, sin recargar ni cambiar de arma. Mantenerlo apretado no repite el clic.
+- **SIMULAR COMBATE:** la SMG dispara 5 s a su cadencia real, con 7 de cada 10 disparos que aciertan y una baja cada 6 aciertos. La baja suena con `reward.kill`, que llega en S3: hasta entonces es silencio.
+
