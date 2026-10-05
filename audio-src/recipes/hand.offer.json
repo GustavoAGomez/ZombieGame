@@ -1,0 +1,145 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Brasas que crepitan y La-Mi de campana que se revela.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/422850_fire_crackle_02.ogg",
+                "process": {
+                  "start": 0.2,
+                  "end": 0.8,
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 0.6
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "A4",
+                    0.15
+                  ],
+                  [
+                    "E5",
+                    0
+                  ]
+                ],
+                "duration": 0.6
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.22,
+            "length": 0.88,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Fuego de estufa y Do-La de cristal.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/478796_stove_fire_loop.ogg",
+                "process": {
+                  "end": 0.7,
+                  "fadeIn": 0.05,
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 0.5
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "C5",
+                    0.15
+                  ],
+                  [
+                    "A5",
+                    0
+                  ]
+                ],
+                "duration": 0.5
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.22,
+            "length": 0.88,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Hechizo de fuego y Mi-La de campana.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/spell_fire_05.ogg",
+                "process": {
+                  "end": 0.7,
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 0.6
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "E5",
+                    0.15
+                  ],
+                  [
+                    "A5",
+                    0
+                  ]
+                ],
+                "duration": 0.6
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.22,
+            "length": 0.88,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    }
+  }
+}

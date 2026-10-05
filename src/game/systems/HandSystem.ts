@@ -78,7 +78,11 @@ export function handOffer(map: MapData, state: GameState, p: PlayerState): HandO
 /** A tap on the action button at the hand: pay (money or blood) or take the weapon on offer. */
 export function tapHand(ctx: SimContext, p: PlayerState): void {
   const offer = handOffer(ctx.map, ctx.state, p);
-  if (!offer?.enabled) return;
+  if (!offer) return;
+  if (!offer.enabled) {
+    ctx.events.emit('action:denied', { playerId: p.id });
+    return;
+  }
   if (offer.mode === 'pay' || offer.mode === 'blood') pay(ctx, p, offer.mode === 'blood');
   else takeOffer(ctx, p);
 }
@@ -152,8 +156,12 @@ export function updateHand(ctx: SimContext, dt: number): void {
   if (hand.timer > 0) return;
   switch (hand.phase) {
     case 'rising':
-      if (hand.mock) setPhase(state, 'mocking', HAND.mockTime);
-      else setPhase(state, 'rolling', HAND.rollingTime);
+      if (hand.mock) {
+        setPhase(state, 'mocking', HAND.mockTime);
+      } else {
+        setPhase(state, 'rolling', HAND.rollingTime);
+        ctx.events.emit('hand:rolling', { playerId: hand.payer });
+      }
       break;
     case 'mocking':
       refund(ctx);

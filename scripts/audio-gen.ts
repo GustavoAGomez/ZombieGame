@@ -86,17 +86,24 @@ export function generateAudio(root: string, log: (line: string) => void): Genera
       if (candidate.variants.length !== sound.variants.length) {
         throw new Error(`${name}: el candidato ${letter} tiene ${candidate.variants.length} variantes y el catálogo ${sound.variants.length}`);
       }
+      // A streak sound has a shine layer per variant, whose pitch alone climbs (§3.4).
+      if (candidate.shine.length !== sound.shine.length) {
+        throw new Error(`${name}: el candidato ${letter} tiene ${candidate.shine.length} capas de brillo ("shine") y el catálogo pide ${sound.shine.length}`);
+      }
       const inGame = letter === playing;
       // A chosen sound's other candidates stay in the recipes, out of the game (§4.4).
       if (!inGame && recipes.chosen !== null) continue;
-      candidate.variants.forEach((recipe, i) => {
-        const key = sound.variants[i] ?? '';
+      const files = [
+        ...candidate.variants.map((recipe, i) => ({ recipe, key: sound.variants[i] ?? '', layer: 'body' as const })),
+        ...candidate.shine.map((recipe, i) => ({ recipe, key: sound.shine[i] ?? '', layer: 'shine' as const })),
+      ];
+      files.forEach(({ recipe, key, layer }) => {
         const bytes = renderFile(recipe, candidate.channels, at('audio-src'), sound.loop);
         if (inGame) write('sfx', key, bytes, recipes.chosen === null ? { picked: letter, pending: true } : { picked: letter });
         // Until one is chosen, every candidate (A too) goes to the debug build's folder.
         const shown = recipes.chosen === null ? candidateKey(key, letter) : key;
         if (recipes.chosen === null) write('candidates', shown, bytes, { candidate: letter });
-        rows.push({ key: shown, sound, letter, inGame, about: candidate.about, measures: measure(decodeWav(bytes)) });
+        rows.push({ key: shown, sound, letter, inGame, about: candidate.about, layer, measures: measure(decodeWav(bytes)) });
       });
     }
     done.add(id);
@@ -106,7 +113,7 @@ export function generateAudio(root: string, log: (line: string) => void): Genera
   // Every variant of the catalog has its entry: without a recipe yet, a placeholder (silence).
   for (const sound of SOUNDS) {
     if (sound.bus === 'music' || done.has(sound.id)) continue;
-    for (const key of sound.variants) audio[key] = { file: `audio/sfx/${key}.wav`, duration: PLACEHOLDER_DURATION, placeholder: true };
+    for (const key of [...sound.variants, ...sound.shine]) audio[key] = { file: `audio/sfx/${key}.wav`, duration: PLACEHOLDER_DURATION, placeholder: true };
     warnings.push(`${sound.id}: sin receta en audio-src/recipes/, suena como silencio`);
   }
 

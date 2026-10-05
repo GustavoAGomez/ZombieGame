@@ -1,0 +1,157 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Siseo y brasas, monedas que caen y un gruñido lejano (las monedas de la bolsa las pone buy.cash).",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/436791_sizzle.ogg",
+                "process": {
+                  "end": 0.5,
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 0.7
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/422850_fire_crackle_02.ogg",
+                "process": {
+                  "start": 0.2,
+                  "end": 0.8
+                }
+              },
+              "gain": 0.6
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/485750_coins_drop_14.ogg",
+                "process": {
+                  "start": 0.24,
+                  "end": 0.7
+                }
+              },
+              "gain": 0.6
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/556879_growl_or_groan_of_a_synthetic_monster_4.ogg",
+                "process": {
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.3,
+              "delay": 0.1
+            }
+          ],
+          "process": {
+            "length": 0.85,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Siseo suave, monedas de OpenGameArt y un retumbo.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/478800_simple_sizzle.ogg",
+                "process": {
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 0.7
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/item_coins_02.ogg"
+              },
+              "gain": 0.7
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/232137_rock_falling_010.ogg",
+                "process": {
+                  "lowcut": 150,
+                  "end": 0.6,
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 0.4
+            }
+          ],
+          "process": {
+            "length": 0.85,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Siseo fuerte, monedas sobre la mesa y crepitar.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/234124_sizzle.ogg",
+                "process": {
+                  "end": 0.6,
+                  "fadeIn": 0.02,
+                  "fadeOut": 0.3
+                }
+              },
+              "gain": 0.5
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/510732_coin_dropped_on_table_3.ogg",
+                "process": {
+                  "start": 0.26,
+                  "end": 0.8
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/422851_fire_crackle_01.ogg",
+                "process": {
+                  "start": 0.5,
+                  "end": 1.0
+                }
+              },
+              "gain": 0.6
+            }
+          ],
+          "process": {
+            "length": 0.85,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Toque mínimo de cristal en La 6 con un brillo de Kenney.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "A6",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.16
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-interface-sounds/glass_002.ogg",
+                "process": {
+                  "highcut": 8000
+                }
+              },
+              "gain": 0.3
+            }
+          ],
+          "process": {
+            "length": 0.15,
+            "fadeOut": 0.04
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Cristal en Mi 7, más agudo, con un clic suave.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "E7",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.16
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-interface-sounds/select_001.ogg"
+              },
+              "gain": 0.3
+            }
+          ],
+          "process": {
+            "length": 0.15,
+            "fadeOut": 0.04
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "El cristal de Kenney (Si 6) con un Do 7 generado muy bajo.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-interface-sounds/glass_003.ogg",
+                "process": {
+                  "highcut": 7000
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "C7",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.16
+              },
+              "gain": 0.25
+            }
+          ],
+          "process": {
+            "length": 0.15,
+            "fadeOut": 0.04
+          }
+        }
+      ]
+    }
+  }
+}

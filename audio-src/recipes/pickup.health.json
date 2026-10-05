@@ -1,0 +1,184 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Campana cálida La-Do-Mi que sube, con un soplo de aire y sala.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "C5",
+                    0.1
+                  ],
+                  [
+                    "E5",
+                    0.1
+                  ],
+                  [
+                    "A5",
+                    0
+                  ]
+                ],
+                "duration": 0.5
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "air",
+                "freq": 300,
+                "freqEnd": 900,
+                "duration": 0.4,
+                "width": 1,
+                "seed": 8
+              },
+              "gain": 0.35
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.18,
+            "length": 0.8,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Mi-La de campana sobre un acorde suave, con soplo.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "E5",
+                    0.12
+                  ],
+                  [
+                    "A5",
+                    0
+                  ]
+                ],
+                "duration": 0.55
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "pad",
+                "notes": [
+                  [
+                    "A4",
+                    0,
+                    1
+                  ],
+                  [
+                    "E5",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.6,
+                "attack": 0.08,
+                "width": 8
+              },
+              "gain": 0.3
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "air",
+                "freq": 250,
+                "freqEnd": 800,
+                "duration": 0.45,
+                "width": 1,
+                "seed": 9
+              },
+              "gain": 0.3
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.18,
+            "length": 0.8,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Una botella que suena en La 6 grabada con Do-Mi de campana y soplo.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/521332_mein_bottle_pling.ogg",
+                "process": {
+                  "end": 0.6,
+                  "fadeOut": 0.3
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.12
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "E5",
+                    0.12
+                  ],
+                  [
+                    "A5",
+                    0
+                  ]
+                ],
+                "duration": 0.5
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "air",
+                "freq": 300,
+                "freqEnd": 1000,
+                "duration": 0.4,
+                "width": 1,
+                "seed": 10
+              },
+              "gain": 0.3
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.18,
+            "length": 0.8,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    }
+  }
+}

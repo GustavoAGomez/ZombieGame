@@ -1,0 +1,168 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Cartuchos que caen, un clic de metal y Mi-La de cristal que sube.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/347601_shell_casing_4.ogg",
+                "process": {
+                  "start": 0.33,
+                  "end": 0.7
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/metalClick.ogg",
+                "process": {
+                  "start": 0.06,
+                  "end": 0.14
+                }
+              },
+              "gain": 0.4
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "E6",
+                    0.08
+                  ],
+                  [
+                    "A6",
+                    0
+                  ]
+                ],
+                "duration": 0.25
+              },
+              "gain": 0.4,
+              "delay": 0.05
+            }
+          ],
+          "process": {
+            "length": 0.55,
+            "fadeOut": 0.15
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Otros cartuchos con una hebilla y La-Mi de cristal.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/347600_shell_casing_2.ogg",
+                "process": {
+                  "start": 0.5,
+                  "end": 0.9
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/beltHandle1.ogg"
+              },
+              "gain": 0.3
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "A5",
+                    0.08
+                  ],
+                  [
+                    "E6",
+                    0
+                  ]
+                ],
+                "duration": 0.25
+              },
+              "gain": 0.4,
+              "delay": 0.05
+            }
+          ],
+          "process": {
+            "length": 0.55,
+            "fadeOut": 0.15
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Cartuchos, un golpe de metal ligero y Do-Mi de cristal.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/347602_shell_casing_6.ogg",
+                "process": {
+                  "start": 0.27,
+                  "end": 0.65
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactMetal_light_000.ogg",
+                "process": {
+                  "end": 0.15
+                }
+              },
+              "gain": 0.3
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "C6",
+                    0.08
+                  ],
+                  [
+                    "E6",
+                    0
+                  ]
+                ],
+                "duration": 0.25
+              },
+              "gain": 0.4,
+              "delay": 0.05
+            }
+          ],
+          "process": {
+            "length": 0.55,
+            "fadeOut": 0.15
+          }
+        }
+      ]
+    }
+  }
+}

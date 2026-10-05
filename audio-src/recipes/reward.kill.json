@@ -1,0 +1,177 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Golpe seco de puñetazo con peso a 150 Hz; la campanilla (La 5) sube de tono con la racha.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPunch_medium_001.ogg",
+                "process": {
+                  "end": 0.16,
+                  "lowcut": 120
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 150,
+                "duration": 0.08
+              },
+              "gain": 0.3
+            }
+          ],
+          "process": {
+            "length": 0.18,
+            "fadeOut": 0.06
+          }
+        }
+      ],
+      "shine": [
+        {
+          "type": "synth",
+          "timbre": "bell",
+          "notes": [
+            [
+              "A5",
+              0,
+              1
+            ]
+          ],
+          "duration": 0.35
+        }
+      ]
+    },
+    "B": {
+      "about": "Bofetada grabada con madera; el brillo es un cristal en La 6, más corto.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/770176_kamen_rider_style_smack_punch_impact.ogg",
+                "process": {
+                  "end": 0.15,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactWood_medium_000.ogg",
+                "process": {
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.5
+            }
+          ],
+          "process": {
+            "length": 0.17,
+            "fadeOut": 0.06
+          }
+        }
+      ],
+      "shine": [
+        {
+          "type": "synth",
+          "timbre": "glass",
+          "notes": [
+            [
+              "A6",
+              0,
+              1
+            ]
+          ],
+          "duration": 0.22
+        }
+      ]
+    },
+    "C": {
+      "about": "Golpe pesado con salpicadura; el brillo mezcla campana y cristal en La.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPunch_heavy_001.ogg",
+                "process": {
+                  "end": 0.15,
+                  "lowcut": 160
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/460868_splat02.ogg",
+                "process": {
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.4
+            }
+          ],
+          "process": {
+            "length": 0.17,
+            "fadeOut": 0.06
+          }
+        }
+      ],
+      "shine": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "A6",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.3
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "A7",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.15
+              },
+              "gain": 0.3
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

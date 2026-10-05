@@ -1,0 +1,155 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Aire que acelera de 300 a 3000 Hz y un cristal que se abre en La 6.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "air",
+                "freq": 300,
+                "freqEnd": 3000,
+                "duration": 0.5,
+                "width": 1,
+                "seed": 12
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "A6",
+                    0,
+                    1
+                  ],
+                  [
+                    "E7",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.35
+              },
+              "gain": 0.6,
+              "delay": 0.42
+            }
+          ],
+          "process": {
+            "length": 0.85,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Una subida de energía grabada y un Mi 6 de cristal.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/683185_power_up.ogg",
+                "process": {
+                  "end": 0.6,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "E6",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.3
+              },
+              "gain": 0.6,
+              "delay": 0.5
+            }
+          ],
+          "process": {
+            "length": 0.85,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Subida corta de menú, aire y un acorde de cristal La-Do-Mi.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/422516_menu_fx_03_ascending.ogg"
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "air",
+                "freq": 400,
+                "freqEnd": 2500,
+                "duration": 0.4,
+                "width": 1,
+                "seed": 13
+              },
+              "gain": 0.6
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "A6",
+                    0,
+                    1
+                  ],
+                  [
+                    "C7",
+                    0,
+                    1
+                  ],
+                  [
+                    "E7",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.35
+              },
+              "gain": 0.5,
+              "delay": 0.35
+            }
+          ],
+          "process": {
+            "length": 0.8,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    }
+  }
+}

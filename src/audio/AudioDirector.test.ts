@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AUDIO, SOUNDS, type AudioBus, type SoundDef, type VolumeLevel } from '../config/audio';
+import { AUDIO, SOUND_DEFAULTS, SOUNDS, type AudioBus, type SoundDef, type VolumeLevel } from '../config/audio';
 import { WEAPONS } from '../config/weapons';
 import { EventBus } from '../core/EventBus';
 import type { AudioDef } from '../game/assets/manifest';
@@ -47,7 +47,7 @@ class FakeSettings implements AudioSettings {
   }
 }
 
-const base = { pitchVar: 0, maxVoices: 2, minInterval: 0, priority: 'normal', positional: false, ladder: null, duck: false, loop: false } as const;
+const base = SOUND_DEFAULTS;
 const CATALOG: SoundDef[] = [
   { ...base, id: 'ui.tap', family: 'ui', variants: ['ui_tap'], bus: 'ui', volume: 0.5, pitchVar: 3, minInterval: 0.03, priority: 'low' },
   { ...base, id: 'shot', family: 'hit', variants: ['shot_1', 'shot_2', 'shot_3'], bus: 'sfx', volume: 0.8, maxVoices: 20 },
@@ -193,9 +193,10 @@ function gameSetup() {
   const engine = new FakeEngine();
   const events = new EventBus();
   let now = 0;
-  const director = new AudioDirector(engine, new FakeSettings(), events, { clock: () => now, random: () => 0.5 });
+  // What is scheduled (a room's bells after the bolt, the splash after the throw) plays at once.
+  const director = new AudioDirector(engine, new FakeSettings(), events, { clock: () => now, random: () => 0.5, schedule: (_, run) => run() });
   const defs: Record<string, AudioDef> = {};
-  for (const s of SOUNDS) for (const v of s.variants) defs[v] = { file: `audio/sfx/${v}.wav`, duration: 0.2, placeholder: false };
+  for (const s of SOUNDS) for (const v of [...s.variants, ...s.shine]) defs[v] = { file: `audio/sfx/${v}.wav`, duration: 0.2, placeholder: false };
   director.load(defs, 'assets/');
   const keys = (): string[] => engine.played.map((p) => p.key);
   return { engine, events, director, keys, advance: (seconds: number) => (now += seconds) };
@@ -223,12 +224,49 @@ describe('AudioDirector: weapons and the player (spec 08 §6.1)', () => {
       [() => events.emit('player:dash', { playerId: 0, x: 0, y: 0 }), 'player_dash'],
       [() => events.emit('player:damaged', { playerId: 0, hp: 50, maxHp: 100, x: 0, y: 0, fromX: 1, fromY: 0 }), 'player_hurt'],
       [() => events.emit('player:died', { playerId: 0 }), 'player_death'],
+      // §6.2 to §6.6.
+      [() => events.emit('points:gained', { playerId: 0, amount: 10, reason: 'hit' }), 'reward_hit'],
+      [() => events.emit('points:gained', { playerId: 0, amount: 60, reason: 'kill' }), 'reward_kill,reward_kill_shine'],
+      [() => events.emit('barricade:repaired', { playerId: 0, x: 0, y: 0 }), 'reward_repair,reward_repair_shine'],
+      [() => events.emit('pickup:collected', { playerId: 0, kind: 'ammo' }), 'pickup_ammo'],
+      [() => events.emit('pickup:collected', { playerId: 0, kind: 'health' }), 'pickup_health'],
+      [() => events.emit('item:picked', { playerId: 0, item: 'worn_wand' }), 'pickup_item'],
+      [() => events.emit('money:spent', { playerId: 0, amount: 750 }), 'buy_cash'],
+      [() => events.emit('door:opened', { doorId: 'D1', playerId: 0 }), 'buy_door'],
+      [() => events.emit('portal:opened', { portalId: 'P1', playerId: 0 }), 'buy_door'],
+      [() => events.emit('zone:unlocked', { zone: 'cocina' }), 'buy_zone'],
+      [() => events.emit('weaponCase:purchase', { playerId: 0, weapon: 'smg', ammo: false }), 'buy_weapon'],
+      [() => events.emit('weaponCase:purchase', { playerId: 0, weapon: 'smg', ammo: true }), 'pickup_ammo'],
+      [() => events.emit('merchant:purchase', { playerId: 0, merchant: 'red', item: 'max_ammo' }), 'buy_merchant_red'],
+      [() => events.emit('merchant:purchase', { playerId: 0, merchant: 'red', item: 'upgrade_damage', level: 2 }), 'buy_upgrade,buy_upgrade_shine'],
+      [() => events.emit('merchant:purchase', { playerId: 0, merchant: 'gold', item: 'weapon_special' }), 'buy_special'],
+      [() => events.emit('boost:activated', { playerId: 0, boost: 'speed' }), 'boost_on'],
+      [() => events.emit('action:denied', { playerId: 0 }), 'denied'],
+      [() => events.emit('item:cantUse', { playerId: 0, slot: 0 }), 'item_cant_use'],
+      [() => events.emit('item:thrown', { playerId: 0, item: 'worn_wand', activation: 'summon_red_merchant', fromX: 0, fromY: 0, toX: 0, toY: 0, time: 0 }), 'item_splash'],
+      [() => events.emit('activation:completed', { playerId: 0, activation: 'summon_red_merchant', effect: { kind: 'summon_merchant', merchant: 'red' } }), 'ritual_done'],
+      [() => events.emit('merchant:moved', { merchant: 'gold', first: true }), 'merchant_arrive_gold'],
+      [() => events.emit('hand:paid', { playerId: 0, blood: false }), 'hand_pay_money'],
+      [() => events.emit('hand:paid', { playerId: 0, blood: true }), 'hand_pay_blood'],
+      [() => events.emit('hand:rolling', { playerId: 0 }), 'hand_roll'],
+      [() => events.emit('hand:offer', { weapon: 'smg', special: false }), 'hand_offer'],
+      [() => events.emit('hand:offer', { weapon: 'laser', special: true }), 'hand_offer_special'],
+      [() => events.emit('hand:taken', { playerId: 0, weapon: 'smg' }), 'hand_taken'],
+      [() => events.emit('hand:refunded', { playerId: 0, blood: false, amount: 950 }), 'hand_refund'],
+      [() => events.emit('hand:moved', { zone: 'salon' }), 'hand_moved'],
+      [() => events.emit('round:changed', { round: 2, boss: false }), 'jingle_round_start'],
+      [() => events.emit('round:changed', { round: 5, boss: true }), 'jingle_round_boss'],
+      [() => events.emit('round:cleared', { round: 2 }), 'jingle_round_clear'],
+      [() => events.emit('boss:killed', { x: 0, y: 0, boss: 'butcher', variant: 'base' }), 'jingle_boss_dead'],
+      [() => events.emit('game:over', { round: 3, score: 100 }), 'jingle_gameover'],
+      [() => events.emit('shop:state', { merchant: 'blue', rows: [] }), 'ui_shop_open_blue'],
+      [() => events.emit('shop:state', { merchant: null, rows: [] }), 'ui_shop_close_blue'],
     );
     for (const [emit, key] of cases) {
       advance(1);
       const before = keys().length;
       emit();
-      expect(keys().slice(before).join(), key).toMatch(new RegExp(`^${key}`));
+      expect(keys().slice(before).join(), key).toMatch(new RegExp(`^${key}(_\\d)?$`));
     }
   });
 
@@ -284,6 +322,98 @@ describe('AudioDirector: weapons and the player (spec 08 §6.1)', () => {
     director.test('weapon.flame.loop');
     expect(engine.played).toHaveLength(1);
     expect(engine.played[0]?.stopped).toBe(true);
+  });
+});
+
+describe('AudioDirector: rewards, streaks, the hand and the banners (spec 08 §3.4, §6.2 to §6.6)', () => {
+  /** The rate each shine of a streak sound played at, over its body's. */
+  const shineSteps = (engine: FakeEngine, body: string): number[] => {
+    const out: number[] = [];
+    engine.played.forEach((p, i) => {
+      const shine = engine.played[i + 1];
+      if (p.key === body && shine?.key === `${body}_shine`) out.push(Math.round(12 * Math.log2(shine.options.rate / p.options.rate)));
+    });
+    return out;
+  };
+
+  it('climbs the kill streak on the shine layer only: a rung per kill, staying on the last, back to the first past its window', () => {
+    const { engine, events, advance } = gameSetup();
+    const kill = (): void => events.emit('points:gained', { playerId: 0, amount: 60, reason: 'kill' });
+    for (let i = 0; i < 10; i++) {
+      kill();
+      advance(AUDIO.ladder.windows.kill / 2);
+    }
+    advance(AUDIO.ladder.windows.kill + 0.1);
+    kill();
+    expect(shineSteps(engine, 'reward_kill')).toEqual([...AUDIO.ladder.steps, 17, 17, 0]);
+    // The body never changes its pitch.
+    expect(new Set(engine.played.filter((p) => p.key === 'reward_kill').map((p) => p.options.rate))).toEqual(new Set([1]));
+  });
+
+  it('climbs the repair streak with each plank, and the upgrade one by the level bought', () => {
+    const { engine, events, advance } = gameSetup();
+    for (let i = 0; i < 3; i++) {
+      events.emit('barricade:repaired', { playerId: 0, x: 0, y: 0 });
+      advance(1);
+    }
+    for (const level of [1, 3, 2]) {
+      events.emit('merchant:purchase', { playerId: 0, merchant: 'red', item: 'upgrade_ammo', level });
+      advance(1);
+    }
+    expect(shineSteps(engine, 'reward_repair')).toEqual([0, 3, 5]);
+    expect(shineSteps(engine, 'buy_upgrade')).toEqual([0, 5, 3]);
+  });
+
+  it('gives each wizard his own signature, and opens and closes a shop only once', () => {
+    const { events, keys, advance } = gameSetup();
+    for (const merchant of ['blue', 'red', 'gold'] as const) {
+      advance(1);
+      events.emit('merchant:purchase', { playerId: 0, merchant, item: 'max_ammo' });
+    }
+    events.emit('shop:state', { merchant: 'gold', rows: [] });
+    events.emit('shop:state', { merchant: 'gold', rows: [] });
+    advance(1);
+    events.emit('shop:state', { merchant: null, rows: [] });
+    expect(keys()).toEqual(['buy_merchant_blue', 'buy_merchant_red', 'buy_merchant_gold', 'ui_shop_open_gold', 'ui_shop_close_gold']);
+  });
+
+  it('keeps what a player earns, spends or is refused to that player', () => {
+    const { events, keys } = gameSetup();
+    events.emit('points:gained', { playerId: 1, amount: 60, reason: 'kill' });
+    events.emit('money:spent', { playerId: 1, amount: 750 });
+    events.emit('action:denied', { playerId: 1 });
+    events.emit('merchant:purchase', { playerId: 1, merchant: 'blue', item: 'max_ammo' });
+    events.emit('barricade:repaired', { playerId: 2, x: 0, y: 0 });
+    expect(keys()).toEqual([]);
+    // A door, though, is heard by everyone.
+    events.emit('door:opened', { doorId: 'D1', playerId: 1 });
+    expect(keys()).toEqual(['buy_door']);
+  });
+
+  it('stops the hand\'s draw as soon as it opens', () => {
+    const { engine, events } = gameSetup();
+    events.emit('hand:rolling', { playerId: 0 });
+    events.emit('hand:offer', { weapon: 'smg', special: false });
+    expect(engine.played.map((p) => [p.key, p.stopped])).toEqual([
+      ['hand_roll', true],
+      ['hand_offer', false],
+    ]);
+  });
+
+  it('SIMULAR RACHA: kills in a row, climbing', () => {
+    const engine = new FakeEngine();
+    let now = 0;
+    const runs: { at: number; run: () => void }[] = [];
+    const director = new AudioDirector(engine, new FakeSettings(), null, { clock: () => now, random: () => 0.5, schedule: (at, run) => runs.push({ at, run }) });
+    const defs: Record<string, AudioDef> = {};
+    for (const s of SOUNDS) for (const v of [...s.variants, ...s.shine]) defs[v] = { file: `audio/sfx/${v}.wav`, duration: 0.05, placeholder: false };
+    director.load(defs, 'assets/');
+    director.simulateStreak();
+    for (const r of runs) {
+      now = r.at;
+      r.run();
+    }
+    expect(shineSteps(engine, 'reward_kill')).toEqual(AUDIO.ladder.steps.slice(0, AUDIO.streakTest.kills));
   });
 });
 

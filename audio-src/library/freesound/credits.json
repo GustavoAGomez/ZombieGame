@@ -2,6 +2,26 @@
   "origin": "Freesound (previsualización HQ OGG)",
   "license": "CC0 1.0",
   "files": {
+    "132868_monster_long_rumble_1.ogg": {
+      "author": "ecfike",
+      "url": "https://freesound.org/people/ecfike/sounds/132868/",
+      "license": "CC0 1.0"
+    },
+    "145361_kleaudio_crackingbone_msst.ogg": {
+      "author": "kleanthism",
+      "url": "https://freesound.org/people/kleanthism/sounds/145361/",
+      "license": "CC0 1.0"
+    },
+    "145362_kleaudio_crackingbone3_msst.ogg": {
+      "author": "kleanthism",
+      "url": "https://freesound.org/people/kleanthism/sounds/145362/",
+      "license": "CC0 1.0"
+    },
+    "147993_bone_cracking.ogg": {
+      "author": "bewareofkites20",
+      "url": "https://freesound.org/people/bewareofkites20/sounds/147993/",
+      "license": "CC0 1.0"
+    },
     "163455_shotgun_shot.ogg": {
       "author": "LeMudCrab",
       "url": "https://freesound.org/people/LeMudCrab/sounds/163455/",
@@ -17,9 +37,19 @@
       "url": "https://freesound.org/people/martian/sounds/182252/",
       "license": "CC0 1.0"
     },
+    "192496_bubbles_light_short_descend.ogg": {
+      "author": "murraysortz",
+      "url": "https://freesound.org/people/murraysortz/sounds/192496/",
+      "license": "CC0 1.0"
+    },
     "203378_glass_shard_bounce_2.ogg": {
       "author": "C_Rogers",
       "url": "https://freesound.org/people/C_Rogers/sounds/203378/",
+      "license": "CC0 1.0"
+    },
+    "208111_poof_of_smoke.ogg": {
+      "author": "Planman",
+      "url": "https://freesound.org/people/Planman/sounds/208111/",
       "license": "CC0 1.0"
     },
     "221528_glass_break.ogg": {
@@ -47,14 +77,34 @@
       "url": "https://freesound.org/people/Lunardrive/sounds/22440/",
       "license": "CC0 1.0"
     },
+    "232137_rock_falling_010.ogg": {
+      "author": "yottasounds",
+      "url": "https://freesound.org/people/yottasounds/sounds/232137/",
+      "license": "CC0 1.0"
+    },
+    "234124_sizzle.ogg": {
+      "author": "CHEATSman115",
+      "url": "https://freesound.org/people/CHEATSman115/sounds/234124/",
+      "license": "CC0 1.0"
+    },
     "234782_steam_hiss.ogg": {
       "author": "wubitog",
       "url": "https://freesound.org/people/wubitog/sounds/234782/",
       "license": "CC0 1.0"
     },
+    "240745_choir_one_shot.ogg": {
+      "author": "majoranman",
+      "url": "https://freesound.org/people/majoranman/sounds/240745/",
+      "license": "CC0 1.0"
+    },
     "245154_laser_1_main_loop.ogg": {
       "author": "jobro",
       "url": "https://freesound.org/people/jobro/sounds/245154/",
+      "license": "CC0 1.0"
+    },
+    "256800_striking_a_match_2.ogg": {
+      "author": "HunteR4708",
+      "url": "https://freesound.org/people/HunteR4708/sounds/256800/",
       "license": "CC0 1.0"
     },
     "258198_thompson_smg_shot.ogg": {
@@ -72,9 +122,19 @@
       "url": "https://freesound.org/people/LookIMadeAThing/sounds/260554/",
       "license": "CC0 1.0"
     },
+    "273870_water_drop_1.ogg": {
+      "author": "beskhu",
+      "url": "https://freesound.org/people/beskhu/sounds/273870/",
+      "license": "CC0 1.0"
+    },
     "323525_bloody_blade.ogg": {
       "author": "Kreastricon62",
       "url": "https://freesound.org/people/Kreastricon62/sounds/323525/",
+      "license": "CC0 1.0"
+    },
+    "342542_outside_hammer.ogg": {
+      "author": "sgrowe",
+      "url": "https://freesound.org/people/sgrowe/sounds/342542/",
       "license": "CC0 1.0"
     },
     "344142_gunshot_002.ogg": {
@@ -92,6 +152,31 @@
       "url": "https://freesound.org/people/deleted_user_2104797/sounds/346692/",
       "license": "CC0 1.0"
     },
+    "347600_shell_casing_2.ogg": {
+      "author": "NicJonesAudio",
+      "url": "https://freesound.org/people/NicJonesAudio/sounds/347600/",
+      "license": "CC0 1.0"
+    },
+    "347601_shell_casing_4.ogg": {
+      "author": "NicJonesAudio",
+      "url": "https://freesound.org/people/NicJonesAudio/sounds/347601/",
+      "license": "CC0 1.0"
+    },
+    "347602_shell_casing_6.ogg": {
+      "author": "NicJonesAudio",
+      "url": "https://freesound.org/people/NicJonesAudio/sounds/347602/",
+      "license": "CC0 1.0"
+    },
+    "350679_deep_evil_laugh.ogg": {
+      "author": "DRFX",
+      "url": "https://freesound.org/people/DRFX/sounds/350679/",
+      "license": "CC0 1.0"
+    },
+    "364683_unlock_deadbolt.ogg": {
+      "author": "alegemaate",
+      "url": "https://freesound.org/people/alegemaate/sounds/364683/",
+      "license": "CC0 1.0"
+    },
     "370204_samurai_slash.ogg": {
       "author": "nekoninja",
       "url": "https://freesound.org/people/nekoninja/sounds/370204/",
@@ -107,9 +192,24 @@
       "url": "https://freesound.org/people/Jofae/sounds/389590/",
       "license": "CC0 1.0"
     },
+    "389618_rock_tumble_2.ogg": {
+      "author": "_stubb",
+      "url": "https://freesound.org/people/_stubb/sounds/389618/",
+      "license": "CC0 1.0"
+    },
+    "398448_match_ignite_no_strike.ogg": {
+      "author": "brachern",
+      "url": "https://freesound.org/people/brachern/sounds/398448/",
+      "license": "CC0 1.0"
+    },
     "418194_hard_glass_impact.ogg": {
       "author": "deleted_user_3656686",
       "url": "https://freesound.org/people/deleted_user_3656686/sounds/418194/",
+      "license": "CC0 1.0"
+    },
+    "422516_menu_fx_03_ascending.ogg": {
+      "author": "Nightflame",
+      "url": "https://freesound.org/people/Nightflame/sounds/422516/",
       "license": "CC0 1.0"
     },
     "422850_fire_crackle_02.ogg": {
@@ -117,9 +217,34 @@
       "url": "https://freesound.org/people/IPaddeh/sounds/422850/",
       "license": "CC0 1.0"
     },
+    "422851_fire_crackle_01.ogg": {
+      "author": "IPaddeh",
+      "url": "https://freesound.org/people/IPaddeh/sounds/422851/",
+      "license": "CC0 1.0"
+    },
+    "426318_rocks_falling.ogg": {
+      "author": "MTJohnson",
+      "url": "https://freesound.org/people/MTJohnson/sounds/426318/",
+      "license": "CC0 1.0"
+    },
+    "436791_sizzle.ogg": {
+      "author": "roboroo",
+      "url": "https://freesound.org/people/roboroo/sounds/436791/",
+      "license": "CC0 1.0"
+    },
+    "442873_puffofsmoke.ogg": {
+      "author": "euanmj",
+      "url": "https://freesound.org/people/euanmj/sounds/442873/",
+      "license": "CC0 1.0"
+    },
     "442903_slash.ogg": {
       "author": "qubodup",
       "url": "https://freesound.org/people/qubodup/sounds/442903/",
+      "license": "CC0 1.0"
+    },
+    "444491_short_choir.ogg": {
+      "author": "Breviceps",
+      "url": "https://freesound.org/people/Breviceps/sounds/444491/",
       "license": "CC0 1.0"
     },
     "447922_thud_falling_on_wooden_floor_snapping_br.ogg": {
@@ -130,6 +255,21 @@
     "447941_blast_flamethrower_cooldown.ogg": {
       "author": "Breviceps",
       "url": "https://freesound.org/people/Breviceps/sounds/447941/",
+      "license": "CC0 1.0"
+    },
+    "448410_bolt_lock_3.ogg": {
+      "author": "LordForklift",
+      "url": "https://freesound.org/people/LordForklift/sounds/448410/",
+      "license": "CC0 1.0"
+    },
+    "452371_small_bell.ogg": {
+      "author": "steffcaffrey",
+      "url": "https://freesound.org/people/steffcaffrey/sounds/452371/",
+      "license": "CC0 1.0"
+    },
+    "452379_small_bell_2.ogg": {
+      "author": "steffcaffrey",
+      "url": "https://freesound.org/people/steffcaffrey/sounds/452379/",
       "license": "CC0 1.0"
     },
     "455921_pistol_magazine_reload_only.ogg": {
@@ -187,9 +327,29 @@
       "url": "https://freesound.org/people/xUMR/sounds/478796/",
       "license": "CC0 1.0"
     },
+    "478800_simple_sizzle.ogg": {
+      "author": "thomashill1",
+      "url": "https://freesound.org/people/thomashill1/sounds/478800/",
+      "license": "CC0 1.0"
+    },
+    "485750_coins_drop_14.ogg": {
+      "author": "SpaceJoe",
+      "url": "https://freesound.org/people/SpaceJoe/sounds/485750/",
+      "license": "CC0 1.0"
+    },
+    "485776_heavy_money_bag_5.ogg": {
+      "author": "SpaceJoe",
+      "url": "https://freesound.org/people/SpaceJoe/sounds/485776/",
+      "license": "CC0 1.0"
+    },
     "494797_jacket_cloth_rustle_9.ogg": {
       "author": "brandondelehoy",
       "url": "https://freesound.org/people/brandondelehoy/sounds/494797/",
+      "license": "CC0 1.0"
+    },
+    "495117_wet_splat_2.ogg": {
+      "author": "nebulasnails",
+      "url": "https://freesound.org/people/nebulasnails/sounds/495117/",
       "license": "CC0 1.0"
     },
     "504626_body_fall_v_hvy_dirt.ogg": {
@@ -207,6 +367,36 @@
       "url": "https://freesound.org/people/Danjocross/sounds/507466/",
       "license": "CC0 1.0"
     },
+    "510732_coin_dropped_on_table_3.ogg": {
+      "author": "HoseNoseSounds",
+      "url": "https://freesound.org/people/HoseNoseSounds/sounds/510732/",
+      "license": "CC0 1.0"
+    },
+    "510734_coin_dropped_on_table_1.ogg": {
+      "author": "HoseNoseSounds",
+      "url": "https://freesound.org/people/HoseNoseSounds/sounds/510734/",
+      "license": "CC0 1.0"
+    },
+    "515618_splat_squish_1.ogg": {
+      "author": "mrickey13",
+      "url": "https://freesound.org/people/mrickey13/sounds/515618/",
+      "license": "CC0 1.0"
+    },
+    "518292_gong_2.ogg": {
+      "author": "Logicogonist",
+      "url": "https://freesound.org/people/Logicogonist/sounds/518292/",
+      "license": "CC0 1.0"
+    },
+    "519359_gong_10_sem.ogg": {
+      "author": "Logicogonist",
+      "url": "https://freesound.org/people/Logicogonist/sounds/519359/",
+      "license": "CC0 1.0"
+    },
+    "521332_mein_bottle_pling.ogg": {
+      "author": "skylarjulian",
+      "url": "https://freesound.org/people/skylarjulian/sounds/521332/",
+      "license": "CC0 1.0"
+    },
     "523091_shotgun_blast_1.ogg": {
       "author": "magnuswaker",
       "url": "https://freesound.org/people/magnuswaker/sounds/523091/",
@@ -215,6 +405,11 @@
     "530355_fire.ogg": {
       "author": "danielpodlovics",
       "url": "https://freesound.org/people/danielpodlovics/sounds/530355/",
+      "license": "CC0 1.0"
+    },
+    "532735_boiling_water_short.ogg": {
+      "author": "Bricklover",
+      "url": "https://freesound.org/people/Bricklover/sounds/532735/",
       "license": "CC0 1.0"
     },
     "547195_voice_adultmale_paingrunts_12.ogg": {
@@ -247,6 +442,56 @@
       "url": "https://freesound.org/people/MrFossy/sounds/547208/",
       "license": "CC0 1.0"
     },
+    "556877_growl_or_groan_of_a_synthetic_monster_2.ogg": {
+      "author": "Wax_vibe",
+      "url": "https://freesound.org/people/Wax_vibe/sounds/556877/",
+      "license": "CC0 1.0"
+    },
+    "556878_growl_or_groan_of_a_synthetic_monster_3.ogg": {
+      "author": "Wax_vibe",
+      "url": "https://freesound.org/people/Wax_vibe/sounds/556878/",
+      "license": "CC0 1.0"
+    },
+    "556879_growl_or_groan_of_a_synthetic_monster_4.ogg": {
+      "author": "Wax_vibe",
+      "url": "https://freesound.org/people/Wax_vibe/sounds/556879/",
+      "license": "CC0 1.0"
+    },
+    "573269_timpani_17.ogg": {
+      "author": "Sorinious_Genious",
+      "url": "https://freesound.org/people/Sorinious_Genious/sounds/573269/",
+      "license": "CC0 1.0"
+    },
+    "573275_timpani_2.ogg": {
+      "author": "Sorinious_Genious",
+      "url": "https://freesound.org/people/Sorinious_Genious/sounds/573275/",
+      "license": "CC0 1.0"
+    },
+    "576104_s_o_1_rocks_falling_03.ogg": {
+      "author": "Tim_Verberne",
+      "url": "https://freesound.org/people/Tim_Verberne/sounds/576104/",
+      "license": "CC0 1.0"
+    },
+    "576105_s_o_1_rocks_falling_02.ogg": {
+      "author": "Tim_Verberne",
+      "url": "https://freesound.org/people/Tim_Verberne/sounds/576105/",
+      "license": "CC0 1.0"
+    },
+    "576107_s_o_1_rocks_falling_06.ogg": {
+      "author": "Tim_Verberne",
+      "url": "https://freesound.org/people/Tim_Verberne/sounds/576107/",
+      "license": "CC0 1.0"
+    },
+    "577402_crdn_cinematic_heavy_drums_09.ogg": {
+      "author": "choomaque-crispydinner",
+      "url": "https://freesound.org/people/choomaque-crispydinner/sounds/577402/",
+      "license": "CC0 1.0"
+    },
+    "577403_crdn_cinematic_heavy_drums_12.ogg": {
+      "author": "choomaque-crispydinner",
+      "url": "https://freesound.org/people/choomaque-crispydinner/sounds/577403/",
+      "license": "CC0 1.0"
+    },
     "579531_ppsh_shooting.ogg": {
       "author": "coolabc",
       "url": "https://freesound.org/people/coolabc/sounds/579531/",
@@ -255,6 +500,11 @@
     "581078_flame_loop.ogg": {
       "author": "magnuswaker",
       "url": "https://freesound.org/people/magnuswaker/sounds/581078/",
+      "license": "CC0 1.0"
+    },
+    "609909_evil_laugh_2.ogg": {
+      "author": "AntumDeluge",
+      "url": "https://freesound.org/people/AntumDeluge/sounds/609909/",
       "license": "CC0 1.0"
     },
     "623817_single_steam_train_chuff.ogg": {
@@ -292,14 +542,39 @@
       "url": "https://freesound.org/people/NearTheAtmoshphere/sounds/683178/",
       "license": "CC0 1.0"
     },
+    "683185_power_up.ogg": {
+      "author": "NearTheAtmoshphere",
+      "url": "https://freesound.org/people/NearTheAtmoshphere/sounds/683185/",
+      "license": "CC0 1.0"
+    },
     "688765_unholster_gun.ogg": {
       "author": "qubodup",
       "url": "https://freesound.org/people/qubodup/sounds/688765/",
       "license": "CC0 1.0"
     },
+    "691473_door.ogg": {
+      "author": "saha213131",
+      "url": "https://freesound.org/people/saha213131/sounds/691473/",
+      "license": "CC0 1.0"
+    },
     "700034_electric_train_motor_idle_loop_queenslan.ogg": {
       "author": "JotrainG",
       "url": "https://freesound.org/people/JotrainG/sounds/700034/",
+      "license": "CC0 1.0"
+    },
+    "702796_choir_warm_up.ogg": {
+      "author": "ChaliceWell",
+      "url": "https://freesound.org/people/ChaliceWell/sounds/702796/",
+      "license": "CC0 1.0"
+    },
+    "714257_puff_of_smoke.ogg": {
+      "author": "qubodup",
+      "url": "https://freesound.org/people/qubodup/sounds/714257/",
+      "license": "CC0 1.0"
+    },
+    "715067_achievement_sparkle.ogg": {
+      "author": "SkySpeira",
+      "url": "https://freesound.org/people/SkySpeira/sounds/715067/",
       "license": "CC0 1.0"
     },
     "719130_splat_2.ogg": {
@@ -327,6 +602,31 @@
       "url": "https://freesound.org/people/velcronator/sounds/733889/",
       "license": "CC0 1.0"
     },
+    "736689_water_boiling_agua_hirviendo.ogg": {
+      "author": "alessagaal",
+      "url": "https://freesound.org/people/alessagaal/sounds/736689/",
+      "license": "CC0 1.0"
+    },
+    "739470_wd_40_quarter_full_flame_thrower_4.ogg": {
+      "author": "Sadiquecat",
+      "url": "https://freesound.org/people/Sadiquecat/sounds/739470/",
+      "license": "CC0 1.0"
+    },
+    "739471_wd_40_quarter_full_flame_thrower_5.ogg": {
+      "author": "Sadiquecat",
+      "url": "https://freesound.org/people/Sadiquecat/sounds/739471/",
+      "license": "CC0 1.0"
+    },
+    "739472_wd_40_quarter_full_flame_thrower_6.ogg": {
+      "author": "Sadiquecat",
+      "url": "https://freesound.org/people/Sadiquecat/sounds/739472/",
+      "license": "CC0 1.0"
+    },
+    "76405_old_church_bell.ogg": {
+      "author": "dsp9000",
+      "url": "https://freesound.org/people/dsp9000/sounds/76405/",
+      "license": "CC0 1.0"
+    },
     "770176_kamen_rider_style_smack_punch_impact.ogg": {
       "author": "G40X",
       "url": "https://freesound.org/people/G40X/sounds/770176/",
@@ -340,6 +640,16 @@
     "784655_heartbeat_sub_kick_louder.ogg": {
       "author": "music_is_wiggly_air",
       "url": "https://freesound.org/people/music_is_wiggly_air/sounds/784655/",
+      "license": "CC0 1.0"
+    },
+    "787500_lighter_ignite_release.ogg": {
+      "author": "RealSquink",
+      "url": "https://freesound.org/people/RealSquink/sounds/787500/",
+      "license": "CC0 1.0"
+    },
+    "801829_taiko_tom_1_long.ogg": {
+      "author": "Logicogonist",
+      "url": "https://freesound.org/people/Logicogonist/sounds/801829/",
       "license": "CC0 1.0"
     },
     "803497_pocket_pistol_gunshot_2_outside_of_room.ogg": {
@@ -357,6 +667,11 @@
       "url": "https://freesound.org/people/areniporgen/sounds/828786/",
       "license": "CC0 1.0"
     },
+    "829881_evil_laugh.ogg": {
+      "author": "adiantheman",
+      "url": "https://freesound.org/people/adiantheman/sounds/829881/",
+      "license": "CC0 1.0"
+    },
     "831929_flamethrower.ogg": {
       "author": "1bob",
       "url": "https://freesound.org/people/1bob/sounds/831929/",
@@ -372,14 +687,49 @@
       "url": "https://freesound.org/people/danny420dale/sounds/853042/",
       "license": "CC0 1.0"
     },
+    "856174_subterranean_deep_sub_bass_rumble_drop.ogg": {
+      "author": "brktkrgll",
+      "url": "https://freesound.org/people/brktkrgll/sounds/856174/",
+      "license": "CC0 1.0"
+    },
+    "862443_hot_water_spilling_out_while_boiling_egg.ogg": {
+      "author": "bassimat",
+      "url": "https://freesound.org/people/bassimat/sounds/862443/",
+      "license": "CC0 1.0"
+    },
     "865993_mp5_fire.ogg": {
       "author": "db465",
       "url": "https://freesound.org/people/db465/sounds/865993/",
       "license": "CC0 1.0"
     },
+    "867459_waboba_moon_ball_water_splash_4.ogg": {
+      "author": "qubodup",
+      "url": "https://freesound.org/people/qubodup/sounds/867459/",
+      "license": "CC0 1.0"
+    },
+    "867462_waboba_moon_ball_water_splash_7.ogg": {
+      "author": "qubodup",
+      "url": "https://freesound.org/people/qubodup/sounds/867462/",
+      "license": "CC0 1.0"
+    },
+    "867463_waboba_moon_ball_water_splash_8.ogg": {
+      "author": "qubodup",
+      "url": "https://freesound.org/people/qubodup/sounds/867463/",
+      "license": "CC0 1.0"
+    },
     "868049_sword_slash.ogg": {
       "author": "zackz31",
       "url": "https://freesound.org/people/zackz31/sounds/868049/",
+      "license": "CC0 1.0"
+    },
+    "868709_bubble_1.ogg": {
+      "author": "BenParamoreAudio",
+      "url": "https://freesound.org/people/BenParamoreAudio/sounds/868709/",
+      "license": "CC0 1.0"
+    },
+    "868711_bubble_3.ogg": {
+      "author": "BenParamoreAudio",
+      "url": "https://freesound.org/people/BenParamoreAudio/sounds/868711/",
       "license": "CC0 1.0"
     },
     "871580_pm_makarov_pistol_magazine.ogg": {

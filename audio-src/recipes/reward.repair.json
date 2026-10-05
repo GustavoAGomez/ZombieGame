@@ -1,0 +1,134 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Martillazo grabado sobre madera; el toque de campana (Mi 5) sube con la racha.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/342542_outside_hammer.ogg",
+          "process": {
+            "end": 0.3,
+            "lowcut": 120,
+            "fadeOut": 0.1
+          }
+        }
+      ],
+      "shine": [
+        {
+          "type": "synth",
+          "timbre": "bell",
+          "notes": [
+            [
+              "E5",
+              0,
+              1
+            ]
+          ],
+          "duration": 0.4
+        }
+      ]
+    },
+    "B": {
+      "about": "Madera y tablón de Kenney; campana en La 5.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactWood_medium_000.ogg",
+                "process": {
+                  "lowcut": 100
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPlank_medium_000.ogg",
+                "process": {
+                  "end": 0.25,
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.7
+            }
+          ],
+          "process": {
+            "length": 0.3,
+            "fadeOut": 0.1
+          }
+        }
+      ],
+      "shine": [
+        {
+          "type": "synth",
+          "timbre": "bell",
+          "notes": [
+            [
+              "A5",
+              0,
+              1
+            ]
+          ],
+          "duration": 0.4
+        }
+      ]
+    },
+    "C": {
+      "about": "Madera de OpenGameArt con golpe seco; el brillo es un cristal en Mi 6.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/wood_01.ogg",
+                "process": {
+                  "end": 0.3,
+                  "lowcut": 120
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactWood_medium_001.ogg",
+                "process": {
+                  "lowcut": 100
+                }
+              },
+              "gain": 0.6
+            }
+          ],
+          "process": {
+            "length": 0.3,
+            "fadeOut": 0.1
+          }
+        }
+      ],
+      "shine": [
+        {
+          "type": "synth",
+          "timbre": "glass",
+          "notes": [
+            [
+              "E6",
+              0,
+              1
+            ]
+          ],
+          "duration": 0.3
+        }
+      ]
+    }
+  }
+}

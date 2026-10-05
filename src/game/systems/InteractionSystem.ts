@@ -69,6 +69,8 @@ export function updateInteractions(ctx: SimContext, dt: number): void {
       p.contextTarget = portal;
       updateRepair(ctx, p, undefined, -1, dt);
       if (cmd?.actionPressed && isPortalBuyable(ctx.map, ctx.state, portal)) tryBuyPortal(ctx, p, portal);
+      // A second entrance not yet buyable.
+      else if (cmd?.actionPressed) ctx.events.emit('action:denied', { playerId: p.id });
     } else if (useBuy) {
       p.contextAction = 'door';
       p.contextTarget = door;

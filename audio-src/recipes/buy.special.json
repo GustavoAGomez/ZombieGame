@@ -1,0 +1,234 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Estéreo: acorde de campanas La-Mi-La, coro afinado en La y golpe grave, con sala grande.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "A4",
+                    0,
+                    1
+                  ],
+                  [
+                    "E5",
+                    0,
+                    1
+                  ],
+                  [
+                    "A5",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 1.2
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/240745_choir_one_shot.ogg",
+                "process": {
+                  "semitones": 0.81,
+                  "end": 1.3,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.05
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPunch_heavy_000.ogg",
+                "process": {
+                  "lowcut": 100
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 110,
+                "duration": 0.5
+              },
+              "gain": 0.4
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.22,
+            "length": 1.6,
+            "fadeOut": 0.5
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Estéreo: gong afinado, coro en Si y un tambor de cine.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/518292_gong_2.ogg",
+                "process": {
+                  "semitones": 0.23,
+                  "end": 1.5,
+                  "fadeOut": 0.6,
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.7
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/444491_short_choir.ogg",
+                "process": {
+                  "semitones": -0.24,
+                  "end": 1.4,
+                  "fadeIn": 0.08,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.05
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/577402_crdn_cinematic_heavy_drums_09.ogg",
+                "process": {
+                  "semitones": 0.36,
+                  "end": 0.9,
+                  "lowcut": 90,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 0.9
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "A5",
+                    0,
+                    1
+                  ],
+                  [
+                    "E6",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.8
+              },
+              "gain": 0.4,
+              "delay": 0.05
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.22,
+            "length": 1.6,
+            "fadeOut": 0.5
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Estéreo: campana de iglesia afinada en Re menor, coro en La y un taiko.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/76405_old_church_bell.ogg",
+                "process": {
+                  "semitones": 0.83,
+                  "end": 1.5,
+                  "fadeOut": 0.6
+                }
+              },
+              "gain": 0.7
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/702796_choir_warm_up.ogg",
+                "process": {
+                  "semitones": 0.26,
+                  "start": 0.3,
+                  "end": 1.5,
+                  "fadeIn": 0.1,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 0.45
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/801829_taiko_tom_1_long.ogg",
+                "process": {
+                  "semitones": 1.26,
+                  "end": 0.38,
+                  "lowcut": 90,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 0.9
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "D5",
+                    0,
+                    1
+                  ],
+                  [
+                    "A5",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.8
+              },
+              "gain": 0.35,
+              "delay": 0.05
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.22,
+            "length": 1.6,
+            "fadeOut": 0.5
+          }
+        }
+      ]
+    }
+  }
+}

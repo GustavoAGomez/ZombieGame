@@ -1,0 +1,47 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Chapuzón real (bola en el agua).",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/867462_waboba_moon_ball_water_splash_7.ogg",
+          "process": {
+            "end": 0.6,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Otro chapuzón, más brillante.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/867459_waboba_moon_ball_water_splash_4.ogg",
+          "process": {
+            "end": 0.6,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Un chapuzón con rebote de agua.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/867463_waboba_moon_ball_water_splash_8.ogg",
+          "process": {
+            "end": 0.6,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    }
+  }
+}

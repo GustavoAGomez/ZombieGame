@@ -98,7 +98,8 @@ export class PauseMenu {
   constructor(parent: HTMLElement, onResume: () => void, onRestart: () => void, settings: PauseSettings, playUi?: PlayUi) {
     this.root = el('div', 'screen screen--pause');
     this.root.hidden = true;
-    this.resume = button(STRINGS.pause.resume, onResume, 'screen-button--primary', playUi);
+    // CONTINUAR sounds as the pause closing (spec 08 §6.6), not as a tap.
+    this.resume = button(STRINGS.pause.resume, onResume, 'screen-button--primary');
     const buttons = el('div', 'screen-buttons');
     buttons.append(this.resume, button(STRINGS.pause.restart, onRestart, '', playUi));
     const vibrate = button('', () => {

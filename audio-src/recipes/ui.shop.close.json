@@ -1,0 +1,329 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Tela de Kenney; destello: cristal (azul), cerilla (rojo), campanita (dorado). Al cerrar, el destello baja.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/cloth3.ogg",
+                "process": {
+                  "end": 0.16
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "A6",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.12
+              },
+              "gain": 0.5,
+              "delay": 0.06
+            }
+          ],
+          "process": {
+            "length": 0.19,
+            "fadeOut": 0.05
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/cloth3.ogg",
+                "process": {
+                  "end": 0.16
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/256800_striking_a_match_2.ogg",
+                "process": {
+                  "end": 0.1
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.06
+            }
+          ],
+          "process": {
+            "length": 0.19,
+            "fadeOut": 0.05
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/cloth3.ogg",
+                "process": {
+                  "end": 0.16
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "E6",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.15
+              },
+              "gain": 0.5,
+              "delay": 0.06
+            }
+          ],
+          "process": {
+            "length": 0.19,
+            "fadeOut": 0.05
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Chaqueta grabada; destello: gota (azul), siseo (rojo), campanita real (dorado). Al cerrar, el destello baja.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/494797_jacket_cloth_rustle_9.ogg",
+                "process": {
+                  "start": 0.1,
+                  "end": 0.26
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/273870_water_drop_1.ogg",
+                "process": {
+                  "end": 0.12,
+                  "semitones": -2
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.06
+            }
+          ],
+          "process": {
+            "length": 0.19,
+            "fadeOut": 0.05
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/494797_jacket_cloth_rustle_9.ogg",
+                "process": {
+                  "start": 0.1,
+                  "end": 0.26
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/436791_sizzle.ogg",
+                "process": {
+                  "end": 0.12,
+                  "fadeOut": 0.05
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.06
+            }
+          ],
+          "process": {
+            "length": 0.19,
+            "fadeOut": 0.05
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/494797_jacket_cloth_rustle_9.ogg",
+                "process": {
+                  "start": 0.1,
+                  "end": 0.26
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/452379_small_bell_2.ogg",
+                "process": {
+                  "semitones": -1.68,
+                  "end": 0.15,
+                  "fadeOut": 0.06
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.06
+            }
+          ],
+          "process": {
+            "length": 0.19,
+            "fadeOut": 0.05
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Otra tela; destello: cristal (azul), hechizo de fuego (rojo), acorde de cristal (dorado). Al cerrar, el destello baja.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/cloth1.ogg",
+                "process": {
+                  "start": 0.06,
+                  "end": 0.22
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "A6",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.12
+              },
+              "gain": 0.5,
+              "delay": 0.06
+            }
+          ],
+          "process": {
+            "length": 0.19,
+            "fadeOut": 0.05
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/cloth1.ogg",
+                "process": {
+                  "start": 0.06,
+                  "end": 0.22
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/spell_fire_07.ogg",
+                "process": {
+                  "end": 0.12,
+                  "fadeOut": 0.05
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.06
+            }
+          ],
+          "process": {
+            "length": 0.19,
+            "fadeOut": 0.05
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/cloth1.ogg",
+                "process": {
+                  "start": 0.06,
+                  "end": 0.22
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "E6",
+                    0,
+                    1
+                  ],
+                  [
+                    "A6",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.15
+              },
+              "gain": 0.5,
+              "delay": 0.06
+            }
+          ],
+          "process": {
+            "length": 0.19,
+            "fadeOut": 0.05
+          }
+        }
+      ]
+    }
+  }
+}

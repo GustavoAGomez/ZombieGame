@@ -34,10 +34,10 @@
               "recipe": {
                 "type": "synth",
                 "timbre": "sub",
-                "freq": 110,
-                "duration": 0.2
+                "freq": 130,
+                "duration": 0.25
               },
-              "gain": 0.4
+              "gain": 0.8
             }
           ],
           "process": {

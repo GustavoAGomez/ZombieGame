@@ -1272,6 +1272,506 @@
     }
   },
   "audio": {
+    "boost_on": {
+      "file": "audio/sfx/boost_on.wav",
+      "duration": 0.6812,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "boost_on__a": {
+      "file": "audio/candidates/boost_on__a.wav",
+      "duration": 0.6812,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "boost_on__b": {
+      "file": "audio/candidates/boost_on__b.wav",
+      "duration": 0.6868,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "boost_on__c": {
+      "file": "audio/candidates/boost_on__c.wav",
+      "duration": 0.6203,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "buy_cash": {
+      "file": "audio/sfx/buy_cash.wav",
+      "duration": 0.3573,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "buy_cash__a": {
+      "file": "audio/candidates/buy_cash__a.wav",
+      "duration": 0.3573,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "buy_cash__b": {
+      "file": "audio/candidates/buy_cash__b.wav",
+      "duration": 0.3313,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "buy_cash__c": {
+      "file": "audio/candidates/buy_cash__c.wav",
+      "duration": 0.4896,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "buy_door": {
+      "file": "audio/sfx/buy_door.wav",
+      "duration": 0.7627,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "buy_door__a": {
+      "file": "audio/candidates/buy_door__a.wav",
+      "duration": 0.7627,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "buy_door__b": {
+      "file": "audio/candidates/buy_door__b.wav",
+      "duration": 0.7274,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "buy_door__c": {
+      "file": "audio/candidates/buy_door__c.wav",
+      "duration": 0.7461,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "buy_merchant_blue": {
+      "file": "audio/sfx/buy_merchant_blue.wav",
+      "duration": 0.4495,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "buy_merchant_blue__a": {
+      "file": "audio/candidates/buy_merchant_blue__a.wav",
+      "duration": 0.4495,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "buy_merchant_blue__b": {
+      "file": "audio/candidates/buy_merchant_blue__b.wav",
+      "duration": 0.4206,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "buy_merchant_blue__c": {
+      "file": "audio/candidates/buy_merchant_blue__c.wav",
+      "duration": 0.5112,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "buy_merchant_gold": {
+      "file": "audio/sfx/buy_merchant_gold.wav",
+      "duration": 0.5956,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "buy_merchant_gold__a": {
+      "file": "audio/candidates/buy_merchant_gold__a.wav",
+      "duration": 0.5956,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "buy_merchant_gold__b": {
+      "file": "audio/candidates/buy_merchant_gold__b.wav",
+      "duration": 0.6504,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "buy_merchant_gold__c": {
+      "file": "audio/candidates/buy_merchant_gold__c.wav",
+      "duration": 0.6004,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "buy_merchant_red": {
+      "file": "audio/sfx/buy_merchant_red.wav",
+      "duration": 0.5591,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "buy_merchant_red__a": {
+      "file": "audio/candidates/buy_merchant_red__a.wav",
+      "duration": 0.5591,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "buy_merchant_red__b": {
+      "file": "audio/candidates/buy_merchant_red__b.wav",
+      "duration": 0.552,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "buy_merchant_red__c": {
+      "file": "audio/candidates/buy_merchant_red__c.wav",
+      "duration": 0.5419,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "buy_special": {
+      "file": "audio/sfx/buy_special.wav",
+      "duration": 1.3251,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "buy_special__a": {
+      "file": "audio/candidates/buy_special__a.wav",
+      "duration": 1.3251,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "buy_special__b": {
+      "file": "audio/candidates/buy_special__b.wav",
+      "duration": 1.5359,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "buy_special__c": {
+      "file": "audio/candidates/buy_special__c.wav",
+      "duration": 1.5251,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "buy_upgrade": {
+      "file": "audio/sfx/buy_upgrade.wav",
+      "duration": 0.4195,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "buy_upgrade__a": {
+      "file": "audio/candidates/buy_upgrade__a.wav",
+      "duration": 0.4195,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "buy_upgrade__b": {
+      "file": "audio/candidates/buy_upgrade__b.wav",
+      "duration": 0.4885,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "buy_upgrade__c": {
+      "file": "audio/candidates/buy_upgrade__c.wav",
+      "duration": 0.495,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "buy_upgrade_shine": {
+      "file": "audio/sfx/buy_upgrade_shine.wav",
+      "duration": 0.5575,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "buy_upgrade_shine__a": {
+      "file": "audio/candidates/buy_upgrade_shine__a.wav",
+      "duration": 0.5575,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "buy_upgrade_shine__b": {
+      "file": "audio/candidates/buy_upgrade_shine__b.wav",
+      "duration": 0.4488,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "buy_upgrade_shine__c": {
+      "file": "audio/candidates/buy_upgrade_shine__c.wav",
+      "duration": 0.5575,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "buy_weapon": {
+      "file": "audio/sfx/buy_weapon.wav",
+      "duration": 0.4786,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "buy_weapon__a": {
+      "file": "audio/candidates/buy_weapon__a.wav",
+      "duration": 0.4786,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "buy_weapon__b": {
+      "file": "audio/candidates/buy_weapon__b.wav",
+      "duration": 0.5199,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "buy_weapon__c": {
+      "file": "audio/candidates/buy_weapon__c.wav",
+      "duration": 0.6398,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "buy_zone": {
+      "file": "audio/sfx/buy_zone.wav",
+      "duration": 0.8058,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "buy_zone__a": {
+      "file": "audio/candidates/buy_zone__a.wav",
+      "duration": 0.8058,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "buy_zone__b": {
+      "file": "audio/candidates/buy_zone__b.wav",
+      "duration": 0.8154,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "buy_zone__c": {
+      "file": "audio/candidates/buy_zone__c.wav",
+      "duration": 0.8068,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "denied": {
+      "file": "audio/sfx/denied.wav",
+      "duration": 0.1747,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "denied__a": {
+      "file": "audio/candidates/denied__a.wav",
+      "duration": 0.1747,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "denied__b": {
+      "file": "audio/candidates/denied__b.wav",
+      "duration": 0.1687,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "denied__c": {
+      "file": "audio/candidates/denied__c.wav",
+      "duration": 0.1506,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "hand_moved": {
+      "file": "audio/sfx/hand_moved.wav",
+      "duration": 1.2522,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "hand_moved__a": {
+      "file": "audio/candidates/hand_moved__a.wav",
+      "duration": 1.2522,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "hand_moved__b": {
+      "file": "audio/candidates/hand_moved__b.wav",
+      "duration": 1.1983,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "hand_moved__c": {
+      "file": "audio/candidates/hand_moved__c.wav",
+      "duration": 1.2181,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "hand_offer": {
+      "file": "audio/sfx/hand_offer.wav",
+      "duration": 0.7976,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "hand_offer__a": {
+      "file": "audio/candidates/hand_offer__a.wav",
+      "duration": 0.7976,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "hand_offer__b": {
+      "file": "audio/candidates/hand_offer__b.wav",
+      "duration": 0.8232,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "hand_offer__c": {
+      "file": "audio/candidates/hand_offer__c.wav",
+      "duration": 0.8391,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "hand_offer_special": {
+      "file": "audio/sfx/hand_offer_special.wav",
+      "duration": 1.3406,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "hand_offer_special__a": {
+      "file": "audio/candidates/hand_offer_special__a.wav",
+      "duration": 1.3406,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "hand_offer_special__b": {
+      "file": "audio/candidates/hand_offer_special__b.wav",
+      "duration": 1.4863,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "hand_offer_special__c": {
+      "file": "audio/candidates/hand_offer_special__c.wav",
+      "duration": 1.4213,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "hand_pay_blood": {
+      "file": "audio/sfx/hand_pay_blood.wav",
+      "duration": 0.5613,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "hand_pay_blood__a": {
+      "file": "audio/candidates/hand_pay_blood__a.wav",
+      "duration": 0.5613,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "hand_pay_blood__b": {
+      "file": "audio/candidates/hand_pay_blood__b.wav",
+      "duration": 0.7634,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "hand_pay_blood__c": {
+      "file": "audio/candidates/hand_pay_blood__c.wav",
+      "duration": 0.5971,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "hand_pay_money": {
+      "file": "audio/sfx/hand_pay_money.wav",
+      "duration": 0.6116,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "hand_pay_money__a": {
+      "file": "audio/candidates/hand_pay_money__a.wav",
+      "duration": 0.6116,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "hand_pay_money__b": {
+      "file": "audio/candidates/hand_pay_money__b.wav",
+      "duration": 0.7578,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "hand_pay_money__c": {
+      "file": "audio/candidates/hand_pay_money__c.wav",
+      "duration": 0.5962,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "hand_refund": {
+      "file": "audio/sfx/hand_refund.wav",
+      "duration": 1.2071,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "hand_refund__a": {
+      "file": "audio/candidates/hand_refund__a.wav",
+      "duration": 1.2071,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "hand_refund__b": {
+      "file": "audio/candidates/hand_refund__b.wav",
+      "duration": 1.2953,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "hand_refund__c": {
+      "file": "audio/candidates/hand_refund__c.wav",
+      "duration": 1.2095,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "hand_roll": {
+      "file": "audio/sfx/hand_roll.wav",
+      "duration": 1.9698,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "hand_roll__a": {
+      "file": "audio/candidates/hand_roll__a.wav",
+      "duration": 1.9698,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "hand_roll__b": {
+      "file": "audio/candidates/hand_roll__b.wav",
+      "duration": 1.959,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "hand_roll__c": {
+      "file": "audio/candidates/hand_roll__c.wav",
+      "duration": 1.9734,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "hand_taken": {
+      "file": "audio/sfx/hand_taken.wav",
+      "duration": 0.195,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "hand_taken__a": {
+      "file": "audio/candidates/hand_taken__a.wav",
+      "duration": 0.195,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "hand_taken__b": {
+      "file": "audio/candidates/hand_taken__b.wav",
+      "duration": 0.3,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "hand_taken__c": {
+      "file": "audio/candidates/hand_taken__c.wav",
+      "duration": 0.2891,
+      "placeholder": false,
+      "candidate": "C"
+    },
     "impact_flesh_1": {
       "file": "audio/sfx/impact_flesh_1.wav",
       "duration": 0.177,
@@ -1372,16 +1872,341 @@
       "placeholder": false,
       "candidate": "C"
     },
+    "item_cant_use": {
+      "file": "audio/sfx/item_cant_use.wav",
+      "duration": 0.1851,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "item_cant_use__a": {
+      "file": "audio/candidates/item_cant_use__a.wav",
+      "duration": 0.1851,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "item_cant_use__b": {
+      "file": "audio/candidates/item_cant_use__b.wav",
+      "duration": 0.163,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "item_cant_use__c": {
+      "file": "audio/candidates/item_cant_use__c.wav",
+      "duration": 0.1565,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "item_splash": {
+      "file": "audio/sfx/item_splash.wav",
+      "duration": 0.5908,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "item_splash__a": {
+      "file": "audio/candidates/item_splash__a.wav",
+      "duration": 0.5908,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "item_splash__b": {
+      "file": "audio/candidates/item_splash__b.wav",
+      "duration": 0.5912,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "item_splash__c": {
+      "file": "audio/candidates/item_splash__c.wav",
+      "duration": 0.5818,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "jingle_boss_dead": {
+      "file": "audio/sfx/jingle_boss_dead.wav",
+      "duration": 2.2338,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "jingle_boss_dead__a": {
+      "file": "audio/candidates/jingle_boss_dead__a.wav",
+      "duration": 2.2338,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "jingle_boss_dead__b": {
+      "file": "audio/candidates/jingle_boss_dead__b.wav",
+      "duration": 2.1675,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "jingle_boss_dead__c": {
+      "file": "audio/candidates/jingle_boss_dead__c.wav",
+      "duration": 2.2507,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "jingle_gameover": {
+      "file": "audio/sfx/jingle_gameover.wav",
+      "duration": 2.1019,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "jingle_gameover__a": {
+      "file": "audio/candidates/jingle_gameover__a.wav",
+      "duration": 2.1019,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "jingle_gameover__b": {
+      "file": "audio/candidates/jingle_gameover__b.wav",
+      "duration": 2.1649,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "jingle_gameover__c": {
+      "file": "audio/candidates/jingle_gameover__c.wav",
+      "duration": 2.338,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "jingle_round_boss": {
+      "file": "audio/sfx/jingle_round_boss.wav",
+      "duration": 1.8854,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "jingle_round_boss__a": {
+      "file": "audio/candidates/jingle_round_boss__a.wav",
+      "duration": 1.8854,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "jingle_round_boss__b": {
+      "file": "audio/candidates/jingle_round_boss__b.wav",
+      "duration": 1.8583,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "jingle_round_boss__c": {
+      "file": "audio/candidates/jingle_round_boss__c.wav",
+      "duration": 1.6818,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "jingle_round_clear": {
+      "file": "audio/sfx/jingle_round_clear.wav",
+      "duration": 1.443,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "jingle_round_clear__a": {
+      "file": "audio/candidates/jingle_round_clear__a.wav",
+      "duration": 1.443,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "jingle_round_clear__b": {
+      "file": "audio/candidates/jingle_round_clear__b.wav",
+      "duration": 1.51,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "jingle_round_clear__c": {
+      "file": "audio/candidates/jingle_round_clear__c.wav",
+      "duration": 1.417,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "jingle_round_start": {
+      "file": "audio/sfx/jingle_round_start.wav",
+      "duration": 1.2943,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "jingle_round_start__a": {
+      "file": "audio/candidates/jingle_round_start__a.wav",
+      "duration": 1.2943,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "jingle_round_start__b": {
+      "file": "audio/candidates/jingle_round_start__b.wav",
+      "duration": 1.3024,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "jingle_round_start__c": {
+      "file": "audio/candidates/jingle_round_start__c.wav",
+      "duration": 1.3031,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "merchant_arrive_blue": {
+      "file": "audio/sfx/merchant_arrive_blue.wav",
+      "duration": 0.5211,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "merchant_arrive_blue__a": {
+      "file": "audio/candidates/merchant_arrive_blue__a.wav",
+      "duration": 0.5211,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "merchant_arrive_blue__b": {
+      "file": "audio/candidates/merchant_arrive_blue__b.wav",
+      "duration": 0.5159,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "merchant_arrive_blue__c": {
+      "file": "audio/candidates/merchant_arrive_blue__c.wav",
+      "duration": 0.6024,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "merchant_arrive_gold": {
+      "file": "audio/sfx/merchant_arrive_gold.wav",
+      "duration": 0.682,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "merchant_arrive_gold__a": {
+      "file": "audio/candidates/merchant_arrive_gold__a.wav",
+      "duration": 0.682,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "merchant_arrive_gold__b": {
+      "file": "audio/candidates/merchant_arrive_gold__b.wav",
+      "duration": 0.7684,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "merchant_arrive_gold__c": {
+      "file": "audio/candidates/merchant_arrive_gold__c.wav",
+      "duration": 0.7234,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "merchant_arrive_red": {
+      "file": "audio/sfx/merchant_arrive_red.wav",
+      "duration": 0.6307,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "merchant_arrive_red__a": {
+      "file": "audio/candidates/merchant_arrive_red__a.wav",
+      "duration": 0.6307,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "merchant_arrive_red__b": {
+      "file": "audio/candidates/merchant_arrive_red__b.wav",
+      "duration": 0.6881,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "merchant_arrive_red__c": {
+      "file": "audio/candidates/merchant_arrive_red__c.wav",
+      "duration": 0.665,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "pickup_ammo": {
+      "file": "audio/sfx/pickup_ammo.wav",
+      "duration": 0.3658,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "pickup_ammo__a": {
+      "file": "audio/candidates/pickup_ammo__a.wav",
+      "duration": 0.3658,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "pickup_ammo__b": {
+      "file": "audio/candidates/pickup_ammo__b.wav",
+      "duration": 0.3829,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "pickup_ammo__c": {
+      "file": "audio/candidates/pickup_ammo__c.wav",
+      "duration": 0.38,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "pickup_health": {
+      "file": "audio/sfx/pickup_health.wav",
+      "duration": 0.6789,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "pickup_health__a": {
+      "file": "audio/candidates/pickup_health__a.wav",
+      "duration": 0.6789,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "pickup_health__b": {
+      "file": "audio/candidates/pickup_health__b.wav",
+      "duration": 0.6987,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "pickup_health__c": {
+      "file": "audio/candidates/pickup_health__c.wav",
+      "duration": 0.62,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "pickup_item": {
+      "file": "audio/sfx/pickup_item.wav",
+      "duration": 0.4891,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "pickup_item__a": {
+      "file": "audio/candidates/pickup_item__a.wav",
+      "duration": 0.4891,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "pickup_item__b": {
+      "file": "audio/candidates/pickup_item__b.wav",
+      "duration": 0.5227,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "pickup_item__c": {
+      "file": "audio/candidates/pickup_item__c.wav",
+      "duration": 0.6885,
+      "placeholder": false,
+      "candidate": "C"
+    },
     "player_dash": {
       "file": "audio/sfx/player_dash.wav",
-      "duration": 0.3101,
+      "duration": 0.3023,
       "placeholder": false,
       "picked": "A",
       "pending": true
     },
     "player_dash__a": {
       "file": "audio/candidates/player_dash__a.wav",
-      "duration": 0.3101,
+      "duration": 0.3023,
       "placeholder": false,
       "candidate": "A"
     },
@@ -1494,6 +2319,381 @@
     "player_hurt_2__c": {
       "file": "audio/candidates/player_hurt_2__c.wav",
       "duration": 0.32,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "reward_hit": {
+      "file": "audio/sfx/reward_hit.wav",
+      "duration": 0.1203,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "reward_hit__a": {
+      "file": "audio/candidates/reward_hit__a.wav",
+      "duration": 0.1203,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "reward_hit__b": {
+      "file": "audio/candidates/reward_hit__b.wav",
+      "duration": 0.1196,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "reward_hit__c": {
+      "file": "audio/candidates/reward_hit__c.wav",
+      "duration": 0.1285,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "reward_kill": {
+      "file": "audio/sfx/reward_kill.wav",
+      "duration": 0.16,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "reward_kill__a": {
+      "file": "audio/candidates/reward_kill__a.wav",
+      "duration": 0.16,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "reward_kill__b": {
+      "file": "audio/candidates/reward_kill__b.wav",
+      "duration": 0.15,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "reward_kill__c": {
+      "file": "audio/candidates/reward_kill__c.wav",
+      "duration": 0.1531,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "reward_kill_shine": {
+      "file": "audio/sfx/reward_kill_shine.wav",
+      "duration": 0.3482,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "reward_kill_shine__a": {
+      "file": "audio/candidates/reward_kill_shine__a.wav",
+      "duration": 0.3482,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "reward_kill_shine__b": {
+      "file": "audio/candidates/reward_kill_shine__b.wav",
+      "duration": 0.1737,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "reward_kill_shine__c": {
+      "file": "audio/candidates/reward_kill_shine__c.wav",
+      "duration": 0.2866,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "reward_repair": {
+      "file": "audio/sfx/reward_repair.wav",
+      "duration": 0.2234,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "reward_repair__a": {
+      "file": "audio/candidates/reward_repair__a.wav",
+      "duration": 0.2234,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "reward_repair__b": {
+      "file": "audio/candidates/reward_repair__b.wav",
+      "duration": 0.1972,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "reward_repair__c": {
+      "file": "audio/candidates/reward_repair__c.wav",
+      "duration": 0.1981,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "reward_repair_shine": {
+      "file": "audio/sfx/reward_repair_shine.wav",
+      "duration": 0.3981,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "reward_repair_shine__a": {
+      "file": "audio/candidates/reward_repair_shine__a.wav",
+      "duration": 0.3981,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "reward_repair_shine__b": {
+      "file": "audio/candidates/reward_repair_shine__b.wav",
+      "duration": 0.3982,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "reward_repair_shine__c": {
+      "file": "audio/candidates/reward_repair_shine__c.wav",
+      "duration": 0.2376,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "ritual_done": {
+      "file": "audio/sfx/ritual_done.wav",
+      "duration": 1.9074,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "ritual_done__a": {
+      "file": "audio/candidates/ritual_done__a.wav",
+      "duration": 1.9074,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "ritual_done__b": {
+      "file": "audio/candidates/ritual_done__b.wav",
+      "duration": 1.9008,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "ritual_done__c": {
+      "file": "audio/candidates/ritual_done__c.wav",
+      "duration": 1.9205,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "ui_pause_close": {
+      "file": "audio/sfx/ui_pause_close.wav",
+      "duration": 0.1512,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "ui_pause_close__a": {
+      "file": "audio/candidates/ui_pause_close__a.wav",
+      "duration": 0.1512,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "ui_pause_close__b": {
+      "file": "audio/candidates/ui_pause_close__b.wav",
+      "duration": 0.1517,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "ui_pause_close__c": {
+      "file": "audio/candidates/ui_pause_close__c.wav",
+      "duration": 0.1712,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "ui_pause_open": {
+      "file": "audio/sfx/ui_pause_open.wav",
+      "duration": 0.1512,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "ui_pause_open__a": {
+      "file": "audio/candidates/ui_pause_open__a.wav",
+      "duration": 0.1512,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "ui_pause_open__b": {
+      "file": "audio/candidates/ui_pause_open__b.wav",
+      "duration": 0.152,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "ui_pause_open__c": {
+      "file": "audio/candidates/ui_pause_open__c.wav",
+      "duration": 0.1674,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "ui_play": {
+      "file": "audio/sfx/ui_play.wav",
+      "duration": 0.1968,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "ui_play__a": {
+      "file": "audio/candidates/ui_play__a.wav",
+      "duration": 0.1968,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "ui_play__b": {
+      "file": "audio/candidates/ui_play__b.wav",
+      "duration": 0.1939,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "ui_play__c": {
+      "file": "audio/candidates/ui_play__c.wav",
+      "duration": 0.1966,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "ui_shop_close_blue": {
+      "file": "audio/sfx/ui_shop_close_blue.wav",
+      "duration": 0.1527,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "ui_shop_close_blue__a": {
+      "file": "audio/candidates/ui_shop_close_blue__a.wav",
+      "duration": 0.1527,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "ui_shop_close_blue__b": {
+      "file": "audio/candidates/ui_shop_close_blue__b.wav",
+      "duration": 0.1738,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "ui_shop_close_blue__c": {
+      "file": "audio/candidates/ui_shop_close_blue__c.wav",
+      "duration": 0.1727,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "ui_shop_close_gold": {
+      "file": "audio/sfx/ui_shop_close_gold.wav",
+      "duration": 0.1578,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "ui_shop_close_gold__a": {
+      "file": "audio/candidates/ui_shop_close_gold__a.wav",
+      "duration": 0.1578,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "ui_shop_close_gold__b": {
+      "file": "audio/candidates/ui_shop_close_gold__b.wav",
+      "duration": 0.1892,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "ui_shop_close_gold__c": {
+      "file": "audio/candidates/ui_shop_close_gold__c.wav",
+      "duration": 0.1718,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "ui_shop_close_red": {
+      "file": "audio/sfx/ui_shop_close_red.wav",
+      "duration": 0.1619,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "ui_shop_close_red__a": {
+      "file": "audio/candidates/ui_shop_close_red__a.wav",
+      "duration": 0.1619,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "ui_shop_close_red__b": {
+      "file": "audio/candidates/ui_shop_close_red__b.wav",
+      "duration": 0.1767,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "ui_shop_close_red__c": {
+      "file": "audio/candidates/ui_shop_close_red__c.wav",
+      "duration": 0.1774,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "ui_shop_open_blue": {
+      "file": "audio/sfx/ui_shop_open_blue.wav",
+      "duration": 0.1137,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "ui_shop_open_blue__a": {
+      "file": "audio/candidates/ui_shop_open_blue__a.wav",
+      "duration": 0.1137,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "ui_shop_open_blue__b": {
+      "file": "audio/candidates/ui_shop_open_blue__b.wav",
+      "duration": 0.1714,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "ui_shop_open_blue__c": {
+      "file": "audio/candidates/ui_shop_open_blue__c.wav",
+      "duration": 0.1649,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "ui_shop_open_gold": {
+      "file": "audio/sfx/ui_shop_open_gold.wav",
+      "duration": 0.1193,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "ui_shop_open_gold__a": {
+      "file": "audio/candidates/ui_shop_open_gold__a.wav",
+      "duration": 0.1193,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "ui_shop_open_gold__b": {
+      "file": "audio/candidates/ui_shop_open_gold__b.wav",
+      "duration": 0.1877,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "ui_shop_open_gold__c": {
+      "file": "audio/candidates/ui_shop_open_gold__c.wav",
+      "duration": 0.1713,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "ui_shop_open_red": {
+      "file": "audio/sfx/ui_shop_open_red.wav",
+      "duration": 0.1077,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "ui_shop_open_red__a": {
+      "file": "audio/candidates/ui_shop_open_red__a.wav",
+      "duration": 0.1077,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "ui_shop_open_red__b": {
+      "file": "audio/candidates/ui_shop_open_red__b.wav",
+      "duration": 0.1776,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "ui_shop_open_red__c": {
+      "file": "audio/candidates/ui_shop_open_red__c.wav",
+      "duration": 0.1771,
       "placeholder": false,
       "candidate": "C"
     },
@@ -1749,14 +2949,14 @@
     },
     "weapon_knife_2": {
       "file": "audio/sfx/weapon_knife_2.wav",
-      "duration": 0.2347,
+      "duration": 0.2373,
       "placeholder": false,
       "picked": "A",
       "pending": true
     },
     "weapon_knife_2__a": {
       "file": "audio/candidates/weapon_knife_2__a.wav",
-      "duration": 0.2347,
+      "duration": 0.2373,
       "placeholder": false,
       "candidate": "A"
     },

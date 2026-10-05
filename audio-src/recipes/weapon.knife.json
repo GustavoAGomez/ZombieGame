@@ -47,7 +47,9 @@
                 "process": {
                   "start": 0.12,
                   "end": 0.36,
-                  "lowcut": 200
+                  "lowcut": 200,
+                  "highcut": 5000,
+                  "semitones": -2
                 }
               },
               "gain": 1
@@ -62,7 +64,7 @@
                   "lowcut": 200
                 }
               },
-              "gain": 0.4
+              "gain": 0.5
             }
           ],
           "process": {

@@ -1,0 +1,222 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Do-Mi-Sol que resuelve en La, con brillo de cristal y un acorde suave debajo.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "C5",
+                    0.13
+                  ],
+                  [
+                    "E5",
+                    0.13
+                  ],
+                  [
+                    "G5",
+                    0.13
+                  ],
+                  [
+                    "A5",
+                    0
+                  ]
+                ],
+                "duration": 0.9
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "A6",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.4
+              },
+              "gain": 0.35,
+              "delay": 0.4
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "pad",
+                "notes": [
+                  [
+                    "A4",
+                    0,
+                    1
+                  ],
+                  [
+                    "E5",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 1.1,
+                "attack": 0.1,
+                "width": 8
+              },
+              "gain": 0.25
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.22,
+            "length": 1.7,
+            "fadeOut": 0.5
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "La-Do-Mi-Sol-La de campana con un destello grabado.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "A4",
+                    0.13
+                  ],
+                  [
+                    "C5",
+                    0.13
+                  ],
+                  [
+                    "E5",
+                    0.13
+                  ],
+                  [
+                    "G5",
+                    0.13
+                  ],
+                  [
+                    "A5",
+                    0
+                  ]
+                ],
+                "duration": 0.9
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/715067_achievement_sparkle.ogg",
+                "process": {
+                  "end": 1.0,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 0.3,
+              "delay": 0.5
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.22,
+            "length": 1.7,
+            "fadeOut": 0.5
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Mi-Re-Do-Mi-La de campana y cristal.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "E5",
+                    0.13
+                  ],
+                  [
+                    "D5",
+                    0.13
+                  ],
+                  [
+                    "C5",
+                    0.13
+                  ],
+                  [
+                    "E5",
+                    0.13
+                  ],
+                  [
+                    "A5",
+                    0
+                  ]
+                ],
+                "duration": 0.9
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "E6",
+                    0.13
+                  ],
+                  [
+                    "D6",
+                    0.13
+                  ],
+                  [
+                    "C6",
+                    0.13
+                  ],
+                  [
+                    "E6",
+                    0.13
+                  ],
+                  [
+                    "A6",
+                    0
+                  ]
+                ],
+                "duration": 0.3
+              },
+              "gain": 0.3
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.22,
+            "length": 1.7,
+            "fadeOut": 0.5
+          }
+        }
+      ]
+    }
+  }
+}

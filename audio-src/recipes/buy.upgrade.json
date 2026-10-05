@@ -1,0 +1,225 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Un mechero que prende y una llamarada; la subida La-Do-Mi-La sube un peldaño por nivel.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/787500_lighter_ignite_release.ogg",
+                "process": {
+                  "start": 0.2,
+                  "end": 0.5
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/739470_wd_40_quarter_full_flame_thrower_4.ogg",
+                "process": {
+                  "start": 0.14,
+                  "end": 0.5,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1,
+              "delay": 0.06
+            }
+          ],
+          "process": {
+            "length": 0.5,
+            "fadeOut": 0.2
+          }
+        }
+      ],
+      "shine": [
+        {
+          "type": "synth",
+          "timbre": "bell",
+          "notes": [
+            [
+              "A4",
+              0.07
+            ],
+            [
+              "C5",
+              0.07
+            ],
+            [
+              "E5",
+              0.07
+            ],
+            [
+              "A5",
+              0
+            ]
+          ],
+          "duration": 0.35
+        }
+      ]
+    },
+    "B": {
+      "about": "Una cerilla y un hechizo de fuego; la subida es de cristal.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/256800_striking_a_match_2.ogg",
+                "process": {
+                  "end": 0.25
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/spell_fire_07.ogg",
+                "process": {
+                  "end": 0.45
+                }
+              },
+              "gain": 1,
+              "delay": 0.05
+            }
+          ],
+          "process": {
+            "length": 0.5,
+            "fadeOut": 0.2
+          }
+        }
+      ],
+      "shine": [
+        {
+          "type": "synth",
+          "timbre": "glass",
+          "notes": [
+            [
+              "A5",
+              0.07
+            ],
+            [
+              "C6",
+              0.07
+            ],
+            [
+              "E6",
+              0.07
+            ],
+            [
+              "A6",
+              0
+            ]
+          ],
+          "duration": 0.3
+        }
+      ]
+    },
+    "C": {
+      "about": "Cerilla que prende sola y fuego de OpenGameArt; la subida mezcla campana y cristal.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/398448_match_ignite_no_strike.ogg",
+                "process": {
+                  "end": 0.3
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/spell_fire_01.ogg",
+                "process": {
+                  "end": 0.45
+                }
+              },
+              "gain": 1,
+              "delay": 0.05
+            }
+          ],
+          "process": {
+            "length": 0.5,
+            "fadeOut": 0.2
+          }
+        }
+      ],
+      "shine": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "A4",
+                    0.07
+                  ],
+                  [
+                    "C5",
+                    0.07
+                  ],
+                  [
+                    "E5",
+                    0.07
+                  ],
+                  [
+                    "A5",
+                    0
+                  ]
+                ],
+                "duration": 0.35
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "A5",
+                    0.07
+                  ],
+                  [
+                    "C6",
+                    0.07
+                  ],
+                  [
+                    "E6",
+                    0.07
+                  ],
+                  [
+                    "A6",
+                    0
+                  ]
+                ],
+                "duration": 0.2
+              },
+              "gain": 0.3
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -261,15 +261,21 @@ export class DebugOverlay {
     sheet.append(head, this.soundStatsEl, actions, tabs, list);
     const sounds = this.sounds;
     if (!sounds) return sheet;
-    const combat = document.createElement('button');
-    combat.type = 'button';
-    combat.className = 'debug-button debug-sound-tab';
-    combat.textContent = STRINGS.debug.simulateCombat;
-    combat.addEventListener('pointerup', (e) => {
-      e.preventDefault();
-      sounds.simulateCombat();
-    });
-    actions.appendChild(combat);
+    // SIMULAR COMBATE and SIMULAR RACHA, to hear the mix and the kill streak (spec 08 §8).
+    for (const [label, run] of [
+      [STRINGS.debug.simulateCombat, () => sounds.simulateCombat()],
+      [STRINGS.debug.simulateStreak, () => sounds.simulateStreak()],
+    ] as const) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'debug-button debug-sound-tab';
+      b.textContent = label;
+      b.addEventListener('pointerup', (e) => {
+        e.preventDefault();
+        run();
+      });
+      actions.appendChild(b);
+    }
     const families = [...new Set(sounds.sounds.map((s) => s.family))];
     let current = families[0];
     this.redrawSounds = () => {

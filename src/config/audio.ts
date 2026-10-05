@@ -3,6 +3,8 @@
  * holds a volume or a time of its own: it names a sound by its id and the
  * director (src/audio/AudioDirector.ts) looks it up here.
  */
+import { HAND } from './balance';
+import type { MerchantId } from './merchants';
 import type { WeaponId } from './weapons';
 
 /** Where a sound goes: the effects, the menus (it follows the effects' level) or the music. */
@@ -43,6 +45,15 @@ export interface SoundDef {
   duck: boolean;
   /** Plays over and over until the director stops it (the laser, the flamethrower, the heartbeat). */
   loop: boolean;
+  /**
+   * A streak sound's shine layer (§3.4): one key per variant, played with
+   * it, whose pitch alone climbs the ladder. Empty for the rest.
+   */
+  shine: readonly string[];
+  /** Its variants are not random: the event names which (each wizard's signature, in MERCHANT_VARIANT order). */
+  keyed: boolean;
+  /** The length its file must have, seconds (the hand's draw lasts as HAND.rollingTime), or null. */
+  length: number | null;
 }
 
 export const AUDIO = {
@@ -77,7 +88,26 @@ export const AUDIO = {
    * `killEvery` hits, to hear the mix.
    */
   combatTest: { seconds: 5, hitsIn10: 7, killEvery: 6 },
+  /**
+   * Streaks (§3.4): the shine layer's rungs, semitones over its own note
+   * (it stays on the last one), and how long a streak waits for the next
+   * repetition, seconds. The upgrade streak goes by the level bought.
+   */
+  ladder: {
+    steps: [0, 3, 5, 7, 10, 12, 15, 17],
+    windows: { kill: 1.5, repair: 2 },
+  },
+  /** The sound test's SIMULAR RACHA (§8): this many kills in a row, this far apart, seconds. */
+  streakTest: { kills: 8, interval: 0.3 },
+  /** The two bell notes of an unlocked room come after the door's bolt (§6.2), seconds. */
+  zoneDelay: 0.35,
+  /** `jingle.boss.dead` after the boss's own fall (§6.4), and `jingle.gameover` after the player's death, seconds. */
+  bossDeadJingleDelay: 1.2,
+  gameOverJingleDelay: 1,
 } as const;
+
+/** Which variant of a wizard's own sounds (`keyed`) is whose (§3.3: each wizard has its signature). */
+export const MERCHANT_VARIANT: Readonly<Record<MerchantId, number>> = { blue: 0, red: 1, gold: 2 };
 
 /** The sound of each weapon's shot or sweep (spec 08 §6.1); the beam and the jet are loops. */
 export const WEAPON_FIRE_SOUND: Readonly<Partial<Record<WeaponId, string>>> = {
@@ -130,14 +160,18 @@ export const AUDIO_GEN = {
   similar: { duration: 0.02, brightness: 0.02, loudnessDb: 0.3 },
   /** Report: the analysis window (samples, a power of 2). */
   fftSize: 1024,
+  /** Report: where the dominant pitch is looked for, Hz (a rewards' note against a hit's body, §4.5). */
+  pitchRange: [80, 5000] as const,
   /** Every effect together under this (§2), bytes. */
   budgetBytes: 8 * 1024 * 1024,
   /** A loop's end is blended into its start over this, so it repeats without a seam or a click, seconds. */
   loopCrossfade: 0.12,
+  /** Report: a sound with a set `length` may be off it by this much, seconds. */
+  lengthTolerance: 0.05,
 } as const;
 
 /** The default of every catalog field a sound does not set. */
-const BASE = {
+export const SOUND_DEFAULTS = {
   pitchVar: 0,
   maxVoices: 2,
   minInterval: 0,
@@ -146,16 +180,35 @@ const BASE = {
   ladder: null,
   duck: false,
   loop: false,
+  shine: [],
+  keyed: false,
+  length: null,
 } as const satisfies Partial<SoundDef>;
 
 function sound(def: Pick<SoundDef, 'id' | 'family' | 'variants' | 'bus' | 'volume'> & Partial<SoundDef>): SoundDef {
-  return { ...BASE, ...def };
+  return { ...SOUND_DEFAULTS, ...def };
 }
 
-/** The keys of a sound's files: its id with underscores, and _1.._n with several variants. */
+/** A sound id as a manifest key, in snake_case: `item.cantUse` → `item_cant_use`. */
+function snake(id: string): string {
+  return id.replace(/\./g, '_').replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);
+}
+
+/** The keys of a sound's files: its id in snake_case, and _1.._n with several variants. */
 function keys(id: string, count = 1): string[] {
-  const base = id.replace(/\./g, '_');
+  const base = snake(id);
   return count === 1 ? [base] : Array.from({ length: count }, (_, i) => `${base}_${i + 1}`);
+}
+
+/** A streak sound's shine keys: one per variant, `<variant>_shine`. */
+function shine(variants: readonly string[]): string[] {
+  return variants.map((v) => `${v}_shine`);
+}
+
+/** A wizard's sound: one variant per wizard, in MERCHANT_VARIANT order. */
+function wizards(id: string): string[] {
+  const base = snake(id);
+  return ['blue', 'red', 'gold'].map((m) => `${base}_${m}`);
 }
 
 /** The catalog (spec 08 §6): one entry per sound id. */
@@ -181,8 +234,48 @@ export const SOUNDS: readonly SoundDef[] = [
   sound({ id: 'player.hurt', family: 'threat', variants: keys('player.hurt', 2), bus: 'sfx', volume: 0.7, pitchVar: 4, maxVoices: 1, minInterval: 0.2, priority: 'high' }),
   sound({ id: 'player.death', family: 'threat', variants: keys('player.death'), bus: 'sfx', volume: 0.9, maxVoices: 1, priority: 'high', duck: true }),
   sound({ id: 'player.heartbeat', family: 'threat', variants: keys('player.heartbeat'), bus: 'sfx', volume: 0.7, maxVoices: 1, priority: 'high', loop: true }),
+  // §6.2 Rewards. `denied` and `item.cantUse` answer a tap: measured as interface sounds.
+  sound({ id: 'reward.hit', family: 'reward', variants: keys('reward.hit'), bus: 'sfx', volume: 0.3, pitchVar: 4, maxVoices: 2, minInterval: 0.04, priority: 'low' }),
+  sound({ id: 'reward.kill', family: 'reward', variants: keys('reward.kill'), shine: shine(keys('reward.kill')), bus: 'sfx', volume: 0.6, maxVoices: 3, minInterval: 0.03, ladder: 'kill' }),
+  sound({ id: 'reward.repair', family: 'reward', variants: keys('reward.repair'), shine: shine(keys('reward.repair')), bus: 'sfx', volume: 0.6, maxVoices: 2, ladder: 'repair' }),
+  sound({ id: 'pickup.ammo', family: 'reward', variants: keys('pickup.ammo'), bus: 'sfx', volume: 0.6, maxVoices: 1 }),
+  sound({ id: 'pickup.health', family: 'reward', variants: keys('pickup.health'), bus: 'sfx', volume: 0.65, maxVoices: 1 }),
+  sound({ id: 'pickup.item', family: 'reward', variants: keys('pickup.item'), bus: 'sfx', volume: 0.65, maxVoices: 1 }),
+  sound({ id: 'buy.cash', family: 'reward', variants: keys('buy.cash'), bus: 'sfx', volume: 0.55, pitchVar: 3, maxVoices: 1 }),
+  sound({ id: 'buy.door', family: 'reward', variants: keys('buy.door'), bus: 'sfx', volume: 0.75, maxVoices: 2, positional: true }),
+  sound({ id: 'buy.zone', family: 'reward', variants: keys('buy.zone'), bus: 'sfx', volume: 0.65, maxVoices: 1 }),
+  sound({ id: 'buy.weapon', family: 'reward', variants: keys('buy.weapon'), bus: 'sfx', volume: 0.75, maxVoices: 1, priority: 'high' }),
+  sound({ id: 'buy.merchant', family: 'reward', variants: wizards('buy.merchant'), keyed: true, bus: 'sfx', volume: 0.7, maxVoices: 1 }),
+  sound({ id: 'buy.upgrade', family: 'reward', variants: keys('buy.upgrade'), shine: shine(keys('buy.upgrade')), bus: 'sfx', volume: 0.75, maxVoices: 1, priority: 'high', ladder: 'upgrade' }),
+  sound({ id: 'buy.special', family: 'jingle', variants: keys('buy.special'), bus: 'sfx', volume: 0.9, maxVoices: 1, priority: 'high', duck: true }),
+  sound({ id: 'boost.on', family: 'reward', variants: keys('boost.on'), bus: 'sfx', volume: 0.7, maxVoices: 1 }),
+  sound({ id: 'denied', family: 'ui', variants: keys('denied'), bus: 'sfx', volume: 0.55, maxVoices: 1, minInterval: 0.15 }),
+  sound({ id: 'item.cantUse', family: 'ui', variants: keys('item.cantUse'), bus: 'sfx', volume: 0.45, maxVoices: 1, minInterval: 0.15 }),
+  sound({ id: 'item.splash', family: 'reward', variants: keys('item.splash'), bus: 'sfx', volume: 0.7, maxVoices: 2, positional: true }),
+  sound({ id: 'ritual.done', family: 'jingle', variants: keys('ritual.done'), bus: 'sfx', volume: 0.85, maxVoices: 1, priority: 'high', duck: true }),
+  sound({ id: 'merchant.arrive', family: 'reward', variants: wizards('merchant.arrive'), keyed: true, bus: 'sfx', volume: 0.7, maxVoices: 1 }),
+  // §6.3 The Demon's Hand: the signature of hell in all of them.
+  sound({ id: 'hand.pay.money', family: 'reward', variants: keys('hand.pay.money'), bus: 'sfx', volume: 0.7, maxVoices: 1 }),
+  sound({ id: 'hand.pay.blood', family: 'threat', variants: keys('hand.pay.blood'), bus: 'sfx', volume: 0.75, maxVoices: 1 }),
+  sound({ id: 'hand.roll', family: 'threat', variants: keys('hand.roll'), bus: 'sfx', volume: 0.6, maxVoices: 1, length: HAND.rollingTime }),
+  sound({ id: 'hand.offer', family: 'reward', variants: keys('hand.offer'), bus: 'sfx', volume: 0.7, maxVoices: 1 }),
+  sound({ id: 'hand.offer.special', family: 'jingle', variants: keys('hand.offer.special'), bus: 'sfx', volume: 0.85, maxVoices: 1, priority: 'high', duck: true }),
+  sound({ id: 'hand.taken', family: 'reward', variants: keys('hand.taken'), bus: 'sfx', volume: 0.65, maxVoices: 1 }),
+  sound({ id: 'hand.refund', family: 'threat', variants: keys('hand.refund'), bus: 'sfx', volume: 0.75, maxVoices: 1 }),
+  sound({ id: 'hand.moved', family: 'threat', variants: keys('hand.moved'), bus: 'sfx', volume: 0.6, maxVoices: 1 }),
+  // §6.5 Banners and short melodies: through the effects bus, so they sound without music.
+  sound({ id: 'jingle.round.start', family: 'jingle', variants: keys('jingle.round.start'), bus: 'sfx', volume: 0.8, maxVoices: 1, priority: 'high', duck: true }),
+  sound({ id: 'jingle.round.boss', family: 'jingle', variants: keys('jingle.round.boss'), bus: 'sfx', volume: 0.85, maxVoices: 1, priority: 'high', duck: true }),
+  sound({ id: 'jingle.round.clear', family: 'jingle', variants: keys('jingle.round.clear'), bus: 'sfx', volume: 0.8, maxVoices: 1, priority: 'high', duck: true }),
+  sound({ id: 'jingle.boss.dead', family: 'jingle', variants: keys('jingle.boss.dead'), bus: 'sfx', volume: 0.85, maxVoices: 1, priority: 'high', duck: true }),
+  sound({ id: 'jingle.gameover', family: 'jingle', variants: keys('jingle.gameover'), bus: 'sfx', volume: 0.8, maxVoices: 1, priority: 'high' }),
   // §6.6 Interface.
   sound({ id: 'ui.tap', family: 'ui', variants: ['ui_tap'], bus: 'ui', volume: 0.5, pitchVar: 3, maxVoices: 2, minInterval: 0.03, priority: 'low' }),
+  sound({ id: 'ui.shop.open', family: 'ui', variants: wizards('ui.shop.open'), keyed: true, bus: 'ui', volume: 0.5, maxVoices: 1 }),
+  sound({ id: 'ui.shop.close', family: 'ui', variants: wizards('ui.shop.close'), keyed: true, bus: 'ui', volume: 0.45, maxVoices: 1 }),
+  sound({ id: 'ui.pause.open', family: 'ui', variants: keys('ui.pause.open'), bus: 'ui', volume: 0.5, maxVoices: 1 }),
+  sound({ id: 'ui.pause.close', family: 'ui', variants: keys('ui.pause.close'), bus: 'ui', volume: 0.5, maxVoices: 1 }),
+  sound({ id: 'ui.play', family: 'ui', variants: keys('ui.play'), bus: 'ui', volume: 0.7, maxVoices: 1 }),
 ];
 
 const BY_ID = new Map(SOUNDS.map((s) => [s.id, s]));

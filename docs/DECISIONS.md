@@ -1919,5 +1919,36 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 - **De quién son los sonidos:** el disparo, la recarga, el clic en vacío, el cambio de arma, el sobrecalentamiento, el arma rota, el cuchillo, el dash, la herida y la muerte solo suenan para el jugador local. Los impactos (`impact.flesh`, el corte de la katana) y la bocanada del lanzallamas suenan los provoque quien los provoque.
 - **El cuchillo es solo el tajo.** El «golpe blando si acierta» de §6.1 ya lo pone `impact.flesh` con el `zombie:hit` del mismo golpe. Un acierto de katana suena con `weapon.katana.hit` en lugar de `impact.flesh`.
 - **El clic en vacío** solo suena al apretar de nuevo el gatillo con un arma de balas sin cargador ni reserva, sin recargar ni cambiar de arma. Mantenerlo apretado no repite el clic.
-- **SIMULAR COMBATE:** la SMG dispara 5 s a su cadencia real, con 7 de cada 10 disparos que aciertan y una baja cada 6 aciertos. La baja suena con `reward.kill`, que llega en S3: hasta entonces es silencio.
+- **SIMULAR COMBATE:** la SMG dispara 5 s a su cadencia real, con 7 de cada 10 disparos que aciertan y una baja cada 6 aciertos. La baja suena con `reward.kill`, con su racha.
+
+## Audio: premios, rachas, la Mano, carteles e interfaz (spec 08, fase S3)
+
+- **Eventos nuevos:**
+  - `barricade:repaired`: cada tablón repuesto. Suena también cuando la ronda ya no da puntos por reparar.
+  - `action:denied`: un toque que no se puede hacer. Puede ser por falta de dinero en una puerta, un portal, una vitrina, la Mano o la tienda; por un portal que aún no se puede comprar, o por el inventario lleno. En la tienda solo suena si falta dinero.
+  - `hand:rolling`: el sorteo de la Mano empieza tras la subida (`HAND.risingTime`), no al pagar. Así `hand.roll` dura lo mismo que el sorteo (`HAND.rollingTime`) y para en cuanto la mano se abre.
+  - `merchant:purchase` dice el nivel comprado de una mejora: es el peldaño de la racha `upgrade`.
+- **La baja suena con `points:gained` (motivo `kill`)**, que ya dice qué jugador mató. `zombie:killed` no lo dice.
+- **El dinero siempre suena con `buy.cash`** (la firma del dinero, en cada `money:spent`). Cada compra añade su propio sonido sin monedas: la firma del mago, la vitrina o el fuego de la Mano. Las puertas no gastan con `money:spent` y no llevan monedas, como pide la §6.2.
+- **Munición de una vitrina:** suena como recoger munición (`pickup.ammo`). El arma comprada suena con `buy.weapon`.
+- **Sonidos de mago:** `buy.merchant`, `merchant.arrive`, `ui.shop.open` y `ui.shop.close` tienen tres variantes, una por mago, y las elige el evento (`keyed`). Así cada mago tiene su firma sin multiplicar los ids de la spec. La tienda suena al abrirse y al cerrarse, no cuando cambian sus filas.
+- **Rachas:**
+  - Peldaño `n` = `AUDIO.ladder.steps[n]` semitonos sobre la nota de la capa de brillo, que siempre es un La o un Mi. Así todos los peldaños quedan en La menor.
+  - La racha `upgrade` va por nivel: nivel 1, primer peldaño.
+  - El cuerpo y el brillo salen en dos archivos que empiezan a la vez (el acabado recorta el silencio inicial de cada uno), con la misma variación de tono.
+- **Retrasos del director:** las dos campanas de la sala desbloqueada suenan 0,35 s después del cerrojo de la puerta; el chapuzón de un objeto, al caer (`ITEMS.throwTime`); `jingle.boss.dead`, 1,2 s después de la muerte del boss, y `jingle.gameover`, 1 s después de la del jugador, para no pisar su sonido.
+- **Familias:**
+  - `denied`, `item.cantUse` y `ui.play` se miden como Interfaz: responden a un toque y duran 200 ms como mucho.
+  - `buy.special`, `ritual.done` y `hand.offer.special` se miden como Carteles: son grandes momentos de más de 900 ms.
+  - Las claves del manifiesto pasan de camelCase a snake_case (`item.cantUse` → `item_cant_use`).
+- **Afinación de lo grabado:** las campanas, coros, gongs y tambores grabados se afinan a La menor con `semitones`, a partir de su pico de frecuencia más fuerte. Por ejemplo, la campanita +0,37 hasta La 5, el coro corto −0,24 hasta Si 4 y la campana de iglesia +0,83 hasta un acorde de Re menor.
+- **Premio contra Golpe, por tono:** el informe compara el tono dominante (el pico más fuerte del espectro, de 80 a 5000 Hz), no el brillo. El ruido de un disparo tiene el centro del espectro más alto que una campana en La 5, aunque suene más grave.
+  - Cada sonido se compara con la mediana de la otra familia, para que los clics metálicos de la recarga no la desplacen.
+  - Un sonido de racha cuenta por su brillo, porque su cuerpo es un golpe a propósito.
+  - El brillo sigue en la tabla y en la detección de variantes casi idénticas.
+- **Los candidatos no van en git ni en la app:**
+  - Son 16 MB que `audio:gen` vuelve a escribir igual y que solo carga el servidor de desarrollo con el debug.
+  - `vite build` quita la carpeta y sus entradas del manifiesto, porque la §8 pide que el juego lleve solo los elegidos.
+  - `assets:check` avisa, sin fallar, si faltan los archivos de los candidatos.
+- **La pausa** suena al abrirse y al cerrarse (`ui.pause.open` y `ui.pause.close`). CONTINUAR ya no suena como un toque, para no sonar dos veces. JUGAR suena con `ui.play`.
 

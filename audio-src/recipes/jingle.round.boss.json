@@ -1,0 +1,262 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Dos tambores, Mi-Do-La de campana grave que baja y retumbo de rocas.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/577403_crdn_cinematic_heavy_drums_12.ogg",
+                "process": {
+                  "semitones": 0,
+                  "end": 0.9,
+                  "lowcut": 90,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/577402_crdn_cinematic_heavy_drums_09.ogg",
+                "process": {
+                  "semitones": 0.36,
+                  "end": 0.9,
+                  "lowcut": 90,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 0.9,
+              "delay": 0.35
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "E4",
+                    0.3
+                  ],
+                  [
+                    "C4",
+                    0.3
+                  ],
+                  [
+                    "A3",
+                    0
+                  ]
+                ],
+                "duration": 0.8
+              },
+              "gain": 0.7,
+              "delay": 0.1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/426318_rocks_falling.ogg",
+                "process": {
+                  "lowcut": 150,
+                  "end": 1.8,
+                  "fadeOut": 0.6
+                }
+              },
+              "gain": 0.4,
+              "delay": 0.2
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.22,
+            "length": 2.0,
+            "fadeOut": 0.5
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Tres taikos, La-Fa-Mi de campana y rocas.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/801829_taiko_tom_1_long.ogg",
+                "process": {
+                  "semitones": 1.26,
+                  "end": 0.38,
+                  "lowcut": 90,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/801829_taiko_tom_1_long.ogg",
+                "process": {
+                  "semitones": 1.26,
+                  "end": 0.38,
+                  "lowcut": 90,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 0.9,
+              "delay": 0.22
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/801829_taiko_tom_1_long.ogg",
+                "process": {
+                  "semitones": 1.26,
+                  "end": 0.38,
+                  "lowcut": 90,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 1,
+              "delay": 0.44
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "A4",
+                    0.3
+                  ],
+                  [
+                    "F4",
+                    0.3
+                  ],
+                  [
+                    "E4",
+                    0
+                  ]
+                ],
+                "duration": 0.8
+              },
+              "gain": 0.7,
+              "delay": 0.5
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/576104_s_o_1_rocks_falling_03.ogg",
+                "process": {
+                  "lowcut": 150,
+                  "end": 1.5,
+                  "fadeOut": 0.6
+                }
+              },
+              "gain": 0.4,
+              "delay": 0.3
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.22,
+            "length": 2.0,
+            "fadeOut": 0.5
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Timbales en Re y La, Re-Do-La grave y un retumbo subido una octava.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/573269_timpani_17.ogg",
+                "process": {
+                  "semitones": 0.18,
+                  "end": 1.2,
+                  "lowcut": 90,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/573275_timpani_2.ogg",
+                "process": {
+                  "semitones": -0.47,
+                  "end": 1.2,
+                  "lowcut": 90,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 1,
+              "delay": 0.4
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "D4",
+                    0.3
+                  ],
+                  [
+                    "C4",
+                    0.3
+                  ],
+                  [
+                    "A3",
+                    0
+                  ]
+                ],
+                "duration": 0.8
+              },
+              "gain": 0.7,
+              "delay": 0.2
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/856174_subterranean_deep_sub_bass_rumble_drop.ogg",
+                "process": {
+                  "semitones": 12,
+                  "start": 1.5,
+                  "end": 3.5,
+                  "highcut": 800,
+                  "lowcut": 120,
+                  "fadeIn": 0.3,
+                  "fadeOut": 0.6
+                }
+              },
+              "gain": 0.6
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.22,
+            "length": 2.0,
+            "fadeOut": 0.5
+          }
+        }
+      ]
+    }
+  }
+}

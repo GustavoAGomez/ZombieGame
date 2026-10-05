@@ -50,8 +50,11 @@ describe('DoorSystem · buying', () => {
   it('does nothing without enough points', () => {
     const ctx = createTestContext();
     const { p } = atD1(ctx);
+    const denied = vi.fn();
+    ctx.events.on('action:denied', denied);
     tap(ctx);
     expect(ctx.state.doorsOpen[0]).toBe(false);
+    expect(denied).toHaveBeenCalledWith({ playerId: 0 });
     expect(p.money).toBe(POINTS.startMoney);
   });
 

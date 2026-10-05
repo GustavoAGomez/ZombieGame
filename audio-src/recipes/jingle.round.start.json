@@ -1,0 +1,216 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Tambor grave afinado en La y La-Do-Re-Mi de campana, tensas.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/577402_crdn_cinematic_heavy_drums_09.ogg",
+                "process": {
+                  "semitones": 0.36,
+                  "end": 0.9,
+                  "lowcut": 90,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "A4",
+                    0.14
+                  ],
+                  [
+                    "C5",
+                    0.14
+                  ],
+                  [
+                    "D5",
+                    0.14
+                  ],
+                  [
+                    "E5",
+                    0
+                  ]
+                ],
+                "duration": 0.7
+              },
+              "gain": 0.7,
+              "delay": 0.05
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.22,
+            "length": 1.5,
+            "fadeOut": 0.4
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Taiko y timbal en La, con Mi-La-Si-Do (el semitono Si-Do da la tensión).",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/801829_taiko_tom_1_long.ogg",
+                "process": {
+                  "semitones": 1.26,
+                  "end": 0.38,
+                  "lowcut": 90,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/573275_timpani_2.ogg",
+                "process": {
+                  "semitones": -0.47,
+                  "end": 1.2,
+                  "lowcut": 90,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 0.7
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "E4",
+                    0.15
+                  ],
+                  [
+                    "A4",
+                    0.15
+                  ],
+                  [
+                    "B4",
+                    0.15
+                  ],
+                  [
+                    "C5",
+                    0
+                  ]
+                ],
+                "duration": 0.7
+              },
+              "gain": 0.7,
+              "delay": 0.05
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.22,
+            "length": 1.5,
+            "fadeOut": 0.4
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Otro tambor y La-Si-Do-Mi de campana con cristal.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/577403_crdn_cinematic_heavy_drums_12.ogg",
+                "process": {
+                  "semitones": 0,
+                  "end": 0.9,
+                  "lowcut": 90,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "A4",
+                    0.14
+                  ],
+                  [
+                    "B4",
+                    0.14
+                  ],
+                  [
+                    "C5",
+                    0.14
+                  ],
+                  [
+                    "E5",
+                    0
+                  ]
+                ],
+                "duration": 0.7
+              },
+              "gain": 0.6,
+              "delay": 0.05
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "A5",
+                    0.14
+                  ],
+                  [
+                    "B5",
+                    0.14
+                  ],
+                  [
+                    "C6",
+                    0.14
+                  ],
+                  [
+                    "E6",
+                    0
+                  ]
+                ],
+                "duration": 0.3
+              },
+              "gain": 0.25,
+              "delay": 0.05
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.22,
+            "length": 1.5,
+            "fadeOut": 0.4
+          }
+        }
+      ]
+    }
+  }
+}

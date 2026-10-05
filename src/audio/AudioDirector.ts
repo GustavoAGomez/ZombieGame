@@ -1,4 +1,6 @@
-import { AUDIO, SOUNDS, WEAPON_FIRE_SOUND, type AudioPriority, type SoundDef, type VolumeLevel } from '../config/audio';
+import { AUDIO, MERCHANT_VARIANT, SOUNDS, WEAPON_FIRE_SOUND, type AudioPriority, type LadderId, type SoundDef, type VolumeLevel } from '../config/audio';
+import { ITEMS } from '../config/balance';
+import type { MerchantId } from '../config/merchants';
 import { WEAPONS } from '../config/weapons';
 import type { EventBus } from '../core/EventBus';
 import type { AudioCandidate, AudioDef } from '../game/assets/manifest';
@@ -62,6 +64,8 @@ export interface SoundTest {
   testCandidate(id: string, letter: AudioCandidate): void;
   /** SIMULAR COMBATE: the SMG firing with hits and kills for a few seconds, to hear the mix. */
   simulateCombat(): void;
+  /** SIMULAR RACHA: kills in a row, to hear the kill streak climb. */
+  simulateStreak(): void;
   stats(): AudioStats;
 }
 
@@ -76,10 +80,21 @@ interface ActiveVoice {
 }
 
 interface PlayRequest {
-  /** The files to pick from (a candidate's), instead of the catalog's. */
+  /** The files to pick from (a candidate's), instead of the catalog's, and their shine layers. */
   keys?: readonly string[];
+  shine?: readonly string[];
   /** Playback rate before the pitch variation (the laser's heat). */
   rate?: number;
+  /** The variant the event names (a `keyed` sound: whose wizard), instead of one at random. */
+  variant?: number;
+  /** A streak's rung (§3.4): its shine layer plays this many steps up the ladder. */
+  rung?: number;
+}
+
+/** A candidate's files: its variants and, for a streak sound, their shine layers. */
+interface CandidateFiles {
+  keys: string[];
+  shine: string[];
 }
 
 const RANK: Readonly<Record<AudioPriority, number>> = { low: 0, normal: 1, high: 2 };
@@ -117,11 +132,19 @@ export class AudioDirector implements GameAudio, SoundTest {
   private readonly lastVariant = new Map<string, number>();
   private durations: Readonly<Record<string, number>> = {};
   /** Each sound's candidates' files (debug only) and the candidate its game files come from. */
-  private candidates = new Map<string, Map<AudioCandidate, string[]>>();
+  private candidates = new Map<string, Map<AudioCandidate, CandidateFiles>>();
   private picks = new Map<string, { letter: AudioCandidate; pending: boolean }>();
   private paused = false;
   /** The continuous weapon whose loop is playing. */
   private firing: ContinuousWeapon | null = null;
+  /** Each streak's rung and when it last climbed (§3.4). */
+  private readonly ladders = new Map<LadderId, { rung: number; at: number }>();
+  /** The sound test's upgrade level, 1 to 3 in turn. */
+  private testLevel = 0;
+  /** Whose shop the local player has open (its closing sounds with that wizard's signature). */
+  private shop: MerchantId | null = null;
+  /** The hand's draw, stopped as soon as it opens. */
+  private handRoll: ActiveVoice | null = null;
   private dropped = 0;
   private lastDropped = '';
 
@@ -153,10 +176,11 @@ export class AudioDirector implements GameAudio, SoundTest {
       const first = defs[sound.variants[0] ?? ''];
       if (first?.picked) this.picks.set(sound.id, { letter: first.picked, pending: first.pending === true });
       if (!withCandidates) continue;
-      const byLetter = new Map<AudioCandidate, string[]>();
+      const byLetter = new Map<AudioCandidate, CandidateFiles>();
       for (const letter of ['A', 'B', 'C'] as const) {
-        const keys = sound.variants.map((v) => `${v}__${letter.toLowerCase()}`).filter((k) => loaded[k]?.candidate === letter);
-        if (keys.length > 0) byLetter.set(letter, keys);
+        const of = (list: readonly string[]): string[] => list.map((v) => `${v}__${letter.toLowerCase()}`).filter((k) => loaded[k]?.candidate === letter);
+        const keys = of(sound.variants);
+        if (keys.length > 0) byLetter.set(letter, { keys, shine: of(sound.shine) });
       }
       if (byLetter.size > 0) this.candidates.set(sound.id, byLetter);
     }
@@ -172,10 +196,8 @@ export class AudioDirector implements GameAudio, SoundTest {
   }
 
   testCandidate(id: string, letter: AudioCandidate): void {
-    const keys = this.candidates.get(id)?.get(letter);
-    if (!keys) return;
-    if (this.byId.get(id)?.loop) this.toggleLoop(id, { keys });
-    else this.play(id, { keys });
+    const files = this.candidates.get(id)?.get(letter);
+    if (files) this.test(id, { keys: files.keys, shine: files.shine });
   }
 
   unlock(): void {
@@ -203,9 +225,18 @@ export class AudioDirector implements GameAudio, SoundTest {
     }
   }
 
-  test(id: string): void {
-    if (this.byId.get(id)?.loop) this.toggleLoop(id, {});
-    else this.play(id);
+  /** Plays a sound as the game would: a loop starts or stops, and a streak climbs (the upgrade one by levels 1, 2, 3 in turn). */
+  test(id: string, request: PlayRequest = {}): void {
+    const def = this.byId.get(id);
+    if (def?.loop) this.toggleLoop(id, request);
+    else if (def?.ladder === 'upgrade') this.play(id, { ...request, rung: this.climb('upgrade', (this.testLevel++ % 3) + 1) });
+    else if (def?.ladder) this.play(id, { ...request, rung: this.climb(def.ladder) });
+    else this.play(id, request);
+  }
+
+  simulateStreak(): void {
+    const { kills, interval } = AUDIO.streakTest;
+    for (let i = 0; i < kills; i++) this.schedule(i * interval, () => this.test('reward.kill'));
   }
 
   simulateCombat(): void {
@@ -217,8 +248,7 @@ export class AudioDirector implements GameAudio, SoundTest {
         this.play('weapon.smg.fire');
         if (i % 10 >= hitsIn10) return;
         this.play('impact.flesh');
-        // A kill's own sound (§6.2) arrives in phase S3: until then it is silence.
-        if (++hits % killEvery === 0) this.play('reward.kill');
+        if (++hits % killEvery === 0) this.test('reward.kill');
       });
     }
   }
@@ -248,6 +278,84 @@ export class AudioDirector implements GameAudio, SoundTest {
     events.on('player:died', (e) => mine(e.playerId, 'player.death'));
     events.on('zombie:hit', (e) => this.play(e.weapon === 'katana' ? 'weapon.katana.hit' : 'impact.flesh'));
     events.on('fire:blast', () => this.play('weapon.flame.blast'));
+    this.listenRewards(events, mine);
+  }
+
+  /**
+   * The events of §6.2, §6.3, §6.5 and §6.6. What a player earns, spends or
+   * is refused is theirs alone; doors, rooms, wizards, the hand and the
+   * banners are heard by everyone. Money always sounds with `buy.cash` (the
+   * money signature, on `money:spent`), and each purchase adds its own.
+   */
+  private listenRewards(events: EventBus, mine: (playerId: number, id: string) => void): void {
+    const local = (playerId: number): boolean => playerId === AUDIO.localPlayerId;
+    events.on('points:gained', (e) => {
+      if (!local(e.playerId)) return;
+      if (e.reason === 'hit') this.play('reward.hit');
+      else if (e.reason === 'kill') this.play('reward.kill', { rung: this.climb('kill') });
+    });
+    events.on('barricade:repaired', (e) => {
+      if (local(e.playerId)) this.play('reward.repair', { rung: this.climb('repair') });
+    });
+    events.on('pickup:collected', (e) => mine(e.playerId, e.kind === 'ammo' ? 'pickup.ammo' : 'pickup.health'));
+    events.on('item:picked', (e) => mine(e.playerId, 'pickup.item'));
+    events.on('money:spent', (e) => mine(e.playerId, 'buy.cash'));
+    events.on('door:opened', () => this.play('buy.door'));
+    events.on('portal:opened', () => this.play('buy.door'));
+    events.on('zone:unlocked', () => this.schedule(AUDIO.zoneDelay, () => this.play('buy.zone')));
+    // At a case, ammo sounds like picking ammo up; a weapon, like the case's own.
+    events.on('weaponCase:purchase', (e) => mine(e.playerId, e.ammo ? 'pickup.ammo' : 'buy.weapon'));
+    events.on('merchant:purchase', (e) => {
+      if (!local(e.playerId)) return;
+      if (e.item === 'weapon_special') this.play('buy.special');
+      else if (e.level !== undefined) this.play('buy.upgrade', { rung: this.climb('upgrade', e.level) });
+      else this.play('buy.merchant', { variant: MERCHANT_VARIANT[e.merchant] });
+    });
+    events.on('boost:activated', (e) => mine(e.playerId, 'boost.on'));
+    events.on('action:denied', (e) => mine(e.playerId, 'denied'));
+    events.on('item:cantUse', (e) => mine(e.playerId, 'item.cantUse'));
+    // The splash when it lands, a moment after the throw.
+    events.on('item:thrown', () => this.schedule(ITEMS.throwTime, () => this.play('item.splash')));
+    events.on('activation:completed', () => this.play('ritual.done'));
+    events.on('merchant:moved', (e) => {
+      if (e.first) this.play('merchant.arrive', { variant: MERCHANT_VARIANT[e.merchant] });
+    });
+    events.on('hand:paid', (e) => this.play(e.blood ? 'hand.pay.blood' : 'hand.pay.money'));
+    events.on('hand:rolling', () => (this.handRoll = this.play('hand.roll')));
+    events.on('hand:offer', (e) => {
+      this.stopVoice(this.handRoll, AUDIO.voiceFade);
+      this.handRoll = null;
+      this.play(e.special ? 'hand.offer.special' : 'hand.offer');
+    });
+    events.on('hand:taken', () => this.play('hand.taken'));
+    events.on('hand:refunded', () => this.play('hand.refund'));
+    events.on('hand:moved', () => this.play('hand.moved'));
+    events.on('round:changed', (e) => this.play(e.boss ? 'jingle.round.boss' : 'jingle.round.start'));
+    events.on('round:cleared', () => this.play('jingle.round.clear'));
+    events.on('boss:killed', () => this.schedule(AUDIO.bossDeadJingleDelay, () => this.play('jingle.boss.dead')));
+    events.on('game:over', () => this.schedule(AUDIO.gameOverJingleDelay, () => this.play('jingle.gameover')));
+    events.on('shop:state', (e) => {
+      if (e.merchant === this.shop) return;
+      // The wizard opens or closes his coat (§6.6): only when the panel opens or closes, not when its rows change.
+      if (e.merchant) this.play('ui.shop.open', { variant: MERCHANT_VARIANT[e.merchant] });
+      else if (this.shop) this.play('ui.shop.close', { variant: MERCHANT_VARIANT[this.shop] });
+      this.shop = e.merchant;
+    });
+  }
+
+  /**
+   * The rung a streak plays on now (§3.4): one up per repetition within its
+   * window (staying on the last), back to the first past it. The upgrade
+   * streak goes by the level bought: level 1 on the first rung.
+   */
+  private climb(ladder: LadderId, level = 1): number {
+    const top = AUDIO.ladder.steps.length - 1;
+    if (ladder === 'upgrade') return Math.min(top, Math.max(0, level - 1));
+    const now = this.clock();
+    const last = this.ladders.get(ladder);
+    const rung = last && now - last.at <= AUDIO.ladder.windows[ladder] ? Math.min(top, last.rung + 1) : 0;
+    this.ladders.set(ladder, { rung, at: now });
+    return rung;
   }
 
   /** The laser's hum rises with its heat (§6.1); anything else plays as recorded. */
@@ -291,16 +399,41 @@ export class AudioDirector implements GameAudio, SoundTest {
     if (last !== undefined && now - last < def.minInterval) return this.drop(id);
     if (this.voices.filter((v) => v.id === id).length >= def.maxVoices) return this.drop(id);
     if (def.bus !== 'music' && !this.makeRoom(def.priority)) return this.drop(id);
-    const key = this.pickVariant(def, request.keys ?? def.variants);
+    const keys = request.keys ?? def.variants;
+    const index = request.variant !== undefined && def.keyed ? Math.min(request.variant, keys.length - 1) : this.pickVariant(def, keys.length);
+    const key = keys[index];
     const duration = key === undefined ? undefined : this.durations[key];
     if (key === undefined || duration === undefined) return null;
     const rate = (request.rate ?? 1) * (1 + (this.random() * 2 - 1) * (def.pitchVar / 100));
-    const voice = this.engine.play(key, { bus: def.bus, gain: def.volume, rate, pan: 0, loop: def.loop, ...(def.loop ? { fadeIn: AUDIO.loopFadeIn } : {}) });
+    const options = { bus: def.bus, gain: def.volume, rate, pan: 0, loop: def.loop, ...(def.loop ? { fadeIn: AUDIO.loopFadeIn } : {}) };
+    const body = this.engine.play(key, options);
     this.lastPlay.set(id, now);
-    if (!voice) return null;
-    const active: ActiveVoice = { id, bus: def.bus, priority: def.priority, startedAt: now, endsAt: def.loop ? Infinity : now + duration / rate, voice };
+    if (!body) return null;
+    let voice: Voice = body;
+    let ends = duration / rate;
+    // A streak's shine layer, with it: only its pitch climbs the ladder (§3.4).
+    const shineKey = (request.shine ?? def.shine)[index];
+    const shineDuration = shineKey === undefined ? undefined : this.durations[shineKey];
+    if (shineKey !== undefined && shineDuration !== undefined) {
+      const shineRate = rate * 2 ** ((AUDIO.ladder.steps[request.rung ?? 0] ?? 0) / 12);
+      const shine = this.engine.play(shineKey, { ...options, rate: shineRate });
+      if (shine) {
+        voice = { stop: (fade) => (body.stop(fade), shine.stop(fade)), setRate: (r) => body.setRate(r) };
+        ends = Math.max(ends, shineDuration / shineRate);
+      }
+    }
+    const active: ActiveVoice = { id, bus: def.bus, priority: def.priority, startedAt: now, endsAt: def.loop ? Infinity : now + ends, voice };
     this.voices.push(active);
     return active;
+  }
+
+  /** Stops one voice now, if it still plays. */
+  private stopVoice(v: ActiveVoice | null, fade: number): void {
+    if (!v) return;
+    const i = this.voices.indexOf(v);
+    if (i < 0) return;
+    v.voice.stop(fade);
+    this.voices.splice(i, 1);
   }
 
   /** With the global limit full, cuts the lowest priority, oldest voice; false if every voice outranks `priority`. */
@@ -318,16 +451,15 @@ export class AudioDirector implements GameAudio, SoundTest {
     return true;
   }
 
-  /** One of `variants` (the sound's, or a candidate's) at random, never the same twice in a row. */
-  private pickVariant(def: SoundDef, variants: readonly string[]): string | undefined {
-    const count = variants.length;
-    if (count <= 1) return variants[0];
+  /** One of `count` variants at random, never the same twice in a row. */
+  private pickVariant(def: SoundDef, count: number): number {
+    if (count <= 1) return 0;
     const previous = this.lastVariant.get(def.id);
     let i = Math.min(count - 1, Math.floor(this.random() * count));
     // Never the same one twice in a row: the next one instead.
     if (i === previous) i = (i + 1) % count;
     this.lastVariant.set(def.id, i);
-    return variants[i];
+    return i;
   }
 
   private drop(id: string): null {

@@ -144,7 +144,11 @@ export function itemInReach(state: GameState, p: PlayerState): number {
  */
 export function pickUpItem(ctx: SimContext, p: PlayerState, index: number): boolean {
   const g = ctx.state.groundItems[index];
-  if (!g?.active || !hasItemRoom(p) || p.items.includes(g.item)) return false;
+  if (!g?.active) return false;
+  if (!hasItemRoom(p) || p.items.includes(g.item)) {
+    ctx.events.emit('action:denied', { playerId: p.id });
+    return false;
+  }
   g.active = false;
   p.items.push(g.item);
   ctx.events.emit('item:picked', { playerId: p.id, item: g.item });

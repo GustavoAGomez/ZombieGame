@@ -1,14 +1,15 @@
-import { mkdirSync, mkdtempSync, renameSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { AUDIO_GEN, type SoundDef } from '../../../src/config/audio';
+import { AUDIO_GEN, SOUND_DEFAULTS, type SoundDef } from '../../../src/config/audio';
 import { renderFile } from '../../audio-gen';
 import { envValue, fileNameOf, parseArgs } from '../../audio-search';
 import { checkAudioSources, type CheckReport } from '../../check-assets';
 import { measure } from './analyze';
 import { Credits, creditsMarkdown } from './credits';
 import { render } from './render';
+import { stripCandidates } from './strip-candidates';
 import { RecipeError, parseRecipe, parseSoundRecipes } from './recipes';
 import { buildReport, type ReportRow } from './report';
 import { noteFrequency, SynthError } from './synth';
@@ -24,22 +25,17 @@ const TAP = {
 const gen = (json: unknown, channels: 1 | 2 = 1): Uint8Array => renderFile(parseRecipe(json, 'test'), channels);
 
 const sound = (patch: Partial<SoundDef> = {}): SoundDef => ({
+  ...SOUND_DEFAULTS,
   id: 'ui.tap',
   family: 'ui',
   variants: ['a', 'b'],
   bus: 'ui',
   volume: 1,
-  pitchVar: 0,
   maxVoices: 1,
-  minInterval: 0,
   priority: 'low',
-  positional: false,
-  ladder: null,
-  duck: false,
-  loop: false,
   ...patch,
 });
-const row = (key: string, bytes: Uint8Array, s = sound(), letter = 'A'): ReportRow => ({ key, sound: s, letter, inGame: true, about: '', measures: measure(decodeWav(bytes)) });
+const row = (key: string, bytes: Uint8Array, s = sound(), letter = 'A'): ReportRow => ({ key, sound: s, letter, inGame: true, about: '', layer: 'body', measures: measure(decodeWav(bytes)) });
 
 describe('sound workshop (spec 08 §4)', () => {
   it('gives the same bytes for the same recipe, and other bytes for another seed', () => {
@@ -211,5 +207,41 @@ describe('audio:search (spec 08 §5.2)', () => {
     expect(fileNameOf(123, 'Heavy Door Slam (2).wav')).toBe('123_heavy_door_slam_2.ogg');
     expect(parseArgs(['pistol', 'shot', '--count', '3', '--max', '2'])).toEqual({ query: 'pistol shot', count: 3, max: 2 });
     expect(() => parseArgs([])).toThrow(/uso/);
+  });
+});
+
+describe('report: pitch, own lengths, rewards over hits (spec 08 §4.5)', () => {
+  it('measures the dominant pitch of a note', () => {
+    const a5 = measure(decodeWav(gen({ type: 'synth', timbre: 'pad', note: 'A5', duration: 0.5, attack: 0.01, width: 0 })));
+    expect(Math.abs(a5.pitch - 880)).toBeLessThan(25);
+  });
+
+  it('holds a sound with its own length to it, and not to its family\'s range', () => {
+    const long = gen({ type: 'synth', timbre: 'pad', note: 'A4', duration: 0.6, attack: 0.05 });
+    const roll = sound({ id: 'hand.roll', family: 'threat', variants: ['r'], length: 2 });
+    expect(buildReport([row('r', long, roll)]).warnings).toEqual([expect.stringMatching(/^r: dura \d+ ms y tiene que durar 2000 ms$/)]);
+  });
+
+  it('warns of a reward lower than the hits, judging a streak sound by its shine', () => {
+    const low = gen({ type: 'synth', timbre: 'pad', note: 'A3', duration: 0.3, attack: 0.01, width: 0 });
+    const high = gen({ type: 'synth', timbre: 'pad', note: 'A6', duration: 0.3, attack: 0.01, width: 0 });
+    const hit = sound({ id: 'weapon.pistol.fire', family: 'hit', variants: ['h'] });
+    const reward = sound({ id: 'buy.door', family: 'reward', variants: ['d'] });
+    const streak = sound({ id: 'reward.kill', family: 'reward', variants: ['k'], shine: ['k_shine'] });
+    const rows = [row('h', gen({ type: 'synth', timbre: 'pad', note: 'A4', duration: 0.3, attack: 0.01, width: 0 }), hit), row('d', low, reward), row('k', low, streak), { ...row('k_shine', high, streak), layer: 'shine' as const }];
+    const { warnings } = buildReport(rows);
+    expect(warnings.filter((w) => w.includes('Premio más grave'))).toEqual([expect.stringMatching(/^buy\.door:/)]);
+  });
+});
+
+describe('builds without the candidates (spec 08 §8)', () => {
+  it('removes the candidates\' files and their manifest entries from the output', () => {
+    const out = mkdtempSync(join(tmpdir(), 'dist-'));
+    mkdirSync(join(out, 'assets/audio/candidates'), { recursive: true });
+    writeFileSync(join(out, 'assets/audio/candidates/ui_tap__a.wav'), '');
+    writeFileSync(join(out, 'assets/manifest.json'), JSON.stringify({ audio: { ui_tap: { file: 'audio/sfx/ui_tap.wav' }, ui_tap__a: { file: 'audio/candidates/ui_tap__a.wav', candidate: 'A' } } }));
+    expect(stripCandidates(out)).toBe(1);
+    expect(existsSync(join(out, 'assets/audio/candidates'))).toBe(false);
+    expect(Object.keys((JSON.parse(readFileSync(join(out, 'assets/manifest.json'), 'utf8')) as { audio: object }).audio)).toEqual(['ui_tap']);
   });
 });

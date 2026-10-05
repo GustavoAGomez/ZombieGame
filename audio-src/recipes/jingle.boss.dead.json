@@ -1,0 +1,271 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "La melodía más larga: La-Do-Mi-Re-Mi-La de campana, coro en Si, tambor y un acorde grave.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/577402_crdn_cinematic_heavy_drums_09.ogg",
+                "process": {
+                  "semitones": 0.36,
+                  "end": 0.9,
+                  "lowcut": 90,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "A4",
+                    0.2
+                  ],
+                  [
+                    "C5",
+                    0.2
+                  ],
+                  [
+                    "E5",
+                    0.2
+                  ],
+                  [
+                    "D5",
+                    0.2
+                  ],
+                  [
+                    "E5",
+                    0.2
+                  ],
+                  [
+                    "A5",
+                    0
+                  ]
+                ],
+                "duration": 1.0
+              },
+              "gain": 1,
+              "delay": 0.05
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/444491_short_choir.ogg",
+                "process": {
+                  "semitones": -0.24,
+                  "end": 2.0,
+                  "fadeIn": 0.08,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 0.45,
+              "delay": 0.2
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "pad",
+                "notes": [
+                  [
+                    "A3",
+                    0,
+                    1
+                  ],
+                  [
+                    "E4",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 2.0,
+                "attack": 0.3,
+                "width": 8
+              },
+              "gain": 0.3
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.22,
+            "length": 2.45,
+            "fadeOut": 0.6
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Mi-La-Do-Si-Do-Mi-La con coro en La y gong afinado.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "E4",
+                    0.2
+                  ],
+                  [
+                    "A4",
+                    0.2
+                  ],
+                  [
+                    "C5",
+                    0.2
+                  ],
+                  [
+                    "B4",
+                    0.2
+                  ],
+                  [
+                    "C5",
+                    0.2
+                  ],
+                  [
+                    "E5",
+                    0.2
+                  ],
+                  [
+                    "A5",
+                    0
+                  ]
+                ],
+                "duration": 1.0
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/240745_choir_one_shot.ogg",
+                "process": {
+                  "semitones": 0.81,
+                  "end": 1.7,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 0.45,
+              "delay": 0.3
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/518292_gong_2.ogg",
+                "process": {
+                  "semitones": 0.23,
+                  "end": 2.0,
+                  "fadeOut": 0.6,
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.4
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.22,
+            "length": 2.45,
+            "fadeOut": 0.6
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "La-Si-Do-Mi-Re-Do-La con el coro largo en La y timbal.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/573275_timpani_2.ogg",
+                "process": {
+                  "semitones": -0.47,
+                  "end": 1.2,
+                  "lowcut": 90,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "A4",
+                    0.18
+                  ],
+                  [
+                    "B4",
+                    0.18
+                  ],
+                  [
+                    "C5",
+                    0.18
+                  ],
+                  [
+                    "E5",
+                    0.18
+                  ],
+                  [
+                    "D5",
+                    0.18
+                  ],
+                  [
+                    "C5",
+                    0.18
+                  ],
+                  [
+                    "A5",
+                    0
+                  ]
+                ],
+                "duration": 1.0
+              },
+              "gain": 1,
+              "delay": 0.05
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/702796_choir_warm_up.ogg",
+                "process": {
+                  "semitones": 0.26,
+                  "start": 0.3,
+                  "end": 2.3,
+                  "fadeIn": 0.1,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 0.4,
+              "delay": 0.1
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.22,
+            "length": 2.45,
+            "fadeOut": 0.6
+          }
+        }
+      ]
+    }
+  }
+}

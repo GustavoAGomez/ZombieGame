@@ -56,6 +56,10 @@ export interface GameEvents {
   'knife:swing': { playerId: number; x: number; y: number; hit: boolean };
   /** A player dashed (spec 08 §6.1). */
   'player:dash': { playerId: number; x: number; y: number };
+  /** A plank went back on a window (spec 08 §6.2), with or without points: the repair streak. */
+  'barricade:repaired': { playerId: number; x: number; y: number };
+  /** A tap that could not be done (spec 08 §6.2): not enough money, a locked portal, a full inventory. */
+  'action:denied': { playerId: number };
   'pickup:collected': { playerId: number; kind: PickupKind };
   /** A door was bought (medium haptic in phase 9). */
   'door:opened': { doorId: string; playerId: number };
@@ -63,6 +67,8 @@ export interface GameEvents {
   'portal:opened': { portalId: string; playerId: number };
   /** Someone paid the Demon's Hand (spec 06 §3.3), with money or with blood. */
   'hand:paid': { playerId: number; blood: boolean };
+  /** The paid hand starts drawing (spec 06 §3.4, spec 08 §6.3): weapon outlines roll over it for HAND.rollingTime. */
+  'hand:rolling': { playerId: number };
   /** The hand opened with a weapon (spec 06 §3.4): a special one flashes and is named on the HUD. */
   'hand:offer': { weapon: WeaponId; special: boolean };
   /** The one who paid took the hand's weapon. */
@@ -178,8 +184,8 @@ export interface GameEvents {
   'money:spent': { playerId: number; amount: number };
   /** Bought at a weapon case: the weapon itself or its ammo (spec 04 §3). Medium vibration. */
   'weaponCase:purchase': { playerId: number; weapon: WeaponId; ammo: boolean };
-  /** Something was bought from a merchant (medium haptic). */
-  'merchant:purchase': { playerId: number; merchant: MerchantId; item: MerchantItemId };
+  /** Something was bought from a merchant (medium haptic); an upgrade says the level it bought (spec 08 §3.4). */
+  'merchant:purchase': { playerId: number; merchant: MerchantId; item: MerchantItemId; level?: number };
   /** The local player's shop panel: closed, or open with one row per item still sold. */
   'shop:state': {
     merchant: MerchantId | null;

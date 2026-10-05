@@ -202,7 +202,7 @@ Una entrada por archivo de sonido, con su clave en snake_case:
 - **Claves:** el código nunca nombra estas claves. Las nombra el catálogo (`src/config/audio.ts`): cada sonido (`ui.tap`, `weapon.pistol.fire`…) lista sus variantes, de 1 a 4, que son claves de esta sección. La clave de un candidato es la de la variante con `__a`, `__b` o `__c`.
 - **De dónde salen:** `npm run audio:gen` monta cada sonido desde su receta, `audio-src/recipes/<id>.json`, y escribe aquí sus entradas.
   - **Formato de la receta:** `{ "chosen": null, "candidates": { "A": { "about": "…", "channels": 1, "variants": [ … ] }, "B": … } }`.
-  - **Sin candidato elegido** (`chosen` a `null`): el juego suena con A y los tres candidatos van a `audio/candidates/`.
+  - **Sin candidato elegido** (`chosen` a `null`): el juego suena con A y los tres candidatos van a `audio/candidates/`. Esa carpeta no va en git (`audio:gen` la escribe igual cada vez) ni en el build: `vite build` la quita, con sus entradas del manifiesto.
   - **Con uno elegido:** solo sale ese, y los demás se quedan en la receta.
   - **Sin receta:** a una variante del catálogo que no tiene receta le pone una entrada `placeholder`.
   - **Informe:** las medidas y los avisos quedan en `audio-src/preview/report.md`.
@@ -223,6 +223,9 @@ Una entrada por archivo de sonido, con su clave en snake_case:
   - `fadeIn` y `fadeOut`.
 - **Acabado común:** el archivo empieza donde el sonido llega a −40 dB de su pico (lo de antes es ruido de sala), tras 1 ms de fundido; termina con al menos 5 ms de fundido; no tiene nada por debajo de 60 Hz y su pico está a −1 dB.
 - **Bucles** (los sonidos con `loop` en el catálogo: láser, lanzallamas, latido): sin recorte ni fundidos. Sus últimos 120 ms se funden con el principio, para que se repitan sin costura ni clic.
+- **Rachas** (los sonidos con `ladder` y `shine` en el catálogo: `reward.kill`, `reward.repair`, `buy.upgrade`): cada candidato lleva, además de `variants`, una receta `shine` por variante. Es la capa de brillo, que va a su propio archivo (`<variante>_shine`) y que el director sube de tono con la racha mientras el cuerpo no cambia.
+- **Sonidos de mago** (`keyed` en el catálogo: `buy.merchant`, `merchant.arrive`, `ui.shop.open`, `ui.shop.close`): tres variantes, una por mago (azul, rojo y dorado, en ese orden). No se eligen al azar: las elige el evento.
+- **Longitud fija** (`length` en el catálogo): `hand.roll` dura lo que el sorteo (`HAND.rollingTime`). El informe avisa si se aparta más de 50 ms.
 - **Fuentes y licencias (`audio-src/library/<origen>/`, `audio-src/generated/`):**
   - Cada carpeta lleva un `credits.json` con `origin`, `author`, `license` y `url`, que valen para todos sus archivos; en `files`, los de cada archivo (por ejemplo, el autor y el enlace de cada sonido de Freesound).
   - De `library/` solo vale CC0. Un archivo de `generated/` necesita además `prompt` y `model`.

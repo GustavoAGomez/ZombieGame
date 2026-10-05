@@ -1,7 +1,8 @@
 /**
  * Objective measures of a sound file (spec 08 §4.5), since nobody here can
  * hear it: length, peak, average loudness, brightness (spectral centroid),
- * tail, energy by bands, silence at the start, clipping and channels.
+ * dominant pitch, tail, energy by bands, silence at the start, clipping and
+ * channels.
  */
 import { AUDIO_GEN } from '../../../src/config/audio';
 import { dbToGain } from './dsp';
@@ -16,6 +17,12 @@ export interface SoundMeasures {
   loudnessDb: number;
   /** Spectral centroid, Hz, weighted by each window's energy: higher is brighter. */
   brightness: number;
+  /**
+   * The strongest frequency of the whole sound (AUDIO_GEN.pitchRange), Hz:
+   * its note, or its body's. What «higher» or «lower» means to the ear when
+   * noise and a bell are compared, which the centroid does not tell.
+   */
+  pitch: number;
   /** Seconds after the last moment the sound is within AUDIO_GEN.tailDb of its peak. */
   tail: number;
   /** Share of the energy in each band (AUDIO_GEN.bands): under 100 Hz, 100–250, 250–1k, 1k–5k, over 5k. */
@@ -69,11 +76,12 @@ function mono(a: Audio): Float32Array {
 }
 
 /** Brightness and energy by bands over Hann windows of AUDIO_GEN.fftSize with half overlap. */
-function spectrum(samples: Float32Array, sampleRate: number): { brightness: number; bands: number[] } {
+function spectrum(samples: Float32Array, sampleRate: number): { brightness: number; pitch: number; bands: number[] } {
   const n = AUDIO_GEN.fftSize;
   const hop = n / 2;
   const edges = AUDIO_GEN.bands;
   const bandEnergy = new Array<number>(edges.length + 1).fill(0);
+  const power = new Float64Array(n / 2);
   let weighted = 0;
   let energy = 0;
   for (let start = 0; start < Math.max(1, samples.length - hop); start += hop) {
@@ -91,6 +99,7 @@ function spectrum(samples: Float32Array, sampleRate: number): { brightness: numb
       let band = edges.findIndex((edge) => f < edge);
       if (band < 0) band = edges.length;
       bandEnergy[band] = (bandEnergy[band] ?? 0) + mag * mag;
+      power[k] = (power[k] ?? 0) + mag * mag;
     }
     if (den === 0) continue;
     const e = den * den;
@@ -98,7 +107,19 @@ function spectrum(samples: Float32Array, sampleRate: number): { brightness: numb
     energy += e;
   }
   const total = bandEnergy.reduce((a, b) => a + b, 0);
-  return { brightness: energy === 0 ? 0 : weighted / energy, bands: bandEnergy.map((e) => (total === 0 ? 0 : e / total)) };
+  return { brightness: energy === 0 ? 0 : weighted / energy, pitch: dominant(power, sampleRate, n), bands: bandEnergy.map((e) => (total === 0 ? 0 : e / total)) };
+}
+
+/** The strongest bin of a power spectrum within AUDIO_GEN.pitchRange, refined between its neighbours, Hz. */
+function dominant(power: Float64Array, sampleRate: number, n: number): number {
+  const [low, high] = AUDIO_GEN.pitchRange;
+  const from = Math.max(1, Math.ceil((low * n) / sampleRate));
+  const to = Math.min(power.length - 2, Math.floor((high * n) / sampleRate));
+  let best = from;
+  for (let k = from; k <= to; k++) if ((power[k] ?? 0) > (power[best] ?? 0)) best = k;
+  const [a, b, c] = [power[best - 1] ?? 0, power[best] ?? 0, power[best + 1] ?? 0];
+  const shift = a - 2 * b + c === 0 ? 0 : (0.5 * (a - c)) / (a - 2 * b + c);
+  return ((best + Math.max(-0.5, Math.min(0.5, shift))) * sampleRate) / n;
 }
 
 /** The tail: what follows the last 10 ms window within AUDIO_GEN.tailDb of the loudest one. */
@@ -138,12 +159,13 @@ export function measure(a: Audio): SoundMeasures {
       if (run === AUDIO_GEN.clipRun) clippedRuns++;
     }
   }
-  const { brightness, bands } = spectrum(samples, a.sampleRate);
+  const { brightness, pitch, bands } = spectrum(samples, a.sampleRate);
   return {
     duration: samples.length / a.sampleRate,
     peakDb: toDb(peak),
     loudnessDb: samples.length > 0 ? toDb(Math.sqrt(sum / samples.length)) : -Infinity,
     brightness,
+    pitch,
     tail: tailOf(samples, a.sampleRate),
     bands,
     leadingSilence: lead / a.sampleRate,

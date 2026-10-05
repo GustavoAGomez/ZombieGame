@@ -267,15 +267,16 @@ function checkAudio(assetsDir: string, manifest: Manifest, report: CheckReport):
   for (const sound of SOUNDS) {
     if (ids.has(sound.id)) report.errors.push(`audio: el sonido ${sound.id} está dos veces en el catálogo`);
     ids.add(sound.id);
-    for (const key of sound.variants) {
+    for (const key of [...sound.variants, ...sound.shine]) {
       if (!manifest.audio[key]) report.errors.push(`audio: falta "${key}" (${sound.id}) en el manifiesto; ejecuta npm run audio:gen`);
     }
   }
   const positional = new Set<string>();
-  for (const sound of SOUNDS) if (sound.positional) for (const key of sound.variants) positional.add(key);
+  for (const sound of SOUNDS) if (sound.positional) for (const key of [...sound.variants, ...sound.shine]) positional.add(key);
   let sfxBytes = 0;
   let candidateBytes = 0;
   let placeholders = 0;
+  let missingCandidates = 0;
   for (const [key, def] of Object.entries(manifest.audio)) {
     if (!SNAKE.test(key)) report.errors.push(`audio.${key}: nombre no válido (usa snake_case)`);
     if (def.placeholder) {
@@ -284,7 +285,9 @@ function checkAudio(assetsDir: string, manifest: Manifest, report: CheckReport):
     }
     const path = resolve(assetsDir, def.file);
     if (!existsSync(path)) {
-      report.errors.push(`audio.${key}: no existe ${def.file}`);
+      // The candidates are not in git: npm run audio:gen writes them again, the same.
+      if (def.candidate) missingCandidates++;
+      else report.errors.push(`audio.${key}: no existe ${def.file}`);
       continue;
     }
     if (def.file.startsWith('audio/candidates/')) {
@@ -305,6 +308,7 @@ function checkAudio(assetsDir: string, manifest: Manifest, report: CheckReport):
       report.errors.push(`audio.${key}: ${def.file} no es un WAV válido (${(err as Error).message})`);
     }
   }
+  if (missingCandidates > 0) report.warnings.push(`audio: faltan ${missingCandidates} archivos de candidatos (no van en git); ejecuta npm run audio:gen para oírlos en PRUEBA DE SONIDOS`);
   if (sfxBytes > AUDIO_GEN.budgetBytes) report.errors.push(`audio: los efectos ocupan ${(sfxBytes / 1048576).toFixed(2)} MB (máximo ${AUDIO_GEN.budgetBytes / 1048576} MB)`);
   report.info.push(
     `audio: ${SOUNDS.length} sonidos en el catálogo, ${Object.keys(manifest.audio).length} archivos (${placeholders} sin generar), ${(sfxBytes / 1024).toFixed(0)} KB de efectos y ${(candidateBytes / 1024).toFixed(0)} KB de candidatos.`,

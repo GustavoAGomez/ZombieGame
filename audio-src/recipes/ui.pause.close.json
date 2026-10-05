@@ -1,0 +1,104 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "La 5 y Mi 6 de cristal, ascendentes.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "A5",
+                    0.06
+                  ],
+                  [
+                    "E6",
+                    0
+                  ]
+                ],
+                "duration": 0.12
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "length": 0.19,
+            "fadeOut": 0.05
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Mi 6 y La 6 de cristal, ascendentes.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "E6",
+                    0.06
+                  ],
+                  [
+                    "A6",
+                    0
+                  ]
+                ],
+                "duration": 0.12
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "length": 0.19,
+            "fadeOut": 0.05
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "La 5 y Do 6 de campana corta, ascendentes.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "A5",
+                    0.06
+                  ],
+                  [
+                    "C6",
+                    0
+                  ]
+                ],
+                "duration": 0.13
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "length": 0.19,
+            "fadeOut": 0.05
+          }
+        }
+      ]
+    }
+  }
+}
