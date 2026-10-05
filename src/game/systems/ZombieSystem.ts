@@ -248,6 +248,7 @@ function updateTearing(ctx: SimContext, z: ZombieState, dt: number): void {
   if (z.timer > 0) return;
   planks[z.window] = Math.max(0, (planks[z.window] ?? 0) - 1);
   z.actionTick = ctx.state.tick;
+  ctx.events.emit('barricade:plankBroken', { x: w.center.x, y: w.center.y });
   z.timer += ZOMBIES.kinds[z.kind].tearTime;
 }
 
@@ -314,6 +315,7 @@ function updateChasing(ctx: SimContext, z: ZombieState, dt: number): void {
     if (z.attackCooldown <= 0) {
       setState(ctx, z, 'attacking', ZOMBIES.attackWindup);
       z.actionTick = ctx.state.tick;
+      ctx.events.emit('zombie:attack', { x: z.x, y: z.y });
     }
     return; // in reach: hold position instead of pushing into the player
   }

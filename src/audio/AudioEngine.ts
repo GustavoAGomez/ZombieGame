@@ -20,6 +20,11 @@ export interface Voice {
   stop(fade?: number): void;
   /** Changes its playback rate while it plays (the laser's hum rising with the heat). */
   setRate(rate: number): void;
+  /** Takes its playback rate to `rate` along `seconds`, in a straight line (the boss's warning whistle falling). */
+  rampRate(rate: number, seconds: number): void;
+  /** Its volume and pan while it plays (a boss that moves). */
+  setGain(gain: number): void;
+  setPan(pan: number): void;
 }
 
 /**
@@ -126,8 +131,9 @@ export class WebAudioEngine implements AudioOutput {
     }
     source.connect(gain);
     let tail: AudioNode = gain;
-    if (options.pan !== 0 && typeof ctx.createStereoPanner === 'function') {
-      const panner = ctx.createStereoPanner();
+    // Every voice gets a panner, so a sound that moves can be panned while it plays.
+    const panner = typeof ctx.createStereoPanner === 'function' ? ctx.createStereoPanner() : null;
+    if (panner) {
       panner.pan.value = options.pan;
       gain.connect(panner);
       tail = panner;
@@ -149,6 +155,19 @@ export class WebAudioEngine implements AudioOutput {
       },
       setRate: (rate) => {
         if (!stopped) source.playbackRate.setTargetAtTime(rate, ctx.currentTime, 0.02);
+      },
+      rampRate: (rate, seconds) => {
+        if (stopped) return;
+        const t = ctx.currentTime;
+        source.playbackRate.cancelScheduledValues(t);
+        source.playbackRate.setValueAtTime(source.playbackRate.value, t);
+        source.playbackRate.linearRampToValueAtTime(rate, t + seconds);
+      },
+      setGain: (value) => {
+        if (!stopped) gain.gain.setTargetAtTime(value, ctx.currentTime, 0.03);
+      },
+      setPan: (value) => {
+        if (!stopped && panner) panner.pan.setTargetAtTime(value, ctx.currentTime, 0.03);
       },
     };
   }

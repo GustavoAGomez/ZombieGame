@@ -1942,3 +1942,34 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - La tienda suena al abrirse y al cerrarse.
   - La pausa suena al abrirla y al cerrarla. Al ir a segundo plano no se oye, porque el audio ya está suspendido.
 
+## Audio: amenazas, posición, límite de voces y vida baja (spec 08, fase S4)
+
+- **Posición** (§3.4):
+  - Un sonido posicional suena al 100 % a menos de 160 px del jugador local y baja en línea recta hasta el 25 % a 480 px. Más lejos se queda en el 25 %, porque la spec no dice que baje más.
+  - El panorama va con la distancia en horizontal, hasta el 70 %.
+  - El galope de la embestida y el mareo del boss siguen su posición mientras suenan.
+- **Otro nivel:**
+  - El director pregunta el nivel de un punto con `levelAt`, que la escena le pasa con `setWorld` al empezar la partida.
+  - Lo que ocurre en otro nivel no suena, salvo el aviso de caída del boss (`AUDIO.everyLevel`).
+  - Los carteles no son posicionales, así que suenan siempre.
+- **El aviso del boss es un bucle corto, no un archivo de 3 s.** Es un silbido de medio segundo en bucle que, a lo largo de `BOSS.warningTime`, baja una octava con una rampa del ritmo de reproducción y se para. Así ocupa menos y sigue el balance si el aviso cambia de duración.
+- **`boss.stunned.loop`:** el aturdido son dos sonidos, el choque contra la pared (`boss.stunned`, al llegar el evento) y el arpegio de mareo en bucle mientras el boss sigue aturdido, que sale del resumen. La spec solo daba un id; el bucle lleva el suyo.
+- **Gruñidos:**
+  - Con zombis a menos de `AUDIO.groanRange` (320 px), suena un gruñido cada 2 a 5 s al azar, donde está el más cercano.
+  - Como solo hay una voz para ellos, nunca suenan dos a la vez.
+  - Los cuatro gruñidos tienen duraciones y caídas de tono distintas: con la misma forma, el informe los daba por casi idénticos.
+- **Latido:**
+  - Suena 5 s al bajar de `PLAYER.lowHpThreshold` (la misma vida baja que el HUD).
+  - No se repite hasta que la vida suba y vuelva a bajar.
+  - Si la pausa lo corta, no vuelve al quitarla.
+  - El filtro de la música con la vida baja llega con la música, en S6.
+- **Eventos nuevos:**
+  - `zombie:attack`: el zombi empieza a preparar su golpe.
+  - `zombie:crippled`: un daño deja al zombi con menos de `crawlAtHp` sin matarlo.
+  - `barricade:plankBroken`: suena en la ventana.
+  - `boss:windup`: al empezar cada ataque y en cada golpe siguiente del mazazo, que es el aviso del siguiente.
+- **Posición en eventos que ya existían:** `door:opened` y `portal:opened` llevan ahora la posición de su centro.
+- **El resumen por frame** son campos sueltos (sin objetos anidados) que la escena rellena en el sitio, sin crear basura. Lleva la posición y el nivel del jugador local, la vida baja, los zombis cercanos con el más próximo, y si el boss más cercano está embistiendo o aturdido, con su posición.
+- **Disparos de otros jugadores:** suenan donde están (cooperativo). Sus recargas, su daño y su esquiva siguen siendo solo suyos.
+- **Sin saturación:** un test simula 2 s con 20 zombis y la SMG (impactos, golpes, gruñidos, tablones y premios): nunca hay más de 12 voces y los límites descartan el resto.
+

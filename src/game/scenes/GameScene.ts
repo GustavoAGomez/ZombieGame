@@ -2,7 +2,8 @@ import { App } from '@capacitor/app';
 import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
 import Phaser from 'phaser';
 import { QUIET_SNAPSHOT, type AudioSnapshot } from '../../audio/AudioDirector';
-import { DEBUG, SIM, type BoostKind } from '../../config/balance';
+import { AUDIO } from '../../config/audio';
+import { DEBUG, PLAYER, SIM, type BoostKind } from '../../config/balance';
 import { DISPLAY, computeWorldZoom } from '../../config/display';
 import { FixedStep } from '../../core/FixedStep';
 import { createGameState, type GameState } from '../../core/GameState';
@@ -211,6 +212,8 @@ export class GameScene extends Phaser.Scene {
 
     const camera = this.cameras.main;
     this.levels = computeLevels(this.map);
+    // What happens on another level does not sound (spec 08 §3.4).
+    this.services.audio.setWorld((x, y) => levelAt(this.map, x, y));
     this.currentLevel = -1;
     this.updateLevel();
     camera.setRoundPixels(true);
@@ -243,6 +246,7 @@ export class GameScene extends Phaser.Scene {
       this.stopListeningToApp();
       this.anims.resumeAll();
       this.services.audio.update(QUIET_SNAPSHOT);
+      this.services.audio.setWorld(null);
     });
   }
 
@@ -269,14 +273,50 @@ export class GameScene extends Phaser.Scene {
     this.checkGameOver(delta);
   }
 
-  /** What the audio needs every frame (spec 08 §1.3): the pause, and the local player's beam or jet and the laser's heat. */
+  /**
+   * What the audio needs every frame (spec 08 §1.3): the pause, the local
+   * player (where the ear is, its level and low health), its beam or jet and
+   * the laser's heat, the zombies near it and the nearest boss charging or
+   * stunned. Filled in place: no garbage.
+   */
   private updateAudio(): void {
     const s = this.audioSnapshot;
     const p = this.state.players[0];
+    const alive = p !== undefined && isPlayerAlive(p);
     const slot = p ? p.weapons[p.activeSlot] : undefined;
     s.paused = this.paused;
-    s.continuous = p && isPlayerAlive(p) ? (p.beamOn ? 'laser' : p.coneOn ? 'flamethrower' : null) : null;
+    s.continuous = p && alive ? (p.beamOn ? 'laser' : p.coneOn ? 'flamethrower' : null) : null;
     s.heat = slot && s.continuous === 'laser' ? 1 - slot.battery : 0;
+    s.listenerX = p?.x ?? 0;
+    s.listenerY = p?.y ?? 0;
+    s.level = p ? levelAt(this.map, p.x, p.y) : -1;
+    s.lowHealth = p !== undefined && alive && p.hp < PLAYER.lowHpThreshold;
+    s.zombiesNear = 0;
+    let nearest = Infinity;
+    for (const z of this.state.zombies) {
+      if (!p || !isZombieAlive(z)) continue;
+      const d = Math.hypot(z.x - p.x, z.y - p.y);
+      if (d > AUDIO.groanRange) continue;
+      s.zombiesNear++;
+      if (d < nearest) {
+        nearest = d;
+        s.zombieX = z.x;
+        s.zombieY = z.y;
+      }
+    }
+    s.bossCharging = false;
+    s.bossStunned = false;
+    nearest = Infinity;
+    for (const b of this.state.bosses) {
+      if (!p || !isBossAlive(b)) continue;
+      const d = Math.hypot(b.x - p.x, b.y - p.y);
+      if (d >= nearest) continue;
+      nearest = d;
+      s.bossCharging = b.attack === 'charge' && b.stage === 'run';
+      s.bossStunned = b.stage === 'stunned';
+      s.bossX = b.x;
+      s.bossY = b.y;
+    }
     this.services.audio.update(s);
   }
 

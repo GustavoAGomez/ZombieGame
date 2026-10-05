@@ -85,6 +85,21 @@ export const AUDIO = {
   gameOverJingleDelay: 1,
   /** SIMULAR RACHA in the sound test (§8): kills in a row and the time between them, seconds. */
   testStreak: { kills: 8, every: 0.25 },
+  /**
+   * Positional sounds (§3.4): full volume within `near` px of the local
+   * player, falling in a straight line to `farGain` at `far` px (and staying
+   * there), panned with the horizontal distance up to `maxPan`.
+   */
+  positional: { near: 160, far: 480, farGain: 0.25, maxPan: 0.7 },
+  /** What sounds even on another level than the local player's (§3.4): the boss's warning. The banners are not positional. */
+  everyLevel: ['boss.warning'] as readonly string[],
+  /** Zombies within this of the local player groan (§5.4), px; one groan every groanEvery s (min, max), never two at once. */
+  groanRange: 320,
+  groanEvery: [2, 5] as const,
+  /** The heartbeat of low health lasts this long, once per fall into low health (§3.4), seconds. */
+  heartbeatSeconds: 5,
+  /** The boss's warning whistle falls to this playback rate along the warning (an octave down). */
+  warningEndRate: 0.5,
 } as const;
 
 /** The sound of each weapon's shot or sweep (spec 08 §5.1); the beam and the jet are loops. */
@@ -201,6 +216,23 @@ export const SOUNDS: readonly SoundDef[] = [
   sound({ id: 'jingle.round.clear', family: 'jingle', variants: ['jingle_round_clear'], bus: 'sfx', volume: 0.8, maxVoices: 1, priority: 'high', duck: true }),
   sound({ id: 'jingle.boss.dead', family: 'jingle', variants: ['jingle_boss_dead'], bus: 'sfx', volume: 0.85, maxVoices: 1, priority: 'high', duck: true }),
   sound({ id: 'jingle.gameover', family: 'jingle', variants: ['jingle_gameover'], bus: 'sfx', volume: 0.8, maxVoices: 1, priority: 'high', duck: true }),
+  // §5.4 Threats: low and rough, not frequent. All of them where they happen.
+  sound({ id: 'zombie.groan', family: 'threat', variants: ['zombie_groan_1', 'zombie_groan_2', 'zombie_groan_3', 'zombie_groan_4'], bus: 'sfx', volume: 0.35, pitchVar: 6, maxVoices: 1, priority: 'low', positional: true }),
+  sound({ id: 'zombie.attack', family: 'threat', variants: ['zombie_attack'], bus: 'sfx', volume: 0.6, pitchVar: 8, maxVoices: 3, minInterval: 0.1, positional: true }),
+  sound({ id: 'zombie.crawl', family: 'threat', variants: ['zombie_crawl'], bus: 'sfx', volume: 0.5, pitchVar: 8, maxVoices: 2, minInterval: 0.1, positional: true }),
+  sound({ id: 'barricade.break', family: 'threat', variants: ['barricade_break'], bus: 'sfx', volume: 0.7, pitchVar: 6, maxVoices: 3, minInterval: 0.06, positional: true }),
+  sound({ id: 'boss.warning', family: 'threat', variants: ['boss_warning'], bus: 'sfx', volume: 0.75, maxVoices: 2, priority: 'high', positional: true, duck: true, loop: true }),
+  sound({ id: 'boss.landed', family: 'threat', variants: ['boss_landed'], bus: 'sfx', volume: 1, maxVoices: 2, priority: 'high', positional: true }),
+  sound({ id: 'boss.roar', family: 'threat', variants: ['boss_roar'], bus: 'sfx', volume: 0.9, pitchVar: 4, maxVoices: 1, priority: 'high', positional: true, duck: true }),
+  sound({ id: 'boss.windup.charge', family: 'threat', variants: ['boss_windup_charge'], bus: 'sfx', volume: 0.85, maxVoices: 1, priority: 'high', positional: true }),
+  sound({ id: 'boss.windup.slam', family: 'threat', variants: ['boss_windup_slam'], bus: 'sfx', volume: 0.8, maxVoices: 1, priority: 'high', positional: true }),
+  sound({ id: 'boss.windup.leap', family: 'threat', variants: ['boss_windup_leap'], bus: 'sfx', volume: 0.85, maxVoices: 1, priority: 'high', positional: true }),
+  sound({ id: 'boss.charge.loop', family: 'threat', variants: ['boss_charge_loop'], bus: 'sfx', volume: 0.8, maxVoices: 1, priority: 'high', positional: true, loop: true }),
+  sound({ id: 'boss.slam', family: 'threat', variants: ['boss_slam'], bus: 'sfx', volume: 0.95, pitchVar: 3, maxVoices: 2, priority: 'high', positional: true }),
+  sound({ id: 'boss.stunned', family: 'threat', variants: ['boss_stunned'], bus: 'sfx', volume: 0.9, maxVoices: 1, priority: 'high', positional: true }),
+  // The «dizzy» arpeggio after the crash, while it lasts: the moment to hit it.
+  sound({ id: 'boss.stunned.loop', family: 'threat', variants: ['boss_stunned_loop'], bus: 'sfx', volume: 0.55, maxVoices: 1, priority: 'high', positional: true, loop: true }),
+  sound({ id: 'boss.killed', family: 'threat', variants: ['boss_killed'], bus: 'sfx', volume: 1, maxVoices: 1, priority: 'high', positional: true }),
   // §5.6 Interface.
   sound({ id: 'ui.tap', family: 'ui', variants: ['ui_tap'], bus: 'ui', volume: 0.5, pitchVar: 3, maxVoices: 2, minInterval: 0.03, priority: 'low' }),
   sound({ id: 'ui.shop.open', family: 'ui', variants: ['ui_shop_open'], bus: 'ui', volume: 0.5, maxVoices: 1 }),

@@ -3,7 +3,7 @@ import type { AmmoKind, UpgradeKind, WeaponId } from '../config/weapons';
 import type { MerchantId, MerchantItemId } from '../config/merchants';
 import type { ActivationEffect, ActivationId } from '../config/activations';
 import type { ItemId } from '../config/items';
-import type { BossId, BossVariantId } from '../config/bosses';
+import type { BossAttackId, BossId, BossVariantId } from '../config/bosses';
 import type { ShopItemStatus } from './shop';
 
 /**
@@ -60,11 +60,19 @@ export interface GameEvents {
   'barricade:repaired': { playerId: number; x: number; y: number };
   /** The action button tapped where it cannot act: short of money, a locked portal, no room for an item (spec 08 §5.2). */
   'action:denied': { playerId: number };
+  /** A zombie starts winding up its blow (spec 08 §5.4): its sound warns before the blow lands. */
+  'zombie:attack': { x: number; y: number };
+  /** A zombie lost its legs and crawls (spec 08 §5.4). */
+  'zombie:crippled': { x: number; y: number };
+  /** A zombie tore a plank off a window (spec 08 §5.4), at the window. */
+  'barricade:plankBroken': { x: number; y: number };
+  /** A boss starts winding up an attack, or each new blow of its slam (spec 08 §5.4): the second warning of each attack. */
+  'boss:windup': { attack: BossAttackId; x: number; y: number };
   'pickup:collected': { playerId: number; kind: PickupKind };
   /** A door was bought (medium haptic in phase 9). */
-  'door:opened': { doorId: string; playerId: number };
+  'door:opened': { doorId: string; playerId: number; x: number; y: number };
   /** A portal (stairs, ladder, hatch) was bought. */
-  'portal:opened': { portalId: string; playerId: number };
+  'portal:opened': { portalId: string; playerId: number; x: number; y: number };
   /** Someone paid the Demon's Hand (spec 06 §3.3), with money or with blood; `mock`: it is tired, no draw follows. */
   'hand:paid': { playerId: number; blood: boolean; mock: boolean };
   /** The hand opened with a weapon (spec 06 §3.4): a special one flashes and is named on the HUD. */

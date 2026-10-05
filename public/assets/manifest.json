@@ -1272,9 +1272,69 @@
     }
   },
   "audio": {
+    "barricade_break": {
+      "file": "audio/sfx/barricade_break.wav",
+      "duration": 0.1743,
+      "placeholder": false
+    },
     "boost_on": {
       "file": "audio/sfx/boost_on.wav",
       "duration": 0.27,
+      "placeholder": false
+    },
+    "boss_charge_loop": {
+      "file": "audio/sfx/boss_charge_loop.wav",
+      "duration": 0.6,
+      "placeholder": false
+    },
+    "boss_killed": {
+      "file": "audio/sfx/boss_killed.wav",
+      "duration": 0.7696,
+      "placeholder": false
+    },
+    "boss_landed": {
+      "file": "audio/sfx/boss_landed.wav",
+      "duration": 0.5668,
+      "placeholder": false
+    },
+    "boss_roar": {
+      "file": "audio/sfx/boss_roar.wav",
+      "duration": 0.9393,
+      "placeholder": false
+    },
+    "boss_slam": {
+      "file": "audio/sfx/boss_slam.wav",
+      "duration": 0.3655,
+      "placeholder": false
+    },
+    "boss_stunned": {
+      "file": "audio/sfx/boss_stunned.wav",
+      "duration": 0.2816,
+      "placeholder": false
+    },
+    "boss_stunned_loop": {
+      "file": "audio/sfx/boss_stunned_loop.wav",
+      "duration": 0.32,
+      "placeholder": false
+    },
+    "boss_warning": {
+      "file": "audio/sfx/boss_warning.wav",
+      "duration": 0.5,
+      "placeholder": false
+    },
+    "boss_windup_charge": {
+      "file": "audio/sfx/boss_windup_charge.wav",
+      "duration": 0.364,
+      "placeholder": false
+    },
+    "boss_windup_leap": {
+      "file": "audio/sfx/boss_windup_leap.wav",
+      "duration": 0.283,
+      "placeholder": false
+    },
+    "boss_windup_slam": {
+      "file": "audio/sfx/boss_windup_slam.wav",
+      "duration": 0.3163,
       "placeholder": false
     },
     "buy_cash": {
@@ -1590,6 +1650,36 @@
     "weapon_switch": {
       "file": "audio/sfx/weapon_switch.wav",
       "duration": 0.0651,
+      "placeholder": false
+    },
+    "zombie_attack": {
+      "file": "audio/sfx/zombie_attack.wav",
+      "duration": 0.1952,
+      "placeholder": false
+    },
+    "zombie_crawl": {
+      "file": "audio/sfx/zombie_crawl.wav",
+      "duration": 0.1911,
+      "placeholder": false
+    },
+    "zombie_groan_1": {
+      "file": "audio/sfx/zombie_groan_1.wav",
+      "duration": 0.4505,
+      "placeholder": false
+    },
+    "zombie_groan_2": {
+      "file": "audio/sfx/zombie_groan_2.wav",
+      "duration": 0.4804,
+      "placeholder": false
+    },
+    "zombie_groan_3": {
+      "file": "audio/sfx/zombie_groan_3.wav",
+      "duration": 0.2738,
+      "placeholder": false
+    },
+    "zombie_groan_4": {
+      "file": "audio/sfx/zombie_groan_4.wav",
+      "duration": 0.6659,
       "placeholder": false
     }
   }

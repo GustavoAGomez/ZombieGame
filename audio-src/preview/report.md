@@ -4,7 +4,19 @@ Generado por `npm run audio:gen` (spec 08 §4.4). Brillo: centro del espectro; m
 
 | Archivo | Sonido | Familia | Duración | Pico | Volumen medio | Brillo |
 |---|---|---|---|---|---|---|
+| barricade_break | barricade.break | Amenaza | 174 ms | -1.0 dB | -18.6 dB | 2615 Hz |
 | boost_on | boost.on | Premio | 270 ms | -1.0 dB | -7.1 dB | 2779 Hz |
+| boss_charge_loop | boss.charge.loop | Amenaza | 600 ms | -1.0 dB | -15.6 dB | 1227 Hz |
+| boss_killed | boss.killed | Amenaza | 770 ms | -1.0 dB | -13.4 dB | 1603 Hz |
+| boss_landed | boss.landed | Amenaza | 567 ms | -1.0 dB | -15.6 dB | 1567 Hz |
+| boss_roar | boss.roar | Amenaza | 939 ms | -1.0 dB | -9.7 dB | 867 Hz |
+| boss_slam | boss.slam | Amenaza | 366 ms | -1.0 dB | -15.2 dB | 1554 Hz |
+| boss_stunned | boss.stunned | Amenaza | 282 ms | -1.0 dB | -15.7 dB | 2233 Hz |
+| boss_stunned_loop | boss.stunned.loop | Amenaza | 320 ms | -1.0 dB | -9.8 dB | 1578 Hz |
+| boss_warning | boss.warning | Amenaza | 500 ms | -1.0 dB | -6.2 dB | 2824 Hz |
+| boss_windup_charge | boss.windup.charge | Amenaza | 364 ms | -1.0 dB | -14.7 dB | 1989 Hz |
+| boss_windup_leap | boss.windup.leap | Amenaza | 283 ms | -1.0 dB | -5.5 dB | 691 Hz |
+| boss_windup_slam | boss.windup.slam | Amenaza | 316 ms | -1.0 dB | -13.2 dB | 4132 Hz |
 | buy_cash | buy.cash | Premio | 450 ms | -1.0 dB | -15.3 dB | 3475 Hz |
 | buy_door | buy.door | Premio | 480 ms | -1.0 dB | -19.9 dB | 3153 Hz |
 | buy_merchant | buy.merchant | Premio | 380 ms | -1.0 dB | -10.2 dB | 3971 Hz |
@@ -68,6 +80,12 @@ Generado por `npm run audio:gen` (spec 08 §4.4). Brillo: centro del espectro; m
 | weapon_smg_fire_2 | weapon.smg.fire | Golpe | 63 ms | -1.0 dB | -11.9 dB | 1458 Hz |
 | weapon_smg_fire_3 | weapon.smg.fire | Golpe | 63 ms | -1.0 dB | -13.0 dB | 1532 Hz |
 | weapon_switch | weapon.switch | Golpe | 65 ms | -1.0 dB | -12.0 dB | 2641 Hz |
+| zombie_attack | zombie.attack | Amenaza | 195 ms | -1.0 dB | -14.6 dB | 2017 Hz |
+| zombie_crawl | zombie.crawl | Amenaza | 191 ms | -1.0 dB | -15.5 dB | 2007 Hz |
+| zombie_groan_1 | zombie.groan | Amenaza | 450 ms | -1.0 dB | -10.9 dB | 901 Hz |
+| zombie_groan_2 | zombie.groan | Amenaza | 480 ms | -1.0 dB | -9.4 dB | 903 Hz |
+| zombie_groan_3 | zombie.groan | Amenaza | 274 ms | -1.0 dB | -11.3 dB | 929 Hz |
+| zombie_groan_4 | zombie.groan | Amenaza | 666 ms | -1.0 dB | -10.8 dB | 897 Hz |
 
 ## Avisos
 
