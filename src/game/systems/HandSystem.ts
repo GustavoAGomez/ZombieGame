@@ -78,11 +78,7 @@ export function handOffer(map: MapData, state: GameState, p: PlayerState): HandO
 /** A tap on the action button at the hand: pay (money or blood) or take the weapon on offer. */
 export function tapHand(ctx: SimContext, p: PlayerState): void {
   const offer = handOffer(ctx.map, ctx.state, p);
-  if (!offer) return;
-  if (!offer.enabled) {
-    ctx.events.emit('action:denied', { playerId: p.id });
-    return;
-  }
+  if (!offer?.enabled) return;
   if (offer.mode === 'pay' || offer.mode === 'blood') pay(ctx, p, offer.mode === 'blood');
   else takeOffer(ctx, p);
 }
@@ -101,7 +97,7 @@ function pay(ctx: SimContext, p: PlayerState, blood: boolean): void {
   } else {
     if (!spendMoney(p, HAND.price)) return;
     hand.paid = 'money';
-    ctx.events.emit('money:spent', { playerId: p.id, amount: HAND.price, source: 'hand' });
+    ctx.events.emit('money:spent', { playerId: p.id, amount: HAND.price });
   }
   hand.payer = p.id;
   hand.taken = false;
@@ -115,7 +111,7 @@ function pay(ctx: SimContext, p: PlayerState, blood: boolean): void {
     if (hand.offer) hand.lastOffered = hand.offer;
   }
   setPhase(state, 'rising', HAND.risingTime);
-  ctx.events.emit('hand:paid', { playerId: p.id, blood, mock: hand.mock });
+  ctx.events.emit('hand:paid', { playerId: p.id, blood });
 }
 
 function takeOffer(ctx: SimContext, p: PlayerState): void {

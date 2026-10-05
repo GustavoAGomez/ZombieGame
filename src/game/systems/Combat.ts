@@ -1,5 +1,4 @@
 import { POINTS, ZOMBIES } from '../../config/balance';
-import type { WeaponId } from '../../config/weapons';
 import type { BloodState, ZombieState } from '../../core/GameState';
 import { random } from '../../core/Rng';
 import { BLOCK_SIGHT, BLOCK_ZOMBIE, moveCircle, segmentClearShaped } from '../map/CollisionGrid';
@@ -18,8 +17,6 @@ export interface HitPoint {
   y: number;
   dirX: number;
   dirY: number;
-  /** The weapon that hit, when it sounds its own way (the katana's cut, spec 08 §5.1). */
-  weapon?: WeaponId;
 }
 
 /**
@@ -37,12 +34,9 @@ export function damageZombie(
   hitPoints: number = POINTS.hit,
 ): boolean {
   if (!isZombieAlive(z)) return false;
-  const whole = z.hp > ZOMBIES.crawlAtHp;
   z.hp -= amount;
-  // It lost its legs but lives: it crawls from now on (spec 08 §5.4).
-  if (whole && z.hp > 0 && z.hp <= ZOMBIES.crawlAtHp) ctx.events.emit('zombie:crippled', { x: z.x, y: z.y });
   if (attacker >= 0 && hitPoints > 0) awardPoints(ctx, attacker, hitPoints, 'hit');
-  if (hit) ctx.events.emit('zombie:hit', { x: hit.x, y: hit.y, groundY: z.y, dirX: hit.dirX, dirY: hit.dirY, killed: z.hp <= 0, weapon: hit.weapon });
+  if (hit) ctx.events.emit('zombie:hit', { x: hit.x, y: hit.y, groundY: z.y, dirX: hit.dirX, dirY: hit.dirY, killed: z.hp <= 0 });
   if (z.hp > 0) return false;
   if (attacker >= 0) awardPoints(ctx, attacker, POINTS.kill, 'kill');
   // Dying in hellfire, it bursts (spec 06 §2.3): set off by BurnSystem this same tick.

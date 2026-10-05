@@ -79,7 +79,7 @@ export function tryBuyPortal(ctx: SimContext, p: PlayerState, index: number): bo
   const room = ctx.map.zones[target];
   if (!portal || !room || !spendMoney(p, room.cost)) return false;
   unlockZone(ctx, target);
-  ctx.events.emit('portal:opened', { portalId: portal.id, playerId: p.id, x: portal.center.x, y: portal.center.y });
+  ctx.events.emit('portal:opened', { portalId: portal.id, playerId: p.id });
   return true;
 }
 

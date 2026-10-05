@@ -72,7 +72,7 @@ describe('unlocking rooms', () => {
     expect(tryBuyDoor(ctx, p, door(ctx, 'D8'))).toBe(true);
     expect(p.money).toBe(0);
     expect(unlocked(ctx, 'calle')).toBe(true);
-    expect(opened).toHaveBeenCalledWith(expect.objectContaining({ doorId: 'D8', playerId: p.id }));
+    expect(opened).toHaveBeenCalledWith({ doorId: 'D8', playerId: p.id });
     // Not enough money: nothing opens.
     expect(tryBuyDoor(ctx, p, door(ctx, 'D7'))).toBe(false);
     expect(unlocked(ctx, 'garaje')).toBe(false);

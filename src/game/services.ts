@@ -1,4 +1,3 @@
-import type { GameAudio } from '../audio/AudioDirector';
 import type { EventBus } from '../core/EventBus';
 import type { DebugActions, DebugStats } from '../debug/DebugOverlay';
 import type { Preferences } from '../native/preferences';
@@ -16,8 +15,6 @@ export interface Services {
   mapKey: string | null;
   /** Set by the running game scene for the debug panel's buttons; null outside a match. */
   debugActions: DebugActions | null;
-  /** Player preferences kept on the device (vibration, effects and music volume). */
+  /** Player preferences kept on the device (vibration). */
   preferences: Preferences;
-  /** Sound (spec 08): the scenes unlock it, pause it and hand playUi to the DOM menus. */
-  audio: GameAudio;
 }

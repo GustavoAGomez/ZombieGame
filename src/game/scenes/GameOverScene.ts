@@ -24,7 +24,7 @@ export class GameOverScene extends Phaser.Scene {
 
   create(): void {
     const { services, assets, rounds, score } = this.sceneData;
-    const screen = new GameOverScreen(services.hudRoot, { rounds, score }, () => this.scene.start(SCENE_KEYS.game, { services, assets }), services.audio.playUi);
+    const screen = new GameOverScreen(services.hudRoot, { rounds, score }, () => this.scene.start(SCENE_KEYS.game, { services, assets }));
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => screen.destroy());
   }
 }

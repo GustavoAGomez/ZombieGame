@@ -1,4 +1,3 @@
-import type { SoundFamily, VolumeLevel } from '../config/audio';
 import type { BossId, BossVariantId } from '../config/bosses';
 import type { WeaponId } from '../config/weapons';
 /** Rooms by zone id, with their gender for «COCINA DESBLOQUEADA» / «GARAJE DESBLOQUEADO». */
@@ -20,9 +19,6 @@ const ZONES: Readonly<Record<string, { name: string; feminine: boolean }>> = {
 /** A zone without a name here. */
 const ROOM = { name: 'SALA', feminine: true };
 
-/** The pause menu's volume settings (spec 08 §2). */
-const VOLUME_LABELS: Readonly<Record<VolumeLevel, string>> = { high: 'ALTO', medium: 'MEDIO', low: 'BAJO', off: 'NO' };
-
 /** Every user-visible text, in Spanish. */
 export const STRINGS = {
   gameTitle: 'ZOMBIES',
@@ -31,14 +27,6 @@ export const STRINGS = {
   debug: {
     title: 'DEPURACIÓN',
     close: 'CERRAR',
-    /** Spec 08 §8: every sound of the catalog, by family. */
-    soundTest: 'PRUEBA DE SONIDOS',
-    soundBack: 'VOLVER',
-    soundFamilies: { hit: 'GOLPE', reward: 'PREMIO', threat: 'AMENAZA', ui: 'INTERFAZ', jingle: 'CARTELES', music: 'MÚSICA' } satisfies Record<SoundFamily, string>,
-    /** Spec 08 §8: 8 kills in a row, to hear the streak rise. */
-    soundStreak: 'SIMULAR RACHA',
-    soundStats: (voices: number, dropped: number, last: string, state: string): string =>
-      `VOCES ${voices} · DESCARTADAS ${dropped}${last ? ` (ÚLTIMA: ${last})` : ''} · AUDIO: ${state.toUpperCase()}`,
     nextRound: 'RONDA +1',
     points: '+5000$',
     god: 'DIOS',
@@ -122,9 +110,6 @@ export const STRINGS = {
     resume: 'CONTINUAR',
     restart: 'REINICIAR',
     vibration: (on: boolean): string => (on ? 'VIBRACIÓN: SÍ' : 'VIBRACIÓN: NO'),
-    /** Spec 08 §2: the effects and music volume, rotating on each tap. */
-    sfx: (level: VolumeLevel): string => `EFECTOS: ${VOLUME_LABELS[level]}`,
-    music: (level: VolumeLevel): string => `MÚSICA: ${VOLUME_LABELS[level]}`,
   },
   gameOver: {
     title: 'FIN DE LA PARTIDA',

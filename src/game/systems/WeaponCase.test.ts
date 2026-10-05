@@ -91,7 +91,7 @@ describe('weapon cases (spec 04 §3)', () => {
     expect(p.weapons.map((w) => w.id)).toEqual(['pistol', 'smg']);
     expect(p.activeSlot).toBe(1);
     expect(p.money).toBe(9000);
-    expect(spent).toHaveBeenCalledWith({ playerId: p.id, amount: 1000, source: 'case' });
+    expect(spent).toHaveBeenCalledWith({ playerId: p.id, amount: 1000 });
     expect(bought).toHaveBeenCalledWith({ playerId: p.id, weapon: 'smg', ammo: false });
   });
 

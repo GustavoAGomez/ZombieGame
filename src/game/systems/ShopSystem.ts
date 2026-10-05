@@ -87,11 +87,8 @@ export function updateShops(ctx: SimContext): void {
 /** Buys item `itemIndex` (for weapon slot `slot` if sold per weapon) from merchant `merchantIndex` for player `playerIndex`. True when bought. */
 export function buyItem(ctx: SimContext, playerIndex: number, merchantIndex: number, itemIndex: number, slot = -1): boolean {
   const { state } = ctx;
+  if (shopItemStatus(state, merchantIndex, playerIndex, itemIndex, slot).kind !== 'buy') return false;
   const p = state.players[playerIndex];
-  if (shopItemStatus(state, merchantIndex, playerIndex, itemIndex, slot).kind !== 'buy') {
-    if (p) ctx.events.emit('action:denied', { playerId: p.id });
-    return false;
-  }
   const m = state.merchants[merchantIndex];
   const item: MerchantItem | undefined = m && merchantDef(m.id).items[itemIndex];
   if (!p || !m || !item) return false;
@@ -100,10 +97,8 @@ export function buyItem(ctx: SimContext, playerIndex: number, merchantIndex: num
   p.money -= price;
   m.visitPurchases[playerIndex] = (m.visitPurchases[playerIndex] ?? 0) + 1;
   EFFECTS[item.id]?.apply(p, m, slot);
-  ctx.events.emit('money:spent', { playerId: p.id, amount: price, source: 'shop' });
-  const kind = upgradeKindOf(item.id);
-  const level = kind ? p.weapons[p.activeSlot]?.levels[kind] : undefined;
-  ctx.events.emit('merchant:purchase', level !== undefined ? { playerId: p.id, merchant: m.id, item: item.id, level } : { playerId: p.id, merchant: m.id, item: item.id });
+  ctx.events.emit('money:spent', { playerId: p.id, amount: price });
+  ctx.events.emit('merchant:purchase', { playerId: p.id, merchant: m.id, item: item.id });
   return true;
 }
 

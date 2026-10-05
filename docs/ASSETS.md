@@ -20,15 +20,11 @@ art-src/
   pixellab/<asset>/      exports de PixelLab tal cual, sin tocar
   aseprite/              archivos .aseprite retocados (opcional)
   tiled/                 proyecto de Tiled (.tmx/.tsx de trabajo)
-audio-src/
-  recipes/<clave>.json   recetas de los efectos (npm run audio:gen)
-  preview/report.md      informe de audio:gen
 public/assets/
   manifest.json
   sprites/<asset>/<animacion>.png
   tiles/<tileset>.png
   maps/<mapa>.tmj
-  audio/sfx/<clave>.wav  efectos generados
 ```
 
 ## 3. Sprites de personajes
@@ -180,33 +176,6 @@ Nombres válidos: `ringLarge`, `ringMedium`, `ringSmall`, `hexagon`, `octagon`, 
   - reparar: un borde ámbar de 2 px alrededor de la placa que parpadea.
 
   Si falta alguna pieza, el HUD conserva su aspecto solo con CSS.
-
-### Sonidos (`audio`, spec 08)
-
-Una entrada por archivo de sonido, con su clave en snake_case:
-
-```json
-"audio": {
-  "ui_tap": { "file": "audio/sfx/ui_tap.wav", "duration": 0.0398, "placeholder": false }
-}
-```
-
-- **`file`:** ruta dentro de `public/assets/`. Los efectos son WAV mono de 44,1 kHz y 16 bits, en `audio/sfx/`.
-- **`duration`:** segundos. El director la usa para saber cuándo queda libre una voz.
-- **`placeholder`:** `true` si todavía no hay archivo. El sonido es silencio, nunca un error.
-- **`loopStart` y `loopEnd`:** solo la música (fase S6), en segundos.
-- El código nunca nombra estas claves. Las nombra el catálogo (`src/config/audio.ts`): cada sonido (`ui.tap`, `weapon.pistol.fire`…) lista sus variantes, de 1 a 4, que son claves de esta sección.
-- **De dónde salen:** `npm run audio:gen` genera cada efecto desde su receta, `audio-src/recipes/<clave>.json`, y escribe aquí su entrada. A una variante del catálogo sin receta le pone una entrada `placeholder`. El informe con las medidas y los avisos queda en `audio-src/preview/report.md`.
-- **Recetas** (`audio-src/recipes/<clave>.json`), de tres tipos:
-  - `notes`: `wave` (`square`, `triangle` o `sine`), `attack` y `decay` en segundos (`decay: null` mantiene la nota) y `notes`, una lista de `[nota, segundos]` o `[nota, segundos, volumen]`, con `null` como silencio. Solo admite notas de La menor pentatónica (A, C, D, E y G).
-  - `sfxr`: `params`, que puede ser el JSON de sfxr.me, su enlace (`https://sfxr.me/#…`) o el código base58 del enlace, más `seed`, la semilla del ruido. Con la misma semilla sale el mismo archivo; con otra, otra variante del mismo ruido.
-  - `layers`: `layers`, una lista de `{ "recipe": {…}, "gain": 0..1, "delay": segundos }`.
-  - Todas aceptan `lowpass` (Hz, o `null`). Por defecto, `notes` y `sfxr` cortan por encima de 8 kHz, y `layers` no añade filtro.
-  - En la receta de un archivo, además: `loop: true` (sin recorte ni fundido; la cola se funde con el principio a lo largo de `crossfade` segundos) y `length` (los segundos que dura el archivo, rellenando con silencio o cortando; el silencio del final se conserva, como en el sorteo de la Mano).
-- **`assets:check`** comprueba que:
-  - cada variante del catálogo tenga entrada y archivo;
-  - los efectos sean WAV mono de 44,1 kHz y 16 bits, y su duración coincida con la del manifiesto;
-  - todos juntos ocupen menos de 3,5 MB (la spec decía 2 MB; ver `docs/DECISIONS.md`).
 
 ## 5. Mapas (Tiled JSON, `.tmj`)
 

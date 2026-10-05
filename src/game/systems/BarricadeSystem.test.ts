@@ -72,12 +72,9 @@ describe('BarricadeSystem · repairing with taps', () => {
     const ctx = createTestContext();
     const { w, p } = atWindow(ctx, 0, 0);
     const onPoints = vi.fn();
-    const onRepaired = vi.fn();
     ctx.events.on('points:gained', onPoints);
-    ctx.events.on('barricade:repaired', onRepaired);
     tap(ctx);
     expect(ctx.state.windowPlanks[0]).toBe(1);
-    expect(onRepaired).toHaveBeenCalledWith({ playerId: 0, x: w.center.x, y: w.center.y });
     expect(p.money).toBe(POINTS.startMoney + BARRICADES.pointsPerPlank);
     expect(onPoints).toHaveBeenCalledWith({ playerId: 0, amount: 10, reason: 'repair', x: w.center.x, y: w.center.y });
     expect(p.repairing).toBe(true);

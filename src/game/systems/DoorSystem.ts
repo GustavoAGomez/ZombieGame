@@ -58,7 +58,7 @@ export function tryBuyDoor(ctx: SimContext, p: PlayerState, index: number): bool
   const room = ctx.map.zones[target];
   if (!door || !room || !spendMoney(p, room.cost)) return false;
   unlockZone(ctx, target);
-  ctx.events.emit('door:opened', { doorId: door.id, playerId: p.id, x: door.center.x, y: door.center.y });
+  ctx.events.emit('door:opened', { doorId: door.id, playerId: p.id });
   return true;
 }
 

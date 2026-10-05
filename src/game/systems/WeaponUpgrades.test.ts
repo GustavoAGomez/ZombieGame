@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { BOOSTS } from '../../config/balance';
 import { UPGRADE_LEVELS, WEAPON_SPECIALS, WEAPONS } from '../../config/weapons';
 import { command, createTestContext, holdFire, placeZombie, player, runTicks, withSmg } from '../../test/fixtures';
@@ -191,20 +191,6 @@ describe('red and gold merchants', () => {
     revisit(ctx);
     expect(shopItemStatus(ctx.state, 1, 0, DAMAGE)).toEqual({ kind: 'unavailable', reason: 'maxLevel' });
     expect(shopItemStatus(ctx.state, 1, 0, RATE)).toEqual({ kind: 'buy' });
-  });
-
-  it('red: tells the level each upgrade reached (its streak sound, spec 08 §3.3), and a refused buy (spec 08 §5.2)', () => {
-    const ctx = atMerchant(1);
-    const bought: (number | undefined)[] = [];
-    const denied = vi.fn();
-    ctx.events.on('merchant:purchase', (e) => bought.push(e.level));
-    ctx.events.on('action:denied', denied);
-    buy(ctx, 2);
-    buy(ctx, 0); // once per visit
-    revisit(ctx);
-    buy(ctx, 2);
-    expect(bought).toEqual([1, 2]);
-    expect(denied).toHaveBeenCalledTimes(1);
   });
 
   it('red: its panel has a row per kind with the weapon, its level and the price of the next one', () => {

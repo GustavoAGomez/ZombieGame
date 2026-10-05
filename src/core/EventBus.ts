@@ -3,7 +3,7 @@ import type { AmmoKind, UpgradeKind, WeaponId } from '../config/weapons';
 import type { MerchantId, MerchantItemId } from '../config/merchants';
 import type { ActivationEffect, ActivationId } from '../config/activations';
 import type { ItemId } from '../config/items';
-import type { BossAttackId, BossId, BossVariantId } from '../config/bosses';
+import type { BossId, BossVariantId } from '../config/bosses';
 import type { ShopItemStatus } from './shop';
 
 /**
@@ -41,40 +41,14 @@ export interface GameEvents {
    * A bullet or the knife hit a zombie (or a boss): blood sprays from (x, y), where the
    * hit is drawn, along (dirX, dirY); it falls to the zombie's feet (groundY).
    */
-  'zombie:hit': { x: number; y: number; groundY: number; dirX: number; dirY: number; killed: boolean; weapon?: WeaponId };
-  /** A player fired a bullet weapon or swept the katana (spec 08 §5.1): its sound. */
-  'weapon:fired': { playerId: number; weapon: WeaponId; x: number; y: number };
-  /** A reload began or finished (spec 08 §5.1). */
-  'weapon:reload': { playerId: number; weapon: WeaponId; phase: 'start' | 'end' };
-  /** The trigger pressed with nothing in the magazine nor in reserve (spec 08 §5.1): a dry click. */
-  'weapon:empty': { playerId: number; weapon: WeaponId };
-  /** A player took another weapon in hand (spec 08 §5.1). */
-  'weapon:switched': { playerId: number; weapon: WeaponId };
-  /** A beam weapon ran dry and overheated (spec 08 §5.1). */
-  'weapon:overheat': { playerId: number; weapon: WeaponId };
-  /** A knife slash (spec 08 §5.1), and whether it hit someone. */
-  'knife:swing': { playerId: number; x: number; y: number; hit: boolean };
-  /** A player dashed (spec 08 §5.1). */
-  'player:dash': { playerId: number; x: number; y: number };
-  /** A player put a plank back on a window (spec 08 §5.2), with or without points for it. */
-  'barricade:repaired': { playerId: number; x: number; y: number };
-  /** The action button tapped where it cannot act: short of money, a locked portal, no room for an item (spec 08 §5.2). */
-  'action:denied': { playerId: number };
-  /** A zombie starts winding up its blow (spec 08 §5.4): its sound warns before the blow lands. */
-  'zombie:attack': { x: number; y: number };
-  /** A zombie lost its legs and crawls (spec 08 §5.4). */
-  'zombie:crippled': { x: number; y: number };
-  /** A zombie tore a plank off a window (spec 08 §5.4), at the window. */
-  'barricade:plankBroken': { x: number; y: number };
-  /** A boss starts winding up an attack, or each new blow of its slam (spec 08 §5.4): the second warning of each attack. */
-  'boss:windup': { attack: BossAttackId; x: number; y: number };
+  'zombie:hit': { x: number; y: number; groundY: number; dirX: number; dirY: number; killed: boolean };
   'pickup:collected': { playerId: number; kind: PickupKind };
   /** A door was bought (medium haptic in phase 9). */
-  'door:opened': { doorId: string; playerId: number; x: number; y: number };
+  'door:opened': { doorId: string; playerId: number };
   /** A portal (stairs, ladder, hatch) was bought. */
-  'portal:opened': { portalId: string; playerId: number; x: number; y: number };
-  /** Someone paid the Demon's Hand (spec 06 §3.3), with money or with blood; `mock`: it is tired, no draw follows. */
-  'hand:paid': { playerId: number; blood: boolean; mock: boolean };
+  'portal:opened': { portalId: string; playerId: number };
+  /** Someone paid the Demon's Hand (spec 06 §3.3), with money or with blood. */
+  'hand:paid': { playerId: number; blood: boolean };
   /** The hand opened with a weapon (spec 06 §3.4): a special one flashes and is named on the HUD. */
   'hand:offer': { weapon: WeaponId; special: boolean };
   /** The one who paid took the hand's weapon. */
@@ -186,12 +160,12 @@ export interface GameEvents {
   'round:changed': { round: number; boss: boolean };
   /** A merchant appeared (`first`) or teleported to another spot at the start of a round (spec 03 §2). */
   'merchant:moved': { merchant: MerchantId; first: boolean };
-  /** Money spent in a shop, at a weapon case or at the Demon's Hand: "-750$" in red next to the money (spec 03 §3). */
-  'money:spent': { playerId: number; amount: number; source: 'shop' | 'case' | 'hand' };
+  /** Money spent in a shop: "-750$" in red next to the money (spec 03 §3). */
+  'money:spent': { playerId: number; amount: number };
   /** Bought at a weapon case: the weapon itself or its ammo (spec 04 §3). Medium vibration. */
   'weaponCase:purchase': { playerId: number; weapon: WeaponId; ammo: boolean };
-  /** Something was bought from a merchant (medium haptic); an upgrade says the level it reached (1, 2, 3). */
-  'merchant:purchase': { playerId: number; merchant: MerchantId; item: MerchantItemId; level?: number };
+  /** Something was bought from a merchant (medium haptic). */
+  'merchant:purchase': { playerId: number; merchant: MerchantId; item: MerchantItemId };
   /** The local player's shop panel: closed, or open with one row per item still sold. */
   'shop:state': {
     merchant: MerchantId | null;

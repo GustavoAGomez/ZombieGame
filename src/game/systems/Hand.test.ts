@@ -113,7 +113,7 @@ describe('paying', () => {
     tap(ctx);
     expect(player(ctx).money).toBe(2000 - HAND.price);
     expect(ctx.state.hand).toMatchObject({ phase: 'rising', payer: 0, paid: 'money' });
-    expect(paid).toHaveBeenCalledWith({ playerId: 0, blood: false, mock: false });
+    expect(paid).toHaveBeenCalledWith({ playerId: 0, blood: false });
     tap(ctx); // busy
     expect(player(ctx).money).toBe(2000 - HAND.price);
   });

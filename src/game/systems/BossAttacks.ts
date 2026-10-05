@@ -113,7 +113,6 @@ export function startAttack(ctx: SimContext, b: BossState, attack: BossAttackId,
   b.hitPlayers = 0;
   b.count = 0;
   aimAt(b, target);
-  ctx.events.emit('boss:windup', { attack, x: b.x, y: b.y });
   if (attack === 'charge') {
     setStage(ctx, b, 'windup', chargeWindup(b));
     b.runLeft = BOSSES[b.boss].charge.distance;
@@ -258,8 +257,6 @@ function updateSlam(ctx: SimContext, b: BossState, slot: number, target: PlayerS
   }
   moveBody(ctx, b, slot, b.aimX * slam.step, b.aimY * slam.step);
   setStage(ctx, b, 'windup', slamWindup(b));
-  // Each blow's windup is the warning of the next one.
-  ctx.events.emit('boss:windup', { attack: 'slam', x: b.x, y: b.y });
   return false;
 }
 

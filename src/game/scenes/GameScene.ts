@@ -1,9 +1,7 @@
 import { App } from '@capacitor/app';
 import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
 import Phaser from 'phaser';
-import { QUIET_SNAPSHOT, type AudioSnapshot } from '../../audio/AudioDirector';
-import { AUDIO } from '../../config/audio';
-import { DEBUG, PLAYER, SIM, type BoostKind } from '../../config/balance';
+import { DEBUG, SIM, type BoostKind } from '../../config/balance';
 import { DISPLAY, computeWorldZoom } from '../../config/display';
 import { FixedStep } from '../../core/FixedStep';
 import { createGameState, type GameState } from '../../core/GameState';
@@ -49,7 +47,6 @@ import { cameraBounds, computeLevels, type MapLevels } from '../map/levels';
 import type { Services } from '../services';
 import { activeBulletCount } from '../systems/BulletSystem';
 import { isZombieAlive } from '../systems/Combat';
-import { isPlayerAlive } from '../systems/HealthSystem';
 import { createBossNavs, createNav, type SimContext } from '../systems/SimContext';
 import { stepSimulation } from '../systems/Simulation';
 import { roundsSurvived, startRound } from '../systems/WaveSystem';
@@ -117,8 +114,6 @@ export class GameScene extends Phaser.Scene {
   private pauseMenu!: PauseMenu;
   /** The match is frozen behind the pause menu. */
   private paused = false;
-  /** Filled in place every frame for the audio (spec 08 §1.3): no garbage. */
-  private readonly audioSnapshot: AudioSnapshot = { ...QUIET_SNAPSHOT };
   /** ms since the match ended; the game over screen shows after GAME_OVER_DELAY_MS. */
   private overFor = 0;
   private overShown = false;
@@ -171,7 +166,7 @@ export class GameScene extends Phaser.Scene {
     this.hud = new Hud(hudRoot, events);
     this.controls = new InputCollector(hudRoot, events);
     this.presenter = new HudPresenter(events, this.map);
-    this.pauseMenu = new PauseMenu(hudRoot, () => this.setPaused(false), () => this.scene.restart(), this.services.preferences, this.services.audio.playUi);
+    this.pauseMenu = new PauseMenu(hudRoot, () => this.setPaused(false), () => this.scene.restart(), this.services.preferences);
     this.pauseButton = new PauseButton(hudRoot, () => this.setPaused(true));
     this.listenToApp();
 
@@ -212,8 +207,6 @@ export class GameScene extends Phaser.Scene {
 
     const camera = this.cameras.main;
     this.levels = computeLevels(this.map);
-    // What happens on another level does not sound (spec 08 §3.4).
-    this.services.audio.setWorld((x, y) => levelAt(this.map, x, y));
     this.currentLevel = -1;
     this.updateLevel();
     camera.setRoundPixels(true);
@@ -245,13 +238,10 @@ export class GameScene extends Phaser.Scene {
       this.services.debugActions = null;
       this.stopListeningToApp();
       this.anims.resumeAll();
-      this.services.audio.update(QUIET_SNAPSHOT);
-      this.services.audio.setWorld(null);
     });
   }
 
   override update(time: number, delta: number): void {
-    this.updateAudio();
     if (!this.paused && !this.overShown) this.fixedStep.advance(delta, (dt) => this.step(dt));
     // Before the views: a teleport snaps the camera, which must already be inside the new level.
     this.updateLevel();
@@ -273,58 +263,10 @@ export class GameScene extends Phaser.Scene {
     this.checkGameOver(delta);
   }
 
-  /**
-   * What the audio needs every frame (spec 08 §1.3): the pause, the local
-   * player (where the ear is, its level and low health), its beam or jet and
-   * the laser's heat, the zombies near it and the nearest boss charging or
-   * stunned. Filled in place: no garbage.
-   */
-  private updateAudio(): void {
-    const s = this.audioSnapshot;
-    const p = this.state.players[0];
-    const alive = p !== undefined && isPlayerAlive(p);
-    const slot = p ? p.weapons[p.activeSlot] : undefined;
-    s.paused = this.paused;
-    s.continuous = p && alive ? (p.beamOn ? 'laser' : p.coneOn ? 'flamethrower' : null) : null;
-    s.heat = slot && s.continuous === 'laser' ? 1 - slot.battery : 0;
-    s.listenerX = p?.x ?? 0;
-    s.listenerY = p?.y ?? 0;
-    s.level = p ? levelAt(this.map, p.x, p.y) : -1;
-    s.lowHealth = p !== undefined && alive && p.hp < PLAYER.lowHpThreshold;
-    s.zombiesNear = 0;
-    let nearest = Infinity;
-    for (const z of this.state.zombies) {
-      if (!p || !isZombieAlive(z)) continue;
-      const d = Math.hypot(z.x - p.x, z.y - p.y);
-      if (d > AUDIO.groanRange) continue;
-      s.zombiesNear++;
-      if (d < nearest) {
-        nearest = d;
-        s.zombieX = z.x;
-        s.zombieY = z.y;
-      }
-    }
-    s.bossCharging = false;
-    s.bossStunned = false;
-    nearest = Infinity;
-    for (const b of this.state.bosses) {
-      if (!p || !isBossAlive(b)) continue;
-      const d = Math.hypot(b.x - p.x, b.y - p.y);
-      if (d >= nearest) continue;
-      nearest = d;
-      s.bossCharging = b.attack === 'charge' && b.stage === 'run';
-      s.bossStunned = b.stage === 'stunned';
-      s.bossX = b.x;
-      s.bossY = b.y;
-    }
-    this.services.audio.update(s);
-  }
-
   /** Freezes or resumes the match behind the pause menu (spec 01 §2.5). */
   private setPaused(paused: boolean): void {
     if (this.overShown || paused === this.paused) return;
     this.paused = paused;
-    this.services.audio.playUi(paused ? 'ui.pause.open' : 'ui.pause.close');
     this.pauseMenu[paused ? 'show' : 'hide']();
     this.pauseButton.visible = !paused;
     // The HUD's notices freeze too (hud.css).

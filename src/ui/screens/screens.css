@@ -109,18 +109,6 @@
   color: var(--bone);
 }
 
-/* The pause menu's settings in one row: vibration, effects and music (spec 08 §2). */
-.screen-settings {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.screen-settings .screen-button {
-  min-width: 150px;
-}
-
 .screen-button--big {
   min-width: 240px;
   font-size: 20px;
