@@ -2286,3 +2286,17 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 - **El escupidor andaba sobre el sitio** mientras se plantaba a escupir: sigue en persecución, quieto, y la vista le ponía `walk`. Ahora, si no se ha movido en el tick (menos de 0,2 px, para no confundirlo con los empujones de los demás), está de pie (`idle`); al hincharse, `spit`. Los demás tipos parados un instante siguen con `walk`.
 - **Corredor de pie más grande que el caminante:** medía 46–48 px de alto frente a 41. `"scale"` ×0,88 en todas sus animaciones de pie (andar, zarpazo, climb, muerte y reposo), y también en las de sin piernas, para no descompensarlas: ×0,62 al sur y ×0,7 el resto. Ahora mide 42.
 
+## Animaciones más finas: carrera del corredor, andar del bruto y reposo del escupidor (PixelLab, petición del usuario)
+
+- **Problemas vistos por el usuario y en las tiras fotograma a fotograma:**
+  - **Corredor:** hacia el sur la cabeza subía y bajaba varios píxeles y apoyaba sobre una pierna con la otra recogida: parecía saltar. Hacia el norte abría las piernas y subía los brazos, y hacia el noreste daba patadas atrás.
+  - **Bruto:** de frente solo adelantaba una pierna; de lado se agachaba en una zancada y se levantaba. Era medio paso.
+  - **Escupidor:** andaba sobre el sitio estando quieto. Ya se corrigió en el código (pose `idle`), pero su reposo era una pose fija.
+- **Rehecho en 5 direcciones** (sur, sureste, este, noreste y norte; el oeste en espejo con `"mirrorMissing"`), con el prompt fotograma a fotograma confirmado por el usuario:
+  - corredor `run_v2`: trote con la cabeza y el torso a la misma altura, sin botes, sin saltos y sin agacharse, piernas alternas cerca del suelo y brazos bajos;
+  - bruto `walk_v2`: zancada entera con las dos piernas, torso erguido que solo baja un poco al pisar, brazos como péndulos;
+  - escupidor `breathing`: reposo respirando, con la papada que se hincha, la cabeza que se ladea y la baba que gotea.
+- **Repetición:** de espaldas, el reposo pintaba la baba como tiras turquesa colgando por la espalda. Se rehízo solo el norte (`breathing_back`, «nothing hangs down its back»), 1 generación.
+- **Importación:** `"sources"` elige la toma nueva: `walk` ← `run_v2` (corredor), `walk` ← `walk_v2` (bruto) e `idle` ← `breathing_back` (norte) y `breathing` (resto) en el escupidor. Las tomas viejas se quedan en el export sin usar. El reposo del escupidor va a 5 fps (8 fotogramas, 1,6 s por respiración).
+- **Coste:** 22 generaciones.
+

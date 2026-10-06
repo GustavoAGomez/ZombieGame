@@ -118,6 +118,58 @@
               "Idle/animations/spit/north-east/frame_008.png"
             ]
           },
+          "breathing": {
+            "north-east": [
+              "Idle/animations/breathing/north-east/frame_000.png",
+              "Idle/animations/breathing/north-east/frame_001.png",
+              "Idle/animations/breathing/north-east/frame_002.png",
+              "Idle/animations/breathing/north-east/frame_003.png",
+              "Idle/animations/breathing/north-east/frame_004.png",
+              "Idle/animations/breathing/north-east/frame_005.png",
+              "Idle/animations/breathing/north-east/frame_006.png",
+              "Idle/animations/breathing/north-east/frame_007.png"
+            ],
+            "south": [
+              "Idle/animations/breathing/south/frame_000.png",
+              "Idle/animations/breathing/south/frame_001.png",
+              "Idle/animations/breathing/south/frame_002.png",
+              "Idle/animations/breathing/south/frame_003.png",
+              "Idle/animations/breathing/south/frame_004.png",
+              "Idle/animations/breathing/south/frame_005.png",
+              "Idle/animations/breathing/south/frame_006.png",
+              "Idle/animations/breathing/south/frame_007.png"
+            ],
+            "south-east": [
+              "Idle/animations/breathing/south-east/frame_000.png",
+              "Idle/animations/breathing/south-east/frame_001.png",
+              "Idle/animations/breathing/south-east/frame_002.png",
+              "Idle/animations/breathing/south-east/frame_003.png",
+              "Idle/animations/breathing/south-east/frame_004.png",
+              "Idle/animations/breathing/south-east/frame_005.png",
+              "Idle/animations/breathing/south-east/frame_006.png",
+              "Idle/animations/breathing/south-east/frame_007.png"
+            ],
+            "north": [
+              "Idle/animations/breathing/north/frame_000.png",
+              "Idle/animations/breathing/north/frame_001.png",
+              "Idle/animations/breathing/north/frame_002.png",
+              "Idle/animations/breathing/north/frame_003.png",
+              "Idle/animations/breathing/north/frame_004.png",
+              "Idle/animations/breathing/north/frame_005.png",
+              "Idle/animations/breathing/north/frame_006.png",
+              "Idle/animations/breathing/north/frame_007.png"
+            ],
+            "east": [
+              "Idle/animations/breathing/east/frame_000.png",
+              "Idle/animations/breathing/east/frame_001.png",
+              "Idle/animations/breathing/east/frame_002.png",
+              "Idle/animations/breathing/east/frame_003.png",
+              "Idle/animations/breathing/east/frame_004.png",
+              "Idle/animations/breathing/east/frame_005.png",
+              "Idle/animations/breathing/east/frame_006.png",
+              "Idle/animations/breathing/east/frame_007.png"
+            ]
+          },
           "walk": {
             "east": [
               "Idle/animations/walk/east/frame_000.png",
@@ -331,6 +383,18 @@
               "Idle/animations/death/north/frame_004.png",
               "Idle/animations/death/north/frame_005.png"
             ]
+          },
+          "breathing_back": {
+            "north": [
+              "Idle/animations/breathing_back/north/frame_000.png",
+              "Idle/animations/breathing_back/north/frame_001.png",
+              "Idle/animations/breathing_back/north/frame_002.png",
+              "Idle/animations/breathing_back/north/frame_003.png",
+              "Idle/animations/breathing_back/north/frame_004.png",
+              "Idle/animations/breathing_back/north/frame_005.png",
+              "Idle/animations/breathing_back/north/frame_006.png",
+              "Idle/animations/breathing_back/north/frame_007.png"
+            ]
           }
         }
       }
@@ -476,5 +540,5 @@
     }
   ],
   "export_version": "3.1",
-  "export_date": "2026-10-06T20:34:46.968153"
+  "export_date": "2026-10-06T21:34:35.629669"
 }

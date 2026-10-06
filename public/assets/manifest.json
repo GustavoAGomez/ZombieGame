@@ -382,8 +382,8 @@
       "animations": {
         "idle": {
           "file": "sprites/zombie_spitter/idle.png",
-          "frames": 1,
-          "fps": 6,
+          "frames": 8,
+          "fps": 5,
           "loop": true
         },
         "walk": {

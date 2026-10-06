@@ -2,6 +2,10 @@
   "sources": {
     "crawl_attack": [
       "crawl_claw"
+    ],
+    "idle": [
+      "breathing_back",
+      "breathing"
     ]
   },
   "mirrorMissing": {

@@ -2,6 +2,9 @@
   "sources": {
     "crawl_attack": [
       "crawl_claw"
+    ],
+    "walk": [
+      "run_v2"
     ]
   },
   "mirrorMissing": {

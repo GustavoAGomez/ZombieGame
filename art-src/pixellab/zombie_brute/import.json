@@ -2,6 +2,9 @@
   "sources": {
     "attack": [
       "smash"
+    ],
+    "walk": [
+      "walk_v2"
     ]
   },
   "mirrorMissing": {
