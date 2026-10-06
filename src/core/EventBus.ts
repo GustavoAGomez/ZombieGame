@@ -1,3 +1,4 @@
+import type { Rarity, UpgradeId } from '../config/upgrades';
 import type { Ambient, RoomType } from '../config/dungeon';
 import type { Cell, ChestState, DoorKind, DungeonAction } from './RunState';
 import type { BoostKind, PickupKind, ZombieKind } from '../config/balance';
@@ -200,7 +201,8 @@ export interface GameEvents {
   'merchant:purchase': { playerId: number; merchant: MerchantId; item: MerchantItemId; level?: number };
   /** The local player's shop panel: closed, or open with one row per item still sold. */
   'shop:state': {
-    merchant: MerchantId | null;
+    /** Whose panel: a merchant's, or the boss chest's choice (spec 09 §7.3). */
+    merchant: MerchantId | 'boss_chest' | null;
     /**
      * `boost`: what the round boost row sells this visit. `weapon` and
      * `level`: the weapon an upgrade row upgrades and its level of that
@@ -220,6 +222,9 @@ export interface GameEvents {
       /** A repair row: the weapon's uses left (0: broken) and all it has when new. */
       uses?: number;
       maxUses?: number;
+      /** The dungeon's upgrade rows (spec 09 §7.1): which upgrade, of what rarity. */
+      upgrade?: UpgradeId;
+      rarity?: Rarity;
     }[];
   };
   /**
@@ -236,7 +241,7 @@ export interface GameEvents {
   /** The dungeon (spec 09 §4): a floor begins, with its plan for the minimap. */
   'dungeon:floor': { floor: number; ambient: Ambient; width: number; height: number; rooms: { type: RoomType; cells: Cell[]; neighbours: number[] }[]; start: number };
   /** The rooms' state for the minimap and the wizard's counter (§4.2): which are visited and cleared, the current one, enemy rooms cleared towards the wizard. */
-  'dungeon:rooms': { current: number; visited: boolean[]; cleared: boolean[]; counter: number; keys: number; bossKey: boolean };
+  'dungeon:rooms': { current: number; visited: boolean[]; cleared: boolean[]; counter: number; keys: number; bossKey: boolean; wizardRoom: number };
   /** A room's doors shut behind the player (§4); strong haptic, a sound. */
   'dungeon:roomLocked': { room: number };
   /** A wave is coming (§4): a shadow at each point for the warning's length, and a sound. */
@@ -258,6 +263,15 @@ export interface GameEvents {
   /** The exploder (§5.2): its fuse is lit, and it bursts. */
   'enemy:fuse': { x: number; y: number };
   'enemy:exploded': { x: number; y: number; radius: number };
+  /** The wizard appeared in a cleared room (§7.1), with its smoke. */
+  'dungeon:wizard': { room: number; merchant: MerchantId };
+  /** An upgrade taken (§7.1, §7.3): bought, or free from the boss's chest. */
+  'dungeon:upgrade': { playerId: number; id: UpgradeId; rarity: Rarity; free: boolean };
+  /** A new offer bought (§7.1). */
+  'dungeon:reroll': { price: number };
+  /** Amuleto took a hit (§7.2); Sanguijuela healed. */
+  'dungeon:ward': { x: number; y: number };
+  'dungeon:leech': { heal: number };
 }
 
 type Handler<P> = (payload: P) => void;

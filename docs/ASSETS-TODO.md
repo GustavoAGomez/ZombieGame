@@ -119,6 +119,11 @@ Placeholders dibujados por código hasta que tengan arte. Todos a 32 px de casil
 | Bruto (`zombie_brute`) | Enemigo grande y lento (§5.2) | El caminante a escala 1,5 y tinte gris oscuro | "pixel art huge zombie, 1.5× the walker, grey dead skin, heavy arms, 8 directions, idle / walk / smash attack / death" |
 | Escupitajo (`DungeonEffects`) | Proyectil del escupidor | Círculo verde con núcleo claro | "projectile sprite 8x8 px, green acid glob, 2 frames" |
 | Explosión (`DungeonEffects`) | Estallido del explosivo | Anillo rojo que crece y se apaga | "explosion animation 64x64 px, 6 frames, red and orange, no outline" |
+| Iconos de mejoras (`ShopPanel`, `PauseMenu`) | Las 18 mejoras y las 4 maldiciones (§7.2, §9) | Estrella en el color de la rareza (azul, rojo, ámbar) y el nombre | "pixel art icon set 16x16 px, one per upgrade: heart (vitality), hands (quick hands), boot (light feet), magnet, coin bag (greed), pockets, knife, arrow through (piercing), bounce, flame bullet, burst, leech, wind, syringe (adrenaline), fan of bullets, shadow, amulet, axe (executioner); skull variants for the curses" |
+| Mago en la mazmorra (`Merchant`) | El mago de la rareza de su oferta (§7.1) | Los tres magos de Supervivencia sin cambios | Nada nuevo: la rareza se lee por el color del mago |
+| Cofre del boss (`DungeonViews`, `ShopPanel`) | Elegir una de tres mejoras gratis (§7.3) | El cofre rojo oscuro; el panel de tienda en ámbar con «COFRE DEL BOSS» | "map object, high top-down view, dark red chest with golden glow seeping from the lid, 32x24 px" |
+| Rastro del dash (`DungeonEffects`) | Paso de sombra (§7.2) | Brasas naranjas por código que se apagan en 1,5 s | "fire trail animation 16x16 px, 4 frames, embers dying down, no outline" |
+| Golpe crítico, Amuleto, Sanguijuela | Verdugo ×3, el primer golpe absorbido, la cura por bajas (§7.2) | Sin señal propia (eventos `dungeon:ward`, `dungeon:leech` listos para el HUD y el audio) | Texto flotante «¡CRÍTICO!», destello ámbar en el jugador, «+5» verde |
 
 ## Sonidos (spec 08)
 

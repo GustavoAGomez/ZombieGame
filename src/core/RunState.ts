@@ -5,6 +5,7 @@
  */
 import type { Ambient, RoomDifficulty, RoomType } from '../config/dungeon';
 import type { ZombieKind } from '../config/balance';
+import type { CurseId, UpgradeId } from '../config/upgrades';
 import type { WeaponId } from '../config/weapons';
 
 export interface Cell {
@@ -93,6 +94,19 @@ export interface ChestState {
   opened: boolean;
 }
 
+/** The wizard's shop (§7.1): which merchant stands in which room, what it offers, and what was bought this visit. */
+export interface DungeonShop {
+  /** Index into GameState.merchants. */
+  merchant: number;
+  room: number;
+  offers: UpgradeId[];
+  rerolls: number;
+  /** An upgrade was bought: the other offers are gone. */
+  bought: boolean;
+  keyBought: boolean;
+  medkitBought: boolean;
+}
+
 /** What the action button does in the dungeon (§4.1, §6): the thing in reach says which. */
 export type DungeonAction = 'chest' | 'chestKey' | 'needKey' | 'weapon' | 'door' | 'bossDoor' | 'needBossKey' | 'challenge' | 'descend';
 
@@ -122,6 +136,18 @@ export interface RunState {
   descending: boolean;
   /** The exploders' bursts (§5.2) for the view: rings that fade. */
   explosions: { x: number; y: number; radius: number; age: number }[];
+  /** The wizard's shop on this floor (§7.1), or null; the boss chest's choice (§7.3) while its panel is open. */
+  shop: DungeonShop | null;
+  bossChoice: { chest: number; offers: UpgradeId[] } | null;
+  /** Sanguijuela's kills towards its next heal (§7.2). */
+  leechKills: number;
+  /** Amuleto (§7.2): the room's first hit is still to be taken. */
+  wardReady: boolean;
+  /** Paso de sombra (§7.2): the zombies this dash hurt already, and the fire it left (world px, seconds, who lit it). */
+  dashHits: number[];
+  trails: { x: number; y: number; age: number; owner: number }[];
+  /** Volátiles (§7.2): bursts queued by a kill, set off next tick (EnemyKinds). */
+  bursts: { x: number; y: number; radius: number; damage: number; ignite: boolean; owner: number }[];
   /** Seconds of play in the run. */
   time: number;
   /** The key's extra chance built up by rooms without a prize (§6.2), and whether the floor's treasure was opened. */
@@ -136,6 +162,6 @@ export interface RunState {
   roomsCleared: number;
   kills: number;
   /** Ids of src/config/upgrades.ts (§7.2, §9). */
-  upgrades: string[];
-  curses: string[];
+  upgrades: UpgradeId[];
+  curses: CurseId[];
 }

@@ -1,5 +1,7 @@
 import { nextVolumeLevel, type VolumeLevel } from '../../config/audio';
 import type { GameMode } from '../../config/dungeon';
+import { COLORS } from '../../config/theme';
+import { rarityOf, type CurseId, type Rarity, type UpgradeId } from '../../config/upgrades';
 import type { RecordValues } from '../../native/records';
 import { pixelIcon } from '../icons';
 import { STRINGS } from '../strings';
@@ -167,12 +169,43 @@ export interface PauseSettings {
   music: VolumeLevel;
 }
 
-/** Pause menu with CONTINUAR, REINICIAR and the vibration, effects and music settings; hidden until shown. */
+/** One line of the pause menu's MEJORAS (spec 09 §4.2): an upgrade or a curse carried, in its colour. */
+export interface UpgradeLine {
+  name: string;
+  description: string;
+  color: string;
+}
+
+const RARITY_COLORS: Record<Rarity, string> = { common: COLORS.merchantBlue, rare: COLORS.red, legendary: COLORS.amber };
+
+/** The MEJORAS lines of a run: each upgrade once with its copies («×2»), then the curses in red. */
+export function upgradeLines(upgrades: readonly UpgradeId[], curses: readonly CurseId[]): UpgradeLine[] {
+  const lines: UpgradeLine[] = [];
+  const seen = new Set<UpgradeId>();
+  for (const id of upgrades) {
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const copies = upgrades.filter((u) => u === id).length;
+    lines.push({ name: `${STRINGS.upgrades.names[id] ?? id}${STRINGS.upgrades.copies(copies)}`, description: STRINGS.upgrades.descriptions[id] ?? '', color: RARITY_COLORS[rarityOf(id)] });
+  }
+  for (const id of curses) {
+    const curse = STRINGS.upgrades.curses[id];
+    lines.push({ name: curse?.name ?? id, description: curse?.description ?? '', color: COLORS.redLow });
+  }
+  return lines;
+}
+
+/**
+ * Pause menu with CONTINUAR, REINICIAR and the vibration, effects and music
+ * settings; hidden until shown. In the dungeon (`lines` returns lines, not
+ * null) it lists the MEJORAS and curses carried (spec 09 §4.2).
+ */
 export class PauseMenu {
   private readonly root: HTMLDivElement;
   private readonly resume: HTMLButtonElement;
+  private readonly upgrades?: HTMLDivElement;
 
-  constructor(parent: HTMLElement, onResume: () => void, onRestart: () => void, settings: PauseSettings, playUi?: PlayUi) {
+  constructor(parent: HTMLElement, onResume: () => void, onRestart: () => void, settings: PauseSettings, playUi?: PlayUi, private readonly lines?: () => UpgradeLine[] | null) {
     this.root = el('div', 'screen screen--pause');
     this.root.hidden = true;
     // CONTINUAR sounds as the pause closing (spec 08 §6.6), not as a tap.
@@ -205,6 +238,11 @@ export class PauseMenu {
     const sound = el('div', 'screen-settings');
     sound.append(vibrate, level('sfx', STRINGS.pause.sfx), level('music', STRINGS.pause.music));
     this.root.append(el('h1', 'screen-title', STRINGS.pause.title), buttons, sound);
+    if (lines) {
+      this.upgrades = el('div', 'screen-upgrades');
+      this.upgrades.hidden = true;
+      this.root.append(this.upgrades);
+    }
     parent.appendChild(this.root);
   }
 
@@ -214,7 +252,26 @@ export class PauseMenu {
 
   show(): void {
     this.root.hidden = false;
+    this.showUpgrades();
     focusForKeyboard(this.resume);
+  }
+
+  /** The MEJORAS list, rebuilt each time the menu opens. */
+  private showUpgrades(): void {
+    const box = this.upgrades;
+    const lines = this.lines?.();
+    if (!box) return;
+    box.hidden = !lines;
+    if (!lines) return;
+    const title = el('h2', 'screen-upgrades__title', STRINGS.pause.upgrades);
+    const items = lines.map((line) => {
+      const row = el('div', 'screen-upgrade');
+      const name = el('span', 'screen-upgrade__name', line.name);
+      name.style.color = line.color;
+      row.append(name, el('span', 'screen-upgrade__description', line.description));
+      return row;
+    });
+    box.replaceChildren(title, ...(items.length > 0 ? items : [el('p', 'screen-upgrades__empty', STRINGS.pause.noUpgrades)]));
   }
 
   hide(): void {

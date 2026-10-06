@@ -1,5 +1,7 @@
 import { rules } from './rules';
 import { dungeonOffer } from './systems/DungeonSystem';
+import { playerStats } from './dungeon/stats';
+import { bossChestRows, wizardRows } from './dungeon/wizardShop';
 import { BARRICADES, BOOSTS, BOSS, DASH, PLAYER } from '../config/balance';
 import { WEAPONS, type WeaponId } from '../config/weapons';
 import { bossesForRound } from '../config/bosses';
@@ -75,8 +77,12 @@ export class HudPresenter {
   private publishShop(state: GameState, playerIndex: number): void {
     const p = state.players[playerIndex];
     const m = p ? state.merchants[p.shopMerchant] : undefined;
+    const run = state.run;
     let shop: GameEvents['shop:state'] = { merchant: null, rows: [] };
-    if (m) {
+    // The dungeon (spec 09 §7): the boss chest's choice, or the wizard's rows.
+    if (p && run?.bossChoice && p.shopChest === run.bossChoice.chest) shop = { merchant: 'boss_chest', rows: bossChestRows(state) };
+    else if (m && run?.shop && p?.shopMerchant === run.shop.merchant) shop = { merchant: m.id, rows: wizardRows(state, playerIndex) };
+    else if (m) {
       const merchant = p?.shopMerchant ?? -1;
       const rows = merchantDef(m.id).items.flatMap((item, index): GameEvents['shop:state']['rows'] => {
         if (isPerWeapon(item.id)) {
@@ -249,7 +255,7 @@ export class HudPresenter {
 
     const slot = p.weapons[p.activeSlot];
     if (slot) {
-      const progress = reloadProgress(p);
+      const progress = reloadProgress(p, playerStats(state.run).reload);
       const quantised = progress === null ? null : Math.floor(progress * RELOAD_STEPS) / RELOAD_STEPS;
       const switching = p.switchTimer > 0;
       // A beam weapon's battery, in steps so the bar is not republished every tick (spec 06 §2.1).

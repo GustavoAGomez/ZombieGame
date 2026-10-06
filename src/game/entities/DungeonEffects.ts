@@ -1,5 +1,6 @@
 import type Phaser from 'phaser';
 import { DUNGEON } from '../../config/dungeon';
+import { UPGRADE_EFFECTS } from '../../config/upgrades';
 import type { GameState } from '../../core/GameState';
 import { DEPTH } from '../depth';
 
@@ -24,6 +25,14 @@ export class DungeonEffects {
       g.fillCircle(s.x, s.y, DUNGEON.kinds.spitter.shotRadius + 1);
       g.fillStyle(0xb8f060, 1);
       g.fillCircle(s.x - 1, s.y - 1, DUNGEON.kinds.spitter.shotRadius - 2);
+    }
+    // Paso de sombra's fire (spec 09 §7.2): embers that die down.
+    for (const t of state.run?.trails ?? []) {
+      const life = Math.max(0, 1 - t.age / UPGRADE_EFFECTS.shadow_dash.trail);
+      g.fillStyle(0xff6a1a, 0.35 * life + 0.1);
+      g.fillCircle(t.x, t.y, UPGRADE_EFFECTS.shadow_dash.trailRadius * (0.6 + 0.4 * life));
+      g.fillStyle(0xffd24a, 0.5 * life);
+      g.fillCircle(t.x, t.y - 1, 4 * life + 1);
     }
     for (const e of state.run?.explosions ?? []) {
       const t = Math.min(1, e.age / DUNGEON.explosionFade);

@@ -1,3 +1,5 @@
+import { critDamage, rollIgnite } from '../dungeon/perks';
+import { playerStats } from '../dungeon/stats';
 import { BULLETS } from '../../config/balance';
 import type { BulletState } from '../../core/GameState';
 import { BLOCK_BULLET, pointBlocksShaped, segmentHitShaped } from '../map/CollisionGrid';
@@ -48,6 +50,10 @@ export function updateBullets(ctx: SimContext, dt: number): void {
     if (hitZombieAlongSegment(ctx, b, step, wallDist)) continue;
 
     if (wallDist !== Infinity) {
+      if (b.bounces > 0) {
+        bounce(ctx, b, gx, gy, wallDist);
+        continue;
+      }
       b.x += b.dirX * wallDist;
       b.y += b.dirY * wallDist;
       b.active = false;
@@ -58,6 +64,28 @@ export function updateBullets(ctx: SimContext, dt: number): void {
     b.remaining -= step;
     if (b.remaining <= 0) b.active = false;
   }
+}
+
+/**
+ * Rebote (spec 09 §7.2): the bullet turns back off the face of the wall it
+ * met (both ways in a corner), and with Perforantes gets its pierces back.
+ */
+function bounce(ctx: SimContext, b: BulletState, gx: number, gy: number, wallDist: number): void {
+  const back = Math.max(0, wallDist - 1);
+  b.x += b.dirX * back;
+  b.y += b.dirY * back;
+  b.remaining -= back;
+  const hx = gx + b.dirX * back;
+  const hy = gy + b.dirY * back;
+  const probe = 2;
+  const acrossX = pointBlocksShaped(ctx.grid, hx + Math.sign(b.dirX) * probe, hy, BLOCK_BULLET);
+  const acrossY = pointBlocksShaped(ctx.grid, hx, hy + Math.sign(b.dirY) * probe, BLOCK_BULLET);
+  if (acrossX || !acrossY) b.dirX = -b.dirX;
+  if (acrossY || !acrossX) b.dirY = -b.dirY;
+  b.bounces--;
+  b.pierce = b.pierceMax;
+  b.hits.fill(-1);
+  if (b.remaining <= 0) b.active = false;
 }
 
 /** What a bullet's `hits` keeps for boss slot `i` (zombies are kept by their index, from 0). */
@@ -116,9 +144,11 @@ export function bulletHitsBoss(ctx: SimContext, b: BulletState, index: number, h
   if (free >= 0) b.hits[free] = bossHitId(index);
   b.pierce--;
   if (b.pierce <= 0 || b.remaining <= 0) b.active = false;
-  const damage = b.damage * falloffFactor(b, b.range - b.remaining);
+  const perks = playerStats(ctx.state.run);
+  const damage = critDamage(ctx.state, perks, b.damage * falloffFactor(b, b.range - b.remaining));
   if (damageBoss(ctx, boss, damage, b.owner, hit)) return;
-  if (b.burns) igniteBoss(boss, damage * BURN.fireDamageFactor, BURN.fireDuration, b.owner);
+  // The shotgun's special, or Incendiarias (spec 09 §7.2).
+  if (b.burns || rollIgnite(ctx.state, perks)) igniteBoss(boss, damage * BURN.fireDamageFactor, BURN.fireDuration, b.owner);
 }
 
 /**
@@ -146,10 +176,11 @@ export function bulletHitsZombie(ctx: SimContext, b: BulletState, index: number,
   if (free >= 0) b.hits[free] = index;
   b.pierce--;
   if (b.pierce <= 0 || b.remaining <= 0) b.active = false;
-  const damage = b.damage * falloffFactor(b, b.range - b.remaining);
+  const perks = playerStats(ctx.state.run);
+  const damage = critDamage(ctx.state, perks, b.damage * falloffFactor(b, b.range - b.remaining));
   const killed = damageZombie(ctx, z, damage, b.owner, hit);
   if (killed) return;
-  if (b.burns) igniteZombie(z, damage * BURN.fireDamageFactor, BURN.fireDuration, b.owner);
+  if (b.burns || rollIgnite(ctx.state, perks)) igniteZombie(z, damage * BURN.fireDamageFactor, BURN.fireDuration, b.owner);
   knockZombie(ctx, z, b.dirX, b.dirY, b.knockback);
 }
 

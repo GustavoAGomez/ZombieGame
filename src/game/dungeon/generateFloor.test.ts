@@ -200,7 +200,7 @@ describe('generateFloor (spec 09 §3.1), over 1000 seeds and the 3 floors', () =
     expect(run.room).toBe(run.plan.start);
     expect(run.visited.filter(Boolean)).toHaveLength(1);
     // The run went on: keys, rooms, a dirty match RNG… the second floor is the one its seed says.
-    const busy = { ...run, keys: 3, roomsCleared: 6, merchantCounter: 1, kills: 50, upgrades: ['vitality'], bossKey: true };
+    const busy = { ...run, keys: 3, roomsCleared: 6, merchantCounter: 1, kills: 50, upgrades: ['vitality' as const], bossKey: true };
     const next = descend(busy, BANKS.basement);
     expect(next.plan).toEqual(generateFloor(42, 2, BANKS.basement));
     expect(next.plan.ambient).toBe('basement');

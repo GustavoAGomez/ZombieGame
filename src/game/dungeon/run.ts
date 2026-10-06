@@ -25,6 +25,13 @@ export function createRunState(seed: number, bank: TemplateBank, floor = 1): Run
     outcome: 'playing',
     descending: false,
     explosions: [],
+    shop: null,
+    bossChoice: null,
+    leechKills: 0,
+    wardReady: false,
+    dashHits: [],
+    trails: [],
+    bursts: [],
     time: 0,
     pity: 0,
     treasureOpened: false,
@@ -46,5 +53,5 @@ export function createRunState(seed: number, bank: TemplateBank, floor = 1): Run
  */
 export function descend(run: RunState, bank: TemplateBank): RunState {
   const next = createRunState(run.seed, bank, run.floor + 1);
-  return { ...next, keys: run.keys, merchantCounter: run.merchantCounter, roomsCleared: run.roomsCleared, kills: run.kills, bossesKilled: run.bossesKilled, time: run.time, upgrades: [...run.upgrades], curses: [...run.curses] };
+  return { ...next, keys: run.keys, merchantCounter: run.merchantCounter, roomsCleared: run.roomsCleared, kills: run.kills, bossesKilled: run.bossesKilled, time: run.time, leechKills: run.leechKills, upgrades: [...run.upgrades], curses: [...run.curses] };
 }

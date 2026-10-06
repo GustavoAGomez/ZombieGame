@@ -1,3 +1,4 @@
+import { playerStats } from '../dungeon/stats';
 import { rules } from '../rules';
 import { PICKUPS, PLAYER, type PickupKind } from '../../config/balance';
 import type { PickupState, PlayerState, ZombieState } from '../../core/GameState';
@@ -74,11 +75,13 @@ export function spawnPickup(ctx: SimContext, kind: PickupKind, x: number, y: num
 
 export function updatePickups(ctx: SimContext, dt: number): void {
   const { pickups, players } = ctx.state;
-  const reach = PLAYER.hitboxRadius + PICKUPS.radius;
+  // Imán (spec 09 §7.2): taken from farther, and nothing fades.
+  const perks = playerStats(ctx.state.run);
+  const reach = (PLAYER.hitboxRadius + PICKUPS.radius) * perks.pickupRange;
   for (let i = 0; i < pickups.length; i++) {
     const pickup = pickups[i];
     if (!pickup?.active) continue;
-    if (!isKey(pickup.kind)) {
+    if (!isKey(pickup.kind) && perks.pickupsExpire) {
       pickup.age += dt;
       if (pickup.age >= PICKUPS.lifetime) {
         pickup.active = false;
@@ -113,8 +116,9 @@ export function applyPickup(p: PlayerState, kind: PickupKind, heal: number = PIC
     return true;
   }
   let gained = false;
+  const reserveFactor = playerStats(run).reserve;
   for (const slot of p.weapons) {
-    const max = maxReserve(slot);
+    const max = maxReserve(slot, reserveFactor);
     if (slot.reserve >= max) continue;
     slot.reserve = Math.min(max, slot.reserve + magazineSize(slot) * PICKUPS.ammoMagazines);
     gained = true;

@@ -2,6 +2,7 @@ import type { GameMode, RoomType } from '../../config/dungeon';
 import { BOSS, DOORS, HAND, ITEMS, MERCHANT, POINTS, WAVES, type BoostKind } from '../../config/balance';
 import { merchantDef } from '../../config/merchants';
 import { COLORS } from '../../config/theme';
+import type { Rarity } from '../../config/upgrades';
 import { UPGRADE_KINDS, WEAPONS, type UpgradeKind } from '../../config/weapons';
 
 /** The dungeon's minimap (spec 09 §4.2): a cell per room in CSS px, and the marks of the special rooms. */
@@ -9,6 +10,8 @@ const MINIMAP = { cell: 9, gap: 1, pad: 2 } as const;
 const MINIMAP_MARKS: Partial<Record<RoomType, string>> = { treasure: COLORS.amber, hand: COLORS.redLow, challenge: COLORS.red, boss: COLORS.red, elite: COLORS.amberDark };
 /** Enemy rooms cleared between two wizards (spec 09 §7.1). */
 const MERCHANT_EVERY = 5;
+/** The rarities' colours (spec 09 §7.1), the wizards' own. */
+const RARITY_COLORS: Record<Rarity, string> = { common: COLORS.merchantBlue, rare: COLORS.red, legendary: COLORS.amber };
 
 /** Colour of each boost's notice: amber like the speed bolt, light blue like the double damage bullets. */
 const BOOST_COLORS: Record<BoostKind, string> = { speed: COLORS.amber, double_damage: COLORS.boostDamage };
@@ -215,6 +218,8 @@ export class Hud {
       events.on('round:changed', this.onRound),
       events.on('dungeon:floor', this.onFloor),
       events.on('dungeon:rooms', this.onRooms),
+      events.on('dungeon:wizard', this.onWizard),
+      events.on('dungeon:upgrade', this.onUpgrade),
       events.on('weapon:state', this.onWeapon),
       events.on('player:damaged', this.onDamaged),
       events.on('player:died', this.onDied),
@@ -339,6 +344,11 @@ export class Hud {
         g.fillStyle = mark;
         g.fillRect(x + Math.floor(w / 2) - 1, y + Math.floor(h / 2) - 1, 3, 3);
       }
+      // The wizard waiting in a room (spec 09 §7.1): a blue dot in its corner.
+      if (rooms?.wizardRoom === i) {
+        g.fillStyle = COLORS.merchantBlue;
+        g.fillRect(x + 1, y + 1, 3, 3);
+      }
       if (rooms?.current === i) {
         g.strokeStyle = COLORS.amber;
         g.lineWidth = 1;
@@ -346,6 +356,17 @@ export class Hud {
       }
     });
   }
+
+  /** The wizard appeared (spec 09 §7.1): said in its colour. */
+  private readonly onWizard = (e: GameEvents['dungeon:wizard']): void => {
+    this.showNotice(STRINGS.dungeon.wizardHere, merchantDef(e.merchant).color);
+  };
+
+  /** An upgrade taken (spec 09 §7.1, §7.3): its name, in its rarity's colour. */
+  private readonly onUpgrade = (e: GameEvents['dungeon:upgrade']): void => {
+    if (e.playerId !== this.localPlayerId) return;
+    this.showNotice(STRINGS.upgrades.names[e.id] ?? e.id, RARITY_COLORS[e.rarity]);
+  };
 
   private readonly onRound = (e: GameEvents['round:changed']): void => {
     const text = `${STRINGS.hud.round} ${e.round}`;

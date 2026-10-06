@@ -9,7 +9,8 @@ import { COLORS } from './theme';
 export type MerchantId = 'blue' | 'red' | 'gold';
 
 /** What merchants sell (spec 03 §4 and §6, spec 04 §1). */
-export type MerchantItemId = 'max_ammo' | 'round_boost' | 'repair' | 'upgrade_ammo' | 'upgrade_fire_rate' | 'upgrade_damage' | 'weapon_special';
+/** Survival's wares, and the dungeon wizard's (spec 09 §7.1): an upgrade on offer, a new offer, a key and a medkit. */
+export type MerchantItemId = 'max_ammo' | 'round_boost' | 'repair' | 'upgrade_ammo' | 'upgrade_fire_rate' | 'upgrade_damage' | 'weapon_special' | 'upgrade' | 'reroll' | 'key' | 'medkit';
 
 export interface MerchantItem {
   id: MerchantItemId;

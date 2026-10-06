@@ -10,7 +10,7 @@ import { createGameState, type GameState } from '../../core/GameState';
 import { createInputCommand } from '../../core/InputCommand';
 import { InputCollector } from '../../input/InputCollector';
 import { Hud } from '../../ui/hud/Hud';
-import { PauseButton, PauseMenu } from '../../ui/screens/Screens';
+import { PauseButton, PauseMenu, upgradeLines } from '../../ui/screens/Screens';
 import type { AssetLibrary } from '../assets/AssetLibrary';
 import { ASSET_KEYS } from '../assets/manifest';
 import { AimLine } from '../entities/AimLine';
@@ -219,7 +219,9 @@ export class GameScene extends Phaser.Scene {
     this.hud = new Hud(hudRoot, events, 0, mode);
     this.controls = new InputCollector(hudRoot, events);
     this.presenter = new HudPresenter(events, this.map);
-    this.pauseMenu = new PauseMenu(hudRoot, () => this.setPaused(false), () => this.scene.restart(), this.services.preferences, this.services.audio.playUi);
+    this.pauseMenu = new PauseMenu(hudRoot, () => this.setPaused(false), () => this.scene.restart(), this.services.preferences, this.services.audio.playUi, () =>
+      this.state.run ? upgradeLines(this.state.run.upgrades, this.state.run.curses) : null,
+    );
     this.pauseButton = new PauseButton(hudRoot, () => this.setPaused(true));
     this.listenToApp();
 

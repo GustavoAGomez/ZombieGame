@@ -1,3 +1,4 @@
+import { playerStats } from '../dungeon/stats';
 import { PLAYER } from '../../config/balance';
 import type { PlayerState } from '../../core/GameState';
 import { BLOCK_PLAYER, moveCircle } from '../map/CollisionGrid';
@@ -16,6 +17,13 @@ export function isPlayerAlive(p: PlayerState): boolean {
  */
 export function damagePlayer(ctx: SimContext, p: PlayerState, amount: number, fromX: number, fromY: number): boolean {
   if (!isPlayerAlive(p) || p.dashTimer > 0 || p.godMode) return false;
+  // Amuleto (spec 09 §7.2): the room's first blow is taken by the charm.
+  const run = ctx.state.run;
+  if (run?.wardReady && playerStats(run).ward) {
+    run.wardReady = false;
+    ctx.events.emit('dungeon:ward', { x: p.x, y: p.y });
+    return false;
+  }
   p.hp = Math.max(0, p.hp - amount);
 
   const dx = p.x - fromX;

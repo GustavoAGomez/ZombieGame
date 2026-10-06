@@ -2,6 +2,8 @@ import { MERCHANT } from '../../config/balance';
 import { merchantDef, type MerchantItem, type MerchantItemId } from '../../config/merchants';
 import type { UpgradeKind } from '../../config/weapons';
 import type { GameState, MerchantState, PlayerState } from '../../core/GameState';
+import type { InputCommand } from '../../core/InputCommand';
+import { buyWizardItem, chooseBossUpgrade, wizardItemStatus } from '../dungeon/wizardShop';
 import type { ShopItemStatus, ShopReason } from '../../core/shop';
 import { storeBoost } from './BoostSystem';
 import { isPlayerAlive } from './HealthSystem';
@@ -47,6 +49,8 @@ export function itemPrice(p: PlayerState, item: MerchantItem): number {
  * `playerIndex` (and weapon slot `slot` for items sold per weapon).
  */
 export function shopItemStatus(state: GameState, merchantIndex: number, playerIndex: number, itemIndex: number, slot = -1): ShopItemStatus {
+  // The dungeon's wizard sells its own rows (spec 09 §7.1).
+  if (state.run?.shop && state.run.shop.merchant === merchantIndex) return wizardItemStatus(state, playerIndex, itemIndex);
   const m = state.merchants[merchantIndex];
   const p = state.players[playerIndex];
   const def = m ? merchantDef(m.id) : undefined;
@@ -73,9 +77,10 @@ export function updateShops(ctx: SimContext): void {
   const { state, commands } = ctx;
   for (let i = 0; i < state.players.length; i++) {
     const p = state.players[i];
+    const cmd = commands[i];
+    if (p && p.shopChest >= 0) updateBossChestPanel(ctx, i, p, cmd);
     if (!p || p.shopMerchant < 0) continue;
     const m = state.merchants[p.shopMerchant];
-    const cmd = commands[i];
     if (!m?.active || !isPlayerAlive(p) || cmd?.shopClose || (m.x - p.x) ** 2 + (m.y - p.y) ** 2 > MERCHANT.closeRange ** 2) {
       p.shopMerchant = -1;
       continue;
@@ -84,9 +89,25 @@ export function updateShops(ctx: SimContext): void {
   }
 }
 
+/**
+ * The boss chest's choice (spec 09 §7.3) works like a shop: it closes with
+ * its X, walking away, dying or once an upgrade is taken.
+ */
+function updateBossChestPanel(ctx: SimContext, playerIndex: number, p: PlayerState, cmd: InputCommand | undefined): void {
+  const run = ctx.state.run;
+  const chest = run?.chests[p.shopChest];
+  const away = chest ? (chest.x - p.x) ** 2 + (chest.y - p.y) ** 2 > (MERCHANT.closeRange + ctx.map.tileSize) ** 2 : true;
+  if (!run?.bossChoice || run.bossChoice.chest !== p.shopChest || !isPlayerAlive(p) || cmd?.shopClose || away) {
+    p.shopChest = -1;
+    return;
+  }
+  if (cmd && cmd.shopBuy >= 0) chooseBossUpgrade(ctx, playerIndex, cmd.shopBuy);
+}
+
 /** Buys item `itemIndex` (for weapon slot `slot` if sold per weapon) from merchant `merchantIndex` for player `playerIndex`. True when bought. */
 export function buyItem(ctx: SimContext, playerIndex: number, merchantIndex: number, itemIndex: number, slot = -1): boolean {
   const { state } = ctx;
+  if (state.run?.shop && state.run.shop.merchant === merchantIndex) return buyWizardItem(ctx, playerIndex, itemIndex);
   const status = shopItemStatus(state, merchantIndex, playerIndex, itemIndex, slot).kind;
   if (status !== 'buy') {
     const short = state.players[playerIndex];

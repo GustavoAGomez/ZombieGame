@@ -91,8 +91,9 @@ export function magazineSize(slot: WeaponSlotState): number {
   return statsOf(slot).magazine;
 }
 
-export function maxReserve(slot: WeaponSlotState): number {
-  return statsOf(slot).maxReserve;
+/** The reserve's top; `factor` is the player's (Bolsillos hondos, Fuga: spec 09 §7.2, §9). */
+export function maxReserve(slot: WeaponSlotState, factor = 1): number {
+  return Math.round(statsOf(slot).maxReserve * factor);
 }
 
 /** Shots per second. */
@@ -110,8 +111,8 @@ export function reloadTime(slot: WeaponSlotState): number {
 }
 
 /** Magazine and reserve at their maximum. */
-export function isFullyLoaded(slot: WeaponSlotState): boolean {
-  return slot.magazine >= magazineSize(slot) && slot.reserve >= maxReserve(slot);
+export function isFullyLoaded(slot: WeaponSlotState, reserveFactor = 1): boolean {
+  return slot.magazine >= magazineSize(slot) && slot.reserve >= maxReserve(slot, reserveFactor);
 }
 
 /** Levels bought, of every kind (the stars of a weapon a weapon case would replace). */

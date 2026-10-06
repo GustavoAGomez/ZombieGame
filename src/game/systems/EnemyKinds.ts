@@ -4,6 +4,8 @@
  * hooks from its chase; DungeonSystem ticks the fuses, the bursts and the
  * shots. Nothing of this runs in Survival, where these kinds never appear.
  */
+import type { RunState } from '../../core/RunState';
+import { BURN, igniteZombie } from './BurnSystem';
 import { PLAYER, ZOMBIES } from '../../config/balance';
 import { DUNGEON } from '../../config/dungeon';
 import type { PlayerState, ZombieState } from '../../core/GameState';
@@ -102,9 +104,25 @@ export function updateEnemyKinds(ctx: SimContext, dt: number): void {
   updateShots(ctx, dt);
   const run = state.run;
   if (run) {
+    setOffBursts(ctx, run);
     for (const e of run.explosions) e.age += dt;
     run.explosions = run.explosions.filter((e) => e.age < DUNGEON.explosionFade);
   }
+}
+
+/** Volátiles (spec 09 §7.2): each burst queued by a kill hurts the enemies around it (a burning one sets them alight); their deaths queue more. */
+function setOffBursts(ctx: SimContext, run: RunState): void {
+  for (let guard = 0; run.bursts.length > 0 && guard < 64; guard++) {
+    const b = run.bursts.shift() as RunState['bursts'][number];
+    for (const o of ctx.state.zombies) {
+      if (!isZombieAlive(o) || Math.hypot(o.x - b.x, o.y - b.y) - ZOMBIES.hitboxRadius > b.radius) continue;
+      if (b.ignite) igniteZombie(o, b.damage, BURN.fireDuration, b.owner);
+      damageZombie(ctx, o, b.damage, b.owner);
+    }
+    run.explosions.push({ x: b.x, y: b.y, radius: b.radius, age: 0 });
+    ctx.events.emit('enemy:exploded', { x: b.x, y: b.y, radius: b.radius });
+  }
+  run.bursts.length = 0;
 }
 
 /** The spitters' shots: walls and furniture with collision stop them, a player not dashing takes the hit; where one lands, a puddle. */

@@ -202,7 +202,7 @@ export class AudioDirector implements GameAudio, SoundTest {
   /** The sound test's upgrade level, 1 to 3 in turn. */
   private testLevel = 0;
   /** Whose shop the local player has open (its closing sounds with that wizard's signature). */
-  private shop: MerchantId | null = null;
+  private shop: MerchantId | 'boss_chest' | null = null;
   /** The hand's draw, stopped as soon as it opens. */
   private handRoll: ActiveVoice | null = null;
   /** Where the local player listens from, and the map's levels (§3.5). */
@@ -618,8 +618,10 @@ export class AudioDirector implements GameAudio, SoundTest {
     events.on('shop:state', (e) => {
       if (e.merchant === this.shop) return;
       // The wizard opens or closes his coat (§6.6): only when the panel opens or closes, not when its rows change.
-      if (e.merchant) this.play('ui.shop.open', { variant: MERCHANT_VARIANT[e.merchant] });
-      else if (this.shop) this.play('ui.shop.close', { variant: MERCHANT_VARIANT[this.shop] });
+      // The boss chest's choice (spec 09 §7.3) opens like the gold wizard's coat.
+      const variant = (m: MerchantId | 'boss_chest'): number => MERCHANT_VARIANT[m === 'boss_chest' ? 'gold' : m];
+      if (e.merchant) this.play('ui.shop.open', { variant: variant(e.merchant) });
+      else if (this.shop) this.play('ui.shop.close', { variant: variant(this.shop) });
       this.shop = e.merchant;
     });
   }

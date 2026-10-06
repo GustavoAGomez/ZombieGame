@@ -137,6 +137,14 @@ export const DUNGEON = {
   boss: { fallDelay: 1.5, shadow: 0.6 },
   /** Chests, keyed doors and the trapdoor answer the action button within this many px. */
   interactRange: 40,
+  /**
+   * The wizard (§7.1): every `every` enemy rooms cleared, `offers` upgrades
+   * to choose one from; a new offer costs `rerollBase` and `rerollStep` more
+   * each time; a key and a medkit, one each per visit.
+   */
+  merchant: { every: 5, offers: 3, rerollBase: 50, rerollStep: 50, key: 150, medkit: 200 },
+  /** The boss's chest (§7.3): this many upgrades, one free, at least one rare or better. */
+  bossChest: { offers: 3 },
   /** The camera (§4): it stays inside the current room and slides to the next one in this many seconds. */
   camera: { slide: 0.35 },
   /** The template bank each ambient starts with (§3.2), per room type. */

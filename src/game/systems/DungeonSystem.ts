@@ -26,6 +26,8 @@ import { awardPoints } from './PointsSystem';
 import type { SimContext } from './SimContext';
 import { freeZombieSlot } from './SpawnSystem';
 import { updateEnemyKinds } from './EnemyKinds';
+import { playerStats } from '../dungeon/stats';
+import { placeBossChest, summonWizard } from '../dungeon/wizardShop';
 
 export function updateDungeon(ctx: SimContext, dt: number): void {
   const { state, events } = ctx;
@@ -111,6 +113,7 @@ export function doorKindOf(run: RunState, map: MapData, door: number): DoorKind 
 function startFloor(ctx: SimContext, run: RunState): void {
   const { map, state } = ctx;
   run.announced = true;
+  run.wardReady = true;
   run.doorKinds = map.doors.map((_, i) => doorKindOf(run, map, i));
   run.doorsUnlocked = map.doors.map(() => false);
   map.doors.forEach((door, i) => {
@@ -149,13 +152,15 @@ function treasureWeapon(ctx: SimContext): WeaponId | null {
   return missing[Math.floor(random(ctx.state) * missing.length)] as WeaponId;
 }
 
-function emitRooms(ctx: SimContext, run: RunState): void {
-  ctx.events.emit('dungeon:rooms', { current: run.room, visited: [...run.visited], cleared: [...run.cleared], counter: run.merchantCounter, keys: run.keys, bossKey: run.bossKey });
+export function emitRooms(ctx: SimContext, run: RunState): void {
+  ctx.events.emit('dungeon:rooms', { current: run.room, visited: [...run.visited], cleared: [...run.cleared], counter: run.merchantCounter, keys: run.keys, bossKey: run.bossKey, wizardRoom: run.shop?.room ?? -1 });
 }
 
 /** The player came into a room: it is visited, and its darkness lifts (§4). */
 function enterRoom(ctx: SimContext, run: RunState, room: number): void {
   run.room = room;
+  // Amuleto (§7.2) is ready again with each room.
+  run.wardReady = true;
   if (!run.visited[room]) {
     run.visited[room] = true;
     ctx.state.zonesUnlocked[room] = true;
@@ -384,6 +389,8 @@ function clearRoom(ctx: SimContext, run: RunState, fight: RoomFight): void {
     run.pity += DUNGEON.loot.pityStep;
   }
   if (def.type === 'elite') spawnPickup(ctx, 'boss_key', at.x + ctx.map.tileSize / 2, at.y);
+  // Every so many rooms, the wizard (§7.1).
+  if (run.merchantCounter % DUNGEON.merchant.every === 0) summonWizard(ctx, run, room, at);
   ctx.events.emit('dungeon:roomCleared', { room, counter: run.merchantCounter });
   emitRooms(ctx, run);
 }
@@ -400,6 +407,9 @@ function bossDefeated(ctx: SimContext, run: RunState, fight: RoomFight): void {
   const spot = ctx.map.bossSpots.find((s) => s.zoneIndex === fight.room);
   const at = spot ? (nearestWalkable(ctx, spot.x, spot.y) ?? { x: spot.x, y: spot.y }) : lootSpot(ctx, fight.room);
   run.trapdoor = { x: at.x, y: at.y };
+  // Its chest (§7.3), on the arena's chest spot.
+  const chestSpot = ctx.map.chestSpots.find((s) => s.zoneIndex === fight.room);
+  if (chestSpot) placeBossChest(ctx, run, fight.room, chestSpot);
   const won = run.floor === FLOORS;
   if (won) run.outcome = 'won';
   ctx.events.emit('dungeon:trapdoor', { x: at.x, y: at.y, won });
@@ -495,22 +505,28 @@ function openChest(ctx: SimContext, run: RunState, p: PlayerState, index: number
   const chest = run.chests[index];
   if (!chest || chest.opened) return;
   const ts = ctx.map.tileSize;
+  // The boss's (§7.3): its choice opens as a panel and the chest stays until one is taken; with nothing left to offer it pays like a big chest.
+  if (chest.kind === 'boss' && run.bossChoice?.chest === index && run.bossChoice.offers.length > 0) {
+    p.shopChest = p.shopChest === index ? -1 : index;
+    return;
+  }
   chest.opened = true;
   if (run.plan.rooms[chest.room]?.type === 'treasure') run.treasureOpened = true;
+  const reserveFactor = playerStats(run).reserve;
   if (chest.kind === 'weapon') {
     if (chest.weapon) {
       giveWeapon(p, chest.weapon);
       const slot = p.weapons[findWeapon(p, chest.weapon)];
-      if (slot) refillWeapon(slot);
+      if (slot) refillWeapon(slot, reserveFactor);
     } else {
-      for (const slot of p.weapons) refillWeapon(slot);
+      for (const slot of p.weapons) refillWeapon(slot, reserveFactor);
       awardPoints(ctx, p.id, DUNGEON.treasure.bothOwnedMoney, 'chest', chest.x, chest.y);
     }
     ctx.events.emit('dungeon:chestOpened', { kind: chest.kind, x: chest.x, y: chest.y });
     return;
   }
   if (chest.kind === 'locked' || chest.kind === 'big') run.keys = Math.max(0, run.keys - 1);
-  const money = chest.kind === 'big' ? DUNGEON.chest.big : chest.kind === 'locked' ? DUNGEON.chest.locked : DUNGEON.chest.open;
+  const money = chest.kind === 'big' || chest.kind === 'boss' ? DUNGEON.chest.big : chest.kind === 'locked' ? DUNGEON.chest.locked : DUNGEON.chest.open;
   awardPoints(ctx, p.id, money, 'chest', chest.x, chest.y);
   // The treasure's and the challenge's give a medkit; a locked one, ammo or a medkit.
   const kind = chest.kind === 'locked' && random(ctx.state) < 0.5 ? 'ammo' : 'health';

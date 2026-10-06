@@ -1,3 +1,5 @@
+import { playerStats } from '../dungeon/stats';
+import type { RunState } from '../../core/RunState';
 import { DUNGEON } from '../../config/dungeon';
 import { rules } from '../rules';
 import { POINTS, ZOMBIES, SIM } from '../../config/balance';
@@ -6,7 +8,7 @@ import type { BloodState, ZombieState } from '../../core/GameState';
 import { random } from '../../core/Rng';
 import { BLOCK_SIGHT, BLOCK_ZOMBIE, moveCircle, segmentClearShaped } from '../map/CollisionGrid';
 import { rollZombieDrop } from './PickupSystem';
-import { awardPoints } from './PointsSystem';
+import { awardPoints, playerById } from './PointsSystem';
 import { hurtboxOf } from './shotGeometry';
 import type { SimContext } from './SimContext';
 
@@ -65,7 +67,29 @@ export function damageZombie(
   spawnBlood(ctx, z.x, z.y);
   rollZombieDrop(ctx, z);
   ctx.events.emit('zombie:killed', { x: z.x, y: z.y, kind: z.kind });
+  if (ctx.state.run && attacker >= 0) afterKill(ctx, ctx.state.run, z, attacker);
   return true;
+}
+
+/** Sanguijuela and Volátiles (spec 09 §7.2), on a player's kill: a heal every so many, and a burst queued for EnemyKinds to set off. */
+function afterKill(ctx: SimContext, run: RunState, z: ZombieState, attacker: number): void {
+  const perks = playerStats(run);
+  if (perks.leech) {
+    run.leechKills++;
+    if (run.leechKills >= perks.leech.kills) {
+      run.leechKills = 0;
+      const p = playerById(ctx, attacker);
+      if (p && p.hp > 0 && p.hp < p.maxHp) {
+        p.hp = Math.min(p.maxHp, p.hp + perks.leech.heal);
+        ctx.events.emit('dungeon:leech', { heal: perks.leech.heal });
+      }
+    }
+  }
+  if (perks.volatile) {
+    // Burning, it bursts wider and sets the others alight.
+    const burning = z.burn.timer > 0;
+    run.bursts.push({ x: z.x, y: z.y, radius: perks.volatile.radius * (burning ? perks.volatile.burningRadius : 1), damage: perks.volatile.damage, ignite: burning, owner: attacker });
+  }
 }
 
 /** Queues a hellfire burst at (x, y); with the pool full (a horde in one blast), it is dropped. */

@@ -147,6 +147,48 @@
 }
 
 /* The pause menu's settings in one row: vibration, effects and music (spec 08 §2). */
+/* The dungeon's MEJORAS in the pause menu (spec 09 §4.2): a scrolling list under the settings. */
+.screen-upgrades {
+  width: min(92vw, 520px);
+  max-height: 34vh;
+  overflow-y: auto;
+  margin-top: 10px;
+  padding: 6px 10px;
+  border: 2px solid #5a4636;
+  background: rgb(15 14 12 / 0.7);
+  text-align: left;
+}
+
+.screen-upgrades__title {
+  margin: 0 0 6px;
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: #b8ad97;
+}
+
+.screen-upgrade {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 0;
+  border-top: 1px solid rgb(90 70 54 / 0.5);
+}
+
+.screen-upgrade__name {
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+
+.screen-upgrade__description,
+.screen-upgrades__empty {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 10px;
+  color: #b8ad97;
+}
+
 .screen-settings {
   display: flex;
   gap: 8px;

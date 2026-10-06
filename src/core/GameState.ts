@@ -1,3 +1,4 @@
+import { UPGRADES, UPGRADE_EFFECTS } from '../config/upgrades';
 import { BOOSTS, BOSS, BULLETS, LOADOUT, PICKUPS, PLAYER, POINTS, WAVES, ZOMBIES, type BoostKind, type PickupKind, type ZombieKind } from '../config/balance';
 import type { BossAttackId, BossId, BossVariantId } from '../config/bosses';
 import { WEAPON_SPECIALS, WEAPONS, type UpgradeKind, type WeaponId } from '../config/weapons';
@@ -159,6 +160,8 @@ export interface PlayerState {
   dashDirY: number;
   /** Seconds until the dash can be used again. */
   dashCooldown: number;
+  /** Dashes taken since the cooldown last ran out (Segundo aire, spec 09 §7.2). */
+  dashUsed: number;
 
   /** Money ($) to spend on doors, portals and merchants. */
   money: number;
@@ -185,6 +188,8 @@ export interface PlayerState {
   handConfirmTimer: number;
   /** Merchant whose shop panel this player has open (spec 03 §3), -1 when closed. */
   shopMerchant: number;
+  /** The boss's chest whose choice of upgrades is open (spec 09 §7.3), -1 none. */
+  shopChest: number;
   /** Boost bought and kept for later (spec 03 §5): one slot, kept between rounds. */
   boostStored: BoostKind | null;
   /** Boost running now, for boostTimer more seconds. */
@@ -241,8 +246,11 @@ export interface BulletState {
   speed: number;
   damage: number;
   look: BulletLook;
-  /** Zombies it can still hit (the SMG's special goes through several). */
+  /** Zombies it can still hit (the SMG's special goes through several), and what it started with (a bounce gives them back, spec 09 §7.2). */
   pierce: number;
+  pierceMax: number;
+  /** Bounces off walls it has left (Rebote, spec 09 §7.2). */
+  bounces: number;
   /** Zombies (indices) it already hit, so going through one never hits it twice; -1 = free. */
   hits: number[];
   /** Distance still allowed before the bullet expires, and what it started with (for the damage falloff). */
@@ -635,6 +643,7 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     dashDirX: 0,
     dashDirY: 0,
     dashCooldown: 0,
+    dashUsed: 0,
     money: POINTS.startMoney,
     score: 0,
     repairPoints: 0,
@@ -647,6 +656,7 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     swapConfirmTimer: 0,
     handConfirmTimer: 0,
     shopMerchant: -1,
+    shopChest: -1,
     boostStored: null,
     boostActive: null,
     boostTimer: 0,
@@ -658,6 +668,8 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
 
 function createBullet(): BulletState {
   return {
+    pierceMax: 1,
+    bounces: 0,
     active: false,
     owner: 0,
     x: 0,
@@ -670,7 +682,8 @@ function createBullet(): BulletState {
     damage: 0,
     look: 'normal',
     pierce: 1,
-    hits: new Array<number>(WEAPON_SPECIALS.pierce.hits).fill(-1),
+    // Room for the SMG's special plus Perforantes' extra enemies (spec 09 §7.2).
+    hits: new Array<number>(WEAPON_SPECIALS.pierce.hits + UPGRADES.piercing.maxCopies * UPGRADE_EFFECTS.piercing.extra).fill(-1),
     remaining: 0,
     range: 0,
     falloffFrom: 0,

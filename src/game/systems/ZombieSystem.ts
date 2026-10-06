@@ -1,3 +1,4 @@
+import { playerStats } from '../dungeon/stats';
 import { holdAndSpit, lightFuse } from './EnemyKinds';
 import { DUNGEON } from '../../config/dungeon';
 import { rules } from '../rules';
@@ -140,8 +141,9 @@ export function isCrawling(z: ZombieState): boolean {
   return z.kind !== 'brute' && z.hp > 0 && z.hp <= ZOMBIES.crawlAtHp;
 }
 
-function speedOf(z: ZombieState): number {
-  return ZOMBIES.kinds[z.kind].speed * (isCrawling(z) ? ZOMBIES.crawlSpeedFactor : 1) * (z.elite ? DUNGEON.elite.speed : 1);
+/** Px/s now: its kind's, crawling, elite, and the curse Acosado's (spec 09 §9). */
+function speedOf(ctx: SimContext, z: ZombieState): number {
+  return ZOMBIES.kinds[z.kind].speed * (isCrawling(z) ? ZOMBIES.crawlSpeedFactor : 1) * (z.elite ? DUNGEON.elite.speed : 1) * playerStats(ctx.state.run).enemySpeed;
 }
 
 /** How far a zombie's claws reach (from the player's hitbox): the spitter's longer (spec 09 §5.2). */
@@ -163,7 +165,7 @@ function updateToWindow(ctx: SimContext, z: ZombieState, dt: number): void {
   const dx = target.x - z.x;
   const dy = target.y - z.y;
   const dist = Math.hypot(dx, dy);
-  const step = speedOf(z) * dt;
+  const step = speedOf(ctx, z) * dt;
   if (dist <= step) {
     z.x = target.x;
     z.y = target.y;
@@ -186,7 +188,7 @@ function updateEntering(ctx: SimContext, z: ZombieState, dt: number): void {
   const dx = target.x - z.x;
   const dy = target.y - z.y;
   const dist = Math.hypot(dx, dy);
-  const step = speedOf(z) * dt;
+  const step = speedOf(ctx, z) * dt;
   if (dist <= step) {
     z.x = target.x;
     z.y = target.y;
@@ -362,7 +364,7 @@ function updateChasing(ctx: SimContext, z: ZombieState, dt: number): void {
     dirY = dy / (dist || 1);
   }
   z.facing = Math.atan2(dirY, dirX);
-  const step = speedOf(z) * dt;
+  const step = speedOf(ctx, z) * dt;
   const blocker = blockedAhead(ctx, z, dirX, dirY, target);
   if (blocker) {
     // Sidestep away from the zombie in front to flow around it and surround the player.
