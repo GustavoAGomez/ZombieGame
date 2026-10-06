@@ -141,6 +141,18 @@
   min-width: 0;
 }
 
+.debug-sound-choice {
+  margin: 0;
+  padding: 4px 6px;
+  font-family: var(--font-label);
+  font-size: 9px;
+  color: var(--amber);
+  border: 1px solid var(--muted);
+  white-space: pre-wrap;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
 .debug-sound-candidate {
   width: 30px;
   flex: none;

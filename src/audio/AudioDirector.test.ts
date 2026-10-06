@@ -547,6 +547,58 @@ describe('AudioDirector: place, levels, threats and low health (spec 08 §3.5, �
   });
 });
 
+describe('AudioDirector: the sound test (spec 08 §8, §4.4)', () => {
+  /** The game's files and, as the debug build loads them, every candidate's. */
+  function withCandidates() {
+    const g = gameSetup();
+    const defs: Record<string, AudioDef> = {};
+    for (const s of SOUNDS) {
+      for (const v of [...s.variants, ...s.shine]) {
+        defs[v] = { file: `audio/sfx/${v}.wav`, duration: 0.2, placeholder: false, picked: 'A', pending: true };
+        for (const letter of ['A', 'B', 'C'] as const) defs[`${v}__${letter.toLowerCase()}`] = { file: `audio/candidates/${v}__${letter.toLowerCase()}.wav`, duration: 0.2, placeholder: false, candidate: letter };
+      }
+    }
+    g.director.load(defs, 'assets/', true);
+    return g;
+  }
+
+  it('silences the match while it is open: only what is tested sounds, and the music bus is shut', () => {
+    const { engine, events, director, keys, advance } = gameSetup();
+    director.update({ ...QUIET_SNAPSHOT, continuous: 'laser' });
+    director.setTesting(true);
+    expect(engine.played[0]?.stopped).toBe(true);
+    expect(engine.gains.music).toBe(0);
+    advance(1);
+    events.emit('weapon:fired', { playerId: 0, weapon: 'pistol', x: 0, y: 0 });
+    events.emit('zombie:hit', { x: 0, y: 0, groundY: 0, dirX: 1, dirY: 0, killed: false });
+    director.update({ ...QUIET_SNAPSHOT, continuous: 'laser', lowHealth: true, level: 0, zombiesNear: 3 });
+    director.playUi('ui.tap');
+    expect(keys()).toEqual(['weapon_laser_loop']);
+    director.test('weapon.shotgun.fire');
+    expect(keys().at(-1)).toBe('weapon_shotgun_fire');
+    // Closed: the match sounds again, its laser too.
+    director.setTesting(false);
+    director.update({ ...QUIET_SNAPSHOT, continuous: 'laser' });
+    advance(1);
+    events.emit('weapon:fired', { playerId: 0, weapon: 'pistol', x: 0, y: 0 });
+    expect(keys().slice(-2)).toEqual(['weapon_laser_loop', 'weapon_pistol_fire_2']);
+    expect(engine.gains.music).toBe(AUDIO.musicGain);
+  });
+
+  it('plays a candidate on trial in the match instead of the sound\'s own, until it is cleared', () => {
+    const { events, director, keys, advance } = withCandidates();
+    director.setTrial('weapon.shotgun.fire', 'C');
+    expect(director.pickOf('weapon.shotgun.fire')).toEqual({ letter: 'C', pending: true });
+    expect(director.trials()).toEqual({ 'weapon.shotgun.fire': 'C' });
+    events.emit('weapon:fired', { playerId: 0, weapon: 'shotgun', x: 0, y: 0 });
+    director.setTrial('weapon.shotgun.fire', null);
+    advance(1);
+    events.emit('weapon:fired', { playerId: 0, weapon: 'shotgun', x: 0, y: 0 });
+    expect(keys()).toEqual(['weapon_shotgun_fire__c', 'weapon_shotgun_fire']);
+    expect(director.pickOf('weapon.shotgun.fire')).toEqual({ letter: 'A', pending: true });
+  });
+});
+
 describe('WebAudioEngine without Web Audio', () => {
   it('stays silent and never throws: the game runs the same', () => {
     const engine = new WebAudioEngine();

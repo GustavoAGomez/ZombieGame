@@ -204,6 +204,7 @@ Una entrada por archivo de sonido, con su clave en snake_case:
   - **Formato de la receta:** `{ "chosen": null, "candidates": { "A": { "about": "…", "channels": 1, "variants": [ … ] }, "B": … } }`.
   - **Sin candidato elegido** (`chosen` a `null`): el juego suena con A y los tres candidatos van a `audio/candidates/`. Esa carpeta no va en git (`audio:gen` la escribe igual cada vez) ni en el build: `vite build` la quita, con sus entradas del manifiesto.
   - **Con uno elegido:** solo sale ese, y los demás se quedan en la receta.
+  - **Probar en partida** (solo con el debug): en PRUEBA DE SONIDOS, tocar A, B o C pone ese candidato a sonar también en la partida. La prueba se guarda en el dispositivo y COPIAR ELECCIÓN da el texto («id: letra», uno por línea) para fijarla en la receta con `chosen`. Mientras el panel está abierto, la partida no suena.
   - **Sin receta:** a una variante del catálogo que no tiene receta le pone una entrada `placeholder`.
   - **Informe:** las medidas y los avisos quedan en `audio-src/preview/report.md`.
 - **Tipos de receta:**

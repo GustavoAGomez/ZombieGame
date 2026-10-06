@@ -2006,3 +2006,12 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 - **Sexta tanda (sin sonido de baja):** a petición del usuario, matar a un zombi no suena y no hay racha de bajas. Se quitan `reward.kill` y la racha `kill`. Las rachas que quedan son la de reparar tablones y la de mejoras. SIMULAR RACHA lanza ahora 8 tablones seguidos y SIMULAR COMBATE ya no lleva bajas. La bala que mata suena como cualquier otra, con su impacto en carne.
 - **Séptima tanda (el boss aturdido se queja):** el bucle que suena mientras el boss está aturdido (`boss.dizzy.loop`) deja las campanillas mareadas de la §6.4 y pasa a ser un gruñido confuso, como una queja. Es un lamento grabado, más grave para una bestia grande, con un respiro antes de repetirse; cada vuelta dura unos 2 s, lo mismo que el aturdimiento. Su volumen sube de 0,45 a 0,6, porque una voz grave se oye menos que unas campanillas. Sigue siendo un bucle que sigue al boss y para al acabar el aturdimiento: es la señal de que toca pegarle.
 
+## Audio: probar candidatos en partida (petición del usuario)
+
+- **Probar en partida:** en PRUEBA DE SONIDOS, tocar A, B o C de un sonido lo reproduce y además lo pone a sonar en la partida, en lugar del elegido o del A. Así se oye en contexto: con la SMG, entre zombis, en el boss.
+  - Las pruebas se guardan en el `localStorage` del dispositivo y aguantan al recargar.
+  - BORRAR PRUEBAS vuelve a lo que lleva el juego.
+  - Solo existe con el debug, que es el único que carga los candidatos.
+- **Elegir de verdad sigue siendo por el chat:** el panel corre en el móvil y no puede escribir las recetas del Mac. COPIAR ELECCIÓN copia «id: letra», uno por línea, y el texto también se ve en el panel para copiarlo a mano. Por http en la red local no existe la API del portapapeles, así que se usa la copia de un cuadro de texto oculto.
+- **Panel abierto = partida en silencio:** mientras está abierto, nada de la partida suena: efectos, bucles (láser, lanzallamas, boss, latido), gruñidos, menús y música. Al abrirlo se corta lo que estaba sonando. Solo suena lo que se prueba, incluidos SIMULAR COMBATE y SIMULAR RACHA, también en pausa. Al cerrarlo, la partida vuelve a sonar.
+

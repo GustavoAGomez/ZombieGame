@@ -1,6 +1,7 @@
 import type { SoundTest } from '../audio/AudioDirector';
 import type { SoundFamily } from '../config/audio';
 import { STRINGS } from '../ui/strings';
+import { choiceText, loadTrials, saveTrials, type TrialStorage } from './soundTrials';
 import './debug.css';
 
 export interface DebugStats {
@@ -218,13 +219,15 @@ export class DebugOverlay {
   setOpen(open: boolean): void {
     this.sheet.hidden = !open;
     this.soundSheet.hidden = true;
+    this.sounds?.setTesting(false);
     this.panel.hidden = open;
   }
 
-  /** The sound test over the debug sheet, or back to it. */
+  /** The sound test over the debug sheet (the match silent under it), or back to it. */
   private setSoundsOpen(open: boolean): void {
     this.soundSheet.hidden = !open;
     this.sheet.hidden = open;
+    this.sounds?.setTesting(open);
     if (open) this.redrawSounds();
     this.refresh();
   }
@@ -258,24 +261,48 @@ export class DebugOverlay {
     list.className = 'debug-buttons debug-sound-list';
     const actions = document.createElement('div');
     actions.className = 'debug-sound-tabs';
-    sheet.append(head, this.soundStatsEl, actions, tabs, list);
+    const hint = document.createElement('p');
+    hint.className = 'debug-sound-stats';
+    hint.textContent = STRINGS.debug.soundTestHint;
+    // The candidates on trial, as the text to send in the chat.
+    const choice = document.createElement('pre');
+    choice.className = 'debug-sound-choice';
+    sheet.append(head, this.soundStatsEl, hint, actions, choice, tabs, list);
     const sounds = this.sounds;
     if (!sounds) return sheet;
-    // SIMULAR COMBATE and SIMULAR RACHA, to hear the mix and the repair streak (spec 08 §8).
-    for (const [label, run] of [
-      [STRINGS.debug.simulateCombat, () => sounds.simulateCombat()],
-      [STRINGS.debug.simulateStreak, () => sounds.simulateStreak()],
-    ] as const) {
+    // «Probar en partida»: the trials kept on this device come back (spec 08 §4.4).
+    const storage = deviceStorage();
+    for (const [id, letter] of Object.entries(loadTrials(storage))) sounds.setTrial(id, letter);
+    const showChoice = (): void => {
+      choice.textContent = choiceText(sounds.trials());
+    };
+    showChoice();
+    const action = (label: string, run: (b: HTMLButtonElement) => void): void => {
       const b = document.createElement('button');
       b.type = 'button';
       b.className = 'debug-button debug-sound-tab';
       b.textContent = label;
       b.addEventListener('pointerup', (e) => {
         e.preventDefault();
-        run();
+        run(b);
       });
       actions.appendChild(b);
-    }
+    };
+    // SIMULAR COMBATE and SIMULAR RACHA, to hear the mix and the repair streak (spec 08 §8).
+    action(STRINGS.debug.simulateCombat, () => sounds.simulateCombat());
+    action(STRINGS.debug.simulateStreak, () => sounds.simulateStreak());
+    action(STRINGS.debug.copyChoice, (b) => {
+      void copyText(choiceText(sounds.trials())).then((ok) => {
+        b.textContent = ok ? STRINGS.debug.copied : STRINGS.debug.copyFailed;
+        window.setTimeout(() => (b.textContent = STRINGS.debug.copyChoice), 1500);
+      });
+    });
+    action(STRINGS.debug.clearTrials, () => {
+      for (const id of Object.keys(sounds.trials())) sounds.setTrial(id, null);
+      saveTrials(storage, sounds.trials());
+      showChoice();
+      this.redrawSounds();
+    });
     const families = [...new Set(sounds.sounds.map((s) => s.family))];
     let current = families[0];
     this.redrawSounds = () => {
@@ -306,7 +333,14 @@ export class DebugOverlay {
         const pick = sounds.pickOf(s.id);
         play(pick?.pending ? `${s.id} ?` : s.id, () => sounds.test(s.id), 'debug-sound');
         for (const letter of sounds.candidatesOf(s.id)) {
-          const b = play(letter, () => sounds.testCandidate(s.id, letter), 'debug-sound-candidate');
+          // It plays, and from now on the game plays it too (until another letter or BORRAR PRUEBAS).
+          const b = play(letter, () => {
+            sounds.setTrial(s.id, letter);
+            saveTrials(storage, sounds.trials());
+            sounds.testCandidate(s.id, letter);
+            showChoice();
+            show(family);
+          }, 'debug-sound-candidate');
           b.classList.toggle('is-on', pick?.letter === letter);
         }
         list.appendChild(cell);
@@ -368,4 +402,38 @@ export function requestedStartRound(search: string = window.location.search): nu
 export function requestedMap(search: string = window.location.search): string | null {
   const key = new URLSearchParams(search).get('map');
   return key && /^[a-z0-9_]+$/.test(key) ? key : null;
+}
+
+/** The browser's localStorage, or null where it is missing or blocked. */
+function deviceStorage(): TrialStorage | null {
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
+
+/** Copies `text`: the clipboard API (it needs https), else a hidden text box. False when neither works. */
+async function copyText(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    const area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.position = 'fixed';
+    area.style.opacity = '0';
+    document.body.appendChild(area);
+    area.select();
+    let ok: boolean;
+    try {
+      // The only way on a phone over http (the local network): no clipboard API there.
+      ok = document.execCommand('copy');
+    } catch {
+      ok = false;
+    }
+    area.remove();
+    return ok;
+  }
 }

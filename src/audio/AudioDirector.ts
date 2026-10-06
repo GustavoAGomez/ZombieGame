@@ -100,6 +100,15 @@ export interface SoundTest {
   pickOf(id: string): { letter: AudioCandidate; pending: boolean } | null;
   /** Plays candidate `letter` of a sound, as the game would play it. */
   testCandidate(id: string, letter: AudioCandidate): void;
+  /**
+   * The sound test is open: the match makes no sound at all (its effects,
+   * loops and music), only what is tested plays, so the two never mix.
+   */
+  setTesting(on: boolean): void;
+  /** «Probar en partida»: the game plays candidate `letter` of a sound from now on (null: its own again). Debug only. */
+  setTrial(id: string, letter: AudioCandidate | null): void;
+  /** The candidates on trial, by sound id. */
+  trials(): Readonly<Record<string, AudioCandidate>>;
   /** SIMULAR COMBATE: the SMG firing with hits, among a crowd of zombies, for a few seconds, to hear the mix. */
   simulateCombat(): void;
   /** SIMULAR RACHA: planks repaired in a row, to hear the streak climb. */
@@ -131,6 +140,8 @@ interface PlayRequest {
   rung?: number;
   /** Where it happens: another level silences it, and a positional sound is placed (§3.5). */
   at?: Place;
+  /** Played by the sound test: it sounds while the test silences the match. */
+  test?: boolean;
 }
 
 /** A candidate's files: its variants and, for a streak sound, their shine layers. */
@@ -192,6 +203,10 @@ export class AudioDirector implements GameAudio, SoundTest {
   private levelAt: ((x: number, y: number) => number) | null = null;
   /** When the next groan may come (§6.4), seconds on the clock. */
   private nextGroan = 0;
+  /** The sound test is open: only its own plays sound. */
+  private testing = false;
+  /** «Probar en partida»: the candidate the game plays instead of its own, by sound id. */
+  private readonly trialPicks = new Map<string, AudioCandidate>();
   /** Low health (§3.5): the last frame's, and when its heartbeat ends. */
   private wasLow = false;
   private heartbeatUntil = 0;
@@ -242,12 +257,36 @@ export class AudioDirector implements GameAudio, SoundTest {
   }
 
   pickOf(id: string): { letter: AudioCandidate; pending: boolean } | null {
-    return this.picks.get(id) ?? null;
+    const pick = this.picks.get(id);
+    const trial = this.trialPicks.get(id);
+    // On trial, that is the one the game plays now.
+    return trial && this.candidates.get(id)?.has(trial) ? { letter: trial, pending: pick?.pending ?? true } : (pick ?? null);
   }
 
   testCandidate(id: string, letter: AudioCandidate): void {
     const files = this.candidates.get(id)?.get(letter);
     if (files) this.test(id, { keys: files.keys, shine: files.shine });
+  }
+
+  setTesting(on: boolean): void {
+    if (on === this.testing) return;
+    this.testing = on;
+    if (on) {
+      // Whatever the match was playing stops at once: its loops too.
+      this.stopBus('sfx');
+      this.stopBus('ui');
+      this.firing = null;
+    }
+    this.applyLevels();
+  }
+
+  setTrial(id: string, letter: AudioCandidate | null): void {
+    if (letter) this.trialPicks.set(id, letter);
+    else this.trialPicks.delete(id);
+  }
+
+  trials(): Readonly<Record<string, AudioCandidate>> {
+    return Object.fromEntries(this.trialPicks);
   }
 
   unlock(): void {
@@ -269,8 +308,8 @@ export class AudioDirector implements GameAudio, SoundTest {
       if (this.paused) this.stopBus('sfx');
       this.applyLevels();
     }
-    // A beam or a jet sounds while it fires: its loop starts and stops with it (and with the pause).
-    const firing = this.paused ? null : snapshot.continuous;
+    // A beam or a jet sounds while it fires: its loop starts and stops with it (and with the pause and the sound test).
+    const firing = this.paused || this.testing ? null : snapshot.continuous;
     if (firing !== this.firing) {
       if (this.firing) this.stopLoop(CONTINUOUS_LOOP[this.firing], AUDIO.loopFadeOut);
       if (firing) this.startLoop(CONTINUOUS_LOOP[firing], { rate: this.heatRate(firing, snapshot.heat) });
@@ -288,16 +327,17 @@ export class AudioDirector implements GameAudio, SoundTest {
    */
   private updateThreats(s: Readonly<AudioSnapshot>): void {
     const now = this.clock();
-    if (!this.paused && s.zombiesNear > 0 && now >= this.nextGroan) {
+    const quiet = this.paused || this.testing;
+    if (!quiet && s.zombiesNear > 0 && now >= this.nextGroan) {
       this.play('zombie.groan', { at: { x: s.nearestZombieX, y: s.nearestZombieY } });
       const [min, max] = AUDIO.groanInterval;
       this.nextGroan = now + min + this.random() * (max - min);
     }
     const boss = { x: s.bossX, y: s.bossY };
-    this.follow('boss.charge.loop', !this.paused && s.bossCharging, boss);
-    this.follow('boss.dizzy.loop', !this.paused && s.bossStunned, boss);
+    this.follow('boss.charge.loop', !quiet && s.bossCharging, boss);
+    this.follow('boss.dizzy.loop', !quiet && s.bossStunned, boss);
     // The heartbeat only for its first seconds: a lasting one would be unbearable (health never comes back by itself).
-    if (s.lowHealth && !this.wasLow && !this.paused) {
+    if (s.lowHealth && !this.wasLow && !quiet) {
       this.startLoop('player.heartbeat', {});
       this.heartbeatUntil = now + AUDIO.heartbeatTime;
     }
@@ -341,8 +381,9 @@ export class AudioDirector implements GameAudio, SoundTest {
   }
 
   /** Plays a sound as the game would: a loop starts or stops, and a streak climbs (the upgrade one by levels 1, 2, 3 in turn). */
-  test(id: string, request: PlayRequest = {}): void {
+  test(id: string, asked: PlayRequest = {}): void {
     const def = this.byId.get(id);
+    const request = { ...asked, test: true };
     if (def?.loop) this.toggleLoop(id, request);
     else if (def?.ladder === 'upgrade') this.play(id, { ...request, rung: this.climb('upgrade', (this.testLevel++ % 3) + 1) });
     else if (def?.ladder) this.play(id, { ...request, rung: this.climb(def.ladder) });
@@ -365,11 +406,11 @@ export class AudioDirector implements GameAudio, SoundTest {
     };
     for (let i = 0; i < shots; i++) {
       this.schedule(i / WEAPONS.smg.fireRate, () => {
-        this.play('weapon.smg.fire');
-        if (i % attackEvery === 0) this.play('zombie.attack', { at: around() });
-        if (i % groanEvery === 0) this.play('zombie.groan', { at: around() });
+        this.play('weapon.smg.fire', { test: true });
+        if (i % attackEvery === 0) this.play('zombie.attack', { at: around(), test: true });
+        if (i % groanEvery === 0) this.play('zombie.groan', { at: around(), test: true });
         if (i % 10 >= hitsIn10) return;
-        this.play('impact.flesh', { at: around() });
+        this.play('impact.flesh', { at: around(), test: true });
       });
     }
   }
@@ -523,7 +564,10 @@ export class AudioDirector implements GameAudio, SoundTest {
   private play(id: string, request: PlayRequest = {}): ActiveVoice | null {
     const def = this.byId.get(id);
     if (!def) return null;
-    if (this.paused && def.bus === 'sfx') return null;
+    // In pause the effects are silent, except what the open sound test plays.
+    if (this.paused && def.bus === 'sfx' && !(this.testing && request.test)) return null;
+    // While the sound test is open, the match is silent: only what is tested sounds.
+    if (this.testing && !request.test) return null;
     // On another level it does not sound at all (§3.5): not a drop.
     if (request.at && !this.sameLevel(id, request.at)) return null;
     const now = this.clock();
@@ -532,7 +576,10 @@ export class AudioDirector implements GameAudio, SoundTest {
     if (last !== undefined && now - last < def.minInterval) return this.drop(id);
     if (this.voices.filter((v) => v.id === id).length >= def.maxVoices) return this.drop(id);
     if (def.bus !== 'music' && !this.makeRoom(def.priority)) return this.drop(id);
-    const keys = request.keys ?? def.variants;
+    // «Probar en partida»: a candidate on trial plays instead of the sound's own files.
+    const trialLetter = request.keys ? undefined : this.trialPicks.get(id);
+    const onTrial = trialLetter ? this.candidates.get(id)?.get(trialLetter) : undefined;
+    const keys = request.keys ?? onTrial?.keys ?? def.variants;
     const index = request.variant !== undefined && def.keyed ? Math.min(request.variant, keys.length - 1) : this.pickVariant(def, keys.length);
     const key = keys[index];
     const duration = key === undefined ? undefined : this.durations[key];
@@ -548,7 +595,7 @@ export class AudioDirector implements GameAudio, SoundTest {
     let voice: Voice = body;
     let ends = duration / rate;
     // A streak's shine layer, with it: only its pitch climbs the ladder (§3.4).
-    const shineKey = (request.shine ?? def.shine)[index];
+    const shineKey = (request.shine ?? onTrial?.shine ?? def.shine)[index];
     const shineDuration = shineKey === undefined ? undefined : this.durations[shineKey];
     if (shineKey !== undefined && shineDuration !== undefined) {
       const shineRate = rate * 2 ** ((AUDIO.ladder.steps[request.rung ?? 0] ?? 0) / 12);
@@ -619,12 +666,13 @@ export class AudioDirector implements GameAudio, SoundTest {
     }
   }
 
-  /** The buses' volume: the settings (the menus follow the effects), the music under the effects, and the pause. */
+  /** The buses' volume: the settings (the menus follow the effects), the music under the effects, the pause and the sound test. */
   private applyLevels(): void {
     const sfx = AUDIO.levels[this.settings.sfx];
     const music = AUDIO.levels[this.settings.music] * AUDIO.musicGain;
-    this.engine.setBusGain('sfx', this.paused ? 0 : sfx, AUDIO.busFade);
+    // The sound test is heard even in pause; the music is silent under it.
+    this.engine.setBusGain('sfx', this.paused && !this.testing ? 0 : sfx, AUDIO.busFade);
     this.engine.setBusGain('ui', sfx, AUDIO.busFade);
-    this.engine.setBusGain('music', this.paused ? music * AUDIO.pausedMusic : music, AUDIO.busFade);
+    this.engine.setBusGain('music', this.testing ? 0 : this.paused ? music * AUDIO.pausedMusic : music, AUDIO.busFade);
   }
 }

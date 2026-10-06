@@ -36,6 +36,14 @@ export const STRINGS = {
     soundBack: 'VOLVER',
     simulateCombat: 'SIMULAR COMBATE',
     simulateStreak: 'SIMULAR RACHA',
+    /** «Probar en partida» (spec 08 §4.4). */
+    soundTestHint: 'La partida está en silencio mientras este panel está abierto. Toca A, B o C para oír un candidato: desde ese momento también suena en la partida.',
+    copyChoice: 'COPIAR ELECCIÓN',
+    copied: 'COPIADO',
+    copyFailed: 'COPIA EL TEXTO',
+    clearTrials: 'BORRAR PRUEBAS',
+    choiceTitle: 'Elección de sonidos:',
+    noTrials: 'Ningún candidato en prueba.',
     soundFamilies: { hit: 'GOLPE', reward: 'PREMIO', threat: 'AMENAZA', ui: 'INTERFAZ', jingle: 'CARTELES', music: 'MÚSICA' } satisfies Record<SoundFamily, string>,
     soundStats: (voices: number, dropped: number, last: string, state: string): string =>
       `VOCES ${voices} · DESCARTADAS ${dropped}${last ? ` (ÚLTIMA: ${last})` : ''} · AUDIO: ${state.toUpperCase()}`,
