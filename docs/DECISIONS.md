@@ -1999,4 +1999,8 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - **Muerte orgánica:** `reward.kill` suena a muerte, no a premio: un último estertor o quejido de zombi, la carne que revienta y el cuerpo que cae. Pasa de 1 a 3 variantes porque se oye muy seguido.
   - **Racha con nota metálica afinada:** un yunque en La 5 (con un filtro estrecho que atenúa su parcial de Sol#6), un «ding» de metal en La 5, o ese «ding» en Mi 6 con el golpe del yunque delante. Los metales son inarmónicos, así que se comprueba qué nota manda en cada archivo generado.
   - **Informe:** la nota de racha es la misma en todas las variantes a propósito, así que la detección de variantes casi idénticas solo compara los cuerpos.
+- **Quinta tanda (nada de metal):**
+  - La nota de racha de las bajas pasa a ser orgánica: una marimba en Mi 6, un pizzicato de cuerdas en Mi 5 o un xilófono en La 5, todos de madera o cuerda.
+  - Los martillazos del boss (`boss.slam`) y su choque al quedar aturdido (`boss.stunned`) son golpes secos y destructivos: roca, piedra, ladrillo, hormigón, golpes sordos, un tom grave y escombros, con algo de saturación. Se descarta «big robot footstep», que podía llevar chasquidos metálicos.
+  - El bucle de campanillas mareadas (`boss.dizzy.loop`) no cambia.
 

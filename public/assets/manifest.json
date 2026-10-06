@@ -1474,51 +1474,51 @@
     },
     "boss_slam": {
       "file": "audio/sfx/boss_slam.wav",
-      "duration": 0.8009,
+      "duration": 0.7375,
       "placeholder": false,
       "picked": "A",
       "pending": true
     },
     "boss_slam__a": {
       "file": "audio/candidates/boss_slam__a.wav",
-      "duration": 0.8009,
+      "duration": 0.7375,
       "placeholder": false,
       "candidate": "A"
     },
     "boss_slam__b": {
       "file": "audio/candidates/boss_slam__b.wav",
-      "duration": 0.7032,
+      "duration": 0.7498,
       "placeholder": false,
       "candidate": "B"
     },
     "boss_slam__c": {
       "file": "audio/candidates/boss_slam__c.wav",
-      "duration": 0.871,
+      "duration": 0.7151,
       "placeholder": false,
       "candidate": "C"
     },
     "boss_stunned": {
       "file": "audio/sfx/boss_stunned.wav",
-      "duration": 0.7628,
+      "duration": 0.7848,
       "placeholder": false,
       "picked": "A",
       "pending": true
     },
     "boss_stunned__a": {
       "file": "audio/candidates/boss_stunned__a.wav",
-      "duration": 0.7628,
+      "duration": 0.7848,
       "placeholder": false,
       "candidate": "A"
     },
     "boss_stunned__b": {
       "file": "audio/candidates/boss_stunned__b.wav",
-      "duration": 0.8111,
+      "duration": 0.9405,
       "placeholder": false,
       "candidate": "B"
     },
     "boss_stunned__c": {
       "file": "audio/candidates/boss_stunned__c.wav",
-      "duration": 0.8678,
+      "duration": 0.8942,
       "placeholder": false,
       "candidate": "C"
     },
@@ -2674,26 +2674,26 @@
     },
     "reward_kill_1_shine": {
       "file": "audio/sfx/reward_kill_1_shine.wav",
-      "duration": 0.4442,
+      "duration": 0.3491,
       "placeholder": false,
       "picked": "A",
       "pending": true
     },
     "reward_kill_1_shine__a": {
       "file": "audio/candidates/reward_kill_1_shine__a.wav",
-      "duration": 0.4442,
+      "duration": 0.3491,
       "placeholder": false,
       "candidate": "A"
     },
     "reward_kill_1_shine__b": {
       "file": "audio/candidates/reward_kill_1_shine__b.wav",
-      "duration": 0.4221,
+      "duration": 0.3617,
       "placeholder": false,
       "candidate": "B"
     },
     "reward_kill_1_shine__c": {
       "file": "audio/candidates/reward_kill_1_shine__c.wav",
-      "duration": 0.2955,
+      "duration": 0.3507,
       "placeholder": false,
       "candidate": "C"
     },
@@ -2724,26 +2724,26 @@
     },
     "reward_kill_2_shine": {
       "file": "audio/sfx/reward_kill_2_shine.wav",
-      "duration": 0.4442,
+      "duration": 0.3491,
       "placeholder": false,
       "picked": "A",
       "pending": true
     },
     "reward_kill_2_shine__a": {
       "file": "audio/candidates/reward_kill_2_shine__a.wav",
-      "duration": 0.4442,
+      "duration": 0.3491,
       "placeholder": false,
       "candidate": "A"
     },
     "reward_kill_2_shine__b": {
       "file": "audio/candidates/reward_kill_2_shine__b.wav",
-      "duration": 0.4221,
+      "duration": 0.3617,
       "placeholder": false,
       "candidate": "B"
     },
     "reward_kill_2_shine__c": {
       "file": "audio/candidates/reward_kill_2_shine__c.wav",
-      "duration": 0.2955,
+      "duration": 0.3507,
       "placeholder": false,
       "candidate": "C"
     },
@@ -2774,26 +2774,26 @@
     },
     "reward_kill_3_shine": {
       "file": "audio/sfx/reward_kill_3_shine.wav",
-      "duration": 0.4442,
+      "duration": 0.3491,
       "placeholder": false,
       "picked": "A",
       "pending": true
     },
     "reward_kill_3_shine__a": {
       "file": "audio/candidates/reward_kill_3_shine__a.wav",
-      "duration": 0.4442,
+      "duration": 0.3491,
       "placeholder": false,
       "candidate": "A"
     },
     "reward_kill_3_shine__b": {
       "file": "audio/candidates/reward_kill_3_shine__b.wav",
-      "duration": 0.4221,
+      "duration": 0.3617,
       "placeholder": false,
       "candidate": "B"
     },
     "reward_kill_3_shine__c": {
       "file": "audio/candidates/reward_kill_3_shine__c.wav",
-      "duration": 0.2955,
+      "duration": 0.3507,
       "placeholder": false,
       "candidate": "C"
     },

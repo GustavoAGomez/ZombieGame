@@ -2,7 +2,7 @@
   "chosen": null,
   "candidates": {
     "A": {
-      "about": "Un yunque cinco semitonos más grave, una pisada enorme y el suelo que se agrieta.",
+      "about": "Una roca enorme que cae, piedra que retumba, hormigón que se rompe y peso a 110 Hz.",
       "channels": 1,
       "variants": [
         {
@@ -11,10 +11,18 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/386106_anvil_lokomo_a_100_kg_hammer_on_back_1_t.ogg",
+                "source": "library/freesound/443845_58_caida_roca_grande.ogg"
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/536803_stone.ogg",
                 "process": {
-                  "semitones": -5,
-                  "end": 0.6
+                  "end": 0.6,
+                  "lowcut": 120,
+                  "fadeOut": 0.2
                 }
               },
               "gain": 0.8
@@ -22,9 +30,111 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/813053_big_robot_footstep_002.ogg",
+                "source": "library/freesound/194688_pieceofconcrete01.ogg",
+                "process": {
+                  "start": 0.22,
+                  "end": 0.8,
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.03
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 110,
+                "duration": 0.3
+              },
+              "gain": 0.6
+            }
+          ],
+          "process": {
+            "drive": 0.2,
+            "threshold": -16,
+            "ratio": 3,
+            "reverb": "room",
+            "wet": 0.15,
+            "length": 0.85,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Un tom enorme, una roca que se estrella y ladrillos que caen detrás.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/687924_jh_big_tom_2_f_1_5_sec.ogg",
                 "process": {
                   "end": 0.6,
+                  "lowcut": 110,
+                  "fadeOut": 0.25
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/746473_dropping_rock_1.ogg"
+              },
+              "gain": 0.7
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/418861_brick_falling.ogg",
+                "process": {
+                  "start": 0.1,
+                  "end": 0.7,
+                  "fadeOut": 0.25
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.08
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 100,
+                "duration": 0.3
+              },
+              "gain": 0.5
+            }
+          ],
+          "process": {
+            "drive": 0.2,
+            "threshold": -16,
+            "ratio": 3,
+            "reverb": "room",
+            "wet": 0.15,
+            "length": 0.85,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Dos golpes sordos uno sobre otro, ladrillos y escombros.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/653370_dullthud.ogg",
+                "process": {
                   "lowcut": 100
                 }
               },
@@ -33,34 +143,11 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/504076_wood_floor_crack_1_5.ogg"
-              },
-              "gain": 0.7,
-              "delay": 0.05
-            }
-          ],
-          "process": {
-            "reverb": "room",
-            "wet": 0.15,
-            "length": 0.9,
-            "fadeOut": 0.3
-          }
-        }
-      ]
-    },
-    "B": {
-      "about": "Metal pesado de Kenney, ladrillos y una grieta.",
-      "channels": 1,
-      "variants": [
-        {
-          "type": "layers",
-          "layers": [
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/kenney-impact-sounds/impactMetal_heavy_001.ogg",
+                "source": "library/freesound/342535_medium_thud_1.ogg",
                 "process": {
-                  "semitones": -3
+                  "start": 0.2,
+                  "end": 0.6,
+                  "lowcut": 110
                 }
               },
               "gain": 0.8
@@ -73,73 +160,28 @@
                   "lowcut": 120
                 }
               },
-              "gain": 1
+              "gain": 0.7
             },
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/262634_ice_crack_2.ogg",
+                "source": "library/freesound/848472_vintage_debris_smash.ogg",
                 "process": {
-                  "start": 0.1,
-                  "end": 0.7,
-                  "highcut": 6000
+                  "end": 0.6,
+                  "fadeOut": 0.25
                 }
               },
-              "gain": 0.6,
+              "gain": 0.4,
               "delay": 0.05
             }
           ],
           "process": {
+            "drive": 0.2,
+            "threshold": -16,
+            "ratio": 3,
             "reverb": "room",
             "wet": 0.15,
-            "length": 0.9,
-            "fadeOut": 0.3
-          }
-        }
-      ]
-    },
-    "C": {
-      "about": "Un yunque muy grave, una piedra grande y el suelo que cruje.",
-      "channels": 1,
-      "variants": [
-        {
-          "type": "layers",
-          "layers": [
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/freesound/386103_anvil_lokomo_a_100_kg_hammer_on_horn_1_t.ogg",
-                "process": {
-                  "semitones": -7,
-                  "end": 0.6
-                }
-              },
-              "gain": 0.8
-            },
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/freesound/536803_stone.ogg",
-                "process": {
-                  "lowcut": 120,
-                  "end": 0.8
-                }
-              },
-              "gain": 1
-            },
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/freesound/504078_wood_floor_crack_1_3.ogg"
-              },
-              "gain": 0.7,
-              "delay": 0.05
-            }
-          ],
-          "process": {
-            "reverb": "room",
-            "wet": 0.15,
-            "length": 0.9,
+            "length": 0.85,
             "fadeOut": 0.3
           }
         }

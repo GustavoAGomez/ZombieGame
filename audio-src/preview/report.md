@@ -29,12 +29,12 @@ Bandas: porcentaje de la energía por debajo de 100 Hz, 100–250, 250–1000, 1
 | boss_roar__a | boss.roar | A ✓ | Amenaza | mono | 1105 ms | 145 ms | -1.0 dB | -15.1 dB | 1493 Hz | 177 Hz | 1 · 20 · 38 · 40 · 0 |
 | boss_roar__b | boss.roar | B | Amenaza | mono | 1015 ms | 185 ms | -1.0 dB | -12.7 dB | 1671 Hz | 228 Hz | 1 · 43 · 53 · 3 · 0 |
 | boss_roar__c | boss.roar | C | Amenaza | mono | 1079 ms | 129 ms | -1.0 dB | -16.6 dB | 2843 Hz | 188 Hz | 4 · 49 · 31 · 15 · 2 |
-| boss_slam__a | boss.slam | A ✓ | Amenaza | mono | 801 ms | 181 ms | -1.0 dB | -16.0 dB | 2566 Hz | 107 Hz | 21 · 27 · 19 · 32 · 1 |
-| boss_slam__b | boss.slam | B | Amenaza | mono | 703 ms | 273 ms | -1.0 dB | -19.3 dB | 3199 Hz | 1131 Hz | 1 · 5 · 20 · 73 · 1 |
-| boss_slam__c | boss.slam | C | Amenaza | mono | 871 ms | 91 ms | -1.0 dB | -15.6 dB | 1386 Hz | 131 Hz | 19 · 59 · 17 · 6 · 0 |
-| boss_stunned__a | boss.stunned | A ✓ | Amenaza | mono | 763 ms | 133 ms | -1.0 dB | -17.3 dB | 3266 Hz | 155 Hz | 5 · 15 · 31 · 48 · 2 |
-| boss_stunned__b | boss.stunned | B | Amenaza | mono | 811 ms | 171 ms | -1.0 dB | -18.4 dB | 2475 Hz | 168 Hz | 5 · 39 · 45 · 9 · 1 |
-| boss_stunned__c | boss.stunned | C | Amenaza | mono | 868 ms | 108 ms | -1.0 dB | -15.7 dB | 2312 Hz | 174 Hz | 4 · 22 · 52 · 21 · 1 |
+| boss_slam__a | boss.slam | A ✓ | Amenaza | mono | 738 ms | 148 ms | -1.0 dB | -13.3 dB | 2481 Hz | 135 Hz | 16 · 58 · 22 · 4 · 1 |
+| boss_slam__b | boss.slam | B | Amenaza | mono | 750 ms | 130 ms | -1.0 dB | -17.6 dB | 3382 Hz | 135 Hz | 17 · 39 · 22 · 19 · 2 |
+| boss_slam__c | boss.slam | C | Amenaza | mono | 715 ms | 125 ms | -1.0 dB | -16.5 dB | 2424 Hz | 248 Hz | 2 · 16 · 43 · 38 · 1 |
+| boss_stunned__a | boss.stunned | A ✓ | Amenaza | mono | 785 ms | 115 ms | -1.0 dB | -12.4 dB | 2555 Hz | 153 Hz | 11 · 47 · 20 · 23 · 0 |
+| boss_stunned__b | boss.stunned | B | Amenaza | mono | 941 ms | 121 ms | -1.0 dB | -18.8 dB | 3966 Hz | 149 Hz | 25 · 34 · 32 · 6 · 3 |
+| boss_stunned__c | boss.stunned | C | Amenaza | mono | 894 ms | 94 ms | -1.0 dB | -12.4 dB | 2024 Hz | 237 Hz | 1 · 20 · 56 · 23 · 1 |
 | boss_warning__a | boss.warning | A ✓ | Amenaza | mono | 2998 ms | 38 ms | -1.0 dB | -14.3 dB | 3026 Hz | 1682 Hz | 0 · 0 · 3 · 96 · 0 |
 | boss_warning__b | boss.warning | B | Amenaza | mono | 2998 ms | 68 ms | -1.0 dB | -13.4 dB | 2955 Hz | 315 Hz | 0 · 0 · 94 · 6 · 0 |
 | boss_warning__c | boss.warning | C | Amenaza | mono | 2988 ms | 78 ms | -1.0 dB | -14.6 dB | 2392 Hz | 1737 Hz | 0 · 0 · 0 · 100 · 0 |
@@ -173,21 +173,21 @@ Bandas: porcentaje de la energía por debajo de 100 Hz, 100–250, 250–1000, 1
 | reward_kill_1__a | reward.kill | A ✓ | Premio | mono | 573 ms | 83 ms | -1.0 dB | -16.7 dB | 5717 Hz | 177 Hz | 3 · 59 · 23 · 7 · 7 |
 | reward_kill_2__a | reward.kill | A ✓ | Premio | mono | 423 ms | 63 ms | -1.0 dB | -13.7 dB | 3541 Hz | 318 Hz | 0 · 9 · 80 · 7 · 4 |
 | reward_kill_3__a | reward.kill | A ✓ | Premio | mono | 577 ms | 77 ms | -1.0 dB | -19.5 dB | 5849 Hz | 169 Hz | 1 · 10 · 9 · 64 · 15 |
-| reward_kill_1_shine__a | reward.kill | A ✓ | Premio | mono | 444 ms | 104 ms | -1.0 dB | -16.2 dB | 1927 Hz | 874 Hz | 0 · 1 · 72 · 27 · 0 |
-| reward_kill_2_shine__a | reward.kill | A ✓ | Premio | mono | 444 ms | 104 ms | -1.0 dB | -16.2 dB | 1927 Hz | 874 Hz | 0 · 1 · 72 · 27 · 0 |
-| reward_kill_3_shine__a | reward.kill | A ✓ | Premio | mono | 444 ms | 104 ms | -1.0 dB | -16.2 dB | 1927 Hz | 874 Hz | 0 · 1 · 72 · 27 · 0 |
+| reward_kill_1_shine__a | reward.kill | A ✓ | Premio | mono | 349 ms | 99 ms | -1.0 dB | -13.3 dB | 1619 Hz | 1325 Hz | 0 · 0 · 0 · 100 · 0 |
+| reward_kill_2_shine__a | reward.kill | A ✓ | Premio | mono | 349 ms | 99 ms | -1.0 dB | -13.3 dB | 1619 Hz | 1325 Hz | 0 · 0 · 0 · 100 · 0 |
+| reward_kill_3_shine__a | reward.kill | A ✓ | Premio | mono | 349 ms | 99 ms | -1.0 dB | -13.3 dB | 1619 Hz | 1325 Hz | 0 · 0 · 0 · 100 · 0 |
 | reward_kill_1__b | reward.kill | B | Premio | mono | 519 ms | 99 ms | -1.0 dB | -19.4 dB | 6695 Hz | 1210 Hz | 2 · 8 · 17 · 49 · 23 |
 | reward_kill_2__b | reward.kill | B | Premio | mono | 428 ms | 18 ms | -1.0 dB | -21.4 dB | 3904 Hz | 174 Hz | 6 · 22 · 29 · 32 · 10 |
 | reward_kill_3__b | reward.kill | B | Premio | mono | 498 ms | 98 ms | -1.0 dB | -19.6 dB | 4809 Hz | 300 Hz | 2 · 9 · 56 · 24 · 9 |
-| reward_kill_1_shine__b | reward.kill | B | Premio | mono | 422 ms | 62 ms | -1.0 dB | -20.0 dB | 4660 Hz | 877 Hz | 0 · 0 · 59 · 29 · 12 |
-| reward_kill_2_shine__b | reward.kill | B | Premio | mono | 422 ms | 62 ms | -1.0 dB | -20.0 dB | 4660 Hz | 877 Hz | 0 · 0 · 59 · 29 · 12 |
-| reward_kill_3_shine__b | reward.kill | B | Premio | mono | 422 ms | 62 ms | -1.0 dB | -20.0 dB | 4660 Hz | 877 Hz | 0 · 0 · 59 · 29 · 12 |
+| reward_kill_1_shine__b | reward.kill | B | Premio | mono | 362 ms | 102 ms | -1.0 dB | -15.2 dB | 1654 Hz | 652 Hz | 0 · 0 · 81 · 19 · 0 |
+| reward_kill_2_shine__b | reward.kill | B | Premio | mono | 362 ms | 102 ms | -1.0 dB | -15.2 dB | 1654 Hz | 652 Hz | 0 · 0 · 81 · 19 · 0 |
+| reward_kill_3_shine__b | reward.kill | B | Premio | mono | 362 ms | 102 ms | -1.0 dB | -15.2 dB | 1654 Hz | 652 Hz | 0 · 0 · 81 · 19 · 0 |
 | reward_kill_1__c | reward.kill | C | Premio | mono | 571 ms | 91 ms | -1.0 dB | -14.2 dB | 2404 Hz | 475 Hz | 0 · 1 · 96 · 2 · 0 |
 | reward_kill_2__c | reward.kill | C | Premio | mono | 478 ms | 98 ms | -1.0 dB | -14.6 dB | 4846 Hz | 767 Hz | 0 · 5 · 74 · 17 · 4 |
 | reward_kill_3__c | reward.kill | C | Premio | mono | 586 ms | 76 ms | -1.0 dB | -19.1 dB | 6191 Hz | 225 Hz | 7 · 27 · 34 · 20 · 12 |
-| reward_kill_1_shine__c | reward.kill | C | Premio | mono | 295 ms | 35 ms | -1.0 dB | -20.3 dB | 5768 Hz | 1324 Hz | 0 · 0 · 14 · 72 · 14 |
-| reward_kill_2_shine__c | reward.kill | C | Premio | mono | 295 ms | 35 ms | -1.0 dB | -20.3 dB | 5768 Hz | 1324 Hz | 0 · 0 · 14 · 72 · 14 |
-| reward_kill_3_shine__c | reward.kill | C | Premio | mono | 295 ms | 35 ms | -1.0 dB | -20.3 dB | 5768 Hz | 1324 Hz | 0 · 0 · 14 · 72 · 14 |
+| reward_kill_1_shine__c | reward.kill | C | Premio | mono | 351 ms | 61 ms | -1.0 dB | -13.4 dB | 2195 Hz | 878 Hz | 0 · 0 · 89 · 11 · 0 |
+| reward_kill_2_shine__c | reward.kill | C | Premio | mono | 351 ms | 61 ms | -1.0 dB | -13.4 dB | 2195 Hz | 878 Hz | 0 · 0 · 89 · 11 · 0 |
+| reward_kill_3_shine__c | reward.kill | C | Premio | mono | 351 ms | 61 ms | -1.0 dB | -13.4 dB | 2195 Hz | 878 Hz | 0 · 0 · 89 · 11 · 0 |
 | reward_repair__a | reward.repair | A ✓ | Premio | mono | 296 ms | 106 ms | -1.0 dB | -17.4 dB | 4160 Hz | 376 Hz | 2 · 18 · 50 · 4 · 27 |
 | reward_repair_shine__a | reward.repair | A ✓ | Premio | mono | 404 ms | 114 ms | -1.0 dB | -21.8 dB | 1812 Hz | 1326 Hz | 0 · 0 · 0 · 100 · 0 |
 | reward_repair__b | reward.repair | B | Premio | mono | 280 ms | 0 ms | -1.0 dB | -12.3 dB | 5935 Hz | 581 Hz | 0 · 2 · 38 · 40 · 21 |
@@ -343,12 +343,12 @@ Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.
 - **boss.roar A** (en el juego): Rugido de monstruo grabado con un rugido de OpenGameArt debajo.
 - **boss.roar B**: Otro rugido, más agudo, con un rugido corto y grave subido para el móvil.
 - **boss.roar C**: Un rugido largo de bestia y otro de OpenGameArt.
-- **boss.slam A** (en el juego): Un yunque cinco semitonos más grave, una pisada enorme y el suelo que se agrieta.
-- **boss.slam B**: Metal pesado de Kenney, ladrillos y una grieta.
-- **boss.slam C**: Un yunque muy grave, una piedra grande y el suelo que cruje.
-- **boss.stunned A** (en el juego): Choque contra la pared: ladrillos, una pisada enorme y un golpe metálico.
-- **boss.stunned B**: Choque: una roca, un puñetazo pesado y cosas que caen.
-- **boss.stunned C**: Choque: escombros que se rompen y un tom enorme.
+- **boss.slam A** (en el juego): Una roca enorme que cae, piedra que retumba, hormigón que se rompe y peso a 110 Hz.
+- **boss.slam B**: Un tom enorme, una roca que se estrella y ladrillos que caen detrás.
+- **boss.slam C**: Dos golpes sordos uno sobre otro, ladrillos y escombros.
+- **boss.stunned A** (en el juego): Choque contra la pared: ladrillos, piedra, cascotes que caen y un gruñido aturdido.
+- **boss.stunned B**: Choque: una roca enorme, un tom grave, hormigón y un quejido de bestia aturdida.
+- **boss.stunned C**: Choque: escombros que se rompen, un golpe sordo y una piedra que rueda.
 - **boss.warning A** (en el juego): Una bomba que cae, grabada y bajada cinco semitonos, sobre aire que baja de 800 a 150 Hz.
 - **boss.warning B**: Aire que cae de 1500 a 200 Hz con un acorde La-Mi que se hunde una octava.
 - **boss.warning C**: La bomba que cae, deslizándose más abajo, con un retumbo de rocas que crece.
@@ -457,9 +457,9 @@ Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.
 - **player.hurt A** (en el juego): Puñetazo medio y un gruñido corto de dolor (MrFossy).
 - **player.hurt B**: Golpe sordo con el peso en 180 Hz y otros dos gruñidos.
 - **player.hurt C**: Golpe contra el suelo de madera y gruñidos más largos.
-- **reward.kill A** (en el juego): ESTERTOR Y CAÍDA: tres muertes de zombi grabadas, con la carne que revienta y el cuerpo que cae; la racha es un yunque afinado a La 5.
-- **reward.kill B**: REVIENTA: primero la carne que revienta, luego un quejido corto y un golpe contra el suelo; la racha es un «ding» de metal en La 5.
-- **reward.kill C**: MUERTE LENTA: un último gemido más largo, algo húmedo y la caída; la racha es el «ding» de metal en Mi 6 con el golpe del yunque delante.
+- **reward.kill A** (en el juego): ESTERTOR Y CAÍDA: tres muertes de zombi grabadas, con la carne que revienta y el cuerpo que cae; la racha es una marimba (madera) en Mi 6.
+- **reward.kill B**: REVIENTA: primero la carne que revienta, luego un quejido corto y un golpe contra el suelo; la racha es un pizzicato de cuerdas en Mi 5.
+- **reward.kill C**: MUERTE LENTA: un último gemido más largo, algo húmedo y la caída; la racha es un xilófono (madera) en La 5.
 - **reward.repair A** (en el juego): Un tablón que golpea la madera y un clavo que entra; la nota de la racha es una kalimba en Mi 6.
 - **reward.repair B**: Dos martillazos rápidos sobre la madera; la nota de la racha es el glockenspiel en La 5.
 - **reward.repair C**: Un tablón que cae en su sitio y rebota una vez; la nota de la racha es un «ding» de cristal en Mi 6.
@@ -542,6 +542,6 @@ Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.
 ## Avisos
 
 - buy.door: Premio más grave (tono 219 Hz) que los de Golpe (mediana 438 Hz)
-- weapon.empty: Golpe más agudo (tono 2368 Hz) que los de Premio (mediana 880 Hz)
-- weapon.reload.end: Golpe más agudo (tono 3911 Hz) que los de Premio (mediana 880 Hz)
-- weapon.reload.start: Golpe más agudo (tono 3518 Hz) que los de Premio (mediana 880 Hz)
+- weapon.empty: Golpe más agudo (tono 2368 Hz) que los de Premio (mediana 905 Hz)
+- weapon.reload.end: Golpe más agudo (tono 3911 Hz) que los de Premio (mediana 905 Hz)
+- weapon.reload.start: Golpe más agudo (tono 3518 Hz) que los de Premio (mediana 905 Hz)
