@@ -100,9 +100,9 @@ export interface SoundTest {
   pickOf(id: string): { letter: AudioCandidate; pending: boolean } | null;
   /** Plays candidate `letter` of a sound, as the game would play it. */
   testCandidate(id: string, letter: AudioCandidate): void;
-  /** SIMULAR COMBATE: the SMG firing with hits and kills, among a crowd of zombies, for a few seconds, to hear the mix. */
+  /** SIMULAR COMBATE: the SMG firing with hits, among a crowd of zombies, for a few seconds, to hear the mix. */
   simulateCombat(): void;
-  /** SIMULAR RACHA: kills in a row, to hear the kill streak climb. */
+  /** SIMULAR RACHA: planks repaired in a row, to hear the streak climb. */
   simulateStreak(): void;
   stats(): AudioStats;
 }
@@ -350,12 +350,12 @@ export class AudioDirector implements GameAudio, SoundTest {
   }
 
   simulateStreak(): void {
-    const { kills, interval } = AUDIO.streakTest;
-    for (let i = 0; i < kills; i++) this.schedule(i * interval, () => this.test('reward.kill'));
+    const { planks, interval } = AUDIO.streakTest;
+    for (let i = 0; i < planks; i++) this.schedule(i * interval, () => this.test('reward.repair'));
   }
 
   simulateCombat(): void {
-    const { seconds, hitsIn10, killEvery, attackEvery, groanEvery, crowdRadius } = AUDIO.combatTest;
+    const { seconds, hitsIn10, attackEvery, groanEvery, crowdRadius } = AUDIO.combatTest;
     const shots = Math.round(seconds * WEAPONS.smg.fireRate);
     // Somewhere in the crowd around the player (in the middle, out of a match).
     const around = (): Place => {
@@ -363,7 +363,6 @@ export class AudioDirector implements GameAudio, SoundTest {
       const r = crowdRadius * (0.3 + 0.7 * this.random());
       return { x: this.listener.x + Math.cos(angle) * r, y: this.listener.y + Math.sin(angle) * r };
     };
-    let hits = 0;
     for (let i = 0; i < shots; i++) {
       this.schedule(i / WEAPONS.smg.fireRate, () => {
         this.play('weapon.smg.fire');
@@ -371,7 +370,6 @@ export class AudioDirector implements GameAudio, SoundTest {
         if (i % groanEvery === 0) this.play('zombie.groan', { at: around() });
         if (i % 10 >= hitsIn10) return;
         this.play('impact.flesh', { at: around() });
-        if (++hits % killEvery === 0) this.test('reward.kill');
       });
     }
   }
@@ -427,10 +425,6 @@ export class AudioDirector implements GameAudio, SoundTest {
    */
   private listenRewards(events: EventBus, mine: (playerId: number, id: string) => void): void {
     const local = (playerId: number): boolean => playerId === AUDIO.localPlayerId;
-    // A hit sounds only with its impact; a kill, with its streak.
-    events.on('points:gained', (e) => {
-      if (local(e.playerId) && e.reason === 'kill') this.play('reward.kill', { rung: this.climb('kill') });
-    });
     events.on('barricade:repaired', (e) => {
       if (local(e.playerId)) this.play('reward.repair', { rung: this.climb('repair') });
     });

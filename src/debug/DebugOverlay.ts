@@ -261,7 +261,7 @@ export class DebugOverlay {
     sheet.append(head, this.soundStatsEl, actions, tabs, list);
     const sounds = this.sounds;
     if (!sounds) return sheet;
-    // SIMULAR COMBATE and SIMULAR RACHA, to hear the mix and the kill streak (spec 08 §8).
+    // SIMULAR COMBATE and SIMULAR RACHA, to hear the mix and the repair streak (spec 08 §8).
     for (const [label, run] of [
       [STRINGS.debug.simulateCombat, () => sounds.simulateCombat()],
       [STRINGS.debug.simulateStreak, () => sounds.simulateStreak()],

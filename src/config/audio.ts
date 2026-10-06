@@ -17,7 +17,7 @@ export type AudioPriority = 'low' | 'normal' | 'high';
 export type SoundFamily = 'hit' | 'reward' | 'threat' | 'ui' | 'jingle' | 'music';
 
 /** A streak that raises the pitch of a sound's shine layer on each repetition (spec 08 §3.4). */
-export type LadderId = 'kill' | 'repair' | 'upgrade';
+export type LadderId = 'repair' | 'upgrade';
 
 /** A player's volume setting for the effects or the music (pause menu). */
 export type VolumeLevel = 'high' | 'medium' | 'low' | 'off';
@@ -84,23 +84,24 @@ export const AUDIO = {
   laserHotRate: 1.5,
   /**
    * The sound test's SIMULAR COMBATE (§8): the SMG firing for `seconds` at
-   * its fire rate, `hitsIn10` of every 10 shots hitting and a kill every
-   * `killEvery` hits, to hear the mix; and around the player a crowd
+   * its fire rate, `hitsIn10` of every 10 shots hitting, to hear the mix;
+   * and around the player a crowd
    * (§9, S4: 20 zombies), one of them striking every `attackEvery` shots
    * and groaning every `groanEvery`, within `crowdRadius` px.
    */
-  combatTest: { seconds: 5, hitsIn10: 7, killEvery: 6, attackEvery: 4, groanEvery: 25, crowdRadius: 300 },
+  combatTest: { seconds: 5, hitsIn10: 7, attackEvery: 4, groanEvery: 25, crowdRadius: 300 },
   /**
    * Streaks (§3.4): the shine layer's rungs, semitones over its own note
    * (it stays on the last one), and how long a streak waits for the next
-   * repetition, seconds. The upgrade streak goes by the level bought.
+   * repetition, seconds. The upgrade streak goes by the level bought. A
+   * kill makes no sound and has no streak (the user's choice, docs/DECISIONS.md).
    */
   ladder: {
     steps: [0, 3, 5, 7, 10, 12, 15, 17],
-    windows: { kill: 1.5, repair: 2 },
+    windows: { repair: 2 },
   },
-  /** The sound test's SIMULAR RACHA (§8): this many kills in a row, this far apart, seconds. */
-  streakTest: { kills: 8, interval: 0.3 },
+  /** The sound test's SIMULAR RACHA (§8): this many planks in a row, this far apart, seconds. */
+  streakTest: { planks: 8, interval: 0.3 },
   /** The two bell notes of an unlocked room come after the door's bolt (§6.2), seconds. */
   zoneDelay: 0.35,
   /** `jingle.boss.dead` after the boss's own fall (§6.4), and `jingle.gameover` after the player's death, seconds. */
@@ -250,8 +251,7 @@ export const SOUNDS: readonly SoundDef[] = [
   sound({ id: 'player.death', family: 'threat', variants: keys('player.death'), bus: 'sfx', volume: 0.9, maxVoices: 1, priority: 'high', duck: true }),
   sound({ id: 'player.heartbeat', family: 'threat', variants: keys('player.heartbeat'), bus: 'sfx', volume: 0.7, maxVoices: 1, priority: 'high', loop: true }),
   // §6.2 Rewards. `denied` and `item.cantUse` answer a tap: measured as interface sounds.
-  // A hit sounds only with its impact (impact.flesh): no `reward.hit` (the user's choice, docs/DECISIONS.md).
-  sound({ id: 'reward.kill', family: 'reward', variants: keys('reward.kill', 3), shine: shine(keys('reward.kill', 3)), bus: 'sfx', volume: 0.6, maxVoices: 3, minInterval: 0.03, ladder: 'kill' }),
+  // A hit sounds only with its impact (impact.flesh), and a kill not at all: no `reward.hit` nor `reward.kill` (the user's choice, docs/DECISIONS.md).
   sound({ id: 'reward.repair', family: 'reward', variants: keys('reward.repair'), shine: shine(keys('reward.repair')), bus: 'sfx', volume: 0.6, maxVoices: 2, ladder: 'repair' }),
   sound({ id: 'pickup.ammo', family: 'reward', variants: keys('pickup.ammo'), bus: 'sfx', volume: 0.6, maxVoices: 1 }),
   sound({ id: 'pickup.health', family: 'reward', variants: keys('pickup.health'), bus: 'sfx', volume: 0.65, maxVoices: 1 }),

@@ -16,10 +16,8 @@ Generado por `npm run audio:gen` a partir de los `credits.json` de `audio-src/` 
 | `library/freesound/147993_bone_cracking.ogg` | Freesound (previsualización HQ OGG) | bewareofkites20 | CC0 1.0 | https://freesound.org/people/bewareofkites20/sounds/147993/ | hand.roll, zombie.crawl |
 | `library/freesound/156879_horn.ogg` | Freesound (previsualización HQ OGG) | rgeier2 | CC0 1.0 | https://freesound.org/people/rgeier2/sounds/156879/ | jingle.round.clear |
 | `library/freesound/159419_120619_10_single_rock.ogg` | Freesound (previsualización HQ OGG) | Evan Cruder | CC0 1.0 | https://freesound.org/people/Evan%20Cruder/sounds/159419/ | boss.stunned, boss.windup.leap |
-| `library/freesound/163440_zombie_1.ogg` | Freesound (previsualización HQ OGG) | Under7dude | CC0 1.0 | https://freesound.org/people/Under7dude/sounds/163440/ | reward.kill |
 | `library/freesound/163447_zombie_hit.ogg` | Freesound (previsualización HQ OGG) | Under7dude | CC0 1.0 | https://freesound.org/people/Under7dude/sounds/163447/ | impact.flesh |
 | `library/freesound/163455_shotgun_shot.ogg` | Freesound (previsualización HQ OGG) | LeMudCrab | CC0 1.0 | https://freesound.org/people/LeMudCrab/sounds/163455/ | weapon.shotgun.fire |
-| `library/freesound/169058_slow_zombie_death.ogg` | Freesound (previsualización HQ OGG) | scorpion67890 | CC0 1.0 | https://freesound.org/people/scorpion67890/sounds/169058/ | reward.kill |
 | `library/freesound/182248_gun_cock_slow_clip.ogg` | Freesound (previsualización HQ OGG) | martian | CC0 1.0 | https://freesound.org/people/martian/sounds/182248/ | buy.weapon, weapon.reload.end |
 | `library/freesound/182252_loy_s_gun_cock_bullet_in_clip.ogg` | Freesound (previsualización HQ OGG) | martian | CC0 1.0 | https://freesound.org/people/martian/sounds/182252/ | buy.weapon, weapon.reload.end |
 | `library/freesound/192496_bubbles_light_short_descend.ogg` | Freesound (previsualización HQ OGG) | murraysortz | CC0 1.0 | https://freesound.org/people/murraysortz/sounds/192496/ | buy.merchant, merchant.arrive |
@@ -63,9 +61,6 @@ Generado por `npm run audio:gen` a partir de los `credits.json` de `audio-src/` 
 | `library/freesound/364683_unlock_deadbolt.ogg` | Freesound (previsualización HQ OGG) | alegemaate | CC0 1.0 | https://freesound.org/people/alegemaate/sounds/364683/ | buy.door |
 | `library/freesound/370204_samurai_slash.ogg` | Freesound (previsualización HQ OGG) | nekoninja | CC0 1.0 | https://freesound.org/people/nekoninja/sounds/370204/ | weapon.katana.hit |
 | `library/freesound/371440_single_pistol_gunshot_2.ogg` | Freesound (previsualización HQ OGG) | morganpurkis | CC0 1.0 | https://freesound.org/people/morganpurkis/sounds/371440/ | weapon.pistol.fire |
-| `library/freesound/373584_marimba_e_6_marimba_hit_outrigger_f5_lou.ogg` | Freesound (previsualización HQ OGG) | sgossner | CC0 1.0 | https://freesound.org/people/sgossner/sounds/373584/ | reward.kill |
-| `library/freesound/374518_violin_section_pizzicato_e5_vlnens_pizz_.ogg` | Freesound (previsualización HQ OGG) | sgossner | CC0 1.0 | https://freesound.org/people/sgossner/sounds/374518/ | reward.kill |
-| `library/freesound/374700_xylophone_c5_xylo_medium_c5_ff_01_far_wa.ogg` | Freesound (previsualización HQ OGG) | sgossner | CC0 1.0 | https://freesound.org/people/sgossner/sounds/374700/ | reward.kill |
 | `library/freesound/386106_anvil_lokomo_a_100_kg_hammer_on_back_1_t.ogg` | Freesound (previsualización HQ OGG) | ldezem | CC0 1.0 | https://freesound.org/people/ldezem/sounds/386106/ | boss.windup.slam |
 | `library/freesound/386117_anvil_lokomo_a_100_kg_forging_hot_steel_.ogg` | Freesound (previsualización HQ OGG) | ldezem | CC0 1.0 | https://freesound.org/people/ldezem/sounds/386117/ | boss.windup.slam |
 | `library/freesound/389590_swing_woosh.ogg` | Freesound (previsualización HQ OGG) | Jofae | CC0 1.0 | https://freesound.org/people/Jofae/sounds/389590/ | player.dash, weapon.katana.swing, weapon.knife, zombie.attack |
@@ -74,7 +69,6 @@ Generado por `npm run audio:gen` a partir de los `credits.json` de `audio-src/` 
 | `library/freesound/392999_escombros_caen_por_explosion.ogg` | Freesound (previsualización HQ OGG) | josecruz98 | CC0 1.0 | https://freesound.org/people/josecruz98/sounds/392999/ | boss.killed, boss.landed |
 | `library/freesound/395362_hit_6.ogg` | Freesound (previsualización HQ OGG) | ihitokage | CC0 1.0 | https://freesound.org/people/ihitokage/sounds/395362/ | impact.flesh |
 | `library/freesound/398448_match_ignite_no_strike.ogg` | Freesound (previsualización HQ OGG) | brachern | CC0 1.0 | https://freesound.org/people/brachern/sounds/398448/ | buy.upgrade |
-| `library/freesound/411671_bloodsquish.ogg` | Freesound (previsualización HQ OGG) | deoking | CC0 1.0 | https://freesound.org/people/deoking/sounds/411671/ | reward.kill |
 | `library/freesound/418194_hard_glass_impact.ogg` | Freesound (previsualización HQ OGG) | deleted_user_3656686 | CC0 1.0 | https://freesound.org/people/deleted_user_3656686/sounds/418194/ | weapon.laser.overheat |
 | `library/freesound/418861_brick_falling.ogg` | Freesound (previsualización HQ OGG) | LittleRainySeasons | CC0 1.0 | https://freesound.org/people/LittleRainySeasons/sounds/418861/ | boss.slam, boss.stunned |
 | `library/freesound/422516_menu_fx_03_ascending.ogg` | Freesound (previsualización HQ OGG) | Nightflame | CC0 1.0 | https://freesound.org/people/Nightflame/sounds/422516/ | boost.on |
@@ -88,19 +82,18 @@ Generado por `npm run audio:gen` a partir de los `credits.json` de `audio-src/` 
 | `library/freesound/444491_short_choir.ogg` | Freesound (previsualización HQ OGG) | Breviceps | CC0 1.0 | https://freesound.org/people/Breviceps/sounds/444491/ | buy.merchant, buy.special, hand.offer.special, jingle.boss.dead, merchant.arrive |
 | `library/freesound/445993_zombie_moan_1.ogg` | Freesound (previsualización HQ OGG) | Breviceps | CC0 1.0 | https://freesound.org/people/Breviceps/sounds/445993/ | zombie.groan |
 | `library/freesound/445995_zombie_moan_3.ogg` | Freesound (previsualización HQ OGG) | Breviceps | CC0 1.0 | https://freesound.org/people/Breviceps/sounds/445995/ | zombie.groan |
-| `library/freesound/447922_thud_falling_on_wooden_floor_snapping_br.ogg` | Freesound (previsualización HQ OGG) | Breviceps | CC0 1.0 | https://freesound.org/people/Breviceps/sounds/447922/ | player.hurt, reward.kill |
+| `library/freesound/447922_thud_falling_on_wooden_floor_snapping_br.ogg` | Freesound (previsualización HQ OGG) | Breviceps | CC0 1.0 | https://freesound.org/people/Breviceps/sounds/447922/ | player.hurt |
 | `library/freesound/447941_blast_flamethrower_cooldown.ogg` | Freesound (previsualización HQ OGG) | Breviceps | CC0 1.0 | https://freesound.org/people/Breviceps/sounds/447941/ | hand.offer.special, ritual.done, weapon.flame.blast, weapon.flame.loop |
 | `library/freesound/448410_bolt_lock_3.ogg` | Freesound (previsualización HQ OGG) | LordForklift | CC0 1.0 | https://freesound.org/people/LordForklift/sounds/448410/ | buy.door |
 | `library/freesound/452318_attack_4_the_ridge_host.ogg` | Freesound (previsualización HQ OGG) | bananplyte | CC0 1.0 | https://freesound.org/people/bananplyte/sounds/452318/ | zombie.attack |
 | `library/freesound/452319_attack_3_the_ridge_host.ogg` | Freesound (previsualización HQ OGG) | bananplyte | CC0 1.0 | https://freesound.org/people/bananplyte/sounds/452319/ | zombie.attack |
-| `library/freesound/452333_death_5_the_ridge_host.ogg` | Freesound (previsualización HQ OGG) | bananplyte | CC0 1.0 | https://freesound.org/people/bananplyte/sounds/452333/ | reward.kill, zombie.attack |
+| `library/freesound/452333_death_5_the_ridge_host.ogg` | Freesound (previsualización HQ OGG) | bananplyte | CC0 1.0 | https://freesound.org/people/bananplyte/sounds/452333/ | zombie.attack |
 | `library/freesound/452371_small_bell.ogg` | Freesound (previsualización HQ OGG) | steffcaffrey | CC0 1.0 | https://freesound.org/people/steffcaffrey/sounds/452371/ | buy.cash, buy.merchant, merchant.arrive |
 | `library/freesound/452379_small_bell_2.ogg` | Freesound (previsualización HQ OGG) | steffcaffrey | CC0 1.0 | https://freesound.org/people/steffcaffrey/sounds/452379/ | buy.merchant, merchant.arrive, ui.shop.close, ui.shop.open |
 | `library/freesound/455921_pistol_magazine_reload_only.ogg` | Freesound (previsualización HQ OGG) | bolkmar | CC0 1.0 | https://freesound.org/people/bolkmar/sounds/455921/ | buy.weapon, weapon.reload.end, weapon.reload.start |
 | `library/freesound/459884_flamethrower.ogg` | Freesound (previsualización HQ OGG) | LilMati | CC0 1.0 | https://freesound.org/people/LilMati/sounds/459884/ | weapon.flame.loop |
-| `library/freesound/460867_splat03.ogg` | Freesound (previsualización HQ OGG) | moshang | CC0 1.0 | https://freesound.org/people/moshang/sounds/460867/ | reward.kill |
-| `library/freesound/460868_splat02.ogg` | Freesound (previsualización HQ OGG) | moshang | CC0 1.0 | https://freesound.org/people/moshang/sounds/460868/ | reward.kill, weapon.katana.hit |
-| `library/freesound/460876_splat11.ogg` | Freesound (previsualización HQ OGG) | moshang | CC0 1.0 | https://freesound.org/people/moshang/sounds/460876/ | reward.kill, zombie.crawl |
+| `library/freesound/460868_splat02.ogg` | Freesound (previsualización HQ OGG) | moshang | CC0 1.0 | https://freesound.org/people/moshang/sounds/460868/ | weapon.katana.hit |
+| `library/freesound/460876_splat11.ogg` | Freesound (previsualización HQ OGG) | moshang | CC0 1.0 | https://freesound.org/people/moshang/sounds/460876/ | zombie.crawl |
 | `library/freesound/468030_gallop2.ogg` | Freesound (previsualización HQ OGG) | maugusto_sfx | CC0 1.0 | https://freesound.org/people/maugusto_sfx/sounds/468030/ | boss.charge.loop |
 | `library/freesound/468031_gallop.ogg` | Freesound (previsualización HQ OGG) | maugusto_sfx | CC0 1.0 | https://freesound.org/people/maugusto_sfx/sounds/468031/ | boss.charge.loop |
 | `library/freesound/470198_9mm_pop_shot.ogg` | Freesound (previsualización HQ OGG) | AudioWay | CC0 1.0 | https://freesound.org/people/AudioWay/sounds/470198/ | weapon.pistol.fire |
@@ -114,7 +107,6 @@ Generado por `npm run audio:gen` a partir de los `credits.json` de `audio-src/` 
 | `library/freesound/485776_heavy_money_bag_5.ogg` | Freesound (previsualización HQ OGG) | SpaceJoe | CC0 1.0 | https://freesound.org/people/SpaceJoe/sounds/485776/ | buy.cash |
 | `library/freesound/494797_jacket_cloth_rustle_9.ogg` | Freesound (previsualización HQ OGG) | brandondelehoy | CC0 1.0 | https://freesound.org/people/brandondelehoy/sounds/494797/ | ui.shop.close, ui.shop.open, weapon.switch |
 | `library/freesound/495117_wet_splat_2.ogg` | Freesound (previsualización HQ OGG) | nebulasnails | CC0 1.0 | https://freesound.org/people/nebulasnails/sounds/495117/ | hand.pay.blood, zombie.crawl |
-| `library/freesound/495118_wet_splat_1.ogg` | Freesound (previsualización HQ OGG) | nebulasnails | CC0 1.0 | https://freesound.org/people/nebulasnails/sounds/495118/ | reward.kill |
 | `library/freesound/504077_wood_floor_crack_1_4.ogg` | Freesound (previsualización HQ OGG) | Joao_Janz | CC0 1.0 | https://freesound.org/people/Joao_Janz/sounds/504077/ | boss.windup.leap |
 | `library/freesound/504079_wood_floor_crack_1_8.ogg` | Freesound (previsualización HQ OGG) | Joao_Janz | CC0 1.0 | https://freesound.org/people/Joao_Janz/sounds/504079/ | boss.windup.leap |
 | `library/freesound/504626_body_fall_v_hvy_dirt.ogg` | Freesound (previsualización HQ OGG) | leonelmail | CC0 1.0 | https://freesound.org/people/leonelmail/sounds/504626/ | boss.killed, player.death |
@@ -123,13 +115,12 @@ Generado por `npm run audio:gen` a partir de los `credits.json` de `audio-src/` 
 | `library/freesound/507730_effortnoise.ogg` | Freesound (previsualización HQ OGG) | Keskaowl | CC0 1.0 | https://freesound.org/people/Keskaowl/sounds/507730/ | boss.windup.leap |
 | `library/freesound/510732_coin_dropped_on_table_3.ogg` | Freesound (previsualización HQ OGG) | HoseNoseSounds | CC0 1.0 | https://freesound.org/people/HoseNoseSounds/sounds/510732/ | hand.pay.money |
 | `library/freesound/510734_coin_dropped_on_table_1.ogg` | Freesound (previsualización HQ OGG) | HoseNoseSounds | CC0 1.0 | https://freesound.org/people/HoseNoseSounds/sounds/510734/ | buy.cash |
-| `library/freesound/515618_splat_squish_1.ogg` | Freesound (previsualización HQ OGG) | mrickey13 | CC0 1.0 | https://freesound.org/people/mrickey13/sounds/515618/ | hand.pay.blood, reward.kill |
+| `library/freesound/515618_splat_squish_1.ogg` | Freesound (previsualización HQ OGG) | mrickey13 | CC0 1.0 | https://freesound.org/people/mrickey13/sounds/515618/ | hand.pay.blood |
 | `library/freesound/515620_splat_squish_3.ogg` | Freesound (previsualización HQ OGG) | mrickey13 | CC0 1.0 | https://freesound.org/people/mrickey13/sounds/515620/ | zombie.crawl |
-| `library/freesound/515621_splat_squish_4.ogg` | Freesound (previsualización HQ OGG) | mrickey13 | CC0 1.0 | https://freesound.org/people/mrickey13/sounds/515621/ | reward.kill |
 | `library/freesound/518292_gong_2.ogg` | Freesound (previsualización HQ OGG) | Logicogonist | CC0 1.0 | https://freesound.org/people/Logicogonist/sounds/518292/ | buy.special, hand.offer.special, jingle.boss.dead |
 | `library/freesound/519359_gong_10_sem.ogg` | Freesound (previsualización HQ OGG) | Logicogonist | CC0 1.0 | https://freesound.org/people/Logicogonist/sounds/519359/ | jingle.gameover |
 | `library/freesound/521332_mein_bottle_pling.ogg` | Freesound (previsualización HQ OGG) | skylarjulian | CC0 1.0 | https://freesound.org/people/skylarjulian/sounds/521332/ | pickup.health |
-| `library/freesound/522091_pound_of_flesh_1.ogg` | Freesound (previsualización HQ OGG) | magnuswaker | CC0 1.0 | https://freesound.org/people/magnuswaker/sounds/522091/ | impact.flesh, reward.kill |
+| `library/freesound/522091_pound_of_flesh_1.ogg` | Freesound (previsualización HQ OGG) | magnuswaker | CC0 1.0 | https://freesound.org/people/magnuswaker/sounds/522091/ | impact.flesh |
 | `library/freesound/523089_explosion_1.ogg` | Freesound (previsualización HQ OGG) | magnuswaker | CC0 1.0 | https://freesound.org/people/magnuswaker/sounds/523089/ | boss.landed |
 | `library/freesound/523091_shotgun_blast_1.ogg` | Freesound (previsualización HQ OGG) | magnuswaker | CC0 1.0 | https://freesound.org/people/magnuswaker/sounds/523091/ | weapon.shotgun.fire |
 | `library/freesound/529463_small_dino_raspy_calls.ogg` | Freesound (previsualización HQ OGG) | CaveboyTup | CC0 1.0 | https://freesound.org/people/CaveboyTup/sounds/529463/ | boss.windup.charge |
@@ -145,12 +136,8 @@ Generado por `npm run audio:gen` a partir de los `credits.json` de `audio-src/` 
 | `library/freesound/547203_voice_adultmale_paingrunts_01.ogg` | Freesound (previsualización HQ OGG) | MrFossy | CC0 1.0 | https://freesound.org/people/MrFossy/sounds/547203/ | player.hurt |
 | `library/freesound/547205_voice_adultmale_paingrunts_07.ogg` | Freesound (previsualización HQ OGG) | MrFossy | CC0 1.0 | https://freesound.org/people/MrFossy/sounds/547205/ | player.hurt |
 | `library/freesound/547208_voice_adultmale_paingrunts_10.ogg` | Freesound (previsualización HQ OGG) | MrFossy | CC0 1.0 | https://freesound.org/people/MrFossy/sounds/547208/ | player.hurt |
-| `library/freesound/555411_zombie_death_2.ogg` | Freesound (previsualización HQ OGG) | tonsil5 | CC0 1.0 | https://freesound.org/people/tonsil5/sounds/555411/ | reward.kill |
-| `library/freesound/555412_zombie_death_1.ogg` | Freesound (previsualización HQ OGG) | tonsil5 | CC0 1.0 | https://freesound.org/people/tonsil5/sounds/555412/ | reward.kill |
 | `library/freesound/555419_zombie_hit_2.ogg` | Freesound (previsualización HQ OGG) | tonsil5 | CC0 1.0 | https://freesound.org/people/tonsil5/sounds/555419/ | impact.flesh |
 | `library/freesound/555420_zombie_hit_1.ogg` | Freesound (previsualización HQ OGG) | tonsil5 | CC0 1.0 | https://freesound.org/people/tonsil5/sounds/555420/ | impact.flesh |
-| `library/freesound/555423_zombie_pain_2.ogg` | Freesound (previsualización HQ OGG) | tonsil5 | CC0 1.0 | https://freesound.org/people/tonsil5/sounds/555423/ | reward.kill |
-| `library/freesound/555425_zombie_pain_6.ogg` | Freesound (previsualización HQ OGG) | tonsil5 | CC0 1.0 | https://freesound.org/people/tonsil5/sounds/555425/ | reward.kill |
 | `library/freesound/556877_growl_or_groan_of_a_synthetic_monster_2.ogg` | Freesound (previsualización HQ OGG) | Wax_vibe | CC0 1.0 | https://freesound.org/people/Wax_vibe/sounds/556877/ | boss.killed, hand.moved |
 | `library/freesound/556878_growl_or_groan_of_a_synthetic_monster_3.ogg` | Freesound (previsualización HQ OGG) | Wax_vibe | CC0 1.0 | https://freesound.org/people/Wax_vibe/sounds/556878/ | boss.stunned, hand.roll |
 | `library/freesound/556879_growl_or_groan_of_a_synthetic_monster_4.ogg` | Freesound (previsualización HQ OGG) | Wax_vibe | CC0 1.0 | https://freesound.org/people/Wax_vibe/sounds/556879/ | hand.moved, hand.pay.money |
@@ -199,8 +186,6 @@ Generado por `npm run audio:gen` a partir de los `credits.json` de `audio-src/` 
 | `library/freesound/723568_wood_drop.ogg` | Freesound (previsualización HQ OGG) | CosmoX45 | CC0 1.0 | https://freesound.org/people/CosmoX45/sounds/723568/ | reward.repair |
 | `library/freesound/724716_sword_slash_energy_wave.ogg` | Freesound (previsualización HQ OGG) | greyfeather | CC0 1.0 | https://freesound.org/people/greyfeather/sounds/724716/ | weapon.katana.swing |
 | `library/freesound/732949_wind_up_music_box_d6_note.ogg` | Freesound (previsualización HQ OGG) | moodyfingers | CC0 1.0 | https://freesound.org/people/moodyfingers/sounds/732949/ | buy.upgrade, jingle.round.clear |
-| `library/freesound/733231_ragdollfall1.ogg` | Freesound (previsualización HQ OGG) | profoundsounds | CC0 1.0 | https://freesound.org/people/profoundsounds/sounds/733231/ | reward.kill |
-| `library/freesound/733232_ragdollfall2.ogg` | Freesound (previsualización HQ OGG) | profoundsounds | CC0 1.0 | https://freesound.org/people/profoundsounds/sounds/733232/ | reward.kill |
 | `library/freesound/733888_whoosh_01.ogg` | Freesound (previsualización HQ OGG) | velcronator | CC0 1.0 | https://freesound.org/people/velcronator/sounds/733888/ | weapon.katana.swing |
 | `library/freesound/733889_whoosh_02.ogg` | Freesound (previsualización HQ OGG) | velcronator | CC0 1.0 | https://freesound.org/people/velcronator/sounds/733889/ | player.dash, weapon.katana.swing, weapon.knife, zombie.attack |
 | `library/freesound/736689_water_boiling_agua_hirviendo.ogg` | Freesound (previsualización HQ OGG) | alessagaal | CC0 1.0 | https://freesound.org/people/alessagaal/sounds/736689/ | ritual.done |
@@ -296,8 +281,6 @@ Generado por `npm run audio:gen` a partir de los `credits.json` de `audio-src/` 
 | `library/oga-80-cc0-rpg-sfx/chain_01.ogg` | OpenGameArt · 80 CC0 RPG SFX | rubberduck | CC0 1.0 | https://opengameart.org/content/80-cc0-rpg-sfx | boss.windup.slam |
 | `library/oga-80-cc0-rpg-sfx/chain_02.ogg` | OpenGameArt · 80 CC0 RPG SFX | rubberduck | CC0 1.0 | https://opengameart.org/content/80-cc0-rpg-sfx | boss.windup.slam |
 | `library/oga-80-cc0-rpg-sfx/chain_03.ogg` | OpenGameArt · 80 CC0 RPG SFX | rubberduck | CC0 1.0 | https://opengameart.org/content/80-cc0-rpg-sfx | boss.windup.slam |
-| `library/oga-80-cc0-rpg-sfx/creature_die_01.ogg` | OpenGameArt · 80 CC0 RPG SFX | rubberduck | CC0 1.0 | https://opengameart.org/content/80-cc0-rpg-sfx | reward.kill |
-| `library/oga-80-cc0-rpg-sfx/creature_hurt_02.ogg` | OpenGameArt · 80 CC0 RPG SFX | rubberduck | CC0 1.0 | https://opengameart.org/content/80-cc0-rpg-sfx | reward.kill |
 | `library/oga-80-cc0-rpg-sfx/creature_misc_03.ogg` | OpenGameArt · 80 CC0 RPG SFX | rubberduck | CC0 1.0 | https://opengameart.org/content/80-cc0-rpg-sfx | zombie.attack |
 | `library/oga-80-cc0-rpg-sfx/creature_misc_04.ogg` | OpenGameArt · 80 CC0 RPG SFX | rubberduck | CC0 1.0 | https://opengameart.org/content/80-cc0-rpg-sfx | zombie.attack |
 | `library/oga-80-cc0-rpg-sfx/creature_monster_03.ogg` | OpenGameArt · 80 CC0 RPG SFX | rubberduck | CC0 1.0 | https://opengameart.org/content/80-cc0-rpg-sfx | boss.stunned, zombie.groan |

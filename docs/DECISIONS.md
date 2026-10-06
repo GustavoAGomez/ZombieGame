@@ -2003,4 +2003,5 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - La nota de racha de las bajas pasa a ser orgánica: una marimba en Mi 6, un pizzicato de cuerdas en Mi 5 o un xilófono en La 5, todos de madera o cuerda.
   - Los martillazos del boss (`boss.slam`) y su choque al quedar aturdido (`boss.stunned`) son golpes secos y destructivos: roca, piedra, ladrillo, hormigón, golpes sordos, un tom grave y escombros, con algo de saturación. Se descarta «big robot footstep», que podía llevar chasquidos metálicos.
   - El bucle de campanillas mareadas (`boss.dizzy.loop`) no cambia.
+- **Sexta tanda (sin sonido de baja):** a petición del usuario, matar a un zombi no suena y no hay racha de bajas. Se quitan `reward.kill` y la racha `kill`. Las rachas que quedan son la de reparar tablones y la de mejoras. SIMULAR RACHA lanza ahora 8 tablones seguidos y SIMULAR COMBATE ya no lleva bajas. La bala que mata suena como cualquier otra, con su impacto en carne.
 

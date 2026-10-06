@@ -225,7 +225,6 @@ describe('AudioDirector: weapons and the player (spec 08 §6.1)', () => {
       [() => events.emit('player:damaged', { playerId: 0, hp: 50, maxHp: 100, x: 0, y: 0, fromX: 1, fromY: 0 }), 'player_hurt'],
       [() => events.emit('player:died', { playerId: 0 }), 'player_death'],
       // §6.2 to §6.6.
-      [() => events.emit('points:gained', { playerId: 0, amount: 60, reason: 'kill' }), 'reward_kill_2,reward_kill_2_shine'],
       [() => events.emit('barricade:repaired', { playerId: 0, x: 0, y: 0 }), 'reward_repair,reward_repair_shine'],
       [() => events.emit('pickup:collected', { playerId: 0, kind: 'ammo' }), 'pickup_ammo'],
       [() => events.emit('pickup:collected', { playerId: 0, kind: 'health' }), 'pickup_health'],
@@ -371,18 +370,25 @@ describe('AudioDirector: rewards, streaks, the hand and the banners (spec 08 §3
     return out;
   };
 
-  it('climbs the kill streak on the shine layer only: a rung per kill, staying on the last, back to the first past its window', () => {
+  it('plays nothing for a hit or a kill: the impact alone sounds (the user\'s choice)', () => {
+    const { events, keys } = gameSetup();
+    events.emit('points:gained', { playerId: 0, amount: 10, reason: 'hit' });
+    events.emit('points:gained', { playerId: 0, amount: 60, reason: 'kill' });
+    expect(keys()).toEqual([]);
+  });
+
+  it('climbs the repair streak on the shine layer only: a rung per plank, staying on the last, back to the first past its window', () => {
     const { engine, events, advance } = gameSetup();
-    const kill = (): void => events.emit('points:gained', { playerId: 0, amount: 60, reason: 'kill' });
+    const plank = (): void => events.emit('barricade:repaired', { playerId: 0, x: 0, y: 0 });
     for (let i = 0; i < 10; i++) {
-      kill();
-      advance(AUDIO.ladder.windows.kill / 2);
+      plank();
+      advance(AUDIO.ladder.windows.repair / 2);
     }
-    advance(AUDIO.ladder.windows.kill + 0.1);
-    kill();
-    expect(shineSteps(engine, 'reward_kill')).toEqual([...AUDIO.ladder.steps, 17, 17, 0]);
+    advance(AUDIO.ladder.windows.repair + 0.1);
+    plank();
+    expect(shineSteps(engine, 'reward_repair')).toEqual([...AUDIO.ladder.steps, 17, 17, 0]);
     // The body never changes its pitch.
-    expect(new Set(engine.played.filter((p) => p.key.startsWith('reward_kill') && !p.key.endsWith('_shine')).map((p) => p.options.rate))).toEqual(new Set([1]));
+    expect(new Set(engine.played.filter((p) => p.key.startsWith('reward_repair') && !p.key.endsWith('_shine')).map((p) => p.options.rate))).toEqual(new Set([1]));
   });
 
   it('climbs the repair streak with each plank, and the upgrade one by the level bought', () => {
@@ -435,7 +441,7 @@ describe('AudioDirector: rewards, streaks, the hand and the banners (spec 08 §3
     ]);
   });
 
-  it('SIMULAR RACHA: kills in a row, climbing', () => {
+  it('SIMULAR RACHA: planks in a row, climbing', () => {
     const engine = new FakeEngine();
     let now = 0;
     const runs: { at: number; run: () => void }[] = [];
@@ -448,7 +454,7 @@ describe('AudioDirector: rewards, streaks, the hand and the banners (spec 08 §3
       now = r.at;
       r.run();
     }
-    expect(shineSteps(engine, 'reward_kill')).toEqual(AUDIO.ladder.steps.slice(0, AUDIO.streakTest.kills));
+    expect(shineSteps(engine, 'reward_repair')).toEqual(AUDIO.ladder.steps.slice(0, AUDIO.streakTest.planks));
   });
 });
 

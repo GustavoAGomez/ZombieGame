@@ -223,7 +223,7 @@ Una entrada por archivo de sonido, con su clave en snake_case:
   - `fadeIn` y `fadeOut`.
 - **Acabado común:** el archivo empieza donde el sonido llega a −40 dB de su pico (lo de antes es ruido de sala), tras 1 ms de fundido; termina con al menos 5 ms de fundido; no tiene nada por debajo de 60 Hz y su pico está a −1 dB.
 - **Bucles** (los sonidos con `loop` en el catálogo: láser, lanzallamas, latido): sin recorte ni fundidos. Sus últimos 120 ms se funden con el principio, para que se repitan sin costura ni clic.
-- **Rachas** (los sonidos con `ladder` y `shine` en el catálogo: `reward.kill`, `reward.repair`, `buy.upgrade`): cada candidato lleva, además de `variants`, una receta `shine` por variante. Es la capa de brillo, que va a su propio archivo (`<variante>_shine`) y que el director sube de tono con la racha mientras el cuerpo no cambia.
+- **Rachas** (los sonidos con `ladder` y `shine` en el catálogo: `reward.repair` y `buy.upgrade`): cada candidato lleva, además de `variants`, una receta `shine` por variante. Es la capa de brillo, que va a su propio archivo (`<variante>_shine`) y que el director sube de tono con la racha mientras el cuerpo no cambia.
 - **Sonidos de mago** (`keyed` en el catálogo: `buy.merchant`, `merchant.arrive`, `ui.shop.open`, `ui.shop.close`): tres variantes, una por mago (azul, rojo y dorado, en ese orden). No se eligen al azar: las elige el evento.
 - **Longitud fija** (`length` en el catálogo): `hand.roll` dura lo que el sorteo (`HAND.rollingTime`). El informe avisa si se aparta más de 50 ms.
 - **Fuentes y licencias (`audio-src/library/<origen>/`, `audio-src/generated/`):**
