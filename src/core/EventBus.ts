@@ -1,3 +1,5 @@
+import type { Ambient, RoomType } from '../config/dungeon';
+import type { Cell } from './RunState';
 import type { BoostKind, PickupKind, ZombieKind } from '../config/balance';
 import type { AmmoKind, UpgradeKind, WeaponId } from '../config/weapons';
 import type { MerchantId, MerchantItemId } from '../config/merchants';
@@ -229,6 +231,16 @@ export interface GameEvents {
   'round:cleared': { round: number };
   /** Every player is dead. `round` is the round reached; `score` every point earned. */
   'game:over': { round: number; score: number };
+  /** The dungeon (spec 09 §4): a floor begins, with its plan for the minimap. */
+  'dungeon:floor': { floor: number; ambient: Ambient; width: number; height: number; rooms: { type: RoomType; cells: Cell[]; neighbours: number[] }[]; start: number };
+  /** The rooms' state for the minimap and the wizard's counter (§4.2): which are visited and cleared, the current one, enemy rooms cleared towards the wizard. */
+  'dungeon:rooms': { current: number; visited: boolean[]; cleared: boolean[]; counter: number };
+  /** A room's doors shut behind the player (§4); strong haptic, a sound. */
+  'dungeon:roomLocked': { room: number };
+  /** A wave is coming (§4): a shadow at each point for the warning's length, and a sound. */
+  'dungeon:spawnWarning': { room: number; points: { x: number; y: number }[]; seconds: number };
+  /** The last enemy fell: the doors open (§4). `counter` is the wizard's. */
+  'dungeon:roomCleared': { room: number; counter: number };
 }
 
 type Handler<P> = (payload: P) => void;

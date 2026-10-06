@@ -8,19 +8,29 @@
  * - planta-<n>-plano.png: the same plan drawn, a square per room coloured
  *   by its type, the doors between them (a key door in amber, the boss's
  *   in red, the challenge's in dark red).
- * Phase M2 adds the PNG of each floor assembled, like map:preview's.
+ * - planta-<n>.txt and planta-<n>.png: the floor as the game assembles it
+ *   (§3.3), its ASCII plan with the tables and its render at 1:2, once the
+ *   ambient's templates exist (rooms:build).
  * Open them and look before closing a phase.
  */
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
+import { performance } from 'node:perf_hooks';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { FLOORS, floorConfig, type RoomType } from '../src/config/dungeon';
 import type { FloorPlan, Room } from '../src/core/RunState';
-import { generateFloor, planToText, roomAt } from '../src/game/dungeon/generateFloor';
+import { floorText, templatesById } from '../src/game/dungeon/assembleFloor';
+import { generateFloor, planToText, roomAt, type TemplateBank } from '../src/game/dungeon/generateFloor';
+import type { RoomTemplate } from '../src/game/dungeon/roomTemplate';
 import { placeholderBank } from '../src/game/dungeon/templates';
+import { compileAsciiMap, parseAsciiMap, type TilesetName } from '../src/game/map/ascii/asciiMap';
+import { embedTilesets } from '../src/game/map/ascii/embed';
+import { readTilesets } from './build-map';
 import { drawText, fillRect, type Rgb } from './lib/contact-sheet';
 import { encodePng } from './lib/png';
 import { blank } from './lib/sheet';
+import { downscale, renderTiledMap } from './preview-map';
+import { readRoomTemplates } from './rooms-build';
 
 const CELL = 36;
 const GAP = 12;
@@ -100,19 +110,49 @@ export function describeSeed(seed: number): string {
   return parts.join('\n');
 }
 
-export function previewSeed(root: string, seed: number): string[] {
+/** The bank the game draws from: the ambient's real templates when they exist (rooms:build), placeholders otherwise. */
+export function bankFor(root: string, ambient: ReturnType<typeof floorConfig>['ambient']): { bank: TemplateBank; templates: Map<string, RoomTemplate> | null } {
+  if (!existsSync(resolve(root, 'maps/src/rooms', ambient))) return { bank: placeholderBank(ambient), templates: null };
+  const { templates, errors } = readRoomTemplates(root, ambient);
+  if (errors.length > 0) throw new Error(`plantillas de ${ambient} con errores: ejecuta npm run rooms:build`);
+  const bank = { start: [], combat: [], elite: [], treasure: [], hand: [], challenge: [], boss: [] } as Record<keyof TemplateBank, { id: string; difficulty: RoomTemplate['difficulty'] }[]>;
+  for (const t of templates) bank[t.type].push({ id: t.id, difficulty: t.difficulty });
+  return { bank, templates: templatesById(templates) };
+}
+
+export function previewSeed(root: string, seed: number, log: (line: string) => void = () => undefined): string[] {
   const dir = resolve(root, 'maps/preview/dungeon', String(seed));
   rmSync(dir, { recursive: true, force: true });
   mkdirSync(dir, { recursive: true });
   const files: string[] = [];
   writeFileSync(resolve(dir, 'planos.txt'), `${describeSeed(seed)}\n`);
   files.push('planos.txt');
+  const tilesets = readTilesets(resolve(root, 'art-src/tiled/tilesets'));
   for (let floor = 1; floor <= FLOORS; floor++) {
-    const plan = generateFloor(seed, floor, placeholderBank(floorConfig(floor).ambient));
+    const config = floorConfig(floor);
+    const { bank, templates } = bankFor(root, config.ambient);
+    const plan = generateFloor(seed, floor, bank);
     const frame = drawPlan(plan, seed);
     const name = `planta-${floor}-plano.png`;
     writeFileSync(resolve(dir, name), encodePng(frame.width, frame.height, frame.pixels));
     files.push(name);
+    if (!templates) continue;
+    // The floor as the game builds it (§3.3), timed, drawn at 1:2.
+    const t0 = performance.now();
+    const text = floorText(plan, templates);
+    const compiled = compileAsciiMap(parseAsciiMap(text), tilesets, `dungeon/${seed}/${floor}`);
+    const embedded = embedTilesets(
+      compiled,
+      (source) => tilesets[source.replace(/^tilesets\//, '').replace(/\.tsj$/, '') as TilesetName],
+      (_source, image) => image,
+    );
+    const ms = performance.now() - t0;
+    writeFileSync(resolve(dir, `planta-${floor}.txt`), text);
+    const { image, map } = renderTiledMap(embedded, (image) => resolve(root, 'art-src/tiled/tilesets', image));
+    const half = downscale(image, 2);
+    writeFileSync(resolve(dir, `planta-${floor}.png`), encodePng(half.width, half.height, half.pixels));
+    files.push(`planta-${floor}.txt`, `planta-${floor}.png`);
+    log(`  planta ${floor}: ${map.width}×${map.height} casillas, ${map.zones.length} salas, ${map.doors.length} puertas, montada en ${ms.toFixed(0)} ms`);
   }
   return files;
 }
@@ -126,8 +166,13 @@ function main(): void {
     return;
   }
   for (const seed of seeds) {
-    const files = previewSeed(root, seed);
-    console.info(`✓ semilla ${seed}: ${files.join(', ')} en maps/preview/dungeon/${seed}/`);
+    try {
+      const files = previewSeed(root, seed, (line) => console.info(line));
+      console.info(`✓ semilla ${seed}: ${files.join(', ')} en maps/preview/dungeon/${seed}/`);
+    } catch (err) {
+      console.error(`✖ semilla ${seed}: ${(err as Error).message}`);
+      process.exitCode = 1;
+    }
   }
 }
 

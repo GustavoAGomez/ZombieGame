@@ -3854,5 +3854,9 @@
       "placeholder": false,
       "candidate": "C"
     }
+  },
+  "tilesetData": "tiles/tilesets.json",
+  "rooms": {
+    "mansion": "rooms/mansion.json"
   }
 }

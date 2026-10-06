@@ -26,7 +26,8 @@
     "windows:compose": "tsx scripts/compose-windows.ts",
     "audio:gen": "tsx scripts/audio-gen.ts",
     "audio:search": "tsx scripts/audio-search.ts",
-    "dungeon:preview": "tsx scripts/dungeon-preview.ts"
+    "dungeon:preview": "tsx scripts/dungeon-preview.ts",
+    "rooms:build": "tsx scripts/rooms-build.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",

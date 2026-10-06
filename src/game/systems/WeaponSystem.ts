@@ -1,3 +1,4 @@
+import { rules } from '../rules';
 import { LOADOUT, MELEE, PLAYER, POINTS, ZOMBIES } from '../../config/balance';
 import { WEAPON_SPECIALS, WEAPONS } from '../../config/weapons';
 import type { BossState, BulletState, GameState, PlayerState, WeaponSlotState } from '../../core/GameState';
@@ -109,6 +110,8 @@ function handleReload(ctx: SimContext, p: PlayerState, cmd: InputCommand, dt: nu
       const taken = Math.min(needed, slot.reserve);
       slot.magazine += taken;
       slot.reserve -= taken;
+      // A reserve that never runs out (the dungeon's pistol, spec 09 §5.1): full again after each reload.
+      if (rules(ctx.state).infiniteReserve.includes(slot.id)) slot.reserve = Math.max(slot.reserve, WEAPONS[slot.id].startReserve);
       ctx.events.emit('weapon:reload', { playerId: p.id, weapon: slot.id, phase: 'end' });
     }
     return;

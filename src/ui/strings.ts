@@ -131,6 +131,14 @@ export const STRINGS = {
     dungeonWins: (wins: number, time: string): string => `${wins === 1 ? '1 VICTORIA' : `${wins} VICTORIAS`} · MEJOR ${time}`,
     noRecord: 'SIN RÉCORD',
   },
+  /** The dungeon (spec 09): the floor's label and banner. */
+  dungeon: {
+    floor: (n: number): string => `PLANTA ${n}`,
+    ambients: { mansion: 'MANSIÓN', basement: 'SÓTANO', garden: 'JARDÍN' } as Record<string, string>,
+    floorBanner: (n: number, ambient: string): string => `PLANTA ${n} · ${ambient}`,
+    counter: 'SALAS HASTA EL MAGO',
+    minimap: 'MINIMAPA',
+  },
   /** Seconds as M:SS (a run's time, spec 09 §10). */
   clock: (seconds: number): string => {
     const s = Math.max(0, Math.floor(seconds));

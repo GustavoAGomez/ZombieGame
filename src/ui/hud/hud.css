@@ -23,6 +23,11 @@
   gap: 8px;
 }
 
+/* A row the mode hides (the dungeon has no points to show, spec 09 §4.2). */
+.hud-row[hidden] {
+  display: none;
+}
+
 .hud-label {
   font-size: 11px;
   color: var(--muted);
@@ -381,6 +386,27 @@
   font-family: var(--font-display);
   font-size: 14px;
   text-shadow: 2px 2px 0 var(--ink);
+}
+
+/* The dungeon's minimap (spec 09 §4.2): drawn pixel by pixel, a cell per room. */
+.hud-minimap {
+  display: block;
+  image-rendering: pixelated;
+  filter: drop-shadow(2px 2px 0 var(--ink));
+}
+
+/* The five marks towards the wizard (spec 09 §7.1), under the minimap. */
+.hud-counter {
+  gap: 3px;
+}
+
+.hud-counter .hud-mark__box {
+  width: 6px;
+  height: 6px;
+}
+
+.hud-counter .hud-mark__box.is-on {
+  background: var(--amber);
 }
 
 /* Money ($) under the points, in green, no label. */

@@ -1,3 +1,4 @@
+import { rules } from '../rules';
 import { PICKUPS, PLAYER, type PickupKind } from '../../config/balance';
 import type { PickupState, PlayerState, ZombieState } from '../../core/GameState';
 import { random } from '../../core/Rng';
@@ -81,7 +82,7 @@ export function updatePickups(ctx: SimContext, dt: number): void {
       const dx = p.x - pickup.x;
       const dy = p.y - pickup.y;
       if (dx * dx + dy * dy > reach * reach) continue;
-      if (applyPickup(p, pickup.kind)) {
+      if (applyPickup(p, pickup.kind, rules(ctx.state).medkitHeal)) {
         pickup.active = false;
         ctx.events.emit('pickup:collected', { playerId: p.id, kind: pickup.kind });
         break;
@@ -90,11 +91,11 @@ export function updatePickups(ctx: SimContext, dt: number): void {
   }
 }
 
-/** Applies the pickup's effect. Returns false (and changes nothing) if it would be wasted. */
-export function applyPickup(p: PlayerState, kind: PickupKind): boolean {
+/** Applies the pickup's effect (a medkit heals `heal`, the mode's). Returns false (and changes nothing) if it would be wasted. */
+export function applyPickup(p: PlayerState, kind: PickupKind, heal: number = PICKUPS.healthAmount): boolean {
   if (kind === 'health') {
     if (p.hp >= p.maxHp) return false;
-    p.hp = Math.min(p.maxHp, p.hp + PICKUPS.healthAmount);
+    p.hp = Math.min(p.maxHp, p.hp + heal);
     return true;
   }
   let gained = false;

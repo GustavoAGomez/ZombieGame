@@ -1,7 +1,14 @@
+import type { GameMode, RoomType } from '../../config/dungeon';
 import { BOSS, DOORS, HAND, ITEMS, MERCHANT, POINTS, WAVES, type BoostKind } from '../../config/balance';
 import { merchantDef } from '../../config/merchants';
 import { COLORS } from '../../config/theme';
 import { UPGRADE_KINDS, WEAPONS, type UpgradeKind } from '../../config/weapons';
+
+/** The dungeon's minimap (spec 09 §4.2): a cell per room in CSS px, and the marks of the special rooms. */
+const MINIMAP = { cell: 9, gap: 1, pad: 2 } as const;
+const MINIMAP_MARKS: Partial<Record<RoomType, string>> = { treasure: COLORS.amber, hand: COLORS.redLow, challenge: COLORS.red, boss: COLORS.red, elite: COLORS.amberDark };
+/** Enemy rooms cleared between two wizards (spec 09 §7.1). */
+const MERCHANT_EVERY = 5;
 
 /** Colour of each boost's notice: amber like the speed bolt, light blue like the double damage bullets. */
 const BOOST_COLORS: Record<BoostKind, string> = { speed: COLORS.amber, double_damage: COLORS.boostDamage };
@@ -59,11 +66,18 @@ export class Hud {
   private readonly bossRows: { row: HTMLDivElement; name: HTMLSpanElement; fill: HTMLDivElement; ghost: HTMLDivElement }[] = [];
   private blinkTimer = 0;
   private readonly unsubscribers: (() => void)[] = [];
+  /** The dungeon's minimap and the wizard's counter (spec 09 §4.2), and what they draw. */
+  private readonly minimap: HTMLCanvasElement;
+  private readonly counter: HTMLDivElement;
+  private plan: GameEvents['dungeon:floor'] | null = null;
+  private rooms: GameEvents['dungeon:rooms'] | null = null;
 
   constructor(
     parent: HTMLElement,
     events: EventBus,
     private readonly localPlayerId = 0,
+    /** The dungeon (spec 09 §4.2) shows its minimap and the wizard's counter where Survival shows the points. */
+    mode: GameMode = 'survival',
   ) {
     this.root = el('div', 'hud');
 
@@ -142,6 +156,16 @@ export class Hud {
       this.floatPool.push(span);
       this.floats.appendChild(span);
     }
+    // The dungeon (spec 09 §4.2): the minimap, a cell per room, and the five marks towards the wizard, in place of the points.
+    this.minimap = el('canvas', 'hud-minimap');
+    this.minimap.setAttribute('aria-label', STRINGS.dungeon.minimap);
+    this.counter = el('div', 'hud-mark hud-counter');
+    this.counter.setAttribute('aria-label', STRINGS.dungeon.counter);
+    for (let i = 0; i < MERCHANT_EVERY; i++) this.counter.appendChild(el('span', 'hud-mark__box'));
+    if (mode === 'dungeon') {
+      pointsRow.hidden = true;
+      right.append(this.minimap, this.counter);
+    }
     right.append(pointsRow, this.money, this.floats);
 
     this.dead = el('div', 'hud-dead');
@@ -186,6 +210,8 @@ export class Hud {
       events.on('points:gained', this.onPointsGained),
       events.on('money:spent', this.onMoneySpent),
       events.on('round:changed', this.onRound),
+      events.on('dungeon:floor', this.onFloor),
+      events.on('dungeon:rooms', this.onRooms),
       events.on('weapon:state', this.onWeapon),
       events.on('player:damaged', this.onDamaged),
       events.on('player:died', this.onDied),
@@ -247,11 +273,82 @@ export class Hud {
     span.classList.add('is-active');
   }
 
+  /** A dungeon floor begins (spec 09 §2): «PLANTA 1 · MANSIÓN» as the round's banner, the floor in the round's place. */
+  private readonly onFloor = (e: GameEvents['dungeon:floor']): void => {
+    this.plan = e;
+    this.rooms = null;
+    const cell = MINIMAP.cell + MINIMAP.gap;
+    this.minimap.width = e.width * cell - MINIMAP.gap + 2 * MINIMAP.pad;
+    this.minimap.height = e.height * cell - MINIMAP.gap + 2 * MINIMAP.pad;
+    this.minimap.style.width = `${this.minimap.width}px`;
+    this.minimap.style.height = `${this.minimap.height}px`;
+    this.round.textContent = STRINGS.dungeon.floor(e.floor);
+    this.showBanner(STRINGS.dungeon.floorBanner(e.floor, STRINGS.dungeon.ambients[e.ambient] ?? e.ambient.toUpperCase()), false);
+    this.drawMinimap();
+  };
+
+  private readonly onRooms = (e: GameEvents['dungeon:rooms']): void => {
+    this.rooms = e;
+    const boxes = this.counter.children;
+    const lit = e.counter % MERCHANT_EVERY;
+    for (let i = 0; i < boxes.length; i++) boxes[i]?.classList.toggle('is-on', i < lit);
+    this.drawMinimap();
+  };
+
+  /**
+   * The minimap (spec 09 §4.2): the rooms visited and their neighbours, a
+   * square per cell (the arena, four), the current one framed in amber and
+   * each special room with its colour.
+   */
+  private drawMinimap(): void {
+    const plan = this.plan;
+    const g = this.minimap.getContext('2d');
+    if (!plan || !g) return;
+    g.clearRect(0, 0, this.minimap.width, this.minimap.height);
+    // A dark sheet behind, so the map reads over any floor.
+    g.fillStyle = COLORS.ink;
+    g.globalAlpha = 0.55;
+    g.fillRect(0, 0, this.minimap.width, this.minimap.height);
+    g.globalAlpha = 1;
+    const rooms = this.rooms;
+    const visited = (i: number): boolean => rooms?.visited[i] === true;
+    const step = MINIMAP.cell + MINIMAP.gap;
+    const at = (c: number): number => MINIMAP.pad + c * step;
+    plan.rooms.forEach((room, i) => {
+      const shown = visited(i) || room.neighbours.some(visited);
+      if (!shown) return;
+      const xs = room.cells.map((c) => c.x);
+      const ys = room.cells.map((c) => c.y);
+      const x = at(Math.min(...xs));
+      const y = at(Math.min(...ys));
+      const w = (Math.max(...xs) - Math.min(...xs) + 1) * step - MINIMAP.gap;
+      const h = (Math.max(...ys) - Math.min(...ys) + 1) * step - MINIMAP.gap;
+      // Visited rooms solid; the ones only glimpsed through a door, dark.
+      g.fillStyle = visited(i) ? (rooms?.cleared[i] || room.type === 'start' || room.type === 'treasure' || room.type === 'hand' ? COLORS.muted : COLORS.dim) : COLORS.wall;
+      g.fillRect(x, y, w, h);
+      const mark = MINIMAP_MARKS[room.type];
+      if (mark) {
+        g.fillStyle = mark;
+        g.fillRect(x + Math.floor(w / 2) - 1, y + Math.floor(h / 2) - 1, 3, 3);
+      }
+      if (rooms?.current === i) {
+        g.strokeStyle = COLORS.amber;
+        g.lineWidth = 1;
+        g.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+      }
+    });
+  }
+
   private readonly onRound = (e: GameEvents['round:changed']): void => {
     const text = `${STRINGS.hud.round} ${e.round}`;
     this.round.textContent = text;
+    this.showBanner(text, e.boss);
+  };
+
+  /** The middle banner, restarted, with the HUD's round figure blinking while it shows. */
+  private showBanner(text: string, boss: boolean): void {
     this.bannerTitle.textContent = text;
-    this.bannerSub.hidden = !e.boss;
+    this.bannerSub.hidden = !boss;
     // Restart the banner and make the HUD figure blink for as long as it shows.
     this.banner.classList.remove('is-showing');
     void this.banner.offsetWidth;

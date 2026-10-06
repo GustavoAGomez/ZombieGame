@@ -1,0 +1,27 @@
+########oo########
+#................#
+#................#
+#................#
+o................o
+o................o
+#................#
+#................#
+########oo########
+
+## Sala
+| tipo | dificultad | ambiente | nota |
+|---|---|---|---|
+| treasure | — | mansion | sala del tesoro: la vitrina del arma llega con la fase M3 |
+
+## Cofre
+| id | casilla |
+|---|---|
+| C1 | 8,5 |
+
+## Atrezo (muebles; con colisión es la cobertura de la sala)
+| id | objeto | casillas | colisión | volteo | nota |
+|---|---|---|---|---|---|
+| A1 | prop_alfombra | 7,3 9,4 | no | — | alfombra bajo el cofre |
+| A2 | prop_aparador | 1,1 1,3 | sí | — |  |
+| A3 | prop_cuadro_caido | 15,2 | no | — |  |
+| A4 | prop_escombros | 4,7 | no | — |  |

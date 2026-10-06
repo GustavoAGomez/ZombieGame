@@ -1,3 +1,4 @@
+import { rules } from '../rules';
 import { BARRICADES } from '../../config/balance';
 import type { PlayerState } from '../../core/GameState';
 import { repairableWindow, updateRepair } from './BarricadeSystem';
@@ -57,8 +58,10 @@ export function updateInteractions(ctx: SimContext, dt: number): void {
     }
 
     const window = repairableWindow(ctx, p);
-    const { door, distSq: doorDistSq } = nearestClosedDoor(ctx, p);
-    const { portal, distSq: portalDistSq } = nearestClosedPortal(ctx, p);
+    // The dungeon's doors shut and open by themselves (spec 09 §4): nothing to buy.
+    const buying = rules(ctx.state).payDoors;
+    const { door, distSq: doorDistSq } = buying ? nearestClosedDoor(ctx, p) : { door: -1, distSq: Infinity };
+    const { portal, distSq: portalDistSq } = buying ? nearestClosedPortal(ctx, p) : { portal: -1, distSq: Infinity };
     const usePortal = portal >= 0 && (door < 0 || portalDistSq < doorDistSq);
     const buyDistSq = usePortal ? portalDistSq : doorDistSq;
     const buy = usePortal || door >= 0;

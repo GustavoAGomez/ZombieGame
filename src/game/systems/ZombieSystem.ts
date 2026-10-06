@@ -1,3 +1,4 @@
+import { rules } from '../rules';
 import { NAVIGATION, PLAYER, ZOMBIES } from '../../config/balance';
 import type { PlayerState, ZombieAi, ZombieState } from '../../core/GameState';
 import { BLOCK_ZOMBIE, moveCircle, resolveCircle, segmentClear } from '../map/CollisionGrid';
@@ -424,7 +425,7 @@ function updateAttacking(ctx: SimContext, z: ZombieState, dt: number): void {
   z.timer -= dt;
   if (z.timer > 0) return;
   // The strike lands only if the player is still in reach after the windup.
-  if (target && reachTo(z, target) <= ZOMBIES.attackRange) damagePlayer(ctx, target, ZOMBIES.attackDamage, z.x, z.y);
+  if (target && reachTo(z, target) <= ZOMBIES.attackRange) damagePlayer(ctx, target, rules(ctx.state).zombieDamage, z.x, z.y);
   z.actionTick = ctx.state.tick;
   z.attackCooldown = ZOMBIES.attackCooldown;
   setState(ctx, z, 'chasing');

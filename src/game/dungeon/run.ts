@@ -16,6 +16,8 @@ export function createRunState(seed: number, bank: TemplateBank, floor = 1): Run
     visited,
     cleared: plan.rooms.map(() => false),
     room: plan.start,
+    fight: null,
+    announced: false,
     keys: 0,
     bossKey: false,
     merchantCounter: 0,

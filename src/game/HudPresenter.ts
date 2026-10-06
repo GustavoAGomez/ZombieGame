@@ -1,3 +1,4 @@
+import { rules } from './rules';
 import { BARRICADES, BOOSTS, BOSS, DASH, PLAYER } from '../config/balance';
 import { WEAPONS, type WeaponId } from '../config/weapons';
 import { bossesForRound } from '../config/bosses';
@@ -230,7 +231,7 @@ export class HudPresenter {
 
     this.publishBosses(state);
 
-    if (state.wave.round !== this.round) {
+    if (rules(state).waves && state.wave.round !== this.round) {
       this.round = state.wave.round;
       this.events.emit('round:changed', { round: this.round, boss: bossesForRound(this.round).length > 0 });
     }

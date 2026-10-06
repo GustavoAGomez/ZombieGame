@@ -182,6 +182,17 @@ Nombres válidos: `ringLarge`, `ringMedium`, `ringSmall`, `hexagon`, `octagon`, 
 
   Si falta alguna pieza, el HUD conserva su aspecto solo con CSS.
 
+### Salas de la mazmorra (`rooms`) y tilesets para compilar (`tilesetData`, spec 09)
+
+```json
+"rooms": { "mansion": "rooms/mansion.json" },
+"tilesetData": "tiles/tilesets.json"
+```
+
+- **`rooms.<ambiente>`:** las plantillas de sala de un ambiente, ya leídas y comprobadas, que escribe `npm run rooms:build` desde `maps/src/rooms/<ambiente>/*.txt` (el mismo plano ASCII de los mapas, con las tablas `## Sala`, `## Enemigos`, `## Magos`, `## Cofre`, `## Bosses`, `## Mano` y `## Atrezo` en coordenadas de la sala). El juego las coloca sobre el plano de cada planta y compila la planta entera en tiempo de ejecución (`src/game/dungeon/assembleFloor.ts`).
+- **`tilesetData`:** los 14 tilesets tal como los lee el compilador de planos (`art-src/tiled/tilesets/*.tsj`, con la ruta de su imagen dentro de `public/assets/`), que escribe `map:build` (y `rooms:build`). Sin él la mazmorra no puede montar sus plantas.
+- **Objetos nuevos en los mapas:** `enemy_spawn` (punto donde aparecen los enemigos de una sala) y `chest_spot` (punto del cofre o del premio), ambos con `zone`. La mansión no tiene ninguno.
+
 ### Sonidos (`audio`, spec 08)
 
 Una entrada por archivo de sonido, con su clave en snake_case:

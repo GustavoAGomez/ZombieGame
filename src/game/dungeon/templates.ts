@@ -6,6 +6,7 @@
  */
 import { DUNGEON, floorDifficulties, type Ambient, type RoomDifficulty, type RoomType } from '../../config/dungeon';
 import type { TemplateBank, TemplateEntry } from './generateFloor';
+import type { RoomTemplate } from './roomTemplate';
 
 /** The floor each ambient first appears on: its placeholders take that floor's difficulties. */
 const FIRST_FLOOR: Readonly<Record<Ambient, number>> = { mansion: 1, basement: 2, garden: 3 };
@@ -13,6 +14,13 @@ const FIRST_FLOOR: Readonly<Record<Ambient, number>> = { mansion: 1, basement: 2
 /** `<ambient>/<type>_<n>`: the id a real template of that ambient and type will have. */
 export function templateId(ambient: Ambient, type: RoomType, n: number): string {
   return `${ambient}/${type}_${String(n).padStart(2, '0')}`;
+}
+
+/** The bank the generator draws from, out of an ambient's real templates (rooms:build). */
+export function bankOf(templates: readonly RoomTemplate[]): TemplateBank {
+  const bank: Record<RoomType, TemplateEntry[]> = { start: [], combat: [], elite: [], treasure: [], hand: [], challenge: [], boss: [] };
+  for (const t of templates) bank[t.type].push({ id: t.id, difficulty: t.difficulty });
+  return bank;
 }
 
 /** A bank of placeholders for `ambient`: the combat rooms split between the ambient's difficulties, the rest without one. */

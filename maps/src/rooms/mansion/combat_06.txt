@@ -1,0 +1,37 @@
+########oo########
+#..........#.....#
+#..........#.....#
+#..........#.....#
+o................o
+o................o
+#................#
+#................#
+########oo########
+
+## Sala
+| tipo | dificultad | ambiente | nota |
+|---|---|---|---|
+| combat | medium | mansion | estudio con tabique |
+
+## Enemigos (puntos de aparición, a 4 casillas o más de los huecos)
+| id | casilla |
+|---|---|
+| E1 | 4,6 |
+| E2 | 13,6 |
+| E3 | 13,4 |
+| E4 | 8,4 |
+| E5 | 4,2 |
+
+## Magos
+| id | casilla | nota |
+|---|---|---|
+| M1 | 12,1 | en el hueco del estudio, tras el tabique |
+
+## Atrezo (muebles; con colisión es la cobertura de la sala)
+| id | objeto | casillas | colisión | volteo | nota |
+|---|---|---|---|---|---|
+| A1 | prop_escritorio | 13,2 14,2 | sí | — | escritorio del estudio |
+| A2 | prop_estanteria_metal_corta | 2,1 3,2 | sí | — |  |
+| A3 | prop_caja_fuerte | 15,7 | sí | — | caja fuerte abierta |
+| A4 | prop_libros_suelo | 6,6 | no | — |  |
+| A5 | prop_mesa | 5,4 6,4 | sí | — |  |

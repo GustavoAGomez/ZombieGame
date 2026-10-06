@@ -115,6 +115,10 @@ export interface Manifest {
   tilesets: Record<string, TilesetDef>;
   objects: Record<string, ObjectDef>;
   maps: Record<string, string>;
+  /** Dungeon room templates per ambient (npm run rooms:build), spec 09 §3.2. */
+  rooms: Record<string, string>;
+  /** Every tileset as the map compiler needs it (npm run map:build): the dungeon compiles its floors at runtime (spec 09 §3.3). */
+  tilesetData: string | null;
   /** HUD skin pieces (npm run hud:import); without them the HUD keeps its CSS-only look. */
   ui: Record<string, UiPieceDef>;
   /** Sound files by key (npm run audio:gen); the catalog in src/config/audio.ts names them. */
@@ -384,6 +388,9 @@ export function parseManifest(json: unknown): Manifest {
 
   const maps: Record<string, string> = {};
   for (const [key, raw] of Object.entries(section(json.maps, 'maps'))) maps[key] = text(raw, `maps.${key}`);
+  const rooms: Record<string, string> = {};
+  for (const [key, raw] of Object.entries(section(json.rooms, 'rooms'))) rooms[key] = text(raw, `rooms.${key}`);
+  const tilesetData = json.tilesetData === undefined ? null : text(json.tilesetData, 'tilesetData');
 
   const ui: Record<string, UiPieceDef> = {};
   for (const [key, raw] of Object.entries(section(json.ui, 'ui'))) {
@@ -437,7 +444,7 @@ export function parseManifest(json: unknown): Manifest {
     };
   }
 
-  return { tileSize, characters, tilesets, objects, maps, ui, audio };
+  return { tileSize, characters, tilesets, objects, maps, rooms, tilesetData, ui, audio };
 }
 
 /**

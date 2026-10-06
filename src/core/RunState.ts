@@ -4,6 +4,7 @@
  * (src/game/dungeon/) writes it and the systems read it.
  */
 import type { Ambient, RoomDifficulty, RoomType } from '../config/dungeon';
+import type { ZombieKind } from '../config/balance';
 
 export interface Cell {
   x: number;
@@ -48,6 +49,23 @@ export interface FloorPlan {
   cellRoom: number[];
 }
 
+/** A room's fight (§4): the warning before each wave, then the wave until the last enemy falls. */
+export interface RoomFight {
+  room: number;
+  phase: 'warning' | 'fighting';
+  /** Seconds left of the warning. */
+  timer: number;
+  /** The wave coming or under way, and how many the room brings. */
+  wave: number;
+  waves: number;
+  /** What the coming wave spawns, and where (world px); `later`, the second wave still to come. */
+  pending: ZombieKind[];
+  spots: { x: number; y: number }[];
+  later: ZombieKind[];
+  /** Enemies spawned in the fight so far (its kills, once it is over). */
+  spawned: number;
+}
+
 /** A dungeon run (§1): what carries over from floor to floor, and the floor under way. */
 export interface RunState {
   seed: number;
@@ -58,6 +76,10 @@ export interface RunState {
   cleared: boolean[];
   /** The room the local player is in. */
   room: number;
+  /** The fight in the current room (§4), or null between fights. */
+  fight: RoomFight | null;
+  /** The floor's banner was shown and the HUD knows the plan. */
+  announced: boolean;
   /** Normal keys (§6.1), and the floor's boss key. */
   keys: number;
   bossKey: boolean;

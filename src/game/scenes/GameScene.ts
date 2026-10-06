@@ -47,7 +47,11 @@ import type { MapData } from '../map/MapLoader';
 import { MapView } from '../map/MapView';
 import { cameraBounds, computeLevels, type MapLevels } from '../map/levels';
 import { createRunState } from '../dungeon/run';
-import { placeholderBank } from '../dungeon/templates';
+import { bankOf } from '../dungeon/templates';
+import { assembleFloor, templatesById } from '../dungeon/assembleFloor';
+import { dungeonMusic } from '../systems/DungeonSystem';
+import { SpawnMarks } from '../entities/SpawnMarks';
+import { DUNGEON, floorConfig } from '../../config/dungeon';
 import type { Services } from '../services';
 import { activeBulletCount } from '../systems/BulletSystem';
 import { isZombieAlive } from '../systems/Combat';
@@ -80,6 +84,9 @@ export class GameScene extends Phaser.Scene {
   private map!: MapData;
   /** The match's seed (spec 09 §1), shown in the debug panel. */
   private seed = 0;
+  private spawnMarks!: SpawnMarks;
+  /** The dungeon's camera (spec 09 §4): the room it shows, sliding from the last one. */
+  private roomCamera: { room: number; from: CameraRect; to: CameraRect; t: number } | null = null;
   private state!: GameState;
   private sim!: SimContext;
   private controls!: InputCollector;
@@ -149,12 +156,21 @@ export class GameScene extends Phaser.Scene {
 
   create(): void {
     const { events, hudRoot } = this.services;
-    this.map = this.assets.mapOrDefault(this.services.mapKey);
     // The seed (spec 09 §1): a fixed one from ?seed= or MISMA SEMILLA, or a new one; the dungeon's plan comes from it alone.
     const seed = this.services.seed ?? Date.now() | 0;
     this.seed = seed;
     const mode = this.services.mode;
-    const run = mode === 'dungeon' ? createRunState(seed, placeholderBank('mansion')) : null;
+    let run = null;
+    if (mode === 'dungeon') {
+      // The dungeon's first floor (spec 09 §3.3): its plan from the seed, its map assembled from the ambient's templates.
+      const templates = this.assets.roomTemplates(floorConfig(1).ambient);
+      const tilesets = this.assets.tilesetData();
+      if (templates.length === 0 || !tilesets) throw new Error('La mazmorra necesita sus plantillas y los tilesets: npm run rooms:build');
+      run = createRunState(seed, bankOf(templates));
+      this.map = assembleFloor(run.plan, templatesById(templates), tilesets);
+    } else {
+      this.map = this.assets.mapOrDefault(this.services.mapKey);
+    }
     this.state = createGameState(this.map, { seed, startRound: this.services.startRound, mode, run });
     // The gun's drawn muzzle per direction, from the player art: bullets are drawn and hit from there.
     const muzzles: MuzzleTable = Array.from({ length: 8 }, (_, dir) =>
@@ -177,7 +193,7 @@ export class GameScene extends Phaser.Scene {
     this.overShown = false;
     this.shownTeleports = 0;
 
-    this.hud = new Hud(hudRoot, events);
+    this.hud = new Hud(hudRoot, events, 0, mode);
     this.controls = new InputCollector(hudRoot, events);
     this.presenter = new HudPresenter(events, this.map);
     this.pauseMenu = new PauseMenu(hudRoot, () => this.setPaused(false), () => this.scene.restart(), this.services.preferences, this.services.audio.playUi);
@@ -215,6 +231,7 @@ export class GameScene extends Phaser.Scene {
     this.worldTexts = new WorldTextPool(this, events);
     this.cantUseText = new CantUseText(this, events);
     this.thrownItems = new ThrownItemViews(this, events, manifest);
+    this.spawnMarks = new SpawnMarks(this);
     this.debugDraw = new DebugDraw(this, this.map);
     this.services.debugActions = this.createDebugActions();
     this.syncViews(0);
@@ -264,6 +281,7 @@ export class GameScene extends Phaser.Scene {
     if (!this.paused && !this.overShown) this.fixedStep.advance(delta, (dt) => this.step(dt));
     // Before the views: a teleport snaps the camera, which must already be inside the new level.
     this.updateLevel();
+    this.updateRoomCamera(delta);
     this.updateShopCamera();
     this.syncViews(this.fixedStep.alpha, time);
     // The blood of hits freezes with the match (pause, game over).
@@ -276,6 +294,7 @@ export class GameScene extends Phaser.Scene {
     const handZone = this.map.handSpots[this.state.hand.spot]?.zoneIndex ?? -1;
     this.handView.sync(this.state.hand, this.state.time, effectsDt, this.state.zonesUnlocked[handZone] === true);
     if (player) this.playerStains.sync(player, this.playerView.sprite, effectsDt);
+    this.spawnMarks.sync(this.state.run);
     this.debugDraw.draw(this.state, this.sim.nav, this.sim.grid);
     this.presenter.publish(this.state);
     this.updateStats();
@@ -325,7 +344,7 @@ export class GameScene extends Phaser.Scene {
     // The music of the moment (spec 08 §7): the boss's from its fall, the round's or the rest's, and silence at the end.
     const phase = this.state.wave.phase;
     const bossOn = this.state.bosses.some((b) => b.active && b.phase !== 'warning' && b.phase !== 'dead');
-    s.music = phase === 'over' ? 'over' : bossOn ? 'boss' : phase === 'active' ? 'round' : 'calm';
+    s.music = phase === 'over' ? 'over' : this.state.run ? dungeonMusic(this.state.run) : bossOn ? 'boss' : phase === 'active' ? 'round' : 'calm';
     this.services.audio.update(s);
   }
 
@@ -579,6 +598,10 @@ export class GameScene extends Phaser.Scene {
     // Always in view (spec 09 §13): the seed reproduces the match.
     stats.seed = this.seed;
     stats.mode = this.state.mode;
+    if (this.state.run) {
+      stats.floor = this.state.run.floor;
+      stats.room = `${this.state.run.room} (${this.state.run.plan.rooms[this.state.run.room]?.type ?? '?'})${this.state.run.fight ? ` · ${this.state.run.fight.phase}` : ''}`;
+    }
   }
 
   private readonly applyZoom = (): void => {
@@ -688,12 +711,61 @@ export class GameScene extends Phaser.Scene {
 
   private applyCameraBounds(): void {
     const camera = this.cameras.main;
+    // The dungeon's camera stays inside the current room (spec 09 §4).
+    if (this.roomCamera) {
+      this.setCameraRect(this.roomCamera.t >= 1 ? this.roomCamera.to : lerpRect(this.roomCamera.from, this.roomCamera.to, this.roomCamera.t));
+      return;
+    }
     const level = this.levels?.levels[this.currentLevel];
     if (!level) {
       camera.setBounds(0, 0, this.map.widthPx, this.map.heightPx);
       return;
     }
-    const b = cameraBounds(level.bounds, camera.width / camera.zoom, camera.height / camera.zoom);
+    this.setCameraRect(level.bounds);
+  }
+
+  /** The camera's bounds: `rect`, widened where the view is bigger (a small room sits in the middle). */
+  private setCameraRect(rect: CameraRect): void {
+    const camera = this.cameras.main;
+    const b = cameraBounds(rect, camera.width / camera.zoom, camera.height / camera.zoom);
     camera.setBounds(b.x, b.y, b.width, b.height);
   }
+
+  /** A room and its walls, in world px. */
+  private roomRect(room: number): CameraRect {
+    const zone = this.map.zones[room];
+    const ts = this.map.tileSize;
+    if (!zone) return { x: 0, y: 0, width: this.map.widthPx, height: this.map.heightPx };
+    return { x: zone.x - ts, y: zone.y - ts, width: zone.width + 2 * ts, height: zone.height + 2 * ts };
+  }
+
+  /** The dungeon (spec 09 §4): the camera keeps to the player's room and slides to the next one. */
+  private updateRoomCamera(deltaMs: number): void {
+    const run = this.state.run;
+    if (!run) return;
+    const rc = this.roomCamera;
+    if (!rc || rc.room !== run.room) {
+      const to = this.roomRect(run.room);
+      // The first room shows at once; the next ones slide in from where the camera was.
+      this.roomCamera = rc ? { room: run.room, from: lerpRect(rc.from, rc.to, rc.t), to, t: 0 } : { room: run.room, from: to, to, t: 1 };
+    } else if (rc.t < 1) {
+      rc.t = Math.min(1, rc.t + deltaMs / 1000 / DUNGEON.camera.slide);
+    } else {
+      return;
+    }
+    this.applyCameraBounds();
+  }
+}
+
+interface CameraRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/** Between two rectangles, eased so the slide starts and ends softly. */
+function lerpRect(a: CameraRect, b: CameraRect, t: number): CameraRect {
+  const k = t >= 1 ? 1 : t <= 0 ? 0 : t * t * (3 - 2 * t);
+  return { x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k, width: a.width + (b.width - a.width) * k, height: a.height + (b.height - a.height) * k };
 }

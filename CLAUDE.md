@@ -33,6 +33,8 @@ Juego móvil (iOS + Android) top-down shooter pixel art de supervivencia por ole
 | `npm run map:preview [mapa]` | Renderiza el mapa a PNG en `maps/preview/` (completo a 1:4, cada zona a 1:1 y el plano ASCII) |
 | `npm run audio:gen` | Monta los sonidos desde `audio-src/recipes/` (WAV de efectos, M4A de música y candidatos), actualiza el manifiesto y escribe el informe (`audio-src/preview/report.md`) y los créditos (`docs/AUDIO-CREDITS.md`). Ver `docs/AUDIO.md` |
 | `npm run audio:search "<consulta>"` | Busca en Freesound con el filtro CC0 y descarga a `audio-src/library/freesound/`, con su ficha. Necesita `FREESOUND_API_KEY` en `.env` |
+| `npm run rooms:build` | Lee y comprueba las plantillas de sala de la mazmorra (`maps/src/rooms/<ambiente>/`) y las deja en `public/assets/rooms/`, con `tiles/tilesets.json` (spec 09) |
+| `npm run dungeon:preview <semilla>…` | Planos de las 3 plantas de cada semilla (texto y PNG) y, con plantillas, cada planta montada como la monta el juego, en `maps/preview/dungeon/<semilla>/` |
 | `npm run windows:compose` | Monta las hojas de las barricadas (hueco dibujado por código + tablones de la madera del suelo) y su hoja de revisión en `maps/preview/windows/` |
 
 ## Reglas de arquitectura

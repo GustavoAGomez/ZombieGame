@@ -1,0 +1,27 @@
+########oo########
+#................#
+#................#
+#................#
+o................o
+o................o
+#................#
+#................#
+########oo########
+
+## Sala
+| tipo | dificultad | ambiente | nota |
+|---|---|---|---|
+| hand | — | mansion | la sala de la Mano: el altar del pacto llega con la fase M6 |
+
+## Mano
+| id | casilla |
+|---|---|
+| H1 | 8,4 |
+
+## Atrezo (muebles; con colisión es la cobertura de la sala)
+| id | objeto | casillas | colisión | volteo | nota |
+|---|---|---|---|---|---|
+| A1 | prop_charco_sangre | 6,3 | no | — |  |
+| A2 | prop_charco_sangre | 10,5 | no | — |  |
+| A3 | prop_escombros | 3,6 | no | — |  |
+| A4 | prop_cajas | 14,1 15,2 | sí | — |  |

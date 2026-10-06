@@ -5,6 +5,8 @@
  * of this.
  */
 import type { BossId, BossVariantId } from './bosses';
+import type { ZombieKind } from './balance';
+import type { WeaponId } from './weapons';
 
 /** The two games (spec 09 §1): the waves of the mansion, or the rooms of the dungeon. */
 export type GameMode = 'survival' | 'dungeon';
@@ -60,6 +62,39 @@ export const DUNGEON = {
   maxAttempts: 200,
   /** The difficulties a floor draws its rooms from (§3.2): the first floor, and the rest. */
   difficulties: { first: ['easy', 'medium'], later: ['medium', 'hard'] } as const satisfies Record<string, readonly RoomDifficulty[]>,
+  /**
+   * A room template (§3.2): 16×7 tiles of floor inside its walls (18×9 with
+   * them); rooms share their walls, so the plan's cells are 17×8 tiles
+   * apart. One door hole per side, `doorSpan` tiles wide, always at the
+   * same place: the middle of the north and south walls, and just under the
+   * middle of the west and east ones. Enemies appear `spawnClearTiles` or
+   * more from every hole, and never nearer the player (§4).
+   */
+  room: { floor: { width: 16, height: 7 }, doorSpan: 2, spawnClearTiles: 4 },
+  /**
+   * Combat (§5.1): a zombie's scratch, what a medkit heals and the +life of
+   * a dead boss; the weapons whose reserve never runs out (the magazine
+   * reloads as always).
+   */
+  combat: { zombieDamage: 20, medkitHeal: 40, bossHeal: 30, infiniteReserve: ['pistol'] as readonly WeaponId[] },
+  /**
+   * A room's fight (§4): the doors shut once the player is a tile inside;
+   * the enemies come `spawnWarning` s later (a shadow on the floor), never
+   * nearer the player than `room.spawnClearTiles`; a `medium` or `hard`
+   * room brings a second wave this often, when `secondWaveAt` enemies or
+   * fewer are left, with this share of the budget.
+   */
+  fight: { spawnWarning: 0.8, secondWaveChance: 0.5, secondWaveAt: 2, secondWaveShare: 0.5, spawnJitter: 6 },
+  /**
+   * The enemy budget of a room (§5.2) by difficulty, per floor (the third
+   * one on from there); an elite room spends `hard`'s. It is spent on kinds
+   * at random: a walker costs 1, a runner 2, a sprinter 3 (from the second
+   * floor). The new kinds come with phase M4.
+   */
+  budget: { easy: [6, 6, 6], medium: [9, 12, 15], hard: [12, 16, 20] } as const satisfies Record<RoomDifficulty, readonly [number, number, number]>,
+  enemies: { walker: { cost: 1, fromFloor: 1 }, runner: { cost: 2, fromFloor: 1 }, sprinter: { cost: 3, fromFloor: 2 } } as const satisfies Record<ZombieKind, { cost: number; fromFloor: number }>,
+  /** The camera (§4): it stays inside the current room and slides to the next one in this many seconds. */
+  camera: { slide: 0.35 },
   /** The template bank each ambient starts with (§3.2), per room type. */
   bank: { combat: 8, elite: 2, challenge: 2, start: 1, treasure: 1, hand: 1, boss: 1 } as const satisfies Record<RoomType, number>,
 } as const;

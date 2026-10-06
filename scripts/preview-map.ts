@@ -61,7 +61,7 @@ function rect(dst: Frame, x0: number, y0: number, w: number, h: number, [r, g, b
   }
 }
 
-function downscale(src: Frame, factor: number): Frame {
+export function downscale(src: Frame, factor: number): Frame {
   const out = blank(Math.floor(src.width / factor), Math.floor(src.height / factor));
   for (let y = 0; y < out.height; y++) {
     for (let x = 0; x < out.width; x++) {
@@ -92,11 +92,16 @@ function crop(src: Frame, x0: number, y0: number, w: number, h: number): Frame {
 /** Renders the built map at 1:1. */
 export function renderMap(mapPath: string): { image: Frame; map: MapData } {
   const raw = JSON.parse(readFileSync(mapPath, 'utf8')) as TiledMap;
+  return renderTiledMap(raw, (image) => resolve(dirname(mapPath), image));
+}
+
+/** Renders an embedded Tiled map in memory (the dungeon's floors, spec 09 §3.4); `imagePath` finds each tileset's PNG. */
+export function renderTiledMap(raw: TiledMap, imagePath: (image: string) => string): { image: Frame; map: MapData } {
   const map = parseMap(raw);
   const ts = map.tileSize;
   const images = new Map<string, Frame>();
   for (const t of raw.tilesets) {
-    const path = resolve(dirname(mapPath), t.image);
+    const path = imagePath(t.image);
     if (existsSync(path)) images.set(t.name, decodePng(readFileSync(path)));
   }
   const image = blank(map.width * ts, map.height * ts);
