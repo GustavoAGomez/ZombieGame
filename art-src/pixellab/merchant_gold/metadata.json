@@ -5,7 +5,7 @@
     {
       "character": {
         "name": "Idle",
-        "prompt": "the blue wizard merchant's sprite (pixflux img2img, strength 90, gold palette forced): gold hat and coat panels, white beard, monocle; inside the coat shining golden silk with golden elixirs, gems, coins and gold pistols. The breathing is frames 0-1-2-2-1-0 of its take (later frames grew shoulder plates).",
+        "prompt": "a new design (pixflux 64x64 from text, then img2img from that take at strength 110 with a pale gold palette forced, then every frame brightened two steps of that palette): a fat, very old wizard dealer, bare round belly under a long worn pale-gold coat, dented pointed hat, white beard, round spectacles, rust stains and patches; inside the coat, crimson lining with glowing golden elixirs, coins and weapons. The breathing is frames 0-7 of its take.",
         "size": {
           "width": 64,
           "height": 64
@@ -26,7 +26,9 @@
               "Idle/animations/breathing/south/frame_002.png",
               "Idle/animations/breathing/south/frame_003.png",
               "Idle/animations/breathing/south/frame_004.png",
-              "Idle/animations/breathing/south/frame_005.png"
+              "Idle/animations/breathing/south/frame_005.png",
+              "Idle/animations/breathing/south/frame_006.png",
+              "Idle/animations/breathing/south/frame_007.png"
             ]
           },
           "open_coat": {

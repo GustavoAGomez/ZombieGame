@@ -2340,3 +2340,20 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - un bote de 2 px en vez de 1.
   - Se dibuja con un solo `Graphics` para todas, bajo las recogidas. La munición y los botiquines no cambian.
 
+
+## Mago dorado nuevo: corpulento, anciano y de oro gastado (PixelLab, petición del usuario)
+
+- **Petición:** un mago más gordo, más anciano y con más experiencia, con la misma estética de traficante superviviente. Dorado, brillante y casi blanco, pero con aspecto desgastado.
+- **Proceso:**
+  - Partiendo del azul (*pixflux* imagen a imagen), el cuerpo salía bien, viejo y gordo, pero la gabardina quedaba gris oscuro o de cuero marrón.
+  - Las paletas forzadas con tonos de piel marrones hacían lo mismo: PixelLab pintaba la gabardina con ellos. Con una paleta sin marrones (oros, cremas, blanco, contorno negro, una sola piel, ámbar y óxido) ya salió dorada, aunque oscura.
+  - El diseño elegido es una tirada nueva desde texto, sin partir del azul, pasada otra vez imagen a imagen (fuerza 110) con esa paleta. Es corpulento, con la barriga al aire bajo la gabardina, sombrero abollado, barba blanca, gafas redondas y manchas de óxido.
+  - **Más brillante:** cada píxel se aclara dos peldaños de la paleta, sin tocar el contorno, la piel ni el óxido. Así queda en oro pálido casi blanco y conserva el desgaste.
+- **Animaciones** (*animate image*, 1 generación cada una, solo hacia el sur):
+  - **Respirar:** respira con la barriga. Se usan los fotogramas 0 a 7, porque el 8.º le cambiaba la cara. Sigue a 4 fps.
+  - **Abrir la gabardina:** un destello dorado y luego un forro carmesí con elixires, monedas y armas de oro que brillan.
+  - Los fotogramas se ajustan a la paleta y se aclaran igual que el diseño. Los oros saturados del brillo de la mercancía se añaden a la paleta y no se aclaran, para que sigan brillando.
+- **Tamaño real,** como pidió el usuario: sin `"scale"` (se borra su `import.json`). Mide 62 px sobre los pies, frente a 43 el azul y 45 el rojo.
+  - Ancla 0,94: los pies quedan en y ≈ 64 de 68.
+  - `ART_BODY_HEIGHT` del dorado pasa de 48 a 63, para centrar el humo.
+- **Coste:** 8 generaciones: 6 tiradas de diseño (contando la elegida y la tirada de la que parte) y 2 de animación.
