@@ -278,7 +278,7 @@ export const SOUNDS: readonly SoundDef[] = [
   sound({ id: 'hand.taken', family: 'reward', variants: keys('hand.taken'), bus: 'sfx', volume: 0.65, maxVoices: 1 }),
   sound({ id: 'hand.refund', family: 'threat', variants: keys('hand.refund'), bus: 'sfx', volume: 0.75, maxVoices: 1 }),
   sound({ id: 'hand.moved', family: 'threat', variants: keys('hand.moved'), bus: 'sfx', volume: 0.6, maxVoices: 1 }),
-  // §6.4 Threats. `boss.dizzy.loop` is the stunned boss's dizzy bells, the loop that follows `boss.stunned`.
+  // §6.4 Threats. `boss.dizzy.loop` is the stunned boss's confused groan (a complaint), the loop that follows `boss.stunned`.
   sound({ id: 'zombie.groan', family: 'threat', variants: keys('zombie.groan', 4), bus: 'sfx', volume: 0.45, pitchVar: 6, maxVoices: 1, priority: 'low', positional: true }),
   sound({ id: 'zombie.attack', family: 'threat', variants: keys('zombie.attack', 2), bus: 'sfx', volume: 0.6, pitchVar: 6, maxVoices: 3, minInterval: 0.08, positional: true }),
   sound({ id: 'zombie.crawl', family: 'threat', variants: keys('zombie.crawl'), bus: 'sfx', volume: 0.5, pitchVar: 6, maxVoices: 2, priority: 'low', positional: true }),
@@ -292,7 +292,7 @@ export const SOUNDS: readonly SoundDef[] = [
   sound({ id: 'boss.charge.loop', family: 'threat', variants: keys('boss.charge.loop'), bus: 'sfx', volume: 0.7, maxVoices: 1, priority: 'high', positional: true, loop: true }),
   sound({ id: 'boss.slam', family: 'threat', variants: keys('boss.slam'), bus: 'sfx', volume: 0.9, maxVoices: 2, priority: 'high' }),
   sound({ id: 'boss.stunned', family: 'threat', variants: keys('boss.stunned'), bus: 'sfx', volume: 0.85, maxVoices: 1, priority: 'high' }),
-  sound({ id: 'boss.dizzy.loop', family: 'threat', variants: keys('boss.dizzy.loop'), bus: 'sfx', volume: 0.45, maxVoices: 1, priority: 'high', positional: true, loop: true }),
+  sound({ id: 'boss.dizzy.loop', family: 'threat', variants: keys('boss.dizzy.loop'), bus: 'sfx', volume: 0.6, maxVoices: 1, priority: 'high', positional: true, loop: true }),
   sound({ id: 'boss.killed', family: 'threat', variants: keys('boss.killed'), bus: 'sfx', volume: 1, maxVoices: 1, priority: 'high', duck: true }),
   // §6.5 Banners and short melodies: through the effects bus, so they sound without music.
   sound({ id: 'jingle.round.start', family: 'jingle', variants: keys('jingle.round.start'), bus: 'sfx', volume: 0.8, maxVoices: 1, priority: 'high', duck: true }),

@@ -1374,26 +1374,26 @@
     },
     "boss_dizzy_loop": {
       "file": "audio/sfx/boss_dizzy_loop.wav",
-      "duration": 0.72,
+      "duration": 2.18,
       "placeholder": false,
       "picked": "A",
       "pending": true
     },
     "boss_dizzy_loop__a": {
       "file": "audio/candidates/boss_dizzy_loop__a.wav",
-      "duration": 0.72,
+      "duration": 2.18,
       "placeholder": false,
       "candidate": "A"
     },
     "boss_dizzy_loop__b": {
       "file": "audio/candidates/boss_dizzy_loop__b.wav",
-      "duration": 0.8,
+      "duration": 1.98,
       "placeholder": false,
       "candidate": "B"
     },
     "boss_dizzy_loop__c": {
       "file": "audio/candidates/boss_dizzy_loop__c.wav",
-      "duration": 0.64,
+      "duration": 1.98,
       "placeholder": false,
       "candidate": "C"
     },

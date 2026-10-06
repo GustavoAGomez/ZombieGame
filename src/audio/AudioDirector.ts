@@ -27,7 +27,7 @@ export interface AudioSnapshot {
   zombiesNear: number;
   nearestZombieX: number;
   nearestZombieY: number;
-  /** A boss charging or stunned, and where: its gallop and its dizzy bells (§6.4). */
+  /** A boss charging or stunned, and where: its gallop and its confused groan (§6.4). */
   bossCharging: boolean;
   bossStunned: boolean;
   bossX: number;
@@ -283,7 +283,7 @@ export class AudioDirector implements GameAudio, SoundTest {
 
   /**
    * The continuous threats (§6.4) and low health (§3.5): a groan of the
-   * nearest zombie every 2 to 5 s, the boss's gallop and dizzy bells
+   * nearest zombie every 2 to 5 s, the boss's gallop and confused groan
    * following it, and the heartbeat for its first seconds.
    */
   private updateThreats(s: Readonly<AudioSnapshot>): void {

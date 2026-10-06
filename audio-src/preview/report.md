@@ -17,9 +17,9 @@ Bandas: porcentaje de la energía por debajo de 100 Hz, 100–250, 250–1000, 1
 | boss_charge_loop__a | boss.charge.loop | A ✓ | Amenaza (bucle) | mono | 2144 ms | 54 ms | -1.0 dB | -21.8 dB | 626 Hz | 212 Hz | 2 · 32 · 64 · 2 · 0 |
 | boss_charge_loop__b | boss.charge.loop | B | Amenaza (bucle) | mono | 4211 ms | 131 ms | -1.0 dB | -25.6 dB | 1855 Hz | 554 Hz | 0 · 1 · 78 · 21 · 0 |
 | boss_charge_loop__c | boss.charge.loop | C | Amenaza (bucle) | mono | 2400 ms | 30 ms | -1.0 dB | -23.5 dB | 839 Hz | 232 Hz | 1 · 23 · 72 · 3 · 0 |
-| boss_dizzy_loop__a | boss.dizzy.loop | A ✓ | Amenaza (bucle) | mono | 720 ms | 80 ms | -1.0 dB | -16.2 dB | 1950 Hz | 1042 Hz | 0 · 0 · 25 · 74 · 1 |
-| boss_dizzy_loop__b | boss.dizzy.loop | B | Amenaza (bucle) | mono | 800 ms | 70 ms | -1.0 dB | -17.7 dB | 1697 Hz | 1322 Hz | 0 · 0 · 16 · 84 · 0 |
-| boss_dizzy_loop__c | boss.dizzy.loop | C | Amenaza (bucle) | mono | 640 ms | 60 ms | -1.0 dB | -15.7 dB | 2060 Hz | 989 Hz | 0 · 0 · 61 · 38 · 1 |
+| boss_dizzy_loop__a | boss.dizzy.loop | A ✓ | Amenaza (bucle) | mono | 2180 ms | 640 ms | -1.0 dB | -16.2 dB | 468 Hz | 300 Hz | 2 · 22 · 75 · 1 · 0 |
+| boss_dizzy_loop__b | boss.dizzy.loop | B | Amenaza (bucle) | mono | 1980 ms | 270 ms | -1.0 dB | -12.9 dB | 588 Hz | 252 Hz | 6 · 43 · 51 · 0 · 0 |
+| boss_dizzy_loop__c | boss.dizzy.loop | C | Amenaza (bucle) | mono | 1980 ms | 70 ms | -1.0 dB | -20.0 dB | 1054 Hz | 847 Hz | 0 · 0 · 78 · 22 · 0 |
 | boss_killed__a | boss.killed | A ✓ | Amenaza | estéreo | 1443 ms | 223 ms | -1.0 dB | -15.2 dB | 2328 Hz | 197 Hz | 3 · 29 · 47 · 20 · 1 |
 | boss_killed__b | boss.killed | B | Amenaza | estéreo | 1407 ms | 287 ms | -1.0 dB | -24.1 dB | 1506 Hz | 158 Hz | 14 · 58 · 20 · 8 · 0 |
 | boss_killed__c | boss.killed | C | Amenaza | estéreo | 1414 ms | 324 ms | -1.0 dB | -24.5 dB | 6184 Hz | 510 Hz | 3 · 11 · 56 · 19 · 11 |
@@ -313,9 +313,9 @@ Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.
 - **boss.charge.loop A** (en el juego): Galope grabado, cinco semitonos más grave (más pesado), en bucle.
 - **boss.charge.loop B**: Un galope que ya era un bucle, siete semitonos más grave.
 - **boss.charge.loop C**: Otro galope, cuatro semitonos más grave, con un golpe sordo en cada pisada.
-- **boss.dizzy.loop A** (en el juego): Campanillas de cristal que dan vueltas: Mi-Do-La-Do, en bucle.
-- **boss.dizzy.loop B**: Campanas La-Mi-Do-Mi, más redondas, en bucle.
-- **boss.dizzy.loop C**: Cristal y campana Si-Re-Si-Sol, mareados, en bucle.
+- **boss.dizzy.loop A** (en el juego): Un lamento largo de zombi, cuatro semitonos más grave, con una pausa para respirar antes de repetirse.
+- **boss.dizzy.loop B**: Una queja de zombi, «uhhh», tres semitonos más grave, y un respiro.
+- **boss.dizzy.loop C**: Un quejido más vocal y dolorido, tres semitonos más grave, y un respiro.
 - **boss.killed A** (en el juego): Estéreo: un derrumbe largo de escombros, una pisada enorme y un último gruñido.
 - **boss.killed B**: Estéreo: rocas que caen, un cuerpo enorme que se desploma y un rugido que se apaga.
 - **boss.killed C**: Estéreo: escombros, una caída pesada sobre tierra y un rugido corto subido para el móvil.

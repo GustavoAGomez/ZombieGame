@@ -80,7 +80,7 @@ Generado por `npm run audio:gen` a partir de los `credits.json` de `audio-src/` 
 | `library/freesound/442903_slash.ogg` | Freesound (previsualización HQ OGG) | qubodup | CC0 1.0 | https://freesound.org/people/qubodup/sounds/442903/ | weapon.katana.swing, weapon.knife |
 | `library/freesound/443845_58_caida_roca_grande.ogg` | Freesound (previsualización HQ OGG) | checholio | CC0 1.0 | https://freesound.org/people/checholio/sounds/443845/ | boss.slam, boss.stunned |
 | `library/freesound/444491_short_choir.ogg` | Freesound (previsualización HQ OGG) | Breviceps | CC0 1.0 | https://freesound.org/people/Breviceps/sounds/444491/ | buy.merchant, buy.special, hand.offer.special, jingle.boss.dead, merchant.arrive |
-| `library/freesound/445993_zombie_moan_1.ogg` | Freesound (previsualización HQ OGG) | Breviceps | CC0 1.0 | https://freesound.org/people/Breviceps/sounds/445993/ | zombie.groan |
+| `library/freesound/445993_zombie_moan_1.ogg` | Freesound (previsualización HQ OGG) | Breviceps | CC0 1.0 | https://freesound.org/people/Breviceps/sounds/445993/ | boss.dizzy.loop, zombie.groan |
 | `library/freesound/445995_zombie_moan_3.ogg` | Freesound (previsualización HQ OGG) | Breviceps | CC0 1.0 | https://freesound.org/people/Breviceps/sounds/445995/ | zombie.groan |
 | `library/freesound/447922_thud_falling_on_wooden_floor_snapping_br.ogg` | Freesound (previsualización HQ OGG) | Breviceps | CC0 1.0 | https://freesound.org/people/Breviceps/sounds/447922/ | player.hurt |
 | `library/freesound/447941_blast_flamethrower_cooldown.ogg` | Freesound (previsualización HQ OGG) | Breviceps | CC0 1.0 | https://freesound.org/people/Breviceps/sounds/447941/ | hand.offer.special, ritual.done, weapon.flame.blast, weapon.flame.loop |
@@ -153,8 +153,8 @@ Generado por `npm run audio:gen` a partir de los `credits.json` de `audio-src/` 
 | `library/freesound/579531_ppsh_shooting.ogg` | Freesound (previsualización HQ OGG) | coolabc | CC0 1.0 | https://freesound.org/people/coolabc/sounds/579531/ | weapon.smg.fire |
 | `library/freesound/581078_flame_loop.ogg` | Freesound (previsualización HQ OGG) | magnuswaker | CC0 1.0 | https://freesound.org/people/magnuswaker/sounds/581078/ | weapon.flame.loop |
 | `library/freesound/592041_braams_and_timpani.ogg` | Freesound (previsualización HQ OGG) | XHALE303 | CC0 1.0 | https://freesound.org/people/XHALE303/sounds/592041/ | jingle.round.start |
-| `library/freesound/594008_frankie_groan_03.ogg` | Freesound (previsualización HQ OGG) | TllDrkStrngr | CC0 1.0 | https://freesound.org/people/TllDrkStrngr/sounds/594008/ | zombie.groan |
-| `library/freesound/594009_frankie_groan_02.ogg` | Freesound (previsualización HQ OGG) | TllDrkStrngr | CC0 1.0 | https://freesound.org/people/TllDrkStrngr/sounds/594009/ | zombie.groan |
+| `library/freesound/594008_frankie_groan_03.ogg` | Freesound (previsualización HQ OGG) | TllDrkStrngr | CC0 1.0 | https://freesound.org/people/TllDrkStrngr/sounds/594008/ | boss.dizzy.loop, zombie.groan |
+| `library/freesound/594009_frankie_groan_02.ogg` | Freesound (previsualización HQ OGG) | TllDrkStrngr | CC0 1.0 | https://freesound.org/people/TllDrkStrngr/sounds/594009/ | boss.dizzy.loop, zombie.groan |
 | `library/freesound/609909_evil_laugh_2.ogg` | Freesound (previsualización HQ OGG) | AntumDeluge | CC0 1.0 | https://freesound.org/people/AntumDeluge/sounds/609909/ | hand.refund |
 | `library/freesound/614006_roar3.ogg` | Freesound (previsualización HQ OGG) | aarontheonly | CC0 1.0 | https://freesound.org/people/aarontheonly/sounds/614006/ | boss.roar |
 | `library/freesound/614012_roar6.ogg` | Freesound (previsualización HQ OGG) | aarontheonly | CC0 1.0 | https://freesound.org/people/aarontheonly/sounds/614012/ | boss.roar |
@@ -203,7 +203,7 @@ Generado por `npm run audio:gen` a partir de los `credits.json` de `audio-src/` 
 | `library/freesound/779805_meaty_damage_impact.ogg` | Freesound (previsualización HQ OGG) | modusmogulus | CC0 1.0 | https://freesound.org/people/modusmogulus/sounds/779805/ | hand.pay.blood |
 | `library/freesound/784655_heartbeat_sub_kick_louder.ogg` | Freesound (previsualización HQ OGG) | music_is_wiggly_air | CC0 1.0 | https://freesound.org/people/music_is_wiggly_air/sounds/784655/ | player.heartbeat |
 | `library/freesound/787500_lighter_ignite_release.ogg` | Freesound (previsualización HQ OGG) | RealSquink | CC0 1.0 | https://freesound.org/people/RealSquink/sounds/787500/ | buy.merchant, buy.upgrade, merchant.arrive |
-| `library/freesound/797708_zombie_moaning.ogg` | Freesound (previsualización HQ OGG) | N_dot_br33zy_xx | CC0 1.0 | https://freesound.org/people/N_dot_br33zy_xx/sounds/797708/ | zombie.groan |
+| `library/freesound/797708_zombie_moaning.ogg` | Freesound (previsualización HQ OGG) | N_dot_br33zy_xx | CC0 1.0 | https://freesound.org/people/N_dot_br33zy_xx/sounds/797708/ | boss.dizzy.loop, zombie.groan |
 | `library/freesound/801829_taiko_tom_1_long.ogg` | Freesound (previsualización HQ OGG) | Logicogonist | CC0 1.0 | https://freesound.org/people/Logicogonist/sounds/801829/ | buy.special, jingle.round.boss, jingle.round.clear, jingle.round.start, ritual.done, ui.play |
 | `library/freesound/803497_pocket_pistol_gunshot_2_outside_of_room.ogg` | Freesound (previsualización HQ OGG) | mahecic | CC0 1.0 | https://freesound.org/people/mahecic/sounds/803497/ | weapon.pistol.fire |
 | `library/freesound/803551_wooden_impact.ogg` | Freesound (previsualización HQ OGG) | agaisgsbs | CC0 1.0 | https://freesound.org/people/agaisgsbs/sounds/803551/ | reward.repair |
