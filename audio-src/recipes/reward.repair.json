@@ -2,16 +2,39 @@
   "chosen": null,
   "candidates": {
     "A": {
-      "about": "Martillazo sobre madera; el brillo es una kalimba real en Mi 6, que sube con cada tablón.",
+      "about": "Un tablón que golpea la madera y un clavo que entra; la nota de la racha es una kalimba en Mi 6.",
       "channels": 1,
       "variants": [
         {
-          "type": "file",
-          "source": "library/freesound/342542_outside_hammer.ogg",
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/803551_wooden_impact.ogg",
+                "process": {
+                  "start": 0.72,
+                  "lowcut": 120
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/233632_nail_2.ogg",
+                "process": {
+                  "start": 0.1,
+                  "highcut": 8000
+                }
+              },
+              "gain": 0.45,
+              "delay": 0.08
+            }
+          ],
           "process": {
-            "end": 0.3,
-            "lowcut": 120,
-            "fadeOut": 0.1
+            "length": 0.35,
+            "fadeOut": 0.12
           }
         }
       ],
@@ -40,7 +63,7 @@
       ]
     },
     "B": {
-      "about": "Madera y tablón de Kenney; el brillo es el glockenspiel en La 5.",
+      "about": "Dos martillazos rápidos sobre la madera; la nota de la racha es el glockenspiel en La 5.",
       "channels": 1,
       "variants": [
         {
@@ -49,9 +72,10 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/kenney-impact-sounds/impactWood_medium_000.ogg",
+                "source": "library/freesound/138038_hamer.ogg",
                 "process": {
-                  "lowcut": 100
+                  "end": 0.15,
+                  "lowcut": 150
                 }
               },
               "gain": 1
@@ -59,18 +83,30 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/kenney-impact-sounds/impactPlank_medium_000.ogg",
+                "source": "library/freesound/138038_hamer.ogg",
                 "process": {
-                  "end": 0.25,
+                  "end": 0.15,
+                  "semitones": -1,
                   "lowcut": 150
                 }
               },
-              "gain": 0.7
+              "gain": 0.8,
+              "delay": 0.12
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactWood_medium_000.ogg",
+                "process": {
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.5
             }
           ],
           "process": {
-            "length": 0.3,
-            "fadeOut": 0.1
+            "length": 0.35,
+            "fadeOut": 0.12
           }
         }
       ],
@@ -99,7 +135,7 @@
       ]
     },
     "C": {
-      "about": "Madera de OpenGameArt; el brillo es un «ding» de cristal grabado en Mi 6.",
+      "about": "Un tablón que cae en su sitio y rebota una vez; la nota de la racha es un «ding» de cristal en Mi 6.",
       "channels": 1,
       "variants": [
         {
@@ -108,10 +144,10 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/oga-80-cc0-rpg-sfx/wood_01.ogg",
+                "source": "library/freesound/723568_wood_drop.ogg",
                 "process": {
                   "end": 0.3,
-                  "lowcut": 120
+                  "lowcut": 150
                 }
               },
               "gain": 1
@@ -119,17 +155,20 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/kenney-impact-sounds/impactWood_medium_001.ogg",
+                "source": "library/freesound/577454_wood_fall.ogg",
                 "process": {
-                  "lowcut": 100
+                  "start": 0.12,
+                  "end": 0.45,
+                  "lowcut": 150
                 }
               },
-              "gain": 0.6
+              "gain": 0.6,
+              "delay": 0.05
             }
           ],
           "process": {
-            "length": 0.3,
-            "fadeOut": 0.1
+            "length": 0.4,
+            "fadeOut": 0.12
           }
         }
       ],

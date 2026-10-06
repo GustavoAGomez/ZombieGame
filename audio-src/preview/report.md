@@ -104,18 +104,18 @@ Bandas: porcentaje de la energía por debajo de 100 Hz, 100–250, 250–1000, 1
 | hand_taken__a | hand.taken | A ✓ | Premio | mono | 195 ms | 85 ms | -1.0 dB | -21.2 dB | 7790 Hz | 4241 Hz | 1 · 1 · 7 · 25 · 66 |
 | hand_taken__b | hand.taken | B | Premio | mono | 300 ms | 80 ms | -1.0 dB | -19.2 dB | 4620 Hz | 179 Hz | 3 · 41 · 36 · 14 · 6 |
 | hand_taken__c | hand.taken | C | Premio | mono | 289 ms | 79 ms | -1.0 dB | -19.4 dB | 7063 Hz | 4917 Hz | 0 · 0 · 6 · 29 · 65 |
-| impact_flesh_1__a | impact.flesh | A ✓ | Golpe | mono | 177 ms | 67 ms | -1.0 dB | -14.5 dB | 5594 Hz | 293 Hz | 2 · 20 · 69 · 4 · 5 |
-| impact_flesh_2__a | impact.flesh | A ✓ | Golpe | mono | 186 ms | 76 ms | -1.0 dB | -15.2 dB | 5188 Hz | 307 Hz | 2 · 15 · 73 · 5 · 5 |
-| impact_flesh_3__a | impact.flesh | A ✓ | Golpe | mono | 186 ms | 46 ms | -1.0 dB | -15.4 dB | 4427 Hz | 225 Hz | 2 · 46 · 47 · 3 · 2 |
-| impact_flesh_4__a | impact.flesh | A ✓ | Golpe | mono | 181 ms | 61 ms | -1.0 dB | -14.4 dB | 5354 Hz | 272 Hz | 2 · 19 · 71 · 4 · 4 |
-| impact_flesh_1__b | impact.flesh | B | Golpe | mono | 201 ms | 61 ms | -1.0 dB | -15.9 dB | 3658 Hz | 234 Hz | 3 · 40 · 52 · 4 · 2 |
-| impact_flesh_2__b | impact.flesh | B | Golpe | mono | 201 ms | 71 ms | -1.0 dB | -16.8 dB | 5196 Hz | 286 Hz | 6 · 19 · 67 · 3 · 4 |
-| impact_flesh_3__b | impact.flesh | B | Golpe | mono | 207 ms | 67 ms | -1.0 dB | -17.0 dB | 5301 Hz | 90 Hz | 18 · 19 · 50 · 7 · 6 |
-| impact_flesh_4__b | impact.flesh | B | Golpe | mono | 204 ms | 64 ms | -1.0 dB | -16.6 dB | 4338 Hz | 318 Hz | 12 · 18 · 65 · 3 · 2 |
-| impact_flesh_1__c | impact.flesh | C | Golpe | mono | 210 ms | 60 ms | -1.0 dB | -20.1 dB | 4234 Hz | 97 Hz | 9 · 11 · 22 · 51 · 8 |
-| impact_flesh_2__c | impact.flesh | C | Golpe | mono | 203 ms | 123 ms | -1.0 dB | -20.6 dB | 3675 Hz | 199 Hz | 7 · 39 · 11 · 27 · 17 |
-| impact_flesh_3__c | impact.flesh | C | Golpe | mono | 199 ms | 59 ms | -1.0 dB | -24.2 dB | 4773 Hz | 99 Hz | 19 · 20 · 6 · 24 · 31 |
-| impact_flesh_4__c | impact.flesh | C | Golpe | mono | 201 ms | 41 ms | -1.0 dB | -20.7 dB | 6707 Hz | 118 Hz | 7 · 11 · 9 · 48 · 26 |
+| impact_flesh_1__a | impact.flesh | A ✓ | Golpe | mono | 139 ms | 49 ms | -1.0 dB | -17.7 dB | 5407 Hz | 113 Hz | 11 · 15 · 2 · 56 · 16 |
+| impact_flesh_2__a | impact.flesh | A ✓ | Golpe | mono | 175 ms | 65 ms | -1.0 dB | -16.9 dB | 5636 Hz | 98 Hz | 6 · 5 · 1 · 63 · 24 |
+| impact_flesh_3__a | impact.flesh | A ✓ | Golpe | mono | 147 ms | 27 ms | -1.0 dB | -19.3 dB | 5668 Hz | 97 Hz | 12 · 10 · 3 · 61 · 13 |
+| impact_flesh_4__a | impact.flesh | A ✓ | Golpe | mono | 182 ms | 42 ms | -1.0 dB | -21.0 dB | 5558 Hz | 97 Hz | 15 · 14 · 1 · 59 · 10 |
+| impact_flesh_1__b | impact.flesh | B | Golpe | mono | 193 ms | 143 ms | -1.0 dB | -19.2 dB | 8338 Hz | 4690 Hz | 0 · 0 · 1 · 19 · 80 |
+| impact_flesh_2__b | impact.flesh | B | Golpe | mono | 181 ms | 81 ms | -1.0 dB | -23.5 dB | 4125 Hz | 1075 Hz | 1 · 1 · 31 · 60 · 7 |
+| impact_flesh_3__b | impact.flesh | B | Golpe | mono | 177 ms | 57 ms | -1.0 dB | -18.7 dB | 8219 Hz | 105 Hz | 6 · 10 · 10 · 26 · 48 |
+| impact_flesh_4__b | impact.flesh | B | Golpe | mono | 174 ms | 74 ms | -1.0 dB | -22.4 dB | 4971 Hz | 1937 Hz | 3 · 4 · 11 · 69 · 13 |
+| impact_flesh_1__c | impact.flesh | C | Golpe | mono | 219 ms | 19 ms | -1.0 dB | -13.4 dB | 2053 Hz | 231 Hz | 0 · 35 · 62 · 2 · 1 |
+| impact_flesh_2__c | impact.flesh | C | Golpe | mono | 218 ms | 8 ms | -1.0 dB | -15.9 dB | 6003 Hz | 1183 Hz | 0 · 4 · 20 · 59 · 17 |
+| impact_flesh_3__c | impact.flesh | C | Golpe | mono | 213 ms | 23 ms | -1.0 dB | -18.8 dB | 6095 Hz | 1141 Hz | 0 · 0 · 8 · 60 · 31 |
+| impact_flesh_4__c | impact.flesh | C | Golpe | mono | 215 ms | 35 ms | -1.0 dB | -20.2 dB | 4659 Hz | 260 Hz | 2 · 19 · 34 · 36 · 8 |
 | item_cant_use__a | item.cantUse | A ✓ | Interfaz | mono | 185 ms | 25 ms | -1.0 dB | -15.7 dB | 530 Hz | 255 Hz | 5 · 52 · 43 · 0 · 0 |
 | item_cant_use__b | item.cantUse | B | Interfaz | mono | 163 ms | 23 ms | -1.0 dB | -14.2 dB | 202 Hz | 191 Hz | 4 · 92 · 4 · 0 · 0 |
 | item_cant_use__c | item.cantUse | C | Interfaz | mono | 156 ms | 6 ms | -1.0 dB | -11.5 dB | 527 Hz | 244 Hz | 1 · 44 · 55 · 0 · 0 |
@@ -131,9 +131,9 @@ Bandas: porcentaje de la energía por debajo de 100 Hz, 100–250, 250–1000, 1
 | jingle_round_boss__a | jingle.round.boss | A ✓ | Carteles | estéreo | 1885 ms | 845 ms | -1.0 dB | -19.4 dB | 2860 Hz | 251 Hz | 3 · 32 · 61 · 4 · 1 |
 | jingle_round_boss__b | jingle.round.boss | B | Carteles | estéreo | 1858 ms | 468 ms | -1.0 dB | -17.3 dB | 941 Hz | 345 Hz | 8 · 21 · 70 · 1 · 0 |
 | jingle_round_boss__c | jingle.round.boss | C | Carteles | estéreo | 1682 ms | 592 ms | -1.0 dB | -18.4 dB | 563 Hz | 264 Hz | 10 · 31 · 58 · 1 · 0 |
-| jingle_round_clear__a | jingle.round.clear | A ✓ | Carteles | estéreo | 1443 ms | 603 ms | -1.0 dB | -17.8 dB | 944 Hz | 781 Hz | 0 · 1 · 90 · 9 · 0 |
-| jingle_round_clear__b | jingle.round.clear | B | Carteles | estéreo | 1510 ms | 510 ms | -1.0 dB | -17.5 dB | 871 Hz | 513 Hz | 0 · 2 · 88 · 9 · 0 |
-| jingle_round_clear__c | jingle.round.clear | C | Carteles | estéreo | 1417 ms | 577 ms | -1.0 dB | -16.9 dB | 983 Hz | 614 Hz | 0 · 0 · 84 · 15 · 0 |
+| jingle_round_clear__a | jingle.round.clear | A ✓ | Carteles | estéreo | 1825 ms | 465 ms | -1.0 dB | -18.9 dB | 1483 Hz | 871 Hz | 4 · 6 · 74 · 16 · 1 |
+| jingle_round_clear__b | jingle.round.clear | B | Carteles | estéreo | 1823 ms | 453 ms | -1.0 dB | -23.5 dB | 2623 Hz | 876 Hz | 0 · 9 · 31 · 55 · 5 |
+| jingle_round_clear__c | jingle.round.clear | C | Carteles | estéreo | 1703 ms | 433 ms | -1.0 dB | -21.4 dB | 6338 Hz | 875 Hz | 0 · 1 · 64 · 16 · 18 |
 | jingle_round_start__a | jingle.round.start | A ✓ | Carteles | estéreo | 2052 ms | 672 ms | -1.0 dB | -19.3 dB | 2561 Hz | 213 Hz | 15 · 56 · 19 · 10 · 1 |
 | jingle_round_start__b | jingle.round.start | B | Carteles | estéreo | 2162 ms | 272 ms | -1.0 dB | -20.1 dB | 1052 Hz | 124 Hz | 23 · 52 · 23 · 2 · 0 |
 | jingle_round_start__c | jingle.round.start | C | Carteles | estéreo | 2191 ms | 151 ms | -1.0 dB | -17.6 dB | 1376 Hz | 124 Hz | 13 · 37 · 49 · 1 · 0 |
@@ -170,20 +170,20 @@ Bandas: porcentaje de la energía por debajo de 100 Hz, 100–250, 250–1000, 1
 | player_hurt_2__b | player.hurt | B | Amenaza | mono | 254 ms | 74 ms | -1.0 dB | -16.3 dB | 2145 Hz | 93 Hz | 13 · 7 · 11 · 68 · 0 |
 | player_hurt_1__c | player.hurt | C | Amenaza | mono | 321 ms | 31 ms | -1.0 dB | -16.1 dB | 3057 Hz | 341 Hz | 2 · 7 · 76 · 14 · 1 |
 | player_hurt_2__c | player.hurt | C | Amenaza | mono | 320 ms | 10 ms | -1.0 dB | -13.1 dB | 3158 Hz | 406 Hz | 1 · 4 · 90 · 5 · 1 |
-| reward_hit__a | reward.hit | A ✓ | Premio | mono | 120 ms | 60 ms | -1.0 dB | -16.8 dB | 2707 Hz | 1763 Hz | 0 · 0 · 0 · 100 · 0 |
-| reward_hit__b | reward.hit | B | Premio | mono | 120 ms | 60 ms | -1.0 dB | -17.0 dB | 3830 Hz | 2633 Hz | 0 · 0 · 0 · 96 · 4 |
-| reward_hit__c | reward.hit | C | Premio | mono | 128 ms | 48 ms | -1.0 dB | -14.7 dB | 1908 Hz | 1951 Hz | 1 · 1 · 2 · 95 · 0 |
+| reward_hit__a | reward.hit | A ✓ | Premio | mono | 122 ms | 22 ms | -1.0 dB | -22.4 dB | 4776 Hz | 1763 Hz | 0 · 0 · 0 · 79 · 21 |
+| reward_hit__b | reward.hit | B | Premio | mono | 111 ms | 21 ms | -1.0 dB | -20.5 dB | 10546 Hz | 4556 Hz | 0 · 0 · 0 · 1 · 99 |
+| reward_hit__c | reward.hit | C | Premio | mono | 119 ms | 39 ms | -1.0 dB | -19.0 dB | 2032 Hz | 1327 Hz | 0 · 0 · 0 · 99 · 0 |
 | reward_kill__a | reward.kill | A ✓ | Premio | mono | 160 ms | 60 ms | -1.0 dB | -15.0 dB | 2621 Hz | 306 Hz | 2 · 16 · 81 · 0 · 1 |
 | reward_kill_shine__a | reward.kill | A ✓ | Premio | mono | 434 ms | 64 ms | -1.0 dB | -21.6 dB | 2766 Hz | 878 Hz | 0 · 0 · 85 · 15 · 0 |
 | reward_kill__b | reward.kill | B | Premio | mono | 150 ms | 30 ms | -1.0 dB | -24.5 dB | 4727 Hz | 171 Hz | 0 · 34 · 15 · 22 · 29 |
 | reward_kill_shine__b | reward.kill | B | Premio | mono | 234 ms | 84 ms | -1.0 dB | -21.4 dB | 9498 Hz | 1169 Hz | 0 · 0 · 0 · 52 · 48 |
 | reward_kill__c | reward.kill | C | Premio | mono | 153 ms | 33 ms | -1.0 dB | -15.3 dB | 4765 Hz | 290 Hz | 8 · 16 · 66 · 6 · 4 |
 | reward_kill_shine__c | reward.kill | C | Premio | mono | 399 ms | 79 ms | -1.0 dB | -14.8 dB | 2372 Hz | 881 Hz | 0 · 14 · 73 · 10 · 3 |
-| reward_repair__a | reward.repair | A ✓ | Premio | mono | 223 ms | 83 ms | -1.0 dB | -19.6 dB | 1850 Hz | 126 Hz | 11 · 33 · 48 · 9 · 0 |
+| reward_repair__a | reward.repair | A ✓ | Premio | mono | 296 ms | 106 ms | -1.0 dB | -17.4 dB | 4160 Hz | 376 Hz | 2 · 18 · 50 · 4 · 27 |
 | reward_repair_shine__a | reward.repair | A ✓ | Premio | mono | 404 ms | 114 ms | -1.0 dB | -21.8 dB | 1812 Hz | 1326 Hz | 0 · 0 · 0 · 100 · 0 |
-| reward_repair__b | reward.repair | B | Premio | mono | 197 ms | 127 ms | -1.0 dB | -19.1 dB | 1661 Hz | 207 Hz | 10 · 53 · 35 · 1 · 0 |
+| reward_repair__b | reward.repair | B | Premio | mono | 280 ms | 0 ms | -1.0 dB | -12.3 dB | 5935 Hz | 581 Hz | 0 · 2 · 38 · 40 · 21 |
 | reward_repair_shine__b | reward.repair | B | Premio | mono | 468 ms | 68 ms | -1.0 dB | -21.7 dB | 2737 Hz | 877 Hz | 0 · 0 · 86 · 14 · 0 |
-| reward_repair__c | reward.repair | C | Premio | mono | 198 ms | 98 ms | -1.0 dB | -23.6 dB | 4544 Hz | 160 Hz | 2 · 20 · 13 · 36 · 29 |
+| reward_repair__c | reward.repair | C | Premio | mono | 336 ms | 176 ms | -1.0 dB | -17.0 dB | 3062 Hz | 1743 Hz | 0 · 2 · 31 · 65 · 2 |
 | reward_repair_shine__c | reward.repair | C | Premio | mono | 319 ms | 69 ms | -1.0 dB | -15.5 dB | 4016 Hz | 1323 Hz | 0 · 0 · 0 · 98 · 2 |
 | ritual_done__a | ritual.done | A ✓ | Carteles | estéreo | 1907 ms | 377 ms | -1.0 dB | -18.2 dB | 3291 Hz | 513 Hz | 4 · 14 · 71 · 9 · 1 |
 | ritual_done__b | ritual.done | B | Carteles | estéreo | 1901 ms | 351 ms | -1.0 dB | -19.2 dB | 3556 Hz | 202 Hz | 6 · 23 · 34 · 35 · 3 |
@@ -400,9 +400,9 @@ Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.
 - **hand.taken A** (en el juego): Cuero que se agarra y un pestillo de metal.
 - **hand.taken B**: Cuero que cae, un clic y una hebilla.
 - **hand.taken C**: Desenfundar (metal) con cuero.
-- **impact.flesh A** (en el juego): Puñetazo medio de Kenney con una salpicadura húmeda encima.
-- **impact.flesh B**: Puñetazo pesado con el peso en 200 Hz y una salpicadura.
-- **impact.flesh C**: Golpes de carne grabados (impacto, despojos, bofetada, salpicadura) sobre un golpe blando.
+- **impact.flesh A** (en el juego): BALA EN CARNE: cuatro impactos de bala en carne grabados, con un golpe sordo debajo.
+- **impact.flesh B**: GOLPE DE CARNE: bofetadas de carne y «libra de carne» grabadas, húmedas.
+- **impact.flesh C**: ZOMBI: golpes a zombis grabados con un poco de sangre de bala encima.
 - **item.cantUse A** (en el juego): Como denied A, dos semitonos más grave.
 - **item.cantUse B**: Como denied B, más grave.
 - **item.cantUse C**: Como denied C, más grave.
@@ -418,9 +418,9 @@ Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.
 - **jingle.round.boss A** (en el juego): Dos tambores, Mi-Do-La de campana grave que baja y retumbo de rocas.
 - **jingle.round.boss B**: Tres taikos, La-Fa-Mi de campana y rocas.
 - **jingle.round.boss C**: Timbales en Re y La, Re-Do-La grave y un retumbo subido una octava.
-- **jingle.round.clear A** (en el juego): Do-Mi-Sol que resuelve en La, con brillo de cristal y un acorde suave debajo.
-- **jingle.round.clear B**: La-Do-Mi-Sol-La de campana con un destello grabado.
-- **jingle.round.clear C**: Mi-Re-Do-Mi-La de campana y cristal.
+- **jingle.round.clear A** (en el juego): Estéreo: CUERNO QUE RESUELVE. Una llamada de cuerno grabada en La, un taiko suave y el glockenspiel que sube Mi-Sol-La al final.
+- **jingle.round.clear B**: Estéreo: GLOCKENSPIEL. Do-Mi-Sol-La de glockenspiel real sobre el cuerno de batalla del inicio, suave, y un coro en La.
+- **jingle.round.clear C**: Estéreo: CAJA DE MÚSICA Y CORO. La-Do-Mi-La de caja de música, el coro en La y un brillo de cristal al final.
 - **jingle.round.start A** (en el juego): Estéreo: CUERNO DE GUERRA. Un taiko y un tambor de cine en La, y un cuerno de batalla grabado, afinado a La 3.
 - **jingle.round.start B**: Estéreo: GOLPE DE CINE. Un «braam» de metales con timbal, afinado a La 2, y un taiko encima.
 - **jingle.round.start C**: Estéreo: TAMBORES DE GUERRA. Tres taikos que se aceleran y un cuerno grave en Mi 4 sobre ellos.
@@ -448,15 +448,15 @@ Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.
 - **player.hurt A** (en el juego): Puñetazo medio y un gruñido corto de dolor (MrFossy).
 - **player.hurt B**: Golpe sordo con el peso en 180 Hz y otros dos gruñidos.
 - **player.hurt C**: Golpe contra el suelo de madera y gruñidos más largos.
-- **reward.hit A** (en el juego): Toque mínimo de cristal en La 6 con un brillo de Kenney.
-- **reward.hit B**: Cristal en Mi 7, más agudo, con un clic suave.
-- **reward.hit C**: El cristal de Kenney (Si 6) con un Do 7 generado muy bajo.
+- **reward.hit A** (en el juego): Un toque mínimo de glockenspiel real en La 6.
+- **reward.hit B**: El tintineo de una moneda, muy corto.
+- **reward.hit C**: Un toque mínimo de kalimba en Mi 6.
 - **reward.kill A** (en el juego): Golpe seco con un tintineo de moneda; el brillo es un glockenspiel real en La 5, que sube con la racha.
 - **reward.kill B**: Bofetada con madera; el brillo es una caja de música real en Re 6.
 - **reward.kill C**: Golpe pesado con salpicadura; el brillo es una copa de cristal golpeada, bajada a La 5.
-- **reward.repair A** (en el juego): Martillazo sobre madera; el brillo es una kalimba real en Mi 6, que sube con cada tablón.
-- **reward.repair B**: Madera y tablón de Kenney; el brillo es el glockenspiel en La 5.
-- **reward.repair C**: Madera de OpenGameArt; el brillo es un «ding» de cristal grabado en Mi 6.
+- **reward.repair A** (en el juego): Un tablón que golpea la madera y un clavo que entra; la nota de la racha es una kalimba en Mi 6.
+- **reward.repair B**: Dos martillazos rápidos sobre la madera; la nota de la racha es el glockenspiel en La 5.
+- **reward.repair C**: Un tablón que cae en su sitio y rebota una vez; la nota de la racha es un «ding» de cristal en Mi 6.
 - **ritual.done A** (en el juego): Estéreo: agua que hierve, una subida de aire y La-Do-Mi-La, y un golpe grave con fuego.
 - **ritual.done B**: Estéreo: agua hirviendo derramándose, una subida de energía y un tambor con llamarada.
 - **ritual.done C**: Estéreo: hervor, un acorde que sube una octava y un taiko con fuego.

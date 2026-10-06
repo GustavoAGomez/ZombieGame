@@ -2099,101 +2099,101 @@
     },
     "impact_flesh_1": {
       "file": "audio/sfx/impact_flesh_1.wav",
-      "duration": 0.177,
+      "duration": 0.1387,
       "placeholder": false,
       "picked": "A",
       "pending": true
     },
     "impact_flesh_1__a": {
       "file": "audio/candidates/impact_flesh_1__a.wav",
-      "duration": 0.177,
+      "duration": 0.1387,
       "placeholder": false,
       "candidate": "A"
     },
     "impact_flesh_1__b": {
       "file": "audio/candidates/impact_flesh_1__b.wav",
-      "duration": 0.2012,
+      "duration": 0.1928,
       "placeholder": false,
       "candidate": "B"
     },
     "impact_flesh_1__c": {
       "file": "audio/candidates/impact_flesh_1__c.wav",
-      "duration": 0.2097,
+      "duration": 0.2186,
       "placeholder": false,
       "candidate": "C"
     },
     "impact_flesh_2": {
       "file": "audio/sfx/impact_flesh_2.wav",
-      "duration": 0.1863,
+      "duration": 0.1748,
       "placeholder": false,
       "picked": "A",
       "pending": true
     },
     "impact_flesh_2__a": {
       "file": "audio/candidates/impact_flesh_2__a.wav",
-      "duration": 0.1863,
+      "duration": 0.1748,
       "placeholder": false,
       "candidate": "A"
     },
     "impact_flesh_2__b": {
       "file": "audio/candidates/impact_flesh_2__b.wav",
-      "duration": 0.2011,
+      "duration": 0.1814,
       "placeholder": false,
       "candidate": "B"
     },
     "impact_flesh_2__c": {
       "file": "audio/candidates/impact_flesh_2__c.wav",
-      "duration": 0.2034,
+      "duration": 0.2183,
       "placeholder": false,
       "candidate": "C"
     },
     "impact_flesh_3": {
       "file": "audio/sfx/impact_flesh_3.wav",
-      "duration": 0.1857,
+      "duration": 0.1473,
       "placeholder": false,
       "picked": "A",
       "pending": true
     },
     "impact_flesh_3__a": {
       "file": "audio/candidates/impact_flesh_3__a.wav",
-      "duration": 0.1857,
+      "duration": 0.1473,
       "placeholder": false,
       "candidate": "A"
     },
     "impact_flesh_3__b": {
       "file": "audio/candidates/impact_flesh_3__b.wav",
-      "duration": 0.207,
+      "duration": 0.1765,
       "placeholder": false,
       "candidate": "B"
     },
     "impact_flesh_3__c": {
       "file": "audio/candidates/impact_flesh_3__c.wav",
-      "duration": 0.1985,
+      "duration": 0.2133,
       "placeholder": false,
       "candidate": "C"
     },
     "impact_flesh_4": {
       "file": "audio/sfx/impact_flesh_4.wav",
-      "duration": 0.1809,
+      "duration": 0.1822,
       "placeholder": false,
       "picked": "A",
       "pending": true
     },
     "impact_flesh_4__a": {
       "file": "audio/candidates/impact_flesh_4__a.wav",
-      "duration": 0.1809,
+      "duration": 0.1822,
       "placeholder": false,
       "candidate": "A"
     },
     "impact_flesh_4__b": {
       "file": "audio/candidates/impact_flesh_4__b.wav",
-      "duration": 0.2039,
+      "duration": 0.1738,
       "placeholder": false,
       "candidate": "B"
     },
     "impact_flesh_4__c": {
       "file": "audio/candidates/impact_flesh_4__c.wav",
-      "duration": 0.201,
+      "duration": 0.2149,
       "placeholder": false,
       "candidate": "C"
     },
@@ -2324,26 +2324,26 @@
     },
     "jingle_round_clear": {
       "file": "audio/sfx/jingle_round_clear.wav",
-      "duration": 1.443,
+      "duration": 1.8247,
       "placeholder": false,
       "picked": "A",
       "pending": true
     },
     "jingle_round_clear__a": {
       "file": "audio/candidates/jingle_round_clear__a.wav",
-      "duration": 1.443,
+      "duration": 1.8247,
       "placeholder": false,
       "candidate": "A"
     },
     "jingle_round_clear__b": {
       "file": "audio/candidates/jingle_round_clear__b.wav",
-      "duration": 1.51,
+      "duration": 1.8225,
       "placeholder": false,
       "candidate": "B"
     },
     "jingle_round_clear__c": {
       "file": "audio/candidates/jingle_round_clear__c.wav",
-      "duration": 1.417,
+      "duration": 1.7032,
       "placeholder": false,
       "candidate": "C"
     },
@@ -2649,26 +2649,26 @@
     },
     "reward_hit": {
       "file": "audio/sfx/reward_hit.wav",
-      "duration": 0.1203,
+      "duration": 0.1224,
       "placeholder": false,
       "picked": "A",
       "pending": true
     },
     "reward_hit__a": {
       "file": "audio/candidates/reward_hit__a.wav",
-      "duration": 0.1203,
+      "duration": 0.1224,
       "placeholder": false,
       "candidate": "A"
     },
     "reward_hit__b": {
       "file": "audio/candidates/reward_hit__b.wav",
-      "duration": 0.1196,
+      "duration": 0.1112,
       "placeholder": false,
       "candidate": "B"
     },
     "reward_hit__c": {
       "file": "audio/candidates/reward_hit__c.wav",
-      "duration": 0.1285,
+      "duration": 0.119,
       "placeholder": false,
       "candidate": "C"
     },
@@ -2724,26 +2724,26 @@
     },
     "reward_repair": {
       "file": "audio/sfx/reward_repair.wav",
-      "duration": 0.2234,
+      "duration": 0.2963,
       "placeholder": false,
       "picked": "A",
       "pending": true
     },
     "reward_repair__a": {
       "file": "audio/candidates/reward_repair__a.wav",
-      "duration": 0.2234,
+      "duration": 0.2963,
       "placeholder": false,
       "candidate": "A"
     },
     "reward_repair__b": {
       "file": "audio/candidates/reward_repair__b.wav",
-      "duration": 0.1972,
+      "duration": 0.2798,
       "placeholder": false,
       "candidate": "B"
     },
     "reward_repair__c": {
       "file": "audio/candidates/reward_repair__c.wav",
-      "duration": 0.1981,
+      "duration": 0.3357,
       "placeholder": false,
       "candidate": "C"
     },

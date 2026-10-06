@@ -1987,4 +1987,10 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   La subida de cuatro notas de las mejoras es la misma nota grabada movida a cada altura.
 - **Cambio de ronda** (`jingle.round.start`): en lugar de las cuatro notas de campana de §6.5, tres direcciones grabadas. Son un cuerno de guerra sobre tambores, un «braam» de metales de cine con timbal y tambores de guerra con un cuerno grave.
 - Los candidatos anteriores siguen en el historial de git (commit `c02b291`) por si hubiera que recuperar alguno.
+- **Segunda tanda** (el usuario se queda con el inicio de ronda y pide cambiar más sonidos):
+  - El tablón en la ventana (`reward.repair`) cambia su cuerpo: un tablón y un clavo, dos martillazos, o un tablón que cae en su sitio. La nota de la racha no cambia.
+  - El final de ronda (`jingle.round.clear`) queda grabado como el inicio y resuelve en La: un cuerno en La, Do-Mi-Sol-La de glockenspiel sobre el cuerno de batalla, o La-Do-Mi-La de caja de música con coro.
+  - En cada acierto suenan a la vez el impacto (`impact.flesh`) y el toque de premio (`reward.hit`), así que se rehacen los dos:
+    - El impacto: balas en carne, golpes de carne o golpes a zombis, todos grabados.
+    - El toque: glockenspiel, una moneda o una kalimba.
 

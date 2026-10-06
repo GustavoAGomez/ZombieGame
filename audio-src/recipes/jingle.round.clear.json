@@ -2,7 +2,7 @@
   "chosen": null,
   "candidates": {
     "A": {
-      "about": "Do-Mi-Sol que resuelve en La, con brillo de cristal y un acorde suave debajo.",
+      "about": "Estéreo: CUERNO QUE RESUELVE. Una llamada de cuerno grabada en La, un taiko suave y el glockenspiel que sube Mi-Sol-La al final.",
       "channels": 2,
       "variants": [
         {
@@ -10,80 +10,90 @@
           "layers": [
             {
               "recipe": {
-                "type": "synth",
-                "timbre": "bell",
-                "notes": [
-                  [
-                    "C5",
-                    0.13
-                  ],
-                  [
-                    "E5",
-                    0.13
-                  ],
-                  [
-                    "G5",
-                    0.13
-                  ],
-                  [
-                    "A5",
-                    0
-                  ]
-                ],
-                "duration": 0.9
+                "type": "file",
+                "source": "library/freesound/801829_taiko_tom_1_long.ogg",
+                "process": {
+                  "semitones": 1.26,
+                  "end": 0.38,
+                  "lowcut": 90,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 0.6
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/156879_horn.ogg",
+                "process": {
+                  "start": 0.7,
+                  "fadeIn": 0.02,
+                  "fadeOut": 0.4,
+                  "lowcut": 120,
+                  "end": 2.09
+                }
               },
               "gain": 1
             },
             {
               "recipe": {
-                "type": "synth",
-                "timbre": "glass",
-                "notes": [
-                  [
-                    "A6",
-                    0,
-                    1
-                  ]
-                ],
-                "duration": 0.4
+                "type": "layers",
+                "layers": [
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/348890_glockenspiel_20_a3_02.ogg",
+                      "process": {
+                        "semitones": -5,
+                        "end": 0.4,
+                        "fadeOut": 0.15
+                      }
+                    },
+                    "gain": 1
+                  },
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/348890_glockenspiel_20_a3_02.ogg",
+                      "process": {
+                        "semitones": -2,
+                        "end": 0.4,
+                        "fadeOut": 0.15
+                      }
+                    },
+                    "gain": 1,
+                    "delay": 0.13
+                  },
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/348890_glockenspiel_20_a3_02.ogg",
+                      "process": {
+                        "semitones": 0,
+                        "end": 0.4,
+                        "fadeOut": 0.15
+                      }
+                    },
+                    "gain": 1.2,
+                    "delay": 0.26
+                  }
+                ]
               },
-              "gain": 0.35,
-              "delay": 0.4
-            },
-            {
-              "recipe": {
-                "type": "synth",
-                "timbre": "pad",
-                "notes": [
-                  [
-                    "A4",
-                    0,
-                    1
-                  ],
-                  [
-                    "E5",
-                    0,
-                    1
-                  ]
-                ],
-                "duration": 1.1,
-                "attack": 0.1,
-                "width": 8
-              },
-              "gain": 0.25
+              "gain": 0.5,
+              "delay": 0.9
             }
           ],
           "process": {
             "reverb": "hall",
-            "wet": 0.22,
-            "length": 1.7,
+            "wet": 0.2,
+            "length": 2.0,
             "fadeOut": 0.5
           }
         }
       ]
     },
     "B": {
-      "about": "La-Do-Mi-Sol-La de campana con un destello grabado.",
+      "about": "Estéreo: GLOCKENSPIEL. Do-Mi-Sol-La de glockenspiel real sobre el cuerno de batalla del inicio, suave, y un coro en La.",
       "channels": 2,
       "variants": [
         {
@@ -91,58 +101,105 @@
           "layers": [
             {
               "recipe": {
-                "type": "synth",
-                "timbre": "bell",
-                "notes": [
-                  [
-                    "A4",
-                    0.13
-                  ],
-                  [
-                    "C5",
-                    0.13
-                  ],
-                  [
-                    "E5",
-                    0.13
-                  ],
-                  [
-                    "G5",
-                    0.13
-                  ],
-                  [
-                    "A5",
-                    0
-                  ]
-                ],
-                "duration": 0.9
+                "type": "layers",
+                "layers": [
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/348890_glockenspiel_20_a3_02.ogg",
+                      "process": {
+                        "semitones": -9,
+                        "end": 0.5,
+                        "fadeOut": 0.15
+                      }
+                    },
+                    "gain": 1
+                  },
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/348890_glockenspiel_20_a3_02.ogg",
+                      "process": {
+                        "semitones": -5,
+                        "end": 0.5,
+                        "fadeOut": 0.15
+                      }
+                    },
+                    "gain": 1,
+                    "delay": 0.13
+                  },
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/348890_glockenspiel_20_a3_02.ogg",
+                      "process": {
+                        "semitones": -2,
+                        "end": 0.5,
+                        "fadeOut": 0.15
+                      }
+                    },
+                    "gain": 1,
+                    "delay": 0.26
+                  },
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/348890_glockenspiel_20_a3_02.ogg",
+                      "process": {
+                        "semitones": 0,
+                        "end": 0.5,
+                        "fadeOut": 0.15
+                      }
+                    },
+                    "gain": 1.2,
+                    "delay": 0.39
+                  }
+                ]
               },
               "gain": 1
             },
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/715067_achievement_sparkle.ogg",
+                "source": "library/freesound/392180_battle_horn_1.ogg",
                 "process": {
-                  "end": 1.0,
+                  "semitones": -5.14,
+                  "start": 0.04,
+                  "end": 1.4,
+                  "fadeIn": 0.05,
+                  "fadeOut": 0.5,
+                  "lowcut": 100
+                }
+              },
+              "gain": 0.4
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/702796_choir_warm_up.ogg",
+                "process": {
+                  "semitones": 0.26,
+                  "start": 0.3,
+                  "end": 1.6,
+                  "fadeIn": 0.1,
                   "fadeOut": 0.4
                 }
               },
               "gain": 0.3,
-              "delay": 0.5
+              "delay": 0.1
             }
           ],
           "process": {
             "reverb": "hall",
-            "wet": 0.22,
-            "length": 1.7,
+            "wet": 0.2,
+            "length": 2.0,
             "fadeOut": 0.5
           }
         }
       ]
     },
     "C": {
-      "about": "Mi-Re-Do-Mi-La de campana y cristal.",
+      "about": "Estéreo: CAJA DE MÚSICA Y CORO. La-Do-Mi-La de caja de música, el coro en La y un brillo de cristal al final.",
       "channels": 2,
       "variants": [
         {
@@ -150,69 +207,95 @@
           "layers": [
             {
               "recipe": {
-                "type": "synth",
-                "timbre": "bell",
-                "notes": [
-                  [
-                    "E5",
-                    0.13
-                  ],
-                  [
-                    "D5",
-                    0.13
-                  ],
-                  [
-                    "C5",
-                    0.13
-                  ],
-                  [
-                    "E5",
-                    0.13
-                  ],
-                  [
-                    "A5",
-                    0
-                  ]
-                ],
-                "duration": 0.9
+                "type": "layers",
+                "layers": [
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/732949_wind_up_music_box_d6_note.ogg",
+                      "process": {
+                        "semitones": -5.3,
+                        "end": 0.5,
+                        "fadeOut": 0.15
+                      }
+                    },
+                    "gain": 1
+                  },
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/732949_wind_up_music_box_d6_note.ogg",
+                      "process": {
+                        "semitones": -2.3,
+                        "end": 0.5,
+                        "fadeOut": 0.15
+                      }
+                    },
+                    "gain": 1,
+                    "delay": 0.13
+                  },
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/732949_wind_up_music_box_d6_note.ogg",
+                      "process": {
+                        "semitones": 1.7,
+                        "end": 0.5,
+                        "fadeOut": 0.15
+                      }
+                    },
+                    "gain": 1,
+                    "delay": 0.26
+                  },
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/732949_wind_up_music_box_d6_note.ogg",
+                      "process": {
+                        "semitones": 6.7,
+                        "end": 0.5,
+                        "fadeOut": 0.15
+                      }
+                    },
+                    "gain": 1.2,
+                    "delay": 0.39
+                  }
+                ]
               },
               "gain": 1
             },
             {
               "recipe": {
-                "type": "synth",
-                "timbre": "glass",
-                "notes": [
-                  [
-                    "E6",
-                    0.13
-                  ],
-                  [
-                    "D6",
-                    0.13
-                  ],
-                  [
-                    "C6",
-                    0.13
-                  ],
-                  [
-                    "E6",
-                    0.13
-                  ],
-                  [
-                    "A6",
-                    0
-                  ]
-                ],
-                "duration": 0.3
+                "type": "file",
+                "source": "library/freesound/702796_choir_warm_up.ogg",
+                "process": {
+                  "semitones": 0.26,
+                  "start": 0.3,
+                  "end": 1.7,
+                  "fadeIn": 0.1,
+                  "fadeOut": 0.4
+                }
               },
-              "gain": 0.3
+              "gain": 0.4
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/348890_glockenspiel_20_a3_02.ogg",
+                "process": {
+                  "semitones": 0,
+                  "end": 0.5,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 0.3,
+              "delay": 0.45
             }
           ],
           "process": {
             "reverb": "hall",
-            "wet": 0.22,
-            "length": 1.7,
+            "wet": 0.2,
+            "length": 2.0,
             "fadeOut": 0.5
           }
         }

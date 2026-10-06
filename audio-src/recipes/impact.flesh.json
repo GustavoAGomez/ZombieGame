@@ -2,7 +2,7 @@
   "chosen": null,
   "candidates": {
     "A": {
-      "about": "Puñetazo medio de Kenney con una salpicadura húmeda encima.",
+      "about": "BALA EN CARNE: cuatro impactos de bala en carne grabados, con un golpe sordo debajo.",
       "channels": 1,
       "variants": [
         {
@@ -11,267 +11,7 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/kenney-impact-sounds/impactPunch_medium_000.ogg",
-                "process": {
-                  "end": 0.2,
-                  "lowcut": 100
-                }
-              },
-              "gain": 1
-            },
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/freesound/460867_splat03.ogg"
-              },
-              "gain": 0.6
-            }
-          ],
-          "process": {
-            "length": 0.2,
-            "fadeOut": 0.08
-          }
-        },
-        {
-          "type": "layers",
-          "layers": [
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/kenney-impact-sounds/impactPunch_medium_001.ogg",
-                "process": {
-                  "end": 0.2,
-                  "lowcut": 100
-                }
-              },
-              "gain": 1
-            },
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/freesound/460868_splat02.ogg"
-              },
-              "gain": 0.6
-            }
-          ],
-          "process": {
-            "length": 0.2,
-            "fadeOut": 0.08
-          }
-        },
-        {
-          "type": "layers",
-          "layers": [
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/kenney-impact-sounds/impactPunch_medium_002.ogg",
-                "process": {
-                  "end": 0.2,
-                  "lowcut": 100
-                }
-              },
-              "gain": 1
-            },
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/freesound/460872_splat06.ogg"
-              },
-              "gain": 0.6
-            }
-          ],
-          "process": {
-            "length": 0.2,
-            "fadeOut": 0.08
-          }
-        },
-        {
-          "type": "layers",
-          "layers": [
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/kenney-impact-sounds/impactPunch_medium_003.ogg",
-                "process": {
-                  "end": 0.2,
-                  "lowcut": 100
-                }
-              },
-              "gain": 1
-            },
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/freesound/460873_splat05.ogg"
-              },
-              "gain": 0.6
-            }
-          ],
-          "process": {
-            "length": 0.2,
-            "fadeOut": 0.08
-          }
-        }
-      ]
-    },
-    "B": {
-      "about": "Puñetazo pesado con el peso en 200 Hz y una salpicadura.",
-      "channels": 1,
-      "variants": [
-        {
-          "type": "layers",
-          "layers": [
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/kenney-impact-sounds/impactPunch_heavy_000.ogg",
-                "process": {
-                  "end": 0.22,
-                  "lowcut": 160,
-                  "peaks": [
-                    {
-                      "freq": 200,
-                      "gainDb": 3,
-                      "q": 1
-                    }
-                  ]
-                }
-              },
-              "gain": 1
-            },
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/freesound/460876_splat11.ogg"
-              },
-              "gain": 0.5
-            }
-          ],
-          "process": {
-            "length": 0.22,
-            "fadeOut": 0.09
-          }
-        },
-        {
-          "type": "layers",
-          "layers": [
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/kenney-impact-sounds/impactPunch_heavy_001.ogg",
-                "process": {
-                  "end": 0.22,
-                  "lowcut": 160,
-                  "peaks": [
-                    {
-                      "freq": 200,
-                      "gainDb": 3,
-                      "q": 1
-                    }
-                  ]
-                }
-              },
-              "gain": 1
-            },
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/freesound/460867_splat03.ogg"
-              },
-              "gain": 0.5
-            }
-          ],
-          "process": {
-            "length": 0.22,
-            "fadeOut": 0.09
-          }
-        },
-        {
-          "type": "layers",
-          "layers": [
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/kenney-impact-sounds/impactPunch_heavy_002.ogg",
-                "process": {
-                  "end": 0.22,
-                  "lowcut": 160,
-                  "peaks": [
-                    {
-                      "freq": 200,
-                      "gainDb": 3,
-                      "q": 1
-                    }
-                  ]
-                }
-              },
-              "gain": 1
-            },
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/freesound/460868_splat02.ogg"
-              },
-              "gain": 0.5
-            }
-          ],
-          "process": {
-            "length": 0.22,
-            "fadeOut": 0.09
-          }
-        },
-        {
-          "type": "layers",
-          "layers": [
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/kenney-impact-sounds/impactPunch_heavy_003.ogg",
-                "process": {
-                  "end": 0.22,
-                  "lowcut": 160,
-                  "peaks": [
-                    {
-                      "freq": 200,
-                      "gainDb": 3,
-                      "q": 1
-                    }
-                  ]
-                }
-              },
-              "gain": 1
-            },
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/freesound/460872_splat06.ogg"
-              },
-              "gain": 0.5
-            }
-          ],
-          "process": {
-            "length": 0.22,
-            "fadeOut": 0.09
-          }
-        }
-      ]
-    },
-    "C": {
-      "about": "Golpes de carne grabados (impacto, despojos, bofetada, salpicadura) sobre un golpe blando.",
-      "channels": 1,
-      "variants": [
-        {
-          "type": "layers",
-          "layers": [
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/freesound/779805_meaty_damage_impact.ogg",
-                "process": {
-                  "end": 0.25,
-                  "lowcut": 150
-                }
+                "source": "library/freesound/138478_bullet_blood_1.ogg"
               },
               "gain": 1
             },
@@ -283,19 +23,19 @@
                   "lowcut": 140,
                   "peaks": [
                     {
-                      "freq": 160,
-                      "gainDb": 5,
+                      "freq": 180,
+                      "gainDb": 4,
                       "q": 1
                     }
                   ]
                 }
               },
-              "gain": 0.5
+              "gain": 0.8
             }
           ],
           "process": {
-            "length": 0.22,
-            "fadeOut": 0.09
+            "length": 0.2,
+            "fadeOut": 0.07
           }
         },
         {
@@ -304,11 +44,7 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/504629_gib_sound.ogg",
-                "process": {
-                  "end": 0.22,
-                  "lowcut": 150
-                }
+                "source": "library/freesound/138479_bullet_blood_2.ogg"
               },
               "gain": 1
             },
@@ -320,19 +56,19 @@
                   "lowcut": 140,
                   "peaks": [
                     {
-                      "freq": 160,
-                      "gainDb": 5,
+                      "freq": 180,
+                      "gainDb": 4,
                       "q": 1
                     }
                   ]
                 }
               },
-              "gain": 0.5
+              "gain": 0.8
             }
           ],
           "process": {
-            "length": 0.22,
-            "fadeOut": 0.09
+            "length": 0.2,
+            "fadeOut": 0.07
           }
         },
         {
@@ -341,11 +77,7 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/770176_kamen_rider_style_smack_punch_impact.ogg",
-                "process": {
-                  "end": 0.2,
-                  "lowcut": 150
-                }
+                "source": "library/freesound/138480_bullet_blood_3.ogg"
               },
               "gain": 1
             },
@@ -357,19 +89,19 @@
                   "lowcut": 140,
                   "peaks": [
                     {
-                      "freq": 160,
-                      "gainDb": 5,
+                      "freq": 180,
+                      "gainDb": 4,
                       "q": 1
                     }
                   ]
                 }
               },
-              "gain": 0.5
+              "gain": 0.8
             }
           ],
           "process": {
-            "length": 0.22,
-            "fadeOut": 0.09
+            "length": 0.2,
+            "fadeOut": 0.07
           }
         },
         {
@@ -378,11 +110,7 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/719130_splat_2.ogg",
-                "process": {
-                  "end": 0.2,
-                  "lowcut": 150
-                }
+                "source": "library/freesound/138481_bullet_blood_4.ogg"
               },
               "gain": 1
             },
@@ -394,19 +122,227 @@
                   "lowcut": 140,
                   "peaks": [
                     {
-                      "freq": 160,
-                      "gainDb": 5,
+                      "freq": 180,
+                      "gainDb": 4,
                       "q": 1
                     }
                   ]
                 }
               },
-              "gain": 0.5
+              "gain": 0.8
+            }
+          ],
+          "process": {
+            "length": 0.2,
+            "fadeOut": 0.07
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "GOLPE DE CARNE: bofetadas de carne y «libra de carne» grabadas, húmedas.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/266890_greasy_meat_slap.ogg",
+                "process": {
+                  "start": 0,
+                  "end": 0.22,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
             }
           ],
           "process": {
             "length": 0.22,
-            "fadeOut": 0.09
+            "fadeOut": 0.08
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/540075_meat_slap_3.ogg",
+                "process": {
+                  "start": 0.12,
+                  "end": 0.34,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "length": 0.22,
+            "fadeOut": 0.08
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/522091_pound_of_flesh_1.ogg",
+                "process": {
+                  "start": 0,
+                  "end": 0.22,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "length": 0.22,
+            "fadeOut": 0.08
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/540076_meat_slap_2.ogg",
+                "process": {
+                  "start": 0.06,
+                  "end": 0.28,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "length": 0.22,
+            "fadeOut": 0.08
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "ZOMBI: golpes a zombis grabados con un poco de sangre de bala encima.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/163447_zombie_hit.ogg",
+                "process": {
+                  "start": 0,
+                  "end": 0.25,
+                  "lowcut": 140
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/138478_bullet_blood_1.ogg"
+              },
+              "gain": 0.4
+            }
+          ],
+          "process": {
+            "length": 0.22,
+            "fadeOut": 0.08
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/555420_zombie_hit_1.ogg",
+                "process": {
+                  "start": 0,
+                  "end": 0.22,
+                  "lowcut": 140
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/138479_bullet_blood_2.ogg"
+              },
+              "gain": 0.4
+            }
+          ],
+          "process": {
+            "length": 0.22,
+            "fadeOut": 0.08
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/555419_zombie_hit_2.ogg",
+                "process": {
+                  "start": 0,
+                  "end": 0.22,
+                  "lowcut": 140
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/138480_bullet_blood_3.ogg"
+              },
+              "gain": 0.4
+            }
+          ],
+          "process": {
+            "length": 0.22,
+            "fadeOut": 0.08
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/395362_hit_6.ogg",
+                "process": {
+                  "start": 0,
+                  "end": 0.22,
+                  "lowcut": 140
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/138481_bullet_blood_4.ogg"
+              },
+              "gain": 0.4
+            }
+          ],
+          "process": {
+            "length": 0.22,
+            "fadeOut": 0.08
           }
         }
       ]

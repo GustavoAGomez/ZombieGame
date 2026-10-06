@@ -2,7 +2,7 @@
   "chosen": null,
   "candidates": {
     "A": {
-      "about": "Toque mínimo de cristal en La 6 con un brillo de Kenney.",
+      "about": "Un toque mínimo de glockenspiel real en La 6.",
       "channels": 1,
       "variants": [
         {
@@ -10,39 +10,26 @@
           "layers": [
             {
               "recipe": {
-                "type": "synth",
-                "timbre": "glass",
-                "notes": [
-                  [
-                    "A6",
-                    0,
-                    1
-                  ]
-                ],
-                "duration": 0.16
-              },
-              "gain": 1
-            },
-            {
-              "recipe": {
                 "type": "file",
-                "source": "library/kenney-interface-sounds/glass_002.ogg",
+                "source": "library/freesound/348890_glockenspiel_20_a3_02.ogg",
                 "process": {
-                  "highcut": 8000
+                  "semitones": 0,
+                  "end": 0.13,
+                  "fadeOut": 0.15
                 }
               },
-              "gain": 0.3
+              "gain": 1
             }
           ],
           "process": {
-            "length": 0.15,
-            "fadeOut": 0.04
+            "length": 0.14,
+            "fadeOut": 0.05
           }
         }
       ]
     },
     "B": {
-      "about": "Cristal en Mi 7, más agudo, con un clic suave.",
+      "about": "El tintineo de una moneda, muy corto.",
       "channels": 1,
       "variants": [
         {
@@ -50,36 +37,25 @@
           "layers": [
             {
               "recipe": {
-                "type": "synth",
-                "timbre": "glass",
-                "notes": [
-                  [
-                    "E7",
-                    0,
-                    1
-                  ]
-                ],
-                "duration": 0.16
+                "type": "file",
+                "source": "library/freesound/699528_coin_hit_05.ogg",
+                "process": {
+                  "end": 0.13,
+                  "highcut": 10000
+                }
               },
               "gain": 1
-            },
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/kenney-interface-sounds/select_001.ogg"
-              },
-              "gain": 0.3
             }
           ],
           "process": {
-            "length": 0.15,
-            "fadeOut": 0.04
+            "length": 0.13,
+            "fadeOut": 0.05
           }
         }
       ]
     },
     "C": {
-      "about": "El cristal de Kenney (Si 6) con un Do 7 generado muy bajo.",
+      "about": "Un toque mínimo de kalimba en Mi 6.",
       "channels": 1,
       "variants": [
         {
@@ -88,32 +64,19 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/kenney-interface-sounds/glass_003.ogg",
+                "source": "library/freesound/691796_e5_hard_kalimba.ogg",
                 "process": {
-                  "highcut": 7000
+                  "semitones": 0.28,
+                  "end": 0.13,
+                  "fadeOut": 0.2
                 }
               },
               "gain": 1
-            },
-            {
-              "recipe": {
-                "type": "synth",
-                "timbre": "glass",
-                "notes": [
-                  [
-                    "C7",
-                    0,
-                    1
-                  ]
-                ],
-                "duration": 0.16
-              },
-              "gain": 0.25
             }
           ],
           "process": {
-            "length": 0.15,
-            "fadeOut": 0.04
+            "length": 0.14,
+            "fadeOut": 0.05
           }
         }
       ]
