@@ -2301,3 +2301,8 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 - **Importación:** `"sources"` elige la toma nueva: `walk` ← `run_v2` (corredor), `walk` ← `walk_v2` (bruto) e `idle` ← `breathing_back` (norte) y `breathing` (resto) en el escupidor. Las tomas viejas se quedan en el export sin usar. El reposo del escupidor va a 5 fps (8 fotogramas, 1,6 s por respiración).
 - **Coste:** 22 generaciones.
 
+## El escupidor, a la altura de los demás (petición del usuario)
+
+- De pie medía 44–46 px frente a los 41 del caminante. `"scale"` ×0,9 en todas sus animaciones de pie (andar, escupir, zarpazo, muerte y reposo); ahora mide 40–41.
+- Tumbado, ×0,9 también sobre sus factores: ×0,63 al sur y ×0,72 el resto, diagonales del sur incluidas, para que no queden pequeñas como le pasó al corredor.
+

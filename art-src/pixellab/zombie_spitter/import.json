@@ -14,17 +14,22 @@
     "north-west": "north-east"
   },
   "scale": {
+    "idle": 0.9,
+    "walk": 0.9,
+    "attack": 0.9,
+    "spit": 0.9,
+    "death": 0.9,
     "crawl": {
-      "*": 0.8,
-      "south": 0.7,
-      "south-east": 0.7,
-      "south-west": 0.7
+      "*": 0.72,
+      "south": 0.63,
+      "south-east": 0.72,
+      "south-west": 0.72
     },
     "crawl_attack": {
-      "*": 0.8,
-      "south": 0.7,
-      "south-east": 0.7,
-      "south-west": 0.7
+      "*": 0.72,
+      "south": 0.63,
+      "south-east": 0.72,
+      "south-west": 0.72
     }
   }
 }
