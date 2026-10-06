@@ -251,6 +251,18 @@ export const STRINGS = {
     free: 'GRATIS',
     chosen: 'ELEGIDA',
   },
+  /** The legend of the upgrades and curses (spec 09 §7, §9): the HUD's ⓘ, a shop row's ⓘ and the altar's. */
+  legend: {
+    title: 'MEJORAS Y MALDICIONES',
+    pact: 'EL PACTO',
+    pactHint: 'Dos toques en ACEPTAR PACTO lo sellan. Dura toda la partida.',
+    curse: 'MALDICIÓN',
+    owned: (n: number): string => (n > 1 ? `LA TIENES ×${n}` : n === 1 ? 'LA TIENES' : ''),
+    none: 'Todavía no llevas ninguna. El mago aparece cada 5 salas limpias; el altar está en la sala de la Mano.',
+    info: 'Qué hace',
+    button: 'Mejoras y maldiciones',
+    close: 'Cerrar leyenda',
+  },
   /** The permanent upgrades (spec 09 §7.2) and the curses (§9), by id. */
   upgrades: {
     rarities: { common: 'COMÚN', rare: 'RARA', legendary: 'LEGENDARIA' } as Record<string, string>,

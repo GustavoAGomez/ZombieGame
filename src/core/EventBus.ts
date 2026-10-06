@@ -269,6 +269,8 @@ export interface GameEvents {
   'dungeon:upgrade': { playerId: number; id: UpgradeId; rarity: Rarity; free: boolean };
   /** A new offer bought (§7.1). */
   'dungeon:reroll': { price: number };
+  /** The run's upgrades and curses (§7, §9), whenever they change: the HUD's legend. */
+  'dungeon:upgrades': { upgrades: UpgradeId[]; curses: CurseId[] };
   /** The pact sealed at the altar (§9): the legendary taken and the curse carried from now on. */
   'dungeon:pact': { playerId: number; upgrade: UpgradeId; curse: CurseId };
   /** Amuleto took a hit (§7.2); Sanguijuela healed. */

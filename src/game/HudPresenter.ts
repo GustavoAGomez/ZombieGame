@@ -55,6 +55,7 @@ export class HudPresenter {
   private actionCase = '';
   /** Last published shop panel, as a comparable string. */
   private shopKey = '';
+  private upgradesKey = '';
   /** Last published boost slot, as a comparable string. */
   private boostKey = '';
   private itemsKey: string | null = null;
@@ -231,6 +232,14 @@ export class HudPresenter {
     }
 
     this.publishShop(state, playerIndex);
+
+    // The dungeon's upgrades and curses (spec 09 §7, §9), only when they change.
+    const run = state.run;
+    const upgradesKey = run ? `${run.upgrades.join(',')}|${run.curses.join(',')}` : '';
+    if (upgradesKey !== this.upgradesKey) {
+      this.upgradesKey = upgradesKey;
+      if (run) this.events.emit('dungeon:upgrades', { upgrades: [...run.upgrades], curses: [...run.curses] });
+    }
 
     // The inventory (spec 05 §4), only when it changes.
     const itemsKey = p.items.join(',');

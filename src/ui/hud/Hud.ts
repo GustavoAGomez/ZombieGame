@@ -2,7 +2,8 @@ import type { GameMode, RoomType } from '../../config/dungeon';
 import { BOSS, DOORS, HAND, ITEMS, MERCHANT, POINTS, WAVES, type BoostKind } from '../../config/balance';
 import { merchantDef } from '../../config/merchants';
 import { COLORS } from '../../config/theme';
-import type { Rarity } from '../../config/upgrades';
+import { rarityOf, type CurseId, type Rarity, type UpgradeId } from '../../config/upgrades';
+import { LegendPanel, type LegendEntry } from './LegendPanel';
 import { UPGRADE_KINDS, WEAPONS, type UpgradeKind } from '../../config/weapons';
 
 /** The dungeon's minimap (spec 09 §4.2): a cell per room in CSS px, and the marks of the special rooms. */
@@ -76,6 +77,9 @@ export class Hud {
   private readonly keys: HTMLSpanElement;
   private plan: GameEvents['dungeon:floor'] | null = null;
   private rooms: GameEvents['dungeon:rooms'] | null = null;
+  /** The legend of upgrades and curses (spec 09 §7, §9) and what the run carries. */
+  private readonly legend: LegendPanel;
+  private owned: GameEvents['dungeon:upgrades'] = { upgrades: [], curses: [] };
 
   constructor(
     parent: HTMLElement,
@@ -168,9 +172,21 @@ export class Hud {
     this.counter.setAttribute('aria-label', STRINGS.dungeon.counter);
     for (let i = 0; i < MERCHANT_EVERY; i++) this.counter.appendChild(el('span', 'hud-mark__box'));
     this.keys = el('span', 'hud-keys');
+    this.legend = new LegendPanel(this.root);
     if (mode === 'dungeon') {
       pointsRow.hidden = true;
-      right.append(this.minimap, this.counter);
+      // ⓘ: what the upgrades and curses carried do, at any moment (the match goes on).
+      const info = el('button', 'hud-info');
+      info.type = 'button';
+      info.textContent = 'i';
+      info.setAttribute('aria-label', STRINGS.legend.button);
+      info.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.legend.toggle(STRINGS.legend.title, ownedLegend(this.owned));
+      });
+      const marks = el('div', 'hud-marks');
+      marks.append(this.counter, info);
+      right.append(this.minimap, marks);
     }
     right.append(pointsRow, this.money, this.keys, this.floats);
 
@@ -221,6 +237,8 @@ export class Hud {
       events.on('dungeon:wizard', this.onWizard),
       events.on('dungeon:upgrade', this.onUpgrade),
       events.on('dungeon:pact', this.onPact),
+      events.on('dungeon:upgrades', this.onUpgrades),
+      events.on('action:context', this.onContext),
       events.on('weapon:state', this.onWeapon),
       events.on('player:damaged', this.onDamaged),
       events.on('player:died', this.onDied),
@@ -241,6 +259,7 @@ export class Hud {
   destroy(): void {
     for (const off of this.unsubscribers) off();
     this.hurt.destroy();
+    this.legend.destroy();
     window.clearTimeout(this.blinkTimer);
     this.root.remove();
   }
@@ -361,6 +380,26 @@ export class Hud {
   /** The wizard appeared (spec 09 §7.1): said in its colour. */
   private readonly onWizard = (e: GameEvents['dungeon:wizard']): void => {
     this.showNotice(STRINGS.dungeon.wizardHere, merchantDef(e.merchant).color);
+  };
+
+  /** A shop row's ⓘ (spec 09 §7.1, §7.3): what that upgrade does, and whether it is carried already. */
+  showUpgradeInfo(id: UpgradeId): void {
+    const copies = this.owned.upgrades.filter((u) => u === id).length;
+    this.legend.show(STRINGS.legend.info, [upgradeEntry(id, copies)]);
+  }
+
+  private readonly onUpgrades = (e: GameEvents['dungeon:upgrades']): void => {
+    this.owned = e;
+    // The list open: it follows.
+    if (this.legend.visible) this.legend.show(STRINGS.legend.title, ownedLegend(e));
+  };
+
+  /** At the altar (spec 09 §9) the pact's two show before accepting; away from it, the legend goes. */
+  private readonly onContext = (e: GameEvents['action:context']): void => {
+    const pact = e.kind === 'dungeon' ? e.dungeon?.pact : undefined;
+    if (pact) {
+      if (!this.legend.visible) this.legend.show(STRINGS.legend.pact, [upgradeEntry(pact.upgrade, 0), curseEntry(pact.curse), { name: '', tag: '', color: COLORS.muted, description: STRINGS.legend.pactHint }], true);
+    } else this.legend.hide(true);
   };
 
   /** The pact sealed (spec 09 §9): the curse, in red (the legendary is announced as any upgrade). */
@@ -527,6 +566,31 @@ export class Hud {
   private readonly onDied = (): void => {
     this.dead.classList.add('is-visible');
   };
+}
+
+/** An upgrade's legend line: its name in its rarity's colour, the rarity (and the copies carried), what it does. */
+function upgradeEntry(id: UpgradeId, copies: number): LegendEntry {
+  const rarity = rarityOf(id);
+  const tag = [STRINGS.upgrades.rarities[rarity] ?? rarity, STRINGS.legend.owned(copies)].filter(Boolean).join(' · ');
+  return { name: STRINGS.upgrades.names[id] ?? id, tag, color: RARITY_COLORS[rarity], description: STRINGS.upgrades.descriptions[id] ?? '' };
+}
+
+function curseEntry(id: CurseId): LegendEntry {
+  const curse = STRINGS.upgrades.curses[id];
+  return { name: curse?.name ?? id, tag: STRINGS.legend.curse, color: COLORS.redLow, description: curse?.description ?? '' };
+}
+
+/** What the run carries, each upgrade once with its copies, then the curses. */
+function ownedLegend(owned: GameEvents['dungeon:upgrades']): LegendEntry[] {
+  const seen = new Set<UpgradeId>();
+  const entries: LegendEntry[] = [];
+  for (const id of owned.upgrades) {
+    if (seen.has(id)) continue;
+    seen.add(id);
+    entries.push(upgradeEntry(id, owned.upgrades.filter((u) => u === id).length));
+  }
+  for (const id of owned.curses) entries.push(curseEntry(id));
+  return entries;
 }
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string): HTMLElementTagNameMap[K] {

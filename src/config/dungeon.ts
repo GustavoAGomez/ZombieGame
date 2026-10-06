@@ -140,9 +140,10 @@ export const DUNGEON = {
   /**
    * The wizard (§7.1): every `every` enemy rooms cleared, `offers` upgrades
    * to choose one from; a new offer costs `rerollBase` and `rerollStep` more
-   * each time; a key and a medkit, one each per visit.
+   * each time; a key and a medkit, one each per visit. He stands at `seatY`
+   * of the room's height, in the middle: the HUD's corners never hide him.
    */
-  merchant: { every: 5, offers: 3, rerollBase: 50, rerollStep: 50, key: 150, medkit: 200 },
+  merchant: { every: 5, offers: 3, rerollBase: 50, rerollStep: 50, key: 150, medkit: 200, seatY: 0.72 },
   /** The boss's chest (§7.3): this many upgrades, one free, at least one rare or better. */
   bossChest: { offers: 3 },
   /** The challenge room (§6.4): its floor's `hard` budget × this, always in two waves, for the big chest. */

@@ -80,9 +80,10 @@ export function wizardFor(offers: readonly UpgradeId[]): MerchantId {
 }
 
 /**
- * The wizard appears (§7.1) in the room just cleared, on its wizard spot
- * (or at `at` when the room has none), with its smoke: the one of the
- * offer's best rarity. The last wizard leaves: one at a time.
+ * The wizard appears (§7.1) in the room just cleared, at `at` (the room's
+ * lower middle, where the HUD never covers him; the template's wizard spot
+ * only names his zone), with its smoke: the one of the offer's best rarity.
+ * The last wizard leaves: one at a time.
  */
 export function summonWizard(ctx: SimContext, run: RunState, room: number, at: { x: number; y: number }): void {
   const { state, map } = ctx;
@@ -96,14 +97,12 @@ export function summonWizard(ctx: SimContext, run: RunState, room: number, at: {
     if (old && old !== m) old.active = false;
   }
   for (const p of state.players) p.shopMerchant = -1;
-  const spot = map.merchantSpots.findIndex((s) => s.zoneIndex === room);
-  const target = map.merchantSpots[spot] ?? at;
   m.enabled = true;
   m.fromSpot = -1;
-  m.spot = spot;
+  m.spot = map.merchantSpots.findIndex((s) => s.zoneIndex === room);
   m.active = true;
-  m.x = target.x;
-  m.y = target.y;
+  m.x = at.x;
+  m.y = at.y;
   m.moveTick = state.tick;
   m.visitPurchases.fill(0);
   run.shop = { merchant: index, room, offers, rerolls: 0, bought: false, keyBought: false, medkitBought: false };

@@ -444,8 +444,12 @@ function clearRoom(ctx: SimContext, run: RunState, fight: RoomFight): void {
     const chestSpot = ctx.map.chestSpots.find((s) => s.zoneIndex === room) ?? at;
     run.chests.push({ x: chestSpot.x, y: chestSpot.y, room, kind: 'big', weapon: null, opened: false });
   }
-  // Every so many rooms, the wizard (§7.1).
-  if (run.merchantCounter % DUNGEON.merchant.every === 0) summonWizard(ctx, run, room, at);
+  // Every so many rooms, the wizard (§7.1): in the lower middle of the room, where the HUD's corners never cover it.
+  if (run.merchantCounter % DUNGEON.merchant.every === 0) {
+    const zone = ctx.map.zones[room];
+    const seat = zone ? walkableInRoom(ctx, room, zone.x + zone.width / 2, zone.y + zone.height * DUNGEON.merchant.seatY) : null;
+    summonWizard(ctx, run, room, seat ?? at);
+  }
   ctx.events.emit('dungeon:roomCleared', { room, counter: run.merchantCounter });
   emitRooms(ctx, run);
 }
