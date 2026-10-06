@@ -12,12 +12,13 @@ o..................o
 ## Sala
 | tipo | dificultad | ambiente | nota |
 |---|---|---|---|
-| treasure | — | mansion | sala del tesoro: la vitrina del arma llega con la fase M3 |
+| treasure | — | mansion | sala del tesoro: el cofre (C1) y la vitrina del arma (C2) |
 
 ## Cofre
 | id | casilla |
 |---|---|
 | C1 | 9,6 |
+| C2 | 13,4 |
 
 ## Atrezo (muebles; con colisión es la cobertura de la sala)
 | id | objeto | casillas | colisión | volteo | nota |

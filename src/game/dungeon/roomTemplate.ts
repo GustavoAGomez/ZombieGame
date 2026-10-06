@@ -59,9 +59,16 @@ export class RoomTemplateError extends Error {
 const TYPES: readonly RoomType[] = ['start', 'combat', 'elite', 'treasure', 'hand', 'challenge', 'boss'];
 const DIFFICULTIES: readonly RoomDifficulty[] = ['easy', 'medium', 'hard'];
 const AMBIENTS: readonly Ambient[] = ['mansion', 'basement', 'garden'];
-/** What a room's inside may hold: its floors, inner walls, and the start's player. */
-const FLOORS = '.kbc';
-const INSIDE = `${FLOORS}#P`;
+/**
+ * Each ambient's drawing (skill level-design §7): the character of its ring
+ * (walls, or the garden's fence), its floors, and what else its inside may
+ * hold (inner walls or fences, the garden's water: obstacles, not floor).
+ */
+export const AMBIENT_TILES: Readonly<Record<Ambient, { ring: string; floors: string; obstacles: string }>> = {
+  mansion: { ring: '#', floors: '.kbc', obstacles: '#' },
+  basement: { ring: '#', floors: 'c.kb', obstacles: '#' },
+  garden: { ring: 'F', floors: 'gpde', obstacles: 'FH#w' },
+};
 
 /** Tiles between two rooms' origins, in each axis (their shared wall counts once). */
 export const ROOM_PITCH = { x: DUNGEON.room.floor.width + 1, y: DUNGEON.room.floor.height + 1 } as const;
@@ -215,6 +222,9 @@ const same = (a: Cell, b: Cell): boolean => a.x === b.x && a.y === b.y;
  */
 export function validateRoomTemplate(t: RoomTemplate): string[] {
   const problems: string[] = [];
+  const tiles = AMBIENT_TILES[t.ambient];
+  const FLOORS = tiles.floors;
+  const INSIDE = `${FLOORS}${tiles.obstacles}P`;
   const { width, height } = templateSize(t.cellsX, t.cellsY);
   if (t.width !== width || t.height !== height) {
     problems.push(`mide ${t.width}×${t.height} y una sala de tipo ${t.type} mide ${width}×${height} (paredes incluidas)`);
@@ -231,9 +241,9 @@ export function validateRoomTemplate(t: RoomTemplate): string[] {
       const ch = at(x, y);
       if (border) {
         if (isHole(x, y) && ch !== 'o') problems.push(`el hueco de puerta de ${x},${y} tiene "${ch}" y no "o"`);
-        if (!isHole(x, y) && ch !== '#') problems.push(`la pared de ${x},${y} tiene "${ch}" y no "#"`);
+        if (!isHole(x, y) && ch !== tiles.ring) problems.push(`la pared de ${x},${y} tiene "${ch}" y no "${tiles.ring}"`);
       } else if (!INSIDE.includes(ch)) {
-        problems.push(`"${ch}" en ${x},${y}: dentro solo hay suelo (${FLOORS}), paredes (#) y la P del inicio`);
+        problems.push(`"${ch}" en ${x},${y}: dentro solo hay suelo (${FLOORS}), obstáculos (${tiles.obstacles}) y la P del inicio`);
       }
     }
   }
@@ -297,7 +307,9 @@ export function validateRoomTemplate(t: RoomTemplate): string[] {
   if (enemyRoom && t.enemies.length < 2) problems.push('una sala con enemigos necesita al menos 2 puntos de aparición');
   if (enemyRoom && t.merchants.length === 0) problems.push('una sala con enemigos necesita un punto de mago');
   if (!enemyRoom && t.enemies.length > 0) problems.push('solo las salas de combate, élite y reto tienen enemigos');
-  if ((t.type === 'treasure' || t.type === 'challenge' || t.type === 'boss') && t.chests.length === 0) problems.push(`una sala de tipo ${t.type} necesita su punto de cofre`);
+  if ((t.type === 'challenge' || t.type === 'boss') && t.chests.length === 0) problems.push(`una sala de tipo ${t.type} necesita su punto de cofre`);
+  // The treasure (§6.3): its chest, then its weapon case.
+  if (t.type === 'treasure' && t.chests.length < 2) problems.push('la sala del tesoro necesita dos puntos de cofre: el cofre y la vitrina del arma');
   if (t.type === 'hand' && t.hands.length === 0) problems.push('la sala de la mano necesita su punto de mano');
   if (t.type === 'boss') {
     if (t.bossSpots.length === 0) problems.push('la arena necesita un punto de boss');

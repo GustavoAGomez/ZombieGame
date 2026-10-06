@@ -149,6 +149,30 @@ export class ContextButton extends PointerControl {
         this.value.textContent = STRINGS.actions.handPay(STRINGS.hud.money(e.amount));
       }
       button.setAttribute('aria-label', STRINGS.actions.handLabel);
+    } else if (e.kind === 'dungeon' && e.dungeon) {
+      const a = e.dungeon.action;
+      const S = STRINGS.actions;
+      this.value.textContent =
+        a === 'chest'
+          ? S.openChest
+          : a === 'chestKey'
+            ? S.openChestKey
+            : a === 'needKey'
+              ? S.needKey
+              : a === 'weapon'
+                ? e.dungeon.weapon
+                  ? S.takeWeapon(STRINGS.weapons[e.dungeon.weapon])
+                  : S.takeAmmo
+                : a === 'door'
+                  ? S.openDoorKey
+                  : a === 'bossDoor'
+                    ? S.openBossDoor
+                    : a === 'needBossKey'
+                      ? S.needBossKey
+                      : a === 'challenge'
+                        ? S.challengeRoom
+                        : S.descend;
+      button.setAttribute('aria-label', S.dungeonLabel);
     } else if (e.kind === 'pickup' && e.item) {
       // "RECOGER VARITA DESGASTADA", or why not with the inventory full.
       this.itemIconFor(e.item).style.display = 'block';

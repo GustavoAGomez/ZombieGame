@@ -7,6 +7,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { EventBus } from '../core/EventBus';
+import { floorConfig } from '../config/dungeon';
 import { createGameState } from '../core/GameState';
 import { createInputCommand } from '../core/InputCommand';
 import { assembleFloor, templatesById } from '../game/dungeon/assembleFloor';
@@ -46,10 +47,10 @@ export function testTemplates(ambient = 'mansion'): RoomTemplate[] {
   return list;
 }
 
-/** A dungeon match on the first floor of `seed`: its plan, its assembled map and a context to step. */
-export function dungeonContext(seed = 1): SimContext {
-  const list = testTemplates();
-  const run = createRunState(seed, bankOf(list));
+/** A dungeon match on `floor` of `seed`: its plan, its assembled map and a context to step. */
+export function dungeonContext(seed = 1, floor = 1): SimContext {
+  const list = testTemplates(floorConfig(floor).ambient);
+  const run = createRunState(seed, bankOf(list), floor);
   const map = assembleFloor(run.plan, templatesById(list), testTilesets());
   const state = createGameState(map, { seed, mode: 'dungeon', run, waveFlow: false, toSpawn: 0 });
   return {

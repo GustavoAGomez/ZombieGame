@@ -69,6 +69,8 @@ export class Hud {
   /** The dungeon's minimap and the wizard's counter (spec 09 §4.2), and what they draw. */
   private readonly minimap: HTMLCanvasElement;
   private readonly counter: HTMLDivElement;
+  /** The keys in hand (spec 09 §4.2), under the money. */
+  private readonly keys: HTMLSpanElement;
   private plan: GameEvents['dungeon:floor'] | null = null;
   private rooms: GameEvents['dungeon:rooms'] | null = null;
 
@@ -162,11 +164,12 @@ export class Hud {
     this.counter = el('div', 'hud-mark hud-counter');
     this.counter.setAttribute('aria-label', STRINGS.dungeon.counter);
     for (let i = 0; i < MERCHANT_EVERY; i++) this.counter.appendChild(el('span', 'hud-mark__box'));
+    this.keys = el('span', 'hud-keys');
     if (mode === 'dungeon') {
       pointsRow.hidden = true;
       right.append(this.minimap, this.counter);
     }
-    right.append(pointsRow, this.money, this.floats);
+    right.append(pointsRow, this.money, this.keys, this.floats);
 
     this.dead = el('div', 'hud-dead');
     this.dead.textContent = STRINGS.hud.dead;
@@ -289,6 +292,11 @@ export class Hud {
 
   private readonly onRooms = (e: GameEvents['dungeon:rooms']): void => {
     this.rooms = e;
+    const parts: string[] = [];
+    if (e.keys > 0) parts.push(STRINGS.dungeon.keys(e.keys));
+    if (e.bossKey) parts.push(STRINGS.dungeon.bossKey);
+    this.keys.textContent = parts.join(' · ');
+    this.keys.classList.toggle('is-boss', e.bossKey);
     const boxes = this.counter.children;
     const lit = e.counter % MERCHANT_EVERY;
     for (let i = 0; i < boxes.length; i++) boxes[i]?.classList.toggle('is-on', i < lit);

@@ -1,0 +1,23 @@
+FFFFFFFFFooFFFFFFFFF
+FggggggggggggggggggF
+FggggggggggggggggggF
+FggggggppppppggggggF
+FggggggppppppggggggF
+oggggggppppppggggggo
+oggggggppPpppggggggo
+FggggggggggggggggggF
+FggggggggggggggggggF
+FFFFFFFFFooFFFFFFFFF
+
+## Sala
+| tipo | dificultad | ambiente | nota |
+|---|---|---|---|
+| start | — | garden | el patio trasero: aquí se sale |
+
+## Atrezo (muebles; con colisión es la cobertura de la sala)
+| id | objeto | casillas | colisión | volteo | nota |
+|---|---|---|---|---|---|
+| A1 | prop_mesa_jardin | 8,4 9,4 | sí | — | mesa del patio |
+| A2 | prop_farola | 2,1 2,2 | sí | — |  |
+| A3 | prop_buzon | 16,1 | sí | — |  |
+| A4 | prop_flotador | 14,7 | no | — |  |

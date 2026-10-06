@@ -1,3 +1,4 @@
+import type { DoorKind } from '../../core/RunState';
 import type Phaser from 'phaser';
 import { DISPLAY } from '../../config/display';
 import { COLORS } from '../../config/theme';
@@ -6,6 +7,9 @@ import { ASSET_KEYS, objectTextureKey, tilesetTextureKey } from '../assets/manif
 import { DEPTH, actorDepth } from '../depth';
 import { cellHidden, fogEdges, fogOwners } from './fog';
 import { tilesetForGid, type MapData, type MapTileset } from './MapLoader';
+
+/** The dungeon's door kinds as tints (spec 09 §4.1): placeholders for their art. */
+const DOOR_TINT: Record<DoorKind, number | null> = { normal: null, key: 0xe8b04a, boss: 0xd04030, challenge: 0xb04848 };
 
 /**
  * Draws the map from MapData and mirrors window / door state. Read-only.
@@ -21,6 +25,7 @@ export class MapView {
   private readonly portalSprites: Phaser.GameObjects.Sprite[][] = [];
   private readonly shownPlanks: number[] = [];
   private readonly shownDoorsOpen: boolean[] = [];
+  private readonly shownDoorKinds: (DoorKind | null)[] = [];
   private readonly shownPortalsOpen: boolean[] = [];
   /** Furniture images (parallel to MapData.props), and which ones are drawn crushed (spec 07 §2). */
   private readonly propImages: Phaser.GameObjects.Image[] = [];
@@ -118,6 +123,7 @@ export class MapView {
       );
       this.doorSprites.push(sprites);
       this.shownDoorsOpen.push(false);
+      this.shownDoorKinds.push(null);
     }
 
     for (const portal of map.portals) {
@@ -243,6 +249,13 @@ export class MapView {
       if (open !== this.shownDoorsOpen[i]) {
         this.shownDoorsOpen[i] = open;
         for (const sprite of this.doorSprites[i] ?? []) sprite.setFrame(open ? 1 : 0);
+      }
+      // The dungeon's doors (spec 09 §4.1), until they have art: golden with a key, red for the boss's, red-framed for the challenge's.
+      const kind = state.run?.doorKinds[i] ?? 'normal';
+      if (kind !== this.shownDoorKinds[i]) {
+        this.shownDoorKinds[i] = kind;
+        const tint = DOOR_TINT[kind];
+        for (const sprite of this.doorSprites[i] ?? []) if (tint === null) sprite.clearTint(); else sprite.setTint(tint);
       }
     }
     for (let i = 0; i < this.fog.length; i++) {

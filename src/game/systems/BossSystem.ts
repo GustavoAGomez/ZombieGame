@@ -375,6 +375,27 @@ export function startBossEntry(ctx: SimContext, slot: number, boss: BossId, vari
   return undefined;
 }
 
+/**
+ * The dungeon's boss (spec 09 §5.3): `boss` with `variant` falls on boss
+ * spot `spot` after `warning` s, with `hp` life (the floor's, final). Undefined when the slot is busy.
+ */
+export function dropBossAt(ctx: SimContext, slot: number, boss: BossId, variant: BossVariantId, spot: number, warning: number, hp: number): BossState | undefined {
+  const at = ctx.map.bossSpots[spot];
+  const target = ctx.state.players.find(isPlayerAlive);
+  if (!at || !target || ctx.state.bosses[slot]?.active) return undefined;
+  const b = spawnBoss(ctx, slot, boss, variant, at.x, at.y);
+  if (!b) return undefined;
+  b.target = target.id;
+  b.hp = b.maxHp = hp;
+  b.spot = spot;
+  b.noPathTime = 0;
+  setPhase(ctx, b, 'warning', warning);
+  const nav = ctx.bossNavs[slot];
+  if (nav) nav.age = Infinity;
+  ctx.events.emit('boss:warning', { x: at.x, y: at.y });
+  return b;
+}
+
 /** Marks where it will fall near `target` (on the best boss spot, or anywhere it fits when the map has none that will do). */
 function emergeNear(ctx: SimContext, b: BossState, slot: number, target: PlayerState): boolean {
   const spot = chooseBossSpot(ctx, slot, target);

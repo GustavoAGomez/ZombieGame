@@ -1,0 +1,24 @@
+#########oo#########
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+occcccccccccccccccco
+occccccccPccccccccco
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+#########oo#########
+
+## Sala
+| tipo | dificultad | ambiente | nota |
+|---|---|---|---|
+| start | — | basement | el refugio de los supervivientes: aquí se baja |
+
+## Atrezo (muebles; con colisión es la cobertura de la sala)
+| id | objeto | casillas | colisión | volteo | nota |
+|---|---|---|---|---|---|
+| A1 | prop_colchon | 2,2 3,3 | sí | — | colchón del refugio |
+| A2 | prop_saco_dormir | 6,7 7,7 | no | — |  |
+| A3 | prop_cajas_provisiones | 16,1 17,1 | sí | — |  |
+| A4 | prop_latas_suelo | 12,6 | no | — |  |
+| A5 | prop_escombros | 3,7 | no | — |  |

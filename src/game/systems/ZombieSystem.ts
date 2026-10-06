@@ -1,3 +1,4 @@
+import { DUNGEON } from '../../config/dungeon';
 import { rules } from '../rules';
 import { NAVIGATION, PLAYER, ZOMBIES } from '../../config/balance';
 import type { PlayerState, ZombieAi, ZombieState } from '../../core/GameState';
@@ -139,7 +140,7 @@ export function isCrawling(z: ZombieState): boolean {
 }
 
 function speedOf(z: ZombieState): number {
-  return ZOMBIES.kinds[z.kind].speed * (isCrawling(z) ? ZOMBIES.crawlSpeedFactor : 1);
+  return ZOMBIES.kinds[z.kind].speed * (isCrawling(z) ? ZOMBIES.crawlSpeedFactor : 1) * (z.elite ? DUNGEON.elite.speed : 1);
 }
 
 function updateToWindow(ctx: SimContext, z: ZombieState, dt: number): void {

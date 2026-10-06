@@ -138,6 +138,21 @@ export const STRINGS = {
     floorBanner: (n: number, ambient: string): string => `PLANTA ${n} · ${ambient}`,
     counter: 'SALAS HASTA EL MAGO',
     minimap: 'MINIMAPA',
+    keys: (n: number): string => (n === 1 ? '1 LLAVE' : `${n} LLAVES`),
+    bossKey: 'LLAVE DEL BOSS',
+    /** The end of a run (§10). */
+    fell: 'HAS CAÍDO',
+    escaped: 'HAS ESCAPADO',
+    floorReached: (n: number): string => `PLANTA ${n}`,
+    roomsCleared: (n: number): string => (n === 1 ? '1 SALA LIMPIA' : `${n} SALAS LIMPIAS`),
+    kills: (n: number): string => (n === 1 ? '1 BAJA' : `${n} BAJAS`),
+    time: (clock: string): string => `TIEMPO ${clock}`,
+    seed: (seed: number): string => `SEMILLA ${seed}`,
+    again: 'OTRA PARTIDA',
+    sameSeed: 'MISMA SEMILLA',
+    menu: 'MENÚ',
+    keepGoing: 'SEGUIR',
+    newRecord: '¡NUEVO RÉCORD!',
   },
   /** Seconds as M:SS (a run's time, spec 09 §10). */
   clock: (seconds: number): string => {
@@ -243,6 +258,18 @@ export const STRINGS = {
     /** Special items on the floor (spec 05 §3): "RECOGER VARITA DESGASTADA". */
     pickUp: (item: string): string => `RECOGER ${item}`,
     inventoryFull: 'INVENTARIO LLENO',
+    /** The dungeon (spec 09 §4.1, §6): chests, keyed doors, the challenge's warning and the way down. */
+    openChest: 'ABRIR COFRE',
+    openChestKey: 'ABRIR COFRE · 1 LLAVE',
+    needKey: 'FALTA UNA LLAVE',
+    takeWeapon: (weapon: string): string => `COGER ${weapon}`,
+    takeAmmo: 'MUNICIÓN Y 200$',
+    openDoorKey: 'ABRIR · 1 LLAVE',
+    openBossDoor: 'ABRIR · LLAVE DEL BOSS',
+    needBossKey: 'FALTA LA LLAVE DEL BOSS',
+    challengeRoom: 'SALA DE RETO',
+    descend: 'BAJAR',
+    dungeonLabel: 'Acción de la mazmorra',
   },
   /** Only once a room is unlocked does the HUD say which: «COCINA DESBLOQUEADA», «GARAJE DESBLOQUEADO» (SALA if unnamed). */
   zoneUnlocked: (zone: string): string => {

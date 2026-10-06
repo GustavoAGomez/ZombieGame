@@ -5,6 +5,7 @@
  */
 import type { Ambient, RoomDifficulty, RoomType } from '../config/dungeon';
 import type { ZombieKind } from '../config/balance';
+import type { WeaponId } from '../config/weapons';
 
 export interface Cell {
   x: number;
@@ -49,6 +50,12 @@ export interface FloorPlan {
   cellRoom: number[];
 }
 
+/** One enemy of a wave: its kind, and whether it is an elite (§5.2). */
+export interface WaveEntry {
+  kind: ZombieKind;
+  elite: boolean;
+}
+
 /** A room's fight (§4): the warning before each wave, then the wave until the last enemy falls. */
 export interface RoomFight {
   room: number;
@@ -59,12 +66,35 @@ export interface RoomFight {
   wave: number;
   waves: number;
   /** What the coming wave spawns, and where (world px); `later`, the second wave still to come. */
-  pending: ZombieKind[];
+  pending: WaveEntry[];
   spots: { x: number; y: number }[];
-  later: ZombieKind[];
+  later: WaveEntry[];
   /** Enemies spawned in the fight so far (its kills, once it is over). */
   spawned: number;
+  /** The arena (§5.3): the boss falls once the timer runs out, and the fight ends with it. */
+  boss: boolean;
 }
+
+/** What a door of the floor is (§4.1): the plan says it from the rooms it joins. */
+export type DoorKind = 'normal' | 'key' | 'boss' | 'challenge';
+
+/** A chest on the floor (§6.2, §6.3): where it is, what kind, and whether it was opened. */
+export interface ChestState {
+  x: number;
+  y: number;
+  room: number;
+  /**
+   * `open` needs no key (the treasure's); `locked` needs one; `big` the
+   * challenge's; `boss` the boss's upgrade chest; `weapon` the treasure's
+   * case, with the basic weapon it holds (null: both owned, so ammo and money).
+   */
+  kind: 'open' | 'locked' | 'big' | 'boss' | 'weapon';
+  weapon: WeaponId | null;
+  opened: boolean;
+}
+
+/** What the action button does in the dungeon (§4.1, §6): the thing in reach says which. */
+export type DungeonAction = 'chest' | 'chestKey' | 'needKey' | 'weapon' | 'door' | 'bossDoor' | 'needBossKey' | 'challenge' | 'descend';
 
 /** A dungeon run (§1): what carries over from floor to floor, and the floor under way. */
 export interface RunState {
@@ -78,8 +108,24 @@ export interface RunState {
   room: number;
   /** The fight in the current room (§4), or null between fights. */
   fight: RoomFight | null;
-  /** The floor's banner was shown and the HUD knows the plan. */
+  /** The floor's banner was shown, its doors set and the HUD knows the plan. */
   announced: boolean;
+  /** Parallel to the floor map's doors (§4.1): what each one is, and whether a keyed one was opened with its key. */
+  doorKinds: DoorKind[];
+  doorsUnlocked: boolean[];
+  chests: ChestState[];
+  /** The way down (§4), once the boss is dead. */
+  trapdoor: { x: number; y: number } | null;
+  /** Still playing, the floor's boss dead on the last floor (the run is won), or the player dead. */
+  outcome: 'playing' | 'won' | 'dead';
+  /** The player asked to go down: the scene builds the next floor. */
+  descending: boolean;
+  /** Seconds of play in the run. */
+  time: number;
+  /** The key's extra chance built up by rooms without a prize (§6.2), and whether the floor's treasure was opened. */
+  pity: number;
+  treasureOpened: boolean;
+  bossesKilled: number;
   /** Normal keys (§6.1), and the floor's boss key. */
   keys: number;
   bossKey: boolean;

@@ -4,7 +4,7 @@
  * shared systems read (a zombie's scratch, a medkit, the ammo that never
  * runs out). Survival's values are the ones of balance.ts, unchanged.
  */
-import { PICKUPS, ZOMBIES } from '../config/balance';
+import { PICKUPS, POINTS, ZOMBIES } from '../config/balance';
 import { DUNGEON, type GameMode } from '../config/dungeon';
 import type { WeaponId } from '../config/weapons';
 
@@ -23,6 +23,12 @@ export interface ModeRules {
   medkitHeal: number;
   /** Weapons whose reserve never runs out (§5.1); the magazine reloads as always. */
   infiniteReserve: readonly WeaponId[];
+  /** Money (and points) per hit, knife hit and kill (§6.2: the dungeon pays kills alone). */
+  points: { hit: number; melee: number; kill: number };
+  /** The chances a kill drops ammo, else health (§6.2). */
+  drops: { ammoChance: number; healthChance: number };
+  /** Survival's boss rewards (spec 07 §6: money, pickups, the living heart); the dungeon gives its own (§5.3). */
+  bossRewards: boolean;
 }
 
 const SURVIVAL: ModeRules = {
@@ -33,6 +39,9 @@ const SURVIVAL: ModeRules = {
   zombieDamage: ZOMBIES.attackDamage,
   medkitHeal: PICKUPS.healthAmount,
   infiniteReserve: [],
+  points: { hit: POINTS.hit, melee: POINTS.meleeHit, kill: POINTS.kill },
+  drops: { ammoChance: PICKUPS.ammoChance, healthChance: PICKUPS.healthChance },
+  bossRewards: true,
 };
 
 const DUNGEON_RULES: ModeRules = {
@@ -43,6 +52,9 @@ const DUNGEON_RULES: ModeRules = {
   zombieDamage: DUNGEON.combat.zombieDamage,
   medkitHeal: DUNGEON.combat.medkitHeal,
   infiniteReserve: DUNGEON.combat.infiniteReserve,
+  points: { hit: 0, melee: 0, kill: DUNGEON.loot.kill },
+  drops: { ammoChance: DUNGEON.loot.ammoChance, healthChance: DUNGEON.loot.healthChance },
+  bossRewards: false,
 };
 
 export function rulesOf(mode: GameMode): ModeRules {

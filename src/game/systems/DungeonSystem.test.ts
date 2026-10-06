@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { DUNGEON, ENEMY_ROOM_TYPES } from '../../config/dungeon';
+import { DUNGEON, ENEMY_ROOM_TYPES, FLOORS, floorConfig } from '../../config/dungeon';
 import type { GameEvents } from '../../core/EventBus';
 import type { Room } from '../../core/RunState';
 import { createTestContext } from '../../test/fixtures';
 import { dungeonContext } from '../../test/dungeonFixtures';
 import { damageZombie, isZombieAlive } from './Combat';
-import { composeWave, dungeonMusic, insideRoom, roomAt, roomBudget, roomDoors } from './DungeonSystem';
+import { composeWave, dungeonMusic, dungeonOffer, insideRoom, roomAt, roomBudget, roomDoors, tapDungeon } from './DungeonSystem';
+import { damageBoss } from './BossCombat';
+import { spawnPickup } from './PickupSystem';
 import type { SimContext } from './SimContext';
 import { stepSimulation } from './Simulation';
 
@@ -107,7 +109,10 @@ describe('DungeonSystem (spec 09 §4)', () => {
     stepSimulation(ctx, DT);
     const fight = ctx.state.run!.fight!;
     // Whatever the room drew, make it a two-wave fight.
-    fight.later = ['walker', 'runner'];
+    fight.later = [
+      { kind: 'walker', elite: false },
+      { kind: 'runner', elite: false },
+    ];
     fight.waves = 2;
     steps(ctx, DUNGEON.fight.spawnWarning + DT);
     const first = alive(ctx);
@@ -177,5 +182,174 @@ describe('DungeonSystem (spec 09 §4)', () => {
     steps(ctx, 0.5);
     expect(ctx.state.run).toBeNull();
     expect(ctx.state.mode).toBe('survival');
+  });
+
+  it('opens the normal doors at the start and keeps the treasure\'s and the arena\'s shut until their keys', () => {
+    const ctx = dungeonContext(1);
+    steps(ctx, 0.1);
+    const run = ctx.state.run!;
+    ctx.map.doors.forEach((_, i) => {
+      const kind = run.doorKinds[i];
+      expect(ctx.state.doorsOpen[i]).toBe(kind === 'normal' || kind === 'challenge');
+    });
+    const keyDoor = run.doorKinds.indexOf('key');
+    const bossDoor = run.doorKinds.indexOf('boss');
+    expect(keyDoor).toBeGreaterThanOrEqual(0);
+    expect(bossDoor).toBeGreaterThanOrEqual(0);
+    const p = ctx.state.players[0]!;
+    // At the treasure's door with no key: the button says so; with one, it opens and the key is spent.
+    const d = ctx.map.doors[keyDoor]!;
+    teleport(ctx, d.center.x, d.center.y + ctx.map.tileSize);
+    expect(dungeonOffer(ctx.map, ctx.state, p)).toMatchObject({ action: 'needKey', enabled: false });
+    run.keys = 1;
+    const offer = dungeonOffer(ctx.map, ctx.state, p)!;
+    expect(offer).toMatchObject({ action: 'door', target: keyDoor, enabled: true });
+    tapDungeon(ctx, p, offer);
+    expect(run.keys).toBe(0);
+    expect(run.doorsUnlocked[keyDoor]).toBe(true);
+    expect(ctx.state.doorsOpen[keyDoor]).toBe(true);
+    // The arena's asks for the boss's key.
+    const b = ctx.map.doors[bossDoor]!;
+    teleport(ctx, b.center.x, b.center.y);
+    expect(dungeonOffer(ctx.map, ctx.state, p)).toMatchObject({ action: 'needBossKey', enabled: false });
+    run.bossKey = true;
+    tapDungeon(ctx, p, dungeonOffer(ctx.map, ctx.state, p)!);
+    expect(run.bossKey).toBe(false);
+    expect(ctx.state.doorsOpen[bossDoor]).toBe(true);
+  });
+
+  it('pays a cleared room, leaves a key or a locked chest or builds up the pity, and the elite room drops the boss key', () => {
+    const ctx = dungeonContext(1);
+    const run = ctx.state.run!;
+    const elite = run.plan.rooms.findIndex((r) => r.type === 'elite');
+    const zone = ctx.map.zones[elite]!;
+    const gains: GameEvents['points:gained'][] = [];
+    ctx.events.on('points:gained', (e) => gains.push(e));
+    steps(ctx, 0.1);
+    teleport(ctx, zone.x + zone.width / 2, zone.y + zone.height / 2);
+    stepSimulation(ctx, DT);
+    const fight = run.fight!;
+    fight.later = [];
+    steps(ctx, DUNGEON.fight.spawnWarning + DT);
+    // Two elites among them, with their life.
+    const elites = ctx.state.zombies.filter((z) => isZombieAlive(z) && z.elite);
+    expect(elites).toHaveLength(DUNGEON.elite.perRoom);
+    for (const z of elites) expect(z.maxHp).toBe(Math.round(DUNGEON.floors[0].zombieHp * DUNGEON.elite.hp));
+    const money = ctx.state.players[0]!.money;
+    for (const z of ctx.state.zombies) if (isZombieAlive(z)) damageZombie(ctx, z, 1e9, 0);
+    // An elite's kill pays triple, every other kill its 10$; the hits nothing.
+    const kills = gains.filter((g) => g.reason === 'kill');
+    expect(kills.filter((g) => g.amount === DUNGEON.loot.kill * DUNGEON.loot.eliteMoney)).toHaveLength(DUNGEON.elite.perRoom);
+    expect(gains.some((g) => g.reason === 'hit')).toBe(false);
+    stepSimulation(ctx, DT);
+    expect(gains.find((g) => g.reason === 'room')?.amount).toBe(DUNGEON.loot.roomClear);
+    expect(ctx.state.players[0]!.money).toBeGreaterThan(money);
+    const keyDropped = ctx.state.pickups.some((k) => k.active && k.kind === 'key');
+    const chest = run.chests.some((c) => c.kind === 'locked' && c.room === elite);
+    expect(keyDropped || chest || run.pity === DUNGEON.loot.pityStep).toBe(true);
+    expect(ctx.state.pickups.some((k) => k.active && k.kind === 'boss_key')).toBe(true);
+  });
+
+  it('picks keys up by walking over them, and they never fade', () => {
+    const ctx = dungeonContext(2);
+    const p = ctx.state.players[0]!;
+    steps(ctx, 0.1);
+    const key = spawnPickup(ctx, 'key', p.x + 200, p.y)!;
+    const bossKey = spawnPickup(ctx, 'boss_key', p.x + 220, p.y)!;
+    steps(ctx, 20);
+    expect(key.active).toBe(true);
+    expect(key.age).toBe(0);
+    teleport(ctx, key.x, key.y);
+    stepSimulation(ctx, DT);
+    teleport(ctx, bossKey.x, bossKey.y);
+    stepSimulation(ctx, DT);
+    expect(ctx.state.run!.keys).toBe(1);
+    expect(ctx.state.run!.bossKey).toBe(true);
+    expect(key.active).toBe(false);
+  });
+
+  it('the treasure: its chest gives money and a medkit, its case a basic weapon the player lacks', () => {
+    const ctx = dungeonContext(1);
+    const run = ctx.state.run!;
+    const p = ctx.state.players[0]!;
+    steps(ctx, 0.1);
+    const treasure = run.plan.rooms.findIndex((r) => r.type === 'treasure');
+    const chests = run.chests.filter((c) => c.room === treasure);
+    expect(chests.map((c) => c.kind)).toEqual(['open', 'weapon']);
+    expect(['smg', 'shotgun']).toContain(chests[1]!.weapon);
+    const money = p.money;
+    teleport(ctx, chests[0]!.x, chests[0]!.y);
+    const offer = dungeonOffer(ctx.map, ctx.state, p)!;
+    expect(offer.action).toBe('chest');
+    tapDungeon(ctx, p, offer);
+    expect(p.money).toBe(money + DUNGEON.chest.open);
+    expect(chests[0]!.opened).toBe(true);
+    expect(ctx.state.pickups.some((k) => k.active && k.kind === 'health')).toBe(true);
+    expect(run.treasureOpened).toBe(true);
+    teleport(ctx, chests[1]!.x, chests[1]!.y);
+    const weapon = dungeonOffer(ctx.map, ctx.state, p)!;
+    expect(weapon).toMatchObject({ action: 'weapon', weapon: chests[1]!.weapon });
+    tapDungeon(ctx, p, weapon);
+    expect(p.weapons.some((w) => w.id === chests[1]!.weapon)).toBe(true);
+    expect(dungeonOffer(ctx.map, ctx.state, p)).toBeNull();
+  });
+
+  it('the arena: the boss falls with the floor\'s life; its death heals, opens the doors and leaves the trapdoor, and wins the last floor', () => {
+    const ctx = dungeonContext(5, FLOORS);
+    const run = ctx.state.run!;
+    const p = ctx.state.players[0]!;
+    const trapdoors: GameEvents['dungeon:trapdoor'][] = [];
+    ctx.events.on('dungeon:trapdoor', (e) => trapdoors.push(e));
+    steps(ctx, 0.1);
+    expect(run.plan.ambient).toBe('garden');
+    const arena = run.plan.boss;
+    // In with the boss's key, through its door.
+    const bossDoor = run.doorKinds.indexOf('boss');
+    const door = ctx.map.doors[bossDoor]!;
+    run.bossKey = true;
+    teleport(ctx, door.center.x, door.center.y);
+    tapDungeon(ctx, p, dungeonOffer(ctx.map, ctx.state, p)!);
+    expect(ctx.state.doorsOpen[bossDoor]).toBe(true);
+    const spot = ctx.map.bossSpots.find((s) => s.zoneIndex === arena)!;
+    teleport(ctx, spot.x - 160, spot.y);
+    stepSimulation(ctx, DT);
+    expect(run.fight).toMatchObject({ boss: true, phase: 'warning' });
+    for (const i of roomDoors(ctx, arena)) expect(ctx.state.doorsOpen[i]).toBe(false);
+    expect(dungeonMusic(run)).toBe('boss');
+    steps(ctx, DUNGEON.boss.fallDelay + DT);
+    const boss = ctx.state.bosses.find((b) => b.active)!;
+    expect(boss).toMatchObject({ phase: 'warning', variant: floorConfig(FLOORS).variant, hp: floorConfig(FLOORS).bossHp, maxHp: floorConfig(FLOORS).bossHp });
+    steps(ctx, DUNGEON.boss.shadow + 1);
+    expect(boss.phase).not.toBe('warning');
+    p.hp = 40;
+    const money = p.money;
+    while (boss.phase !== 'dead') {
+      damageBoss(ctx, boss, 1e9, 0);
+      stepSimulation(ctx, DT);
+    }
+    steps(ctx, 0.1);
+    expect(run.fight).toBeNull();
+    expect(run.cleared[arena]).toBe(true);
+    for (const i of roomDoors(ctx, arena)) expect(ctx.state.doorsOpen[i]).toBe(true);
+    expect(p.hp).toBe(40 + DUNGEON.combat.bossHeal);
+    // No Survival reward: the money is the hits' nothing.
+    expect(p.money).toBe(money);
+    expect(run.trapdoor).not.toBeNull();
+    expect(run.bossesKilled).toBe(1);
+    expect(run.outcome).toBe('won');
+    expect(trapdoors).toEqual([{ x: run.trapdoor!.x, y: run.trapdoor!.y, won: true }]);
+  });
+
+  it('on an earlier floor the trapdoor takes the player down', () => {
+    const ctx = dungeonContext(1);
+    const run = ctx.state.run!;
+    const p = ctx.state.players[0]!;
+    steps(ctx, 0.1);
+    run.trapdoor = { x: p.x + 20, y: p.y };
+    const offer = dungeonOffer(ctx.map, ctx.state, p)!;
+    expect(offer.action).toBe('descend');
+    tapDungeon(ctx, p, offer);
+    expect(run.descending).toBe(true);
+    expect(run.outcome).toBe('playing');
   });
 });

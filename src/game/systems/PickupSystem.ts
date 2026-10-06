@@ -1,6 +1,7 @@
 import { rules } from '../rules';
 import { PICKUPS, PLAYER, type PickupKind } from '../../config/balance';
 import type { PickupState, PlayerState, ZombieState } from '../../core/GameState';
+import type { RunState } from '../../core/RunState';
 import { random } from '../../core/Rng';
 import { isNavWalkable } from '../map/FlowField';
 import type { SimContext } from './SimContext';
@@ -12,16 +13,21 @@ import { magazineSize, maxReserve } from './weaponStats';
  * (a full player leaves them for later).
  */
 
-/** Maps one uniform roll to a drop: ammo, else health, else nothing. */
-export function dropKindFor(roll: number): PickupKind | null {
-  if (roll < PICKUPS.ammoChance) return 'ammo';
-  if (roll < PICKUPS.ammoChance + PICKUPS.healthChance) return 'health';
+/** Maps one uniform roll to a drop: ammo, else health, else nothing (the mode's chances). */
+export function dropKindFor(roll: number, chances: { ammoChance: number; healthChance: number } = PICKUPS): PickupKind | null {
+  if (roll < chances.ammoChance) return 'ammo';
+  if (roll < chances.ammoChance + chances.healthChance) return 'health';
   return null;
+}
+
+/** A key (spec 09 §6.1): always worth taking, and it never goes away. */
+export function isKey(kind: PickupKind): boolean {
+  return kind === 'key' || kind === 'boss_key';
 }
 
 /** Called when a zombie dies. */
 export function rollZombieDrop(ctx: SimContext, z: ZombieState): PickupState | undefined {
-  const kind = dropKindFor(random(ctx.state));
+  const kind = dropKindFor(random(ctx.state), rules(ctx.state).drops);
   if (!kind) return undefined;
   const { x, y } = reachableDropPoint(ctx, z);
   return spawnPickup(ctx, kind, x, y);
@@ -72,17 +78,19 @@ export function updatePickups(ctx: SimContext, dt: number): void {
   for (let i = 0; i < pickups.length; i++) {
     const pickup = pickups[i];
     if (!pickup?.active) continue;
-    pickup.age += dt;
-    if (pickup.age >= PICKUPS.lifetime) {
-      pickup.active = false;
-      continue;
+    if (!isKey(pickup.kind)) {
+      pickup.age += dt;
+      if (pickup.age >= PICKUPS.lifetime) {
+        pickup.active = false;
+        continue;
+      }
     }
     for (const p of players) {
       if (p.hp <= 0) continue;
       const dx = p.x - pickup.x;
       const dy = p.y - pickup.y;
       if (dx * dx + dy * dy > reach * reach) continue;
-      if (applyPickup(p, pickup.kind, rules(ctx.state).medkitHeal)) {
+      if (applyPickup(p, pickup.kind, rules(ctx.state).medkitHeal, ctx.state.run)) {
         pickup.active = false;
         ctx.events.emit('pickup:collected', { playerId: p.id, kind: pickup.kind });
         break;
@@ -91,8 +99,14 @@ export function updatePickups(ctx: SimContext, dt: number): void {
   }
 }
 
-/** Applies the pickup's effect (a medkit heals `heal`, the mode's). Returns false (and changes nothing) if it would be wasted. */
-export function applyPickup(p: PlayerState, kind: PickupKind, heal: number = PICKUPS.healthAmount): boolean {
+/** Applies the pickup's effect (a medkit heals `heal`, the mode's; a key goes to the run). Returns false (and changes nothing) if it would be wasted. */
+export function applyPickup(p: PlayerState, kind: PickupKind, heal: number = PICKUPS.healthAmount, run: RunState | null = null): boolean {
+  if (kind === 'key' || kind === 'boss_key') {
+    if (!run) return false;
+    if (kind === 'key') run.keys++;
+    else run.bossKey = true;
+    return true;
+  }
   if (kind === 'health') {
     if (p.hp >= p.maxHp) return false;
     p.hp = Math.min(p.maxHp, p.hp + heal);

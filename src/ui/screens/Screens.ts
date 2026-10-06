@@ -109,6 +109,56 @@ export class GameOverScreen {
   }
 }
 
+/** How a dungeon run ended (spec 09 §10). */
+export interface RunOverInfo {
+  won: boolean;
+  floor: number;
+  rooms: number;
+  kills: number;
+  /** Seconds of play. */
+  time: number;
+  seed: number;
+  newRecord: boolean;
+}
+
+export interface RunOverActions {
+  again: () => void;
+  sameSeed: () => void;
+  menu: () => void;
+  /** Only when won: down to the next floor (§12). */
+  keepGoing?: () => void;
+}
+
+/** The end of a run (spec 09 §10): HAS CAÍDO or HAS ESCAPADO, the floor, rooms, kills and time, the seed, and the ways out. */
+export class RunOverScreen {
+  private readonly root: HTMLDivElement;
+
+  constructor(parent: HTMLElement, info: RunOverInfo, actions: RunOverActions, playUi?: PlayUi) {
+    this.root = el('div', 'screen screen--over');
+    const S = STRINGS.dungeon;
+    const lines = el('div', 'screen-stats');
+    lines.append(
+      el('p', 'screen-line', S.floorReached(info.floor)),
+      el('p', 'screen-line', S.roomsCleared(info.rooms)),
+      el('p', 'screen-line', S.kills(info.kills)),
+      el('p', 'screen-line', S.time(STRINGS.clock(info.time))),
+    );
+    const buttons = el('div', 'screen-buttons');
+    const again = button(S.again, actions.again, 'screen-button--primary', playUi);
+    buttons.append(again, button(S.sameSeed, actions.sameSeed, '', playUi), button(S.menu, actions.menu, '', playUi));
+    if (actions.keepGoing) buttons.prepend(button(S.keepGoing, actions.keepGoing, 'screen-button--primary', playUi));
+    this.root.append(el('h1', 'screen-title', info.won ? S.escaped : S.fell), lines);
+    if (info.newRecord) this.root.append(el('p', 'screen-mode__record', S.newRecord));
+    this.root.append(el('p', 'screen-subtitle', S.seed(info.seed)), buttons);
+    parent.appendChild(this.root);
+    focusForKeyboard(again);
+  }
+
+  destroy(): void {
+    this.root.remove();
+  }
+}
+
 /** Preferences the pause menu switches; the caller keeps them (src/native/preferences.ts). */
 export interface PauseSettings {
   vibration: boolean;

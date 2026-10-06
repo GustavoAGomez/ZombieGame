@@ -19,6 +19,8 @@ const KIND_TINT: Record<ZombieKind, number> = {
   runner: hexToInt(COLORS.zombieRunnerTint),
   sprinter: hexToInt(COLORS.zombieSprinterTint),
 };
+/** An elite's golden aura (spec 09 §5.2), until it has art of its own. */
+const ELITE_TINT = 0xe8b04a;
 
 /** A burning zombie's tint (spec 04 §1), flickering between two oranges this often. */
 const BURN_TINT = hexToInt(COLORS.fire);
@@ -141,7 +143,7 @@ export class ZombieViewPool {
       // (a pooled sprite may change kind).
       const flashing = now < slot.flashUntil;
       const burning = z.burn.timer > 0 && z.hp > 0;
-      const tint = burning ? (Math.floor(now / BURN_FLICKER_MS) % 2 === 0 ? BURN_TINT : BURN_TINT_LIGHT) : KIND_TINT[z.kind];
+      const tint = burning ? (Math.floor(now / BURN_FLICKER_MS) % 2 === 0 ? BURN_TINT : BURN_TINT_LIGHT) : z.elite ? ELITE_TINT : KIND_TINT[z.kind];
       if (flashing && sprite.tintMode !== Phaser.TintModes.FILL) {
         sprite.setTint(0xffffff).setTintMode(Phaser.TintModes.FILL);
         slot.tint = -1;

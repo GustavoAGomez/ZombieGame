@@ -1,0 +1,40 @@
+#########oo#########
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+occcccccccccccccccco
+occcccccccccccccccco
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+#########oo#########
+
+## Sala
+| tipo | dificultad | ambiente | nota |
+|---|---|---|---|
+| elite | — | basement | bodega grande |
+
+## Enemigos (puntos de aparición, a 4 casillas o más de los huecos)
+| id | casilla |
+|---|---|
+| E1 | 4,2 |
+| E2 | 15,2 |
+| E3 | 15,7 |
+| E4 | 5,4 |
+| E5 | 14,7 |
+
+## Magos
+| id | casilla | nota |
+|---|---|---|
+| M1 | 16,8 | rincón sureste |
+
+## Atrezo (muebles; con colisión es la cobertura de la sala)
+| id | objeto | casillas | colisión | volteo | nota |
+|---|---|---|---|---|---|
+| A1 | prop_botellero | 1,1 1,4 | sí | — |  |
+| A2 | prop_botellero | 18,1 18,4 | sí | — |  |
+| A3 | prop_botellero_bajo | 6,2 8,2 | sí | — |  |
+| A4 | prop_botellero_bajo | 11,6 13,6 | sí | — |  |
+| A5 | prop_cajas | 4,6 5,7 | sí | — |  |
+| A6 | prop_charco_sangre | 14,4 | no | — |  |
+| A7 | prop_latas_suelo | 3,3 | no | — |  |

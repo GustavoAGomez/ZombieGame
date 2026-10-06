@@ -1,0 +1,28 @@
+#########oo#########
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+occcccccccccccccccco
+occcccccccccccccccco
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+#########oo#########
+
+## Sala
+| tipo | dificultad | ambiente | nota |
+|---|---|---|---|
+| hand | — | basement | la sala de la Mano |
+
+## Mano
+| id | casilla |
+|---|---|
+| H1 | 9,5 |
+
+## Atrezo (muebles; con colisión es la cobertura de la sala)
+| id | objeto | casillas | colisión | volteo | nota |
+|---|---|---|---|---|---|
+| A1 | prop_charco_sangre | 7,3 | no | — |  |
+| A2 | prop_charco_sangre | 12,6 | no | — |  |
+| A3 | prop_escombros | 3,7 | no | — |  |
+| A4 | prop_cajas | 16,1 17,2 | sí | — |  |

@@ -1,0 +1,38 @@
+FFFFFFFFFooFFFFFFFFF
+FggggggggggggggggggF
+FggggggggggggggggggF
+FggggggggggggggggggF
+FggggggggggggggggggF
+oggggggggggggggggggo
+oggggggggggggggggggo
+FggggggggggggggggggF
+FggggggggggggggggggF
+FFFFFFFFFooFFFFFFFFF
+
+## Sala
+| tipo | dificultad | ambiente | nota |
+|---|---|---|---|
+| elite | — | garden | arboleda |
+
+## Enemigos (puntos de aparición, a 4 casillas o más de los huecos)
+| id | casilla |
+|---|---|
+| E1 | 15,5 |
+| E2 | 14,7 |
+| E3 | 9,4 |
+| E4 | 5,4 |
+| E5 | 15,4 |
+
+## Magos
+| id | casilla | nota |
+|---|---|---|
+| M1 | 1,8 | rincón suroeste |
+
+## Atrezo (muebles; con colisión es la cobertura de la sala)
+| id | objeto | casillas | colisión | volteo | nota |
+|---|---|---|---|---|---|
+| A1 | prop_arbol | 3,1 5,3 | sí | — |  |
+| A2 | prop_arbol | 15,1 17,3 | sí | — |  |
+| A3 | prop_arbol | 6,6 8,8 | sí | — |  |
+| A4 | prop_seto | 12,6 15,6 | sí | — |  |
+| A5 | prop_flotador | 10,3 | no | — |  |

@@ -14,8 +14,10 @@ import { parseMap, type MapData } from '../map/MapLoader';
 import type { Tsj } from '../map/tsj';
 import { ROOM_PITCH, doorHoles, inward, mirrorTemplate, type DoorHole, type RoomTemplate } from './roomTemplate';
 
-/** The `paredes` column of a floor's zones: the wall kit of its ambient (§2). */
-const WALLS: Readonly<Record<Ambient, string>> = { mansion: '—', basement: 'sótano', garden: 'exterior' };
+/** The `paredes` column of a floor's zones: the wall kit of its ambient (§2); the garden's ring is a fence, which brings its own. */
+const WALLS: Readonly<Record<Ambient, string>> = { mansion: '—', basement: 'sótano', garden: '—' };
+/** Whether an ambient's rooms are indoors (the `interior` column). */
+const INDOORS: Readonly<Record<Ambient, boolean>> = { mansion: true, basement: true, garden: false };
 
 /** A room's zone id, by its index in the plan. */
 export function zoneId(room: number): string {
@@ -79,7 +81,7 @@ export function floorText(plan: FloorPlan, templates: ReadonlyMap<string, RoomTe
     const first = holes.find((h) => room.doors.some((d) => d.side === h.side)) ?? holes[0];
     if (!first) throw new Error(`la sala ${index} no tiene huecos de puerta`);
     const seed = inward(first, first.tiles[0] as Cell);
-    zones.push(`| ${zoneId(index)} | ${roomName(room.type)} | ${room.type === 'start' ? 'sí' : 'no'} | — | sí | no | ${ox + seed.x},${oy + seed.y} | ${WALLS[plan.ambient]} | ${room.template}${room.mirrored ? ' (espejo)' : ''} |`);
+    zones.push(`| ${zoneId(index)} | ${roomName(room.type)} | ${room.type === 'start' ? 'sí' : 'no'} | — | ${INDOORS[plan.ambient] ? 'sí' : 'no'} | no | ${ox + seed.x},${oy + seed.y} | ${WALLS[plan.ambient]} | ${room.template}${room.mirrored ? ' (espejo)' : ''} |`);
     const shift = (c: Cell): string => `${ox + c.x},${oy + c.y}`;
     template.enemies.forEach((c, i) => tables.enemigos.push(`| E${index}_${i + 1} | ${shift(c)} | ${zoneId(index)} |`));
     template.merchants.forEach((c, i) => tables.magos.push(`| M${index}_${i + 1} | ${shift(c)} | ${zoneId(index)} |`));

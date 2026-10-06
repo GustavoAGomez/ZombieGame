@@ -75,6 +75,14 @@
   text-shadow: 2px 2px 0 var(--ink);
 }
 
+/* The run's figures (spec 09 §10), one under another. */
+.screen-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
 .screen-points {
   display: flex;
   align-items: baseline;

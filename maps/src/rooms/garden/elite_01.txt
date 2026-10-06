@@ -1,0 +1,37 @@
+FFFFFFFFFooFFFFFFFFF
+FggggggggggggggggggF
+FgggggeeeeeeeegggggF
+FgggggewwwwwwegggggF
+FgggggewwwwwwegggggF
+ogggggewwwwwwegggggo
+ogggggewwwwwwegggggo
+FgggggeeeeeeeegggggF
+FggggggggggggggggggF
+FFFFFFFFFooFFFFFFFFF
+
+## Sala
+| tipo | dificultad | ambiente | nota |
+|---|---|---|---|
+| elite | — | garden | la piscina grande |
+
+## Enemigos (puntos de aparición, a 4 casillas o más de los huecos)
+| id | casilla |
+|---|---|
+| E1 | 4,7 |
+| E2 | 15,7 |
+| E3 | 4,4 |
+| E4 | 15,5 |
+| E5 | 5,2 |
+
+## Magos
+| id | casilla | nota |
+|---|---|---|
+| M1 | 1,8 | rincón suroeste |
+
+## Atrezo (muebles; con colisión es la cobertura de la sala)
+| id | objeto | casillas | colisión | volteo | nota |
+|---|---|---|---|---|---|
+| A1 | prop_tumbona | 2,2 2,3 | sí | — |  |
+| A2 | prop_tumbona | 17,2 17,3 | sí | — |  |
+| A3 | prop_barbacoa_volcada | 16,7 | sí | — |  |
+| A4 | prop_flotador | 4,6 | no | — |  |

@@ -200,6 +200,9 @@ export const ASSET_KEYS = {
   bloodStain: 'blood_stain',
   pickupAmmo: 'pickup_ammo',
   pickupHealth: 'pickup_health',
+  /** The dungeon's keys (spec 09 §6.1). */
+  pickupKey: 'pickup_key',
+  pickupBossKey: 'pickup_boss_key',
   muzzleFlash: 'muzzle_flash',
   meleeSlash: 'melee_slash',
   katanaSlash: 'katana_slash',

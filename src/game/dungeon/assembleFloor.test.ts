@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ENEMY_ROOM_TYPES } from '../../config/dungeon';
+import { ENEMY_ROOM_TYPES, floorConfig } from '../../config/dungeon';
 import type { Room } from '../../core/RunState';
 import { testTemplates, testTilesets } from '../../test/dungeonFixtures';
 import { assembleFloor, floorText, templatesById, zoneId } from './assembleFloor';
@@ -13,8 +13,17 @@ describe('assembleFloor (spec 09 §3.3)', () => {
   const tilesets = testTilesets();
 
   it('lays the plan as one map: a zone per room, a door per link, the player at the start, each room with its points', () => {
-    for (const seed of [1, 2, 3, 4, 5]) {
-      const plan = generateFloor(seed, 1, bankOf(list));
+    for (const [seed, floor] of [
+      [1, 1],
+      [2, 1],
+      [3, 2],
+      [4, 2],
+      [5, 3],
+      [6, 3],
+    ] as const) {
+      const ambientList = testTemplates(floorConfig(floor).ambient);
+      const byId = templatesById(ambientList);
+      const plan = generateFloor(seed, floor, bankOf(ambientList));
       const t0 = performance.now();
       const map = assembleFloor(plan, byId, tilesets);
       const ms = performance.now() - t0;
@@ -48,7 +57,10 @@ describe('assembleFloor (spec 09 §3.3)', () => {
           expect(zone?.height).toBe(17 * ts);
         }
         if (room.type === 'hand') expect(map.handSpots.some((s) => s.zoneIndex === i)).toBe(true);
+        if (room.type === 'treasure') expect(map.chestSpots.filter((s) => s.zoneIndex === i)).toHaveLength(2);
       });
+      // The garden is outdoors; the rest indoors.
+      for (const z of map.zones) expect(z.interior).toBe(plan.ambient !== 'garden');
       // Each door joins the two rooms the plan says.
       for (const d of map.doors) {
         const a = d.fromZoneIndex;

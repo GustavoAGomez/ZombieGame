@@ -99,6 +99,22 @@ Ruta prevista del export: `art-src/pixellab/objects/<clave>/`. Ya tienen arte 30
 | `decals_interior` (16 de 32×32) | Sangre, arrastres, polvo, escombros, astillas, grietas, pisadas y papeles en suelos interiores | Generados por `tiles:import` con ruido | "top-down decals sheet 4x4, 32x32 each, transparent: blood splats, drag marks, plaster dust, debris, wood splinters, floor cracks, footprints, paper scraps" |
 | `map_shadows` | Sombra suave al pie de paredes y muebles | Generadas por `tiles:import` (negro semitransparente, 6 px) | No hace falta arte: es correcto que sean generadas |
 
+## Mazmorra (spec 09)
+
+Placeholders dibujados por código hasta que tengan arte. Todos a 32 px de casilla, vista top-down, la paleta del jugador.
+
+| Clave / vista | Uso | Placeholder actual | Prompt sugerido |
+|---|---|---|---|
+| `pickup_key` | Llave normal en el suelo (§6.1) | Rectángulo 16×16 del manifiesto | "map object, high top-down view, small brass key on the floor, 16x16 px, no outline, muted palette" |
+| `pickup_boss_key` | Llave del boss (§6.1) | Rectángulo 16×16 | "map object, high top-down view, heavy red iron key with a skull bow, 16x16 px, no outline" |
+| Cofres (`DungeonViews`) | Cofre abierto, cerrado (con candado), grande del reto, del boss (§6.2–§6.4, §7.3) | Caja marrón con tapa dibujada por código; candado ámbar; marco ámbar el grande; rojo oscuro el del boss | "map object, high top-down view, wooden treasure chest 32x24 px, closed / open lid / with golden padlock / large ornate / dark red skull chest, with dark outline" |
+| Vitrina del tesoro (`DungeonViews`) | El arma gratis de la sala del tesoro (§6.3) | Marco oscuro con cristal pálido y borde ámbar | Reutilizar el arte de las vitrinas (spec 04) con el precio tapado |
+| Trampilla (`DungeonViews`) | Bajar de planta (§4) | Cuadrado oscuro con marco de madera | "map object, high top-down view, open wooden trapdoor in the floor with a ladder going down, 32x32 px, with dark outline" |
+| Puertas de la mazmorra (`MapView`) | Normal, con llave, del boss, de reto (§4.1) | La puerta de madera teñida: ámbar, roja, marco rojo | "door sprites 2 frames (closed/open): plain wood / golden with keyhole / red with skull / wooden with red frame" |
+| Aura de élite (`Zombie`) | Enemigo de élite (§5.2) | Tinte dorado del sprite | Un aro de luz dorada bajo los pies, 24×12 px, animado |
+| Iconos del minimapa (`Hud`) | Tesoro, mano, reto, boss, mago (§4.2) | Cuadrados de color de 3×3 px | Iconos de 5×5 px: cofre, mano, calavera roja, exclamación, sombrero |
+| Sombra de aparición (`SpawnMarks`) | Aviso de oleada (§4) | Elipse negra que oscurece | Una sombra con un aro que se cierra |
+
 ## Sonidos (spec 08)
 
 Ninguna de las 75 recetas tiene todavía un candidato elegido (`"chosen": null`), así que el juego suena con el A de cada una.

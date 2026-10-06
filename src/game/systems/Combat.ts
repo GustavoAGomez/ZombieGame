@@ -1,3 +1,5 @@
+import { DUNGEON } from '../../config/dungeon';
+import { rules } from '../rules';
 import { POINTS, ZOMBIES } from '../../config/balance';
 import type { WeaponId } from '../../config/weapons';
 import type { BloodState, ZombieState } from '../../core/GameState';
@@ -41,10 +43,13 @@ export function damageZombie(
   z.hp -= amount;
   // Legless from now on (spec 08 §6.4): a wet crunch.
   if (walked && z.hp > 0 && z.hp <= ZOMBIES.crawlAtHp) ctx.events.emit('zombie:crippled', { x: z.x, y: z.y });
-  if (attacker >= 0 && hitPoints > 0) awardPoints(ctx, attacker, hitPoints, 'hit');
+  // The dungeon pays no hits (spec 09 §6.2): a hit's points are the mode's, a knife's its melee ones.
+  const pay = rules(ctx.state).points;
+  const hitPay = hitPoints === POINTS.hit ? pay.hit : hitPoints === POINTS.meleeHit ? pay.melee : hitPoints > 0 && pay.hit === 0 ? 0 : hitPoints;
+  if (attacker >= 0 && hitPay > 0) awardPoints(ctx, attacker, hitPay, 'hit');
   if (hit) ctx.events.emit('zombie:hit', { x: hit.x, y: hit.y, groundY: z.y, dirX: hit.dirX, dirY: hit.dirY, killed: z.hp <= 0, weapon: hit.weapon });
   if (z.hp > 0) return false;
-  if (attacker >= 0) awardPoints(ctx, attacker, POINTS.kill, 'kill');
+  if (attacker >= 0) awardPoints(ctx, attacker, pay.kill * (z.elite ? DUNGEON.loot.eliteMoney : 1), 'kill');
   // Dying in hellfire, it bursts (spec 06 §2.3): set off by BurnSystem this same tick.
   if (z.burn.timer > 0 && z.burn.hellfire) queueBlast(ctx, z.x, z.y, z.burn.owner);
   z.hp = 0;

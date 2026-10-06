@@ -1,7 +1,7 @@
 import type { PlayerState } from '../../core/GameState';
 import type { SimContext } from './SimContext';
 
-export type PointsReason = 'repair' | 'hit' | 'kill';
+export type PointsReason = 'repair' | 'hit' | 'kill' | 'room' | 'chest';
 
 /**
  * Points and money (spec 01 §4.7): +10 per hit, +50 per kill, +10 per

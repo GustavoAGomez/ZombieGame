@@ -94,6 +94,23 @@ export const DUNGEON = {
    */
   budget: { easy: [6, 6, 6], medium: [9, 12, 15], hard: [12, 16, 20] } as const satisfies Record<RoomDifficulty, readonly [number, number, number]>,
   enemies: { walker: { cost: 1, fromFloor: 1 }, runner: { cost: 2, fromFloor: 1 }, sprinter: { cost: 3, fromFloor: 2 } } as const satisfies Record<ZombieKind, { cost: number; fromFloor: number }>,
+  /**
+   * Loot (§6.2): money per kill (an elite's ×`eliteMoney`), the drop chances
+   * per kill, and what a cleared room gives: money and a roll for a key or
+   * a locked chest. While the player has no key and the floor's treasure is
+   * shut, the key's chance grows `pityStep` per room cleared without a prize.
+   */
+  loot: { kill: 10, bruteKill: 30, eliteMoney: 3, ammoChance: 0.12, healthChance: 0.04, roomClear: 25, keyChance: 0.25, chestChance: 0.1, pityStep: 0.15 },
+  /** Chests (§6.2, §6.3, §6.4): what each kind gives in money (a medkit or ammo comes beside). */
+  chest: { open: 150, locked: 150, big: 300 },
+  /** The treasure room (§6.3): with both basic weapons owned, the case gives full ammo and this money. */
+  treasure: { bothOwnedMoney: 200 },
+  /** An elite enemy (§5.2): life ×`hp`, speed ×`speed`; `perRoom` of the elite room's enemies are elite. */
+  elite: { hp: 2.5, speed: 1.15, perRoom: 2 },
+  /** The boss (§5.3): its shadow grows on the arena's spot `fallDelay` s after the doors shut, for `shadow` s, then it falls. */
+  boss: { fallDelay: 1.5, shadow: 0.6 },
+  /** Chests, keyed doors and the trapdoor answer the action button within this many px. */
+  interactRange: 40,
   /** The camera (§4): it stays inside the current room and slides to the next one in this many seconds. */
   camera: { slide: 0.35 },
   /** The template bank each ambient starts with (§3.2), per room type. */

@@ -1,0 +1,37 @@
+FFFFFFFFFooFFFFFFFFF
+FggggggggggggggggggF
+FgggggppppppppgggggF
+FgggggppppppppgggggF
+FgggggppppppppgggggF
+ogggggppppppppgggggo
+ogggggppppppppgggggo
+FgggggppppppppgggggF
+FggggggggggggggggggF
+FFFFFFFFFooFFFFFFFFF
+
+## Sala
+| tipo | dificultad | ambiente | nota |
+|---|---|---|---|
+| combat | medium | garden | patio |
+
+## Enemigos (puntos de aparición, a 4 casillas o más de los huecos)
+| id | casilla |
+|---|---|
+| E1 | 4,7 |
+| E2 | 15,5 |
+| E3 | 4,2 |
+| E4 | 14,3 |
+
+## Magos
+| id | casilla | nota |
+|---|---|---|
+| M1 | 18,8 | rincón sureste |
+
+## Atrezo (muebles; con colisión es la cobertura de la sala)
+| id | objeto | casillas | colisión | volteo | nota |
+|---|---|---|---|---|---|
+| A1 | prop_mesa_jardin | 8,3 9,3 | sí | — |  |
+| A2 | prop_mesa_jardin | 10,6 11,6 | sí | — |  |
+| A3 | prop_barbacoa_volcada | 15,2 | sí | — |  |
+| A4 | prop_farola | 1,1 1,2 | sí | — |  |
+| A5 | prop_bidon | 16,7 | sí | — |  |

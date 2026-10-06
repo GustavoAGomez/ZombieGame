@@ -290,7 +290,8 @@ export const WAVES = {
   restTime: 8,
 } as const;
 
-export type PickupKind = 'ammo' | 'health';
+/** Ammo and health from the zombies; a key and the boss's key in the dungeon (spec 09 §6.1). */
+export type PickupKind = 'ammo' | 'health' | 'key' | 'boss_key';
 
 /** Drops from killed zombies. One roll per kill: ammo, else health, else nothing. */
 export const PICKUPS = {

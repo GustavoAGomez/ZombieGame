@@ -6,6 +6,8 @@ import { registerItemSprites } from '../../ui/itemSprites';
 import { registerSheetIcons } from '../../ui/sheetIcons';
 import { applyUiSkin } from '../../ui/skin';
 import type { Services } from '../services';
+import type { PlayerState } from '../../core/GameState';
+import type { RunState } from '../../core/RunState';
 
 export const SCENE_KEYS = {
   boot: 'boot',
@@ -25,6 +27,16 @@ function loadFonts(): Promise<unknown> {
 export interface GameSceneData {
   services: Services;
   assets: AssetLibrary;
+  /** The dungeon (spec 09 §4): the run going down to its next floor, with what the player keeps. */
+  carry?: RunCarry;
+}
+
+/** What a dungeon run keeps from floor to floor (spec 09 §4): the run itself and the player's body, weapons and money. */
+export interface RunCarry {
+  run: RunState;
+  player: Pick<PlayerState, 'hp' | 'maxHp' | 'weapons' | 'activeSlot' | 'money' | 'score' | 'items' | 'boostStored'>;
+  /** Whether the run counts for the records (§10): not with the debug nor MISMA SEMILLA. */
+  recordable: boolean;
 }
 
 /** Loads the manifest, then every asset it declares, then shows the title screen. */

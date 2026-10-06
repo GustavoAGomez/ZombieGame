@@ -1,0 +1,40 @@
+#########oo#########
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+occcccccccccccccccco
+occcccccccccccccccco
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+#########oo#########
+
+## Sala
+| tipo | dificultad | ambiente | nota |
+|---|---|---|---|
+| combat | hard | basement | refugio abandonado |
+
+## Enemigos (puntos de aparición, a 4 casillas o más de los huecos)
+| id | casilla |
+|---|---|
+| E1 | 4,2 |
+| E2 | 15,7 |
+| E3 | 14,4 |
+| E4 | 5,4 |
+| E5 | 10,5 |
+
+## Magos
+| id | casilla | nota |
+|---|---|---|
+| M1 | 1,1 | rincón noroeste |
+
+## Atrezo (muebles; con colisión es la cobertura de la sala)
+| id | objeto | casillas | colisión | volteo | nota |
+|---|---|---|---|---|---|
+| A1 | prop_colchon | 2,6 3,7 | sí | — |  |
+| A2 | prop_saco_dormir | 5,7 6,7 | no | — |  |
+| A3 | prop_cajas_provisiones | 7,1 8,1 | sí | — |  |
+| A4 | prop_latas_suelo | 10,2 | no | — |  |
+| A5 | prop_deposito_agua | 16,1 17,2 | sí | — |  |
+| A6 | prop_charco_sangre | 12,5 | no | — |  |
+| A7 | prop_escombros | 14,7 | no | — |  |

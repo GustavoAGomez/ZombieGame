@@ -1,4 +1,5 @@
 import { rules } from './rules';
+import { dungeonOffer } from './systems/DungeonSystem';
 import { BARRICADES, BOOSTS, BOSS, DASH, PLAYER } from '../config/balance';
 import { WEAPONS, type WeaponId } from '../config/weapons';
 import { bossesForRound } from '../config/bosses';
@@ -186,7 +187,16 @@ export class HudPresenter {
     // A special item on the floor (spec 05 §3): picked up while there is room.
     const item = kind === 'pickup' ? state.groundItems[p.contextTarget]?.item : undefined;
     if (kind === 'pickup') enabled = hasItemRoom(p);
-    const caseKey = weaponCase ? JSON.stringify(weaponCase) : hand ? JSON.stringify(hand) : (item ?? '');
+    // The dungeon (spec 09): a chest, a keyed door, the challenge's warning or the way down.
+    let dungeon: GameEvents['action:context']['dungeon'];
+    if (kind === 'dungeon') {
+      const offer = dungeonOffer(this.map, state, p);
+      if (offer) {
+        enabled = offer.enabled;
+        dungeon = offer.weapon === undefined ? { action: offer.action } : { action: offer.action, weapon: offer.weapon };
+      }
+    }
+    const caseKey = weaponCase ? JSON.stringify(weaponCase) : hand ? JSON.stringify(hand) : dungeon ? JSON.stringify(dungeon) : (item ?? '');
     if (
       kind !== this.actionKind ||
       merchant !== this.actionMerchant ||
@@ -206,6 +216,7 @@ export class HudPresenter {
       if (kind === 'portal') this.events.emit('action:context', { kind, amount, enabled, portal: portalKind, locked });
       else if (weaponCase) this.events.emit('action:context', { kind, amount, enabled, weaponCase });
       else if (hand) this.events.emit('action:context', { kind, amount, enabled, hand });
+      else if (dungeon) this.events.emit('action:context', { kind, amount, enabled, dungeon });
       else if (merchant) this.events.emit('action:context', { kind, amount, enabled, merchant });
       else if (item) this.events.emit('action:context', { kind, amount, enabled, item });
       else this.events.emit('action:context', { kind, amount, enabled });

@@ -44,15 +44,21 @@ describe('room templates (spec 09 §3.2)', () => {
     ]);
   });
 
-  it('accepts every template of the mansion, drawn and mirrored, with the sizes of the bank', () => {
-    const list = testTemplates();
-    const byType = new Map<string, number>();
-    for (const t of list) {
-      expect(validateRoomTemplate(t), t.id).toEqual([]);
-      expect(validateRoomTemplate(mirrorTemplate(t)), `${t.id} (espejo)`).toEqual([]);
-      byType.set(t.type, (byType.get(t.type) ?? 0) + 1);
+  it('accepts every template of the three ambients, drawn and mirrored, with the sizes of the bank', () => {
+    for (const ambient of ['mansion', 'basement', 'garden'] as const) {
+      const list = testTemplates(ambient);
+      const byType = new Map<string, number>();
+      for (const t of list) {
+        expect(t.ambient).toBe(ambient);
+        expect(validateRoomTemplate(t), t.id).toEqual([]);
+        expect(validateRoomTemplate(mirrorTemplate(t)), `${t.id} (espejo)`).toEqual([]);
+        byType.set(t.type, (byType.get(t.type) ?? 0) + 1);
+      }
+      expect(Object.fromEntries(byType), ambient).toEqual(DUNGEON.bank);
     }
-    expect(Object.fromEntries(byType)).toEqual(DUNGEON.bank);
+    // The garden is fenced, with grass and patio; the basement is concrete.
+    expect(testTemplates('garden').find((t) => t.type === 'start')?.grid[0]).toMatch(/^F+ooF+$/);
+    expect(testTemplates('basement').find((t) => t.type === 'start')?.grid[1]).toMatch(/^#c+#$/);
   });
 
   it('mirrors a template left to right: the holes stay, the furniture and the points move', () => {

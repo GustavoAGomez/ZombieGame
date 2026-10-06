@@ -47,7 +47,7 @@ export interface WeaponSlotState {
 export type BulletLook = 'normal' | 'upgraded' | 'boosted' | 'special' | 'fire';
 
 /** What the contextual action chip would do for a player right now. */
-export type ContextAction = 'none' | 'repair' | 'door' | 'portal' | 'merchant' | 'weaponCase' | 'hand' | 'pickup';
+export type ContextAction = 'none' | 'repair' | 'door' | 'portal' | 'merchant' | 'weaponCase' | 'hand' | 'pickup' | 'dungeon';
 
 /**
  * Where the Demon's Hand is in its sequence (spec 06 §3.4): waiting in its
@@ -275,6 +275,8 @@ export type ZombieAi = 'toWindow' | 'tearing' | 'climbing' | 'entering' | 'chasi
 export interface ZombieState {
   active: boolean;
   kind: ZombieKind;
+  /** An elite (spec 09 §5.2): more life and speed, more money, a golden aura. */
+  elite: boolean;
   ai: ZombieAi;
   x: number;
   y: number;
@@ -666,6 +668,7 @@ function createZombie(): ZombieState {
   return {
     active: false,
     kind: 'walker',
+    elite: false,
     ai: 'idle',
     x: 0,
     y: 0,

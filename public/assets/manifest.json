@@ -1177,6 +1177,20 @@
       "frameHeight": 32,
       "frames": 6,
       "placeholder": false
+    },
+    "pickup_key": {
+      "file": "sprites/objects/pickup_key.png",
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "frames": 1,
+      "placeholder": true
+    },
+    "pickup_boss_key": {
+      "file": "sprites/objects/pickup_boss_key.png",
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "frames": 1,
+      "placeholder": true
     }
   },
   "maps": {
@@ -3857,6 +3871,8 @@
   },
   "tilesetData": "tiles/tilesets.json",
   "rooms": {
-    "mansion": "rooms/mansion.json"
+    "mansion": "rooms/mansion.json",
+    "garden": "rooms/garden.json",
+    "basement": "rooms/basement.json"
   }
 }

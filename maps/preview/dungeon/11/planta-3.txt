@@ -1,0 +1,259 @@
+____________________________________________________________________________________________________________________________________________________________________________
+____________________________________________________________________________________________________________________________________________________________________________
+____________________________________________________________________________________________________________________________________________________________________________
+____________________________________________________________________________________________________________________________________________________________________________
+____________________________________________________________________________________________________________________________________________________________________________
+____________________________________________________________________________________________________________________________________________________________________________
+____________________________________________________________________________________________________________________________________________________________________________
+____________________________________________________________________________________________________________________________________________________________________________
+____________________________________________________________________________________________________________________________________________________________________________
+_______________________________________________________________________________________________FFFFFFFFF##FFFFFFFFFFFFFFFFF##FFFFFFFFF______________________________________
+_______________________________________________________________________________________________FgggggggggggggggggggggggggggggggggggggF______________________________________
+_______________________________________________________________________________________________FgggggggggggggggggggggggggggggggggggggF______________________________________
+_______________________________________________________________________________________________FgggggggggggggggggggggggggggggggggggggF______________________________________
+_______________________________________________________________________________________________FgggggggggggggggggggggggggggggggggggggF______________________________________
+_______________________________________________________________________________________________#ggggggggggggggggggggggggggggggggggggg#______________________________________
+_______________________________________________________________________________________________#gggggggggggpppppppppppppppggggggggggg#______________________________________
+_______________________________________________________________________________________________FgggggggggggpppppppppppppppgggggggggggF______________________________________
+_______________________________________________________________________________________________FgggggggggggpppppppppppppppgggggggggggF______________________________________
+_______________________________________________________________________________________________FgggggggggggpppppppppppppppgggggggggggF______________________________________
+_______________________________________________________________________________________________FgggggggggggpppppppppppppppgggggggggggF______________________________________
+_______________________________________________________________________________________________FgggggggggggpppppppppppppppgggggggggggF______________________________________
+_______________________________________________________________________________________________FgggggggggggpppppppppppppppgggggggggggF______________________________________
+_______________________________________________________________________________________________FgggggggggggggggggggggggggggggggggggggF______________________________________
+_______________________________________________________________________________________________#ggggggggggggggggggggggggggggggggggggg#______________________________________
+_______________________________________________________________________________________________#ggggggggggggggggggggggggggggggggggggg#______________________________________
+_______________________________________________________________________________________________FgggggggggggggggggggggggggggggggggggggF______________________________________
+_______________________________________________________________________________________________FgggggggggggggggggggggggggggggggggggggF______________________________________
+____________________________________________________________________________FFFFFFFFF##FFFFFFFFFFFFFFFFF##FFFFFFFFFFFFFFFFFDDFFFFFFFFF______________________________________
+____________________________________________________________________________FggggggggggggggggggF__________________FggggggggggggggggggF______________________________________
+____________________________________________________________________________FggggggggggggggggggF__________________FggggggggggggggggggF______________________________________
+____________________________________________________________________________FggggggppppppggggggF__________________FggggggggggggggggggF______________________________________
+____________________________________________________________________________FggggggppppppggggggF__________________FggggggggggggggggggF______________________________________
+____________________________________________________________________________#ggggggppppppgggggg#__________________#gggggggggggggggggg#______________________________________
+____________________________________________________________________________#ggggggpppPppgggggg#__________________#gggggggggggggggggg#______________________________________
+____________________________________________________________________________FggggggggggggggggggF__________________FggggggggggggggggggF______________________________________
+____________________________________________________________________________FggggggggggggggggggF__________________FggggggggggggggggggF______________________________________
+_________________________________________________________FFFFFFFFF##FFFFFFFFFFFFFFFFFDDFFFFFFFFFFFFFFFFF##FFFFFFFFFFFFFFFFFDDFFFFFFFFFFFFFFFFF##FFFFFFFFFFFFFFFFF##FFFFFFFFF
+_________________________________________________________FggggggggggggggggggFgggggFggggggggggggFggggggggggggggggggFggggggggggggggggggFggggggggggggggggggFggggggggggggggggggF
+_________________________________________________________FggggggggggggggggggFgggggFggggggggggggFggggggggggggggggggFggggggggggggggggggFgggggppppppppgggggFggggggggggggggggggF
+_________________________________________________________FggggggggggggggggggFgggggFggggggggggggFggggggeeeeeeggggggFggggggggggggggggggFgggggppppppppgggggFgggggggdddddggggggF
+_________________________________________________________FggggggggggggggggggFggggggggggggggggggFggggggewwwweggggggFppppppppppppppppppFgggggppppppppgggggFgggggggdddddggggggF
+_________________________________________________________#ggggggggggggggggggDggggggggggggggggggDggggggewwwweggggggDppppppppppppppppppDgggggppppppppgggggDgggggggdddddgggggg#
+_________________________________________________________#ggggggggggggggggggDggggggggggggFgggggDggggggeeeeeeggggggDggggggggggggggggggDgggggppppppppgggggDgggggggdddddgggggg#
+_________________________________________________________FggggggggggggggggggFggggggggggggFgggggFggggggggggggggggggFggggggggggggggggggFgggggppppppppgggggFgggggggdddddggggggF
+_________________________________________________________FggggggggggggggggggFggggggggggggFgggggFggggggggggggggggggFggggggggggggggggggFggggggggggggggggggFggggggggggggggggggF
+_________________________________________________________FFFFFFFFFDDFFFFFFFFFFFFFFFFF##FFFFFFFFFFFFFFFFFDDFFFFFFFFFFFFFFFFF##FFFFFFFFFFFFFFFFFDDFFFFFFFFFFFFFFFFF##FFFFFFFFF
+_________________________________________________________FggggggggggggggggggF__________________FppppppppppppppppppF__________________FggggggggggggggggggF___________________
+_________________________________________________________FgggggggggggddddddgF__________________FppppppppppppppppppF__________________FggggggggggggggggggF___________________
+_________________________________________________________FgggggggggggddddddgF__________________FppppppppppppppppppF__________________FggggggggggggggggggF___________________
+_________________________________________________________FgggggggggggddddddgF__________________FppppppppppppppppppF__________________FggggggggggggggggggF___________________
+_________________________________________________________#gggggggggggddddddg#__________________#pppppppppppppppppp#__________________#gggggggggggggggggg#___________________
+_________________________________________________________#gggggggggggddddddg#__________________#pppppppppppppppppp#__________________#gggggggggggggggggg#___________________
+_________________________________________________________FgggggggggggddddddgF__________________FppppppppppppppppppF__________________FggggggggggggggggggF___________________
+_________________________________________________________FggggggggggggggggggF__________________FppppppppppppppppppF__________________FggggggggggggggggggF___________________
+_________________________________________________________FFFFFFFFF##FFFFFFFFF__________________FFFFFFFFFDDFFFFFFFFFFFFFFFFF##FFFFFFFFFFFFFFFFF##FFFFFFFFF___________________
+_______________________________________________________________________________________________FppppppppppppppppppFggggggggggggggggggF______________________________________
+_______________________________________________________________________________________________FppppppppppppppppppFggggggggggggggggggF______________________________________
+_______________________________________________________________________________________________FppppppppppppppppppFggggggppppppggggggF______________________________________
+_______________________________________________________________________________________________FppppppppppppppppppFggggggppppppggggggF______________________________________
+_______________________________________________________________________________________________#ppppppppppppppppppDggggggppppppgggggg#______________________________________
+_______________________________________________________________________________________________#ppppppppppppppppppDggggggppppppgggggg#______________________________________
+_______________________________________________________________________________________________FppppppppppppppppppFggggggggggggggggggF______________________________________
+_______________________________________________________________________________________________FppppppppppppppppppFggggggggggggggggggF______________________________________
+_______________________________________________________________________________________________FFFFFFFFF##FFFFFFFFFFFFFFFFF##FFFFFFFFF______________________________________
+
+## Zonas (una por sala del plano; planta 3, garden)
+| id | nombre | inicial | precio | interior | spawns abiertos | semilla | paredes | contiene |
+|---|---|---|---|---|---|---|---|---|
+| r0 | Inicio | sí | — | no | no | 85,35 | — | garden/start_01 (espejo) |
+| r1 | Sala | no | — | no | no | 85,37 | — | garden/combat_07 |
+| r2 | Sala | no | — | no | no | 104,44 | — | garden/combat_06 |
+| r3 | Sala | no | — | no | no | 66,44 | — | garden/combat_05 (espejo) |
+| r4 | Sala | no | — | no | no | 123,37 | — | garden/combat_04 (espejo) |
+| r5 | Sala | no | — | no | no | 104,46 | — | garden/combat_08 |
+| r6 | Sala | no | — | no | no | 66,46 | — | garden/combat_03 (espejo) |
+| r7 | Sala | no | — | no | no | 123,28 | — | garden/combat_01 (espejo) |
+| r8 | Sala | no | — | no | no | 142,44 | — | garden/combat_02 (espejo) |
+| r9 | Sala | no | — | no | no | 104,55 | — | garden/combat_08 |
+| r10 | Arena | no | — | no | no | 104,26 | — | garden/boss_01 |
+| r11 | La Mano | no | — | no | no | 153,41 | — | garden/hand_01 (espejo) |
+| r12 | Élite | no | — | no | no | 142,46 | — | garden/elite_02 |
+| r13 | Tesoro | no | — | no | no | 115,59 | — | garden/treasure_01 (espejo) |
+
+## Puertas (D): entre dos salas del plano; las cierra y abre la mazmorra, no se compran
+| id | casillas | de | a |
+|---|---|---|---|
+| D1 | 85,36 86,36 | r0 | r1 |
+| D2 | 76,41 76,42 | r1 | r3 |
+| D3 | 95,41 95,42 | r1 | r2 |
+| D4 | 104,45 105,45 | r2 | r5 |
+| D5 | 114,41 114,42 | r2 | r4 |
+| D6 | 66,45 67,45 | r3 | r6 |
+| D7 | 123,36 124,36 | r4 | r7 |
+| D8 | 133,41 133,42 | r4 | r8 |
+| D9 | 104,54 105,54 | r5 | r9 |
+| D10 | 123,27 124,27 | r7 | r10 |
+| D11 | 142,45 143,45 | r8 | r12 |
+| D12 | 152,41 152,42 | r8 | r11 |
+| D13 | 114,59 114,60 | r9 | r13 |
+
+## Jugador
+| casilla |
+|---|
+| 86,33 |
+
+## Enemigos (puntos de aparición de cada sala)
+| id | casilla | zona |
+|---|---|---|
+| E1_1 | 80,43 | r1 |
+| E1_2 | 91,43 | r1 |
+| E1_3 | 80,38 | r1 |
+| E1_4 | 90,40 | r1 |
+| E1_5 | 86,41 | r1 |
+| E2_1 | 99,43 | r2 |
+| E2_2 | 110,43 | r2 |
+| E2_3 | 99,40 | r2 |
+| E2_4 | 110,41 | r2 |
+| E2_5 | 100,38 | r2 |
+| E3_1 | 72,38 | r3 |
+| E3_2 | 61,43 | r3 |
+| E3_3 | 72,41 | r3 |
+| E3_4 | 61,41 | r3 |
+| E3_5 | 62,39 | r3 |
+| E4_1 | 129,38 | r4 |
+| E4_2 | 118,43 | r4 |
+| E4_3 | 118,41 | r4 |
+| E4_4 | 119,43 | r4 |
+| E5_1 | 99,52 | r5 |
+| E5_2 | 110,47 | r5 |
+| E5_3 | 109,49 | r5 |
+| E5_4 | 100,50 | r5 |
+| E5_5 | 105,49 | r5 |
+| E6_1 | 72,52 | r6 |
+| E6_2 | 61,52 | r6 |
+| E6_3 | 62,51 | r6 |
+| E6_4 | 71,48 | r6 |
+| E7_1 | 129,32 | r7 |
+| E7_2 | 118,34 | r7 |
+| E7_3 | 128,31 | r7 |
+| E7_4 | 119,31 | r7 |
+| E8_1 | 148,43 | r8 |
+| E8_2 | 137,41 | r8 |
+| E8_3 | 148,38 | r8 |
+| E8_4 | 138,39 | r8 |
+| E9_1 | 99,61 | r9 |
+| E9_2 | 110,56 | r9 |
+| E9_3 | 109,58 | r9 |
+| E9_4 | 100,59 | r9 |
+| E9_5 | 105,58 | r9 |
+| E12_1 | 148,50 | r12 |
+| E12_2 | 147,52 | r12 |
+| E12_3 | 142,49 | r12 |
+| E12_4 | 138,49 | r12 |
+| E12_5 | 148,49 | r12 |
+
+## Magos
+| id | casilla | zona |
+|---|---|---|
+| M1_1 | 94,44 | r1 |
+| M2_1 | 96,44 | r2 |
+| M3_1 | 75,37 | r3 |
+| M4_1 | 132,44 | r4 |
+| M5_1 | 96,53 | r5 |
+| M6_1 | 75,53 | r6 |
+| M7_1 | 132,35 | r7 |
+| M8_1 | 134,44 | r8 |
+| M9_1 | 96,62 | r9 |
+| M12_1 | 134,53 | r12 |
+
+## Cofre
+| id | casilla | zona |
+|---|---|---|
+| C10_1 | 114,22 | r10 |
+| C13_1 | 124,60 | r13 |
+| C13_2 | 120,58 | r13 |
+
+## Bosses
+| id | casilla | zona |
+|---|---|---|
+| B10_1 | 114,18 | r10 |
+
+## Mano
+| id | casilla | zona |
+|---|---|---|
+| H11_1 | 162,41 | r11 |
+
+## Atrezo
+| id | objeto | casillas | colisión | volteo |
+|---|---|---|---|---|
+| A0_A1 | prop_mesa_jardin | 86,31 87,31 | sí | h |
+| A0_A2 | prop_farola | 93,28 93,29 | sí | h |
+| A0_A3 | prop_buzon | 79,28 | sí | h |
+| A0_A4 | prop_flotador | 81,34 | no | h |
+| A1_A1 | prop_seto | 78,40 81,40 | sí | — |
+| A1_A2 | prop_arbol | 91,37 93,39 | sí | — |
+| A1_A3 | prop_flotador | 86,39 | no | — |
+| A2_A1 | prop_tumbona | 98,38 98,39 | sí | — |
+| A2_A2 | prop_tumbona | 110,38 110,39 | sí | — |
+| A2_A3 | prop_flotador | 100,43 | no | — |
+| A2_A4 | prop_barbacoa_volcada | 111,43 | sí | — |
+| A3_A1 | prop_arbol | 66,39 68,41 | sí | h |
+| A3_A2 | prop_seto | 71,43 74,43 | sí | h |
+| A3_A3 | prop_seto | 60,37 63,37 | sí | h |
+| A3_A4 | prop_tumbona | 60,43 60,44 | sí | h |
+| A3_A5 | prop_flotador | 73,38 | no | h |
+| A4_A1 | prop_coche | 120,38 121,39 | sí | h |
+| A4_A2 | prop_coche | 128,42 129,43 | sí | h |
+| A4_A3 | prop_farola | 117,37 117,38 | sí | h |
+| A4_A4 | prop_buzon | 131,37 | sí | h |
+| A4_A5 | prop_mancha_aceite | 125,41 | no | h |
+| A5_A1 | prop_coche | 98,47 99,48 | sí | — |
+| A5_A2 | prop_coche | 109,51 110,52 | sí | — |
+| A5_A3 | prop_cajas | 111,46 112,47 | sí | — |
+| A5_A4 | prop_bidon | 101,51 | sí | — |
+| A5_A5 | prop_bidon | 106,47 | sí | — |
+| A5_A6 | prop_mancha_aceite | 104,50 | no | — |
+| A5_A7 | prop_herramientas_suelo | 107,52 | no | — |
+| A6_A1 | prop_seto_lateral | 63,46 63,49 | sí | h |
+| A6_A2 | prop_cajas | 59,52 60,53 | sí | h |
+| A6_A3 | prop_bidon | 66,50 | sí | h |
+| A6_A4 | prop_flotador | 61,47 | no | h |
+| A7_A1 | prop_seto | 128,29 131,29 | sí | h |
+| A7_A2 | prop_seto | 117,33 120,33 | sí | h |
+| A7_A3 | prop_arbol | 117,28 119,30 | sí | h |
+| A7_A4 | prop_tumbona | 130,34 130,35 | sí | h |
+| A7_A5 | prop_flotador | 122,31 | no | h |
+| A8_A1 | prop_mesa_jardin | 143,39 144,39 | sí | h |
+| A8_A2 | prop_mesa_jardin | 141,42 142,42 | sí | h |
+| A8_A3 | prop_barbacoa_volcada | 137,38 | sí | h |
+| A8_A4 | prop_farola | 151,37 151,38 | sí | h |
+| A8_A5 | prop_bidon | 136,43 | sí | h |
+| A9_A1 | prop_coche | 98,56 99,57 | sí | — |
+| A9_A2 | prop_coche | 109,60 110,61 | sí | — |
+| A9_A3 | prop_cajas | 111,55 112,56 | sí | — |
+| A9_A4 | prop_bidon | 101,60 | sí | — |
+| A9_A5 | prop_bidon | 106,56 | sí | — |
+| A9_A6 | prop_mancha_aceite | 104,59 | no | — |
+| A9_A7 | prop_herramientas_suelo | 107,61 | no | — |
+| A10_A1 | prop_arbol | 98,12 100,14 | sí | — |
+| A10_A2 | prop_arbol | 128,12 130,14 | sí | — |
+| A10_A3 | prop_arbol | 98,22 100,24 | sí | — |
+| A10_A4 | prop_arbol | 128,22 130,24 | sí | — |
+| A10_A5 | prop_bidon | 106,16 | sí | — |
+| A10_A6 | prop_bidon | 122,20 | sí | — |
+| A10_A7 | prop_flotador | 120,15 | no | — |
+| A10_A8 | prop_mancha_aceite | 108,21 | no | — |
+| A10_A9 | prop_escombros | 114,25 | no | — |
+| A11_A1 | prop_charco_sangre | 165,39 | no | h |
+| A11_A2 | prop_charco_sangre | 159,42 | no | h |
+| A11_A3 | prop_escombros | 168,43 | no | h |
+| A11_A4 | prop_cajas | 154,37 155,38 | sí | h |
+| A12_A1 | prop_arbol | 136,46 138,48 | sí | — |
+| A12_A2 | prop_arbol | 148,46 150,48 | sí | — |
+| A12_A3 | prop_arbol | 139,51 141,53 | sí | — |
+| A12_A4 | prop_seto | 145,51 148,51 | sí | — |
+| A12_A5 | prop_flotador | 143,48 | no | — |
+| A13_A1 | prop_farola | 131,55 131,56 | sí | h |
+| A13_A2 | prop_buzon | 117,55 | sí | h |
+| A13_A3 | prop_flotador | 129,62 | no | h |

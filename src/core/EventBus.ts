@@ -1,5 +1,5 @@
 import type { Ambient, RoomType } from '../config/dungeon';
-import type { Cell } from './RunState';
+import type { Cell, ChestState, DoorKind, DungeonAction } from './RunState';
 import type { BoostKind, PickupKind, ZombieKind } from '../config/balance';
 import type { AmmoKind, UpgradeKind, WeaponId } from '../config/weapons';
 import type { MerchantId, MerchantItemId } from '../config/merchants';
@@ -137,7 +137,7 @@ export interface GameEvents {
    * Points added to a player. With a world position (x, y) the "+N" floats
    * up from there (repaired window); otherwise it floats in the HUD.
    */
-  'points:gained': { playerId: number; amount: number; reason: 'repair' | 'hit' | 'kill'; x?: number; y?: number };
+  'points:gained': { playerId: number; amount: number; reason: 'repair' | 'hit' | 'kill' | 'room' | 'chest'; x?: number; y?: number };
   /**
    * Contextual action chip. kind null hides it. For 'repair', amount is the
    * points per plank (0 once the round's repair limit is reached). For
@@ -145,9 +145,11 @@ export interface GameEvents {
    * missing. A `locked` portal is a second entrance not yet buyable.
    */
   'action:context': {
-    kind: 'repair' | 'door' | 'portal' | 'merchant' | 'weaponCase' | 'hand' | 'pickup' | null;
+    kind: 'repair' | 'door' | 'portal' | 'merchant' | 'weaponCase' | 'hand' | 'pickup' | 'dungeon' | null;
     amount: number;
     enabled: boolean;
+    /** With kind 'dungeon' (spec 09 §4.1, §6): a chest, a keyed door, the challenge's warning or the way down; `weapon` what the treasure's case holds. */
+    dungeon?: { action: DungeonAction; weapon?: WeaponId | null };
     portal?: 'stairs' | 'hatch';
     locked?: boolean;
     /** With kind 'merchant': whose shop the button opens. */
@@ -234,13 +236,21 @@ export interface GameEvents {
   /** The dungeon (spec 09 §4): a floor begins, with its plan for the minimap. */
   'dungeon:floor': { floor: number; ambient: Ambient; width: number; height: number; rooms: { type: RoomType; cells: Cell[]; neighbours: number[] }[]; start: number };
   /** The rooms' state for the minimap and the wizard's counter (§4.2): which are visited and cleared, the current one, enemy rooms cleared towards the wizard. */
-  'dungeon:rooms': { current: number; visited: boolean[]; cleared: boolean[]; counter: number };
+  'dungeon:rooms': { current: number; visited: boolean[]; cleared: boolean[]; counter: number; keys: number; bossKey: boolean };
   /** A room's doors shut behind the player (§4); strong haptic, a sound. */
   'dungeon:roomLocked': { room: number };
   /** A wave is coming (§4): a shadow at each point for the warning's length, and a sound. */
   'dungeon:spawnWarning': { room: number; points: { x: number; y: number }[]; seconds: number };
   /** The last enemy fell: the doors open (§4). `counter` is the wizard's. */
   'dungeon:roomCleared': { room: number; counter: number };
+  /** A chest opened (§6.2): its kind. */
+  'dungeon:chestOpened': { kind: ChestState['kind']; x: number; y: number };
+  /** A keyed door opened with its key (§4.1). */
+  'dungeon:doorUnlocked': { kind: DoorKind; x: number; y: number };
+  /** The boss is dead: the trapdoor appeared (§4); the run is `won` on the last floor. */
+  'dungeon:trapdoor': { x: number; y: number; won: boolean };
+  /** The player goes down (§4). */
+  'dungeon:descend': { floor: number };
 }
 
 type Handler<P> = (payload: P) => void;

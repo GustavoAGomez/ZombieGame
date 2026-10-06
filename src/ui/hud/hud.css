@@ -409,6 +409,21 @@
   background: var(--amber);
 }
 
+/* The dungeon's keys under the money (spec 09 §4.2): amber, red with the boss's. */
+.hud-keys {
+  font-size: 9px;
+  color: var(--amber);
+  text-shadow: 2px 2px 0 var(--ink);
+}
+
+.hud-keys:empty {
+  display: none;
+}
+
+.hud-keys.is-boss {
+  color: var(--red-low);
+}
+
 /* Money ($) under the points, in green, no label. */
 .hud-money {
   font-family: var(--font-display);

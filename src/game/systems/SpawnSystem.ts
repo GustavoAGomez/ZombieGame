@@ -159,6 +159,7 @@ export function spawnZombie(ctx: SimContext, z: ZombieState, spawnIndex: number)
   const round = state.wave.round;
   z.active = true;
   z.kind = pickZombieKind(round, random(state));
+  z.elite = false;
   z.x = z.prevX = spawn.x;
   z.y = z.prevY = spawn.y;
   z.maxHp = zombieHp(round);

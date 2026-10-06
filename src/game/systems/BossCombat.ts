@@ -1,3 +1,4 @@
+import { rules } from '../rules';
 import { BOSS, CONTINUOUS, POINTS, SIM } from '../../config/balance';
 import { BOSSES } from '../../config/bosses';
 import type { BossState } from '../../core/GameState';
@@ -87,7 +88,8 @@ export function damageBoss(ctx: SimContext, b: BossState, amount: number, attack
     b.enraged = true;
     b.furyPending = true;
   }
-  if (attacker >= 0 && hitPoints > 0) awardPoints(ctx, attacker, hitPoints, 'hit');
+  // The dungeon pays no hits (spec 09 §6.2), on a boss either.
+  if (attacker >= 0 && hitPoints > 0 && rules(ctx.state).points.hit > 0) awardPoints(ctx, attacker, hitPoints, 'hit');
   const feet = bossFeetY(b, ctx.map.tileSize);
   if (hit) ctx.events.emit('zombie:hit', { x: hit.x, y: hit.y, groundY: feet, dirX: hit.dirX, dirY: hit.dirY, killed: b.hp <= 0, weapon: hit.weapon });
   if (b.hp > 0) return false;
@@ -104,7 +106,8 @@ export function killBoss(ctx: SimContext, b: BossState): void {
   b.burn.timer = 0;
   b.waveTime = -1;
   ctx.events.emit('boss:killed', { x: b.x, y: b.y, boss: b.boss, variant: b.variant });
-  bossRewards(ctx, b.x, b.y);
+  // The dungeon gives its own (spec 09 §5.3: life, the trapdoor), in DungeonSystem.
+  if (rules(ctx.state).bossRewards) bossRewards(ctx, b.x, b.y);
 }
 
 const scoreTicks = Math.round(CONTINUOUS.scoreInterval * SIM.hz);

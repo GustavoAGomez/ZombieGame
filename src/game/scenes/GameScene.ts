@@ -46,12 +46,15 @@ import { buildCollisionGrid } from '../map/CollisionGrid';
 import type { MapData } from '../map/MapLoader';
 import { MapView } from '../map/MapView';
 import { cameraBounds, computeLevels, type MapLevels } from '../map/levels';
-import { createRunState } from '../dungeon/run';
+import { createRunState, descend } from '../dungeon/run';
 import { bankOf } from '../dungeon/templates';
 import { assembleFloor, templatesById } from '../dungeon/assembleFloor';
 import { dungeonMusic } from '../systems/DungeonSystem';
 import { SpawnMarks } from '../entities/SpawnMarks';
+import { DungeonViews } from '../entities/DungeonViews';
 import { DUNGEON, floorConfig } from '../../config/dungeon';
+import type { RunState } from '../../core/RunState';
+import type { RunCarry } from './BootScene';
 import type { Services } from '../services';
 import { activeBulletCount } from '../systems/BulletSystem';
 import { isZombieAlive } from '../systems/Combat';
@@ -85,6 +88,13 @@ export class GameScene extends Phaser.Scene {
   /** The match's seed (spec 09 §1), shown in the debug panel. */
   private seed = 0;
   private spawnMarks!: SpawnMarks;
+  private dungeonViews!: DungeonViews;
+  /** Spec 09 §10: whether this run counts for the records. */
+  private recordable = true;
+  /** The scene is already going down to the next floor. */
+  private descended = false;
+  /** The run coming down from the floor above (spec 09 §4), or null. */
+  private carry: RunCarry | null = null;
   /** The dungeon's camera (spec 09 §4): the room it shows, sliding from the last one. */
   private roomCamera: { room: number; from: CameraRect; to: CameraRect; t: number } | null = null;
   private state!: GameState;
@@ -152,6 +162,7 @@ export class GameScene extends Phaser.Scene {
   init(data: GameSceneData): void {
     this.services = data.services;
     this.assets = data.assets;
+    this.carry = data.carry ?? null;
   }
 
   create(): void {
@@ -160,18 +171,28 @@ export class GameScene extends Phaser.Scene {
     const seed = this.services.seed ?? Date.now() | 0;
     this.seed = seed;
     const mode = this.services.mode;
-    let run = null;
+    let run: RunState | null = null;
+    const carry = this.carry;
+    this.recordable = carry ? carry.recordable : !this.services.debug && this.services.seed === null;
+    this.descended = false;
     if (mode === 'dungeon') {
-      // The dungeon's first floor (spec 09 §3.3): its plan from the seed, its map assembled from the ambient's templates.
-      const templates = this.assets.roomTemplates(floorConfig(1).ambient);
+      // The dungeon's floor (spec 09 §3.3): the run going down, or a new one from the seed; its map assembled from the ambient's templates.
+      const floorRun = carry?.run ?? createRunState(seed, bankOf(this.assets.roomTemplates(floorConfig(1).ambient)));
+      const templates = this.assets.roomTemplates(floorRun.plan.ambient);
       const tilesets = this.assets.tilesetData();
-      if (templates.length === 0 || !tilesets) throw new Error('La mazmorra necesita sus plantillas y los tilesets: npm run rooms:build');
-      run = createRunState(seed, bankOf(templates));
-      this.map = assembleFloor(run.plan, templatesById(templates), tilesets);
+      if (templates.length === 0 || !tilesets) throw new Error(`La mazmorra necesita las plantillas de ${floorRun.plan.ambient} y los tilesets: npm run rooms:build`);
+      this.map = assembleFloor(floorRun.plan, templatesById(templates), tilesets);
+      run = floorRun;
     } else {
       this.map = this.assets.mapOrDefault(this.services.mapKey);
     }
     this.state = createGameState(this.map, { seed, startRound: this.services.startRound, mode, run });
+    // Down a floor (spec 09 §4): the player keeps life, weapons, ammo, money and items; only the place is new.
+    const local = this.state.players[0];
+    if (carry && local) {
+      Object.assign(local, carry.player, { weapons: carry.player.weapons.map((w) => ({ ...w, levels: { ...w.levels } })), items: [...carry.player.items] });
+      this.seed = carry.run.seed;
+    }
     // The gun's drawn muzzle per direction, from the player art: bullets are drawn and hit from there.
     const muzzles: MuzzleTable = Array.from({ length: 8 }, (_, dir) =>
       muzzleOffset(this.assets.manifest.characters[ASSET_KEYS.player], angleFromDir8(dir), { x: 0, y: 0 }),
@@ -232,6 +253,7 @@ export class GameScene extends Phaser.Scene {
     this.cantUseText = new CantUseText(this, events);
     this.thrownItems = new ThrownItemViews(this, events, manifest);
     this.spawnMarks = new SpawnMarks(this);
+    this.dungeonViews = new DungeonViews(this);
     this.debugDraw = new DebugDraw(this, this.map);
     this.services.debugActions = this.createDebugActions();
     this.syncViews(0);
@@ -295,10 +317,31 @@ export class GameScene extends Phaser.Scene {
     this.handView.sync(this.state.hand, this.state.time, effectsDt, this.state.zonesUnlocked[handZone] === true);
     if (player) this.playerStains.sync(player, this.playerView.sprite, effectsDt);
     this.spawnMarks.sync(this.state.run);
+    this.dungeonViews.sync(this.state.run);
     this.debugDraw.draw(this.state, this.sim.nav, this.sim.grid);
     this.presenter.publish(this.state);
     this.updateStats();
     this.checkGameOver(delta);
+    this.checkDescent();
+  }
+
+  /** BAJAR was tapped (spec 09 §4): the next floor, with the player as they are, behind the floor's banner. */
+  private checkDescent(): void {
+    const run = this.state.run;
+    if (!run?.descending || this.descended) return;
+    this.descended = true;
+    this.scene.restart({ services: this.services, assets: this.assets, carry: this.carryOf(descend(run, bankOf(this.assets.roomTemplates(floorConfig(run.floor + 1).ambient)))) });
+  }
+
+  /** What goes down with the player (spec 09 §4). */
+  private carryOf(run: RunState): RunCarry {
+    const p = this.state.players[0];
+    if (!p) throw new Error('no player to carry');
+    return {
+      run,
+      player: { hp: p.hp, maxHp: p.maxHp, weapons: p.weapons.map((w) => ({ ...w, levels: { ...w.levels } })), activeSlot: p.activeSlot, money: p.money, score: p.score, items: [...p.items], boostStored: p.boostStored },
+      recordable: this.recordable,
+    };
   }
 
   /** What the audio needs every frame (spec 08 §1.3): the pause, and the local player's beam or jet and the laser's heat. */
@@ -368,9 +411,11 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  /** Every player is dead: a moment to see it, then the game over screen. */
+  /** Every player is dead (or the run is won, spec 09 §10): a moment to see it, then the game over screen. */
   private checkGameOver(delta: number): void {
-    if (this.overShown || this.state.wave.phase !== 'over') return;
+    const run = this.state.run;
+    const won = run?.outcome === 'won';
+    if (this.overShown || (this.state.wave.phase !== 'over' && !won)) return;
     this.overFor += delta;
     if (this.overFor < GAME_OVER_DELAY_MS) return;
     this.overShown = true;
@@ -385,6 +430,17 @@ export class GameScene extends Phaser.Scene {
       rounds: roundsSurvived(this.state),
       score: this.state.players[0]?.score ?? 0,
     };
+    if (run) {
+      const result = { floor: run.floor, rooms: run.roomsCleared, won, time: run.time };
+      const newRecord = this.recordable ? this.services.records.recordRun(result) : false;
+      data.run = {
+        ...result,
+        kills: run.kills,
+        seed: run.seed,
+        newRecord,
+        keepGoing: won ? this.carryOf(descend(run, bankOf(this.assets.roomTemplates(floorConfig(run.floor + 1).ambient)))) : null,
+      };
+    }
     this.scene.launch(SCENE_KEYS.gameOver, data);
   }
 
