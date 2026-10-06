@@ -2470,7 +2470,7 @@
       "placeholder": false,
       "candidate": "B",
       "loopStart": 0.25,
-      "loopEnd": 83.249977
+      "loopEnd": 83.25
     },
     "music_boss__c": {
       "file": "audio/candidates/music_boss__c.m4a",
@@ -2482,36 +2482,36 @@
     },
     "music_calm": {
       "file": "audio/music/music_calm.m4a",
-      "duration": 78.4995,
+      "duration": 78.5,
       "placeholder": false,
       "picked": "A",
       "pending": true,
       "loopStart": 0.25,
-      "loopEnd": 78.249524
+      "loopEnd": 78.25
     },
     "music_calm__a": {
       "file": "audio/candidates/music_calm__a.m4a",
-      "duration": 78.4995,
+      "duration": 78.5,
       "placeholder": false,
       "candidate": "A",
       "loopStart": 0.25,
-      "loopEnd": 78.249524
+      "loopEnd": 78.25
     },
     "music_calm__b": {
       "file": "audio/candidates/music_calm__b.m4a",
-      "duration": 50.1833,
+      "duration": 50.1839,
       "placeholder": false,
       "candidate": "B",
       "loopStart": 0.25,
-      "loopEnd": 49.933288
+      "loopEnd": 49.9339
     },
     "music_calm__c": {
       "file": "audio/candidates/music_calm__c.m4a",
-      "duration": 40.7983,
+      "duration": 40.7985,
       "placeholder": false,
       "candidate": "C",
       "loopStart": 0.25,
-      "loopEnd": 40.548299
+      "loopEnd": 40.548503
     },
     "music_round": {
       "file": "audio/music/music_round.m4a",
@@ -2532,36 +2532,36 @@
     },
     "music_round__b": {
       "file": "audio/candidates/music_round__b.m4a",
-      "duration": 58.5096,
+      "duration": 58.5107,
       "placeholder": false,
       "candidate": "B",
       "loopStart": 0.25,
-      "loopEnd": 58.259569
+      "loopEnd": 58.260726
     },
     "music_round__c": {
       "file": "audio/candidates/music_round__c.m4a",
-      "duration": 52.4989,
+      "duration": 52.5,
       "placeholder": false,
       "candidate": "C",
       "loopStart": 0.25,
-      "loopEnd": 52.248866
+      "loopEnd": 52.25
     },
     "music_title": {
       "file": "audio/music/music_title.m4a",
-      "duration": 30.4974,
+      "duration": 30.5,
       "placeholder": false,
       "picked": "A",
       "pending": true,
       "loopStart": 0.25,
-      "loopEnd": 30.247415
+      "loopEnd": 30.25
     },
     "music_title__a": {
       "file": "audio/candidates/music_title__a.m4a",
-      "duration": 30.4974,
+      "duration": 30.5,
       "placeholder": false,
       "candidate": "A",
       "loopStart": 0.25,
-      "loopEnd": 30.247415
+      "loopEnd": 30.25
     },
     "music_title__b": {
       "file": "audio/candidates/music_title__b.m4a",
@@ -2569,7 +2569,7 @@
       "placeholder": false,
       "candidate": "B",
       "loopStart": 0.25,
-      "loopEnd": 37.333469
+      "loopEnd": 37.333492
     },
     "music_title__c": {
       "file": "audio/candidates/music_title__c.m4a",

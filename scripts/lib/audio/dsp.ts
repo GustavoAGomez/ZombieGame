@@ -162,6 +162,10 @@ export function finishMusic(input: Audio): { audio: Audio; loopStart: number; lo
   let end = frames(a);
   while (start < end && !above(start)) start++;
   while (end > start && !above(end - 1)) end--;
+  // Only real silence: a quiet sample or two at a zero crossing is part of the music (a loop keeps every sample).
+  const run = Math.round(AUDIO_GEN.music.silenceRun * sr);
+  if (start < run) start = 0;
+  if (frames(a) - end < run) end = frames(a);
   const n = end - start;
   const x = Math.min(Math.floor(n / 4), Math.round(crossfade * sr));
   const period = n - x;

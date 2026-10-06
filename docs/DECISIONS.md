@@ -2057,3 +2057,16 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - Tocar una pista o uno de sus candidatos la pone en bucle, una sola a la vez, y otro toque la para.
   - **Probar en partida** también vale para la música: al cerrar el panel, cada estado suena con la pista que esté en prueba.
 - **Peso:** las cuatro pistas del juego ocupan 3,2 MB, fuera del presupuesto de 8 MB de los efectos.
+
+## Audio: documentación (spec 08, fase S6)
+
+- **`docs/AUDIO.md`** reúne cómo está montado el audio, cómo se añade o cambia un sonido, el taller, las fuentes, la dirección de sonido tal como está (con los cambios del usuario sobre la spec), la música, el panel de prueba y los tests.
+- **El taller sale de `docs/ASSETS.md`:** las recetas, el proceso, los acabados, las fuentes y `audio:search` estaban allí y ahora están en `docs/AUDIO.md`. `ASSETS.md` se queda con el formato de las entradas del manifiesto y lo que comprueba `assets:check`, y remite a `AUDIO.md` para lo demás. Así no hay dos copias que se desfasen.
+- **`CLAUDE.md`** recoge:
+  - `audio:gen` y `audio:search`;
+  - Web Audio y ffmpeg en el stack;
+  - la regla 9, «audio por id»;
+  - `src/audio/`, `src/config/audio.ts`, `audio-src/` y `public/assets/audio/` en la estructura.
+- **`docs/ASSETS-TODO.md`:** como ningún sonido tiene candidato elegido, recoge cómo elegir y los sonidos que el usuario pidió cambiar y aún no ha confirmado.
+- **Arreglo en la música:** el recorte del silencio de los extremos quitaba alguna muestra a un bucle que empezaba o acababa en un paso por cero. Así, la calma B perdía 27 muestras por vuelta, la calma C 9 y la ronda B 51. Ahora solo se recorta un silencio de 20 ms o más (`AUDIO_GEN.music.silenceRun`). Un test comprueba que un bucle de 8 s sale con sus 8 s exactos y sin subida de volumen en el fundido.
+

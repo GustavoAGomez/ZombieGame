@@ -2,6 +2,8 @@
 
 Objetos y tiles que el juego ya usa con un placeholder. Cada entrada lleva el prompt sugerido para PixelLab (vista top-down, ángulo *high top-down*, misma paleta que el jugador). Cuando llegue el export, se importa con las herramientas de `docs/ASSETS.md` y se borra de esta lista.
 
+Al final, los sonidos que aún no se han elegido o que no convencen (spec 08).
+
 ## Personajes y efectos
 
 | Clave | Uso | Placeholder actual | Prompt sugerido |
@@ -96,3 +98,32 @@ Ruta prevista del export: `art-src/pixellab/objects/<clave>/`. Ya tienen arte 30
 |---|---|---|---|
 | `decals_interior` (16 de 32×32) | Sangre, arrastres, polvo, escombros, astillas, grietas, pisadas y papeles en suelos interiores | Generados por `tiles:import` con ruido | "top-down decals sheet 4x4, 32x32 each, transparent: blood splats, drag marks, plaster dust, debris, wood splinters, floor cracks, footprints, paper scraps" |
 | `map_shadows` | Sombra suave al pie de paredes y muebles | Generadas por `tiles:import` (negro semitransparente, 6 px) | No hace falta arte: es correcto que sean generadas |
+
+## Sonidos (spec 08)
+
+Ninguna de las 75 recetas tiene todavía un candidato elegido (`"chosen": null`), así que el juego suena con el A de cada una.
+
+**Cómo se elige:**
+
+1. Escucha los candidatos en PRUEBA DE SONIDOS (`docs/AUDIO.md`, sección 7).
+2. Pasa la letra por el chat; COPIAR ELECCIÓN da el texto.
+3. La letra se pone en `chosen` de la receta y se ejecuta `npm run audio:gen`.
+4. El sonido se borra de esta lista.
+
+**Pedidos por el usuario y aún sin su visto bueno:**
+
+| Sonido | Qué se pidió | Qué hay ahora |
+|---|---|---|
+| `jingle.round.start` | Una alternativa al cambio de ronda | Le gusta, pero falta decir qué letra |
+| `jingle.round.clear` | Un final de ronda nuevo | Cuerno, glockenspiel o caja de música con coro; los tres resuelven en La |
+| `impact.flesh` | Que el acierto sea solo un impacto de bala en carne | Balas en carne, golpes de carne o golpes a zombis |
+| `reward.repair` | Un tablón de madera seca, sin metal | Tres golpes de madera secos, de unos 200 ms, y la racha con un «toc» de bloque de madera |
+| `boss.slam`, `boss.stunned` | Un golpe seco y destructivo, sin metal | Roca, piedra, ladrillo y escombros |
+| `boss.dizzy.loop` | Un gruñido confuso, como una queja | Tres lamentos o quejas de zombi más graves, en bucle con un respiro |
+| `music.title`, `music.calm`, `music.round`, `music.boss` | La música (fase S5) | Tres pistas CC0 por estado |
+
+**Pendiente de fuentes:**
+
+- `audio-src/generated/` está vacía. Si algún sonido no aparece en las bibliotecas CC0, se puede generar con IA, pero solo con el permiso del usuario (`docs/AUDIO.md`, sección 4).
+- `audio-src/music/` está vacía. Las pistas que elija el usuario van ahí, con su ficha en `credits.json`.
+- La música del título apenas se oye si el primer toque es JUGAR. Para que se oiga, la pantalla de título tendría que pedir un toque antes de JUGAR.

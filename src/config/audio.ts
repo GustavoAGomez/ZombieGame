@@ -197,20 +197,16 @@ export const AUDIO_GEN = {
   /** Report: a sound with a set `length` may be off it by this much, seconds. */
   lengthTolerance: 0.05,
   /**
-   * The music (§7), M4A (AAC): its loop's end is blended into its start
-   * over `crossfade` s; the file carries `margin` s of the loop itself on
-   * each side, so a decoder that shifts the audio a little still loops
-   * cleanly; a loop lasts 30 to 90 s (`length`).
-   */
-  /**
    * The music (§7): its lows cut, a crossfade into its own start, the loop
    * repeated `margin` s on each side, 30 to 90 s per loop, M4A at
    * `bitrate`, and every track as loud on average (`rmsDb`, its peak at
    * most −1 dB). Above `sameMaterial` of correlation the crossfade's two
    * ends are the same music (a source that already loops): a linear fade,
-   * with no bump in the middle.
+   * with no bump in the middle. Its ends are trimmed only where they are
+   * silent for `silenceRun` s or more: a loop that starts on a zero
+   * crossing keeps every sample.
    */
-  music: { highpass: 40, crossfade: 2, margin: 0.25, length: [30, 90] as const, bitrate: '128k', rmsDb: -18, sameMaterial: 0.5 },
+  music: { highpass: 40, crossfade: 2, margin: 0.25, length: [30, 90] as const, bitrate: '128k', rmsDb: -18, sameMaterial: 0.5, silenceRun: 0.02 },
 } as const;
 
 /** The default of every catalog field a sound does not set. */

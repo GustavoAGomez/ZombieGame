@@ -147,15 +147,15 @@ Bandas: porcentaje de la energía por debajo de 100 Hz, 100–250, 250–1000, 1
 | merchant_arrive_red__c | merchant.arrive | C | Premio | mono | 665 ms | 185 ms | -1.0 dB | -16.8 dB | 3147 Hz | 188 Hz | 2 · 25 · 56 · 13 · 4 |
 | merchant_arrive_gold__c | merchant.arrive | C | Premio | mono | 723 ms | 273 ms | -1.0 dB | -18.7 dB | 2247 Hz | 1764 Hz | 0 · 2 · 21 · 76 · 0 |
 | music_boss__a | music.boss | A ✓ | Música (bucle) | estéreo | 30779 ms | 0 ms | -2.3 dB | -18.0 dB | 3214 Hz | 65 Hz | 61 · 25 · 4 · 9 · 2 |
-| music_boss__b | music.boss | B | Música (bucle) | estéreo | 83500 ms | 0 ms | -3.0 dB | -18.9 dB | 1646 Hz | 91 Hz | 25 · 27 · 36 · 12 · 0 |
+| music_boss__b | music.boss | B | Música (bucle) | estéreo | 83500 ms | 0 ms | -3.0 dB | -18.9 dB | 1647 Hz | 91 Hz | 25 · 27 · 36 · 12 · 0 |
 | music_boss__c | music.boss | C | Música (bucle) | estéreo | 86468 ms | 0 ms | -1.0 dB | -18.8 dB | 2621 Hz | 65 Hz | 51 · 18 · 21 · 10 · 1 |
-| music_calm__a | music.calm | A ✓ | Música (bucle) | estéreo | 78500 ms | 0 ms | -1.0 dB | -22.8 dB | 537 Hz | 347 Hz | 19 · 17 · 63 · 0 · 0 |
-| music_calm__b | music.calm | B | Música (bucle) | estéreo | 50183 ms | 0 ms | -1.0 dB | -21.9 dB | 656 Hz | 438 Hz | 10 · 8 · 80 · 2 · 0 |
-| music_calm__c | music.calm | C | Música (bucle) | estéreo | 40798 ms | 0 ms | -1.0 dB | -21.4 dB | 1085 Hz | 215 Hz | 2 · 26 · 57 · 15 · 0 |
+| music_calm__a | music.calm | A ✓ | Música (bucle) | estéreo | 78500 ms | 0 ms | -1.0 dB | -22.8 dB | 538 Hz | 347 Hz | 20 · 17 · 64 · 0 · 0 |
+| music_calm__b | music.calm | B | Música (bucle) | estéreo | 50184 ms | 0 ms | -1.0 dB | -20.9 dB | 659 Hz | 438 Hz | 9 · 8 · 81 · 2 · 0 |
+| music_calm__c | music.calm | C | Música (bucle) | estéreo | 40799 ms | 0 ms | -1.0 dB | -21.4 dB | 1085 Hz | 215 Hz | 2 · 26 · 57 · 15 · 0 |
 | music_round__a | music.round | A ✓ | Música (bucle) | estéreo | 58786 ms | 0 ms | -3.4 dB | -19.1 dB | 4013 Hz | 65 Hz | 44 · 27 · 22 · 6 · 2 |
-| music_round__b | music.round | B | Música (bucle) | estéreo | 58510 ms | 0 ms | -1.1 dB | -18.4 dB | 2179 Hz | 70 Hz | 39 · 44 · 13 · 2 · 0 |
-| music_round__c | music.round | C | Música (bucle) | estéreo | 52499 ms | 0 ms | -2.1 dB | -20.2 dB | 1297 Hz | 97 Hz | 20 · 20 · 48 · 11 · 0 |
-| music_title__a | music.title | A ✓ | Música (bucle) | estéreo | 30497 ms | 0 ms | -3.7 dB | -19.8 dB | 1045 Hz | 261 Hz | 20 · 17 · 53 · 9 · 0 |
+| music_round__b | music.round | B | Música (bucle) | estéreo | 58511 ms | 0 ms | -1.1 dB | -18.4 dB | 2182 Hz | 70 Hz | 39 · 44 · 13 · 2 · 0 |
+| music_round__c | music.round | C | Música (bucle) | estéreo | 52500 ms | 0 ms | -2.1 dB | -20.2 dB | 1297 Hz | 97 Hz | 20 · 20 · 49 · 11 · 0 |
+| music_title__a | music.title | A ✓ | Música (bucle) | estéreo | 30500 ms | 0 ms | -3.7 dB | -19.8 dB | 1045 Hz | 261 Hz | 20 · 17 · 53 · 9 · 0 |
 | music_title__b | music.title | B | Música (bucle) | estéreo | 37583 ms | 93 ms | -1.0 dB | -22.2 dB | 549 Hz | 132 Hz | 20 · 51 · 27 · 2 · 0 |
 | music_title__c | music.title | C | Música (bucle) | estéreo | 72411 ms | 0 ms | -2.8 dB | -20.9 dB | 1023 Hz | 962 Hz | 0 · 0 · 72 · 28 · 0 |
 | pickup_ammo__a | pickup.ammo | A ✓ | Premio | mono | 366 ms | 166 ms | -1.0 dB | -17.9 dB | 10679 Hz | 1763 Hz | 0 · 0 · 1 · 62 · 37 |

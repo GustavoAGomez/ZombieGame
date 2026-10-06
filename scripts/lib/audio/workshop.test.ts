@@ -7,13 +7,14 @@ import { renderFile } from '../../audio-gen';
 import { envValue, fileNameOf, parseArgs } from '../../audio-search';
 import { checkAudioSources, type CheckReport } from '../../check-assets';
 import { measure } from './analyze';
+import { biquad, finishMusic, mixInto, silence } from './dsp';
 import { Credits, creditsMarkdown } from './credits';
 import { render } from './render';
 import { stripCandidates } from './strip-candidates';
 import { RecipeError, parseRecipe, parseSoundRecipes } from './recipes';
 import { buildReport, type ReportRow } from './report';
 import { noteFrequency, SynthError } from './synth';
-import { decodeWav, encodeWav } from './wav';
+import { decodeWav, encodeWav, frames } from './wav';
 
 const TAP = {
   type: 'layers',
@@ -243,5 +244,56 @@ describe('builds without the candidates (spec 08 §8)', () => {
     expect(stripCandidates(out)).toBe(1);
     expect(existsSync(join(out, 'assets/audio/candidates'))).toBe(false);
     expect(Object.keys((JSON.parse(readFileSync(join(out, 'assets/manifest.json'), 'utf8')) as { audio: object }).audio)).toEqual(['ui_tap']);
+  });
+});
+
+describe('the music (spec 08 §7)', () => {
+  const sr = AUDIO_GEN.sampleRate;
+  /** 8 s that already loop (whole cycles of 110 and 165 Hz under a 0.5 Hz swell), stereo, with `head` s of their own start after them. */
+  function loopSource(head: number): { audio: ReturnType<typeof silence> } {
+    const at = (i: number): number => {
+      const t = (i % (8 * sr)) / sr;
+      return (0.5 + 0.4 * Math.sin(2 * Math.PI * 0.5 * t)) * (Math.sin(2 * Math.PI * 110 * t) + 0.5 * Math.sin(2 * Math.PI * 165 * t)) * 0.3;
+    };
+    const audio = silence(8 + head, 2, sr);
+    for (const ch of audio.channels) for (let i = 0; i < ch.length; i++) ch[i] = at(i);
+    return { audio };
+  }
+
+  it('loops a source that already loops sample for sample, with the loop itself on each side', () => {
+    const { audio } = loopSource(AUDIO_GEN.music.crossfade);
+    const out = finishMusic(audio);
+    const ch = out.audio.channels[0] ?? new Float32Array(0);
+    const start = Math.round(out.loopStart * sr);
+    const end = Math.round(out.loopEnd * sr);
+    // Every sample of the 8 s, none lost at its zero crossings.
+    expect(end - start).toBe(8 * sr);
+    expect(start).toBe(Math.round(AUDIO_GEN.music.margin * sr));
+    expect(frames(out.audio)).toBe(end + start);
+    // The same music at one gain (after the low cut): the linear crossfade adds its two ends up exactly, with no bump in the middle.
+    const cut = biquad(audio.channels[0] ?? new Float32Array(0), 'highpass', AUDIO_GEN.music.highpass, sr);
+    let ref = 5 * sr;
+    while (Math.abs(cut[ref] ?? 0) < 0.1) ref++;
+    const gain = (ch[start + ref] ?? 0) / (cut[ref] ?? 1);
+    const x = AUDIO_GEN.music.crossfade * sr;
+    for (const i of [x / 2, x / 2 + 17, x - 1]) expect(ch[start + i]).toBeCloseTo(gain * (cut[8 * sr + i] ?? 0), 3);
+    // Around both loop points the file holds the same audio: a decoder that shifts it a little still loops cleanly.
+    for (const i of [-start, -1, 0, 1, start - 1]) expect(ch[end + i]).toBeCloseTo(ch[start + i] ?? 0, 5);
+  });
+
+  it('puts every track at the same average loudness, unless its peak would pass −1 dB', () => {
+    const quiet = loopSource(0).audio;
+    const loud = loopSource(0).audio;
+    for (const ch of quiet.channels) ch.forEach((v, i) => (ch[i] = v * 0.1));
+    const a = measure(finishMusic(quiet).audio);
+    const b = measure(finishMusic(loud).audio);
+    expect(a.loudnessDb).toBeCloseTo(b.loudnessDb, 0);
+    // A lone hit over silence: its peak holds it under −18 dB of average.
+    const spiky = silence(10, 2, sr);
+    mixInto(spiky, loopSource(0).audio, 0, 0.02);
+    for (const ch of spiky.channels) ch[sr] = 1;
+    const c = measure(finishMusic(spiky).audio);
+    expect(c.peakDb).toBeCloseTo(AUDIO_GEN.peakDb, 1);
+    expect(c.loudnessDb).toBeLessThan(AUDIO_GEN.music.rmsDb - 3);
   });
 });

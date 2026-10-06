@@ -13,6 +13,7 @@ Juego móvil (iOS + Android) top-down shooter pixel art de supervivencia por ole
 - **Capacitor** (última versión estable) para empaquetar iOS y Android
 - **Vitest** para la lógica pura
 - Fuentes **Press Start 2P** y **Silkscreen** instaladas con `@fontsource/*`. Sin CDN: la app tiene que funcionar offline.
+- **Web Audio** sin librería para el sonido. El taller de sonidos usa **ffmpeg** (`ffmpeg-static`, dependencia de desarrollo).
 
 ## Comandos (a crear en la Fase 0)
 
@@ -30,6 +31,8 @@ Juego móvil (iOS + Android) top-down shooter pixel art de supervivencia por ole
 | `npm run tiles:import` | Importa los tilesets, kits (autotile de paredes) y decals de PixelLab (spec 02, `docs/ASSETS.md` §7) |
 | `npm run map:build [mapa]` | Compila el plano ASCII `maps/src/<mapa>.txt` a `art-src/tiled/<mapa>.tmj` (sin pisar retoques hechos en Tiled salvo con `--force`), embebe los tilesets en `public/assets/maps/` y valida |
 | `npm run map:preview [mapa]` | Renderiza el mapa a PNG en `maps/preview/` (completo a 1:4, cada zona a 1:1 y el plano ASCII) |
+| `npm run audio:gen` | Monta los sonidos desde `audio-src/recipes/` (WAV de efectos, M4A de música y candidatos), actualiza el manifiesto y escribe el informe (`audio-src/preview/report.md`) y los créditos (`docs/AUDIO-CREDITS.md`). Ver `docs/AUDIO.md` |
+| `npm run audio:search "<consulta>"` | Busca en Freesound con el filtro CC0 y descarga a `audio-src/library/freesound/`, con su ficha. Necesita `FREESOUND_API_KEY` en `.env` |
 | `npm run windows:compose` | Monta las hojas de las barricadas (hueco dibujado por código + tablones de la madera del suelo) y su hoja de revisión en `maps/preview/windows/` |
 
 ## Reglas de arquitectura
@@ -42,6 +45,7 @@ Juego móvil (iOS + Android) top-down shooter pixel art de supervivencia por ole
 6. **Mapas en Tiled JSON (`.tmj`)** con el esquema de capas y objetos de `docs/ASSETS.md`.
 7. **Pools de objetos** para balas, zombies, efectos y textos flotantes. Nada de crear y destruir en caliente.
 8. **Dependencias mínimas.** No añadas dependencias pesadas sin justificarlo en el resumen de la fase.
+9. **Audio por id.** El juego pide cada sonido por su id del catálogo (`src/config/audio.ts`, con todos los números de audio), por eventos o con el resumen de cada frame. El audio nunca cambia la lógica, y un sonido sin archivo es silencio. Ver `docs/AUDIO.md`.
 
 ## Estructura objetivo
 
@@ -53,6 +57,8 @@ src/
     weapons.ts            catálogo de armas: estadísticas, mejoras propias de cada arma y especiales
     display.ts            resolución, zoom, safe areas
     theme.ts              colores y fuentes (tokens de la Propuesta A)
+    audio.ts              catálogo de sonidos, mezcla y números del taller
+  audio/                  AudioEngine (Web Audio), AudioDirector (eventos → sonidos y música), lifecycle
   core/
     EventBus.ts           eventos tipados juego → HUD
     GameState.ts          estado plano de la partida
@@ -75,11 +81,13 @@ src/
     hud/                  Hud.ts, hud.css, componentes
     strings.ts            todos los textos de UI en español
   debug/DebugOverlay.ts
-scripts/                  gen-placeholder-map.ts, import-pixellab.ts, check-assets.ts, build-map.ts, preview-map.ts
+scripts/                  gen-placeholder-map.ts, import-pixellab.ts, check-assets.ts, build-map.ts, preview-map.ts,
+                          audio-gen.ts, audio-search.ts, lib/audio/ (el taller de sonidos)
+audio-src/                recipes/ (una receta por sonido), library/<origen>/ (fuentes CC0 con su ficha), preview/ (informe)
 maps/src/                 planos ASCII de los mapas (fuente; skill level-design)
 maps/preview/             vistas previas generadas por map:preview
-public/assets/            manifest.json, maps/, sprites/, tiles/
-docs/                     specs/, ASSETS.md, DECISIONS.md, GAME-DESIGN.md, ROADMAP.md
+public/assets/            manifest.json, maps/, sprites/, tiles/, audio/ (sfx/, music/; candidates/ fuera de git)
+docs/                     specs/, ASSETS.md, ASSETS-TODO.md, AUDIO.md, AUDIO-CREDITS.md, DECISIONS.md, GAME-DESIGN.md, ROADMAP.md
 ```
 
 ## Forma de trabajar
