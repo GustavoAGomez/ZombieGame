@@ -2,7 +2,7 @@
   "chosen": null,
   "candidates": {
     "A": {
-      "about": "Un tablón que golpea la madera y un clavo que entra; la nota de la racha es una kalimba en Mi 6.",
+      "about": "TABLÓN QUE ENCAJA: la madera se desliza un instante y encaja con un golpe macizo; la nota de la racha es una marimba en Mi 6.",
       "channels": 1,
       "variants": [
         {
@@ -11,29 +11,44 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/803551_wooden_impact.ogg",
+                "source": "library/freesound/683412_drag_book_wood_2n.ogg",
                 "process": {
-                  "start": 0.72,
-                  "lowcut": 120
+                  "start": 0.06,
+                  "end": 0.18,
+                  "highcut": 6000,
+                  "fadeOut": 0.05
                 }
               },
-              "gain": 1
+              "gain": 0.5
             },
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/233632_nail_2.ogg",
+                "source": "library/freesound/495645_mug_wood1.ogg",
                 "process": {
-                  "start": 0.1,
-                  "highcut": 8000
+                  "lowcut": 120
                 }
               },
-              "gain": 0.45,
-              "delay": 0.08
+              "gain": 1,
+              "delay": 0.09
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPlank_medium_001.ogg",
+                "process": {
+                  "end": 0.25,
+                  "lowcut": 140
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.09
             }
           ],
           "process": {
-            "length": 0.35,
+            "reverb": "room",
+            "wet": 0.1,
+            "length": 0.4,
             "fadeOut": 0.12
           }
         }
@@ -45,11 +60,11 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/691796_e5_hard_kalimba.ogg",
+                "source": "library/freesound/373584_marimba_e_6_marimba_hit_outrigger_f5_lou.ogg",
                 "process": {
-                  "semitones": 0.28,
-                  "end": 0.45,
-                  "fadeOut": 0.2
+                  "semitones": -0.97,
+                  "end": 0.35,
+                  "fadeOut": 0.15
                 }
               },
               "gain": 1
@@ -63,7 +78,7 @@
       ]
     },
     "B": {
-      "about": "Dos martillazos rápidos sobre la madera; la nota de la racha es el glockenspiel en La 5.",
+      "about": "TABLÓN APOYADO: un golpe seco de madera maciza y un crujido corto de la tabla; la nota de la racha es un xilófono en La 5.",
       "channels": 1,
       "variants": [
         {
@@ -72,10 +87,9 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/138038_hamer.ogg",
+                "source": "library/freesound/742356_singleknock_wood.ogg",
                 "process": {
-                  "end": 0.15,
-                  "lowcut": 150
+                  "lowcut": 120
                 }
               },
               "gain": 1
@@ -83,29 +97,27 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/138038_hamer.ogg",
-                "process": {
-                  "end": 0.15,
-                  "semitones": -1,
-                  "lowcut": 150
-                }
+                "source": "library/kenney-impact-sounds/impactWood_light_000.ogg"
               },
-              "gain": 0.8,
-              "delay": 0.12
+              "gain": 0.6
             },
             {
               "recipe": {
                 "type": "file",
-                "source": "library/kenney-impact-sounds/impactWood_medium_000.ogg",
+                "source": "library/freesound/504136_wood_floor_creaking_2_14.ogg",
                 "process": {
-                  "lowcut": 120
+                  "end": 0.25,
+                  "fadeOut": 0.1
                 }
               },
-              "gain": 0.5
+              "gain": 0.35,
+              "delay": 0.06
             }
           ],
           "process": {
-            "length": 0.35,
+            "reverb": "room",
+            "wet": 0.1,
+            "length": 0.4,
             "fadeOut": 0.12
           }
         }
@@ -117,10 +129,10 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/348890_glockenspiel_20_a3_02.ogg",
+                "source": "library/freesound/374700_xylophone_c5_xylo_medium_c5_ff_01_far_wa.ogg",
                 "process": {
-                  "semitones": -12,
-                  "end": 0.25,
+                  "semitones": -3.14,
+                  "end": 0.3,
                   "fadeOut": 0.15
                 }
               },
@@ -135,7 +147,7 @@
       ]
     },
     "C": {
-      "about": "Un tablón que cae en su sitio y rebota una vez; la nota de la racha es un «ding» de cristal en Mi 6.",
+      "about": "MADERA HUECA: un golpe hueco de madera y la tabla que termina de asentarse; la nota de la racha es un pizzicato de cuerdas en Mi 5.",
       "channels": 1,
       "variants": [
         {
@@ -144,10 +156,11 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/723568_wood_drop.ogg",
+                "source": "library/freesound/369710_wood_knock.ogg",
                 "process": {
                   "end": 0.3,
-                  "lowcut": 150
+                  "lowcut": 120,
+                  "fadeOut": 0.1
                 }
               },
               "gain": 1
@@ -155,18 +168,20 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/577454_wood_fall.ogg",
+                "source": "library/freesound/245923_wooden_slide_drawer_shutting_3.ogg",
                 "process": {
-                  "start": 0.12,
+                  "start": 0.2,
                   "end": 0.45,
                   "lowcut": 150
                 }
               },
-              "gain": 0.6,
-              "delay": 0.05
+              "gain": 0.5,
+              "delay": 0.06
             }
           ],
           "process": {
+            "reverb": "room",
+            "wet": 0.1,
             "length": 0.4,
             "fadeOut": 0.12
           }
@@ -179,11 +194,11 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/627794_pling_sound_effect_ui_interface_ding_tin.ogg",
+                "source": "library/freesound/374518_violin_section_pizzicato_e5_vlnens_pizz_.ogg",
                 "process": {
-                  "semitones": 0.07,
+                  "semitones": 0.21,
                   "end": 0.4,
-                  "fadeOut": 0.2
+                  "fadeOut": 0.15
                 }
               },
               "gain": 1

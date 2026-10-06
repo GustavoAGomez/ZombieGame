@@ -515,24 +515,26 @@ describe('AudioDirector: place, levels, threats and low health (spec 08 ยง3.5, ย
     }
   });
 
-  it('beats the heart for 5 s when health falls low, and not again until it rises and falls', () => {
+  it('beats the heart while health is low, without stopping, until the player heals (the user\'s choice)', () => {
     const { engine, director, advance, snapshot } = match();
     const low = { ...snapshot, lowHealth: true };
     director.update(low);
     const beat = engine.played.at(-1);
     expect([beat?.key, beat?.options.loop]).toEqual(['player_heartbeat', true]);
-    advance(AUDIO.heartbeatTime - 0.1);
+    advance(60);
     director.update(low);
     expect(beat?.stopped).toBe(false);
-    advance(0.2);
-    director.update(low);
-    expect(beat?.stopped).toBe(true);
-    advance(10);
-    director.update(low);
     expect(engine.played.filter((p) => p.key === 'player_heartbeat')).toHaveLength(1);
+    // Healed: it stops; low again: it beats again.
     director.update(snapshot);
+    expect(beat?.stopped).toBe(true);
     director.update(low);
     expect(engine.played.filter((p) => p.key === 'player_heartbeat')).toHaveLength(2);
+    // The pause cuts it, and it comes back with the match if health is still low.
+    director.update({ ...low, paused: true });
+    expect(engine.played.at(-1)?.stopped).toBe(true);
+    director.update(low);
+    expect(engine.played.filter((p) => p.key === 'player_heartbeat')).toHaveLength(3);
   });
 
   it('gallops while the boss charges and rings dizzy while it is stunned, on its level', () => {

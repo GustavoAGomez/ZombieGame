@@ -2649,51 +2649,51 @@
     },
     "reward_repair": {
       "file": "audio/sfx/reward_repair.wav",
-      "duration": 0.2963,
+      "duration": 0.31,
       "placeholder": false,
       "picked": "A",
       "pending": true
     },
     "reward_repair__a": {
       "file": "audio/candidates/reward_repair__a.wav",
-      "duration": 0.2963,
+      "duration": 0.31,
       "placeholder": false,
       "candidate": "A"
     },
     "reward_repair__b": {
       "file": "audio/candidates/reward_repair__b.wav",
-      "duration": 0.2798,
+      "duration": 0.3387,
       "placeholder": false,
       "candidate": "B"
     },
     "reward_repair__c": {
       "file": "audio/candidates/reward_repair__c.wav",
-      "duration": 0.3357,
+      "duration": 0.2433,
       "placeholder": false,
       "candidate": "C"
     },
     "reward_repair_shine": {
       "file": "audio/sfx/reward_repair_shine.wav",
-      "duration": 0.4042,
+      "duration": 0.354,
       "placeholder": false,
       "picked": "A",
       "pending": true
     },
     "reward_repair_shine__a": {
       "file": "audio/candidates/reward_repair_shine__a.wav",
-      "duration": 0.4042,
+      "duration": 0.354,
       "placeholder": false,
       "candidate": "A"
     },
     "reward_repair_shine__b": {
       "file": "audio/candidates/reward_repair_shine__b.wav",
-      "duration": 0.4675,
+      "duration": 0.353,
       "placeholder": false,
       "candidate": "B"
     },
     "reward_repair_shine__c": {
       "file": "audio/candidates/reward_repair_shine__c.wav",
-      "duration": 0.3192,
+      "duration": 0.3675,
       "placeholder": false,
       "candidate": "C"
     },

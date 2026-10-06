@@ -2014,4 +2014,8 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - Solo existe con el debug, que es el único que carga los candidatos.
 - **Elegir de verdad sigue siendo por el chat:** el panel corre en el móvil y no puede escribir las recetas del Mac. COPIAR ELECCIÓN copia «id: letra», uno por línea, y el texto también se ve en el panel para copiarlo a mano. Por http en la red local no existe la API del portapapeles, así que se usa la copia de un cuadro de texto oculto.
 - **Panel abierto = partida en silencio:** mientras está abierto, nada de la partida suena: efectos, bucles (láser, lanzallamas, boss, latido), gruñidos, menús y música. Al abrirlo se corta lo que estaba sonando. Solo suena lo que se prueba, incluidos SIMULAR COMBATE y SIMULAR RACHA, también en pausa. Al cerrarlo, la partida vuelve a sonar.
+- **Octava tanda:**
+  - **Latido sin parar con la vida baja:** el latido suena mientras la vida esté baja, hasta que el jugador se cure (o muera), y no solo los 5 s de la §3.5. La pausa y el panel de prueba lo cortan, y vuelve con la partida si la vida sigue baja.
+  - **Colocar el tablón** (`reward.repair`) suena solo a madera, sin martillo ni clavo: un tablón que se desliza y encaja con un golpe macizo, un golpe seco con un crujido corto de la tabla, o un golpe hueco que se asienta.
+  - **Nota de su racha:** pasa a ser orgánica, como la que tuvo la racha de bajas: marimba en Mi 6, xilófono en La 5 o pizzicato de cuerdas en Mi 5.
 

@@ -170,12 +170,12 @@ Bandas: porcentaje de la energía por debajo de 100 Hz, 100–250, 250–1000, 1
 | player_hurt_2__b | player.hurt | B | Amenaza | mono | 254 ms | 74 ms | -1.0 dB | -16.3 dB | 2145 Hz | 93 Hz | 13 · 7 · 11 · 68 · 0 |
 | player_hurt_1__c | player.hurt | C | Amenaza | mono | 321 ms | 31 ms | -1.0 dB | -16.1 dB | 3057 Hz | 341 Hz | 2 · 7 · 76 · 14 · 1 |
 | player_hurt_2__c | player.hurt | C | Amenaza | mono | 320 ms | 10 ms | -1.0 dB | -13.1 dB | 3158 Hz | 406 Hz | 1 · 4 · 90 · 5 · 1 |
-| reward_repair__a | reward.repair | A ✓ | Premio | mono | 296 ms | 106 ms | -1.0 dB | -17.4 dB | 4160 Hz | 376 Hz | 2 · 18 · 50 · 4 · 27 |
-| reward_repair_shine__a | reward.repair | A ✓ | Premio | mono | 404 ms | 114 ms | -1.0 dB | -21.8 dB | 1812 Hz | 1326 Hz | 0 · 0 · 0 · 100 · 0 |
-| reward_repair__b | reward.repair | B | Premio | mono | 280 ms | 0 ms | -1.0 dB | -12.3 dB | 5935 Hz | 581 Hz | 0 · 2 · 38 · 40 · 21 |
-| reward_repair_shine__b | reward.repair | B | Premio | mono | 468 ms | 68 ms | -1.0 dB | -21.7 dB | 2737 Hz | 877 Hz | 0 · 0 · 86 · 14 · 0 |
-| reward_repair__c | reward.repair | C | Premio | mono | 336 ms | 176 ms | -1.0 dB | -17.0 dB | 3062 Hz | 1743 Hz | 0 · 2 · 31 · 65 · 2 |
-| reward_repair_shine__c | reward.repair | C | Premio | mono | 319 ms | 69 ms | -1.0 dB | -15.5 dB | 4016 Hz | 1323 Hz | 0 · 0 · 0 · 98 · 2 |
+| reward_repair__a | reward.repair | A ✓ | Premio | mono | 310 ms | 140 ms | -1.0 dB | -21.9 dB | 2004 Hz | 206 Hz | 4 · 44 · 44 · 6 · 1 |
+| reward_repair_shine__a | reward.repair | A ✓ | Premio | mono | 354 ms | 104 ms | -1.0 dB | -13.4 dB | 1619 Hz | 1325 Hz | 0 · 0 · 0 · 100 · 0 |
+| reward_repair__b | reward.repair | B | Premio | mono | 339 ms | 109 ms | -1.0 dB | -18.4 dB | 1345 Hz | 190 Hz | 3 · 44 · 47 · 7 · 0 |
+| reward_repair_shine__b | reward.repair | B | Premio | mono | 353 ms | 53 ms | -1.0 dB | -13.4 dB | 2194 Hz | 878 Hz | 0 · 0 · 89 · 11 · 0 |
+| reward_repair__c | reward.repair | C | Premio | mono | 243 ms | 163 ms | -1.0 dB | -20.3 dB | 1319 Hz | 329 Hz | 0 · 2 · 94 · 4 · 0 |
+| reward_repair_shine__c | reward.repair | C | Premio | mono | 367 ms | 107 ms | -1.0 dB | -15.2 dB | 1654 Hz | 652 Hz | 0 · 0 · 81 · 19 · 0 |
 | ritual_done__a | ritual.done | A ✓ | Carteles | estéreo | 1907 ms | 377 ms | -1.0 dB | -18.2 dB | 3291 Hz | 513 Hz | 4 · 14 · 71 · 9 · 1 |
 | ritual_done__b | ritual.done | B | Carteles | estéreo | 1901 ms | 351 ms | -1.0 dB | -19.2 dB | 3556 Hz | 202 Hz | 6 · 23 · 34 · 35 · 3 |
 | ritual_done__c | ritual.done | C | Carteles | estéreo | 1920 ms | 390 ms | -1.0 dB | -17.5 dB | 4572 Hz | 497 Hz | 5 · 14 · 74 · 5 · 2 |
@@ -439,9 +439,9 @@ Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.
 - **player.hurt A** (en el juego): Puñetazo medio y un gruñido corto de dolor (MrFossy).
 - **player.hurt B**: Golpe sordo con el peso en 180 Hz y otros dos gruñidos.
 - **player.hurt C**: Golpe contra el suelo de madera y gruñidos más largos.
-- **reward.repair A** (en el juego): Un tablón que golpea la madera y un clavo que entra; la nota de la racha es una kalimba en Mi 6.
-- **reward.repair B**: Dos martillazos rápidos sobre la madera; la nota de la racha es el glockenspiel en La 5.
-- **reward.repair C**: Un tablón que cae en su sitio y rebota una vez; la nota de la racha es un «ding» de cristal en Mi 6.
+- **reward.repair A** (en el juego): TABLÓN QUE ENCAJA: la madera se desliza un instante y encaja con un golpe macizo; la nota de la racha es una marimba en Mi 6.
+- **reward.repair B**: TABLÓN APOYADO: un golpe seco de madera maciza y un crujido corto de la tabla; la nota de la racha es un xilófono en La 5.
+- **reward.repair C**: MADERA HUECA: un golpe hueco de madera y la tabla que termina de asentarse; la nota de la racha es un pizzicato de cuerdas en Mi 5.
 - **ritual.done A** (en el juego): Estéreo: agua que hierve, una subida de aire y La-Do-Mi-La, y un golpe grave con fuego.
 - **ritual.done B**: Estéreo: agua hirviendo derramándose, una subida de energía y un tambor con llamarada.
 - **ritual.done C**: Estéreo: hervor, un acorde que sube una octava y un taiko con fuego.

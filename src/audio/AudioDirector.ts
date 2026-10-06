@@ -207,9 +207,6 @@ export class AudioDirector implements GameAudio, SoundTest {
   private testing = false;
   /** «Probar en partida»: the candidate the game plays instead of its own, by sound id. */
   private readonly trialPicks = new Map<string, AudioCandidate>();
-  /** Low health (§3.5): the last frame's, and when its heartbeat ends. */
-  private wasLow = false;
-  private heartbeatUntil = 0;
   private dropped = 0;
   private lastDropped = '';
 
@@ -323,7 +320,7 @@ export class AudioDirector implements GameAudio, SoundTest {
   /**
    * The continuous threats (§6.4) and low health (§3.5): a groan of the
    * nearest zombie every 2 to 5 s, the boss's gallop and confused groan
-   * following it, and the heartbeat for its first seconds.
+   * following it, and the heartbeat while health is low.
    */
   private updateThreats(s: Readonly<AudioSnapshot>): void {
     const now = this.clock();
@@ -336,13 +333,10 @@ export class AudioDirector implements GameAudio, SoundTest {
     const boss = { x: s.bossX, y: s.bossY };
     this.follow('boss.charge.loop', !quiet && s.bossCharging, boss);
     this.follow('boss.dizzy.loop', !quiet && s.bossStunned, boss);
-    // The heartbeat only for its first seconds: a lasting one would be unbearable (health never comes back by itself).
-    if (s.lowHealth && !this.wasLow && !quiet) {
-      this.startLoop('player.heartbeat', {});
-      this.heartbeatUntil = now + AUDIO.heartbeatTime;
-    }
-    if (this.loops.has('player.heartbeat') && (!s.lowHealth || now >= this.heartbeatUntil)) this.stopLoop('player.heartbeat', AUDIO.loopFadeOut);
-    this.wasLow = s.lowHealth;
+    // The heartbeat for as long as health is low, until the player heals (the user's choice over §3.5's 5 s).
+    const beating = !quiet && s.lowHealth;
+    if (beating && !this.loops.has('player.heartbeat')) this.startLoop('player.heartbeat', {});
+    else if (!beating && this.loops.has('player.heartbeat')) this.stopLoop('player.heartbeat', AUDIO.loopFadeOut);
   }
 
   /** A loop that sounds while `on`, where `at` is (on its level only), moving with it. */

@@ -118,8 +118,6 @@ export const AUDIO = {
   /** Zombies groan (§6.4) when one is within this many px, one groan every 2 to 5 s, never two at once. */
   groanRange: 400,
   groanInterval: [2, 5] as const,
-  /** Low health (§3.5): the heartbeat sounds for this long, seconds, and not again until health rises and falls. */
-  heartbeatTime: 5,
 } as const;
 
 /** Which variant of a wizard's own sounds (`keyed`) is whose (§3.3: each wizard has its signature). */
