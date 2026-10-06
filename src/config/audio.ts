@@ -250,8 +250,8 @@ export const SOUNDS: readonly SoundDef[] = [
   sound({ id: 'player.death', family: 'threat', variants: keys('player.death'), bus: 'sfx', volume: 0.9, maxVoices: 1, priority: 'high', duck: true }),
   sound({ id: 'player.heartbeat', family: 'threat', variants: keys('player.heartbeat'), bus: 'sfx', volume: 0.7, maxVoices: 1, priority: 'high', loop: true }),
   // §6.2 Rewards. `denied` and `item.cantUse` answer a tap: measured as interface sounds.
-  sound({ id: 'reward.hit', family: 'reward', variants: keys('reward.hit'), bus: 'sfx', volume: 0.3, pitchVar: 4, maxVoices: 2, minInterval: 0.04, priority: 'low' }),
-  sound({ id: 'reward.kill', family: 'reward', variants: keys('reward.kill'), shine: shine(keys('reward.kill')), bus: 'sfx', volume: 0.6, maxVoices: 3, minInterval: 0.03, ladder: 'kill' }),
+  // A hit sounds only with its impact (impact.flesh): no `reward.hit` (the user's choice, docs/DECISIONS.md).
+  sound({ id: 'reward.kill', family: 'reward', variants: keys('reward.kill', 3), shine: shine(keys('reward.kill', 3)), bus: 'sfx', volume: 0.6, maxVoices: 3, minInterval: 0.03, ladder: 'kill' }),
   sound({ id: 'reward.repair', family: 'reward', variants: keys('reward.repair'), shine: shine(keys('reward.repair')), bus: 'sfx', volume: 0.6, maxVoices: 2, ladder: 'repair' }),
   sound({ id: 'pickup.ammo', family: 'reward', variants: keys('pickup.ammo'), bus: 'sfx', volume: 0.6, maxVoices: 1 }),
   sound({ id: 'pickup.health', family: 'reward', variants: keys('pickup.health'), bus: 'sfx', volume: 0.65, maxVoices: 1 }),

@@ -170,15 +170,24 @@ Bandas: porcentaje de la energía por debajo de 100 Hz, 100–250, 250–1000, 1
 | player_hurt_2__b | player.hurt | B | Amenaza | mono | 254 ms | 74 ms | -1.0 dB | -16.3 dB | 2145 Hz | 93 Hz | 13 · 7 · 11 · 68 · 0 |
 | player_hurt_1__c | player.hurt | C | Amenaza | mono | 321 ms | 31 ms | -1.0 dB | -16.1 dB | 3057 Hz | 341 Hz | 2 · 7 · 76 · 14 · 1 |
 | player_hurt_2__c | player.hurt | C | Amenaza | mono | 320 ms | 10 ms | -1.0 dB | -13.1 dB | 3158 Hz | 406 Hz | 1 · 4 · 90 · 5 · 1 |
-| reward_hit__a | reward.hit | A ✓ | Premio | mono | 137 ms | 27 ms | -1.0 dB | -16.7 dB | 2489 Hz | 2549 Hz | 2 · 0 · 27 · 71 · 0 |
-| reward_hit__b | reward.hit | B | Premio | mono | 132 ms | 52 ms | -1.0 dB | -17.9 dB | 4262 Hz | 1764 Hz | 7 · 1 · 44 · 36 · 13 |
-| reward_hit__c | reward.hit | C | Premio | mono | 134 ms | 44 ms | -1.0 dB | -13.9 dB | 3453 Hz | 294 Hz | 2 · 17 · 76 · 3 · 1 |
-| reward_kill__a | reward.kill | A ✓ | Premio | mono | 160 ms | 60 ms | -1.0 dB | -15.0 dB | 2621 Hz | 306 Hz | 2 · 16 · 81 · 0 · 1 |
-| reward_kill_shine__a | reward.kill | A ✓ | Premio | mono | 434 ms | 64 ms | -1.0 dB | -21.6 dB | 2766 Hz | 878 Hz | 0 · 0 · 85 · 15 · 0 |
-| reward_kill__b | reward.kill | B | Premio | mono | 150 ms | 30 ms | -1.0 dB | -24.5 dB | 4727 Hz | 171 Hz | 0 · 34 · 15 · 22 · 29 |
-| reward_kill_shine__b | reward.kill | B | Premio | mono | 234 ms | 84 ms | -1.0 dB | -21.4 dB | 9498 Hz | 1169 Hz | 0 · 0 · 0 · 52 · 48 |
-| reward_kill__c | reward.kill | C | Premio | mono | 153 ms | 33 ms | -1.0 dB | -15.3 dB | 4765 Hz | 290 Hz | 8 · 16 · 66 · 6 · 4 |
-| reward_kill_shine__c | reward.kill | C | Premio | mono | 399 ms | 79 ms | -1.0 dB | -14.8 dB | 2372 Hz | 881 Hz | 0 · 14 · 73 · 10 · 3 |
+| reward_kill_1__a | reward.kill | A ✓ | Premio | mono | 573 ms | 83 ms | -1.0 dB | -16.7 dB | 5717 Hz | 177 Hz | 3 · 59 · 23 · 7 · 7 |
+| reward_kill_2__a | reward.kill | A ✓ | Premio | mono | 423 ms | 63 ms | -1.0 dB | -13.7 dB | 3541 Hz | 318 Hz | 0 · 9 · 80 · 7 · 4 |
+| reward_kill_3__a | reward.kill | A ✓ | Premio | mono | 577 ms | 77 ms | -1.0 dB | -19.5 dB | 5849 Hz | 169 Hz | 1 · 10 · 9 · 64 · 15 |
+| reward_kill_1_shine__a | reward.kill | A ✓ | Premio | mono | 444 ms | 104 ms | -1.0 dB | -16.2 dB | 1927 Hz | 874 Hz | 0 · 1 · 72 · 27 · 0 |
+| reward_kill_2_shine__a | reward.kill | A ✓ | Premio | mono | 444 ms | 104 ms | -1.0 dB | -16.2 dB | 1927 Hz | 874 Hz | 0 · 1 · 72 · 27 · 0 |
+| reward_kill_3_shine__a | reward.kill | A ✓ | Premio | mono | 444 ms | 104 ms | -1.0 dB | -16.2 dB | 1927 Hz | 874 Hz | 0 · 1 · 72 · 27 · 0 |
+| reward_kill_1__b | reward.kill | B | Premio | mono | 519 ms | 99 ms | -1.0 dB | -19.4 dB | 6695 Hz | 1210 Hz | 2 · 8 · 17 · 49 · 23 |
+| reward_kill_2__b | reward.kill | B | Premio | mono | 428 ms | 18 ms | -1.0 dB | -21.4 dB | 3904 Hz | 174 Hz | 6 · 22 · 29 · 32 · 10 |
+| reward_kill_3__b | reward.kill | B | Premio | mono | 498 ms | 98 ms | -1.0 dB | -19.6 dB | 4809 Hz | 300 Hz | 2 · 9 · 56 · 24 · 9 |
+| reward_kill_1_shine__b | reward.kill | B | Premio | mono | 422 ms | 62 ms | -1.0 dB | -20.0 dB | 4660 Hz | 877 Hz | 0 · 0 · 59 · 29 · 12 |
+| reward_kill_2_shine__b | reward.kill | B | Premio | mono | 422 ms | 62 ms | -1.0 dB | -20.0 dB | 4660 Hz | 877 Hz | 0 · 0 · 59 · 29 · 12 |
+| reward_kill_3_shine__b | reward.kill | B | Premio | mono | 422 ms | 62 ms | -1.0 dB | -20.0 dB | 4660 Hz | 877 Hz | 0 · 0 · 59 · 29 · 12 |
+| reward_kill_1__c | reward.kill | C | Premio | mono | 571 ms | 91 ms | -1.0 dB | -14.2 dB | 2404 Hz | 475 Hz | 0 · 1 · 96 · 2 · 0 |
+| reward_kill_2__c | reward.kill | C | Premio | mono | 478 ms | 98 ms | -1.0 dB | -14.6 dB | 4846 Hz | 767 Hz | 0 · 5 · 74 · 17 · 4 |
+| reward_kill_3__c | reward.kill | C | Premio | mono | 586 ms | 76 ms | -1.0 dB | -19.1 dB | 6191 Hz | 225 Hz | 7 · 27 · 34 · 20 · 12 |
+| reward_kill_1_shine__c | reward.kill | C | Premio | mono | 295 ms | 35 ms | -1.0 dB | -20.3 dB | 5768 Hz | 1324 Hz | 0 · 0 · 14 · 72 · 14 |
+| reward_kill_2_shine__c | reward.kill | C | Premio | mono | 295 ms | 35 ms | -1.0 dB | -20.3 dB | 5768 Hz | 1324 Hz | 0 · 0 · 14 · 72 · 14 |
+| reward_kill_3_shine__c | reward.kill | C | Premio | mono | 295 ms | 35 ms | -1.0 dB | -20.3 dB | 5768 Hz | 1324 Hz | 0 · 0 · 14 · 72 · 14 |
 | reward_repair__a | reward.repair | A ✓ | Premio | mono | 296 ms | 106 ms | -1.0 dB | -17.4 dB | 4160 Hz | 376 Hz | 2 · 18 · 50 · 4 · 27 |
 | reward_repair_shine__a | reward.repair | A ✓ | Premio | mono | 404 ms | 114 ms | -1.0 dB | -21.8 dB | 1812 Hz | 1326 Hz | 0 · 0 · 0 · 100 · 0 |
 | reward_repair__b | reward.repair | B | Premio | mono | 280 ms | 0 ms | -1.0 dB | -12.3 dB | 5935 Hz | 581 Hz | 0 · 2 · 38 · 40 · 21 |
@@ -448,12 +457,9 @@ Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.
 - **player.hurt A** (en el juego): Puñetazo medio y un gruñido corto de dolor (MrFossy).
 - **player.hurt B**: Golpe sordo con el peso en 180 Hz y otros dos gruñidos.
 - **player.hurt C**: Golpe contra el suelo de madera y gruñidos más largos.
-- **reward.hit A** (en el juego): HITMARKER METÁLICO: un golpe de metal afinado a La 5 con un toque seco debajo y un poco de peso, comprimido.
-- **reward.hit B**: GOLPE SECO CON CHISPA: un golpe de lata en Do 5, el chasquido de un pestillo y un tic de glockenspiel en La 6.
-- **reward.hit C**: HITMARKER GRAVE: un golpe seco en Re 5, un puñetazo corto y el filo de una moneda.
-- **reward.kill A** (en el juego): Golpe seco con un tintineo de moneda; el brillo es un glockenspiel real en La 5, que sube con la racha.
-- **reward.kill B**: Bofetada con madera; el brillo es una caja de música real en Re 6.
-- **reward.kill C**: Golpe pesado con salpicadura; el brillo es una copa de cristal golpeada, bajada a La 5.
+- **reward.kill A** (en el juego): ESTERTOR Y CAÍDA: tres muertes de zombi grabadas, con la carne que revienta y el cuerpo que cae; la racha es un yunque afinado a La 5.
+- **reward.kill B**: REVIENTA: primero la carne que revienta, luego un quejido corto y un golpe contra el suelo; la racha es un «ding» de metal en La 5.
+- **reward.kill C**: MUERTE LENTA: un último gemido más largo, algo húmedo y la caída; la racha es el «ding» de metal en Mi 6 con el golpe del yunque delante.
 - **reward.repair A** (en el juego): Un tablón que golpea la madera y un clavo que entra; la nota de la racha es una kalimba en Mi 6.
 - **reward.repair B**: Dos martillazos rápidos sobre la madera; la nota de la racha es el glockenspiel en La 5.
 - **reward.repair C**: Un tablón que cae en su sitio y rebota una vez; la nota de la racha es un «ding» de cristal en Mi 6.
@@ -536,6 +542,6 @@ Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.
 ## Avisos
 
 - buy.door: Premio más grave (tono 219 Hz) que los de Golpe (mediana 438 Hz)
-- weapon.empty: Golpe más agudo (tono 2368 Hz) que los de Premio (mediana 893 Hz)
-- weapon.reload.end: Golpe más agudo (tono 3911 Hz) que los de Premio (mediana 893 Hz)
-- weapon.reload.start: Golpe más agudo (tono 3518 Hz) que los de Premio (mediana 893 Hz)
+- weapon.empty: Golpe más agudo (tono 2368 Hz) que los de Premio (mediana 880 Hz)
+- weapon.reload.end: Golpe más agudo (tono 3911 Hz) que los de Premio (mediana 880 Hz)
+- weapon.reload.start: Golpe más agudo (tono 3518 Hz) que los de Premio (mediana 880 Hz)

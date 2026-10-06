@@ -1994,4 +1994,9 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
     - El impacto: balas en carne, golpes de carne o golpes a zombis, todos grabados.
     - El toque: glockenspiel, una moneda o una kalimba.
 - **Tercera tanda:** el toque de puntos al acertar (`reward.hit`) pasa a ser un hitmarker de shooter, más contundente, como pidió el usuario. Dura unos 135 ms y está comprimido y algo saturado. Las opciones son metal afinado a La 5 con peso, una lata en Do 5 con un tic de glockenspiel, o un golpe seco en Re 5 con el filo de una moneda. Su volumen en el catálogo no cambia (0,3): la compresión ya lo hace sonar más presente.
+- **Cuarta tanda:**
+  - **Sin `reward.hit`:** a petición del usuario, un acierto suena solo con su impacto en carne (`impact.flesh`). Se quita el sonido de puntos por acierto de la §6.2, del catálogo, del director y de las recetas.
+  - **Muerte orgánica:** `reward.kill` suena a muerte, no a premio: un último estertor o quejido de zombi, la carne que revienta y el cuerpo que cae. Pasa de 1 a 3 variantes porque se oye muy seguido.
+  - **Racha con nota metálica afinada:** un yunque en La 5 (con un filtro estrecho que atenúa su parcial de Sol#6), un «ding» de metal en La 5, o ese «ding» en Mi 6 con el golpe del yunque delante. Los metales son inarmónicos, así que se comprueba qué nota manda en cada archivo generado.
+  - **Informe:** la nota de racha es la misma en todas las variantes a propósito, así que la detección de variantes casi idénticas solo compara los cuerpos.
 

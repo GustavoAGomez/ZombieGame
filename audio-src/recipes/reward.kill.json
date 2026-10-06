@@ -2,7 +2,7 @@
   "chosen": null,
   "candidates": {
     "A": {
-      "about": "Golpe seco con un tintineo de moneda; el brillo es un glockenspiel real en La 5, que sube con la racha.",
+      "about": "ESTERTOR Y CAÍDA: tres muertes de zombi grabadas, con la carne que revienta y el cuerpo que cae; la racha es un yunque afinado a La 5.",
       "channels": 1,
       "variants": [
         {
@@ -11,10 +11,11 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/kenney-impact-sounds/impactPunch_medium_001.ogg",
+                "source": "library/freesound/555412_zombie_death_1.ogg",
                 "process": {
-                  "end": 0.16,
-                  "lowcut": 120
+                  "end": 0.45,
+                  "lowcut": 120,
+                  "fadeOut": 0.15
                 }
               },
               "gain": 1
@@ -22,17 +23,118 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/699528_coin_hit_05.ogg",
+                "source": "library/freesound/495118_wet_splat_1.ogg",
                 "process": {
-                  "highcut": 12000
+                  "end": 0.35,
+                  "lowcut": 150
                 }
               },
-              "gain": 0.3
+              "gain": 0.7,
+              "delay": 0.02
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/733231_ragdollfall1.ogg",
+                "process": {
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.25
             }
           ],
           "process": {
-            "length": 0.18,
-            "fadeOut": 0.06
+            "length": 0.6,
+            "fadeOut": 0.2
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/452333_death_5_the_ridge_host.ogg",
+                "process": {
+                  "end": 0.45,
+                  "lowcut": 120,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/515621_splat_squish_4.ogg",
+                "process": {
+                  "end": 0.35,
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.7,
+              "delay": 0.02
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/733232_ragdollfall2.ogg",
+                "process": {
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.25
+            }
+          ],
+          "process": {
+            "length": 0.6,
+            "fadeOut": 0.2
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/555411_zombie_death_2.ogg",
+                "process": {
+                  "end": 0.45,
+                  "lowcut": 120,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/411671_bloodsquish.ogg",
+                "process": {
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.7,
+              "delay": 0.02
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/733231_ragdollfall1.ogg",
+                "process": {
+                  "semitones": -1,
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.25
+            }
+          ],
+          "process": {
+            "length": 0.6,
+            "fadeOut": 0.2
           }
         }
       ],
@@ -43,11 +145,74 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/348890_glockenspiel_20_a3_02.ogg",
+                "source": "library/freesound/386106_anvil_lokomo_a_100_kg_hammer_on_back_1_t.ogg",
                 "process": {
-                  "semitones": -12,
+                  "semitones": -13.95,
                   "end": 0.25,
-                  "fadeOut": 0.15
+                  "fadeOut": 0.12,
+                  "peaks": [
+                    {
+                      "freq": 1663,
+                      "gainDb": -14,
+                      "q": 6
+                    }
+                  ]
+                }
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "length": 0.45,
+            "fadeOut": 0.2
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/386106_anvil_lokomo_a_100_kg_hammer_on_back_1_t.ogg",
+                "process": {
+                  "semitones": -13.95,
+                  "end": 0.25,
+                  "fadeOut": 0.12,
+                  "peaks": [
+                    {
+                      "freq": 1663,
+                      "gainDb": -14,
+                      "q": 6
+                    }
+                  ]
+                }
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "length": 0.45,
+            "fadeOut": 0.2
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/386106_anvil_lokomo_a_100_kg_hammer_on_back_1_t.ogg",
+                "process": {
+                  "semitones": -13.95,
+                  "end": 0.25,
+                  "fadeOut": 0.12,
+                  "peaks": [
+                    {
+                      "freq": 1663,
+                      "gainDb": -14,
+                      "q": 6
+                    }
+                  ]
                 }
               },
               "gain": 1
@@ -61,7 +226,7 @@
       ]
     },
     "B": {
-      "about": "Bofetada con madera; el brillo es una caja de música real en Re 6.",
+      "about": "REVIENTA: primero la carne que revienta, luego un quejido corto y un golpe contra el suelo; la racha es un «ding» de metal en La 5.",
       "channels": 1,
       "variants": [
         {
@@ -70,9 +235,9 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/770176_kamen_rider_style_smack_punch_impact.ogg",
+                "source": "library/freesound/522091_pound_of_flesh_1.ogg",
                 "process": {
-                  "end": 0.15,
+                  "end": 0.3,
                   "lowcut": 150
                 }
               },
@@ -81,17 +246,122 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/kenney-impact-sounds/impactWood_medium_000.ogg",
+                "source": "library/freesound/555425_zombie_pain_6.ogg",
+                "process": {
+                  "end": 0.3,
+                  "lowcut": 120,
+                  "fadeOut": 0.1
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.06
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/447922_thud_falling_on_wooden_floor_snapping_br.ogg",
                 "process": {
                   "lowcut": 150
                 }
               },
-              "gain": 0.5
+              "gain": 0.6,
+              "delay": 0.25
             }
           ],
           "process": {
-            "length": 0.17,
-            "fadeOut": 0.06
+            "length": 0.6,
+            "fadeOut": 0.2
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/515618_splat_squish_1.ogg",
+                "process": {
+                  "start": 0.42,
+                  "end": 0.75,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/163440_zombie_1.ogg",
+                "process": {
+                  "end": 0.3,
+                  "lowcut": 120,
+                  "fadeOut": 0.1
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.06
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/733232_ragdollfall2.ogg",
+                "process": {
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.25
+            }
+          ],
+          "process": {
+            "length": 0.6,
+            "fadeOut": 0.2
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/495118_wet_splat_1.ogg",
+                "process": {
+                  "end": 0.3,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/creature_hurt_02.ogg",
+                "process": {
+                  "semitones": -3,
+                  "end": 0.3,
+                  "lowcut": 120,
+                  "fadeOut": 0.1
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.06
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/447922_thud_falling_on_wooden_floor_snapping_br.ogg",
+                "process": {
+                  "semitones": -1,
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.25
+            }
+          ],
+          "process": {
+            "length": 0.6,
+            "fadeOut": 0.2
           }
         }
       ],
@@ -102,10 +372,55 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/732949_wind_up_music_box_d6_note.ogg",
+                "source": "library/freesound/852930_metal_ding.ogg",
                 "process": {
-                  "semitones": -0.3,
-                  "end": 0.4,
+                  "semitones": -11.84,
+                  "start": 0.12,
+                  "end": 0.35,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "length": 0.45,
+            "fadeOut": 0.2
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/852930_metal_ding.ogg",
+                "process": {
+                  "semitones": -11.84,
+                  "start": 0.12,
+                  "end": 0.35,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "length": 0.45,
+            "fadeOut": 0.2
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/852930_metal_ding.ogg",
+                "process": {
+                  "semitones": -11.84,
+                  "start": 0.12,
+                  "end": 0.35,
                   "fadeOut": 0.15
                 }
               },
@@ -120,7 +435,7 @@
       ]
     },
     "C": {
-      "about": "Golpe pesado con salpicadura; el brillo es una copa de cristal golpeada, bajada a La 5.",
+      "about": "MUERTE LENTA: un último gemido más largo, algo húmedo y la caída; la racha es el «ding» de metal en Mi 6 con el golpe del yunque delante.",
       "channels": 1,
       "variants": [
         {
@@ -129,10 +444,99 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/kenney-impact-sounds/impactPunch_heavy_001.ogg",
+                "source": "library/freesound/169058_slow_zombie_death.ogg",
                 "process": {
-                  "end": 0.15,
-                  "lowcut": 160
+                  "end": 0.5,
+                  "lowcut": 120,
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/460876_splat11.ogg",
+                "process": {
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.7,
+              "delay": 0.02
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/733231_ragdollfall1.ogg",
+                "process": {
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.25
+            }
+          ],
+          "process": {
+            "length": 0.6,
+            "fadeOut": 0.2
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/555423_zombie_pain_2.ogg",
+                "process": {
+                  "end": 0.5,
+                  "lowcut": 120,
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/460867_splat03.ogg",
+                "process": {
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.7,
+              "delay": 0.02
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/733232_ragdollfall2.ogg",
+                "process": {
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.25
+            }
+          ],
+          "process": {
+            "length": 0.6,
+            "fadeOut": 0.2
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/creature_die_01.ogg",
+                "process": {
+                  "start": 0.08,
+                  "end": 0.6,
+                  "semitones": 3,
+                  "lowcut": 150,
+                  "fadeOut": 0.2
                 }
               },
               "gain": 1
@@ -145,12 +549,25 @@
                   "lowcut": 150
                 }
               },
-              "gain": 0.4
+              "gain": 0.7,
+              "delay": 0.02
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/733231_ragdollfall1.ogg",
+                "process": {
+                  "semitones": -1,
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.25
             }
           ],
           "process": {
-            "length": 0.17,
-            "fadeOut": 0.06
+            "length": 0.6,
+            "fadeOut": 0.2
           }
         }
       ],
@@ -160,13 +577,118 @@
           "layers": [
             {
               "recipe": {
-                "type": "file",
-                "source": "library/freesound/865788_classic_glass_hit_c5.ogg",
-                "process": {
-                  "semitones": -2.96,
-                  "end": 0.35,
-                  "fadeOut": 0.2
-                }
+                "type": "layers",
+                "layers": [
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/852930_metal_ding.ogg",
+                      "process": {
+                        "semitones": -4.84,
+                        "start": 0.12,
+                        "end": 0.35,
+                        "fadeOut": 0.15
+                      }
+                    },
+                    "gain": 1
+                  },
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/386106_anvil_lokomo_a_100_kg_hammer_on_back_1_t.ogg",
+                      "process": {
+                        "semitones": -13.95,
+                        "end": 0.03,
+                        "highcut": 3000
+                      }
+                    },
+                    "gain": 0.4
+                  }
+                ]
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "length": 0.45,
+            "fadeOut": 0.2
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "layers",
+                "layers": [
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/852930_metal_ding.ogg",
+                      "process": {
+                        "semitones": -4.84,
+                        "start": 0.12,
+                        "end": 0.35,
+                        "fadeOut": 0.15
+                      }
+                    },
+                    "gain": 1
+                  },
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/386106_anvil_lokomo_a_100_kg_hammer_on_back_1_t.ogg",
+                      "process": {
+                        "semitones": -13.95,
+                        "end": 0.03,
+                        "highcut": 3000
+                      }
+                    },
+                    "gain": 0.4
+                  }
+                ]
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "length": 0.45,
+            "fadeOut": 0.2
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "layers",
+                "layers": [
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/852930_metal_ding.ogg",
+                      "process": {
+                        "semitones": -4.84,
+                        "start": 0.12,
+                        "end": 0.35,
+                        "fadeOut": 0.15
+                      }
+                    },
+                    "gain": 1
+                  },
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/386106_anvil_lokomo_a_100_kg_hammer_on_back_1_t.ogg",
+                      "process": {
+                        "semitones": -13.95,
+                        "end": 0.03,
+                        "highcut": 3000
+                      }
+                    },
+                    "gain": 0.4
+                  }
+                ]
               },
               "gain": 1
             }

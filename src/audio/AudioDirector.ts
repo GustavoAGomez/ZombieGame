@@ -427,10 +427,9 @@ export class AudioDirector implements GameAudio, SoundTest {
    */
   private listenRewards(events: EventBus, mine: (playerId: number, id: string) => void): void {
     const local = (playerId: number): boolean => playerId === AUDIO.localPlayerId;
+    // A hit sounds only with its impact; a kill, with its streak.
     events.on('points:gained', (e) => {
-      if (!local(e.playerId)) return;
-      if (e.reason === 'hit') this.play('reward.hit');
-      else if (e.reason === 'kill') this.play('reward.kill', { rung: this.climb('kill') });
+      if (local(e.playerId) && e.reason === 'kill') this.play('reward.kill', { rung: this.climb('kill') });
     });
     events.on('barricade:repaired', (e) => {
       if (local(e.playerId)) this.play('reward.repair', { rung: this.climb('repair') });

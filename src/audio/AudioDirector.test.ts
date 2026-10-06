@@ -225,8 +225,7 @@ describe('AudioDirector: weapons and the player (spec 08 §6.1)', () => {
       [() => events.emit('player:damaged', { playerId: 0, hp: 50, maxHp: 100, x: 0, y: 0, fromX: 1, fromY: 0 }), 'player_hurt'],
       [() => events.emit('player:died', { playerId: 0 }), 'player_death'],
       // §6.2 to §6.6.
-      [() => events.emit('points:gained', { playerId: 0, amount: 10, reason: 'hit' }), 'reward_hit'],
-      [() => events.emit('points:gained', { playerId: 0, amount: 60, reason: 'kill' }), 'reward_kill,reward_kill_shine'],
+      [() => events.emit('points:gained', { playerId: 0, amount: 60, reason: 'kill' }), 'reward_kill_2,reward_kill_2_shine'],
       [() => events.emit('barricade:repaired', { playerId: 0, x: 0, y: 0 }), 'reward_repair,reward_repair_shine'],
       [() => events.emit('pickup:collected', { playerId: 0, kind: 'ammo' }), 'pickup_ammo'],
       [() => events.emit('pickup:collected', { playerId: 0, kind: 'health' }), 'pickup_health'],
@@ -362,12 +361,12 @@ describe('AudioDirector: weapons and the player (spec 08 §6.1)', () => {
 });
 
 describe('AudioDirector: rewards, streaks, the hand and the banners (spec 08 §3.4, §6.2 to §6.6)', () => {
-  /** The rate each shine of a streak sound played at, over its body's. */
+  /** The rate each shine of a streak sound played at, over its body's (any of its variants). */
   const shineSteps = (engine: FakeEngine, body: string): number[] => {
     const out: number[] = [];
     engine.played.forEach((p, i) => {
       const shine = engine.played[i + 1];
-      if (p.key === body && shine?.key === `${body}_shine`) out.push(Math.round(12 * Math.log2(shine.options.rate / p.options.rate)));
+      if (p.key.startsWith(body) && !p.key.endsWith('_shine') && shine?.key === `${p.key}_shine`) out.push(Math.round(12 * Math.log2(shine.options.rate / p.options.rate)));
     });
     return out;
   };
@@ -383,7 +382,7 @@ describe('AudioDirector: rewards, streaks, the hand and the banners (spec 08 §3
     kill();
     expect(shineSteps(engine, 'reward_kill')).toEqual([...AUDIO.ladder.steps, 17, 17, 0]);
     // The body never changes its pitch.
-    expect(new Set(engine.played.filter((p) => p.key === 'reward_kill').map((p) => p.options.rate))).toEqual(new Set([1]));
+    expect(new Set(engine.played.filter((p) => p.key.startsWith('reward_kill') && !p.key.endsWith('_shine')).map((p) => p.options.rate))).toEqual(new Set([1]));
   });
 
   it('climbs the repair streak with each plank, and the upgrade one by the level bought', () => {

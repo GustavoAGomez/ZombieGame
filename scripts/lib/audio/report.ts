@@ -78,13 +78,14 @@ export function buildReport(rows: readonly ReportRow[]): Report {
     for (const h of hits) if (h.pitch > rewardMedian) warnings.push(`${h.sound.id}: Golpe más agudo (tono ${hz(h.pitch)}) que los de Premio (mediana ${hz(rewardMedian)})`);
   }
 
-  // Variants of one candidate almost identical.
+  // Variants of one candidate almost identical. A streak's shine is one note on purpose: only the bodies count.
   const byCandidate = new Map<string, ReportRow[]>();
   for (const r of rows) {
     const id = `${r.sound.id} ${r.letter}`;
     byCandidate.set(id, [...(byCandidate.get(id) ?? []), r]);
   }
-  for (const [id, list] of byCandidate) {
+  for (const [id, all] of byCandidate) {
+    const list = all.filter((r) => r.layer === 'body');
     for (let i = 0; i < list.length; i++) {
       for (let j = i + 1; j < list.length; j++) {
         const a = list[i];
