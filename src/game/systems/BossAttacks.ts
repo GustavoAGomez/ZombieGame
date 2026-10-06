@@ -437,12 +437,12 @@ export function updateWave(ctx: SimContext, b: BossState, slot: number, dt: numb
 }
 
 /** A putrid puddle `radius` px wide at (x, y) for BOSS.puddle.time s; with the pool full, the one with least time left goes. */
-export function leavePuddle(ctx: SimContext, x: number, y: number, radius: number): void {
+export function leavePuddle(ctx: SimContext, x: number, y: number, radius: number, time: number = BOSS.puddle.time): void {
   const { puddles } = ctx.state;
   let slot = puddles.find((p) => !p.active);
   if (!slot) slot = puddles.reduce<PuddleState | undefined>((least, p) => (!least || p.timer < least.timer ? p : least), undefined);
   if (!slot) return;
-  Object.assign(slot, { active: true, x, y, radius, timer: BOSS.puddle.time });
+  Object.assign(slot, { active: true, x, y, radius, timer: time });
 }
 
 /** Along its charge, the putrid one leaves a puddle every BOSS.puddle.trailSpacing px it runs (`moved` this tick). */

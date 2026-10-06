@@ -93,7 +93,33 @@ export const DUNGEON = {
    * floor). The new kinds come with phase M4.
    */
   budget: { easy: [6, 6, 6], medium: [9, 12, 15], hard: [12, 16, 20] } as const satisfies Record<RoomDifficulty, readonly [number, number, number]>,
-  enemies: { walker: { cost: 1, fromFloor: 1 }, runner: { cost: 2, fromFloor: 1 }, sprinter: { cost: 3, fromFloor: 2 } } as const satisfies Record<ZombieKind, { cost: number; fromFloor: number }>,
+  enemies: {
+    walker: { cost: 1, fromFloor: 1 },
+    runner: { cost: 2, fromFloor: 1 },
+    exploder: { cost: 2, fromFloor: 1 },
+    spitter: { cost: 3, fromFloor: 2 },
+    sprinter: { cost: 3, fromFloor: 2 },
+    brute: { cost: 5, fromFloor: 2 },
+  } as const satisfies Record<ZombieKind, { cost: number; fromFloor: number }>,
+  /** At most this many of a kind in one wave (§5.2). */
+  waveLimits: { spitter: 2, brute: 1 } as Partial<Record<ZombieKind, number>>,
+  /**
+   * The dungeon's kinds (§5.2). The spitter keeps `keepDistance` px away
+   * with line of sight, swells `windup` s every `spitEvery` s and spits a
+   * slow shot that hurts `damage` and leaves a puddle; in `meleeRange` it
+   * claws. The exploder, killed or on reaching the player, swells `fuse` s
+   * and bursts: `damage` to players and `enemyDamage` to enemies within
+   * `radius` px (bursts chain). The brute is bigger and slower, hits hard,
+   * and nothing pushes it nor takes its legs.
+   */
+  kinds: {
+    spitter: { hpDelta: -1, keepDistance: 160, meleeRange: 70, spitEvery: 2.5, windup: 0.6, shotSpeed: 140, shotRange: 420, shotRadius: 5, damage: 15, puddleTime: 2, puddleRadius: 20 },
+    exploder: { fuse: 0.5, radius: 60, damage: 30, enemyDamage: 3 },
+    brute: { hp: 5, speed: 0.6, scale: 1.5, damage: 35 },
+  },
+  /** The enemies' shots (§5.2), pooled; an explosion's ring fades over `explosionFade` s. */
+  shots: { pool: 16 },
+  explosionFade: 0.35,
   /**
    * Loot (§6.2): money per kill (an elite's ×`eliteMoney`), the drop chances
    * per kill, and what a cleared room gives: money and a roll for a key or

@@ -52,6 +52,7 @@ import { assembleFloor, templatesById } from '../dungeon/assembleFloor';
 import { dungeonMusic } from '../systems/DungeonSystem';
 import { SpawnMarks } from '../entities/SpawnMarks';
 import { DungeonViews } from '../entities/DungeonViews';
+import { DungeonEffects } from '../entities/DungeonEffects';
 import { DUNGEON, floorConfig } from '../../config/dungeon';
 import type { RunState } from '../../core/RunState';
 import type { RunCarry } from './BootScene';
@@ -89,6 +90,7 @@ export class GameScene extends Phaser.Scene {
   private seed = 0;
   private spawnMarks!: SpawnMarks;
   private dungeonViews!: DungeonViews;
+  private dungeonEffects!: DungeonEffects;
   /** Spec 09 §10: whether this run counts for the records. */
   private recordable = true;
   /** The scene is already going down to the next floor. */
@@ -254,6 +256,7 @@ export class GameScene extends Phaser.Scene {
     this.thrownItems = new ThrownItemViews(this, events, manifest);
     this.spawnMarks = new SpawnMarks(this);
     this.dungeonViews = new DungeonViews(this);
+    this.dungeonEffects = new DungeonEffects(this);
     this.debugDraw = new DebugDraw(this, this.map);
     this.services.debugActions = this.createDebugActions();
     this.syncViews(0);
@@ -318,6 +321,7 @@ export class GameScene extends Phaser.Scene {
     if (player) this.playerStains.sync(player, this.playerView.sprite, effectsDt);
     this.spawnMarks.sync(this.state.run);
     this.dungeonViews.sync(this.state.run);
+    this.dungeonEffects.sync(this.state);
     this.debugDraw.draw(this.state, this.sim.nav, this.sim.grid);
     this.presenter.publish(this.state);
     this.updateStats();

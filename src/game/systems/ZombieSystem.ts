@@ -1,3 +1,4 @@
+import { holdAndSpit, lightFuse } from './EnemyKinds';
 import { DUNGEON } from '../../config/dungeon';
 import { rules } from '../rules';
 import { NAVIGATION, PLAYER, ZOMBIES } from '../../config/balance';
@@ -134,13 +135,23 @@ function startCrossing(ctx: SimContext, z: ZombieState, index: number): void {
   setState(ctx, z, 'toWindow');
 }
 
-/** A zombie with crawlAtHp or less left drags itself along. */
+/** A zombie with crawlAtHp or less left drags itself along; the brute never loses its legs (spec 09 §5.2). */
 export function isCrawling(z: ZombieState): boolean {
-  return z.hp > 0 && z.hp <= ZOMBIES.crawlAtHp;
+  return z.kind !== 'brute' && z.hp > 0 && z.hp <= ZOMBIES.crawlAtHp;
 }
 
 function speedOf(z: ZombieState): number {
   return ZOMBIES.kinds[z.kind].speed * (isCrawling(z) ? ZOMBIES.crawlSpeedFactor : 1) * (z.elite ? DUNGEON.elite.speed : 1);
+}
+
+/** How far a zombie's claws reach (from the player's hitbox): the spitter's longer (spec 09 §5.2). */
+export function attackRangeOf(z: ZombieState): number {
+  return z.kind === 'spitter' ? DUNGEON.kinds.spitter.meleeRange : ZOMBIES.attackRange;
+}
+
+/** What a zombie's claw takes: the mode's, the brute's own (spec 09 §5.2). */
+export function attackDamageOf(ctx: SimContext, z: ZombieState): number {
+  return z.kind === 'brute' ? DUNGEON.kinds.brute.damage : rules(ctx.state).zombieDamage;
 }
 
 function updateToWindow(ctx: SimContext, z: ZombieState, dt: number): void {
@@ -312,8 +323,16 @@ function updateChasing(ctx: SimContext, z: ZombieState, dt: number): void {
   const dy = target.y - z.y;
   const dist = Math.hypot(dx, dy);
 
-  if (reachTo(z, target) <= ZOMBIES.attackRange) {
+  // The spitter keeps its distance while it sees the player (spec 09 §5.2).
+  if (z.kind === 'spitter' && holdAndSpit(ctx, z, target, dist, dt)) return;
+
+  if (reachTo(z, target) <= attackRangeOf(z)) {
     z.facing = Math.atan2(dy, dx);
+    // The exploder does not claw: on reaching the player its fuse lights (spec 09 §5.2).
+    if (z.kind === 'exploder') {
+      lightFuse(ctx, z);
+      return;
+    }
     if (z.attackCooldown <= 0) {
       setState(ctx, z, 'attacking', ZOMBIES.attackWindup);
       z.actionTick = ctx.state.tick;
@@ -426,7 +445,7 @@ function updateAttacking(ctx: SimContext, z: ZombieState, dt: number): void {
   z.timer -= dt;
   if (z.timer > 0) return;
   // The strike lands only if the player is still in reach after the windup.
-  if (target && reachTo(z, target) <= ZOMBIES.attackRange) damagePlayer(ctx, target, rules(ctx.state).zombieDamage, z.x, z.y);
+  if (target && reachTo(z, target) <= attackRangeOf(z)) damagePlayer(ctx, target, attackDamageOf(ctx, z), z.x, z.y);
   z.actionTick = ctx.state.tick;
   z.attackCooldown = ZOMBIES.attackCooldown;
   setState(ctx, z, 'chasing');
@@ -446,7 +465,7 @@ function refreshFlowField(ctx: SimContext, dt: number): void {
 }
 
 export function pushable(z: ZombieState): boolean {
-  return isZombieAlive(z) && z.ai !== 'climbing';
+  return isZombieAlive(z) && z.ai !== 'climbing' && z.kind !== 'brute';
 }
 
 /** Tearing planks: it pushes the crowd away but nothing moves it, so it only swings standing still. */

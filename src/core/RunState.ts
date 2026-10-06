@@ -120,6 +120,8 @@ export interface RunState {
   outcome: 'playing' | 'won' | 'dead';
   /** The player asked to go down: the scene builds the next floor. */
   descending: boolean;
+  /** The exploders' bursts (§5.2) for the view: rings that fade. */
+  explosions: { x: number; y: number; radius: number; age: number }[];
   /** Seconds of play in the run. */
   time: number;
   /** The key's extra chance built up by rooms without a prize (§6.2), and whether the floor's treasure was opened. */

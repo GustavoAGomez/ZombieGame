@@ -24,6 +24,7 @@ export function createRunState(seed: number, bank: TemplateBank, floor = 1): Run
     trapdoor: null,
     outcome: 'playing',
     descending: false,
+    explosions: [],
     time: 0,
     pity: 0,
     treasureOpened: false,

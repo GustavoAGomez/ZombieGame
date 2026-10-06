@@ -9,7 +9,7 @@ import { createHandState, emptyHand } from '../game/systems/handSpawn';
 import { placeMatchItems } from '../game/systems/itemSpawns';
 import { initialAccesses } from '../game/systems/ZoneSystem';
 import { bossDelayOf, roundZombies } from '../game/systems/waveFormulas';
-import type { GameMode } from '../config/dungeon';
+import { DUNGEON, type GameMode } from '../config/dungeon';
 import type { RngState } from './Rng';
 import type { RunState } from './RunState';
 
@@ -277,6 +277,11 @@ export interface ZombieState {
   kind: ZombieKind;
   /** An elite (spec 09 §5.2): more life and speed, more money, a golden aura. */
   elite: boolean;
+  /** An exploder's fuse (spec 09 §5.2): seconds to its burst while > 0; -1 unlit; -2 burst already. */
+  fuse: number;
+  /** A spitter's (spec 09 §5.2): seconds to its next spit while it holds, and the swell before it (0 when not swelling). */
+  spitTimer: number;
+  spitWindup: number;
   ai: ZombieAi;
   x: number;
   y: number;
@@ -430,6 +435,17 @@ export interface PuddleState {
 }
 
 /** A burst of hellfire waiting to go off this tick (spec 06 §2.3): queued when a hellfire-burning zombie dies. */
+/** An enemy's shot (spec 09 §5.2): the spitter's slow spit, pooled. */
+export interface EnemyShotState {
+  active: boolean;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  /** Px flown so far: it drops at its range. */
+  travelled: number;
+}
+
 export interface BlastState {
   active: boolean;
   x: number;
@@ -534,6 +550,8 @@ export interface GameState extends RngState {
   bossAttackAt: number;
   /** Hellfire bursts queued this tick, set off by BurnSystem (pooled). */
   blasts: BlastState[];
+  /** The enemies' shots (spec 09 §5.2), pooled; none in Survival. */
+  enemyShots: EnemyShotState[];
   blood: BloodState[];
   pickups: PickupState[];
   /** One per merchant in merchants.ts, enabled or not. */
@@ -669,6 +687,9 @@ function createZombie(): ZombieState {
     active: false,
     kind: 'walker',
     elite: false,
+    fuse: -1,
+    spitTimer: 0,
+    spitWindup: 0,
     ai: 'idle',
     x: 0,
     y: 0,
@@ -801,6 +822,7 @@ export function createGameState(map: MapData, options: GameOptions = {}): GameSt
     puddleTick: BOSS.puddle.tickInterval,
     bossAttackAt: -1000,
     blasts: Array.from({ length: ZOMBIES.poolSize }, () => ({ active: false, x: 0, y: 0, owner: -1 })),
+    enemyShots: Array.from({ length: DUNGEON.shots.pool }, () => ({ active: false, x: 0, y: 0, vx: 0, vy: 0, travelled: 0 })),
     blood: Array.from({ length: ZOMBIES.maxBloodDecals }, createBlood),
     pickups: Array.from({ length: PICKUPS.poolSize }, createPickup),
     merchants: MERCHANTS.map((m) => createMerchant(m.id, m.appears?.by === 'round', players.length)),

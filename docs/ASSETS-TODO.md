@@ -114,6 +114,11 @@ Placeholders dibujados por código hasta que tengan arte. Todos a 32 px de casil
 | Aura de élite (`Zombie`) | Enemigo de élite (§5.2) | Tinte dorado del sprite | Un aro de luz dorada bajo los pies, 24×12 px, animado |
 | Iconos del minimapa (`Hud`) | Tesoro, mano, reto, boss, mago (§4.2) | Cuadrados de color de 3×3 px | Iconos de 5×5 px: cofre, mano, calavera roja, exclamación, sombrero |
 | Sombra de aparición (`SpawnMarks`) | Aviso de oleada (§4) | Elipse negra que oscurece | Una sombra con un aro que se cierra |
+| Escupidor (`zombie_spitter`) | Enemigo que escupe a distancia (§5.2) | El caminante teñido de verde, hinchándose antes de escupir | "pixel art zombie, bloated green throat, 8 directions, idle / walk / spit (puffs up and spits) / attack / death, same size and style as the walker" |
+| Explosivo (`zombie_exploder`) | Enemigo que estalla (§5.2) | El corredor teñido de rojo latiendo; se hincha con la mecha | "pixel art zombie, red glowing veins, 8 directions, idle / run / fuse (swells and glows) / death explosion, same style as the runner" |
+| Bruto (`zombie_brute`) | Enemigo grande y lento (§5.2) | El caminante a escala 1,5 y tinte gris oscuro | "pixel art huge zombie, 1.5× the walker, grey dead skin, heavy arms, 8 directions, idle / walk / smash attack / death" |
+| Escupitajo (`DungeonEffects`) | Proyectil del escupidor | Círculo verde con núcleo claro | "projectile sprite 8x8 px, green acid glob, 2 frames" |
+| Explosión (`DungeonEffects`) | Estallido del explosivo | Anillo rojo que crece y se apaga | "explosion animation 64x64 px, 6 frames, red and orange, no outline" |
 
 ## Sonidos (spec 08)
 

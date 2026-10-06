@@ -25,6 +25,7 @@ import { spawnPickup } from './PickupSystem';
 import { awardPoints } from './PointsSystem';
 import type { SimContext } from './SimContext';
 import { freeZombieSlot } from './SpawnSystem';
+import { updateEnemyKinds } from './EnemyKinds';
 
 export function updateDungeon(ctx: SimContext, dt: number): void {
   const { state, events } = ctx;
@@ -45,6 +46,8 @@ export function updateDungeon(ctx: SimContext, dt: number): void {
   if (!p) return;
   const room = roomAt(ctx, p.x, p.y);
   if (room >= 0 && room !== run.room) enterRoom(ctx, run, room);
+  // The dungeon's kinds (§5.2): fuses, bursts and the spitters' shots.
+  updateEnemyKinds(ctx, dt);
   if (run.fight) tickFight(ctx, run, run.fight, dt);
   else if (room >= 0 && canFight(run, room) && insideRoom(ctx, p, room)) startFight(ctx, run, room);
 }
@@ -187,13 +190,13 @@ export function roomBudget(def: Room, floor: number): number {
   return Math.round(base * scale);
 }
 
-/** Spends a budget on kinds at random (§5.2), among those the floor allows. */
+/** Spends a budget on kinds at random (§5.2), among those the floor allows, within each kind's limit per wave. */
 export function composeWave(ctx: SimContext, budget: number, floor: number): ZombieKind[] {
   const kinds = (Object.keys(DUNGEON.enemies) as ZombieKind[]).filter((k) => DUNGEON.enemies[k].fromFloor <= floor);
   const wave: ZombieKind[] = [];
   let left = budget;
   for (;;) {
-    const affordable = kinds.filter((k) => DUNGEON.enemies[k].cost <= left);
+    const affordable = kinds.filter((k) => DUNGEON.enemies[k].cost <= left && wave.filter((w) => w === k).length < (DUNGEON.waveLimits[k] ?? Infinity));
     if (affordable.length === 0) break;
     const kind = affordable[Math.floor(random(ctx.state) * affordable.length)] as ZombieKind;
     wave.push(kind);
@@ -262,9 +265,14 @@ export function placeDungeonZombie(ctx: SimContext, z: ZombieState, kind: Zombie
   z.active = true;
   z.kind = kind;
   z.elite = elite;
+  z.fuse = -1;
+  z.spitTimer = DUNGEON.kinds.spitter.spitEvery / 2;
+  z.spitWindup = 0;
   z.x = z.prevX = x;
   z.y = z.prevY = y;
-  z.maxHp = Math.round(floorConfig(floor).zombieHp * (elite ? DUNGEON.elite.hp : 1));
+  // The floor's life: the spitter's a hit less, the brute's ×5, an elite's ×2.5 (§5.2).
+  const base = floorConfig(floor).zombieHp + (kind === 'spitter' ? DUNGEON.kinds.spitter.hpDelta : 0);
+  z.maxHp = Math.max(1, Math.round(base * (kind === 'brute' ? DUNGEON.kinds.brute.hp : 1) * (elite ? DUNGEON.elite.hp : 1)));
   z.hp = z.maxHp;
   z.attackCooldown = 0;
   z.stateTick = state.tick;

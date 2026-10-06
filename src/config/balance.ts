@@ -122,7 +122,8 @@ export const CONTROLS = {
   fireKnobMaxTravel: 28,
 } as const;
 
-export type ZombieKind = 'walker' | 'runner' | 'sprinter';
+/** The three of Survival, and the dungeon's three (spec 09 §5.2): the spitter, the exploder and the brute. */
+export type ZombieKind = 'walker' | 'runner' | 'sprinter' | 'spitter' | 'exploder' | 'brute';
 
 export const ZOMBIES = {
   hitboxRadius: 6,
@@ -143,6 +144,10 @@ export const ZOMBIES = {
     walker: { speed: 32, tearTime: 1.4 },
     runner: { speed: 58, tearTime: 1.0 },
     sprinter: { speed: 84, tearTime: 1.0 },
+    // The dungeon's (spec 09 §5.2; the rest of their numbers in dungeon.ts): the spitter walks, the exploder runs, the brute drags (×0.6 of a walker).
+    spitter: { speed: 32, tearTime: 1.4 },
+    exploder: { speed: 58, tearTime: 1.0 },
+    brute: { speed: 19, tearTime: 1.4 },
   } satisfies Record<ZombieKind, { speed: number; tearTime: number }>,
   /** Measured from the zombie centre to the edge of the player's hitbox. */
   attackRange: 16,

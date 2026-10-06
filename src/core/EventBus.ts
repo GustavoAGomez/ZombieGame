@@ -251,6 +251,13 @@ export interface GameEvents {
   'dungeon:trapdoor': { x: number; y: number; won: boolean };
   /** The player goes down (§4). */
   'dungeon:descend': { floor: number };
+  /** The spitter (spec 09 §5.2): it swells, spits, and its spit lands (on the player, a wall, or the floor). */
+  'enemy:spitWindup': { x: number; y: number };
+  'enemy:spit': { x: number; y: number };
+  'enemy:spitHit': { x: number; y: number; player: boolean };
+  /** The exploder (§5.2): its fuse is lit, and it bursts. */
+  'enemy:fuse': { x: number; y: number };
+  'enemy:exploded': { x: number; y: number; radius: number };
 }
 
 type Handler<P> = (payload: P) => void;
