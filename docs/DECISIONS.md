@@ -2285,6 +2285,7 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - Test: recoger cada llave emite el evento con ella ya contada.
 - **El escupidor andaba sobre el sitio** mientras se plantaba a escupir: sigue en persecución, quieto, y la vista le ponía `walk`. Ahora, si no se ha movido en el tick (menos de 0,2 px, para no confundirlo con los empujones de los demás), está de pie (`idle`); al hincharse, `spit`. Los demás tipos parados un instante siguen con `walk`.
 - **Corredor de pie más grande que el caminante:** medía 46–48 px de alto frente a 41. `"scale"` ×0,88 en todas sus animaciones de pie (andar, zarpazo, climb, muerte y reposo), y también en las de sin piernas, para no descompensarlas: ×0,62 al sur y ×0,7 el resto. Ahora mide 42.
+  - **Después** (petición del usuario): tumbado hacia el sureste y el suroeste se veía muy pequeño, porque compartía el ×0,62 del sur. Esas diagonales suben a ×0,72 y quedan del tamaño del este y el noreste (×0,7). El sur sigue en ×0,62.
 
 ## Animaciones más finas: carrera del corredor, andar del bruto y reposo del escupidor (PixelLab, petición del usuario)
 

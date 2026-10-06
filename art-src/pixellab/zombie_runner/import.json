@@ -21,14 +21,14 @@
     "crawl": {
       "*": 0.7,
       "south": 0.62,
-      "south-east": 0.62,
-      "south-west": 0.62
+      "south-east": 0.72,
+      "south-west": 0.72
     },
     "crawl_attack": {
       "*": 0.7,
       "south": 0.62,
-      "south-east": 0.62,
-      "south-west": 0.62
+      "south-east": 0.72,
+      "south-west": 0.72
     }
   }
 }
