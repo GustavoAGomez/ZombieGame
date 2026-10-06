@@ -25,6 +25,8 @@ export function createRunState(seed: number, bank: TemplateBank, floor = 1): Run
     outcome: 'playing',
     descending: false,
     explosions: [],
+    altar: null,
+    pact: null,
     shop: null,
     bossChoice: null,
     leechKills: 0,

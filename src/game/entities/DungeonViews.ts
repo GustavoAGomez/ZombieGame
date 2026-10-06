@@ -21,6 +21,7 @@ export class DungeonViews {
     const g = this.graphics;
     g.clear();
     if (!run) return;
+    if (run.altar) this.drawAltar(run.altar.x, run.altar.y, run.pact?.accepted === true);
     for (const chest of run.chests) this.drawChest(chest);
     if (run.trapdoor) {
       const { x, y } = run.trapdoor;
@@ -31,6 +32,28 @@ export class DungeonViews {
       g.lineStyle(1, hex(COLORS.dim), 1);
       g.lineBetween(x - 10, y, x + 10, y);
       g.lineBetween(x, y - 10, x, y + 10);
+    }
+  }
+
+  /** The altar of the pact (spec 09 §9): a ring of red candles on a dark circle, put out once the pact is sealed. */
+  private drawAltar(x: number, y: number, sealed: boolean): void {
+    const g = this.graphics;
+    g.fillStyle(hex(COLORS.ink), 0.7);
+    g.fillEllipse(x, y + 2, 30, 18);
+    g.lineStyle(1, hex(sealed ? COLORS.dim : COLORS.redDark), 1);
+    g.strokeEllipse(x, y + 2, 30, 18);
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2;
+      const cx = x + Math.cos(a) * 11;
+      const cy = y + 2 + Math.sin(a) * 6;
+      g.fillStyle(hex(COLORS.bone), 1);
+      g.fillRect(cx - 1, cy - 4, 2, 4);
+      if (!sealed) {
+        g.fillStyle(hex(COLORS.redLow), 1);
+        g.fillRect(cx - 1, cy - 6, 2, 2);
+        g.fillStyle(hex(COLORS.amber), 1);
+        g.fillRect(cx, cy - 7, 1, 1);
+      }
     }
   }
 
@@ -57,7 +80,7 @@ export class DungeonViews {
     g.fillStyle(hex(c.opened ? COLORS.floor : body), 1);
     if (c.opened) g.fillRect(x - 10, y - 14, 20, 6);
     else g.fillRect(x - 10, y - 10, 20, 5);
-    if (!c.opened && (c.kind === 'locked' || c.kind === 'big')) {
+    if (!c.opened && c.kind === 'locked') {
       g.fillStyle(hex(COLORS.amber), 1);
       g.fillRect(x - 3, y - 4, 6, 6);
     }

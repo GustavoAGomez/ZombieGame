@@ -138,6 +138,8 @@ export const STRINGS = {
     floorBanner: (n: number, ambient: string): string => `PLANTA ${n} · ${ambient}`,
     counter: 'SALAS HASTA EL MAGO',
     wizardHere: 'EL MAGO TE ESPERA',
+    /** The pact sealed (spec 09 §9): the curse, said out loud. */
+    pactSealed: (curse: string): string => `PACTO SELLADO · ${curse}`,
     minimap: 'MINIMAPA',
     keys: (n: number): string => (n === 1 ? '1 LLAVE' : `${n} LLAVES`),
     bossKey: 'LLAVE DEL BOSS',
@@ -337,6 +339,11 @@ export const STRINGS = {
     needBossKey: 'FALTA LA LLAVE DEL BOSS',
     challengeRoom: 'SALA DE RETO',
     descend: 'BAJAR',
+    /** The altar (spec 09 §9): the legendary for the curse, and the second tap that seals it. */
+    pact: (upgrade: string, curse: string): string => `ACEPTAR PACTO · ${upgrade} POR ${curse}`,
+    pactConfirm: (upgrade: string, curse: string): string => `¿SEGURO? ${upgrade} POR ${curse}`,
+    /** The dungeon's hand, after its one payment of the floor (spec 09 §9). */
+    handSpent: 'LA MANO YA HA DADO LO SUYO',
     dungeonLabel: 'Acción de la mazmorra',
   },
   /** Only once a room is unlocked does the HUD say which: «COCINA DESBLOQUEADA», «GARAJE DESBLOQUEADO» (SALA if unnamed). */

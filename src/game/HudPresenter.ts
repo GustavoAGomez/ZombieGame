@@ -199,7 +199,9 @@ export class HudPresenter {
       const offer = dungeonOffer(this.map, state, p);
       if (offer) {
         enabled = offer.enabled;
-        dungeon = offer.weapon === undefined ? { action: offer.action } : { action: offer.action, weapon: offer.weapon };
+        dungeon = { action: offer.action };
+        if (offer.weapon !== undefined) dungeon.weapon = offer.weapon;
+        if (offer.pact) dungeon.pact = offer.pact;
       }
     }
     const caseKey = weaponCase ? JSON.stringify(weaponCase) : hand ? JSON.stringify(hand) : dungeon ? JSON.stringify(dungeon) : (item ?? '');

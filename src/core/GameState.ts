@@ -1,3 +1,4 @@
+import { rulesOf } from '../game/rules';
 import { UPGRADES, UPGRADE_EFFECTS } from '../config/upgrades';
 import { BOOSTS, BOSS, BULLETS, LOADOUT, PICKUPS, PLAYER, POINTS, WAVES, ZOMBIES, type BoostKind, type PickupKind, type ZombieKind } from '../config/balance';
 import type { BossAttackId, BossId, BossVariantId } from '../config/bosses';
@@ -864,6 +865,6 @@ export function createGameState(map: MapData, options: GameOptions = {}): GameSt
   };
   // Drawn with the match's RNG as the match starts (spec 05 §2, spec 06 §3.2).
   state.groundItems = placeMatchItems(state, map);
-  state.hand = createHandState(state, map);
+  state.hand = createHandState(state, map, rulesOf(state.mode).hand.uses);
   return state;
 }

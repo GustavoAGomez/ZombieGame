@@ -12,7 +12,7 @@ o..................o
 ## Sala
 | tipo | dificultad | ambiente | nota |
 |---|---|---|---|
-| hand | — | mansion | la sala de la Mano: el altar del pacto llega con la fase M6 |
+| hand | — | mansion | la sala de la Mano: el altar del pacto lo pone el juego tres casillas al este de la grieta |
 
 ## Mano
 | id | casilla |

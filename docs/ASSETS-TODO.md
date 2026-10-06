@@ -123,6 +123,7 @@ Placeholders dibujados por código hasta que tengan arte. Todos a 32 px de casil
 | Mago en la mazmorra (`Merchant`) | El mago de la rareza de su oferta (§7.1) | Los tres magos de Supervivencia sin cambios | Nada nuevo: la rareza se lee por el color del mago |
 | Cofre del boss (`DungeonViews`, `ShopPanel`) | Elegir una de tres mejoras gratis (§7.3) | El cofre rojo oscuro; el panel de tienda en ámbar con «COFRE DEL BOSS» | "map object, high top-down view, dark red chest with golden glow seeping from the lid, 32x24 px" |
 | Rastro del dash (`DungeonEffects`) | Paso de sombra (§7.2) | Brasas naranjas por código que se apagan en 1,5 s | "fire trail animation 16x16 px, 4 frames, embers dying down, no outline" |
+| Altar del pacto (`DungeonViews`) | Una legendaria por una maldición (§9) | Círculo oscuro con seis velas rojas por código; apagadas al sellar el pacto | "map object, high top-down view, ring of six red candles on a dark stone circle with a pentagram, 32x24 px, lit / extinguished" |
 | Golpe crítico, Amuleto, Sanguijuela | Verdugo ×3, el primer golpe absorbido, la cura por bajas (§7.2) | Sin señal propia (eventos `dungeon:ward`, `dungeon:leech` listos para el HUD y el audio) | Texto flotante «¡CRÍTICO!», destello ámbar en el jugador, «+5» verde |
 
 ## Sonidos (spec 08)

@@ -220,6 +220,7 @@ export class Hud {
       events.on('dungeon:rooms', this.onRooms),
       events.on('dungeon:wizard', this.onWizard),
       events.on('dungeon:upgrade', this.onUpgrade),
+      events.on('dungeon:pact', this.onPact),
       events.on('weapon:state', this.onWeapon),
       events.on('player:damaged', this.onDamaged),
       events.on('player:died', this.onDied),
@@ -360,6 +361,12 @@ export class Hud {
   /** The wizard appeared (spec 09 §7.1): said in its colour. */
   private readonly onWizard = (e: GameEvents['dungeon:wizard']): void => {
     this.showNotice(STRINGS.dungeon.wizardHere, merchantDef(e.merchant).color);
+  };
+
+  /** The pact sealed (spec 09 §9): the curse, in red (the legendary is announced as any upgrade). */
+  private readonly onPact = (e: GameEvents['dungeon:pact']): void => {
+    if (e.playerId !== this.localPlayerId) return;
+    this.showNotice(STRINGS.dungeon.pactSealed(STRINGS.upgrades.curses[e.curse]?.name ?? e.curse), COLORS.redLow);
   };
 
   /** An upgrade taken (spec 09 §7.1, §7.3): its name, in its rarity's colour. */

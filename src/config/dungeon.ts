@@ -145,6 +145,12 @@ export const DUNGEON = {
   merchant: { every: 5, offers: 3, rerollBase: 50, rerollStep: 50, key: 150, medkit: 200 },
   /** The boss's chest (§7.3): this many upgrades, one free, at least one rare or better. */
   bossChest: { offers: 3 },
+  /** The challenge room (§6.4): its floor's `hard` budget × this, always in two waves, for the big chest. */
+  challenge: { budgetFactor: 1.5 },
+  /** The Demon's Hand in its room (§9): a weapon for `price`, or `blood` life (flat, never killing), `uses` times per floor. */
+  hand: { price: 400, blood: 30, uses: 1 },
+  /** The pact's altar (§9) stands this many tiles east of the hand's crack (the nearest walkable tile). */
+  altar: { offsetTiles: 3 },
   /** The camera (§4): it stays inside the current room and slides to the next one in this many seconds. */
   camera: { slide: 0.35 },
   /** The template bank each ambient starts with (§3.2), per room type. */

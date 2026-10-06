@@ -12,7 +12,7 @@ occcccccccccccccccco
 ## Sala
 | tipo | dificultad | ambiente | nota |
 |---|---|---|---|
-| hand | — | basement | la sala de la Mano |
+| hand | — | basement | la sala de la Mano; el altar del pacto, tres casillas al este de la grieta |
 
 ## Mano
 | id | casilla |

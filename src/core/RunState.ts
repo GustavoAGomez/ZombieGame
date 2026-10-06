@@ -108,7 +108,15 @@ export interface DungeonShop {
 }
 
 /** What the action button does in the dungeon (§4.1, §6): the thing in reach says which. */
-export type DungeonAction = 'chest' | 'chestKey' | 'needKey' | 'weapon' | 'door' | 'bossDoor' | 'needBossKey' | 'challenge' | 'descend';
+export type DungeonAction = 'chest' | 'chestKey' | 'needKey' | 'weapon' | 'door' | 'bossDoor' | 'needBossKey' | 'challenge' | 'descend' | 'pact' | 'pactConfirm';
+
+/** The pact on offer at the altar (§9): a legendary for a curse; `armed` after the first tap, until the second or walking away. */
+export interface PactState {
+  upgrade: UpgradeId;
+  curse: CurseId;
+  armed: boolean;
+  accepted: boolean;
+}
 
 /** A dungeon run (§1): what carries over from floor to floor, and the floor under way. */
 export interface RunState {
@@ -136,6 +144,9 @@ export interface RunState {
   descending: boolean;
   /** The exploders' bursts (§5.2) for the view: rings that fade. */
   explosions: { x: number; y: number; radius: number; age: number }[];
+  /** The altar of the pact (§9) and what it offers this floor; null when the hand room has none or nothing is left to trade. */
+  altar: { x: number; y: number } | null;
+  pact: PactState | null;
   /** The wizard's shop on this floor (§7.1), or null; the boss chest's choice (§7.3) while its panel is open. */
   shop: DungeonShop | null;
   bossChoice: { chest: number; offers: UpgradeId[] } | null;

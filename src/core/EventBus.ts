@@ -1,4 +1,4 @@
-import type { Rarity, UpgradeId } from '../config/upgrades';
+import type { CurseId, Rarity, UpgradeId } from '../config/upgrades';
 import type { Ambient, RoomType } from '../config/dungeon';
 import type { Cell, ChestState, DoorKind, DungeonAction } from './RunState';
 import type { BoostKind, PickupKind, ZombieKind } from '../config/balance';
@@ -149,8 +149,8 @@ export interface GameEvents {
     kind: 'repair' | 'door' | 'portal' | 'merchant' | 'weaponCase' | 'hand' | 'pickup' | 'dungeon' | null;
     amount: number;
     enabled: boolean;
-    /** With kind 'dungeon' (spec 09 §4.1, §6): a chest, a keyed door, the challenge's warning or the way down; `weapon` what the treasure's case holds. */
-    dungeon?: { action: DungeonAction; weapon?: WeaponId | null };
+    /** With kind 'dungeon' (spec 09 §4.1, §6, §9): a chest, a keyed door, the challenge's warning, the way down or the pact; `weapon` what the treasure's case holds, `pact` what the altar trades. */
+    dungeon?: { action: DungeonAction; weapon?: WeaponId | null; pact?: { upgrade: UpgradeId; curse: CurseId } };
     portal?: 'stairs' | 'hatch';
     locked?: boolean;
     /** With kind 'merchant': whose shop the button opens. */
@@ -167,7 +167,7 @@ export interface GameEvents {
      * weapon on offer, and the upgraded weapon it would replace (`amount`: the price, the health or what
      * is missing).
      */
-    hand?: { mode: 'pay' | 'blood' | 'short' | 'take' | 'confirm'; weapon?: WeaponId; replaces?: WeaponId; replacesLevel?: number };
+    hand?: { mode: 'pay' | 'blood' | 'short' | 'spent' | 'take' | 'confirm'; weapon?: WeaponId; replaces?: WeaponId; replacesLevel?: number };
     /**
      * With kind 'pickup' (spec 05 §3): the special item on the floor; not enabled with the inventory full.
      * Doors and portals never say which room they unlock (`amount` is its price, or what is missing):
@@ -269,6 +269,8 @@ export interface GameEvents {
   'dungeon:upgrade': { playerId: number; id: UpgradeId; rarity: Rarity; free: boolean };
   /** A new offer bought (§7.1). */
   'dungeon:reroll': { price: number };
+  /** The pact sealed at the altar (§9): the legendary taken and the curse carried from now on. */
+  'dungeon:pact': { playerId: number; upgrade: UpgradeId; curse: CurseId };
   /** Amuleto took a hit (§7.2); Sanguijuela healed. */
   'dungeon:ward': { x: number; y: number };
   'dungeon:leech': { heal: number };

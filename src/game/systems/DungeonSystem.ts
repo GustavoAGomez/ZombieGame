@@ -14,7 +14,7 @@ import { WEAPONS, type WeaponId } from '../../config/weapons';
 import type { GameState, PlayerState, ZombieState } from '../../core/GameState';
 import { random } from '../../core/Rng';
 import type { DoorKind, DungeonAction, Room, RoomFight, RunState, WaveEntry } from '../../core/RunState';
-import { setDoorBlocking } from '../map/CollisionGrid';
+import { BLOCK_PLAYER, cellBlocks, setDoorBlocking } from '../map/CollisionGrid';
 import type { MapData } from '../map/MapLoader';
 import { nearestWalkable } from './BossRewards';
 import { dropBossAt, freeBossSlot } from './BossSystem';
@@ -27,7 +27,8 @@ import type { SimContext } from './SimContext';
 import { freeZombieSlot } from './SpawnSystem';
 import { updateEnemyKinds } from './EnemyKinds';
 import { playerStats } from '../dungeon/stats';
-import { placeBossChest, summonWizard } from '../dungeon/wizardShop';
+import { acceptPact, drawPact, placeBossChest, summonWizard } from '../dungeon/wizardShop';
+import type { CurseId, UpgradeId } from '../../config/upgrades';
 
 export function updateDungeon(ctx: SimContext, dt: number): void {
   const { state, events } = ctx;
@@ -48,6 +49,8 @@ export function updateDungeon(ctx: SimContext, dt: number): void {
   if (!p) return;
   const room = roomAt(ctx, p.x, p.y);
   if (room >= 0 && room !== run.room) enterRoom(ctx, run, room);
+  // A pact armed by a first tap is forgotten on walking away from the altar (§9).
+  if (run.pact?.armed && run.altar && (run.altar.x - p.x) ** 2 + (run.altar.y - p.y) ** 2 > DUNGEON.interactRange ** 2) run.pact.armed = false;
   // The dungeon's kinds (§5.2): fuses, bursts and the spitters' shots.
   updateEnemyKinds(ctx, dt);
   if (run.fight) tickFight(ctx, run, run.fight, dt);
@@ -131,6 +134,7 @@ function startFloor(ctx: SimContext, run: RunState): void {
     if (chest) run.chests.push({ x: chest.x, y: chest.y, room: treasure, kind: 'open', weapon: null, opened: false });
     if (weaponCase) run.chests.push({ x: weaponCase.x, y: weaponCase.y, room: treasure, kind: 'weapon', weapon: treasureWeapon(ctx), opened: false });
   }
+  placeAltar(ctx, run);
   const { plan } = run;
   ctx.events.emit('dungeon:floor', {
     floor: run.floor,
@@ -141,6 +145,52 @@ function startFloor(ctx: SimContext, run: RunState): void {
     start: plan.start,
   });
   emitRooms(ctx, run);
+}
+
+/**
+ * The altar of the pact (§9) stands beside the hand's crack in the hand
+ * room, DUNGEON.altar.offsetTiles east (the nearest walkable tile), with a
+ * legendary and a curse drawn for the floor; none when nothing is left to trade.
+ */
+function placeAltar(ctx: SimContext, run: RunState): void {
+  const handRoom = run.plan.rooms.findIndex((r) => r.type === 'hand');
+  const spot = ctx.map.handSpots.find((s) => s.zoneIndex === handRoom);
+  const pact = spot ? drawPact(ctx.state, run) : null;
+  if (!spot || !pact) {
+    run.altar = null;
+    run.pact = null;
+    return;
+  }
+  const at = walkableInRoom(ctx, handRoom, spot.x + DUNGEON.altar.offsetTiles * ctx.map.tileSize, spot.y) ?? { x: spot.x, y: spot.y };
+  run.altar = { x: at.x, y: at.y };
+  run.pact = { ...pact, armed: false, accepted: false };
+}
+
+/** The centre of the tile nearest to (x, y) within `room` a player can stand on, the room still dark or not; null when none is near. */
+function walkableInRoom(ctx: SimContext, room: number, x: number, y: number): { x: number; y: number } | null {
+  const { map, grid } = ctx;
+  const ts = map.tileSize;
+  const cx = Math.floor(x / ts);
+  const cy = Math.floor(y / ts);
+  const ok = (tx: number, ty: number): boolean => tx >= 0 && ty >= 0 && tx < map.width && ty < map.height && map.cellZone[ty * map.width + tx] === room && !cellBlocks(grid, tx, ty, BLOCK_PLAYER);
+  for (let r = 0; r <= DUNGEON.altar.offsetTiles; r++) {
+    let best: { x: number; y: number } | null = null;
+    let bestSq = Infinity;
+    for (let ty = cy - r; ty <= cy + r; ty++) {
+      for (let tx = cx - r; tx <= cx + r; tx++) {
+        if (Math.max(Math.abs(tx - cx), Math.abs(ty - cy)) !== r || !ok(tx, ty)) continue;
+        const px = (tx + 0.5) * ts;
+        const py = (ty + 0.5) * ts;
+        const sq = (px - x) ** 2 + (py - y) ** 2;
+        if (sq < bestSq) {
+          bestSq = sq;
+          best = { x: px, y: py };
+        }
+      }
+    }
+    if (best) return best;
+  }
+  return null;
 }
 
 /** The treasure's weapon (§6.3): a basic one the player lacks, at random; null with both in hand. */
@@ -186,13 +236,13 @@ function setDoors(ctx: SimContext, run: RunState, room: number, open: boolean): 
   }
 }
 
-/** The budget a room's difficulty gives on a floor (§5.2); the endless floors scale it (§12). */
+/** The budget a room's difficulty gives on a floor (§5.2); the challenge's is `hard` × its factor (§6.4); the endless floors scale it (§12). */
 export function roomBudget(def: Room, floor: number): number {
   const difficulty: RoomDifficulty = def.type === 'elite' || def.type === 'challenge' ? 'hard' : (def.difficulty ?? 'medium');
   const table = DUNGEON.budget[difficulty];
   const base = table[Math.min(floor, FLOORS) - 1] as number;
   const scale = floor > FLOORS ? DUNGEON.endless.scalePerFloor ** (floor - FLOORS) : 1;
-  return Math.round(base * scale);
+  return Math.round(base * scale * (def.type === 'challenge' ? DUNGEON.challenge.budgetFactor : 1));
 }
 
 /** Spends a budget on kinds at random (§5.2), among those the floor allows, within each kind's limit per wave. */
@@ -389,6 +439,11 @@ function clearRoom(ctx: SimContext, run: RunState, fight: RoomFight): void {
     run.pity += DUNGEON.loot.pityStep;
   }
   if (def.type === 'elite') spawnPickup(ctx, 'boss_key', at.x + ctx.map.tileSize / 2, at.y);
+  // The challenge's prize (§6.4): its big chest, on the room's chest spot.
+  if (def.type === 'challenge') {
+    const chestSpot = ctx.map.chestSpots.find((s) => s.zoneIndex === room) ?? at;
+    run.chests.push({ x: chestSpot.x, y: chestSpot.y, room, kind: 'big', weapon: null, opened: false });
+  }
   // Every so many rooms, the wizard (§7.1).
   if (run.merchantCounter % DUNGEON.merchant.every === 0) summonWizard(ctx, run, room, at);
   ctx.events.emit('dungeon:roomCleared', { room, counter: run.merchantCounter });
@@ -423,6 +478,8 @@ export interface DungeonOffer {
   enabled: boolean;
   /** With `weapon`: the treasure case's weapon, or null for ammo and money. */
   weapon?: WeaponId | null;
+  /** With `pact` and `pactConfirm` (§9): what the altar trades. */
+  pact?: { upgrade: UpgradeId; curse: CurseId };
 }
 
 /**
@@ -444,10 +501,15 @@ export function dungeonOffer(map: MapData, state: GameState, p: PlayerState): Du
   run.chests.forEach((c, i) => {
     if (c.opened) return;
     if (c.kind === 'weapon') consider(c.x, c.y, { action: 'weapon', target: i, enabled: true, weapon: c.weapon });
-    else if (c.kind === 'open' || c.kind === 'boss') consider(c.x, c.y, { action: 'chest', target: i, enabled: true });
+    else if (c.kind === 'open' || c.kind === 'big' || c.kind === 'boss') consider(c.x, c.y, { action: 'chest', target: i, enabled: true });
     else consider(c.x, c.y, run.keys > 0 ? { action: 'chestKey', target: i, enabled: true } : { action: 'needKey', target: i, enabled: false });
   });
   if (run.trapdoor) consider(run.trapdoor.x, run.trapdoor.y, { action: 'descend', target: 0, enabled: true });
+  // The altar (§9): ACEPTAR PACTO, then a second tap to seal it.
+  if (run.altar && run.pact && !run.pact.accepted) {
+    const { upgrade, curse } = run.pact;
+    consider(run.altar.x, run.altar.y, { action: run.pact.armed ? 'pactConfirm' : 'pact', target: 0, enabled: true, pact: { upgrade, curse } });
+  }
   map.doors.forEach((d, i) => {
     const kind = run.doorKinds[i];
     if (kind === 'key' && !run.doorsUnlocked[i]) consider(d.center.x, d.center.y, run.keys > 0 ? { action: 'door', target: i, enabled: true } : { action: 'needKey', target: i, enabled: false });
@@ -491,6 +553,12 @@ export function tapDungeon(ctx: SimContext, p: PlayerState, offer: DungeonOffer)
       run.descending = true;
       ctx.events.emit('dungeon:descend', { floor: run.floor });
       return;
+    case 'pact':
+      if (run.pact) run.pact.armed = true;
+      return;
+    case 'pactConfirm':
+      acceptPact(ctx, run, p);
+      return;
     default:
       ctx.events.emit('action:denied', { playerId: p.id });
   }
@@ -525,13 +593,15 @@ function openChest(ctx: SimContext, run: RunState, p: PlayerState, index: number
     ctx.events.emit('dungeon:chestOpened', { kind: chest.kind, x: chest.x, y: chest.y });
     return;
   }
-  if (chest.kind === 'locked' || chest.kind === 'big') run.keys = Math.max(0, run.keys - 1);
+  if (chest.kind === 'locked') run.keys = Math.max(0, run.keys - 1);
   const money = chest.kind === 'big' || chest.kind === 'boss' ? DUNGEON.chest.big : chest.kind === 'locked' ? DUNGEON.chest.locked : DUNGEON.chest.open;
   awardPoints(ctx, p.id, money, 'chest', chest.x, chest.y);
   // The treasure's and the challenge's give a medkit; a locked one, ammo or a medkit.
   const kind = chest.kind === 'locked' && random(ctx.state) < 0.5 ? 'ammo' : 'health';
   const at = nearestWalkable(ctx, chest.x + ts / 2, chest.y + ts / 2) ?? { x: chest.x, y: chest.y };
   spawnPickup(ctx, kind, at.x, at.y);
+  // The challenge's big chest (§6.4) holds a key too.
+  if (chest.kind === 'big') spawnPickup(ctx, 'key', at.x - ts / 2, at.y);
   ctx.events.emit('dungeon:chestOpened', { kind: chest.kind, x: chest.x, y: chest.y });
   emitRooms(ctx, run);
 }

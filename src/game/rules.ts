@@ -4,7 +4,7 @@
  * shared systems read (a zombie's scratch, a medkit, the ammo that never
  * runs out). Survival's values are the ones of balance.ts, unchanged.
  */
-import { PICKUPS, POINTS, ZOMBIES } from '../config/balance';
+import { HAND, PICKUPS, POINTS, ZOMBIES } from '../config/balance';
 import { DUNGEON, type GameMode } from '../config/dungeon';
 import type { WeaponId } from '../config/weapons';
 
@@ -29,6 +29,13 @@ export interface ModeRules {
   drops: { ammoChance: number; healthChance: number };
   /** Survival's boss rewards (spec 07 §6: money, pickups, the living heart); the dungeon gives its own (§5.3). */
   bossRewards: boolean;
+  /**
+   * The Demon's Hand (spec 06 §3; §9 here): its price, the blood pact's cost
+   * (a share of the maximum health, or a flat amount), the payments it takes
+   * in a spot (null: drawn from HAND.usesMin..usesMax) and whether it moves
+   * to another spot when tired (the dungeon's stays, spent, until the next floor).
+   */
+  hand: { price: number; blood: { share: number } | { flat: number }; uses: number | null; moves: boolean };
 }
 
 const SURVIVAL: ModeRules = {
@@ -42,6 +49,7 @@ const SURVIVAL: ModeRules = {
   points: { hit: POINTS.hit, melee: POINTS.meleeHit, kill: POINTS.kill },
   drops: { ammoChance: PICKUPS.ammoChance, healthChance: PICKUPS.healthChance },
   bossRewards: true,
+  hand: { price: HAND.price, blood: { share: HAND.bloodShare }, uses: null, moves: true },
 };
 
 const DUNGEON_RULES: ModeRules = {
@@ -55,6 +63,7 @@ const DUNGEON_RULES: ModeRules = {
   points: { hit: 0, melee: 0, kill: DUNGEON.loot.kill },
   drops: { ammoChance: DUNGEON.loot.ammoChance, healthChance: DUNGEON.loot.healthChance },
   bossRewards: false,
+  hand: { price: DUNGEON.hand.price, blood: { flat: DUNGEON.hand.blood }, uses: DUNGEON.hand.uses, moves: false },
 };
 
 export function rulesOf(mode: GameMode): ModeRules {

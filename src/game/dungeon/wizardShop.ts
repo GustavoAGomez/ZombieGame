@@ -7,7 +7,7 @@
  */
 import { DUNGEON } from '../../config/dungeon';
 import type { MerchantId, MerchantItemId } from '../../config/merchants';
-import { RARITY_CHANCES, RARITY_PRICES, UPGRADES, UPGRADE_EFFECTS, UPGRADE_IDS, rarityOf, type Rarity, type UpgradeId } from '../../config/upgrades';
+import { CURSE_IDS, RARITY_CHANCES, RARITY_PRICES, UPGRADES, UPGRADE_EFFECTS, UPGRADE_IDS, rarityOf, type CurseId, type Rarity, type UpgradeId } from '../../config/upgrades';
 import type { GameEvents } from '../../core/EventBus';
 import type { GameState, PlayerState } from '../../core/GameState';
 import { random } from '../../core/Rng';
@@ -216,6 +216,30 @@ export function takeUpgrade(ctx: SimContext, run: RunState, p: PlayerState, id: 
   if (id === 'vitality') p.hp += UPGRADE_EFFECTS.vitality.heal;
   p.hp = Math.min(p.hp, p.maxHp);
   ctx.events.emit('dungeon:upgrade', { playerId: p.id, id, rarity: rarityOf(id), free });
+}
+
+/**
+ * The pact (§9): a legendary the run can still take for a curse it does not
+ * carry, drawn with the match's RNG; null when either is used up.
+ */
+export function drawPact(state: GameState, run: RunState): { upgrade: UpgradeId; curse: CurseId } | null {
+  const legendaries = offerable(run).filter((id) => rarityOf(id) === 'legendary');
+  const curses = CURSE_IDS.filter((id) => !run.curses.includes(id));
+  if (legendaries.length === 0 || curses.length === 0) return null;
+  const upgrade = legendaries[Math.floor(random(state) * legendaries.length)] as UpgradeId;
+  const curse = curses[Math.floor(random(state) * curses.length)] as CurseId;
+  return { upgrade, curse };
+}
+
+/** The pact is sealed (§9): the legendary joins the run for free, the curse for the rest of the match. */
+export function acceptPact(ctx: SimContext, run: RunState, p: PlayerState): void {
+  const pact = run.pact;
+  if (!pact || pact.accepted) return;
+  pact.accepted = true;
+  pact.armed = false;
+  run.curses.push(pact.curse);
+  takeUpgrade(ctx, run, p, pact.upgrade, true);
+  ctx.events.emit('dungeon:pact', { playerId: p.id, upgrade: pact.upgrade, curse: pact.curse });
 }
 
 /**

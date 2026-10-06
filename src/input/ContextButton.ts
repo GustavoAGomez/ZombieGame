@@ -145,6 +145,8 @@ export class ContextButton extends PointerControl {
         this.value.style.color = 'var(--red)';
       } else if (hand.mode === 'short') {
         this.value.textContent = STRINGS.shop.missing(e.amount);
+      } else if (hand.mode === 'spent') {
+        this.value.textContent = STRINGS.actions.handSpent;
       } else {
         this.value.textContent = STRINGS.actions.handPay(STRINGS.hud.money(e.amount));
       }
@@ -152,8 +154,20 @@ export class ContextButton extends PointerControl {
     } else if (e.kind === 'dungeon' && e.dungeon) {
       const a = e.dungeon.action;
       const S = STRINGS.actions;
+      const pact = e.dungeon.pact;
+      const pactText = (confirm: boolean): string => {
+        const upgrade = pact ? (STRINGS.upgrades.names[pact.upgrade] ?? pact.upgrade) : '';
+        const curse = pact ? (STRINGS.upgrades.curses[pact.curse]?.name ?? pact.curse) : '';
+        return confirm ? S.pactConfirm(upgrade, curse) : S.pact(upgrade, curse);
+      };
+      // The pact's second tap, in red: it is the one that seals it.
+      if (a === 'pactConfirm') this.value.style.color = 'var(--red)';
       this.value.textContent =
-        a === 'chest'
+        a === 'pact'
+          ? pactText(false)
+          : a === 'pactConfirm'
+            ? pactText(true)
+            : a === 'chest'
           ? S.openChest
           : a === 'chestKey'
             ? S.openChestKey
