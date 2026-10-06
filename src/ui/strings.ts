@@ -1,3 +1,4 @@
+import type { SoundFamily, VolumeLevel } from '../config/audio';
 import type { BossId, BossVariantId } from '../config/bosses';
 import type { WeaponId } from '../config/weapons';
 /** Rooms by zone id, with their gender for «COCINA DESBLOQUEADA» / «GARAJE DESBLOQUEADO». */
@@ -19,6 +20,9 @@ const ZONES: Readonly<Record<string, { name: string; feminine: boolean }>> = {
 /** A zone without a name here. */
 const ROOM = { name: 'SALA', feminine: true };
 
+/** The pause menu's volume settings (spec 08 §2). */
+const VOLUME_LABELS: Readonly<Record<VolumeLevel, string>> = { high: 'ALTO', medium: 'MEDIO', low: 'BAJO', off: 'NO' };
+
 /** Every user-visible text, in Spanish. */
 export const STRINGS = {
   gameTitle: 'ZOMBIES',
@@ -27,6 +31,22 @@ export const STRINGS = {
   debug: {
     title: 'DEPURACIÓN',
     close: 'CERRAR',
+    /** Spec 08 §8: every sound of the catalog, by family. */
+    soundTest: 'PRUEBA DE SONIDOS',
+    soundBack: 'VOLVER',
+    simulateCombat: 'SIMULAR COMBATE',
+    simulateStreak: 'SIMULAR RACHA',
+    /** «Probar en partida» (spec 08 §4.4). */
+    soundTestHint: 'La partida está en silencio mientras este panel está abierto. Toca A, B o C para oír un candidato: desde ese momento también suena en la partida.',
+    copyChoice: 'COPIAR ELECCIÓN',
+    copied: 'COPIADO',
+    copyFailed: 'COPIA EL TEXTO',
+    clearTrials: 'BORRAR PRUEBAS',
+    choiceTitle: 'Elección de sonidos:',
+    noTrials: 'Ningún candidato en prueba.',
+    soundFamilies: { hit: 'GOLPE', reward: 'PREMIO', threat: 'AMENAZA', ui: 'INTERFAZ', jingle: 'CARTELES', music: 'MÚSICA' } satisfies Record<SoundFamily, string>,
+    soundStats: (voices: number, dropped: number, last: string, state: string): string =>
+      `VOCES ${voices} · DESCARTADAS ${dropped}${last ? ` (ÚLTIMA: ${last})` : ''} · AUDIO: ${state.toUpperCase()}`,
     nextRound: 'RONDA +1',
     points: '+5000$',
     god: 'DIOS',
@@ -34,7 +54,7 @@ export const STRINGS = {
     flowField: 'FLUJO',
     levelUp: '+NIVEL ARMA',
     special: 'ESPECIAL ARMA',
-    boost: 'DAR MEJORA',
+    boost: 'MEJORA DE RONDA',
     moveMerchants: 'MOVER MAGOS',
     redGold: 'ROJO/DORADO',
     bigPoints: '+10000$',
@@ -61,10 +81,23 @@ export const STRINGS = {
     forceCharge: 'FORZAR EMBESTIDA',
     forceSlam: 'FORZAR MAZAZO',
     forceLeap: 'FORZAR SALTOS',
+    /** Spec 09 §13. */
+    revealMap: 'REVELAR MAPA',
+    giveKey: 'DAR LLAVE',
+    giveBossKey: 'DAR LLAVE DEL BOSS',
+    dungeonMoney: '+500$',
+    clearRoom: 'LIMPIAR SALA',
+    goToBoss: 'IR AL BOSS',
+    descendFloor: 'BAJAR DE PLANTA',
+    upgradeChoice: (name: string): string => `MEJORA: ${name}`,
+    giveUpgrade: 'DAR MEJORA',
+    callWizard: 'LLAMAR AL MAGO',
   },
   controls: {
     joystick: 'Joystick de movimiento',
     fire: 'Disparar: arrastra para apuntar',
+    /** The fire button with a melee weapon in hand (the katana): it cuts ahead, no aim. */
+    slash: 'Cortar hacia delante',
     weaponSlot: (n: number) => `Arma ${n}`,
     special: 'Movimiento especial',
     reload: 'Recargar',
@@ -99,8 +132,46 @@ export const STRINGS = {
     dead: 'HAS MUERTO',
   },
   title: {
-    subtitle: 'SOBREVIVE TODAS LAS RONDAS QUE PUEDAS',
-    play: 'JUGAR',
+    /** Spec 09 §1: the two games, each with its line and its record under its button. */
+    survival: 'SUPERVIVENCIA',
+    survivalSubtitle: 'SOBREVIVE TODAS LAS RONDAS QUE PUEDAS',
+    survivalRecord: (round: number): string => `MEJOR RONDA: ${round}`,
+    dungeon: 'MAZMORRA',
+    dungeonSubtitle: 'TRES PLANTAS AL AZAR Y UN BOSS EN CADA UNA',
+    dungeonRecord: (floor: number, rooms: number): string => `MEJOR PLANTA: ${floor} · ${rooms === 1 ? '1 SALA' : `${rooms} SALAS`}`,
+    dungeonWins: (wins: number, time: string): string => `${wins === 1 ? '1 VICTORIA' : `${wins} VICTORIAS`} · MEJOR ${time}`,
+    noRecord: 'SIN RÉCORD',
+  },
+  /** The dungeon (spec 09): the floor's label and banner. */
+  dungeon: {
+    floor: (n: number): string => `PLANTA ${n}`,
+    ambients: { mansion: 'MANSIÓN', basement: 'SÓTANO', garden: 'JARDÍN' } as Record<string, string>,
+    floorBanner: (n: number, ambient: string): string => `PLANTA ${n} · ${ambient}`,
+    counter: 'SALAS HASTA EL MAGO',
+    wizardHere: 'EL MAGO TE ESPERA',
+    /** The pact sealed (spec 09 §9): the curse, said out loud. */
+    pactSealed: (curse: string): string => `PACTO SELLADO · ${curse}`,
+    minimap: 'MINIMAPA',
+    keys: (n: number): string => (n === 1 ? '1 LLAVE' : `${n} LLAVES`),
+    bossKey: 'LLAVE DEL BOSS',
+    /** The end of a run (§10). */
+    fell: 'HAS CAÍDO',
+    escaped: 'HAS ESCAPADO',
+    floorReached: (n: number): string => `PLANTA ${n}`,
+    roomsCleared: (n: number): string => (n === 1 ? '1 SALA LIMPIA' : `${n} SALAS LIMPIAS`),
+    kills: (n: number): string => (n === 1 ? '1 BAJA' : `${n} BAJAS`),
+    time: (clock: string): string => `TIEMPO ${clock}`,
+    seed: (seed: number): string => `SEMILLA ${seed}`,
+    again: 'OTRA PARTIDA',
+    sameSeed: 'MISMA SEMILLA',
+    menu: 'MENÚ',
+    keepGoing: 'SEGUIR',
+    newRecord: '¡NUEVO RÉCORD!',
+  },
+  /** Seconds as M:SS (a run's time, spec 09 §10). */
+  clock: (seconds: number): string => {
+    const s = Math.max(0, Math.floor(seconds));
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   },
   pause: {
     button: 'Pausa',
@@ -108,6 +179,12 @@ export const STRINGS = {
     resume: 'CONTINUAR',
     restart: 'REINICIAR',
     vibration: (on: boolean): string => (on ? 'VIBRACIÓN: SÍ' : 'VIBRACIÓN: NO'),
+    /** Spec 08 §2: the effects and music volume, rotating on each tap. */
+    sfx: (level: VolumeLevel): string => `EFECTOS: ${VOLUME_LABELS[level]}`,
+    music: (level: VolumeLevel): string => `MÚSICA: ${VOLUME_LABELS[level]}`,
+    /** The dungeon (spec 09 §4.2): the upgrades and curses carried, a tap on one says what it does. */
+    upgrades: 'MEJORAS',
+    noUpgrades: 'Todavía ninguna. El mago aparece cada 5 salas limpias.',
   },
   gameOver: {
     title: 'FIN DE LA PARTIDA',
@@ -136,7 +213,10 @@ export const STRINGS = {
       hasSpecial: 'YA TIENE ESPECIAL',
       noSpecial: 'SIN MEJORA ESPECIAL',
       likeNew: 'COMO NUEVA',
+      hpFull: 'VIDA COMPLETA',
     },
+    /** A free row (the boss's chest, spec 09 §7.3). */
+    take: 'ELEGIR',
     comeBack: 'VUELVE EN OTRA RONDA',
     close: 'Cerrar tienda',
     /** The round boost row says which boost this visit sells. */
@@ -171,7 +251,80 @@ export const STRINGS = {
       upgrade_damage: { name: 'MEJORAR DAÑO', description: 'Más daño por bala para el arma en mano' },
       weapon_special: { name: 'MEJORA ESPECIAL', description: 'Una mejora única para un arma' },
       repair: { name: 'REPARAR', description: 'Devuelve todos sus usos a un arma que se desgasta' },
+      /** The dungeon's wizard (spec 09 §7.1); an upgrade row takes its name and text from `upgrades`. */
+      upgrade: { name: 'MEJORA', description: '' },
+      reroll: { name: 'CAMBIAR OFERTA', description: 'Tres mejoras nuevas; cada vez cuesta 50$ más' },
+      key: { name: 'LLAVE', description: 'Abre la sala del tesoro o un cofre cerrado' },
+      medkit: { name: 'BOTIQUÍN', description: '+40 de vida, aquí mismo' },
     },
+    /** The boss's chest (spec 09 §7.3): one of three, free. */
+    bossChest: 'COFRE DEL BOSS',
+    free: 'GRATIS',
+    chosen: 'ELEGIDA',
+  },
+  /** The legend of the upgrades and curses (spec 09 §7, §9): the HUD's ⓘ, a shop row's ⓘ and the altar's. */
+  legend: {
+    title: 'MEJORAS Y MALDICIONES',
+    pact: 'EL PACTO',
+    pactHint: 'Dos toques en ACEPTAR PACTO lo sellan. Dura toda la partida.',
+    curse: 'MALDICIÓN',
+    owned: (n: number): string => (n > 1 ? `LA TIENES ×${n}` : n === 1 ? 'LA TIENES' : ''),
+    none: 'Todavía no llevas ninguna. El mago aparece cada 5 salas limpias; el altar está en la sala de la Mano.',
+    info: 'Qué hace',
+    button: 'Mejoras y maldiciones',
+    close: 'Cerrar leyenda',
+  },
+  /** The permanent upgrades (spec 09 §7.2) and the curses (§9), by id. */
+  upgrades: {
+    rarities: { common: 'COMÚN', rare: 'RARA', legendary: 'LEGENDARIA' } as Record<string, string>,
+    names: {
+      vitality: 'VITALIDAD',
+      quick_hands: 'MANOS RÁPIDAS',
+      light_feet: 'PIES LIGEROS',
+      magnet: 'IMÁN',
+      greed: 'CODICIA',
+      deep_pockets: 'BOLSILLOS HONDOS',
+      sharp_knife: 'FILO',
+      piercing: 'PERFORANTES',
+      ricochet: 'REBOTE',
+      incendiary: 'INCENDIARIAS',
+      volatile: 'VOLÁTILES',
+      leech: 'SANGUIJUELA',
+      second_wind: 'SEGUNDO AIRE',
+      adrenaline: 'ADRENALINA',
+      fan_fire: 'ABANICO',
+      shadow_dash: 'PASO DE SOMBRA',
+      ward: 'AMULETO',
+      executioner: 'VERDUGO',
+    } as Record<string, string>,
+    descriptions: {
+      vitality: '+25 de vida máxima y cura 25',
+      quick_hands: 'Recargas un 25 % más rápido',
+      light_feet: '+10 % de velocidad',
+      magnet: 'Recoges desde 3 veces más lejos y nada caduca en el suelo',
+      greed: '+30 % de dinero',
+      deep_pockets: '+50 % de munición de reserva',
+      sharp_knife: 'El cuchillo hace el doble de daño y llega un 30 % más lejos',
+      piercing: 'Las balas atraviesan a un enemigo más',
+      ricochet: 'Las balas rebotan una vez en las paredes',
+      incendiary: '20 % de prender al enemigo',
+      volatile: 'Los enemigos estallan al morir: 2 de daño a los de alrededor',
+      leech: 'Curas 5 cada 10 bajas',
+      second_wind: 'Un segundo dash',
+      adrenaline: 'Con la vida baja, +30 % de cadencia y de velocidad',
+      fan_fire: 'Dos proyectiles más a los lados, con la mitad de daño',
+      shadow_dash: 'El dash hace 3 de daño y deja un rastro de fuego',
+      ward: 'Absorbe el primer golpe de cada sala',
+      executioner: '15 % de golpe crítico, con el triple de daño',
+    } as Record<string, string>,
+    curses: {
+      frail: { name: 'FRÁGIL', description: '−25 de vida máxima' },
+      hunted: { name: 'ACOSADO', description: 'Los enemigos corren un 15 % más' },
+      tithe: { name: 'DIEZMO', description: 'Los magos cobran un 30 % más' },
+      leak: { name: 'FUGA', description: '−30 % de munición de reserva' },
+    } as Record<string, { name: string; description: string }>,
+    /** «×2» after a name held twice. */
+    copies: (n: number): string => (n > 1 ? ` ×${n}` : ''),
   },
   actions: {
     repair: 'REPARAR',
@@ -198,6 +351,23 @@ export const STRINGS = {
     /** Special items on the floor (spec 05 §3): "RECOGER VARITA DESGASTADA". */
     pickUp: (item: string): string => `RECOGER ${item}`,
     inventoryFull: 'INVENTARIO LLENO',
+    /** The dungeon (spec 09 §4.1, §6): chests, keyed doors, the challenge's warning and the way down. */
+    openChest: 'ABRIR COFRE',
+    openChestKey: 'ABRIR COFRE · 1 LLAVE',
+    needKey: 'FALTA UNA LLAVE',
+    takeWeapon: (weapon: string): string => `COGER ${weapon}`,
+    takeAmmo: 'MUNICIÓN Y 200$',
+    openDoorKey: 'ABRIR · 1 LLAVE',
+    openBossDoor: 'ABRIR · LLAVE DEL BOSS',
+    needBossKey: 'FALTA LA LLAVE DEL BOSS',
+    challengeRoom: 'SALA DE RETO',
+    descend: 'BAJAR',
+    /** The altar (spec 09 §9): the legendary for the curse, and the second tap that seals it. */
+    pact: (upgrade: string, curse: string): string => `ACEPTAR PACTO · ${upgrade} POR ${curse}`,
+    pactConfirm: (upgrade: string, curse: string): string => `¿SEGURO? ${upgrade} POR ${curse}`,
+    /** The dungeon's hand, after its one payment of the floor (spec 09 §9). */
+    handSpent: 'LA MANO YA HA DADO LO SUYO',
+    dungeonLabel: 'Acción de la mazmorra',
   },
   /** Only once a room is unlocked does the HUD say which: «COCINA DESBLOQUEADA», «GARAJE DESBLOQUEADO» (SALA if unnamed). */
   zoneUnlocked: (zone: string): string => {
@@ -215,7 +385,7 @@ export const STRINGS = {
   } as Readonly<Partial<Record<WeaponId, string>>>,
   /** Bosses (spec 07), by id: the name over their health bar. */
   bosses: {
-    names: { butcher: 'EL MATARIFE' } as Readonly<Record<BossId, string>>,
+    names: { butcher: 'MATARIFE' } as Readonly<Record<BossId, string>>,
     /** Its health bar, for screen readers. */
     health: (name: string): string => `Vida de ${name}`,
     /** Under the round banner in a boss round (spec 07 §6). */

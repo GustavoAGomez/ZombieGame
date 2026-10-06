@@ -22,7 +22,12 @@
     "tiles:review": "tsx scripts/review-tiles.ts",
     "map:build": "tsx scripts/build-map.ts",
     "map:preview": "tsx scripts/preview-map.ts",
-    "hud:import": "tsx scripts/import-hud.ts"
+    "hud:import": "tsx scripts/import-hud.ts",
+    "windows:compose": "tsx scripts/compose-windows.ts",
+    "audio:gen": "tsx scripts/audio-gen.ts",
+    "audio:search": "tsx scripts/audio-search.ts",
+    "dungeon:preview": "tsx scripts/dungeon-preview.ts",
+    "rooms:build": "tsx scripts/rooms-build.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",
@@ -39,6 +44,7 @@
     "@eslint/js": "^10.0.1",
     "@types/node": "^22.20.4",
     "eslint": "^10.11.0",
+    "ffmpeg-static": "^5.3.0",
     "globals": "^17.12.0",
     "tsx": "^4.23.15",
     "typescript": "~6.0.3",

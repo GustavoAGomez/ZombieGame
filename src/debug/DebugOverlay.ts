@@ -1,4 +1,9 @@
+import { UPGRADE_IDS } from '../config/upgrades';
+import type { SoundTest } from '../audio/AudioDirector';
+import type { GameMode } from '../config/dungeon';
+import type { SoundFamily } from '../config/audio';
 import { STRINGS } from '../ui/strings';
+import { choiceText, loadTrials, saveTrials, type TrialStorage } from './soundTrials';
 import './debug.css';
 
 export interface DebugStats {
@@ -51,11 +56,23 @@ export interface DebugActions {
   goToWand(): void;
   /** Spec 05 §8: every item spot on the map (the wand's ringed) and the activation sites. */
   toggleItemSpots(): boolean;
-  /** Spec 07 §10: El Matarife comes into the match now; the bosses on the map die. */
+  /** Spec 07 §10: Matarife comes into the match now; the bosses on the map die. */
   summonBoss(): void;
   killBoss(): void;
   /** The bosses' next attack is this one, as soon as they finish what they are doing. */
   forceAttack(attack: 'charge' | 'slam' | 'leap'): void;
+  /** Spec 09 §13, the dungeon: the whole map known, keys, money, the room cleared, the arena, the next floor, an upgrade (with its selector) and the wizard. */
+  revealMap(): void;
+  giveKey(): void;
+  giveBossKey(): void;
+  addDungeonMoney(): void;
+  clearRoom(): void;
+  goToBoss(): void;
+  descendFloor(): void;
+  /** The upgrade DAR MEJORA gives, in turns; returns the button's new label. */
+  cycleUpgrade(): string;
+  giveUpgrade(): void;
+  callWizard(): void;
 }
 
 const TRIPLE_TAP_WINDOW_MS = 600;
@@ -72,6 +89,8 @@ const REFRESH_MS = 250;
  * only while a match is running: rounds, money, god mode, drawings
  * (hitboxes, flow field, spots), weapons and their upgrades, boosts,
  * merchants, special items, the Demon's Hand and the bosses.
+ * PRUEBA DE SONIDOS (spec 08 §8) opens a second sheet with every sound of
+ * the catalog, a tab per family, which works with or without a match.
  */
 export class DebugOverlay {
   /** Folded: the stats alone at the top left; a tap on them opens the sheet. */
@@ -79,6 +98,11 @@ export class DebugOverlay {
   /** Open: every button over the whole screen, with a button to fold it back. */
   private readonly sheet: HTMLDivElement;
   private readonly statsEl: HTMLPreElement;
+  /** The sound test: every sound of the catalog, played as in the game. */
+  private readonly soundSheet: HTMLDivElement;
+  private readonly soundStatsEl: HTMLParagraphElement;
+  /** Draws the sound test's list again (the candidates are known once the manifest has loaded). */
+  private redrawSounds: () => void = () => undefined;
   private timer = 0;
   private visible = false;
 
@@ -87,6 +111,7 @@ export class DebugOverlay {
     private readonly readStats: () => DebugStats,
     enabled: boolean,
     actions: () => DebugActions | null = () => null,
+    private readonly sounds: SoundTest | null = null,
   ) {
     this.panel = document.createElement('div');
     this.panel.className = 'debug-panel';
@@ -141,6 +166,17 @@ export class DebugOverlay {
     button(STRINGS.debug.forceSlam, (a) => a.forceAttack('slam'));
     button(STRINGS.debug.forceLeap, (a) => a.forceAttack('leap'));
     button(STRINGS.debug.bossZones, (a) => a.toggleBossZones());
+    // The dungeon (spec 09 §13); they do nothing in Survival.
+    button(STRINGS.debug.revealMap, (a) => a.revealMap());
+    button(STRINGS.debug.giveKey, (a) => a.giveKey());
+    button(STRINGS.debug.giveBossKey, (a) => a.giveBossKey());
+    button(STRINGS.debug.dungeonMoney, (a) => a.addDungeonMoney());
+    button(STRINGS.debug.clearRoom, (a) => a.clearRoom());
+    button(STRINGS.debug.goToBoss, (a) => a.goToBoss());
+    button(STRINGS.debug.descendFloor, (a) => a.descendFloor());
+    button(STRINGS.debug.upgradeChoice(STRINGS.upgrades.names[UPGRADE_IDS[0] ?? ''] ?? ''), (a) => a.cycleUpgrade());
+    button(STRINGS.debug.giveUpgrade, (a) => a.giveUpgrade());
+    button(STRINGS.debug.callWizard, (a) => a.callWizard());
     this.panel.append(this.statsEl);
     this.panel.addEventListener('pointerup', (e) => {
       e.preventDefault();
@@ -166,7 +202,22 @@ export class DebugOverlay {
     });
     head.append(title, close);
     this.sheet.append(head, buttons);
-    root.append(this.panel, this.sheet);
+
+    this.soundStatsEl = document.createElement('p');
+    this.soundStatsEl.className = 'debug-sound-stats';
+    this.soundSheet = this.buildSoundSheet();
+    if (this.sounds) {
+      const open = document.createElement('button');
+      open.type = 'button';
+      open.className = 'debug-button debug-button--sounds';
+      open.textContent = STRINGS.debug.soundTest;
+      open.addEventListener('pointerup', (e) => {
+        e.preventDefault();
+        this.setSoundsOpen(true);
+      });
+      buttons.appendChild(open);
+    }
+    root.append(this.panel, this.sheet, this.soundSheet);
 
     const corner = document.createElement('div');
     corner.className = 'debug-corner';
@@ -192,7 +243,149 @@ export class DebugOverlay {
   /** Opens the sheet over the whole screen, or folds it back to the stats at the top left. */
   setOpen(open: boolean): void {
     this.sheet.hidden = !open;
+    this.soundSheet.hidden = true;
+    this.sounds?.setTesting(false);
     this.panel.hidden = open;
+  }
+
+  /** The sound test over the debug sheet (the match silent under it), or back to it. */
+  private setSoundsOpen(open: boolean): void {
+    this.soundSheet.hidden = !open;
+    this.sheet.hidden = open;
+    this.sounds?.setTesting(open);
+    if (open) this.redrawSounds();
+    this.refresh();
+  }
+
+  /**
+   * The sound test (spec 08 §8): a tab per family and a button per sound,
+   * which plays it as the game would (its variant, pitch and limits), and
+   * the voices playing and the plays dropped by a limit.
+   */
+  private buildSoundSheet(): HTMLDivElement {
+    const sheet = document.createElement('div');
+    sheet.className = 'debug-sheet debug-sheet--sounds';
+    sheet.hidden = true;
+    const head = document.createElement('div');
+    head.className = 'debug-sheet__head';
+    const title = document.createElement('span');
+    title.className = 'debug-sheet__title';
+    title.textContent = STRINGS.debug.soundTest;
+    const back = document.createElement('button');
+    back.type = 'button';
+    back.className = 'debug-button debug-sheet__close';
+    back.textContent = STRINGS.debug.soundBack;
+    back.addEventListener('pointerup', (e) => {
+      e.preventDefault();
+      this.setSoundsOpen(false);
+    });
+    head.append(title, back);
+    const tabs = document.createElement('div');
+    tabs.className = 'debug-sound-tabs';
+    const list = document.createElement('div');
+    list.className = 'debug-buttons debug-sound-list';
+    const actions = document.createElement('div');
+    actions.className = 'debug-sound-tabs';
+    const hint = document.createElement('p');
+    hint.className = 'debug-sound-stats';
+    hint.textContent = STRINGS.debug.soundTestHint;
+    // The candidates on trial, as the text to send in the chat.
+    const choice = document.createElement('pre');
+    choice.className = 'debug-sound-choice';
+    sheet.append(head, this.soundStatsEl, hint, actions, choice, tabs, list);
+    const sounds = this.sounds;
+    if (!sounds) return sheet;
+    // «Probar en partida»: the trials kept on this device come back (spec 08 §4.4).
+    const storage = deviceStorage();
+    for (const [id, letter] of Object.entries(loadTrials(storage))) sounds.setTrial(id, letter);
+    const showChoice = (): void => {
+      choice.textContent = choiceText(sounds.trials());
+    };
+    showChoice();
+    const action = (label: string, run: (b: HTMLButtonElement) => void): void => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'debug-button debug-sound-tab';
+      b.textContent = label;
+      b.addEventListener('pointerup', (e) => {
+        e.preventDefault();
+        run(b);
+      });
+      actions.appendChild(b);
+    };
+    // SIMULAR COMBATE and SIMULAR RACHA, to hear the mix and the repair streak (spec 08 §8).
+    action(STRINGS.debug.simulateCombat, () => sounds.simulateCombat());
+    action(STRINGS.debug.simulateStreak, () => sounds.simulateStreak());
+    action(STRINGS.debug.copyChoice, (b) => {
+      void copyText(choiceText(sounds.trials())).then((ok) => {
+        b.textContent = ok ? STRINGS.debug.copied : STRINGS.debug.copyFailed;
+        window.setTimeout(() => (b.textContent = STRINGS.debug.copyChoice), 1500);
+      });
+    });
+    action(STRINGS.debug.clearTrials, () => {
+      for (const id of Object.keys(sounds.trials())) sounds.setTrial(id, null);
+      saveTrials(storage, sounds.trials());
+      showChoice();
+      this.redrawSounds();
+    });
+    const families = [...new Set(sounds.sounds.map((s) => s.family))];
+    let current = families[0];
+    this.redrawSounds = () => {
+      if (current) show(current);
+    };
+    const show = (family: SoundFamily): void => {
+      current = family;
+      for (const tab of tabs.children) tab.classList.toggle('is-on', (tab as HTMLElement).dataset.family === family);
+      list.replaceChildren();
+      for (const s of sounds.sounds) {
+        if (s.family !== family) continue;
+        // A cell per sound: its button (as in the game) and one per candidate, the one playing marked.
+        const cell = document.createElement('div');
+        cell.className = 'debug-sound-cell';
+        const play = (label: string, run: () => void, extra = ''): HTMLButtonElement => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = `debug-button ${extra}`.trim();
+          b.textContent = label;
+          b.addEventListener('pointerup', (e) => {
+            e.preventDefault();
+            run();
+            this.refresh();
+          });
+          cell.appendChild(b);
+          return b;
+        };
+        const pick = sounds.pickOf(s.id);
+        play(pick?.pending ? `${s.id} ?` : s.id, () => sounds.test(s.id), 'debug-sound');
+        for (const letter of sounds.candidatesOf(s.id)) {
+          // It plays, and from now on the game plays it too (until another letter or BORRAR PRUEBAS).
+          const b = play(letter, () => {
+            sounds.setTrial(s.id, letter);
+            saveTrials(storage, sounds.trials());
+            sounds.testCandidate(s.id, letter);
+            showChoice();
+            show(family);
+          }, 'debug-sound-candidate');
+          b.classList.toggle('is-on', pick?.letter === letter);
+        }
+        list.appendChild(cell);
+      }
+    };
+    for (const family of families) {
+      const tab = document.createElement('button');
+      tab.type = 'button';
+      tab.className = 'debug-button debug-sound-tab';
+      tab.dataset.family = family;
+      tab.textContent = STRINGS.debug.soundFamilies[family];
+      tab.addEventListener('pointerup', (e) => {
+        e.preventDefault();
+        show(family);
+      });
+      tabs.appendChild(tab);
+    }
+    const first = families[0];
+    if (first) show(first);
+    return sheet;
   }
 
   setVisible(visible: boolean): void {
@@ -213,6 +406,10 @@ export class DebugOverlay {
       lines.push(`${label}: ${typeof value === 'number' ? Math.round(value) : value}`);
     }
     this.statsEl.textContent = lines.join('\n');
+    if (this.sounds && !this.soundSheet.hidden) {
+      const s = this.sounds.stats();
+      this.soundStatsEl.textContent = STRINGS.debug.soundStats(s.voices, s.dropped, s.lastDropped, s.state);
+    }
   }
 }
 
@@ -227,7 +424,53 @@ export function requestedStartRound(search: string = window.location.search): nu
 }
 
 /** ?map=<key> chooses the map from the manifest (default: the first one). */
+/** ?mode=dungeon preselects the dungeon on the title (spec 09 §1); anything else is Survival. */
+export function requestedMode(search: string = window.location.search): GameMode {
+  return new URLSearchParams(search).get('mode') === 'dungeon' ? 'dungeon' : 'survival';
+}
+
+/** ?seed=N fixes the match's seed (spec 09 §1): the same dungeon every time. */
+export function requestedSeed(search: string = window.location.search): number | null {
+  const raw = new URLSearchParams(search).get('seed');
+  if (raw === null || !/^-?\d+$/.test(raw)) return null;
+  return Number(raw) | 0;
+}
+
 export function requestedMap(search: string = window.location.search): string | null {
   const key = new URLSearchParams(search).get('map');
   return key && /^[a-z0-9_]+$/.test(key) ? key : null;
+}
+
+/** The browser's localStorage, or null where it is missing or blocked. */
+function deviceStorage(): TrialStorage | null {
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
+
+/** Copies `text`: the clipboard API (it needs https), else a hidden text box. False when neither works. */
+async function copyText(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    const area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.position = 'fixed';
+    area.style.opacity = '0';
+    document.body.appendChild(area);
+    area.select();
+    let ok: boolean;
+    try {
+      // The only way on a phone over http (the local network): no clipboard API there.
+      ok = document.execCommand('copy');
+    } catch {
+      ok = false;
+    }
+    area.remove();
+    return ok;
+  }
 }

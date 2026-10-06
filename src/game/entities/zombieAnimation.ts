@@ -22,7 +22,7 @@ export interface ZombiePose {
 
 /** Legless: little HP left (ZOMBIES.crawlAtHp), as in ZombieSystem. */
 export function isLegless(z: ZombieState): boolean {
-  return z.hp > 0 && z.hp <= ZOMBIES.crawlAtHp;
+  return z.kind !== 'brute' && z.hp > 0 && z.hp <= ZOMBIES.crawlAtHp;
 }
 
 /** The animation a zombie's state asks for. Pure: reads state only. */

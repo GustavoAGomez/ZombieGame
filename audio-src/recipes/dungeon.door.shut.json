@@ -1,0 +1,107 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "La puerta de Kenney cerrándose de golpe, con un golpe sordo de madera debajo.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/doorClose_1.ogg",
+                "process": {
+                  "end": 0.5
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/342535_medium_thud_1.ogg",
+                "process": {
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.02
+            }
+          ],
+          "process": {
+            "length": 0.38,
+            "fadeOut": 0.08
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Una puerta pesada grabada, recortada al portazo.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/691473_door.ogg",
+                "process": {
+                  "end": 0.6,
+                  "lowcut": 120
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/218461_wood_block.ogg"
+              },
+              "gain": 0.5
+            }
+          ],
+          "process": {
+            "length": 0.38,
+            "fadeOut": 0.08
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Un tablón cayendo sobre madera: más seco y hueco.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/447922_thud_falling_on_wooden_floor_snapping_br.ogg",
+                "process": {
+                  "end": 0.5,
+                  "lowcut": 140
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactWood_heavy_000.ogg"
+              },
+              "gain": 0.6
+            }
+          ],
+          "process": {
+            "length": 0.36,
+            "fadeOut": 0.06
+          }
+        }
+      ]
+    }
+  }
+}

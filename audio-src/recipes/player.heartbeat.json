@@ -1,0 +1,272 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Latido real grabado dos veces (pum-pum), subido de tono, saturado y con un golpe sordo en medios para que se oiga en el altavoz del móvil.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/22440_single_heartbeat_clean_hq_beatsmith.ogg",
+                "process": {
+                  "end": 0.25,
+                  "semitones": 7,
+                  "lowcut": 110,
+                  "fadeOut": 0.08
+                }
+              },
+              "gain": 1,
+              "delay": 0.15
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactSoft_medium_000.ogg",
+                "process": {
+                  "lowcut": 150,
+                  "highcut": 600,
+                  "peaks": [
+                    {
+                      "freq": 250,
+                      "gainDb": 4,
+                      "q": 1
+                    }
+                  ]
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.15
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/22440_single_heartbeat_clean_hq_beatsmith.ogg",
+                "process": {
+                  "end": 0.25,
+                  "semitones": 6,
+                  "lowcut": 110,
+                  "fadeOut": 0.08
+                }
+              },
+              "gain": 0.7,
+              "delay": 0.45
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactSoft_medium_001.ogg",
+                "process": {
+                  "lowcut": 150,
+                  "highcut": 600,
+                  "peaks": [
+                    {
+                      "freq": 250,
+                      "gainDb": 4,
+                      "q": 1
+                    }
+                  ]
+                }
+              },
+              "gain": 0.35,
+              "delay": 0.45
+            }
+          ],
+          "process": {
+            "drive": 0.6,
+            "lowcut": 140,
+            "peaks": [
+              {
+                "freq": 170,
+                "gainDb": 5,
+                "q": 1
+              }
+            ],
+            "length": 0.98
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Bombo grave de latido subido siete semitonos, con el mismo golpe sordo en medios.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/784655_heartbeat_sub_kick_louder.ogg",
+                "process": {
+                  "end": 0.3,
+                  "semitones": 7,
+                  "lowcut": 110,
+                  "fadeOut": 0.08
+                }
+              },
+              "gain": 1,
+              "delay": 0.15
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactSoft_medium_000.ogg",
+                "process": {
+                  "lowcut": 150,
+                  "highcut": 600,
+                  "peaks": [
+                    {
+                      "freq": 250,
+                      "gainDb": 4,
+                      "q": 1
+                    }
+                  ]
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.15
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/784655_heartbeat_sub_kick_louder.ogg",
+                "process": {
+                  "end": 0.3,
+                  "semitones": 6,
+                  "lowcut": 110,
+                  "fadeOut": 0.08
+                }
+              },
+              "gain": 0.7,
+              "delay": 0.42
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactSoft_medium_001.ogg",
+                "process": {
+                  "lowcut": 150,
+                  "highcut": 600,
+                  "peaks": [
+                    {
+                      "freq": 250,
+                      "gainDb": 4,
+                      "q": 1
+                    }
+                  ]
+                }
+              },
+              "gain": 0.35,
+              "delay": 0.42
+            }
+          ],
+          "process": {
+            "drive": 0.6,
+            "lowcut": 140,
+            "peaks": [
+              {
+                "freq": 170,
+                "gainDb": 5,
+                "q": 1
+              }
+            ],
+            "length": 0.98
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Otro latido grabado, más largo y redondo, con el golpe sordo en medios.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/22417_single_heartbeat_hq_beatsmith.ogg",
+                "process": {
+                  "end": 0.3,
+                  "semitones": 7,
+                  "lowcut": 110,
+                  "fadeOut": 0.08
+                }
+              },
+              "gain": 1,
+              "delay": 0.15
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactSoft_medium_000.ogg",
+                "process": {
+                  "lowcut": 150,
+                  "highcut": 600,
+                  "peaks": [
+                    {
+                      "freq": 250,
+                      "gainDb": 4,
+                      "q": 1
+                    }
+                  ]
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.15
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/22417_single_heartbeat_hq_beatsmith.ogg",
+                "process": {
+                  "end": 0.3,
+                  "semitones": 6,
+                  "lowcut": 110,
+                  "fadeOut": 0.08
+                }
+              },
+              "gain": 0.7,
+              "delay": 0.45
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactSoft_medium_001.ogg",
+                "process": {
+                  "lowcut": 150,
+                  "highcut": 600,
+                  "peaks": [
+                    {
+                      "freq": 250,
+                      "gainDb": 4,
+                      "q": 1
+                    }
+                  ]
+                }
+              },
+              "gain": 0.35,
+              "delay": 0.45
+            }
+          ],
+          "process": {
+            "drive": 0.6,
+            "lowcut": 140,
+            "peaks": [
+              {
+                "freq": 170,
+                "gainDb": 5,
+                "q": 1
+              }
+            ],
+            "length": 0.98
+          }
+        }
+      ]
+    }
+  }
+}

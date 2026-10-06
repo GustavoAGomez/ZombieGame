@@ -1,0 +1,43 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Cristal en Mi6 sobre un toque de piedra (aire filtrado y un grave corto)",
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            { "recipe": { "type": "synth", "timbre": "glass", "note": "E6", "duration": 0.12 }, "gain": 0.8 },
+            { "recipe": { "type": "synth", "timbre": "air", "freq": 500, "freqEnd": 300, "width": 2, "duration": 0.05, "seed": 11 }, "gain": 0.5 },
+            { "recipe": { "type": "synth", "timbre": "sub", "freq": 150, "duration": 0.05 }, "gain": 0.3 }
+          ]
+        }
+      ]
+    },
+    "B": {
+      "about": "Cristal más agudo y seco (La6) con un roce de piedra más fino",
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            { "recipe": { "type": "synth", "timbre": "glass", "note": "A6", "duration": 0.1 }, "gain": 0.8 },
+            { "recipe": { "type": "synth", "timbre": "air", "freq": 700, "freqEnd": 400, "width": 2, "duration": 0.04, "seed": 12 }, "gain": 0.4 }
+          ]
+        }
+      ]
+    },
+    "C": {
+      "about": "Cristal más grave (Do6) y una piedra más presente",
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            { "recipe": { "type": "synth", "timbre": "glass", "note": "C6", "duration": 0.15, "attack": 0.003 }, "gain": 0.8 },
+            { "recipe": { "type": "synth", "timbre": "air", "freq": 350, "freqEnd": 250, "width": 1.5, "duration": 0.06, "seed": 13 }, "gain": 0.6 },
+            { "recipe": { "type": "synth", "timbre": "sub", "freq": 130, "duration": 0.06 }, "gain": 0.4 }
+          ]
+        }
+      ]
+    }
+  }
+}

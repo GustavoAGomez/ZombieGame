@@ -38,12 +38,49 @@
   text-shadow: 2px 2px 0 var(--ink);
 }
 
+/* The title's two modes (spec 09 §1): a column each, side by side while they fit. */
+.screen-modes {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.screen-mode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: 260px;
+}
+
+.screen-mode .screen-subtitle {
+  text-align: center;
+}
+
+.screen-mode__record {
+  margin: 0;
+  font-size: 9px;
+  color: var(--amber);
+  text-shadow: 2px 2px 0 var(--ink);
+  text-align: center;
+}
+
 .screen-line {
   margin: 0;
   font-family: var(--font-display);
   font-size: 14px;
   color: var(--bone);
   text-shadow: 2px 2px 0 var(--ink);
+}
+
+/* The run's figures (spec 09 §10), one under another. */
+.screen-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
 }
 
 .screen-points {
@@ -109,6 +146,67 @@
   color: var(--bone);
 }
 
+/* The pause menu's settings in one row: vibration, effects and music (spec 08 §2). */
+/* The end of a run (spec 09 §10): the upgrades and curses carried, in a row. */
+.screen-carried {
+  max-width: min(92vw, 560px);
+  font-size: 9px;
+  line-height: 1.6;
+}
+
+/* The dungeon's MEJORAS in the pause menu (spec 09 §4.2): a scrolling list under the settings. */
+.screen-upgrades {
+  width: min(92vw, 520px);
+  max-height: 34vh;
+  overflow-y: auto;
+  margin-top: 10px;
+  padding: 6px 10px;
+  border: 2px solid #5a4636;
+  background: rgb(15 14 12 / 0.7);
+  text-align: left;
+}
+
+.screen-upgrades__title {
+  margin: 0 0 6px;
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: #b8ad97;
+}
+
+.screen-upgrade {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 0;
+  border-top: 1px solid rgb(90 70 54 / 0.5);
+}
+
+.screen-upgrade__name {
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+
+.screen-upgrade__description,
+.screen-upgrades__empty {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 10px;
+  color: #b8ad97;
+}
+
+.screen-settings {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.screen-settings .screen-button {
+  min-width: 150px;
+}
+
 .screen-button--big {
   min-width: 240px;
   font-size: 20px;
@@ -116,18 +214,20 @@
 }
 
 /*
- * Pause button: 32×32 at the top centre (spec 01 §2.5), tappable 14 px
- * around it. Centred, unless the special items' row (four slots to the left
- * of the points, controls.css) would reach its tap area: on the narrowest
- * screens (640 px) it moves left as far as needed, clear of the health row.
+ * Pause button: 32×32 in the bottom-right corner of the screen (petición
+ * del usuario, so the bosses' bars can go at the very top), tappable 14 px
+ * around it. It sits in the corner diagonally below the fire button, the
+ * same 61.5 px from its centre on every screen (both hang from --pad-x and
+ * --pad-bottom): its tap area never reaches the fire button's circle. With
+ * the smallest pads (24 and 20 px) it is 6 px from both edges; on a
+ * notched phone it stays inside the safe area's rounded corner.
  */
 .pause-button {
   position: absolute;
-  left: min(50%, calc(100% - var(--pad-x) - 141px - 12px - 4 * 44px - 14px - 16px - 4px));
-  top: calc(var(--pad-top) + 10px);
+  right: calc(var(--pad-x) - 18px);
+  bottom: calc(var(--pad-bottom) - 14px);
   width: 32px;
   height: 32px;
-  margin-left: -16px;
   display: flex;
   align-items: center;
   justify-content: center;

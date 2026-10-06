@@ -1,0 +1,177 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Mi-Do-La de campana grave que desciende despacio, con la campana de iglesia afinada.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "E4",
+                    0.5
+                  ],
+                  [
+                    "C4",
+                    0.5
+                  ],
+                  [
+                    "A3",
+                    0
+                  ]
+                ],
+                "duration": 1.2
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/76405_old_church_bell.ogg",
+                "process": {
+                  "semitones": 0.83,
+                  "end": 2.0,
+                  "fadeOut": 0.6
+                }
+              },
+              "gain": 0.4
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.22,
+            "length": 2.4,
+            "fadeOut": 0.8
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Gong afinado en La y La-Mi-La que baja.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/519359_gong_10_sem.ogg",
+                "process": {
+                  "semitones": 0.37,
+                  "end": 2.2,
+                  "fadeOut": 0.6,
+                  "lowcut": 110
+                }
+              },
+              "gain": 0.7
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "A4",
+                    0.5
+                  ],
+                  [
+                    "E4",
+                    0.5
+                  ],
+                  [
+                    "A3",
+                    0
+                  ]
+                ],
+                "duration": 1.2
+              },
+              "gain": 0.8
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.22,
+            "length": 2.4,
+            "fadeOut": 0.8
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Campana de iglesia y un acorde La-Mi que se hunde dos semitonos.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/76405_old_church_bell.ogg",
+                "process": {
+                  "semitones": 0.83,
+                  "end": 2.2,
+                  "fadeOut": 0.6
+                }
+              },
+              "gain": 0.6
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "pad",
+                "notes": [
+                  [
+                    "A3",
+                    0,
+                    1
+                  ],
+                  [
+                    "E4",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 2.2,
+                "attack": 0.1,
+                "width": 8,
+                "process": {
+                  "glide": -2
+                }
+              },
+              "gain": 0.5
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "A3",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 1.5
+              },
+              "gain": 0.6
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.22,
+            "length": 2.4,
+            "fadeOut": 0.8
+          }
+        }
+      ]
+    }
+  }
+}

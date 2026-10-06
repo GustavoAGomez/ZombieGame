@@ -1,4 +1,6 @@
+import { rules } from '../rules';
 import { updateBoosts } from './BoostSystem';
+import { updateDungeon } from './DungeonSystem';
 import { updateBosses } from './BossSystem';
 import { updateBullets } from './BulletSystem';
 import { updateBurns } from './BurnSystem';
@@ -41,16 +43,19 @@ export function stepSimulation(ctx: SimContext, dt: number): void {
   updateShops(ctx);
   updateBullets(ctx, dt);
   updateBurns(ctx, dt);
-  updateSpawns(ctx, dt);
+  const mode = rules(state);
+  if (mode.waves) updateSpawns(ctx, dt);
   updateZombies(ctx, dt);
   // After the zombies: a boss shoves aside the ones in its way.
   updateBosses(ctx, dt);
   updateZombiePortals(ctx);
   updatePickups(ctx, dt);
   updateBlood(ctx, dt);
-  updateWaves(ctx, dt);
+  if (mode.waves) updateWaves(ctx, dt);
+  // The dungeon (spec 09): its rooms, doors and waves in place of the rounds.
+  if (mode.dungeon) updateDungeon(ctx, dt);
   // After the waves: a merchant moves on the very tick its round starts.
-  updateMerchants(ctx);
+  if (mode.merchants) updateMerchants(ctx);
   state.tick++;
   state.time += dt;
 }

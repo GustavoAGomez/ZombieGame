@@ -1,0 +1,41 @@
+#########oo#########
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+occcccccccccccccccco
+occcccccccccccccccco
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+#########oo#########
+
+## Sala
+| tipo | dificultad | ambiente | nota |
+|---|---|---|---|
+| combat | medium | mansion | trastero del garaje |
+
+## Enemigos (puntos de aparición, a 4 casillas o más de los huecos)
+| id | casilla |
+|---|---|
+| E1 | 4,5 |
+| E2 | 15,5 |
+| E3 | 5,3 |
+| E4 | 14,6 |
+| E5 | 4,2 |
+
+## Magos
+| id | casilla | nota |
+|---|---|---|
+| M1 | 18,8 | rincón sureste |
+
+## Atrezo (muebles; con colisión es la cobertura de la sala)
+| id | objeto | casillas | colisión | volteo | nota |
+|---|---|---|---|---|---|
+| A1 | prop_cajas | 1,1 2,2 | sí | — |  |
+| A2 | prop_cajas | 16,7 17,8 | sí | — |  |
+| A3 | prop_estanteria_metal_corta | 16,1 17,2 | sí | — |  |
+| A4 | prop_bidon | 4,7 | sí | — |  |
+| A5 | prop_neumaticos | 14,7 | sí | — |  |
+| A6 | prop_herramientas_suelo | 9,5 | no | — |  |
+| A7 | prop_mancha_aceite | 6,2 | no | — |  |
+| A8 | prop_banco_trabajo | 8,1 8,3 | sí | — | banco de trabajo |

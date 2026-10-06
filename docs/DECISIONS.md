@@ -1804,6 +1804,394 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 - **Capa:** las marcas del boss en el suelo (anillo y sombra) bajan a `DEPTH.floorMarks` (1,75), justo bajo las paredes. Así, la parte de arriba de una pared al sur, que la onda cruza antes de llegar a su base, la tapa.
 - **Pendiente aparte:** en algunas paredes verticales de la mansión queda un hueco de 12 px por el que pasan la vista, las balas y el daño de la onda, y ahora también su dibujo, porque lo sigue fielmente. Se atribuyó a la celda con cara; era la puerta cerrada (ver «Las puertas verticales cierran la pared»).
 
+## El boss se llama Matarife (petición del usuario)
+
+- El nombre visible pasa de «EL MATARIFE» a «MATARIFE» (`STRINGS.bosses.names.butcher`), que es lo que sale sobre su barra de vida. Los comentarios y la ficha de `GAME-DESIGN.md` lo nombran igual. En las notas antiguas de este documento se queda como estaba.
+
+## La pausa en la esquina y las barras de los bosses arriba del todo (petición del usuario)
+
+- **Botón de pausa:** pasa de arriba en el centro a la esquina inferior derecha, en diagonal bajo el botón de disparo.
+  - Cuelga de `--pad-x` y `--pad-bottom` igual que el disparo (`right: pad-x − 18 px`, `bottom: pad-bottom − 14 px`), así que su centro queda siempre a 61,5 px del del disparo en cada eje. Su zona táctil (14 px alrededor) nunca toca el círculo del disparo: hay 87 px entre centros frente a los 78,5 que sumarían.
+  - Con los márgenes mínimos (24 y 20 px) queda a 6 px de los dos bordes. En un iPhone con muesca (47 y 21 px) se mete dentro de la esquina redondeada del área segura.
+  - Comprobado a 667×375: a 6 px de cada borde, y pausa.
+- **Barras de los bosses:** suben arriba del todo (`pad-top + 6 px`) con el nombre encima, y su marco queda a la altura del de la vida. Siguen centradas, y en las pantallas más estrechas se desplazan a la izquierda para no pisar la fila de objetos especiales (la misma fórmula que tenía la pausa).
+
+## La katana corta solo hacia delante, y los tajos nuevos (petición del usuario)
+
+- **Control de la katana:**
+  - Con un arma cuerpo a cuerpo en la mano (hoy la katana), el apuntado es siempre hacia donde mira el jugador (`WeaponSystem.updateAim`): se ignoran el arrastre del botón y el giro automático hacia el zombi o el boss más cercano. Mientras corre, mira hacia donde se mueve, así que corta en esa dirección.
+  - La regla vive en la simulación: el botón sigue enviando solo «disparar» (CLAUDE.md, regla 2).
+  - El botón de disparo (`FireStick`) escucha `weapon:state`. Con un arma cuerpo a cuerpo muestra el icono de esa arma (su fotograma de la hoja de iconos de armas), no mueve la palanca y su etiqueta es «Cortar hacia delante».
+  - Mantener pulsado sigue repitiendo el corte en cuanto se enfría (uno por segundo), como antes.
+  - Rota y sin munición en las demás armas, el botón da cuchilladas hacia donde mira.
+  - El cuchillo no cambia: en su botón sigue girándose hacia el zombi más cercano a su alcance.
+- **Tajos de PixelLab** (sustituyen al arco provisional, que la katana ampliaba 5 veces):
+  - Cada uno es una imagen de *Create Image (Pro)* elegida por el usuario (la katana, la 3 de 4; el cuchillo, la 1 de 16), animada con *Animate Image* («el tajo se disipa en el sitio»).
+  - El dibujo va mirando a la derecha alrededor del centro izquierdo del fotograma (origen 0; 0,5), a 2 px (cuchillo) o 12 px (katana) delante del pecho del jugador, girado hacia el corte. Se ve en cuanto empieza el golpe y se desvanece en el último 40 % de sus 0,25 s.
+  - **Cuchillo:** se descartó el último fotograma generado, que traía una línea discontinua suelta.
+  - **Katana:** de su animación solo valen los 4 primeros fotogramas; los demás oscurecían la media luna sin adelgazarla, de ahí el desvanecido por código. Se importa en espejo (`"mirror": true` en su `import.json`): PixelLab la dibujó abultando hacia el lado contrario al pedido.
+- **Coste:** 48 generaciones (25 y 20 de las imágenes, 2 y 1 de las animaciones).
+
+## Las ventanas: un hueco en su pared y tablones de verdad (petición del usuario)
+
+- **Antes:** la celda de una ventana no llevaba pared (las `W` no eran pared para el autotile), y el dibujo provisional rellenaba toda la celda de negro con rayas marrones encima. Sin tablones se veía un cuadrado negro.
+- **La ventana es un hueco en su pared:** al compilar el mapa, cada ventana que no es de valla recibe el tramo de pared de su muro, con la máscara de sus vecinos y la cara del lado que mira (`faceKitOf` trata una `W` de fachada como la fachada). La colisión no cambia: la celda sigue siendo `BLOCK_WINDOW` entera, con la forma de pared anulada. La niebla la trata como pared, igual que el muro de alrededor.
+- **Capa:** el sprite de la ventana va justo encima de su tramo de pared (`actorDepth` de la fila + 0,0001), porque las paredes se ordenan con los personajes. Un zombi que entra desde fuera queda delante mientras arranca tablones y pasa por detrás del muro al cruzar. Uno que llega por detrás asoma por encima del muro.
+- **Materiales:** el usuario pidió usar lo que ya hubiera. Los kits de pared no traían ninguna ventana, así que el hueco salió de PixelLab (2 llamadas a *Create Image (Pro)*, 40 generaciones, 64 candidatos cada una; el usuario eligió el frontal 3 y el vertical 2). Los tablones salen de la madera del suelo interior, sin coste.
+  - El hueco frontal medía 21×28 y la cara de la pared tiene 18 filas: se quitan filas del centro del cristal, que se parecen entre sí, en vez de reescalar.
+  - PixelLab dibujó también de frente el hueco «visto desde arriba». Se usa girado un cuarto y recortado a la franja de 12 px del muro vertical (girar está permitido en piezas sin cara frontal).
+- **Tablones:** 5 posiciones fijas por tipo, que se clavan en el orden 2, 0, 4, 1, 3 (el del centro primero). Cada uno tiene 4 px de alto, contorno oscuro, dos clavos y medio píxel de inclinación en algunos. Los arranca el último que se clavó.
+- **Vallas:** los 3 huecos de valla del jardín tienen hojas propias (`fence_planks`, `fence_planks_v`): solo tablones de poste a poste y el fotograma 0 vacío.
+- **`npm run windows:compose`** monta las cuatro hojas, las marca en el manifiesto y deja la hoja de revisión en `maps/preview/windows/barricadas.png`.
+- **Revisión (petición del usuario):** la ventana de PixelLab, inclinada y pequeña dentro de mucha pared, quedaba irreal. La sustituye un hueco dibujado por código: recto con la pared, más hueco que pared alrededor y con el muro reventado (variante A de dos maquetas, elegida por el usuario frente a un hueco recto con marco).
+  - Ocupa las columnas 2–29 y las filas 15–29 de la cara. Tiene el borde de arriba y los lados irregulares, contorno oscuro, astillas del revestimiento, cristales en las esquinas, oscuridad más honda arriba, el grosor del muro a los lados y el alféizar abajo.
+  - En la pared vertical, la franja de 12 px rota con los extremos irregulares, el grosor del muro y el alféizar a lo largo del hueco.
+  - Los tablones son los mismos, en posiciones ajustadas al hueco nuevo.
+  - Se retiraron del repositorio los candidatos de PixelLab del hueco anterior (están en el historial; costaron 40 generaciones).
+- **Sin píxeles sueltos (petición del usuario):** el usuario vio píxeles sueltos en el hueco y pidió rehacerlo con PixelLab, siguiendo el mismo diseño.
+  - **Intentos con PixelLab, ninguno aprovechable (80 generaciones):**
+    - *Create Image (Pro)* con el dibujo como referencia (20 + 20 generaciones). Los frontales salieron a la mitad de ancho, como una ventanita entre tablas abiertas en forma de lazo, y la franja vertical, como rectángulos blancos con un listón.
+    - *Inpaint* sobre la pared real, con la caja del hueco como máscara (20 + 20). El frontal salió como un rectángulo negro sin alféizar ni borde roto, y el vertical como una tabla de madera.
+    - *correct_pixelart* (0,6 generaciones, sobre el sprite y sobre la pared) y el `repair` del *workbench*. Conservan la forma: el primero solo ajusta la paleta, y el segundo puntúa el dibujo con 99/100 y no encuentra ningún píxel suelto.
+  - **El origen era el dibujo:** el ruido cambiaba la altura del borde columna a columna. La fila de arriba alternaba un píxel de contorno y uno de pared, como un peine, y las astillas y algún cristal eran de un solo píxel.
+  - **Arreglo en `window-art.ts`:**
+    - El borde se rompe a escalones (`profile`): cada tramo tiene 2 px o más, y el ruido desaparece.
+    - El contorno rodea el hueco por vecindad (`outline`), también en los escalones verticales, salvo junto al alféizar, que queda a ras de la pared.
+    - Las astillas van de dos en dos y los cristales en grupos de tres.
+    - Un test comprueba los tramos de 2 px y que ningún píxel quede aislado en su color.
+  - Los candidatos descartados no se guardan en el repositorio; siguen en la galería de PixelLab.
+
+## El atrezo con arte (petición del usuario)
+
+- **Encargo:** el usuario dio 50 generaciones de PixelLab para el atrezo pendiente (61 objetos, todos placeholder), primero con el arte que ya hubiera.
+- **Lo que ya había (gratis):** la farola y el árbol de la cuenta de PixelLab, y una mancha de los decals del asfalto como mancha de aceite. El árbol, de un verde vivo, va con la saturación a la mitad (petición del usuario) para casar con el césped seco. En la cuenta no había nada más que sirviera.
+- **Lo generado (46 generaciones):**
+  - *Create 1-Direction Object* con una descripción por hueco (`item_descriptions`): una tanda de 32 px con 64 huecos (20 objetos, 3 o 4 candidatos cada uno) y otra de 64 px con 16 objetos (un candidato cada uno). Cada tanda costó 20 generaciones.
+  - El coche aparcado, con Pro Flash (6 generaciones).
+  - Todos con el mismo estilo en el prompt (vista 3/4 alta, casa abandonada, paleta apagada, luz desde arriba a la izquierda; contorno oscuro en los que bloquean y sin contorno en los de suelo) y un recorte del jugador como referencia de estilo.
+- **Elección (usuario):**
+  - De la tanda de 32 px entran los 20, con los candidatos que propuse.
+  - La de 64 px salió en diagonal, casi en isométrica, y desentona con las paredes rectas. Solo entran los 6 que lo disimulan (cajas, caldera, depósito, colchón, alfombra del hogar y estantería metálica corta); los otros 10 siguen como placeholder y su nota está en `docs/ASSETS-TODO.md`.
+  - El coche salió de frente en vez de atravesado. Las dos huellas de `prop_coche` pasan en el plano de 4×2 a 2×2 casillas y el coche queda aparcado de frente.
+- **Arte más grande que su huella:** `MapView` centra cada mueble sobre la base de su huella (antes lo alineaba a la izquierda). Así el árbol (96×105 sobre 64×64) sobresale por los dos lados y la farola (32×80) crece hacia arriba. La colisión sigue siendo la huella.
+- **Quedan 31 objetos:** los 10 descartados y los 21 grandes (96 px o más: mesa del comedor, sofá, estanterías largas, setos, coches de la calle y del garaje, escalera derrumbada…).
+
+## Audio: rehecho con la spec 08 nueva, fase S1 (petición del usuario)
+
+- **Se deshizo todo el trabajo de la spec 08 anterior** (un commit de revert de las fases S1 a S4) para rehacerla con la nueva: sonidos grabados y montados por capas, candidatos, créditos y música. El motor, las preferencias, los ajustes de la pausa, el desbloqueo, el segundo plano y el panel de prueba de entonces encajan con la spec nueva y se recuperaron tal cual. Sus decisiones siguen valiendo:
+  - el contexto de audio se crea al arrancar y lo despierta el toque de JUGAR, o cualquier otro toque como respaldo; en segundo plano se suspende y ningún toque lo despierta hasta volver;
+  - `minInterval`, `maxVoices` y el límite global con prioridades están en el director, que lleva la cuenta de las voces con la duración del manifiesto;
+  - EFECTOS y MÚSICA van en una fila junto a VIBRACIÓN, porque en el móvil apaisado no caben apilados;
+  - el panel PRUEBA DE SONIDOS tiene una pestaña por familia para no desplazarse, funciona con partida y sin ella, y muestra las voces, las descartadas y el estado del contexto.
+- **Familia `jingle` (Carteles):** los carteles de §6.5 duran hasta 2,5 s y no caben en las cuatro familias de §3.2. Cada familia tiene además una cola máxima en el informe:
+  - 300 ms los golpes y 150 ms la interfaz (los sonidos frecuentes, §3.3 regla 6);
+  - 600 ms los premios;
+  - 1 s las amenazas;
+  - 1,5 s los carteles.
+- **Candidatos:**
+  - Cada sonido tiene una receta, `audio-src/recipes/<id>.json`, con hasta tres candidatos y `chosen`.
+  - Mientras `chosen` es `null`, el juego suena con A y los tres candidatos se escriben en `public/assets/audio/candidates/`, que solo se cargan con el debug activo.
+  - Elegido uno, solo sale ese, y los demás se quedan en la receta sin ocupar sitio en el juego.
+  - El panel marca el candidato que suena, y un «?» indica que está pendiente.
+  - La elección se pide por el chat: el panel no puede escribir en el repositorio.
+  - Los candidatos no cuentan para el presupuesto de 8 MB.
+- **`audio:gen` desde S1, con capas sintéticas, mezcla, acabado e informe**, para que `ui.tap` salga de una receta. El taller completo (fuentes grabadas, proceso, créditos) llega en S2.
+- **La menor natural:** las notas válidas son A, B, C, D, E, F y G, sin alteraciones. `audio:gen` falla con una nota fuera de la tonalidad.
+
+## Audio: taller, fuentes y sonidos de armas y jugador (spec 08, fase S2)
+
+- **Fuentes de partida:** Kenney (RPG Audio, Impact Sounds, Interface Sounds) y «80 CC0 RPG SFX» de OpenGameArt, enteros y CC0, en `audio-src/library/`, con un `credits.json` por carpeta. De Freesound solo se guardan los archivos que usa alguna receta: el resto de lo que baje `audio:search` se puede borrar y volver a buscar.
+- **El proceso se hace en TypeScript, no con filtros de ffmpeg.** ffmpeg (`ffmpeg-static`) solo decodifica las fuentes a muestras de 44,1 kHz. Así el resultado no depende de la versión de ffmpeg y las mismas recetas dan siempre los mismos bytes. `ffmpeg-static` es GPL-3.0, pero es solo una herramienta de desarrollo: no va en la app.
+- **Freesound solo da previsualizaciones con una clave de API.** Descargar el original exige OAuth2 con un usuario. Usamos la previsualización OGG de alta calidad (unos 192 kbps), que basta para sonidos que se recortan, se procesan y se mezclan. La clave se lee de `FREESOUND_API_KEY` (o de `.env`, fuera de git), va en una cabecera y nunca se imprime ni se escribe. El script comprueba de nuevo que cada resultado sea CC0 antes de guardarlo.
+- **Fichas de licencia:** un `credits.json` por carpeta de fuentes, con los campos de la carpeta y los de cada archivo. Es lo más simple para packs enteros (una ficha) y para Freesound (una por archivo). `docs/AUDIO-CREDITS.md` se genera, no se edita a mano.
+- **Cada fuente grabada se normaliza tras su recorte.** Las bibliotecas vienen a volúmenes muy distintos (de −10 a −55 dB de media). Así el `gain` de una capa se lee igual con cualquier fuente.
+- **El archivo empieza donde el sonido llega a −40 dB de su pico,** el mismo umbral con el que el informe mide el silencio inicial, tras 1 ms de fundido. Una grabación trae ruido de sala antes del golpe, y recortarlo a −50 dB lo dejaba dentro.
+- **Dos pasos más en el proceso:**
+  - `glide`, un tono que se desliza, para el haz que se rompe y la campana que desciende;
+  - `length`, la longitud final, que también corta la cola de la reverberación (así un golpe con sala no pasa de los 400 ms de su familia).
+- **Familias de §6.1:** la sección se titula Golpe, pero la herida, la muerte, el latido, el sobrecalentamiento y el arma rota se miden como Amenaza (§3.2 pone ahí el daño recibido, y dos notas descendentes no caben en 400 ms).
+- **Bucles (láser, lanzallamas, latido):**
+  - El taller funde sus últimos 120 ms con el principio, sin recortar ni fundir los extremos.
+  - El director los arranca con 60 ms de fundido de entrada y los para con 250 ms de salida. Esa es la «cola de brasas» del lanzallamas, en vez de un tercer archivo.
+  - El tono del láser sube con el calor hasta una quinta (×1,5 de velocidad).
+- **El latido es un bucle de un ciclo (unos 70 pulsos por minuto).** Que suene 5 s al bajar la vida es de S4 (vida baja), como dice la tabla de fases. Hasta entonces se oye en el panel. Un latido real tiene casi toda su energía por debajo de 100 Hz, que el altavoz de un móvil no da. Por eso los candidatos lo suben siete semitonos, lo saturan y le suman un golpe sordo filtrado entre 150 y 600 Hz.
+- **Sin posición hasta S4:** `impact.flesh` y `weapon.flame.blast` ya son mono y posicionales en el catálogo, pero suenan centrados hasta que S4 añada la atenuación y el desplazamiento.
+- **De quién son los sonidos:** el disparo, la recarga, el clic en vacío, el cambio de arma, el sobrecalentamiento, el arma rota, el cuchillo, el dash, la herida y la muerte solo suenan para el jugador local. Los impactos (`impact.flesh`, el corte de la katana) y la bocanada del lanzallamas suenan los provoque quien los provoque.
+- **El cuchillo es solo el tajo.** El «golpe blando si acierta» de §6.1 ya lo pone `impact.flesh` con el `zombie:hit` del mismo golpe. Un acierto de katana suena con `weapon.katana.hit` en lugar de `impact.flesh`.
+- **El clic en vacío** solo suena al apretar de nuevo el gatillo con un arma de balas sin cargador ni reserva, sin recargar ni cambiar de arma. Mantenerlo apretado no repite el clic.
+- **SIMULAR COMBATE:** la SMG dispara 5 s a su cadencia real, con 7 de cada 10 disparos que aciertan y una baja cada 6 aciertos. La baja suena con `reward.kill`, con su racha.
+
+## Audio: premios, rachas, la Mano, carteles e interfaz (spec 08, fase S3)
+
+- **Eventos nuevos:**
+  - `barricade:repaired`: cada tablón repuesto. Suena también cuando la ronda ya no da puntos por reparar.
+  - `action:denied`: un toque que no se puede hacer. Puede ser por falta de dinero en una puerta, un portal, una vitrina, la Mano o la tienda; por un portal que aún no se puede comprar, o por el inventario lleno. En la tienda solo suena si falta dinero.
+  - `hand:rolling`: el sorteo de la Mano empieza tras la subida (`HAND.risingTime`), no al pagar. Así `hand.roll` dura lo mismo que el sorteo (`HAND.rollingTime`) y para en cuanto la mano se abre.
+  - `merchant:purchase` dice el nivel comprado de una mejora: es el peldaño de la racha `upgrade`.
+- **La baja suena con `points:gained` (motivo `kill`)**, que ya dice qué jugador mató. `zombie:killed` no lo dice.
+- **El dinero siempre suena con `buy.cash`** (la firma del dinero, en cada `money:spent`). Cada compra añade su propio sonido sin monedas: la firma del mago, la vitrina o el fuego de la Mano. Las puertas no gastan con `money:spent` y no llevan monedas, como pide la §6.2.
+- **Munición de una vitrina:** suena como recoger munición (`pickup.ammo`). El arma comprada suena con `buy.weapon`.
+- **Sonidos de mago:** `buy.merchant`, `merchant.arrive`, `ui.shop.open` y `ui.shop.close` tienen tres variantes, una por mago, y las elige el evento (`keyed`). Así cada mago tiene su firma sin multiplicar los ids de la spec. La tienda suena al abrirse y al cerrarse, no cuando cambian sus filas.
+- **Rachas:**
+  - Peldaño `n` = `AUDIO.ladder.steps[n]` semitonos sobre la nota de la capa de brillo, que siempre es un La o un Mi. Así todos los peldaños quedan en La menor.
+  - La racha `upgrade` va por nivel: nivel 1, primer peldaño.
+  - El cuerpo y el brillo salen en dos archivos que empiezan a la vez (el acabado recorta el silencio inicial de cada uno), con la misma variación de tono.
+- **Retrasos del director:** las dos campanas de la sala desbloqueada suenan 0,35 s después del cerrojo de la puerta; el chapuzón de un objeto, al caer (`ITEMS.throwTime`); `jingle.boss.dead`, 1,2 s después de la muerte del boss, y `jingle.gameover`, 1 s después de la del jugador, para no pisar su sonido.
+- **Familias:**
+  - `denied`, `item.cantUse` y `ui.play` se miden como Interfaz: responden a un toque y duran 200 ms como mucho.
+  - `buy.special`, `ritual.done` y `hand.offer.special` se miden como Carteles: son grandes momentos de más de 900 ms.
+  - Las claves del manifiesto pasan de camelCase a snake_case (`item.cantUse` → `item_cant_use`).
+- **Afinación de lo grabado:** las campanas, coros, gongs y tambores grabados se afinan a La menor con `semitones`, a partir de su pico de frecuencia más fuerte. Por ejemplo, la campanita +0,37 hasta La 5, el coro corto −0,24 hasta Si 4 y la campana de iglesia +0,83 hasta un acorde de Re menor.
+- **Premio contra Golpe, por tono:** el informe compara el tono dominante (el pico más fuerte del espectro, de 80 a 5000 Hz), no el brillo. El ruido de un disparo tiene el centro del espectro más alto que una campana en La 5, aunque suene más grave.
+  - Cada sonido se compara con la mediana de la otra familia, para que los clics metálicos de la recarga no la desplacen.
+  - Un sonido de racha cuenta por su brillo, porque su cuerpo es un golpe a propósito.
+  - El brillo sigue en la tabla y en la detección de variantes casi idénticas.
+- **Los candidatos no van en git ni en la app:**
+  - Son 16 MB que `audio:gen` vuelve a escribir igual y que solo carga el servidor de desarrollo con el debug.
+  - `vite build` quita la carpeta y sus entradas del manifiesto, porque la §8 pide que el juego lleve solo los elegidos.
+  - `assets:check` avisa, sin fallar, si faltan los archivos de los candidatos.
+- **La pausa** suena al abrirse y al cerrarse (`ui.pause.open` y `ui.pause.close`). CONTINUAR ya no suena como un toque, para no sonar dos veces. JUGAR suena con `ui.play`.
+
+## Audio: amenazas, posición, límite de voces y vida baja (spec 08, fase S4)
+
+- **Eventos nuevos:**
+  - `zombie:attack`: al empezar la preparación del golpe.
+  - `zombie:crippled`: una sola vez, cuando el zombi pierde las piernas.
+  - `barricade:plankBroken`: en el centro de la ventana.
+  - `boss:windup`: al empezar cada ataque. Del mazazo, solo antes del primer golpe; los siguientes ya suenan con `boss:slam`.
+  - `door:opened` y `portal:opened` llevan su posición, para que la puerta suene donde está.
+- **`boss.dizzy.loop`:** id nuevo para el bucle de campanillas mareadas, que sigue a `boss.stunned` (el choque) mientras dura el aturdimiento.
+- **Desde dónde se oye:** desde el jugador local, con el resumen de cada frame (posición y nivel). Los niveles salen de `levelAt` del mapa, que `GameScene` le da al director.
+  - Un punto sin zona (una puerta, una ventana, fuera del mapa) cuenta como del mismo nivel.
+  - Sin partida (pantalla de título, panel de prueba), nada se coloca: todo suena al centro y a volumen completo.
+- **Qué suena en cualquier nivel:** el aviso del boss que cae y las tres preparaciones de sus ataques, que son «los avisos del boss» de §3.5. Los carteles no tienen posición.
+- **Qué es posicional:**
+  - los impactos, la bocanada del lanzallamas, las puertas, el chapuzón, los gruñidos, los zarpazos, el crujido y la rotura de tablones;
+  - el galope y las campanillas del boss, que siguen al boss frame a frame.
+  
+  El resto de sonidos del boss son grandes y no se colocan, pero no suenan si el boss está en otro nivel.
+- **Gruñidos:** suenan si hay un zombi a menos de 400 px. Gruñe el más cercano, cada 2 a 5 s al azar, y nunca dos a la vez (`maxVoices` 1).
+- **Vida baja:** el latido suena 5 s al bajar de `PLAYER.lowHpThreshold`. No vuelve hasta que la vida suba y vuelva a bajar. Si la pausa lo corta, tampoco vuelve.
+- **SIMULAR COMBATE**, para el criterio de S4 (20 zombies y la SMG): añade una multitud alrededor del jugador, con un zarpazo cada 4 disparos y un gruñido cada 25. Un test comprueba que nunca se pasa de 12 voces y que los disparos siguen sonando.
+- **Presupuesto:** los efectos ocupan 7,0 MB de los 8. Lo que más pesa son los sonidos estéreo largos (carteles, compras grandes, el boss). Si al elegir candidatos se pasara, se harían mono los menos importantes.
+
+## Audio: alternativas para las rachas y el cambio de ronda (petición del usuario)
+
+- **Rachas** (`reward.kill`, `reward.repair` y `buy.upgrade`): la capa de brillo pasa de campana y cristal sintéticos a instrumentos grabados, afinados para que todos los peldaños queden en La menor:
+  - glockenspiel en La 5;
+  - caja de música en Re 6;
+  - kalimba en Mi 6;
+  - una copa de cristal golpeada, bajada a La 5;
+  - un «ding» de cristal en Mi 6.
+
+  La subida de cuatro notas de las mejoras es la misma nota grabada movida a cada altura.
+- **Cambio de ronda** (`jingle.round.start`): en lugar de las cuatro notas de campana de §6.5, tres direcciones grabadas. Son un cuerno de guerra sobre tambores, un «braam» de metales de cine con timbal y tambores de guerra con un cuerno grave.
+- Los candidatos anteriores siguen en el historial de git (commit `c02b291`) por si hubiera que recuperar alguno.
+- **Segunda tanda** (el usuario se queda con el inicio de ronda y pide cambiar más sonidos):
+  - El tablón en la ventana (`reward.repair`) cambia su cuerpo: un tablón y un clavo, dos martillazos, o un tablón que cae en su sitio. La nota de la racha no cambia.
+  - El final de ronda (`jingle.round.clear`) queda grabado como el inicio y resuelve en La: un cuerno en La, Do-Mi-Sol-La de glockenspiel sobre el cuerno de batalla, o La-Do-Mi-La de caja de música con coro.
+  - En cada acierto suenan a la vez el impacto (`impact.flesh`) y el toque de premio (`reward.hit`), así que se rehacen los dos:
+    - El impacto: balas en carne, golpes de carne o golpes a zombis, todos grabados.
+    - El toque: glockenspiel, una moneda o una kalimba.
+- **Tercera tanda:** el toque de puntos al acertar (`reward.hit`) pasa a ser un hitmarker de shooter, más contundente, como pidió el usuario. Dura unos 135 ms y está comprimido y algo saturado. Las opciones son metal afinado a La 5 con peso, una lata en Do 5 con un tic de glockenspiel, o un golpe seco en Re 5 con el filo de una moneda. Su volumen en el catálogo no cambia (0,3): la compresión ya lo hace sonar más presente.
+- **Cuarta tanda:**
+  - **Sin `reward.hit`:** a petición del usuario, un acierto suena solo con su impacto en carne (`impact.flesh`). Se quita el sonido de puntos por acierto de la §6.2, del catálogo, del director y de las recetas.
+  - **Muerte orgánica:** `reward.kill` suena a muerte, no a premio: un último estertor o quejido de zombi, la carne que revienta y el cuerpo que cae. Pasa de 1 a 3 variantes porque se oye muy seguido.
+  - **Racha con nota metálica afinada:** un yunque en La 5 (con un filtro estrecho que atenúa su parcial de Sol#6), un «ding» de metal en La 5, o ese «ding» en Mi 6 con el golpe del yunque delante. Los metales son inarmónicos, así que se comprueba qué nota manda en cada archivo generado.
+  - **Informe:** la nota de racha es la misma en todas las variantes a propósito, así que la detección de variantes casi idénticas solo compara los cuerpos.
+- **Quinta tanda (nada de metal):**
+  - La nota de racha de las bajas pasa a ser orgánica: una marimba en Mi 6, un pizzicato de cuerdas en Mi 5 o un xilófono en La 5, todos de madera o cuerda.
+  - Los martillazos del boss (`boss.slam`) y su choque al quedar aturdido (`boss.stunned`) son golpes secos y destructivos: roca, piedra, ladrillo, hormigón, golpes sordos, un tom grave y escombros, con algo de saturación. Se descarta «big robot footstep», que podía llevar chasquidos metálicos.
+  - El bucle de campanillas mareadas (`boss.dizzy.loop`) no cambia.
+- **Sexta tanda (sin sonido de baja):** a petición del usuario, matar a un zombi no suena y no hay racha de bajas. Se quitan `reward.kill` y la racha `kill`. Las rachas que quedan son la de reparar tablones y la de mejoras. SIMULAR RACHA lanza ahora 8 tablones seguidos y SIMULAR COMBATE ya no lleva bajas. La bala que mata suena como cualquier otra, con su impacto en carne.
+- **Séptima tanda (el boss aturdido se queja):** el bucle que suena mientras el boss está aturdido (`boss.dizzy.loop`) deja las campanillas mareadas de la §6.4 y pasa a ser un gruñido confuso, como una queja. Es un lamento grabado, más grave para una bestia grande, con un respiro antes de repetirse; cada vuelta dura unos 2 s, lo mismo que el aturdimiento. Su volumen sube de 0,45 a 0,6, porque una voz grave se oye menos que unas campanillas. Sigue siendo un bucle que sigue al boss y para al acabar el aturdimiento: es la señal de que toca pegarle.
+
+## Audio: probar candidatos en partida (petición del usuario)
+
+- **Probar en partida:** en PRUEBA DE SONIDOS, tocar A, B o C de un sonido lo reproduce y además lo pone a sonar en la partida, en lugar del elegido o del A. Así se oye en contexto: con la SMG, entre zombis, en el boss.
+  - Las pruebas se guardan en el `localStorage` del dispositivo y aguantan al recargar.
+  - BORRAR PRUEBAS vuelve a lo que lleva el juego.
+  - Solo existe con el debug, que es el único que carga los candidatos.
+- **Elegir de verdad sigue siendo por el chat:** el panel corre en el móvil y no puede escribir las recetas del Mac. COPIAR ELECCIÓN copia «id: letra», uno por línea, y el texto también se ve en el panel para copiarlo a mano. Por http en la red local no existe la API del portapapeles, así que se usa la copia de un cuadro de texto oculto.
+- **Panel abierto = partida en silencio:** mientras está abierto, nada de la partida suena: efectos, bucles (láser, lanzallamas, boss, latido), gruñidos, menús y música. Al abrirlo se corta lo que estaba sonando. Solo suena lo que se prueba, incluidos SIMULAR COMBATE y SIMULAR RACHA, también en pausa. Al cerrarlo, la partida vuelve a sonar.
+- **Octava tanda:**
+  - **Latido sin parar con la vida baja:** el latido suena mientras la vida esté baja, hasta que el jugador se cure (o muera), y no solo los 5 s de la §3.5. La pausa y el panel de prueba lo cortan, y vuelve con la partida si la vida sigue baja.
+  - **Colocar el tablón** (`reward.repair`) suena solo a madera, sin martillo ni clavo: un tablón que se desliza y encaja con un golpe macizo, un golpe seco con un crujido corto de la tabla, o un golpe hueco que se asienta.
+  - **Nota de su racha:** pasa a ser orgánica, como la que tuvo la racha de bajas: marimba en Mi 6, xilófono en La 5 o pizzicato de cuerdas en Mi 5.
+- **Novena tanda (tablón seco):** el usuario seguía oyendo el tablón metálico. Lo que resonaba era la nota de la racha (marimba, xilófono o pizzicato, casi medio segundo encima de cada tablón) y la sala.
+  - Ahora `reward.repair` es seco: sin sala y de unos 200 ms. Es un golpe grueso de madera con otro más corto encima, dos golpes de apoyar y asentar, o un tablón macizo.
+  - La capa de brillo de la racha es un «toc» corto de bloque de madera, de unos 120 ms, sin graves. Los golpes de madera no tienen una nota clara, así que la racha se oye como un toque que se agudiza más que como una melodía.
+
+## Audio: la música (spec 08, fase S5)
+
+- **Formato: M4A (AAC a 128 kbps, estéreo).** Safari en el iPhone no decodifica OGG en todas las versiones de iOS; AAC lo decodifican el iPhone y Android sin problema, y pesa menos que un MP3 de la misma calidad.
+  - AAC (como MP3) puede añadir un retardo al principio que cada decodificador compensa a su manera. Por eso el archivo lleva 0,25 s del final del bucle delante de `loopStart` y 0,25 s de su principio detrás de `loopEnd`, y el motor repite entre esos dos puntos (`loopStart`/`loopEnd` del `AudioBufferSourceNode`). Un desplazamiento de menos de 0,25 s no rompe el bucle.
+  - Los puntos se guardan al microsegundo. Redondeados a 0,1 ms, el bucle podía quedar una muestra largo o corto. Comprobado en Chrome: el archivo decodificado mide lo que dice el manifiesto, y el audio en `loopEnd` coincide muestra a muestra con el de `loopStart` (solo queda el ruido del códec).
+- **Acabado (`finishMusic`):**
+  - un paso alto a 40 Hz y fuera el silencio de los extremos;
+  - los últimos 2 s fundidos sobre el principio. Si los dos extremos son la misma música (una fuente que ya era un bucle, con sus primeros 2 s añadidos detrás), el fundido es lineal y el bucle queda exacto. Si no lo son, es de potencia constante, como en los efectos.
+- **Mismo volumen de media en todas (−18 dBFS RMS),** salvo que su pico pase de −1 dB. Las de calma quedan algo más bajas (de −21 a −23 dB), que les va bien.
+- **Duración:**
+  - las fuentes en bucle de menos de 30 s se repiten dos veces (calma B, ronda A);
+  - las de más de 90 s se cortan (calma A en 80 s, boss B en 85 s, boss C en 88 s).
+- **Candidatos:** tres por estado, todos CC0 de Freesound (los autores están en `docs/AUDIO-CREDITS.md`).
+  - Título: pieza orquestal oscura, piano fantasmal o silbido inquietante.
+  - Calma: ambiente frío, bucle de terror tenue o piano sigiloso.
+  - Ronda: acción con percusión sobre un dron, ritmo tenso a 120 ppm o cinemática eléctrica.
+  - Boss: batalla orquestal, ataque épico con tambores o pelea tensa con sintes.
+- **Estados:**
+  - `title` en la pantalla de título.
+  - `boss` desde que cae un boss hasta que muere. Durante la alerta sigue la música de la ronda, porque el aviso ya baja la música.
+  - `round` con la ronda en marcha y `calm` en el descanso.
+  - `over` al acabar la partida.
+- **Cambios:**
+  - fundido cruzado de 1,5 s en cada cambio y apagado de 1 s al acabar la partida;
+  - si solo una de `calm` y `round` tiene archivo, las dos usan esa pista y no se corta al cambiar;
+  - un estado sin archivo es silencio.
+- **Memoria:** la música y sus candidatos no se decodifican al cargar. El motor decodifica la pista de un estado cuando llega (`prepare`) y suelta las demás. Durante un fundido hay como mucho dos pistas, la que sale y la que entra; la que sale se suelta al acabar.
+- **Primer toque:** el móvil no deja sonar nada hasta el primer toque. La pista pedida antes (la del título) arranca en cuanto el sonido se desbloquea. Si ese primer toque es JUGAR, la del título apenas se oye: entra y enseguida funde a la de la partida. Lo dejamos así porque es lo más simple.
+- **Ceder el paso (§3.5):** la música baja 6 dB mientras suena un sonido con `duck` (carteles, compras grandes, el rugido o la muerte del jugador). Tarda 0,15 s en bajar y 0,4 s en volver.
+- **Vida baja:** el bus de música pasa por un paso bajo que cae a 800 Hz mientras la vida está baja, y se abre al curarse.
+- **Panel de prueba:**
+  - Al abrirlo, se para la música de la partida, pero el bus de música sigue abierto para probar pistas. Esto corrige lo que decía «Panel abierto = partida en silencio».
+  - Tocar una pista o uno de sus candidatos la pone en bucle, una sola a la vez, y otro toque la para.
+  - **Probar en partida** también vale para la música: al cerrar el panel, cada estado suena con la pista que esté en prueba.
+- **Peso:** las cuatro pistas del juego ocupan 3,2 MB, fuera del presupuesto de 8 MB de los efectos.
+
+## Audio: documentación (spec 08, fase S6)
+
+- **`docs/AUDIO.md`** reúne cómo está montado el audio, cómo se añade o cambia un sonido, el taller, las fuentes, la dirección de sonido tal como está (con los cambios del usuario sobre la spec), la música, el panel de prueba y los tests.
+- **El taller sale de `docs/ASSETS.md`:** las recetas, el proceso, los acabados, las fuentes y `audio:search` estaban allí y ahora están en `docs/AUDIO.md`. `ASSETS.md` se queda con el formato de las entradas del manifiesto y lo que comprueba `assets:check`, y remite a `AUDIO.md` para lo demás. Así no hay dos copias que se desfasen.
+- **`CLAUDE.md`** recoge:
+  - `audio:gen` y `audio:search`;
+  - Web Audio y ffmpeg en el stack;
+  - la regla 9, «audio por id»;
+  - `src/audio/`, `src/config/audio.ts`, `audio-src/` y `public/assets/audio/` en la estructura.
+- **`docs/ASSETS-TODO.md`:** como ningún sonido tiene candidato elegido, recoge cómo elegir y los sonidos que el usuario pidió cambiar y aún no ha confirmado.
+- **Arreglo en la música:** el recorte del silencio de los extremos quitaba alguna muestra a un bucle que empezaba o acababa en un paso por cero. Así, la calma B perdía 27 muestras por vuelta, la calma C 9 y la ronda B 51. Ahora solo se recorta un silencio de 20 ms o más (`AUDIO_GEN.music.silenceRun`). Un test comprueba que un bucle de 8 s sale con sus 8 s exactos y sin subida de volumen en el fundido.
+
+## Mazmorra: modo de juego, generador del plano y vista previa (spec 09, fase M1)
+
+- **Decisiones del usuario antes de empezar:**
+  - **Puntos:** en Mazmorra solo cuenta el dinero de la spec (10$ por baja, 25$ por sala). Los impactos no dan nada y no se muestran PUNTOS: su sitio arriba a la derecha lo ocuparán el minimapa y las llaves, junto al dinero.
+  - **Vida del boss:** 60, 110 y 180 son la vida final de cada planta. La variante del Matarife no multiplica la vida; aporta su daño, su preparación más corta y sus extras (furia, charcos).
+  - **Récord de Supervivencia:** se guarda la mejor ronda y sale bajo su botón del título. No cambia ninguna regla del modo ni ninguno de sus tests.
+- **Estado:** `GameState.mode` (`survival` o `dungeon`) y `GameState.run` (`RunState` en `src/core/RunState.ts`, null en Supervivencia). `createGameState` sigue dando Supervivencia si no se le dice otra cosa, así que todos los tests anteriores pasan sin tocarlos.
+- **Semillas:** cada planta usa su sub-semilla, `subSeed(semilla, planta)`, un hash entero de las dos. El RNG de la partida (`state.rng`) es otro: lo que pase en una planta no cambia el plano de la siguiente, y un test lo comprueba con una partida «sucia» (llaves, salas, mejoras) que baja de planta.
+- **Crecimiento del plano:** las vecinas se prueban siempre en el orden N, E, S, O; la moneda del 50 % ya da la variedad. Como una celda solo se añade con exactamente una vecina ocupada, el plano es un árbol: cada vecindad es una puerta, salvo las de la arena.
+- **Arena del boss:** de los cuatro bloques 2×2 que contienen el callejón, se elige el que menos salas toque (esos lados se tapian) y, en empate, el primero por orden. La arena tiene **una sola puerta**, la del callejón hacia su sala padre; lo que toque con sus otras tres celdas queda tapiado. «El boss queda pegado a la sala inicial» se comprueba con las cuatro celdas de la arena, no solo con el callejón.
+- **Distancia mínima del boss (petición del usuario):** en las plantas pequeñas el boss podía quedar a dos salas del inicio (semilla 11), porque los callejones más lejanos estaban pegados al borde y la arena no cabía. Ahora un plano con el boss a menos de 3 salas del inicio (`DUNGEON.minBossDepth`) se sortea de nuevo.
+- **Élite sin llaves:** como las salas con llave (tesoro y boss) son siempre callejones, nunca son paso: la regla se cumple sola. Se comprueba igual, por si cambia la colocación.
+- **Plantillas:** se sortea una dificultad por sala (planta 1: fácil o media; después: media o difícil) y se elige una plantilla **sin usar** de esa dificultad; si no queda, una sin usar de la otra dificultad permitida; solo si se han usado todas, se repite. La sala de inicio, el tesoro, la mano y el boss no tienen dificultad.
+- **Banco provisional:** hasta que existan las plantillas (M2), `placeholderBank` da nombres con la forma `<ambiente>/<tipo>_<nn>` y los tamaños de la spec (8 de combate, 2 de élite, 2 de reto y 1 de cada especial). Las de combate se reparten entre las dos dificultades del ambiente.
+- **Plantas infinitas (§12):** `floorConfig(n)` rota los ambientes a partir de la 4.ª, pone 10 salas con enemigos y multiplica la vida del zombi y del boss por 1,25 por cada planta sobre la 3.ª. El calendario de variantes de los bosses se conecta en M7.
+- **URL:** `?mode=dungeon` deja el foco en MAZMORRA en el título (no salta el título, para que el toque desbloquee el audio como siempre); `?seed=N` fija la semilla. La semilla y el modo se ven siempre en las estadísticas del panel de depuración, en los dos modos.
+- **Récords:** `src/native/records.ts`, en el dispositivo como las preferencias (`zombies.records`). La mejor ronda de Supervivencia no se guarda con el debug activo ni en una partida empezada con `?round=`.
+- **Estado intermedio de M1:** MAZMORRA ya arranca una partida con `mode: 'dungeon'`, su semilla y el plano de la planta 1 en `state.run`, pero juega en la mansión con las reglas de Supervivencia hasta que M2 monte el mapa y las salas.
+- **Vista previa de M1:** `npm run dungeon:preview <semilla>…` escribe `maps/preview/dungeon/<semilla>/planos.txt` (los tres planos en texto, con la plantilla, la dificultad, el espejo y las puertas de cada sala) y `planta-<n>-plano.png` (una celda por sala, coloreada por tipo; la puerta con llave en ámbar, la del boss en rojo, la del reto en rojo oscuro). M2 añade el PNG de cada planta montada.
+
+## Mazmorra: plantillas de la mansión, montaje del mapa, salas y minimapa (spec 09, fase M2)
+
+- **El compilador de planos se reutiliza en tiempo de ejecución (la opción preferida de §3.3).** Su parte pura (`parseAsciiMap`, `compileAsciiMap`, los decals, los terrenos Wang y los casos del autotile de paredes) pasa de `scripts/lib/` a `src/game/map/ascii/`; en `scripts/lib/` quedan envoltorios que reexportan, más el hash de contenido (`node:crypto`), que solo necesita `map:build` para saber si alguien retocó un `.tmj` en Tiled. La parte de imagen del autotile (`wall-autotile.ts`) sigue en los scripts. Medido: la mansión entera compila en unos 20 ms en Node y una planta de la mazmorra (172×64 casillas con las salas de 18×8) en unos 15–25 ms, muy por debajo de los 300 ms de la spec.
+  - El compilador necesita los 14 tilesets (`tilecount` y los Wang sets). `map:build` y `rooms:build` escriben `public/assets/tiles/tilesets.json` (45 KB) con cada `.tsj` y la ruta de su imagen dentro de `public/assets/`, registrado en el manifiesto como `tilesetData`. `embedTilesets` también pasa a `src/`.
+  - El montaje al empezar la planta: plano → texto ASCII de toda la planta (con sus tablas) → `parseAsciiMap` → `compileAsciiMap` → `embedTilesets` → `parseMap`. Un `MapData` como el de la mansión: colisiones, rutas, navegación del boss y oscuridad de zonas sin cambios.
+- **Plantillas de sala:** `maps/src/rooms/<ambiente>/<nombre>.txt`, con la leyenda de los mapas y tablas propias (`## Sala`, `## Enemigos`, `## Magos`, `## Cofre`, `## Bosses`, `## Mano`, `## Atrezo`) en coordenadas de la sala. `npm run rooms:build` las lee, las comprueba tal cual y en espejo, y escribe `public/assets/rooms/<ambiente>.json` (registrado en `rooms` del manifiesto). Las 16 de la mansión: 8 de combate (4 fáciles, 4 medias), 2 de élite, 2 de reto, inicio, tesoro, mano y arena.
+  - **Tamaño de la sala (petición del usuario tras probar M2):** la spec pedía 16×7 casillas de suelo; en el móvil sobraba pantalla a los lados y un poco arriba y abajo, así que la sala pasa a **18×8 de suelo (20×10 con paredes)**. En un móvil con zoom 4 (iPhone de 390 pt de alto) se ven 9 casillas de alto, así que la cámara se mueve una casilla en vertical; con zoom 2 o 3 la sala cabe entera. Los puntos de aparición siguen a 4 casillas o más de los huecos. `DUNGEON.room.floor`.
+  - **Paredes compartidas:** dos salas vecinas comparten su pared, así que las celdas del plano están a 19×9 casillas. La puerta entre dos salas es un hueco de 2 casillas en esa pared única, sin pasillo.
+  - **Huecos de puerta fijos:** norte y sur en el centro de la pared (columnas 9 y 10 de la plantilla); oeste y este justo bajo el centro (filas 5 y 6). Al espejar una plantilla los huecos quedan en su sitio. La arena (39×19) tiene ocho huecos, dos por lado, y el montador abre solo el que mira a la sala padre del callejón.
+  - **Comprobaciones** (`validateRoomTemplate`): tamaño y anillo de paredes con sus huecos; los cuatro huecos unidos por un paso de 2 casillas (un cuerpo de 2×2 que avanza casilla a casilla, para que también sirva al Matarife); enemigos a 4 casillas o más de todo hueco; ningún atrezo sobre un hueco ni sobre la casilla de delante; un punto de mago y al menos 2 de enemigos en toda sala con enemigos; cofre en tesoro, reto y arena; punto de mano en su sala; en la arena, el boss en el centro de un 3×3 de suelo y su cuerpo llega a todo el suelo. En la primera pasada pillaron cinco plantillas con pasos estrechos o enemigos demasiado cerca de una puerta.
+  - **Zonas:** una por sala, `r<índice>` (el índice de la zona es el de la sala del plano), semilla en la casilla interior de su primer hueco. Solo la inicial empieza desbloqueada; las demás se desbloquean al visitarlas, y así la oscuridad de zonas que ya existía tapa las salas no visitadas.
+- **Objetos de mapa nuevos:** `enemy_spawn` y `chest_spot` (puntos con zona), en el compilador, en `MapLoader` (`enemySpawns`, `chestSpots`) y en los tipos de Tiled. La mansión no tiene ninguno y su validador no cambia.
+- **Reglas del modo en un sitio (`src/game/rules.ts`):** `rules(state)` da qué sistemas de Supervivencia corren (`waves`, `payDoors`, `merchants`), si corre la mazmorra, y los números que leen los sistemas compartidos: zarpazo (40 / 20), botiquín (+50 / +40) y las armas de reserva infinita (ninguna / la pistola). `Simulation.ts` pregunta una vez por tick; `ZombieSystem`, `PickupSystem`, `WeaponSystem`, `InteractionSystem` y `HudPresenter` leen de ahí. Supervivencia conserva sus valores de `balance.ts` y todos sus tests pasan sin tocarlos.
+  - **Pistola infinita:** tras cada recarga la reserva vuelve a su máximo (64), así el HUD la enseña llena. Mostrar ∞ queda para más adelante.
+- **`DungeonSystem`** (en lugar de las rondas):
+  - La sala del jugador es la zona de su casilla. Al entrar en una sala nueva se marca visitada y se desbloquea su zona. «Una casilla dentro»: la casilla del jugador es de la sala y no toca ninguna casilla de puerta de esa sala, así las puertas nunca se cierran con alguien en el vano.
+  - Al entrar así en una sala con enemigos sin limpiar: se cierran sus puertas (`doorsOpen`, la rejilla de colisión y `nav.age = Infinity` para que los zombis se enteren), 0,8 s de aviso con una sombra en cada punto (`SpawnMarks`, un `Graphics`) y la oleada.
+  - **Presupuesto** (§5.2, tabla por dificultad y planta; élite y reto gastan el `hard`): se gasta al azar en caminantes (1), corredores (2) y sprinters (3, desde la planta 2). Los enemigos nuevos llegan en M4. A partir de la planta 4 el presupuesto de la 3 crece ×1,25 por planta.
+  - **Segunda oleada:** una sala media o difícil la trae el 50 % de las veces (`fight.secondWaveChance`), con la mitad del presupuesto, cuando quedan 2 enemigos o menos; el reto siempre trae dos. La spec no da la probabilidad ni el reparto: números de partida.
+  - **Dónde aparecen:** en los puntos de la sala a 4 casillas o más del jugador, los más lejanos primero, uno por punto y vuelta a empezar, con ±6 px de desvío; si ningún punto está tan lejos, el más lejano. Los puntos se eligen al empezar el aviso, que es donde se ve la sombra.
+  - **Vida de los zombis:** la de la planta (3, 4, 5); aparecen ya persiguiendo (no hay ventanas).
+  - **Al morir el último:** puertas abiertas, sala limpia, +1 al contador del mago y a las salas limpias, las bajas de la pelea a las de la partida. El botín llega en M3.
+  - **Fin de partida:** sin rondas, es este sistema quien pone `wave.phase = 'over'` y emite `game:over` al morir el jugador. La pantalla final propia llega en M3; de momento sale la de Supervivencia.
+- **Cámara por sala:** los límites de la cámara son la sala actual con sus paredes (`cameraBounds` la centra cuando la vista es mayor); al cambiar de sala los límites se deslizan en 0,35 s con una curva suave. En la mansión no cambia nada: sigue por niveles.
+- **HUD:** en la mazmorra el bloque de PUNTOS se oculta y en su sitio van el minimapa (un lienzo, 9 px por celda: las salas visitadas en claro, sus vecinas en oscuro, la actual con marco ámbar, y una marca de color en tesoro, mano, reto, élite y arena) y las 5 marcas hasta el mago. «PLANTA 1» ocupa el sitio de la ronda, y el cartel de ronda dice «PLANTA 1 · MANSIÓN» al empezar. Los iconos de verdad del minimapa quedan para el arte (`docs/ASSETS-TODO.md`, más adelante).
+- **Música:** `round` mientras hay pelea en la sala y `calm` el resto; el boss en M3.
+- **Pendiente para M3:** élite, llaves y botín, tesoro, cofres, boss con su arena y trampilla, las plantillas del sótano y el jardín, la pantalla final.
+
+## Mazmorra: llaves, botín, tesoro, élite, boss y las tres plantas (spec 09, fase M3)
+
+- **Puertas al empezar la planta:** en M2 todas las puertas empezaban cerradas (las abría solo el desbloqueo de zonas de Supervivencia, que en la mazmorra no corre), así que no se podía salir de la sala inicial. Ahora, al empezar la planta, las puertas normales y la del reto están abiertas y las que piden llave (tesoro y arena) cerradas hasta usar su llave (`run.doorKinds`, `run.doorsUnlocked`). Las peleas cierran y abren las de su sala; una con llave que aún no se abrió sigue cerrada.
+- **Tipo de puerta por el plano:** entre dos salas, si una es la arena pide la llave del boss; si es el tesoro, una llave; si es el reto, avisa («SALA DE RETO», el botón sin acción, solo desde fuera y mientras el reto no esté limpio); si no, normal. De momento se distinguen por tinte sobre la puerta de madera (`docs/ASSETS-TODO.md`).
+- **Un solo sitio para las acciones de la mazmorra:** `dungeonOffer(map, state, p)` (puro) da la cosa más cercana a 40 px: cofre, vitrina, trampilla, puerta con llave o aviso del reto; `tapDungeon` la ejecuta. El `InteractionSystem` lo consulta antes que a las ventanas y puertas, y el HUD lo pinta con un `kind: 'dungeon'` nuevo en `action:context`.
+- **Dinero:** las reglas del modo (`rules.points`) pagan 0 por impacto y por cuchillada y 10$ por baja (×3 una élite); `damageZombie` las lee en lugar de `POINTS`. Sala limpia: 25$ y una tirada: llave 25 %, cofre cerrado 10 %. La «compasión»: sin llaves y con el tesoro de la planta sin abrir, +15 puntos a la llave por cada sala sin premio; se reinicia con cualquier premio. Las tiradas de munición y botiquín al morir un zombi son las de la mazmorra (12 %, 4 %) por las mismas reglas.
+- **Dónde cae el premio:** en el punto de aparición de enemigos más cercano al centro de la sala (siempre suelo libre); la llave del boss, media casilla a su derecha. Los puntos de aparición están a 4 casillas de las puertas, así que el premio nunca queda en un vano.
+- **Llaves como pickups:** `PickupKind` gana `key` y `boss_key`. Se cogen al pasar por encima, siempre son útiles y no caducan (los demás pickups desaparecen a los 15 s). Van a `run.keys` y `run.bossKey`. Sin arte todavía: rectángulos del manifiesto.
+- **Cofres (`run.chests`):** `open` (el del tesoro: 150$ y un botiquín), `locked` (una llave: 150$ y munición o botiquín al 50 %), `big` (el del reto, M6) y `boss` (M5), y la **vitrina del tesoro como cofre `weapon`:** en lugar de reutilizar las vitrinas de pago (que venden munición a mitad de precio sin límite y exigen un precio positivo), la vitrina es un cofre que da una vez el arma básica que falte (SMG o escopeta, al azar con el RNG de la partida) o, con las dos en mano, munición completa y 200$. El dinero sale como «+150$» flotante; el botiquín o la munición caen al lado para recogerlos. La plantilla del tesoro lleva dos puntos de cofre: el primero el cofre, el segundo la vitrina.
+- **Élite:** `ZombieState.elite`. En la sala de élite, los dos primeros enemigos de la oleada son élite: vida ×2,5 (redondeada), velocidad ×1,15 y dinero ×3; se dibujan con tinte dorado hasta tener su aura. Al limpiar la sala cae la llave del boss.
+- **El boss en la arena:** al entrar una casilla, las puertas se cierran y a los 1,5 s (`boss.fallDelay`) empieza su sombra en el `boss_spot` de la arena, 0,6 s (`boss.shadow`, en vez de los 3 s de Supervivencia), y cae. `dropBossAt` en `BossSystem` lo pone en el punto pedido con la vida de la planta tal cual (60, 110, 180: la variante no multiplica, decisión del usuario). Sin goteo de zombis (las oleadas de Supervivencia no corren). Las recompensas de Supervivencia (`bossRewards`: 500$, pickups, el corazón) no se dan: lo dice `rules.bossRewards`.
+  - **Al morir:** puertas abiertas, +30 de vida a cada jugador vivo, la trampilla en el punto del boss (la casilla transitable más cercana) y, en la planta 3, la partida ganada (`run.outcome = 'won'`). El cofre de mejora llega en M5.
+- **Bajar de planta:** BAJAR pone `run.descending`; la escena se reinicia con un `carry` (`RunCarry` en los datos de la escena): el `RunState` de la planta siguiente (`descend`) y lo que el jugador conserva (vida, armas con su munición y niveles, arma en mano, dinero, puntos, objetos y mejora guardada). Reconstruir la escena entera por planta es lo más simple y ocurre detrás del cartel de planta.
+- **Fin de la partida (§10):** `RunOverScreen` con HAS CAÍDO / HAS ESCAPADO, planta, salas, bajas, tiempo, la semilla y los botones: OTRA PARTIDA (semilla nueva), MISMA SEMILLA (`services.seed = semilla`), MENÚ y, ganada, SEGUIR (baja a la planta 4 con el mismo `carry`). Los iconos de mejoras llegan con M5.
+  - **Récords:** una partida cuenta si no hay debug y la semilla no venía fijada (`?seed=` o MISMA SEMILLA); el `carry` lleva ese dato de planta en planta. Al terminar: mejor planta, más salas, victorias y mejor tiempo de victoria (`records.recordRun`); «¡NUEVO RÉCORD!» en la pantalla cuando cae alguno.
+- **Plantillas del sótano y el jardín:** 16 y 16, como las de la mansión. El sótano es hormigón con paredes del kit del sótano (`paredes: sótano`); el jardín va cercado con valla (`F`) en vez de pared, suelo de césped con parches de patio y tierra, dos salas con piscina (cubierta y agua, nunca el agua tocando el césped) y zonas `interior: no`. El validador conoce los suelos, el anillo y los obstáculos de cada ambiente (`AMBIENT_TILES`). Pilló seis plantillas con pasos estrechos (árboles pegados a la valla, un botellero delante de la puerta…), ya corregidas.
+- **Música:** `boss` durante la pelea de la arena.
+- **Pendiente para M4–M7:** enemigos nuevos y élites en cualquier sala (M4), el mago y el cofre del boss (M5), la Mano con sus números, el altar y el premio del reto (M6), modo infinito, sonidos y debug (M7).
+
+## Mazmorra: escupidor, explosivo, bruto y presupuestos (spec 09, fase M4)
+
+- **Tipos nuevos en el catálogo:** `ZombieKind` gana `spitter`, `exploder` y `brute`. Su velocidad y su `tearTime` van con los demás en `ZOMBIES.kinds` (`balance.ts`), porque el tipo lo exige completo; el resto de sus números en `DUNGEON.kinds`. Supervivencia nunca los saca (`pickZombieKind` solo da los tres de siempre) y sus tests siguen igual.
+- **Dónde vive su comportamiento:** `EnemyKinds.ts`. El `ZombieSystem` solo tiene tres ganchos por tipo (no por modo): el escupidor mantiene la distancia (`holdAndSpit`), el explosivo enciende la mecha al alcanzar al jugador en vez de dar zarpazos (`lightFuse`), y el alcance y el daño del zarpazo salen de `attackRangeOf`/`attackDamageOf` (el escupidor llega a 70 px, el bruto hace 35). `DungeonSystem` llama a `updateEnemyKinds` cada tick: mechas, explosiones, disparos y los anillos de las explosiones.
+- **Escupidor:** se para a 160 px o menos cuando ve al jugador (`segmentClear` con `BLOCK_SIGHT`); si pierde la vista o el jugador se aleja, sigue andando. Cada 2,5 s se hincha 0,6 s y escupe hacia donde está el jugador en ese momento (sin predicción). El primer escupitajo llega a la mitad de la cadencia desde que aparece. Sus escupitajos son `state.enemyShots` (pool de 16, vacío en Supervivencia): 140 px/s, 420 px de alcance, 5 px de radio; los paran las paredes y el atrezo con colisión (`BLOCK_BULLET`); dañan 15 al jugador salvo en pleno dash; al caer dejan un charco de 2 s y 20 px con los charcos del boss (`leavePuddle` admite ahora su tiempo), así que también hieren a los zombis que lo pisen.
+- **Explosivo:** corre como un corredor. Al alcanzar al jugador se queda quieto (`ai: 'idle'`) 0,5 s y estalla; al morir, su cadáver estalla a los 0,5 s (el cadáver dura lo que la mecha como mínimo). La explosión hace 30 al jugador y 3 a cada enemigo a 60 px; un explosivo que muere por ella enciende la suya: las explosiones se encadenan. El que estalla vivo muere sin dar dinero a nadie (nadie lo mató). `fuse` vale −1 apagada, > 0 encendida y −2 ya estallada, para no estallar dos veces.
+- **Bruto:** vida ×5, velocidad ×0,6 (19 px/s), zarpazo 35, 1,5 veces más grande (su hurtbox también, `hurtboxOf`), ni lo empuja la escopeta (`knockZombie`) ni el boss (`pushable`), ni pierde las piernas (`isCrawling`, `isLegless`).
+- **Composición:** costes y plantas de la spec (`DUNGEON.enemies`) y como mucho 2 escupidores y 1 bruto por oleada (`DUNGEON.waveLimits`). El escupidor empieza con una vida menos que la base (mínimo 1).
+- **Arte provisional:** los tres usan el arte de caminante o corredor con un tinte (verde, rojo que late, gris oscuro); el bruto a escala 1,5; el escupidor y el explosivo se hinchan al prepararse. Escupitajos y explosiones se dibujan por código (`DungeonEffects`). Todo en `docs/ASSETS-TODO.md`.
+
+
+## Mazmorra: mejoras, el mago y el cofre del boss (spec 09, fase M5)
+
+- **Catálogo por datos:** `src/config/upgrades.ts` tiene las 18 mejoras (rareza, copias que acumulan) y las 4 maldiciones, sus números (`UPGRADE_EFFECTS`, `CURSE_EFFECTS`), los precios por rareza (300/500/900) y las probabilidades por planta (60/30/10 hasta la planta 2, 45/35/20 desde la 3). Los nombres y textos, en `strings.ts` (`upgrades`).
+- **Un solo sitio donde suman:** `playerStats(run)` (`src/game/dungeon/stats.ts`) convierte las listas `run.upgrades` y `run.curses` en los números que leen los sistemas (recarga ×, velocidad ×, reserva ×, perforaciones extra, rebotes, probabilidad de prender, etc.), memorizado mientras las listas no crecen. Sin `run` (Supervivencia) todo es neutro, así que los sistemas compartidos no preguntan por el modo y sus tests no cambian. Las mejoras son de la partida, no del jugador: en el cooperativo futuro habrá que llevarlas por jugador.
+- **Cómo entra cada una en los sistemas** (todas ×/+ sobre lo que ya había):
+  - Vitalidad y Frágil cambian `p.maxHp` al cogerlas (`takeUpgrade`); Vitalidad cura 25.
+  - Manos rápidas multiplica el tiempo de recarga al empezarla; la barra del HUD recibe el mismo factor (`reloadProgress(p, factor)`).
+  - Pies ligeros y Adrenalina (vida < 30, el umbral de `PLAYER.lowHpThreshold`) van en el `MovementSystem` encima del boost de velocidad; Adrenalina también en la cadencia del disparo.
+  - Imán: alcance de recogida ×3 y nada caduca; Codicia: solo el dinero, no la puntuación.
+  - Bolsillos hondos y Fuga: `maxReserve(slot, factor)`, `refillWeapon(slot, factor)` e `isFullyLoaded(slot, factor)` admiten el factor; lo pasan los pickups de munición y la vitrina del tesoro. La munición del mago azul de Supervivencia no lo necesita (en la mazmorra ese mago no vende eso).
+  - Filo: ×2 de daño y ×1,3 de alcance al cuchillo (`p.meleeRange` también, para el dibujo).
+  - Perforantes y Rebote: `bullet.pierce` suma las extra y guarda su máximo (`pierceMax`); al tocar pared con rebotes, la bala vuelve por el eje de la cara que tocó (sonda de 2 px a cada lado; en una esquina, por los dos), recupera sus perforaciones y olvida a quién hirió. El array `hits` crece para caber el especial de la SMG más dos perforaciones.
+  - Incendiarias y Verdugo actúan donde cae el golpe (`perks.ts`: `critDamage`, `rollIgnite`), en `BulletSystem` y en la cuchillada, nunca en los ticks de fuego ni en las explosiones. Con stats neutras no tiran dados, así que el RNG de Supervivencia no se mueve.
+  - Volátiles y Sanguijuela van en `damageZombie` al morir por un jugador: la cura cada 10 bajas (5 con dos copias), y la explosión se **encola** en `run.bursts` y la dispara `EnemyKinds` en el mismo tick (como las explosiones del infierno), para que `Combat` no importe a `BurnSystem` en círculo. Ardiendo, radio ×1,5 y prende a los demás; las muertes encadenan explosiones (tope de 64 por tick).
+  - Segundo aire: `p.dashUsed` cuenta los dashes desde que el enfriamiento llegó a 0; se puede volver a hacer dash mientras no se agoten.
+  - Paso de sombra: durante el dash, 3 de daño a cada zombi que cruza (una vez por dash, `run.dashHits`) y un punto de fuego por tick (`run.trails`, 1,5 s, 14 px) que prende 2 de daño total a quien lo pise sin estar ya ardiendo. La spec no da el daño del rastro: valor de partida.
+  - Amuleto: `run.wardReady` se arma al entrar en cualquier sala y absorbe el primer `damagePlayer` entero (sin empujón).
+  - Acosado multiplica la velocidad de los zombis; Diezmo los precios del mago.
+- **El mago (§7.1):** al limpiar la 5.ª sala (`merchantCounter % 5 === 0`) aparece en el punto de mago de esa misma sala (si la plantilla no tiene, en el punto del botín) **el mago del color de la mejor rareza de su oferta** (azul común, rojo rara, dorado legendaria): reutiliza los tres `MerchantState` de Supervivencia y su vista; el anterior desaparece (uno cada vez). La oferta son 3 mejoras distintas que la partida aún puede tomar (ninguna pasada de copias); si una rareza se agota, la más cercana. El panel de tienda es el de siempre: `ShopSystem` y `HudPresenter` ceden a `wizardShop.ts` cuando el mago abierto es el de la mazmorra. Filas: las 3 ofertas (comprar una retira las otras), CAMBIAR OFERTA (50$, +50$ cada vez, oculta cuando no queda nada que ofrecer), LLAVE (150$, una por visita) y BOTIQUÍN (200$, +40, una por visita, «VIDA COMPLETA» si no hace falta). Los contadores de visita no se reinician al volver (el mago no se mueve).
+- **El cofre del boss (§7.3):** al morir el boss aparece en el punto de cofre de la arena, con sus 3 mejoras ya sorteadas (probabilidades de la planta siguiente, al menos una rara o legendaria). ABRIR COFRE abre un panel con el título «COFRE DEL BOSS» y ELEGIR gratis; se cierra con la X, al alejarse o al elegir, y el cofre queda hasta que se elige. Si no queda ninguna mejora que ofrecer, paga como un cofre grande (300$ y un botiquín). Lo abre `p.shopChest`, hermano de `p.shopMerchant`.
+- **HUD y menú:** «EL MAGO TE ESPERA» en el color del mago al aparecer y un punto azul en su sala del minimapa; el nombre de la mejora al cogerla, en el color de su rareza. El menú de pausa lista MEJORAS (nombre con «×2», descripción, maldiciones en rojo) solo en la mazmorra. Los iconos de verdad están en `docs/ASSETS-TODO.md`.
+- **Sonidos:** la apertura del cofre del boss suena como la del mago dorado; los sonidos propios (mejora cogida, Amuleto, Sanguijuela) llegan con M7 por el taller de la spec 08.
+
+## Mazmorra: la Mano en su sala, el altar del pacto, maldiciones y reto (spec 09, fase M6)
+
+- **La Mano con los números del modo:** `rules.hand` dice el precio (400$), el pacto de sangre (30 de vida fijos; en Supervivencia sigue siendo la mitad de la vida máxima), los usos por sitio (1 fijo; en Supervivencia se sortean 4–8) y si se mueve al cansarse (no). `HandSystem` lee de ahí en vez de `HAND`. Como la planta tiene una sola grieta (el `## Mano` de la plantilla de la sala de la Mano), la mano aparece allí por la regla de siempre («cualquier zona con grieta que no sea de salida»). Gastado su uso, el botón dice «LA MANO YA HA DADO LO SUYO» (modo `spent`) en vez de cobrar y devolver con la burla; vuelve a tener un uso en la planta siguiente porque cada planta crea su `GameState`.
+- **El altar** no va en las plantillas: el juego lo pone tres casillas al este de la grieta (`altar.offsetTiles`, en la casilla transitable más cercana) al empezar la planta. Así no hacía falta una tabla nueva en el compilador de planos ni en Tiled; si algún día el arte lo pide, se añade `## Altar`. Su oferta se sortea entonces con el RNG de la partida: una legendaria que la partida aún pueda tomar y una maldición que no tenga; si no queda ninguna de las dos, no hay altar en esa planta.
+- **ACEPTAR PACTO** arma el pacto con el primer toque («¿SEGURO? AMULETO POR FRÁGIL», en rojo) y lo sella con el segundo; alejarse del altar lo desarma. Sellado: la legendaria entra gratis (`takeUpgrade`), la maldición se apunta en `run.curses` y actúa por `playerStats` (Frágil baja la vida máxima al momento), «PACTO SELLADO · FRÁGIL» en el HUD y el altar se queda apagado hasta bajar. Rechazarlo es simplemente no tocarlo. Uno por planta, y la siguiente sortea otro.
+- **Sala de reto:** presupuesto `hard` × 1,5 (`challenge.budgetFactor`) y siempre dos oleadas (ya estaba). Al limpiarla aparece el **cofre grande** en el punto de cofre de la plantilla (el del botín si no tiene): no pide llave —antes lo trataba como uno cerrado— y da 300$, un botiquín y una llave en el suelo. Cuenta para el mago como cualquier sala con enemigos.
+- **Ajustes tras la prueba en el móvil (M5–M6):**
+  - **Leyenda de mejoras y maldiciones** (`LegendPanel`, un panel de solo lectura sobre el HUD): se abre con la ⓘ del HUD junto a las marcas del mago (lo que lleva la partida, con las copias, sin pausar), con la ⓘ de cada fila de mejora del mago y del cofre del boss (esa mejora y si ya se tiene), y sola al acercarse al altar (la legendaria, la maldición y cómo se sella), que se cierra al alejarse. El HUD recibe la lista por el evento `dungeon:upgrades`; la ⓘ de las filas llega por un callback que el `InputCollector` pasa a la escena, para no meter eventos UI→UI en el bus.
+  - **El mago aparece en el centro bajo de la sala** (`merchant.seatY` = 72 % de la altura, la casilla transitable más cercana): en el punto de mago de la plantilla (rincones) quedaba detrás de la vida o del minimapa. El punto de la plantilla solo le da la zona.
+  - **El panel de la tienda con muchas filas** (`shop-panel--tall`, más de 3) sube hasta el borde superior, compacta las filas (40 px) y la rareza va en la línea del nombre; las filas hacen scroll táctil (`touch-action: pan-y`, el `body` lo tiene en `none`) si aun así no caben.
+
+## Mazmorra: modo infinito, debug, sonidos y documentación (spec 09, fase M7)
+
+- **Modo infinito:** `floorConfig(n)` ya rotaba ambientes y escalaba vida y presupuesto desde M2; ahora da además `bosses`, la lista de bosses de la arena: en las plantas 4+ recorre `BOSS_SCHEDULE.rounds` en orden (planta 4 → ronda 6, 5 → 12, 6 → la pareja de la 18…), y cada boss cae con la vida de la planta (sin el factor de vuelta del calendario: el ×1,25 por planta ya escala). Las arenas tienen ahora **dos puntos de boss** (B1 en el centro, B2 ocho casillas a la derecha): un boss solo usa el primero; la pareja, los dos. La trampilla sigue en el primero.
+- **Pantalla final:** lista las mejoras y maldiciones en texto, cada una en su color (los iconos están en `ASSETS-TODO.md`).
+- **Debug (§13):** REVELAR MAPA, DAR LLAVE, DAR LLAVE DEL BOSS, +500$, LIMPIAR SALA (mata lo vivo en la pelea; sin pelea, la sala cuenta como limpia), IR AL BOSS (abre la arena y te deja dentro), BAJAR DE PLANTA, MEJORA: X (selector) + DAR MEJORA y LLAMAR AL MAGO (en la sala actual). La semilla ya estaba en el panel de estadísticas. El antiguo «DAR MEJORA» de Supervivencia (la mejora de la ronda) pasa a llamarse «MEJORA DE RONDA». Los botones no hacen nada en Supervivencia.
+- **Sonidos (§11):** 21 ids nuevos en el catálogo, cada uno con 2 o 3 candidatos montados con fuentes CC0 que ya estaban en `audio-src/library/` (no se ha descargado nada nuevo). Los eventos del juego ya existían; se añaden `enemy:bruteStep` (cada 20 px andados del bruto) y `kind` en `zombie:attack` para distinguir su zarpazo. La mejora comprada o elegida suena por rareza (`dungeon.upgrade`, `keyed`, con las firmas de los tres magos: común cristal y agua, rara fuego, legendaria campana y coro); el pacto es un coro corto y la maldición una risa 0,7 s después; la aparición del mago reutiliza `merchant.arrive`; la cura de Sanguijuela, `pickup.health`. Ninguno tiene candidato elegido: se eligen en PRUEBA DE SONIDOS, como los demás.
+- **Presupuesto de efectos:** con los 21 sonidos nuevos los efectos pasan de 8 MB (el tope de la spec 08 para sus 75 sonidos) a unos 9 MB; el tope sube a 10 MB (`AUDIO_GEN.budgetBytes`). Las puertas y la trampilla de la mazmorra quedan como avisos de tono a propósito, como `buy.door`: son madera y cerrojos.
+- **Documentación:** sección «Modo Mazmorra» en `GAME-DESIGN.md`, el bloque 3.7 del `ROADMAP.md` y las carpetas nuevas en `CLAUDE.md`.
+
+
 ## Las puertas verticales cierran la pared (bug)
 
 - **Síntoma:** en algunos tramos verticales de la mansión, la vista, las balas y la onda de los saltos (su daño y su dibujo) cruzaban la pared de este a oeste por una rendija de 12 px.

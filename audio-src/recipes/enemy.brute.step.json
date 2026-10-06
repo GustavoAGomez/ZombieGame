@@ -1,0 +1,122 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Pisadas de robot grande, graves y recortadas.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/813053_big_robot_footstep_002.ogg",
+                "process": {
+                  "lowcut": 130,
+                  "highcut": 3000
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/653370_dullthud.ogg",
+                "process": {
+                  "end": 0.3,
+                  "lowcut": 130
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.04
+            }
+          ],
+          "process": {
+            "length": 0.3,
+            "fadeOut": 0.05
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/813055_big_robot_footstep_004.ogg",
+                "process": {
+                  "lowcut": 130,
+                  "highcut": 3000
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/342535_medium_thud_1.ogg",
+                "process": {
+                  "end": 0.3,
+                  "lowcut": 130
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.05
+            }
+          ],
+          "process": {
+            "length": 0.3,
+            "fadeOut": 0.05
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Golpes sordos de madera, uno más grave.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/653370_dullthud.ogg",
+                "process": {
+                  "end": 0.3,
+                  "lowcut": 90
+                }
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "length": 0.28,
+            "fadeOut": 0.05
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/342535_medium_thud_1.ogg",
+                "process": {
+                  "end": 0.3,
+                  "lowcut": 90,
+                  "semitones": -2
+                }
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "length": 0.28,
+            "fadeOut": 0.05
+          }
+        }
+      ]
+    }
+  }
+}

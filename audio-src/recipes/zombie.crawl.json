@@ -1,0 +1,113 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Hueso que cruje y algo húmedo que se aplasta.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/145362_kleaudio_crackingbone3_msst.ogg"
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/515620_splat_squish_3.ogg",
+                "process": {
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.03
+            }
+          ],
+          "process": {
+            "length": 0.45,
+            "fadeOut": 0.12
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Huesos que se rompen y una salpicadura.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/147993_bone_cracking.ogg",
+                "process": {
+                  "start": 0.18,
+                  "end": 0.6
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/460876_splat11.ogg",
+                "process": {
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.7,
+              "delay": 0.05
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.15,
+            "length": 0.45,
+            "fadeOut": 0.12
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Un crujido de hueso y una salpicadura húmeda.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/774962_cracking_bone_while_sleeping.ogg",
+                "process": {
+                  "start": 0.3,
+                  "lowcut": 200
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/495117_wet_splat_2.ogg",
+                "process": {
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.8
+            }
+          ],
+          "process": {
+            "length": 0.45,
+            "fadeOut": 0.12
+          }
+        }
+      ]
+    }
+  }
+}

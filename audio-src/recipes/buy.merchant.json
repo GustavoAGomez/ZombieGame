@@ -1,0 +1,480 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Azul: Mi-La de cristal y gotas. Rojo: mechero y brasas. Dorado: campanas y coro lejano.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "layers",
+                "layers": [
+                  {
+                    "recipe": {
+                      "type": "synth",
+                      "timbre": "glass",
+                      "notes": [
+                        [
+                          "E6",
+                          0.08
+                        ],
+                        [
+                          "A6",
+                          0
+                        ]
+                      ],
+                      "duration": 0.3
+                    },
+                    "gain": 1
+                  },
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/273870_water_drop_1.ogg"
+                    },
+                    "gain": 0.5,
+                    "delay": 0.05
+                  },
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/868709_bubble_1.ogg"
+                    },
+                    "gain": 0.4,
+                    "delay": 0.15
+                  },
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/868711_bubble_3.ogg"
+                    },
+                    "gain": 0.4,
+                    "delay": 0.22
+                  }
+                ]
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.18,
+            "length": 0.7,
+            "fadeOut": 0.2
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "layers",
+                "layers": [
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/787500_lighter_ignite_release.ogg",
+                      "process": {
+                        "start": 0.2,
+                        "end": 0.5
+                      }
+                    },
+                    "gain": 1
+                  },
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/422850_fire_crackle_02.ogg",
+                      "process": {
+                        "start": 0.2,
+                        "end": 0.6
+                      }
+                    },
+                    "gain": 0.6,
+                    "delay": 0.05
+                  }
+                ]
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.18,
+            "length": 0.7,
+            "fadeOut": 0.2
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "layers",
+                "layers": [
+                  {
+                    "recipe": {
+                      "type": "synth",
+                      "timbre": "bell",
+                      "notes": [
+                        [
+                          "A5",
+                          0,
+                          1
+                        ],
+                        [
+                          "E6",
+                          0,
+                          1
+                        ]
+                      ],
+                      "duration": 0.5
+                    },
+                    "gain": 0.8
+                  },
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/240745_choir_one_shot.ogg",
+                      "process": {
+                        "semitones": 0.81,
+                        "end": 0.6,
+                        "fadeOut": 0.4,
+                        "highcut": 3000
+                      }
+                    },
+                    "gain": 0.35,
+                    "delay": 0.05
+                  }
+                ]
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.18,
+            "length": 0.7,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Azul: chapuzón y cristal. Rojo: llamarada corta y crepitar. Dorado: campanita real y coro.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "layers",
+                "layers": [
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/867462_waboba_moon_ball_water_splash_7.ogg",
+                      "process": {
+                        "end": 0.3,
+                        "fadeOut": 0.15
+                      }
+                    },
+                    "gain": 0.6
+                  },
+                  {
+                    "recipe": {
+                      "type": "synth",
+                      "timbre": "glass",
+                      "notes": [
+                        [
+                          "A6",
+                          0,
+                          1
+                        ]
+                      ],
+                      "duration": 0.3
+                    },
+                    "gain": 1,
+                    "delay": 0.05
+                  }
+                ]
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.18,
+            "length": 0.7,
+            "fadeOut": 0.2
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "layers",
+                "layers": [
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/739471_wd_40_quarter_full_flame_thrower_5.ogg",
+                      "process": {
+                        "end": 0.4,
+                        "lowcut": 150,
+                        "fadeOut": 0.15
+                      }
+                    },
+                    "gain": 1
+                  },
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/422851_fire_crackle_01.ogg",
+                      "process": {
+                        "start": 0.5,
+                        "end": 0.9
+                      }
+                    },
+                    "gain": 0.6,
+                    "delay": 0.1
+                  }
+                ]
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.18,
+            "length": 0.7,
+            "fadeOut": 0.2
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "layers",
+                "layers": [
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/452371_small_bell.ogg",
+                      "process": {
+                        "semitones": 0.37,
+                        "end": 0.6,
+                        "fadeOut": 0.3
+                      }
+                    },
+                    "gain": 0.8
+                  },
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/444491_short_choir.ogg",
+                      "process": {
+                        "semitones": -0.24,
+                        "end": 0.6,
+                        "fadeIn": 0.08,
+                        "fadeOut": 0.4,
+                        "highcut": 3000
+                      }
+                    },
+                    "gain": 0.35,
+                    "delay": 0.05
+                  },
+                  {
+                    "recipe": {
+                      "type": "synth",
+                      "timbre": "bell",
+                      "notes": [
+                        [
+                          "E6",
+                          0,
+                          1
+                        ]
+                      ],
+                      "duration": 0.4
+                    },
+                    "gain": 0.4,
+                    "delay": 0.04
+                  }
+                ]
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.18,
+            "length": 0.7,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Azul: cristal brillante y burbujas. Rojo: hechizo de fuego y cerilla. Dorado: Do-Mi-La de campana y coro.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "layers",
+                "layers": [
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/kenney-interface-sounds/glass_004.ogg",
+                      "process": {
+                        "end": 0.4,
+                        "fadeOut": 0.15
+                      }
+                    },
+                    "gain": 0.7
+                  },
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/192496_bubbles_light_short_descend.ogg",
+                      "process": {
+                        "start": 1.0,
+                        "end": 1.4,
+                        "fadeOut": 0.1
+                      }
+                    },
+                    "gain": 0.6
+                  }
+                ]
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.18,
+            "length": 0.7,
+            "fadeOut": 0.2
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "layers",
+                "layers": [
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/oga-80-cc0-rpg-sfx/spell_fire_07.ogg",
+                      "process": {
+                        "end": 0.4,
+                        "fadeOut": 0.15
+                      }
+                    },
+                    "gain": 1
+                  },
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/256800_striking_a_match_2.ogg",
+                      "process": {
+                        "end": 0.2
+                      }
+                    },
+                    "gain": 0.6
+                  }
+                ]
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.18,
+            "length": 0.7,
+            "fadeOut": 0.2
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "layers",
+                "layers": [
+                  {
+                    "recipe": {
+                      "type": "synth",
+                      "timbre": "bell",
+                      "notes": [
+                        [
+                          "C6",
+                          0.06
+                        ],
+                        [
+                          "E6",
+                          0.06
+                        ],
+                        [
+                          "A6",
+                          0
+                        ]
+                      ],
+                      "duration": 0.4
+                    },
+                    "gain": 0.8
+                  },
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/702796_choir_warm_up.ogg",
+                      "process": {
+                        "semitones": 0.26,
+                        "start": 0.3,
+                        "end": 0.9,
+                        "fadeIn": 0.1,
+                        "fadeOut": 0.4,
+                        "highcut": 3000
+                      }
+                    },
+                    "gain": 0.3
+                  },
+                  {
+                    "recipe": {
+                      "type": "file",
+                      "source": "library/freesound/452379_small_bell_2.ogg",
+                      "process": {
+                        "semitones": 0.32,
+                        "end": 0.6,
+                        "fadeOut": 0.3
+                      }
+                    },
+                    "gain": 0.3
+                  }
+                ]
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.18,
+            "length": 0.7,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    }
+  }
+}

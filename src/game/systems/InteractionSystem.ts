@@ -1,7 +1,9 @@
+import { rules } from '../rules';
 import { BARRICADES } from '../../config/balance';
 import type { PlayerState } from '../../core/GameState';
 import { repairableWindow, updateRepair } from './BarricadeSystem';
 import { nearestClosedDoor, tryBuyDoor } from './DoorSystem';
+import { dungeonOffer, tapDungeon } from './DungeonSystem';
 import { isPlayerAlive } from './HealthSystem';
 import { handOffer, tapHand } from './HandSystem';
 import { itemInReach, pickUpItem } from './ItemSystem';
@@ -56,9 +58,23 @@ export function updateInteractions(ctx: SimContext, dt: number): void {
       continue;
     }
 
+    // The dungeon (spec 09 §4.1, §6): a chest, a keyed door, the challenge's warning or the way down.
+    if (rules(ctx.state).dungeon) {
+      const offer = dungeonOffer(ctx.map, state, p);
+      if (offer) {
+        p.contextAction = 'dungeon';
+        p.contextTarget = offer.target;
+        updateRepair(ctx, p, undefined, -1, dt);
+        if (cmd?.actionPressed) tapDungeon(ctx, p, offer);
+        continue;
+      }
+    }
+
     const window = repairableWindow(ctx, p);
-    const { door, distSq: doorDistSq } = nearestClosedDoor(ctx, p);
-    const { portal, distSq: portalDistSq } = nearestClosedPortal(ctx, p);
+    // The dungeon's doors shut and open by themselves (spec 09 §4): nothing to buy.
+    const buying = rules(ctx.state).payDoors;
+    const { door, distSq: doorDistSq } = buying ? nearestClosedDoor(ctx, p) : { door: -1, distSq: Infinity };
+    const { portal, distSq: portalDistSq } = buying ? nearestClosedPortal(ctx, p) : { portal: -1, distSq: Infinity };
     const usePortal = portal >= 0 && (door < 0 || portalDistSq < doorDistSq);
     const buyDistSq = usePortal ? portalDistSq : doorDistSq;
     const buy = usePortal || door >= 0;
@@ -69,6 +85,8 @@ export function updateInteractions(ctx: SimContext, dt: number): void {
       p.contextTarget = portal;
       updateRepair(ctx, p, undefined, -1, dt);
       if (cmd?.actionPressed && isPortalBuyable(ctx.map, ctx.state, portal)) tryBuyPortal(ctx, p, portal);
+      // A second entrance not yet buyable.
+      else if (cmd?.actionPressed) ctx.events.emit('action:denied', { playerId: p.id });
     } else if (useBuy) {
       p.contextAction = 'door';
       p.contextTarget = door;

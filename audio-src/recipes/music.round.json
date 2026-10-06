@@ -1,0 +1,65 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Acción con percusión sobre un dron oscuro (burning-mir), dos vueltas.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/155139_action_music_loop_with_dark_ambient_dron.ogg"
+              },
+              "gain": 1,
+              "delay": 0.0
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/155139_action_music_loop_with_dark_ambient_dron.ogg"
+              },
+              "gain": 1,
+              "delay": 29.142857
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/155139_action_music_loop_with_dark_ambient_dron.ogg",
+                "process": {
+                  "end": 2
+                }
+              },
+              "gain": 1,
+              "delay": 58.285714
+            }
+          ]
+        }
+      ]
+    },
+    "B": {
+      "about": "Ritmo tenso de juego a 120 ppm (Seth_Makes_Sounds), entero.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/702337_edgy_game_music_120bpm.ogg",
+          "process": {}
+        }
+      ]
+    },
+    "C": {
+      "about": "Cinemática eléctrica con pulso constante (szegvari), entera.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/593851_drive_in_tunnel_cinematic_electric_music.ogg",
+          "process": {}
+        }
+      ]
+    }
+  }
+}

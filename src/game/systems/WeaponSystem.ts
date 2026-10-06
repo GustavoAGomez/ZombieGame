@@ -1,3 +1,7 @@
+import { critDamage, rollIgnite } from '../dungeon/perks';
+import { fireRateBonus, playerStats } from '../dungeon/stats';
+import { BURN, igniteBoss, igniteZombie } from './BurnSystem';
+import { rules } from '../rules';
 import { LOADOUT, MELEE, PLAYER, POINTS, ZOMBIES } from '../../config/balance';
 import { WEAPON_SPECIALS, WEAPONS } from '../../config/weapons';
 import type { BossState, BulletState, GameState, PlayerState, WeaponSlotState } from '../../core/GameState';
@@ -36,8 +40,10 @@ export function updateWeapons(ctx: SimContext, dt: number): void {
     const cmd = commands[i];
     if (!p || !cmd || p.hp <= 0) continue;
     tickTimers(p, cmd, dt);
-    handleSwitch(p, cmd);
-    handleReload(p, cmd, dt);
+    handleSwitch(ctx, p, cmd);
+    handleReload(ctx, p, cmd, dt);
+    // A fresh press of an empty gun clicks (spec 08 §6.1); `firing` is still last tick's.
+    if (cmd.fire && !p.firing) clickIfEmpty(ctx, p);
     updateTrigger(p, cmd, dt);
     updateAim(ctx, p, cmd);
     p.beamOn = false;
@@ -78,7 +84,7 @@ function tickTimers(p: PlayerState, cmd: InputCommand, dt: number): void {
 }
 
 /** Picks the weapon of a HUD slot (or the next one with the keyboard), taking the switch time. */
-function handleSwitch(p: PlayerState, cmd: InputCommand): void {
+function handleSwitch(ctx: SimContext, p: PlayerState, cmd: InputCommand): void {
   let slot = -1;
   if (cmd.selectWeapon >= 0 && cmd.selectWeapon < p.weapons.length) slot = cmd.selectWeapon;
   else if (cmd.switchWeapon && p.weapons.length > 1) slot = (p.activeSlot + 1) % p.weapons.length;
@@ -87,14 +93,16 @@ function handleSwitch(p: PlayerState, cmd: InputCommand): void {
   p.switchTimer = LOADOUT.switchTime;
   p.reloadTimer = 0; // switching cancels a reload in progress
   p.fireCooldown = Math.max(p.fireCooldown, 0);
+  const weapon = p.weapons[slot];
+  if (weapon) ctx.events.emit('weapon:switched', { playerId: p.id, weapon: weapon.id });
 }
 
-function handleReload(p: PlayerState, cmd: InputCommand, dt: number): void {
+function handleReload(ctx: SimContext, p: PlayerState, cmd: InputCommand, dt: number): void {
   const slot = p.weapons[p.activeSlot];
   if (!slot) return;
   // Manual reload: only with room in the magazine and bullets in reserve.
   if (cmd.reload && p.reloadTimer <= 0 && p.switchTimer <= 0 && slot.magazine < magazineSize(slot) && slot.reserve > 0) {
-    p.reloadTimer = reloadTime(slot);
+    startReload(ctx, p, slot);
     return;
   }
   if (p.reloadTimer > 0) {
@@ -105,13 +113,28 @@ function handleReload(p: PlayerState, cmd: InputCommand, dt: number): void {
       const taken = Math.min(needed, slot.reserve);
       slot.magazine += taken;
       slot.reserve -= taken;
+      // A reserve that never runs out (the dungeon's pistol, spec 09 §5.1): full again after each reload.
+      if (rules(ctx.state).infiniteReserve.includes(slot.id)) slot.reserve = Math.max(slot.reserve, WEAPONS[slot.id].startReserve);
+      ctx.events.emit('weapon:reload', { playerId: p.id, weapon: slot.id, phase: 'end' });
     }
     return;
   }
   // Automatic reload as soon as the magazine is empty (not during a switch).
-  if (slot.magazine === 0 && slot.reserve > 0 && p.switchTimer <= 0) {
-    p.reloadTimer = reloadTime(slot);
-  }
+  if (slot.magazine === 0 && slot.reserve > 0 && p.switchTimer <= 0) startReload(ctx, p, slot);
+}
+
+function startReload(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
+  // Manos rápidas (spec 09 §7.2) shortens it.
+  p.reloadTimer = reloadTime(slot) * playerStats(ctx.state.run).reload;
+  ctx.events.emit('weapon:reload', { playerId: p.id, weapon: slot.id, phase: 'start' });
+}
+
+/** A gun in hand with nothing in the magazine nor in reserve, not reloading nor switching: a dry click. */
+function clickIfEmpty(ctx: SimContext, p: PlayerState): void {
+  const slot = p.weapons[p.activeSlot];
+  if (!slot || WEAPONS[slot.id].attack !== 'bullets') return;
+  if (slot.magazine > 0 || slot.reserve > 0 || p.reloadTimer > 0 || p.switchTimer > 0) return;
+  ctx.events.emit('weapon:empty', { playerId: p.id, weapon: slot.id });
 }
 
 function updateAim(ctx: SimContext, p: PlayerState, cmd: InputCommand): void {
@@ -119,29 +142,28 @@ function updateAim(ctx: SimContext, p: PlayerState, cmd: InputCommand): void {
   p.aimManual = cmd.fire && cmd.aimManual;
   if (!cmd.fire) return;
 
+  // A melee weapon in hand (the katana) only cuts straight ahead, where the player faces: its button
+  // takes no aim and nothing turns it towards a zombie (petición del usuario).
+  const inHand = p.weapons[p.activeSlot];
+  if (inHand && WEAPONS[inHand.id].attack === 'melee') {
+    p.aimManual = false;
+    p.aimX = Math.cos(p.facing);
+    p.aimY = Math.sin(p.facing);
+    return;
+  }
+
   if (cmd.aimManual) {
     p.aimX = cmd.aimX;
     p.aimY = cmd.aimY;
   } else {
     const def = p.weapons[p.activeSlot] ? WEAPONS[p.weapons[p.activeSlot]!.id] : undefined;
-    // A melee weapon turns to the nearest zombie in its reach, like the knife: straight at it, no muzzle.
-    const melee = def?.attack === 'melee';
-    const range = def ? def.range + (melee ? ZOMBIES.hitboxRadius : 0) : MELEE.range;
+    const range = def ? def.range : MELEE.range;
     const target = findAutoAimTarget(ctx, p.x, p.y, range);
     const z = target >= 0 ? ctx.state.zombies[target] : undefined;
     // A boss in reach and nearer than that zombie is the target instead (spec 07).
     const boss = autoAimBoss(ctx, p, range, z ? Math.hypot(z.x - p.x, z.y - p.y) : Infinity);
-    if (boss && melee) {
-      const at = nearestOnBoss(boss, ctx.map.tileSize, p.x, p.y, scratchPoint);
-      const len = Math.hypot(at.x - p.x, at.y - p.y) || 1;
-      p.aimX = (at.x - p.x) / len;
-      p.aimY = (at.y - p.y) / len;
-    } else if (boss) aimAtBody(ctx, p, boss.x, bossFeetY(boss, ctx.map.tileSize), bossHurtbox(boss));
-    else if (z && melee) {
-      const len = Math.hypot(z.x - p.x, z.y - p.y) || 1;
-      p.aimX = (z.x - p.x) / len;
-      p.aimY = (z.y - p.y) / len;
-    } else if (z) aimAtBody(ctx, p, z.x, z.y, hurtboxOf(z));
+    if (boss) aimAtBody(ctx, p, boss.x, bossFeetY(boss, ctx.map.tileSize), bossHurtbox(boss));
+    else if (z) aimAtBody(ctx, p, z.x, z.y, hurtboxOf(z));
     else {
       p.aimX = Math.cos(p.facing);
       p.aimY = Math.sin(p.facing);
@@ -280,6 +302,7 @@ function sweep(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
     if (slot.uses === 0) ctx.events.emit('weapon:broken', { playerId: p.id, weapon: slot.id, lost: false });
   }
   p.lastAttackTick = state.tick;
+  ctx.events.emit('weapon:fired', { playerId: p.id, weapon: slot.id, x: p.x, y: p.y });
   const minCos = Math.cos(degToRad(def.arc ?? 0) / 2);
   const damage = bulletDamage(slot) * damageFactor(p);
   let kills = 0;
@@ -294,13 +317,13 @@ function sweep(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
     const uy = dist > 0 ? dy / dist : p.aimY;
     if (ux * p.aimX + uy * p.aimY < minCos) continue;
     if (!segmentClearShaped(ctx.grid, p.x, p.y, z.x, z.y, BLOCK_BULLET)) continue;
-    if (damageZombie(ctx, z, damage, p.id, bodyHitPoint(z, ux, uy), POINTS.meleeHit)) kills++;
+    if (damageZombie(ctx, z, damage, p.id, { ...bodyHitPoint(z, ux, uy), weapon: slot.id }, POINTS.meleeHit)) kills++;
     else knockZombie(ctx, z, ux, uy, def.knockback ?? 0);
   }
   // Every boss the arc reaches is cut too (never pushed).
   for (const b of state.bosses) {
     if (bossMeleeReach(ctx, b, p.x, p.y, p.aimX, p.aimY, def.range, minCos) === Infinity) continue;
-    if (damageBoss(ctx, b, damage, p.id, bossBodyPoint(b, ctx.map.tileSize, p.aimX, p.aimY), POINTS.meleeHit)) kills++;
+    if (damageBoss(ctx, b, damage, p.id, { ...bossBodyPoint(b, ctx.map.tileSize, p.aimX, p.aimY), weapon: slot.id }, POINTS.meleeHit)) kills++;
   }
   // "Filo de sangre" (the katana's special): each kill heals, up to a cap per sweep.
   if (slot.special && def.special === 'blood_edge' && kills > 0) {
@@ -324,10 +347,12 @@ function sweep(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
 function shoot(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
   const { state } = ctx;
   const stats = WEAPONS[slot.id];
+  const perks = playerStats(state.run);
   slot.magazine--;
-  p.fireCooldown += 1 / fireRate(slot);
+  p.fireCooldown += 1 / (fireRate(slot) * fireRateBonus(perks, p));
   p.lastAttackTick = state.tick;
   p.lastShotTick = state.tick;
+  ctx.events.emit('weapon:fired', { playerId: p.id, weapon: slot.id, x: p.x, y: p.y });
 
   const aim = Math.atan2(p.aimY, p.aimX);
   const spread = stats.spread ?? 0;
@@ -342,10 +367,16 @@ function shoot(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
   const jitter = degToRad(stats.pelletJitter ?? 0) / 2;
   // Drawn from the gun's muzzle, along the same direction.
   const muzzle = muzzleFor(ctx.muzzles, aim);
-  for (let i = 0; i < count; i++) {
+  const shots: { angle: number; damage: number }[] = [];
+  for (let i = 0; i < count; i++) shots.push({ angle: centre + (i - (count - 1) / 2) * between + (pellets > 1 ? randomRange(state, -jitter, jitter) : 0), damage: 1 });
+  // Abanico (spec 09 §7.2): more projectiles outside the spread, each side in turn, at a share of the damage.
+  if (perks.fan) {
+    const outer = ((count - 1) / 2) * between + degToRad(perks.fan.angle);
+    for (let k = 0; k < perks.fan.extra; k++) shots.push({ angle: centre + (k % 2 === 0 ? 1 : -1) * (outer + Math.floor(k / 2) * degToRad(perks.fan.angle)), damage: perks.fan.damage });
+  }
+  for (const { angle, damage } of shots) {
     const bullet = freeBullet(state);
     if (!bullet) return; // pool exhausted: the shot is spent but not simulated
-    const angle = centre + (i - (count - 1) / 2) * between + (pellets > 1 ? randomRange(state, -jitter, jitter) : 0);
     bullet.active = true;
     bullet.owner = p.id;
     bullet.x = p.x + p.aimX * PLAYER.muzzleDistance;
@@ -355,9 +386,12 @@ function shoot(ctx: SimContext, p: PlayerState, slot: WeaponSlotState): void {
     bullet.dirX = Math.cos(angle);
     bullet.dirY = Math.sin(angle);
     bullet.speed = stats.bulletSpeed ?? 0;
-    bullet.damage = bulletDamage(slot) * damageFactor(p);
+    bullet.damage = bulletDamage(slot) * damageFactor(p) * damage;
     bullet.look = bulletLook(slot, p.boostActive === 'double_damage');
-    bullet.pierce = special === 'pierce' ? WEAPON_SPECIALS.pierce.hits : 1;
+    // Perforantes and Rebote (spec 09 §7.2) add to the weapon's own.
+    bullet.pierce = (special === 'pierce' ? WEAPON_SPECIALS.pierce.hits : 1) + perks.extraPierce;
+    bullet.pierceMax = bullet.pierce;
+    bullet.bounces = perks.bounces;
     bullet.hits.fill(-1);
     bullet.remaining = stats.range - PLAYER.muzzleDistance;
     bullet.range = bullet.remaining;
@@ -412,13 +446,16 @@ function handleMelee(ctx: SimContext, p: PlayerState, turn: boolean): void {
   let dirX = turn ? Math.cos(p.facing) : p.aimX;
   let dirY = turn ? Math.sin(p.facing) : p.aimY;
   const cone = turn ? Math.PI : degToRad(MELEE.coneHalfAngle);
-  const target = findMeleeTarget(ctx, p.x, p.y, dirX, dirY, MELEE.range, cone);
+  // Filo (spec 09 §7.2): farther and harder.
+  const perks = playerStats(ctx.state.run);
+  const range = MELEE.range * perks.knifeReach;
+  const target = findMeleeTarget(ctx, p.x, p.y, dirX, dirY, range, cone);
   let z = target >= 0 ? ctx.state.zombies[target] : undefined;
   // A boss within reach and nearer than that zombie takes the blow instead (spec 07).
   let boss: BossState | undefined;
   let bossReach = z ? Math.max(0, Math.hypot(z.x - p.x, z.y - p.y) - ZOMBIES.hitboxRadius) : Infinity;
   for (const b of ctx.state.bosses) {
-    const reach = bossMeleeReach(ctx, b, p.x, p.y, dirX, dirY, MELEE.range, Math.cos(cone));
+    const reach = bossMeleeReach(ctx, b, p.x, p.y, dirX, dirY, range, Math.cos(cone));
     if (reach < bossReach) {
       boss = b;
       bossReach = reach;
@@ -438,15 +475,20 @@ function handleMelee(ctx: SimContext, p: PlayerState, turn: boolean): void {
   p.meleeAngle = Math.atan2(dirY, dirX);
   p.meleeTimer = MELEE.swingTime;
   p.meleeTick = ctx.state.tick;
-  p.meleeRange = MELEE.range;
+  p.meleeRange = range;
   p.facing = p.meleeAngle;
-  if (z) damageZombie(ctx, z, MELEE.damage * damageFactor(p), p.id, bodyHitPoint(z, dirX, dirY), POINTS.meleeHit);
-  else if (boss) damageBoss(ctx, boss, MELEE.damage * damageFactor(p), p.id, bossBodyPoint(boss, ctx.map.tileSize, dirX, dirY), POINTS.meleeHit);
+  ctx.events.emit('knife:swing', { playerId: p.id, x: p.x, y: p.y, hit: z !== undefined || boss !== undefined });
+  const damage = critDamage(ctx.state, perks, MELEE.damage * damageFactor(p) * perks.knifeDamage);
+  if (z) {
+    if (!damageZombie(ctx, z, damage, p.id, bodyHitPoint(z, dirX, dirY), POINTS.meleeHit) && rollIgnite(ctx.state, perks)) igniteZombie(z, damage * BURN.fireDamageFactor, BURN.fireDuration, p.id);
+  } else if (boss) {
+    if (!damageBoss(ctx, boss, damage, p.id, bossBodyPoint(boss, ctx.map.tileSize, dirX, dirY), POINTS.meleeHit) && rollIgnite(ctx.state, perks)) igniteBoss(boss, damage * BURN.fireDamageFactor, BURN.fireDuration, p.id);
+  }
 }
 
 /** 0..1 progress of the current reload, or null when not reloading. */
-export function reloadProgress(p: PlayerState): number | null {
+export function reloadProgress(p: PlayerState, reloadFactor = 1): number | null {
   const slot = p.weapons[p.activeSlot];
   if (!slot || p.reloadTimer <= 0) return null;
-  return 1 - p.reloadTimer / reloadTime(slot);
+  return 1 - p.reloadTimer / (reloadTime(slot) * reloadFactor);
 }

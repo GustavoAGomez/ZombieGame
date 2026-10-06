@@ -1,0 +1,146 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Escopeta grabada (un disparo) con golpe grave de 110 Hz y sala.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/668353_shotgun_one_shot.ogg",
+                "process": {
+                  "end": 0.5,
+                  "lowcut": 80
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 110,
+                "duration": 0.25
+              },
+              "gain": 0.6
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.18,
+            "threshold": -16,
+            "ratio": 3,
+            "length": 0.4,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Estéreo y ancho: estampido brillante sobre otro grave filtrado, golpe de 100 Hz.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/163455_shotgun_shot.ogg",
+                "process": {
+                  "end": 0.5,
+                  "lowcut": 90
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/523091_shotgun_blast_1.ogg",
+                "process": {
+                  "end": 0.5,
+                  "lowcut": 100,
+                  "highcut": 3000
+                }
+              },
+              "gain": 0.7
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 100,
+                "duration": 0.25
+              },
+              "gain": 0.5
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.22,
+            "width": 1.4,
+            "threshold": -16,
+            "ratio": 3,
+            "length": 0.4,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Dos escopetas sumadas, saturación suave y golpe de 120 Hz.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/473846_shotgun_shot_03.ogg",
+                "process": {
+                  "end": 0.5,
+                  "lowcut": 90
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/668353_shotgun_one_shot.ogg",
+                "process": {
+                  "end": 0.45,
+                  "lowcut": 90
+                }
+              },
+              "gain": 0.7,
+              "delay": 0.004
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 120,
+                "duration": 0.22
+              },
+              "gain": 0.5
+            }
+          ],
+          "process": {
+            "drive": 0.25,
+            "reverb": "room",
+            "wet": 0.15,
+            "length": 0.4,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    }
+  }
+}

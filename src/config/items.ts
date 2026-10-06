@@ -37,7 +37,7 @@ export interface ItemDef {
 }
 
 export const ITEMS_CATALOGUE: Readonly<Record<ItemId, ItemDef>> = {
-  // A real human heart, beating: El Matarife drops it the first time a boss dies (spec 07 §7).
+  // A real human heart, beating: Matarife drops it the first time a boss dies (spec 07 §7).
   living_heart: { id: 'living_heart', color: '#c93a2b', fps: 10, spawn: { when: 'first_boss_kill' } },
   // Floating, with lightning crackling at its tip: magic that works by itself.
   worn_wand: { id: 'worn_wand', color: '#8a6a3f', accent: '#efe6d2', fps: 12, floats: true, spawn: { when: 'match_start', excludeStartZone: true } },

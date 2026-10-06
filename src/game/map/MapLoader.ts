@@ -266,6 +266,14 @@ export interface MapHandSpot {
  * Where a boss comes out of the floor (spec 07 §3): the centre of a free
  * 3×3 square of floor, at least one per zone.
  */
+/** A point of a dungeon room (spec 09 §3.2): where its enemies appear, or where its chest lies. */
+export interface MapRoomSpot {
+  x: number;
+  y: number;
+  zone: string;
+  zoneIndex: number;
+}
+
 export interface MapBossSpot {
   /** Point in world px (the centre of the square's middle tile). */
   x: number;
@@ -326,6 +334,9 @@ export interface MapData {
   /** Spec 07 §3. */
   bossSpots: MapBossSpot[];
   activationSites: MapActivationSite[];
+  /** Spec 09 §3.2: the dungeon rooms' enemy points and chest points (empty in the mansion). */
+  enemySpawns: MapRoomSpot[];
+  chestSpots: MapRoomSpot[];
   /** Number of portal pairs (length of GameState.portalsOpen). */
   portalLinks: number;
   /** Portal end per cell (row-major), -1 where there is none. */
@@ -583,6 +594,8 @@ export function parseMap(json: unknown): MapData {
   const rawHandSpots: TiledObject[] = [];
   const rawBossSpots: TiledObject[] = [];
   const rawActivationSites: TiledObject[] = [];
+  const rawEnemySpawns: TiledObject[] = [];
+  const rawChestSpots: TiledObject[] = [];
   let playerSpawn: Vec2 | undefined;
 
   for (const obj of objects) {
@@ -625,6 +638,12 @@ export function parseMap(json: unknown): MapData {
         break;
       case 'activation_site':
         rawActivationSites.push(obj);
+        break;
+      case 'enemy_spawn':
+        rawEnemySpawns.push(obj);
+        break;
+      case 'chest_spot':
+        rawChestSpots.push(obj);
         break;
       default:
         // Unknown objects are ignored so designers can annotate maps freely.
@@ -769,6 +788,15 @@ export function parseMap(json: unknown): MapData {
     return { x: obj.x, y: obj.y, zone, zoneIndex };
   });
   const zoneMerchantSpots = zones.map((_, zi) => merchantSpots.flatMap((s, i) => (s.zoneIndex === zi ? [i] : [])));
+  const roomSpots = (raw: TiledObject[], what: string): MapRoomSpot[] =>
+    raw.map((obj) => {
+      const zone = stringProp(obj, 'zone');
+      const zoneIndex = zones.findIndex((z) => z.id === zone);
+      if (zoneIndex < 0) fail(`${what} ${obj.id} references unknown zone "${zone}"`);
+      return { x: obj.x, y: obj.y, zone, zoneIndex };
+    });
+  const enemySpawns = roomSpots(rawEnemySpawns, 'enemy_spawn');
+  const chestSpots = roomSpots(rawChestSpots, 'chest_spot');
   const weaponCases = parseWeaponCases(rawWeaponCases, zones, tileSize, width, height);
   const itemSpots: MapItemSpot[] = rawItemSpots.map((obj) => {
     const zone = stringProp(obj, 'zone');
@@ -829,6 +857,8 @@ export function parseMap(json: unknown): MapData {
     portals,
     merchantSpots,
     zoneMerchantSpots,
+    enemySpawns,
+    chestSpots,
     weaponCases,
     itemSpots,
     handSpots,

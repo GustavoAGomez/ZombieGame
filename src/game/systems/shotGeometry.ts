@@ -1,3 +1,4 @@
+import { DUNGEON } from '../../config/dungeon';
 import { BULLETS, PLAYER, ZOMBIES } from '../../config/balance';
 import type { ZombieState } from '../../core/GameState';
 import { angleFromDir8, dir8FromAngle } from '../../core/math';
@@ -34,9 +35,13 @@ export interface Hurtbox {
 }
 
 /** The box bullets hit, standing on the feet: smaller once the zombie crawls without legs. */
-export function hurtboxOf(z: Pick<ZombieState, 'hp'>): Hurtbox {
+export function hurtboxOf(z: Pick<ZombieState, 'hp'> & Partial<Pick<ZombieState, 'kind'>>): Hurtbox {
+  // The brute is bigger and never crawls (spec 09 §5.2).
+  if (z.kind === 'brute') return BRUTE_HURTBOX;
   return z.hp > 0 && z.hp <= ZOMBIES.crawlAtHp ? ZOMBIES.crawlHurtbox : ZOMBIES.hurtbox;
 }
+
+const BRUTE_HURTBOX: Hurtbox = { width: Math.round(ZOMBIES.hurtbox.width * DUNGEON.kinds.brute.scale), height: Math.round(ZOMBIES.hurtbox.height * DUNGEON.kinds.brute.scale) };
 
 /** Centre of a zombie's drawn body (its hurtbox stands on its feet). */
 export function bodyCentre(zx: number, zy: number, out: Vec2, box: Hurtbox = ZOMBIES.hurtbox): Vec2 {

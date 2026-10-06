@@ -1,0 +1,54 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Dos salpicones grabados, el segundo más grave.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/460868_splat02.ogg",
+          "process": {
+            "end": 0.35,
+            "lowcut": 150,
+            "fadeOut": 0.05
+          }
+        },
+        {
+          "type": "file",
+          "source": "library/freesound/460876_splat11.ogg",
+          "process": {
+            "end": 0.35,
+            "semitones": -2,
+            "lowcut": 150,
+            "fadeOut": 0.05
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "El limo de OGA escupiendo.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/oga-80-cc0-rpg-sfx/creature_slime_02.ogg",
+          "process": {
+            "end": 0.35,
+            "lowcut": 150,
+            "fadeOut": 0.05
+          }
+        },
+        {
+          "type": "file",
+          "source": "library/oga-80-cc0-rpg-sfx/creature_slime_03.ogg",
+          "process": {
+            "end": 0.35,
+            "lowcut": 150,
+            "fadeOut": 0.05
+          }
+        }
+      ]
+    }
+  }
+}

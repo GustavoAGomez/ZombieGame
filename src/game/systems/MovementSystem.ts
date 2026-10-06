@@ -1,3 +1,4 @@
+import { playerStats, speedBonus } from '../dungeon/stats';
 import { PLAYER, ZOMBIES } from '../../config/balance';
 import { WEAPONS } from '../../config/weapons';
 import type { PlayerState, ZombieState } from '../../core/GameState';
@@ -31,7 +32,8 @@ export function updateMovement(ctx: SimContext, dt: number): void {
     // Shooting slows the run down to a walk (the shoot_walk animation); a melee weapon does not (spec 06 §2.2).
     const slot = player.weapons[player.activeSlot];
     const slowed = cmd.fire && !(slot && WEAPONS[slot.id].attack === 'melee');
-    const speed = PLAYER.speed * (slowed ? PLAYER.shootingSpeedFactor : 1) * speedFactor(player);
+    // Pies ligeros and Adrenalina (spec 09 §7.2) on top of the round boost.
+    const speed = PLAYER.speed * (slowed ? PLAYER.shootingSpeedFactor : 1) * speedFactor(player) * speedBonus(playerStats(state.run), player);
     moveCircle(grid, player, mx * speed * dt, my * speed * dt, PLAYER.hitboxRadius, BLOCK_PLAYER);
     blockByZombies(ctx, player);
     // Bosses are solid too (spec 07 §2).

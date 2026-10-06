@@ -27,7 +27,7 @@ El juego toma como referencia el modo Zombies de Black Ops 1. Lo que lo hacía a
 |---|---|---|
 | Rondas 1–2 | Sobrevivir, reparar ventanas, abrir la primera sala | Hecho |
 | Ronda 2 | Aparece el **mago azul**: munición y mejoras temporales | Hecho |
-| Ronda 6 | Sale el primer boss, **el Matarife**; al morir suelta el corazón vivo | Hecho (spec 07) |
+| Ronda 6 | Sale el primer boss, **Matarife**; al morir suelta el corazón vivo | Hecho (spec 07) |
 | Inicio–medio | Buscar la **Mano del Demonio** y probar suerte | Hecho (spec 06) |
 | Medio | **Encender la caldera** del sótano: luz y altares | Pendiente |
 | Medio | Ritual de la piscina: **mago rojo**, mejoras de arma | Hecho |
@@ -89,7 +89,11 @@ Hay que revisar que no pisen lo que vende el mago azul (munición máxima y mejo
 - **Grimorio en el menú principal:** lista de secretos descubiertos, con huecos "???" para los que faltan, y el récord de ronda. Es lo que da motivos para volver entre partidas, que en móvil es clave.
 - Necesita guardar datos entre partidas, cosa que el juego aún no hace.
 
-### 3.7 Más adelante
+### 3.7 Modo Mazmorra — *spec 09, hecho*
+
+Un segundo modo para partidas más cortas y rejugables: tres plantas generadas por semilla, salas que se cierran hasta limpiar, llaves, cofres, un mago cada 5 salas con mejoras permanentes, el cofre del boss, la Mano con el altar del pacto (una legendaria por una maldición), tres enemigos nuevos (explosivo, escupidor, bruto) y el modo infinito tras la victoria. Reglas en `GAME-DESIGN.md` (*Modo Mazmorra*). Siguiente paso posible: arte propio para los enemigos, los cofres y las mejoras (`docs/ASSETS-TODO.md`), y elegir los candidatos de sus sonidos.
+
+### 3.8 Más adelante
 
 - ~~**Rondas especiales** cada 5 o 6 rondas, con un enemigo distinto y un premio garantizado al terminar.~~ Hechas como el sistema de bosses (spec 07): el Matarife sale en las rondas 6, 12, 18, 24 y 30 con sus variantes, y luego el ciclo se repite más fuerte. Reglas en `GAME-DESIGN.md` (*Bosses*). Siguiente paso posible: más bosses, que se intercalan en el calendario cambiando solo los datos.
 - **Trampas de pago:** por ejemplo, la alarma del coche del garaje como señuelo.

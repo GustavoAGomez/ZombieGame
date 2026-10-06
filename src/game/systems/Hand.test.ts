@@ -134,8 +134,12 @@ describe('paying', () => {
   it('with 50 health or less and no money: what is missing, dimmed, and a tap does nothing', () => {
     const ctx = atTheHand(300);
     player(ctx).hp = 50;
+    const denied = vi.fn();
+    ctx.events.on('action:denied', denied);
     expect(handOffer(ctx.map, ctx.state, player(ctx))).toMatchObject({ mode: 'short', amount: HAND.price - 300, enabled: false });
     tap(ctx);
+    // Its sound (spec 08 §6.2): the tap was heard and refused.
+    expect(denied).toHaveBeenCalledWith({ playerId: 0 });
     expect(ctx.state.hand.phase).toBe('idle');
     expect(player(ctx).hp).toBe(50);
   });
@@ -170,9 +174,13 @@ describe('the sequence', () => {
   it('rises 0.6 s, rolls 2 s, offers 8 s and sinks 0.6 s', () => {
     const ctx = paidFor('smg');
     const offered = vi.fn();
+    const rolling = vi.fn();
     ctx.events.on('hand:offer', offered);
+    ctx.events.on('hand:rolling', rolling);
     seconds(ctx, HAND.risingTime);
     expect(ctx.state.hand.phase).toBe('rolling');
+    // The draw's sound starts with it (spec 08 §6.3).
+    expect(rolling).toHaveBeenCalledWith({ playerId: 0 });
     seconds(ctx, HAND.rollingTime);
     expect(ctx.state.hand.phase).toBe('offering');
     expect(offered).toHaveBeenCalledWith({ weapon: 'smg', special: false });

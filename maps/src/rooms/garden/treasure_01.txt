@@ -1,0 +1,28 @@
+FFFFFFFFFooFFFFFFFFF
+FggggggggggggggggggF
+FggggggggggggggggggF
+FggggggppppppggggggF
+FggggggppppppggggggF
+oggggggppppppggggggo
+oggggggppppppggggggo
+FggggggggggggggggggF
+FggggggggggggggggggF
+FFFFFFFFFooFFFFFFFFF
+
+## Sala
+| tipo | dificultad | ambiente | nota |
+|---|---|---|---|
+| treasure | — | garden | el cobertizo: el cofre (C1) y la vitrina del arma (C2) |
+
+## Cofre
+| id | casilla |
+|---|---|
+| C1 | 9,6 |
+| C2 | 13,4 |
+
+## Atrezo (muebles; con colisión es la cobertura de la sala)
+| id | objeto | casillas | colisión | volteo | nota |
+|---|---|---|---|---|---|
+| A1 | prop_farola | 2,1 2,2 | sí | — |  |
+| A2 | prop_buzon | 16,1 | sí | — |  |
+| A3 | prop_flotador | 4,8 | no | — |  |

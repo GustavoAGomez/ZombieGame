@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { MERCHANT } from '../../config/balance';
 import { WEAPONS } from '../../config/weapons';
 import { merchantDef } from '../../config/merchants';
@@ -139,6 +139,8 @@ describe('ShopSystem · buying', () => {
   it('refuses purchases that are not possible: shop closed, short of points or nothing to fill', () => {
     const ctx = atMerchant();
     const p = player(ctx);
+    const denied = vi.fn();
+    ctx.events.on('action:denied', denied);
     p.money = 5000;
     spendAmmo(ctx);
     tick(ctx, (c) => (c.shopBuy = MAX_AMMO));
@@ -147,6 +149,8 @@ describe('ShopSystem · buying', () => {
     p.money = 100;
     tick(ctx, (c) => (c.shopBuy = MAX_AMMO));
     expect(p.money).toBe(100);
+    // Only being short of money sounds refused (spec 08 §6.2): a closed shop takes no purchase at all.
+    expect(denied).toHaveBeenCalledTimes(1);
     p.money = 5000;
     tick(ctx, (c) => (c.shopBuy = MAX_AMMO));
     tick(ctx, (c) => (c.shopBuy = MAX_AMMO));

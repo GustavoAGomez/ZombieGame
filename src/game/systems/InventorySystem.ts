@@ -78,7 +78,7 @@ export function removeWeapon(p: PlayerState, index: number): void {
 }
 
 /** Magazine and reserve to their maximum at the weapon's level. */
-export function refillWeapon(slot: WeaponSlotState): void {
+export function refillWeapon(slot: WeaponSlotState, reserveFactor = 1): void {
   slot.magazine = magazineSize(slot);
-  slot.reserve = maxReserve(slot);
+  slot.reserve = maxReserve(slot, reserveFactor);
 }

@@ -7,6 +7,8 @@ import { DEPTH } from '../depth';
 const TEXTURE: Record<PickupKind, string> = {
   ammo: objectTextureKey(ASSET_KEYS.pickupAmmo),
   health: objectTextureKey(ASSET_KEYS.pickupHealth),
+  key: objectTextureKey(ASSET_KEYS.pickupKey),
+  boss_key: objectTextureKey(ASSET_KEYS.pickupBossKey),
 };
 
 /** Visual only: a 1 px bob so pickups catch the eye, and blinking before they vanish. */

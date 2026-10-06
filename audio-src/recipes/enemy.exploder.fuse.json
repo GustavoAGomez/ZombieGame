@@ -1,0 +1,72 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Una cerilla que prende y el chisporroteo de la mecha.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/256800_striking_a_match_2.ogg",
+                "process": {
+                  "end": 0.3
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/234124_sizzle.ogg",
+                "process": {
+                  "end": 0.5,
+                  "lowcut": 300
+                }
+              },
+              "gain": 1,
+              "delay": 0.08
+            }
+          ],
+          "process": {
+            "length": 0.5,
+            "fadeOut": 0.08
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Solo el siseo, más agudo.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/436791_sizzle.ogg",
+          "process": {
+            "end": 0.5,
+            "lowcut": 400,
+            "fadeOut": 0.08
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Un mechero que prende.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/787500_lighter_ignite_release.ogg",
+          "process": {
+            "end": 0.5,
+            "lowcut": 200,
+            "fadeOut": 0.08
+          }
+        }
+      ]
+    }
+  }
+}

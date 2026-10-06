@@ -1,0 +1,147 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Cristal de la vitrina, un arma que se monta y un La 6 de brillo.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactGlass_light_000.ogg"
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/182252_loy_s_gun_cock_bullet_in_clip.ogg",
+                "process": {
+                  "start": 0.06,
+                  "end": 0.35
+                }
+              },
+              "gain": 1,
+              "delay": 0.08
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "A6",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.3
+              },
+              "gain": 0.2,
+              "delay": 0.3
+            }
+          ],
+          "process": {
+            "length": 0.75,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Cristal de Kenney, dos golpes de armero y un pestillo.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-interface-sounds/glass_001.ogg"
+              },
+              "gain": 0.7
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/679876_gunrack1.ogg",
+                "process": {
+                  "start": 0.18,
+                  "end": 0.55
+                }
+              },
+              "gain": 1,
+              "delay": 0.06
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/metalLatch.ogg",
+                "process": {
+                  "end": 0.12
+                }
+              },
+              "gain": 0.4,
+              "delay": 0.4
+            }
+          ],
+          "process": {
+            "length": 0.75,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Estéreo: cristal, recarga y cerrojo lento, con sala.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactGlass_light_002.ogg"
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/455921_pistol_magazine_reload_only.ogg",
+                "process": {
+                  "start": 0.2,
+                  "end": 0.42
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.06
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/182248_gun_cock_slow_clip.ogg",
+                "process": {
+                  "end": 0.3
+                }
+              },
+              "gain": 0.9,
+              "delay": 0.25
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.18,
+            "length": 0.8,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    }
+  }
+}

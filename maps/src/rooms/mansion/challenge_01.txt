@@ -1,0 +1,43 @@
+#########oo#########
+#..................#
+#..................#
+#..................#
+#........##........#
+o........##........o
+o..................o
+#..................#
+#..................#
+#########oo#########
+
+## Sala
+| tipo | dificultad | ambiente | nota |
+|---|---|---|---|
+| challenge | — | mansion | pilar central: la columna que sostiene la casa |
+
+## Enemigos (puntos de aparición, a 4 casillas o más de los huecos)
+| id | casilla |
+|---|---|
+| E1 | 4,5 |
+| E2 | 15,5 |
+| E3 | 4,2 |
+| E4 | 15,7 |
+| E5 | 14,3 |
+| E6 | 5,6 |
+
+## Magos
+| id | casilla | nota |
+|---|---|---|
+| M1 | 1,8 | rincón suroeste |
+
+## Cofre
+| id | casilla |
+|---|---|
+| C1 | 9,6 |
+
+## Atrezo (muebles; con colisión es la cobertura de la sala)
+| id | objeto | casillas | colisión | volteo | nota |
+|---|---|---|---|---|---|
+| A1 | prop_cajas | 2,1 3,2 | sí | — |  |
+| A2 | prop_cajas | 16,7 17,8 | sí | — |  |
+| A3 | prop_escombros | 5,7 | no | — |  |
+| A4 | prop_charco_sangre | 14,2 | no | — |  |

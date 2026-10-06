@@ -1,0 +1,151 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "MAZAZO: un barrido de aire pesado al revés (el mazo que sube) con cadenas y metal.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/475131_fx_swoosh_super_heavy_for_swords_sticks_.ogg",
+                "process": {
+                  "reverse": true,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/chain_01.ogg",
+                "process": {
+                  "highcut": 6000
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/metal_02.ogg",
+                "process": {
+                  "end": 0.3
+                }
+              },
+              "gain": 0.4,
+              "delay": 0.4
+            }
+          ],
+          "process": {
+            "length": 0.9,
+            "fadeOut": 0.15
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "MAZAZO: aire que sube de 200 a 900 Hz, cadenas y un yunque muy suave.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "air",
+                "freq": 200,
+                "freqEnd": 900,
+                "duration": 0.8,
+                "width": 1.2,
+                "seed": 33
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/chain_02.ogg",
+                "process": {
+                  "highcut": 6000
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.05
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/386106_anvil_lokomo_a_100_kg_hammer_on_back_1_t.ogg",
+                "process": {
+                  "semitones": -5,
+                  "end": 0.4
+                }
+              },
+              "gain": 0.3,
+              "delay": 0.45
+            }
+          ],
+          "process": {
+            "length": 0.9,
+            "fadeOut": 0.15
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "MAZAZO: el barrido pesado y el roce de metal del yunque.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/475131_fx_swoosh_super_heavy_for_swords_sticks_.ogg",
+                "process": {
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/386117_anvil_lokomo_a_100_kg_forging_hot_steel_.ogg",
+                "process": {
+                  "semitones": -7,
+                  "end": 0.5
+                }
+              },
+              "gain": 0.4,
+              "delay": 0.15
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/chain_03.ogg",
+                "process": {
+                  "end": 0.6,
+                  "highcut": 6000
+                }
+              },
+              "gain": 0.4
+            }
+          ],
+          "process": {
+            "length": 0.9,
+            "fadeOut": 0.15
+          }
+        }
+      ]
+    }
+  }
+}

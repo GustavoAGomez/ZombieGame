@@ -2,9 +2,10 @@
  * Why an item cannot be bought even with money enough (spec 03 §3, spec 04 §1):
  * full ammo, no more levels in the weapon's list (or no list at all), the
  * special already bought (or none defined for that weapon), a weapon that
- * has not worn out at all (nothing to repair).
+ * has not worn out at all (nothing to repair), the life already full (the
+ * dungeon wizard's medkit, spec 09 §7.1).
  */
-export type ShopReason = 'ammoFull' | 'maxLevel' | 'notUpgradable' | 'hasSpecial' | 'noSpecial' | 'likeNew';
+export type ShopReason = 'ammoFull' | 'maxLevel' | 'notUpgradable' | 'hasSpecial' | 'noSpecial' | 'likeNew' | 'hpFull';
 
 /**
  * What the COMPRAR button of a shop item shows for a player:

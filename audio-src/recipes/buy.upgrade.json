@@ -1,0 +1,302 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Un mechero que prende y una llamarada; La-Do-Mi-La de glockenspiel real, un peldaño más por nivel.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/787500_lighter_ignite_release.ogg",
+                "process": {
+                  "start": 0.2,
+                  "end": 0.5
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/739470_wd_40_quarter_full_flame_thrower_4.ogg",
+                "process": {
+                  "start": 0.14,
+                  "end": 0.5,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1,
+              "delay": 0.06
+            }
+          ],
+          "process": {
+            "length": 0.5,
+            "fadeOut": 0.2
+          }
+        }
+      ],
+      "shine": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/348890_glockenspiel_20_a3_02.ogg",
+                "process": {
+                  "semitones": -12,
+                  "end": 0.3,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/348890_glockenspiel_20_a3_02.ogg",
+                "process": {
+                  "semitones": -9,
+                  "end": 0.3,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1,
+              "delay": 0.07
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/348890_glockenspiel_20_a3_02.ogg",
+                "process": {
+                  "semitones": -5,
+                  "end": 0.3,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1,
+              "delay": 0.14
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/348890_glockenspiel_20_a3_02.ogg",
+                "process": {
+                  "semitones": 0,
+                  "end": 0.3,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1.1,
+              "delay": 0.21000000000000002
+            }
+          ],
+          "process": {
+            "length": 0.6,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Una cerilla y un hechizo de fuego; Re-Fa-La-Re de caja de música.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/256800_striking_a_match_2.ogg",
+                "process": {
+                  "end": 0.25
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/spell_fire_07.ogg",
+                "process": {
+                  "end": 0.45
+                }
+              },
+              "gain": 1,
+              "delay": 0.05
+            }
+          ],
+          "process": {
+            "length": 0.5,
+            "fadeOut": 0.2
+          }
+        }
+      ],
+      "shine": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/732949_wind_up_music_box_d6_note.ogg",
+                "process": {
+                  "semitones": -0.3,
+                  "end": 0.3,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/732949_wind_up_music_box_d6_note.ogg",
+                "process": {
+                  "semitones": 2.7,
+                  "end": 0.3,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1,
+              "delay": 0.07
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/732949_wind_up_music_box_d6_note.ogg",
+                "process": {
+                  "semitones": 6.7,
+                  "end": 0.3,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1,
+              "delay": 0.14
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/732949_wind_up_music_box_d6_note.ogg",
+                "process": {
+                  "semitones": 11.7,
+                  "end": 0.3,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1.1,
+              "delay": 0.21000000000000002
+            }
+          ],
+          "process": {
+            "length": 0.6,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Cerilla que prende sola y fuego; Mi-Sol-Si-Mi de kalimba.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/398448_match_ignite_no_strike.ogg",
+                "process": {
+                  "end": 0.3
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/spell_fire_01.ogg",
+                "process": {
+                  "end": 0.45
+                }
+              },
+              "gain": 1,
+              "delay": 0.05
+            }
+          ],
+          "process": {
+            "length": 0.5,
+            "fadeOut": 0.2
+          }
+        }
+      ],
+      "shine": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/691796_e5_hard_kalimba.ogg",
+                "process": {
+                  "semitones": 0.28,
+                  "end": 0.35,
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/691796_e5_hard_kalimba.ogg",
+                "process": {
+                  "semitones": 3.2800000000000002,
+                  "end": 0.35,
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 1,
+              "delay": 0.07
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/691796_e5_hard_kalimba.ogg",
+                "process": {
+                  "semitones": 7.28,
+                  "end": 0.35,
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 1,
+              "delay": 0.14
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/691796_e5_hard_kalimba.ogg",
+                "process": {
+                  "semitones": 12.28,
+                  "end": 0.35,
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 1.1,
+              "delay": 0.21000000000000002
+            }
+          ],
+          "process": {
+            "length": 0.6,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    }
+  }
+}

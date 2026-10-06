@@ -23,6 +23,11 @@
   gap: 8px;
 }
 
+/* A row the mode hides (the dungeon has no points to show, spec 09 §4.2). */
+.hud-row[hidden] {
+  display: none;
+}
+
 .hud-label {
   font-size: 11px;
   color: var(--muted);
@@ -383,6 +388,42 @@
   text-shadow: 2px 2px 0 var(--ink);
 }
 
+/* The dungeon's minimap (spec 09 §4.2): drawn pixel by pixel, a cell per room. */
+.hud-minimap {
+  display: block;
+  image-rendering: pixelated;
+  filter: drop-shadow(2px 2px 0 var(--ink));
+}
+
+/* The five marks towards the wizard (spec 09 §7.1), under the minimap. */
+.hud-counter {
+  gap: 3px;
+}
+
+.hud-counter .hud-mark__box {
+  width: 6px;
+  height: 6px;
+}
+
+.hud-counter .hud-mark__box.is-on {
+  background: var(--amber);
+}
+
+/* The dungeon's keys under the money (spec 09 §4.2): amber, red with the boss's. */
+.hud-keys {
+  font-size: 9px;
+  color: var(--amber);
+  text-shadow: 2px 2px 0 var(--ink);
+}
+
+.hud-keys:empty {
+  display: none;
+}
+
+.hud-keys.is-boss {
+  color: var(--red-low);
+}
+
 /* Money ($) under the points, in green, no label. */
 .hud-money {
   font-family: var(--font-display);
@@ -553,15 +594,18 @@
 }
 
 /*
- * The bosses' health bars (spec 07 §6): under the pause button, centred on
- * it (it moves left on the narrowest screens, screens.css), stacked when
- * there are two. The name over a red bar, with a mark at half, where its
- * fury starts. Hidden while a shop is open: the merchant shows there.
+ * The bosses' health bars (spec 07 §6): at the very top, centred (the pause
+ * button went to the bottom-right corner, petición del usuario), stacked
+ * when there are two, the frame level with the health bar's. On the
+ * narrowest screens (640 px) they move left, clear of the special items'
+ * row (four slots to the left of the points, controls.css). The name over
+ * a red bar, with a mark at half, where its fury starts. Hidden while a
+ * shop is open: the merchant shows there.
  */
 .hud-bosses {
   position: absolute;
   left: min(50%, calc(100% - var(--pad-x) - 141px - 12px - 4 * 44px - 14px - 16px - 4px));
-  top: calc(var(--pad-top) + 50px);
+  top: calc(var(--pad-top) + 6px);
   width: 150px;
   transform: translateX(-50%);
   display: flex;
@@ -635,4 +679,123 @@
   width: 2px;
   margin-left: -1px;
   background: var(--ink);
+}
+
+/* The dungeon's ⓘ (spec 09 §7, §9) beside the wizard's marks: what the upgrades and curses carried do. */
+.hud-marks {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hud-info {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 2px solid var(--amber);
+  border-radius: 50%;
+  background: rgba(15, 14, 12, 0.75);
+  color: var(--amber);
+  font-family: var(--font-display);
+  font-size: 9px;
+  line-height: 1;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.hud-info:active {
+  transform: scale(0.94);
+}
+
+/* The legend: a read-only panel over the HUD, above the shop, centred like it. */
+.legend-panel {
+  position: absolute;
+  top: calc(var(--pad-top) + 12px);
+  left: 50%;
+  z-index: 30;
+  transform: translateX(-50%);
+  width: min(440px, calc(100% - 2 * var(--pad-x) - 200px));
+  min-width: 280px;
+  max-height: calc(100% - var(--pad-top) - var(--pad-bottom) - 80px);
+  display: flex;
+  flex-direction: column;
+  padding: 0 10px 8px 12px;
+  background: rgba(26, 23, 20, 0.96);
+  box-shadow:
+    inset 0 0 0 2px var(--amber),
+    3px 3px 0 var(--ink);
+  pointer-events: auto;
+}
+
+.legend-panel[hidden] {
+  display: none;
+}
+
+.legend-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: none;
+  height: 34px;
+}
+
+.legend-panel__title {
+  font-family: var(--font-display);
+  font-size: 10px;
+  color: var(--amber);
+  text-shadow: 2px 2px 0 var(--ink);
+}
+
+.legend-panel__close {
+  width: 44px;
+  height: 44px;
+  margin: -5px -8px -5px 0;
+  border: 0;
+  background: transparent;
+  color: var(--bone);
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.legend-panel__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  touch-action: pan-y;
+}
+
+.legend-row {
+  padding-top: 5px;
+  border-top: 1px solid rgba(239, 230, 210, 0.12);
+}
+
+.legend-row__head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+
+.legend-row__name {
+  font-family: var(--font-display);
+  font-size: 9px;
+}
+
+.legend-row__tag {
+  font-family: var(--font-label);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  opacity: 0.9;
+}
+
+.legend-row__description {
+  margin: 3px 0 0;
+  font-family: var(--font-label);
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--bone);
 }

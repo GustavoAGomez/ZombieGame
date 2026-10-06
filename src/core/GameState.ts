@@ -1,3 +1,5 @@
+import { rulesOf } from '../game/rules';
+import { UPGRADES, UPGRADE_EFFECTS } from '../config/upgrades';
 import { BOOSTS, BOSS, BULLETS, LOADOUT, PICKUPS, PLAYER, POINTS, WAVES, ZOMBIES, type BoostKind, type PickupKind, type ZombieKind } from '../config/balance';
 import type { BossAttackId, BossId, BossVariantId } from '../config/bosses';
 import { WEAPON_SPECIALS, WEAPONS, type UpgradeKind, type WeaponId } from '../config/weapons';
@@ -9,7 +11,9 @@ import { createHandState, emptyHand } from '../game/systems/handSpawn';
 import { placeMatchItems } from '../game/systems/itemSpawns';
 import { initialAccesses } from '../game/systems/ZoneSystem';
 import { bossDelayOf, roundZombies } from '../game/systems/waveFormulas';
+import { DUNGEON, type GameMode } from '../config/dungeon';
 import type { RngState } from './Rng';
+import type { RunState } from './RunState';
 
 /**
  * Flat, serialisable state of a match. Systems mutate it at a fixed 60 Hz;
@@ -45,7 +49,7 @@ export interface WeaponSlotState {
 export type BulletLook = 'normal' | 'upgraded' | 'boosted' | 'special' | 'fire';
 
 /** What the contextual action chip would do for a player right now. */
-export type ContextAction = 'none' | 'repair' | 'door' | 'portal' | 'merchant' | 'weaponCase' | 'hand' | 'pickup';
+export type ContextAction = 'none' | 'repair' | 'door' | 'portal' | 'merchant' | 'weaponCase' | 'hand' | 'pickup' | 'dungeon';
 
 /**
  * Where the Demon's Hand is in its sequence (spec 06 §3.4): waiting in its
@@ -157,6 +161,8 @@ export interface PlayerState {
   dashDirY: number;
   /** Seconds until the dash can be used again. */
   dashCooldown: number;
+  /** Dashes taken since the cooldown last ran out (Segundo aire, spec 09 §7.2). */
+  dashUsed: number;
 
   /** Money ($) to spend on doors, portals and merchants. */
   money: number;
@@ -183,6 +189,8 @@ export interface PlayerState {
   handConfirmTimer: number;
   /** Merchant whose shop panel this player has open (spec 03 §3), -1 when closed. */
   shopMerchant: number;
+  /** The boss's chest whose choice of upgrades is open (spec 09 §7.3), -1 none. */
+  shopChest: number;
   /** Boost bought and kept for later (spec 03 §5): one slot, kept between rounds. */
   boostStored: BoostKind | null;
   /** Boost running now, for boostTimer more seconds. */
@@ -239,8 +247,11 @@ export interface BulletState {
   speed: number;
   damage: number;
   look: BulletLook;
-  /** Zombies it can still hit (the SMG's special goes through several). */
+  /** Zombies it can still hit (the SMG's special goes through several), and what it started with (a bounce gives them back, spec 09 §7.2). */
   pierce: number;
+  pierceMax: number;
+  /** Bounces off walls it has left (Rebote, spec 09 §7.2). */
+  bounces: number;
   /** Zombies (indices) it already hit, so going through one never hits it twice; -1 = free. */
   hits: number[];
   /** Distance still allowed before the bullet expires, and what it started with (for the damage falloff). */
@@ -273,6 +284,15 @@ export type ZombieAi = 'toWindow' | 'tearing' | 'climbing' | 'entering' | 'chasi
 export interface ZombieState {
   active: boolean;
   kind: ZombieKind;
+  /** An elite (spec 09 §5.2): more life and speed, more money, a golden aura. */
+  elite: boolean;
+  /** An exploder's fuse (spec 09 §5.2): seconds to its burst while > 0; -1 unlit; -2 burst already. */
+  fuse: number;
+  /** A spitter's (spec 09 §5.2): seconds to its next spit while it holds, and the swell before it (0 when not swelling). */
+  spitTimer: number;
+  /** Px walked since the brute's last footstep sounded (spec 09 §11). */
+  stepAcc: number;
+  spitWindup: number;
   ai: ZombieAi;
   x: number;
   y: number;
@@ -426,6 +446,17 @@ export interface PuddleState {
 }
 
 /** A burst of hellfire waiting to go off this tick (spec 06 §2.3): queued when a hellfire-burning zombie dies. */
+/** An enemy's shot (spec 09 §5.2): the spitter's slow spit, pooled. */
+export interface EnemyShotState {
+  active: boolean;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  /** Px flown so far: it drops at its range. */
+  travelled: number;
+}
+
 export interface BlastState {
   active: boolean;
   x: number;
@@ -510,6 +541,10 @@ export interface WaveState {
 }
 
 export interface GameState extends RngState {
+  /** Survival or the dungeon (spec 09 §1): the mode's rules ask for it in one place. */
+  mode: GameMode;
+  /** The dungeon run (spec 09); null in Survival. */
+  run: RunState | null;
   tick: number;
   /** Simulated seconds since the match started. */
   time: number;
@@ -526,6 +561,8 @@ export interface GameState extends RngState {
   bossAttackAt: number;
   /** Hellfire bursts queued this tick, set off by BurnSystem (pooled). */
   blasts: BlastState[];
+  /** The enemies' shots (spec 09 §5.2), pooled; none in Survival. */
+  enemyShots: EnemyShotState[];
   blood: BloodState[];
   pickups: PickupState[];
   /** One per merchant in merchants.ts, enabled or not. */
@@ -609,6 +646,7 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     dashDirX: 0,
     dashDirY: 0,
     dashCooldown: 0,
+    dashUsed: 0,
     money: POINTS.startMoney,
     score: 0,
     repairPoints: 0,
@@ -621,6 +659,7 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
     swapConfirmTimer: 0,
     handConfirmTimer: 0,
     shopMerchant: -1,
+    shopChest: -1,
     boostStored: null,
     boostActive: null,
     boostTimer: 0,
@@ -632,6 +671,8 @@ export function createPlayerState(id: number, x = 0, y = 0): PlayerState {
 
 function createBullet(): BulletState {
   return {
+    pierceMax: 1,
+    bounces: 0,
     active: false,
     owner: 0,
     x: 0,
@@ -644,7 +685,8 @@ function createBullet(): BulletState {
     damage: 0,
     look: 'normal',
     pierce: 1,
-    hits: new Array<number>(WEAPON_SPECIALS.pierce.hits).fill(-1),
+    // Room for the SMG's special plus Perforantes' extra enemies (spec 09 §7.2).
+    hits: new Array<number>(WEAPON_SPECIALS.pierce.hits + UPGRADES.piercing.maxCopies * UPGRADE_EFFECTS.piercing.extra).fill(-1),
     remaining: 0,
     range: 0,
     falloffFrom: 0,
@@ -660,6 +702,11 @@ function createZombie(): ZombieState {
   return {
     active: false,
     kind: 'walker',
+    elite: false,
+    fuse: -1,
+    stepAcc: 0,
+    spitTimer: 0,
+    spitWindup: 0,
     ai: 'idle',
     x: 0,
     y: 0,
@@ -768,6 +815,10 @@ export interface GameOptions {
   toSpawn?: number;
   /** Rounds follow one another (default). Off keeps the first round going (system tests). */
   waveFlow?: boolean;
+  /** Survival unless told otherwise (spec 09 §1). */
+  mode?: GameMode;
+  /** The dungeon run, made by src/game/dungeon/run.ts. */
+  run?: RunState | null;
 }
 
 export function createGameState(map: MapData, options: GameOptions = {}): GameState {
@@ -775,6 +826,8 @@ export function createGameState(map: MapData, options: GameOptions = {}): GameSt
   const { seed = 1, toSpawn = roundZombies(round), waveFlow = true } = options;
   const players = [createPlayerState(0, map.playerSpawn.x, map.playerSpawn.y)];
   const state: GameState = {
+    mode: options.mode ?? 'survival',
+    run: options.run ?? null,
     tick: 0,
     time: 0,
     rng: seed | 0,
@@ -786,6 +839,7 @@ export function createGameState(map: MapData, options: GameOptions = {}): GameSt
     puddleTick: BOSS.puddle.tickInterval,
     bossAttackAt: -1000,
     blasts: Array.from({ length: ZOMBIES.poolSize }, () => ({ active: false, x: 0, y: 0, owner: -1 })),
+    enemyShots: Array.from({ length: DUNGEON.shots.pool }, () => ({ active: false, x: 0, y: 0, vx: 0, vy: 0, travelled: 0 })),
     blood: Array.from({ length: ZOMBIES.maxBloodDecals }, createBlood),
     pickups: Array.from({ length: PICKUPS.poolSize }, createPickup),
     merchants: MERCHANTS.map((m) => createMerchant(m.id, m.appears?.by === 'round', players.length)),
@@ -814,6 +868,6 @@ export function createGameState(map: MapData, options: GameOptions = {}): GameSt
   };
   // Drawn with the match's RNG as the match starts (spec 05 §2, spec 06 §3.2).
   state.groundItems = placeMatchItems(state, map);
-  state.hand = createHandState(state, map);
+  state.hand = createHandState(state, map, rulesOf(state.mode).hand.uses);
   return state;
 }

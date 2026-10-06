@@ -1,0 +1,43 @@
+FFFFFFFFFooFFFFFFFFF
+FgggFggggggggggggggF
+FgggFggggggggggggggF
+FggggggggggggggggggF
+FggggggggggggggggggF
+oggggggggggggggggggo
+oggggggggggggggggggo
+FggggggggggggggFgggF
+FggggggggggggggFgggF
+FFFFFFFFFooFFFFFFFFF
+
+## Sala
+| tipo | dificultad | ambiente | nota |
+|---|---|---|---|
+| challenge | — | garden | el coche abandonado |
+
+## Enemigos (puntos de aparición, a 4 casillas o más de los huecos)
+| id | casilla |
+|---|---|
+| E1 | 4,7 |
+| E2 | 15,2 |
+| E3 | 14,5 |
+| E4 | 4,4 |
+| E5 | 12,5 |
+
+## Magos
+| id | casilla | nota |
+|---|---|---|
+| M1 | 18,8 | rincón sureste |
+
+## Cofre
+| id | casilla |
+|---|---|
+| C1 | 10,2 |
+
+## Atrezo (muebles; con colisión es la cobertura de la sala)
+| id | objeto | casillas | colisión | volteo | nota |
+|---|---|---|---|---|---|
+| A1 | prop_coche | 7,4 8,5 | sí | — |  |
+| A2 | prop_tumbona | 2,7 2,8 | sí | — |  |
+| A3 | prop_barbacoa_volcada | 17,2 | sí | — |  |
+| A4 | prop_flotador | 12,2 | no | — |  |
+| A5 | prop_mancha_aceite | 6,3 | no | — |  |

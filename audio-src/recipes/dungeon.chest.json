@@ -1,0 +1,138 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "La tapa cruje y caen monedas.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/creak2.ogg",
+                "process": {
+                  "end": 0.4
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/item_coins_01.ogg",
+                "process": {
+                  "end": 0.5
+                }
+              },
+              "gain": 1,
+              "delay": 0.2
+            }
+          ],
+          "process": {
+            "length": 0.75,
+            "fadeOut": 0.15
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/creak3.ogg",
+                "process": {
+                  "end": 0.4
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/item_coins_02.ogg",
+                "process": {
+                  "end": 0.5
+                }
+              },
+              "gain": 1,
+              "delay": 0.2
+            }
+          ],
+          "process": {
+            "length": 0.75,
+            "fadeOut": 0.15
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Un golpe de madera y monedas grabadas.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/742356_singleknock_wood.ogg",
+                "process": {
+                  "end": 0.3,
+                  "start": 0.03
+                }
+              },
+              "gain": 0.9
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/485750_coins_drop_14.ogg",
+                "process": {
+                  "end": 0.5
+                }
+              },
+              "gain": 1,
+              "delay": 0.12
+            }
+          ],
+          "process": {
+            "length": 0.7,
+            "fadeOut": 0.15
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/218460_wood_block_hit.ogg",
+                "process": {
+                  "end": 0.3
+                }
+              },
+              "gain": 0.9
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/510732_coin_dropped_on_table_3.ogg",
+                "process": {
+                  "end": 0.5
+                }
+              },
+              "gain": 1,
+              "delay": 0.12
+            }
+          ],
+          "process": {
+            "length": 0.7,
+            "fadeOut": 0.15
+          }
+        }
+      ]
+    }
+  }
+}

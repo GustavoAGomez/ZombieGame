@@ -1,3 +1,5 @@
+import type { GameMode } from '../../config/dungeon';
+import { rules } from '../rules';
 import { HAND, WEAPON_CASES } from '../../config/balance';
 import { WEAPONS, type WeaponId } from '../../config/weapons';
 import type { GameState, HandPhase, PlayerState, WeaponSlotState } from '../../core/GameState';
@@ -32,22 +34,29 @@ import type { SimContext } from './SimContext';
 /** What the action button offers a player at the hand, and what a tap does. */
 export interface HandOffer {
   /**
-   *   pay      pay HAND.price (`amount`)
+   *   pay      pay the mode's price (`amount`)
    *   blood    the blood pact: bloodCost(p) health (`amount`)
    *   short    neither: `amount` money missing (the button is dimmed and shakes)
+   *   spent    the dungeon's hand took its payments for this floor (spec 09 §9): nothing to do
    *   take     take the weapon on offer
    *   confirm  take it, waiting for the second tap: it replaces `replaces`, upgraded
    */
-  mode: 'pay' | 'blood' | 'short' | 'take' | 'confirm';
+  mode: 'pay' | 'blood' | 'short' | 'spent' | 'take' | 'confirm';
   amount: number;
   enabled: boolean;
   weapon: WeaponId | null;
   replaces: WeaponSlotState | null;
 }
 
-/** Health the blood pact takes from `p`: a share of their maximum health. */
-export function bloodCost(p: PlayerState): number {
-  return Math.round(p.maxHp * HAND.bloodShare);
+/** Health the blood pact takes from `p`: a share of their maximum health (Survival), or the dungeon's flat amount (spec 09 §9). */
+export function bloodCost(p: PlayerState, state: { mode: GameMode } = { mode: 'survival' }): number {
+  const blood = rules(state).hand.blood;
+  return 'flat' in blood ? blood.flat : Math.round(p.maxHp * blood.share);
+}
+
+/** What a weapon costs at the hand in this match. */
+function priceOf(state: { mode: GameMode }): number {
+  return rules(state).hand.price;
 }
 
 /** The player is within reach of the hand's crack, in an unlocked zone. */
@@ -62,11 +71,14 @@ export function handOffer(map: MapData, state: GameState, p: PlayerState): HandO
   if (!handInReach(map, state, p)) return null;
   const hand = state.hand;
   if (hand.phase === 'idle') {
-    if (p.money >= HAND.price) return { mode: 'pay', amount: HAND.price, enabled: true, weapon: null, replaces: null };
-    const blood = bloodCost(p);
+    // A hand that never moves on has nothing more to give once its payments are taken (spec 09 §9).
+    if (hand.usesLeft <= 0 && !rules(state).hand.moves && !hand.debugFree) return { mode: 'spent', amount: 0, enabled: false, weapon: null, replaces: null };
+    const price = priceOf(state);
+    if (p.money >= price) return { mode: 'pay', amount: price, enabled: true, weapon: null, replaces: null };
+    const blood = bloodCost(p, state);
     // Once per spot: healing up does not buy another weapon until the hand moves.
     if (p.hp > blood && !hand.bloodPacts.includes(p.id)) return { mode: 'blood', amount: blood, enabled: true, weapon: null, replaces: null };
-    return { mode: 'short', amount: HAND.price - p.money, enabled: false, weapon: null, replaces: null };
+    return { mode: 'short', amount: price - p.money, enabled: false, weapon: null, replaces: null };
   }
   if (hand.phase === 'offering' && !hand.taken && hand.offer && hand.payer === p.id) {
     const confirming = p.handConfirmTimer > 0 && needsSwapConfirm(p, hand.offer);
@@ -78,7 +90,11 @@ export function handOffer(map: MapData, state: GameState, p: PlayerState): HandO
 /** A tap on the action button at the hand: pay (money or blood) or take the weapon on offer. */
 export function tapHand(ctx: SimContext, p: PlayerState): void {
   const offer = handOffer(ctx.map, ctx.state, p);
-  if (!offer?.enabled) return;
+  if (!offer) return;
+  if (!offer.enabled) {
+    ctx.events.emit('action:denied', { playerId: p.id });
+    return;
+  }
   if (offer.mode === 'pay' || offer.mode === 'blood') pay(ctx, p, offer.mode === 'blood');
   else takeOffer(ctx, p);
 }
@@ -89,15 +105,16 @@ function pay(ctx: SimContext, p: PlayerState, blood: boolean): void {
   if (hand.debugFree) {
     hand.paid = null;
   } else if (blood) {
-    p.hp -= bloodCost(p);
+    p.hp -= bloodCost(p, state);
     hand.paid = 'blood';
     hand.bloodPacts.push(p.id);
     // Like a hit (the red frame and the player's blood), but from nowhere: no push.
     ctx.events.emit('player:damaged', { playerId: p.id, hp: p.hp, maxHp: p.maxHp, x: p.x, y: p.y, fromX: p.x, fromY: p.y });
   } else {
-    if (!spendMoney(p, HAND.price)) return;
+    const price = priceOf(state);
+    if (!spendMoney(p, price)) return;
     hand.paid = 'money';
-    ctx.events.emit('money:spent', { playerId: p.id, amount: HAND.price });
+    ctx.events.emit('money:spent', { playerId: p.id, amount: price });
   }
   hand.payer = p.id;
   hand.taken = false;
@@ -152,8 +169,12 @@ export function updateHand(ctx: SimContext, dt: number): void {
   if (hand.timer > 0) return;
   switch (hand.phase) {
     case 'rising':
-      if (hand.mock) setPhase(state, 'mocking', HAND.mockTime);
-      else setPhase(state, 'rolling', HAND.rollingTime);
+      if (hand.mock) {
+        setPhase(state, 'mocking', HAND.mockTime);
+      } else {
+        setPhase(state, 'rolling', HAND.rollingTime);
+        ctx.events.emit('hand:rolling', { playerId: hand.payer });
+      }
       break;
     case 'mocking':
       refund(ctx);
@@ -172,7 +193,8 @@ export function updateHand(ctx: SimContext, dt: number): void {
       setPhase(state, 'sinking', HAND.sinkingTime);
       break;
     case 'sinking':
-      if (hand.mock) setPhase(state, 'away', HAND.moveDelay);
+      // Tired, it moves on; the dungeon's stays where it is, spent (spec 09 §9).
+      if (hand.mock && rules(state).hand.moves) setPhase(state, 'away', HAND.moveDelay);
       else setPhase(state, 'idle', 0);
       hand.payer = -1;
       hand.paid = null;
@@ -190,9 +212,10 @@ function refund(ctx: SimContext): void {
   const hand = ctx.state.hand;
   const p = ctx.state.players.find((q) => q.id === hand.payer);
   if (!p || !hand.paid) return;
-  if (hand.paid === 'money') p.money += HAND.price;
-  else p.hp = Math.min(p.maxHp, p.hp + bloodCost(p));
-  ctx.events.emit('hand:refunded', { playerId: p.id, blood: hand.paid === 'blood', amount: hand.paid === 'money' ? HAND.price : bloodCost(p) });
+  const amount = hand.paid === 'money' ? priceOf(ctx.state) : bloodCost(p, ctx.state);
+  if (hand.paid === 'money') p.money += amount;
+  else p.hp = Math.min(p.maxHp, p.hp + amount);
+  ctx.events.emit('hand:refunded', { playerId: p.id, blood: hand.paid === 'blood', amount });
 }
 
 /**

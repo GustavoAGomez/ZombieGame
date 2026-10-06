@@ -1,0 +1,161 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Cristal grueso que se rompe con esquirlas y Mi-La de campana apagada.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactGlass_heavy_001.ogg"
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/203378_glass_shard_bounce_2.ogg",
+                "process": {
+                  "end": 0.4
+                }
+              },
+              "gain": 0.5
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "E5",
+                    0.16
+                  ],
+                  [
+                    "A4",
+                    0
+                  ]
+                ],
+                "duration": 0.6,
+                "process": {
+                  "highcut": 2200
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.12
+            }
+          ],
+          "process": {
+            "length": 0.9,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Metal pesado que se parte con Do-La de campana apagada.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactMetal_heavy_001.ogg"
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/metal_02.ogg",
+                "process": {
+                  "end": 0.3
+                }
+              },
+              "gain": 0.4
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "C5",
+                    0.16
+                  ],
+                  [
+                    "A4",
+                    0
+                  ]
+                ],
+                "duration": 0.6,
+                "process": {
+                  "highcut": 2200
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.1
+            }
+          ],
+          "process": {
+            "length": 0.9,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Cristal que estalla (grabado) con Re-Si de campana apagada.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/221528_glass_break.ogg",
+                "process": {
+                  "start": 0.32,
+                  "end": 1.0
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "D5",
+                    0.16
+                  ],
+                  [
+                    "B4",
+                    0
+                  ]
+                ],
+                "duration": 0.6,
+                "process": {
+                  "highcut": 2200
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.1
+            }
+          ],
+          "process": {
+            "length": 0.9,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    }
+  }
+}

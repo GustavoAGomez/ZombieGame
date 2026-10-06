@@ -4,3 +4,8 @@ dist/
 *.log
 .vite/
 coverage/
+
+.env
+
+# Sound candidates (spec 08 §4.4): npm run audio:gen writes them again, the same; only the debug server loads them.
+public/assets/audio/candidates/

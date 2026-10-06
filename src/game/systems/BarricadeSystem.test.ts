@@ -84,6 +84,18 @@ describe('BarricadeSystem · repairing with taps', () => {
     expect(p.money).toBe(POINTS.startMoney + 5 * BARRICADES.pointsPerPlank);
   });
 
+  it('tells every plank put back, also once the round gives no more points for it (the repair streak, spec 08 §3.4)', () => {
+    const ctx = createTestContext();
+    const { w, p } = atWindow(ctx, 0, 0);
+    const repaired = vi.fn();
+    ctx.events.on('barricade:repaired', repaired);
+    p.repairRound = ctx.state.wave.round;
+    p.repairPoints = Number.MAX_SAFE_INTEGER;
+    tapTimes(ctx, 3);
+    expect(repaired).toHaveBeenCalledTimes(3);
+    expect(repaired).toHaveBeenCalledWith({ playerId: 0, x: w.center.x, y: w.center.y });
+  });
+
   it('ignores taps faster than the cooldown', () => {
     const ctx = createTestContext();
     atWindow(ctx, 0, 0);

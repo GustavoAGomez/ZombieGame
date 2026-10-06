@@ -1,0 +1,38 @@
+#########oo#########
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+occcccccccccccccccco
+occcccccccccccccccco
+#cccccccccccccccccc#
+#cccccccccccccccccc#
+#########oo#########
+
+## Sala
+| tipo | dificultad | ambiente | nota |
+|---|---|---|---|
+| combat | medium | basement | cuarto de calderas |
+
+## Enemigos (puntos de aparición, a 4 casillas o más de los huecos)
+| id | casilla |
+|---|---|
+| E1 | 4,7 |
+| E2 | 15,7 |
+| E3 | 15,5 |
+| E4 | 4,4 |
+
+## Magos
+| id | casilla | nota |
+|---|---|---|
+| M1 | 18,8 | rincón sureste |
+
+## Atrezo (muebles; con colisión es la cobertura de la sala)
+| id | objeto | casillas | colisión | volteo | nota |
+|---|---|---|---|---|---|
+| A1 | prop_caldera | 13,1 14,2 | sí | — | caldera apagada |
+| A2 | prop_deposito_agua | 2,1 3,2 | sí | — |  |
+| A3 | prop_bidon | 6,6 | sí | — |  |
+| A4 | prop_bidon | 12,7 | sí | — |  |
+| A5 | prop_herramientas_suelo | 9,5 | no | — |  |
+| A6 | prop_mancha_aceite | 5,3 | no | — |  |

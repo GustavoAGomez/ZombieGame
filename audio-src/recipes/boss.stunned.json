@@ -1,0 +1,187 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Choque contra la pared: ladrillos, piedra, cascotes que caen y un gruñido aturdido.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/232396_bricks.ogg",
+                "process": {
+                  "lowcut": 120
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/536803_stone.ogg",
+                "process": {
+                  "end": 0.7,
+                  "lowcut": 120,
+                  "fadeOut": 0.25
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/418861_brick_falling.ogg",
+                "process": {
+                  "start": 0.5,
+                  "end": 1.1,
+                  "fadeOut": 0.3
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.15
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/556878_growl_or_groan_of_a_synthetic_monster_3.ogg",
+                "process": {
+                  "end": 0.5,
+                  "lowcut": 120,
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 0.4,
+              "delay": 0.3
+            }
+          ],
+          "process": {
+            "drive": 0.15,
+            "reverb": "room",
+            "wet": 0.18,
+            "length": 0.95,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Choque: una roca enorme, un tom grave, hormigón y un quejido de bestia aturdida.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/443845_58_caida_roca_grande.ogg"
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/687924_jh_big_tom_2_f_1_5_sec.ogg",
+                "process": {
+                  "end": 0.6,
+                  "lowcut": 110,
+                  "fadeOut": 0.25
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/194687_pieceofconcrete02.ogg",
+                "process": {
+                  "end": 0.7,
+                  "fadeOut": 0.25
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.05
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/creature_monster_03.ogg",
+                "process": {
+                  "lowcut": 130,
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 0.4,
+              "delay": 0.3
+            }
+          ],
+          "process": {
+            "drive": 0.15,
+            "reverb": "room",
+            "wet": 0.18,
+            "length": 0.95,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Choque: escombros que se rompen, un golpe sordo y una piedra que rueda.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/848472_vintage_debris_smash.ogg",
+                "process": {
+                  "end": 0.9,
+                  "fadeOut": 0.3
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/342534_medium_thud_2.ogg",
+                "process": {
+                  "start": 0.34,
+                  "end": 0.9,
+                  "lowcut": 110
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/159419_120619_10_single_rock.ogg",
+                "process": {
+                  "start": 0.26,
+                  "end": 0.9,
+                  "lowcut": 120,
+                  "fadeOut": 0.25
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.1
+            }
+          ],
+          "process": {
+            "drive": 0.15,
+            "reverb": "room",
+            "wet": 0.18,
+            "length": 0.95,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    }
+  }
+}

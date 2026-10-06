@@ -1,3 +1,4 @@
+import type { DoorKind } from '../../core/RunState';
 import type Phaser from 'phaser';
 import { DISPLAY } from '../../config/display';
 import { COLORS } from '../../config/theme';
@@ -6,6 +7,9 @@ import { ASSET_KEYS, objectTextureKey, tilesetTextureKey } from '../assets/manif
 import { DEPTH, actorDepth } from '../depth';
 import { cellHidden, fogEdges, fogOwners } from './fog';
 import { tilesetForGid, type MapData, type MapTileset } from './MapLoader';
+
+/** The dungeon's door kinds as tints (spec 09 §4.1): placeholders for their art. */
+const DOOR_TINT: Record<DoorKind, number | null> = { normal: null, key: 0xe8b04a, boss: 0xd04030, challenge: 0xb04848 };
 
 /**
  * Draws the map from MapData and mirrors window / door state. Read-only.
@@ -21,6 +25,7 @@ export class MapView {
   private readonly portalSprites: Phaser.GameObjects.Sprite[][] = [];
   private readonly shownPlanks: number[] = [];
   private readonly shownDoorsOpen: boolean[] = [];
+  private readonly shownDoorKinds: (DoorKind | null)[] = [];
   private readonly shownPortalsOpen: boolean[] = [];
   /** Furniture images (parallel to MapData.props), and which ones are drawn crushed (spec 07 §2). */
   private readonly propImages: Phaser.GameObjects.Image[] = [];
@@ -86,12 +91,12 @@ export class MapView {
       this.onCell(image, Math.floor((decal.x + tileset.tileWidth / 2) / ts), Math.floor((decal.y - tileset.tileHeight / 2) / ts));
     }
 
-    // Furniture: anchored at the bottom of its footprint (taller art grows upwards); with collision it is y-sorted.
+    // Furniture: centred on the bottom of its footprint (taller art grows upwards, wider art to both sides); with collision it is y-sorted.
     for (const prop of map.props) {
       const bottom = prop.y + prop.height;
       const image = scene.add
-        .image(prop.x, bottom, objectTextureKey(prop.key))
-        .setOrigin(0, 1)
+        .image(prop.x + prop.width / 2, bottom, objectTextureKey(prop.key))
+        .setOrigin(0.5, 1)
         .setFlip(prop.flipX, prop.flipY)
         .setDepth(prop.collides ? actorDepth(bottom) : DEPTH.floorProps);
       const tile = prop.tiles[0];
@@ -102,8 +107,10 @@ export class MapView {
 
     for (const w of map.windows) {
       // Each wall orientation has its own art (lit from the top-left): never rotate.
-      const key = w.axis === 'vertical' ? ASSET_KEYS.windowPlanksV : ASSET_KEYS.windowPlanks;
-      const sprite = scene.add.sprite(w.center.x, w.center.y, objectTextureKey(key), w.planks).setDepth(DEPTH.mapObjects);
+      const fence = w.kind === 'fence';
+      const key = w.axis === 'vertical' ? (fence ? ASSET_KEYS.fencePlanksV : ASSET_KEYS.windowPlanksV) : fence ? ASSET_KEYS.fencePlanks : ASSET_KEYS.windowPlanks;
+      // Over its own wall tile (a window is a hole in it), which is y-sorted with the characters.
+      const sprite = scene.add.sprite(w.center.x, w.center.y, objectTextureKey(key), w.planks).setDepth(actorDepth((w.tileY + 1) * ts) + 0.0001);
       this.onCell(sprite, w.tileX, w.tileY);
       this.windowSprites.push(sprite);
       this.shownPlanks.push(w.planks);
@@ -116,6 +123,7 @@ export class MapView {
       );
       this.doorSprites.push(sprites);
       this.shownDoorsOpen.push(false);
+      this.shownDoorKinds.push(null);
     }
 
     for (const portal of map.portals) {
@@ -241,6 +249,13 @@ export class MapView {
       if (open !== this.shownDoorsOpen[i]) {
         this.shownDoorsOpen[i] = open;
         for (const sprite of this.doorSprites[i] ?? []) sprite.setFrame(open ? 1 : 0);
+      }
+      // The dungeon's doors (spec 09 §4.1), until they have art: golden with a key, red for the boss's, red-framed for the challenge's.
+      const kind = state.run?.doorKinds[i] ?? 'normal';
+      if (kind !== this.shownDoorKinds[i]) {
+        this.shownDoorKinds[i] = kind;
+        const tint = DOOR_TINT[kind];
+        for (const sprite of this.doorSprites[i] ?? []) if (tint === null) sprite.clearTint(); else sprite.setTint(tint);
       }
     }
     for (let i = 0; i < this.fog.length; i++) {

@@ -1,0 +1,28 @@
+FFFFFFFFFooFFFFFFFFF
+FggggggggggggggggggF
+FggggggggggggggggggF
+FggggggdddddgggggggF
+FggggggdddddgggggggF
+oggggggdddddgggggggo
+oggggggdddddgggggggo
+FggggggdddddgggggggF
+FggggggggggggggggggF
+FFFFFFFFFooFFFFFFFFF
+
+## Sala
+| tipo | dificultad | ambiente | nota |
+|---|---|---|---|
+| hand | — | garden | la sala de la Mano: la grieta en la tierra; el altar del pacto, tres casillas al este |
+
+## Mano
+| id | casilla |
+|---|---|
+| H1 | 9,5 |
+
+## Atrezo (muebles; con colisión es la cobertura de la sala)
+| id | objeto | casillas | colisión | volteo | nota |
+|---|---|---|---|---|---|
+| A1 | prop_charco_sangre | 6,3 | no | — |  |
+| A2 | prop_charco_sangre | 12,6 | no | — |  |
+| A3 | prop_escombros | 3,7 | no | — |  |
+| A4 | prop_cajas | 16,1 17,2 | sí | — |  |

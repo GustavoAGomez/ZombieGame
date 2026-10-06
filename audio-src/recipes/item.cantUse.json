@@ -1,0 +1,127 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Como denied A, dos semitonos más grave.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactWood_medium_000.ogg",
+                "process": {
+                  "end": 0.08,
+                  "lowcut": 150,
+                  "highcut": 1200,
+                  "semitones": -2
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactWood_medium_000.ogg",
+                "process": {
+                  "end": 0.08,
+                  "lowcut": 150,
+                  "highcut": 1200,
+                  "semitones": -3
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.09
+            }
+          ],
+          "process": {
+            "length": 0.19,
+            "fadeOut": 0.05
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Como denied B, más grave.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-interface-sounds/bong_001.ogg",
+                "process": {
+                  "semitones": -2.28,
+                  "highcut": 1500
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-interface-sounds/bong_001.ogg",
+                "process": {
+                  "semitones": -4.28,
+                  "highcut": 1500
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.09
+            }
+          ],
+          "process": {
+            "length": 0.19,
+            "fadeOut": 0.05
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Como denied C, más grave.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPunch_medium_000.ogg",
+                "process": {
+                  "end": 0.07,
+                  "lowcut": 150,
+                  "highcut": 1000,
+                  "semitones": -2
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPunch_medium_000.ogg",
+                "process": {
+                  "end": 0.07,
+                  "lowcut": 150,
+                  "highcut": 1000,
+                  "semitones": -3
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.09
+            }
+          ],
+          "process": {
+            "length": 0.19,
+            "fadeOut": 0.05
+          }
+        }
+      ]
+    }
+  }
+}

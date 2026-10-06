@@ -122,7 +122,8 @@ export const CONTROLS = {
   fireKnobMaxTravel: 28,
 } as const;
 
-export type ZombieKind = 'walker' | 'runner' | 'sprinter';
+/** The three of Survival, and the dungeon's three (spec 09 §5.2): the spitter, the exploder and the brute. */
+export type ZombieKind = 'walker' | 'runner' | 'sprinter' | 'spitter' | 'exploder' | 'brute';
 
 export const ZOMBIES = {
   hitboxRadius: 6,
@@ -143,6 +144,10 @@ export const ZOMBIES = {
     walker: { speed: 32, tearTime: 1.4 },
     runner: { speed: 58, tearTime: 1.0 },
     sprinter: { speed: 84, tearTime: 1.0 },
+    // The dungeon's (spec 09 §5.2; the rest of their numbers in dungeon.ts): the spitter walks, the exploder runs, the brute drags (×0.6 of a walker).
+    spitter: { speed: 32, tearTime: 1.4 },
+    exploder: { speed: 58, tearTime: 1.0 },
+    brute: { speed: 19, tearTime: 1.4 },
   } satisfies Record<ZombieKind, { speed: number; tearTime: number }>,
   /** Measured from the zombie centre to the edge of the player's hitbox. */
   attackRange: 16,
@@ -290,7 +295,8 @@ export const WAVES = {
   restTime: 8,
 } as const;
 
-export type PickupKind = 'ammo' | 'health';
+/** Ammo and health from the zombies; a key and the boss's key in the dungeon (spec 09 §6.1). */
+export type PickupKind = 'ammo' | 'health' | 'key' | 'boss_key';
 
 /** Drops from killed zombies. One roll per kill: ammo, else health, else nothing. */
 export const PICKUPS = {
@@ -510,4 +516,6 @@ export const DEBUG = {
   /** IR A RONDA 6 (spec 07 §10): the first boss round; SIGUIENTE RONDA DE BOSS looks this many rounds ahead at most. */
   bossRound: 6,
   bossRoundSearch: 60,
+  /** The dungeon's +500$ (spec 09 §13). */
+  dungeonMoney: 500,
 } as const;

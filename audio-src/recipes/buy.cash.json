@@ -1,0 +1,141 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Bolsa de monedas pesada, monedas de Kenney y una campanilla en La 6.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/485776_heavy_money_bag_5.ogg",
+                "process": {
+                  "start": 0.2,
+                  "lowcut": 300
+                }
+              },
+              "gain": 0.7
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/handleCoins2.ogg"
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "A6",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.3
+              },
+              "gain": 0.4,
+              "delay": 0.05
+            }
+          ],
+          "process": {
+            "length": 0.6,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Monedas de OpenGameArt con una campanilla en Mi 6.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/item_coins_01.ogg"
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "E6",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.3
+              },
+              "gain": 0.3,
+              "delay": 0.04
+            }
+          ],
+          "process": {
+            "length": 0.5,
+            "fadeOut": 0.15
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Monedas que caen sobre la mesa y una campanita real afinada en La 5.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/510734_coin_dropped_on_table_1.ogg",
+                "process": {
+                  "start": 0.16,
+                  "end": 0.6
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/handleCoins.ogg",
+                "process": {
+                  "end": 0.3
+                }
+              },
+              "gain": 0.5
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/452371_small_bell.ogg",
+                "process": {
+                  "semitones": 0.37,
+                  "end": 0.6,
+                  "fadeOut": 0.3
+                }
+              },
+              "gain": 0.25,
+              "delay": 0.05
+            }
+          ],
+          "process": {
+            "length": 0.6,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    }
+  }
+}

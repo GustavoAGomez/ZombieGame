@@ -43,7 +43,11 @@ export function buildCollisionGrid(map: MapData, doorsOpen: readonly boolean[], 
   const cells = new Uint8Array(map.width * map.height);
   const shapes = new Uint8Array(cells.length);
   for (let i = 0; i < cells.length; i++) shapes[i] = baseCell(map, cells, i);
-  for (const w of map.windows) cells[w.tileY * map.width + w.tileX] = BLOCK_WINDOW;
+  // A window's cell carries its wall's tile (the window is a hole in it): it blocks as a window, whole.
+  for (const w of map.windows) {
+    cells[w.tileY * map.width + w.tileX] = BLOCK_WINDOW;
+    shapes[w.tileY * map.width + w.tileX] = 0;
+  }
   // Furniture with collision stops bodies and bullets but not the line of sight.
   map.props.forEach((prop, index) => {
     if (!prop.collides || propsDestroyed[index]) return;

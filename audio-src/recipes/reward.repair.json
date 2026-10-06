@@ -1,0 +1,187 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "GOLPE SECO: un golpe de madera grueso y otro más corto encima, sin sala; la racha es un «toc» de bloque de madera que se agudiza.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/742356_singleknock_wood.ogg",
+                "process": {
+                  "lowcut": 110
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactWood_light_000.ogg"
+              },
+              "gain": 0.6
+            }
+          ],
+          "process": {
+            "highcut": 6000,
+            "length": 0.22,
+            "fadeOut": 0.06
+          }
+        }
+      ],
+      "shine": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/218460_wood_block_hit.ogg",
+                "process": {
+                  "semitones": -1.17,
+                  "end": 0.14,
+                  "lowcut": 450,
+                  "fadeOut": 0.05
+                }
+              },
+              "gain": 0.8
+            }
+          ],
+          "process": {
+            "highcut": 7000,
+            "length": 0.13,
+            "fadeOut": 0.05
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "APOYAR Y ASENTAR: dos golpes secos y seguidos, la tabla que se apoya y se asienta; la racha es otro bloque de madera, más claro, que se agudiza.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/495645_mug_wood1.ogg",
+                "process": {
+                  "lowcut": 110
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/495644_mug_wood2.ogg",
+                "process": {
+                  "lowcut": 110
+                }
+              },
+              "gain": 0.7,
+              "delay": 0.06
+            }
+          ],
+          "process": {
+            "highcut": 6000,
+            "length": 0.22,
+            "fadeOut": 0.06
+          }
+        }
+      ],
+      "shine": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/218461_wood_block.ogg",
+                "process": {
+                  "semitones": -1.17,
+                  "end": 0.14,
+                  "lowcut": 450,
+                  "fadeOut": 0.05
+                }
+              },
+              "gain": 0.8
+            }
+          ],
+          "process": {
+            "highcut": 7000,
+            "length": 0.13,
+            "fadeOut": 0.05
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "TABLÓN MACIZO: un golpe de tablón grueso y la madera que choca, sin sala; la racha es un «tic» seco de madera que se agudiza.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactWood_medium_001.ogg",
+                "process": {
+                  "lowcut": 120
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/wood_03.ogg",
+                "process": {
+                  "end": 0.2,
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.01
+            }
+          ],
+          "process": {
+            "highcut": 6000,
+            "length": 0.22,
+            "fadeOut": 0.06
+          }
+        }
+      ],
+      "shine": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/wood_02.ogg",
+                "process": {
+                  "end": 0.16,
+                  "lowcut": 300,
+                  "fadeOut": 0.05
+                }
+              },
+              "gain": 0.8
+            }
+          ],
+          "process": {
+            "highcut": 7000,
+            "length": 0.13,
+            "fadeOut": 0.05
+          }
+        }
+      ]
+    }
+  }
+}

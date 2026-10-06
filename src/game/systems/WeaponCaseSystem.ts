@@ -104,7 +104,12 @@ export function caseOffer(map: MapData, p: PlayerState, caseIndex: number): Case
 export function tapCase(ctx: SimContext, p: PlayerState, caseIndex: number): boolean {
   const c = ctx.map.weaponCases[caseIndex];
   const offer = caseOffer(ctx.map, p, caseIndex);
-  if (!c || !offer || !offer.enabled) return false;
+  if (!c || !offer) return false;
+  if (!offer.enabled) {
+    // Short of money, or nothing to refill.
+    ctx.events.emit('action:denied', { playerId: p.id });
+    return false;
+  }
   if (offer.mode === 'buy' && needsSwapConfirm(p, c.weapon)) {
     p.swapConfirmCase = caseIndex;
     p.swapConfirmTimer = WEAPON_CASES.swapConfirmTime;

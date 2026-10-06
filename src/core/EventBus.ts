@@ -1,9 +1,12 @@
+import type { CurseId, Rarity, UpgradeId } from '../config/upgrades';
+import type { Ambient, RoomType } from '../config/dungeon';
+import type { Cell, ChestState, DoorKind, DungeonAction } from './RunState';
 import type { BoostKind, PickupKind, ZombieKind } from '../config/balance';
 import type { AmmoKind, UpgradeKind, WeaponId } from '../config/weapons';
 import type { MerchantId, MerchantItemId } from '../config/merchants';
 import type { ActivationEffect, ActivationId } from '../config/activations';
 import type { ItemId } from '../config/items';
-import type { BossId, BossVariantId } from '../config/bosses';
+import type { BossAttackId, BossId, BossVariantId } from '../config/bosses';
 import type { ShopItemStatus } from './shop';
 
 /**
@@ -41,14 +44,43 @@ export interface GameEvents {
    * A bullet or the knife hit a zombie (or a boss): blood sprays from (x, y), where the
    * hit is drawn, along (dirX, dirY); it falls to the zombie's feet (groundY).
    */
-  'zombie:hit': { x: number; y: number; groundY: number; dirX: number; dirY: number; killed: boolean };
+  'zombie:hit': { x: number; y: number; groundY: number; dirX: number; dirY: number; killed: boolean; weapon?: WeaponId };
+  /** A player fired a bullet weapon or swept the katana (spec 08 §6.1): its sound. */
+  'weapon:fired': { playerId: number; weapon: WeaponId; x: number; y: number };
+  /** A reload began or finished (spec 08 §6.1). */
+  'weapon:reload': { playerId: number; weapon: WeaponId; phase: 'start' | 'end' };
+  /** The trigger pressed with nothing in the magazine nor in reserve (spec 08 §6.1): a dry click. */
+  'weapon:empty': { playerId: number; weapon: WeaponId };
+  /** A player took another weapon in hand (spec 08 §6.1). */
+  'weapon:switched': { playerId: number; weapon: WeaponId };
+  /** A beam weapon ran dry and overheated (spec 08 §6.1). */
+  'weapon:overheat': { playerId: number; weapon: WeaponId };
+  /** A knife slash (spec 08 §6.1), and whether it hit someone. */
+  'knife:swing': { playerId: number; x: number; y: number; hit: boolean };
+  /** A player dashed (spec 08 §6.1). */
+  'player:dash': { playerId: number; x: number; y: number };
+  /** A plank went back on a window (spec 08 §6.2), with or without points: the repair streak. */
+  'barricade:repaired': { playerId: number; x: number; y: number };
+  /** A tap that could not be done (spec 08 §6.2): not enough money, a locked portal, a full inventory. */
+  'action:denied': { playerId: number };
+  /** A zombie starts drawing back its blow (spec 08 §6.4): its sound warns before the hit lands. */
+  /** A claw landing; `kind` tells the brute's apart (spec 09 §11). */
+  'zombie:attack': { x: number; y: number; kind?: ZombieKind };
+  /** A zombie lost its legs and crawls from now on (spec 08 §6.4). */
+  'zombie:crippled': { x: number; y: number };
+  /** A zombie tore a plank off a window (spec 08 §6.4), at the window. */
+  'barricade:plankBroken': { x: number; y: number };
+  /** A boss starts an attack (spec 07 §4, spec 08 §6.4): its windup's sound is the attack's second warning. */
+  'boss:windup': { x: number; y: number; attack: BossAttackId };
   'pickup:collected': { playerId: number; kind: PickupKind };
   /** A door was bought (medium haptic in phase 9). */
-  'door:opened': { doorId: string; playerId: number };
+  'door:opened': { doorId: string; playerId: number; x: number; y: number };
   /** A portal (stairs, ladder, hatch) was bought. */
-  'portal:opened': { portalId: string; playerId: number };
+  'portal:opened': { portalId: string; playerId: number; x: number; y: number };
   /** Someone paid the Demon's Hand (spec 06 §3.3), with money or with blood. */
   'hand:paid': { playerId: number; blood: boolean };
+  /** The paid hand starts drawing (spec 06 §3.4, spec 08 §6.3): weapon outlines roll over it for HAND.rollingTime. */
+  'hand:rolling': { playerId: number };
   /** The hand opened with a weapon (spec 06 §3.4): a special one flashes and is named on the HUD. */
   'hand:offer': { weapon: WeaponId; special: boolean };
   /** The one who paid took the hand's weapon. */
@@ -107,7 +139,7 @@ export interface GameEvents {
    * Points added to a player. With a world position (x, y) the "+N" floats
    * up from there (repaired window); otherwise it floats in the HUD.
    */
-  'points:gained': { playerId: number; amount: number; reason: 'repair' | 'hit' | 'kill'; x?: number; y?: number };
+  'points:gained': { playerId: number; amount: number; reason: 'repair' | 'hit' | 'kill' | 'room' | 'chest'; x?: number; y?: number };
   /**
    * Contextual action chip. kind null hides it. For 'repair', amount is the
    * points per plank (0 once the round's repair limit is reached). For
@@ -115,9 +147,11 @@ export interface GameEvents {
    * missing. A `locked` portal is a second entrance not yet buyable.
    */
   'action:context': {
-    kind: 'repair' | 'door' | 'portal' | 'merchant' | 'weaponCase' | 'hand' | 'pickup' | null;
+    kind: 'repair' | 'door' | 'portal' | 'merchant' | 'weaponCase' | 'hand' | 'pickup' | 'dungeon' | null;
     amount: number;
     enabled: boolean;
+    /** With kind 'dungeon' (spec 09 §4.1, §6, §9): a chest, a keyed door, the challenge's warning, the way down or the pact; `weapon` what the treasure's case holds, `pact` what the altar trades. */
+    dungeon?: { action: DungeonAction; weapon?: WeaponId | null; pact?: { upgrade: UpgradeId; curse: CurseId } };
     portal?: 'stairs' | 'hatch';
     locked?: boolean;
     /** With kind 'merchant': whose shop the button opens. */
@@ -134,7 +168,7 @@ export interface GameEvents {
      * weapon on offer, and the upgraded weapon it would replace (`amount`: the price, the health or what
      * is missing).
      */
-    hand?: { mode: 'pay' | 'blood' | 'short' | 'take' | 'confirm'; weapon?: WeaponId; replaces?: WeaponId; replacesLevel?: number };
+    hand?: { mode: 'pay' | 'blood' | 'short' | 'spent' | 'take' | 'confirm'; weapon?: WeaponId; replaces?: WeaponId; replacesLevel?: number };
     /**
      * With kind 'pickup' (spec 05 §3): the special item on the floor; not enabled with the inventory full.
      * Doors and portals never say which room they unlock (`amount` is its price, or what is missing):
@@ -164,11 +198,12 @@ export interface GameEvents {
   'money:spent': { playerId: number; amount: number };
   /** Bought at a weapon case: the weapon itself or its ammo (spec 04 §3). Medium vibration. */
   'weaponCase:purchase': { playerId: number; weapon: WeaponId; ammo: boolean };
-  /** Something was bought from a merchant (medium haptic). */
-  'merchant:purchase': { playerId: number; merchant: MerchantId; item: MerchantItemId };
+  /** Something was bought from a merchant (medium haptic); an upgrade says the level it bought (spec 08 §3.4). */
+  'merchant:purchase': { playerId: number; merchant: MerchantId; item: MerchantItemId; level?: number };
   /** The local player's shop panel: closed, or open with one row per item still sold. */
   'shop:state': {
-    merchant: MerchantId | null;
+    /** Whose panel: a merchant's, or the boss chest's choice (spec 09 §7.3). */
+    merchant: MerchantId | 'boss_chest' | null;
     /**
      * `boost`: what the round boost row sells this visit. `weapon` and
      * `level`: the weapon an upgrade row upgrades and its level of that
@@ -188,6 +223,9 @@ export interface GameEvents {
       /** A repair row: the weapon's uses left (0: broken) and all it has when new. */
       uses?: number;
       maxUses?: number;
+      /** The dungeon's upgrade rows (spec 09 §7.1): which upgrade, of what rarity. */
+      upgrade?: UpgradeId;
+      rarity?: Rarity;
     }[];
   };
   /**
@@ -201,6 +239,46 @@ export interface GameEvents {
   'round:cleared': { round: number };
   /** Every player is dead. `round` is the round reached; `score` every point earned. */
   'game:over': { round: number; score: number };
+  /** The dungeon (spec 09 §4): a floor begins, with its plan for the minimap. */
+  'dungeon:floor': { floor: number; ambient: Ambient; width: number; height: number; rooms: { type: RoomType; cells: Cell[]; neighbours: number[] }[]; start: number };
+  /** The rooms' state for the minimap and the wizard's counter (§4.2): which are visited and cleared, the current one, enemy rooms cleared towards the wizard. */
+  'dungeon:rooms': { current: number; visited: boolean[]; cleared: boolean[]; counter: number; keys: number; bossKey: boolean; wizardRoom: number };
+  /** A room's doors shut behind the player (§4); strong haptic, a sound. */
+  'dungeon:roomLocked': { room: number };
+  /** A wave is coming (§4): a shadow at each point for the warning's length, and a sound. */
+  'dungeon:spawnWarning': { room: number; points: { x: number; y: number }[]; seconds: number };
+  /** The last enemy fell: the doors open (§4). `counter` is the wizard's. */
+  'dungeon:roomCleared': { room: number; counter: number };
+  /** A chest opened (§6.2): its kind. */
+  'dungeon:chestOpened': { kind: ChestState['kind']; x: number; y: number };
+  /** A keyed door opened with its key (§4.1). */
+  'dungeon:doorUnlocked': { kind: DoorKind; x: number; y: number };
+  /** The boss is dead: the trapdoor appeared (§4); the run is `won` on the last floor. */
+  'dungeon:trapdoor': { x: number; y: number; won: boolean };
+  /** The player goes down (§4). */
+  'dungeon:descend': { floor: number };
+  /** The spitter (spec 09 §5.2): it swells, spits, and its spit lands (on the player, a wall, or the floor). */
+  'enemy:spitWindup': { x: number; y: number };
+  'enemy:spit': { x: number; y: number };
+  'enemy:spitHit': { x: number; y: number; player: boolean };
+  /** The brute's footstep (§11), every so many px. */
+  'enemy:bruteStep': { x: number; y: number };
+  /** The exploder (§5.2): its fuse is lit, and it bursts. */
+  'enemy:fuse': { x: number; y: number };
+  'enemy:exploded': { x: number; y: number; radius: number };
+  /** The wizard appeared in a cleared room (§7.1), with its smoke. */
+  'dungeon:wizard': { room: number; merchant: MerchantId };
+  /** An upgrade taken (§7.1, §7.3): bought, or free from the boss's chest. */
+  'dungeon:upgrade': { playerId: number; id: UpgradeId; rarity: Rarity; free: boolean };
+  /** A new offer bought (§7.1). */
+  'dungeon:reroll': { price: number };
+  /** The run's upgrades and curses (§7, §9), whenever they change: the HUD's legend. */
+  'dungeon:upgrades': { upgrades: UpgradeId[]; curses: CurseId[] };
+  /** The pact sealed at the altar (§9): the legendary taken and the curse carried from now on. */
+  'dungeon:pact': { playerId: number; upgrade: UpgradeId; curse: CurseId };
+  /** Amuleto took a hit (§7.2); Sanguijuela healed. */
+  'dungeon:ward': { x: number; y: number };
+  'dungeon:leech': { heal: number };
 }
 
 type Handler<P> = (payload: P) => void;

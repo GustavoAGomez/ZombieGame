@@ -1,0 +1,244 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Barrido de aire grabado con el canto de un filo (OpenGameArt) justo detrás.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/733889_whoosh_02.ogg",
+                "process": {
+                  "end": 0.3,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/blade_01.ogg",
+                "process": {
+                  "highcut": 9000
+                }
+              },
+              "gain": 0.35,
+              "delay": 0.04
+            }
+          ],
+          "process": {
+            "length": 0.32,
+            "fadeOut": 0.1
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/389590_swing_woosh.ogg",
+                "process": {
+                  "end": 0.3,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/blade_02.ogg",
+                "process": {
+                  "highcut": 9000
+                }
+              },
+              "gain": 0.35,
+              "delay": 0.04
+            }
+          ],
+          "process": {
+            "length": 0.32,
+            "fadeOut": 0.1
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/733888_whoosh_01.ogg",
+                "process": {
+                  "end": 0.32,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/blade_03.ogg",
+                "process": {
+                  "highcut": 9000
+                }
+              },
+              "gain": 0.35,
+              "delay": 0.04
+            }
+          ],
+          "process": {
+            "length": 0.32,
+            "fadeOut": 0.1
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Tajos de espada grabados enteros, sin capas añadidas.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/442903_slash.ogg",
+          "process": {
+            "end": 0.3,
+            "lowcut": 150,
+            "fadeOut": 0.08
+          }
+        },
+        {
+          "type": "file",
+          "source": "library/freesound/868049_sword_slash.ogg",
+          "process": {
+            "end": 0.3,
+            "lowcut": 150,
+            "fadeOut": 0.08
+          }
+        },
+        {
+          "type": "file",
+          "source": "library/freesound/625658_game_sword_attack.ogg",
+          "process": {
+            "end": 0.32,
+            "lowcut": 150,
+            "highcut": 7000,
+            "peaks": [
+              {
+                "freq": 2500,
+                "gainDb": 3,
+                "q": 1
+              }
+            ],
+            "fadeOut": 0.08
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Barrido grave y pesado con una nota de cristal (La 6) como canto del acero.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/475131_fx_swoosh_super_heavy_for_swords_sticks_.ogg",
+                "process": {
+                  "start": 0,
+                  "end": 0.36,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "note": "A6",
+                "duration": 0.25
+              },
+              "gain": 0.12,
+              "delay": 0.08
+            }
+          ],
+          "process": {
+            "length": 0.34,
+            "fadeOut": 0.1
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/724716_sword_slash_energy_wave.ogg",
+                "process": {
+                  "start": 0,
+                  "end": 0.36,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "note": "E6",
+                "duration": 0.25
+              },
+              "gain": 0.12,
+              "delay": 0.08
+            }
+          ],
+          "process": {
+            "length": 0.34,
+            "fadeOut": 0.1
+          }
+        },
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/507466_clean_fast_swoosh.ogg",
+                "process": {
+                  "start": 0.2,
+                  "end": 0.55,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "note": "C7",
+                "duration": 0.25
+              },
+              "gain": 0.12,
+              "delay": 0.08
+            }
+          ],
+          "process": {
+            "length": 0.34,
+            "fadeOut": 0.1
+          }
+        }
+      ]
+    }
+  }
+}

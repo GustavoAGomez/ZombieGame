@@ -1,0 +1,161 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Gruñidos de zombi grabados, tres semitonos más graves, cortos.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/754438_zombie_groan_0.ogg",
+          "process": {
+            "start": 0.1,
+            "end": 0.85,
+            "semitones": -3,
+            "lowcut": 120,
+            "fadeIn": 0.03,
+            "fadeOut": 0.3
+          }
+        },
+        {
+          "type": "file",
+          "source": "library/freesound/754440_zombie_groan_2.ogg",
+          "process": {
+            "start": 0.34,
+            "end": 1.2,
+            "semitones": -3,
+            "lowcut": 120,
+            "fadeIn": 0.03,
+            "fadeOut": 0.3
+          }
+        },
+        {
+          "type": "file",
+          "source": "library/freesound/754441_zombie_groan_3.ogg",
+          "process": {
+            "start": 0.1,
+            "end": 0.85,
+            "semitones": -3,
+            "lowcut": 120,
+            "fadeIn": 0.03,
+            "fadeOut": 0.3
+          }
+        },
+        {
+          "type": "file",
+          "source": "library/freesound/346626_zombie_moan.ogg",
+          "process": {
+            "start": 0,
+            "end": 0.85,
+            "semitones": -4,
+            "lowcut": 120,
+            "fadeIn": 0.03,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Lamentos de zombi más largos y graves.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/445993_zombie_moan_1.ogg",
+          "process": {
+            "start": 0,
+            "end": 0.9,
+            "semitones": -1,
+            "lowcut": 120,
+            "fadeIn": 0.03,
+            "fadeOut": 0.3
+          }
+        },
+        {
+          "type": "file",
+          "source": "library/freesound/445995_zombie_moan_3.ogg",
+          "process": {
+            "start": 0,
+            "end": 0.9,
+            "semitones": -1,
+            "lowcut": 120,
+            "fadeIn": 0.03,
+            "fadeOut": 0.3
+          }
+        },
+        {
+          "type": "file",
+          "source": "library/freesound/797708_zombie_moaning.ogg",
+          "process": {
+            "start": 0.3,
+            "end": 1.2,
+            "semitones": -1,
+            "lowcut": 120,
+            "fadeIn": 0.03,
+            "fadeOut": 0.3
+          }
+        },
+        {
+          "type": "file",
+          "source": "library/freesound/196720_sz_zombies_02.ogg",
+          "process": {
+            "start": 0.2,
+            "end": 1.1,
+            "semitones": -2,
+            "lowcut": 120,
+            "fadeIn": 0.03,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Criaturas de OpenGameArt y gemidos graves de Freesound.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/oga-80-cc0-rpg-sfx/creature_monster_03.ogg",
+          "process": {
+            "semitones": -1,
+            "lowcut": 130,
+            "fadeOut": 0.3
+          }
+        },
+        {
+          "type": "file",
+          "source": "library/oga-80-cc0-rpg-sfx/creature_monster_04.ogg",
+          "process": {
+            "semitones": -1,
+            "lowcut": 130,
+            "fadeOut": 0.3
+          }
+        },
+        {
+          "type": "file",
+          "source": "library/freesound/594008_frankie_groan_03.ogg",
+          "process": {
+            "start": 0,
+            "end": 0.9,
+            "semitones": -2,
+            "lowcut": 120,
+            "fadeIn": 0.03,
+            "fadeOut": 0.3
+          }
+        },
+        {
+          "type": "file",
+          "source": "library/freesound/594009_frankie_groan_02.ogg",
+          "process": {
+            "start": 0,
+            "end": 0.9,
+            "semitones": -2,
+            "lowcut": 120,
+            "fadeIn": 0.03,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    }
+  }
+}

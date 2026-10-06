@@ -1,3 +1,4 @@
+import { DUNGEON } from '../../config/dungeon';
 import Phaser from 'phaser';
 import { ZOMBIES, type ZombieKind } from '../../config/balance';
 import { COLORS, hexToInt } from '../../config/theme';
@@ -11,6 +12,10 @@ const CHARACTER_BY_KIND: Record<ZombieKind, string> = {
   walker: ASSET_KEYS.zombieWalker,
   runner: ASSET_KEYS.zombieRunner,
   sprinter: ASSET_KEYS.zombieSprinter,
+  // The dungeon's kinds (spec 09 §5.2) borrow the art, with a tint and a size of their own (docs/ASSETS-TODO.md).
+  spitter: ASSET_KEYS.zombieWalker,
+  exploder: ASSET_KEYS.zombieRunner,
+  brute: ASSET_KEYS.zombieWalker,
 };
 
 /** Multiplied over the shared art so each kind reads at a glance (white = untouched). */
@@ -18,7 +23,16 @@ const KIND_TINT: Record<ZombieKind, number> = {
   walker: 0xffffff,
   runner: hexToInt(COLORS.zombieRunnerTint),
   sprinter: hexToInt(COLORS.zombieSprinterTint),
+  spitter: 0x8fd05a,
+  exploder: 0xe05040,
+  brute: 0x7a7088,
 };
+/** The exploder's red beats between these two this often; lit, faster. */
+const EXPLODER_TINT_LIGHT = 0xff8a70;
+const EXPLODER_PULSE_MS = 400;
+const EXPLODER_FUSE_PULSE_MS = 90;
+/** An elite's golden aura (spec 09 §5.2), until it has art of its own. */
+const ELITE_TINT = 0xe8b04a;
 
 /** A burning zombie's tint (spec 04 §1), flickering between two oranges this often. */
 const BURN_TINT = hexToInt(COLORS.fire);
@@ -47,6 +61,8 @@ interface Slot {
   visibility: number;
   /** Kind tint applied (-1 none yet), so it is set again only when it changes. */
   tint: number;
+  /** Scale applied (the brute's size, a swell before a spit or a burst). */
+  scale: number;
 }
 
 /**
@@ -85,6 +101,7 @@ export class ZombieViewPool {
       atWindow: false,
       visibility: 0,
       tint: -1,
+      scale: 1,
     }));
   }
 
@@ -141,7 +158,14 @@ export class ZombieViewPool {
       // (a pooled sprite may change kind).
       const flashing = now < slot.flashUntil;
       const burning = z.burn.timer > 0 && z.hp > 0;
-      const tint = burning ? (Math.floor(now / BURN_FLICKER_MS) % 2 === 0 ? BURN_TINT : BURN_TINT_LIGHT) : KIND_TINT[z.kind];
+      const tint = burning ? (Math.floor(now / BURN_FLICKER_MS) % 2 === 0 ? BURN_TINT : BURN_TINT_LIGHT) : z.elite ? ELITE_TINT : kindTint(z, now);
+      // The brute's size (spec 09 §5.2); a spitter about to spit and an exploder with its fuse lit swell.
+      const swell = z.kind === 'spitter' && z.spitWindup > 0 ? 1 + 0.25 * (1 - z.spitWindup / DUNGEON.kinds.spitter.windup) : z.kind === 'exploder' && z.fuse > 0 ? 1 + 0.35 * (1 - z.fuse / DUNGEON.kinds.exploder.fuse) : 1;
+      const scale = (z.kind === 'brute' ? DUNGEON.kinds.brute.scale : 1) * swell;
+      if (scale !== slot.scale) {
+        slot.scale = scale;
+        sprite.setScale(scale);
+      }
       if (flashing && sprite.tintMode !== Phaser.TintModes.FILL) {
         sprite.setTint(0xffffff).setTintMode(Phaser.TintModes.FILL);
         slot.tint = -1;
@@ -192,3 +216,10 @@ export class ZombieViewPool {
 }
 
 const NO_ART: ZombieArt = { climb: false, crawl: false, crawlAttack: false, death: false };
+
+/** A kind's tint now: the exploder's beats, faster with its fuse lit. */
+function kindTint(z: ZombieState, now: number): number {
+  if (z.kind !== 'exploder') return KIND_TINT[z.kind];
+  const period = z.fuse > 0 ? EXPLODER_FUSE_PULSE_MS : EXPLODER_PULSE_MS;
+  return Math.floor(now / period) % 2 === 0 ? KIND_TINT.exploder : EXPLODER_TINT_LIGHT;
+}

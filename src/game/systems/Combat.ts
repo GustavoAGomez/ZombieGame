@@ -1,9 +1,14 @@
-import { POINTS, ZOMBIES } from '../../config/balance';
+import { playerStats } from '../dungeon/stats';
+import type { RunState } from '../../core/RunState';
+import { DUNGEON } from '../../config/dungeon';
+import { rules } from '../rules';
+import { POINTS, ZOMBIES, SIM } from '../../config/balance';
+import type { WeaponId } from '../../config/weapons';
 import type { BloodState, ZombieState } from '../../core/GameState';
 import { random } from '../../core/Rng';
 import { BLOCK_SIGHT, BLOCK_ZOMBIE, moveCircle, segmentClearShaped } from '../map/CollisionGrid';
 import { rollZombieDrop } from './PickupSystem';
-import { awardPoints } from './PointsSystem';
+import { awardPoints, playerById } from './PointsSystem';
 import { hurtboxOf } from './shotGeometry';
 import type { SimContext } from './SimContext';
 
@@ -17,6 +22,8 @@ export interface HitPoint {
   y: number;
   dirX: number;
   dirY: number;
+  /** The weapon that hit, when it sounds its own way (the katana's cut, spec 08 §6.1). */
+  weapon?: WeaponId;
 }
 
 /**
@@ -34,21 +41,55 @@ export function damageZombie(
   hitPoints: number = POINTS.hit,
 ): boolean {
   if (!isZombieAlive(z)) return false;
+  const walked = z.hp > ZOMBIES.crawlAtHp;
   z.hp -= amount;
-  if (attacker >= 0 && hitPoints > 0) awardPoints(ctx, attacker, hitPoints, 'hit');
-  if (hit) ctx.events.emit('zombie:hit', { x: hit.x, y: hit.y, groundY: z.y, dirX: hit.dirX, dirY: hit.dirY, killed: z.hp <= 0 });
+  // Legless from now on (spec 08 §6.4): a wet crunch.
+  if (walked && z.hp > 0 && z.hp <= ZOMBIES.crawlAtHp) ctx.events.emit('zombie:crippled', { x: z.x, y: z.y });
+  // The dungeon pays no hits (spec 09 §6.2): a hit's points are the mode's, a knife's its melee ones.
+  const pay = rules(ctx.state).points;
+  const hitPay = hitPoints === POINTS.hit ? pay.hit : hitPoints === POINTS.meleeHit ? pay.melee : hitPoints > 0 && pay.hit === 0 ? 0 : hitPoints;
+  if (attacker >= 0 && hitPay > 0) awardPoints(ctx, attacker, hitPay, 'hit');
+  if (hit) ctx.events.emit('zombie:hit', { x: hit.x, y: hit.y, groundY: z.y, dirX: hit.dirX, dirY: hit.dirY, killed: z.hp <= 0, weapon: hit.weapon });
   if (z.hp > 0) return false;
-  if (attacker >= 0) awardPoints(ctx, attacker, POINTS.kill, 'kill');
+  if (attacker >= 0) awardPoints(ctx, attacker, pay.kill * (z.elite ? DUNGEON.loot.eliteMoney : 1), 'kill');
   // Dying in hellfire, it bursts (spec 06 §2.3): set off by BurnSystem this same tick.
   if (z.burn.timer > 0 && z.burn.hellfire) queueBlast(ctx, z.x, z.y, z.burn.owner);
   z.hp = 0;
   z.ai = 'dead';
   z.timer = ZOMBIES.corpseTime;
   z.stateTick = ctx.state.tick;
+  // A dead exploder bursts a moment later (spec 09 §5.2), unless it burst already.
+  if (z.kind === 'exploder' && z.fuse === -1) {
+    z.fuse = DUNGEON.kinds.exploder.fuse;
+    z.timer = Math.max(z.timer, z.fuse + 1 / SIM.hz);
+    ctx.events.emit('enemy:fuse', { x: z.x, y: z.y });
+  }
   spawnBlood(ctx, z.x, z.y);
   rollZombieDrop(ctx, z);
   ctx.events.emit('zombie:killed', { x: z.x, y: z.y, kind: z.kind });
+  if (ctx.state.run && attacker >= 0) afterKill(ctx, ctx.state.run, z, attacker);
   return true;
+}
+
+/** Sanguijuela and Volátiles (spec 09 §7.2), on a player's kill: a heal every so many, and a burst queued for EnemyKinds to set off. */
+function afterKill(ctx: SimContext, run: RunState, z: ZombieState, attacker: number): void {
+  const perks = playerStats(run);
+  if (perks.leech) {
+    run.leechKills++;
+    if (run.leechKills >= perks.leech.kills) {
+      run.leechKills = 0;
+      const p = playerById(ctx, attacker);
+      if (p && p.hp > 0 && p.hp < p.maxHp) {
+        p.hp = Math.min(p.maxHp, p.hp + perks.leech.heal);
+        ctx.events.emit('dungeon:leech', { heal: perks.leech.heal });
+      }
+    }
+  }
+  if (perks.volatile) {
+    // Burning, it bursts wider and sets the others alight.
+    const burning = z.burn.timer > 0;
+    run.bursts.push({ x: z.x, y: z.y, radius: perks.volatile.radius * (burning ? perks.volatile.burningRadius : 1), damage: perks.volatile.damage, ignite: burning, owner: attacker });
+  }
 }
 
 /** Queues a hellfire burst at (x, y); with the pool full (a horde in one blast), it is dropped. */
@@ -63,7 +104,8 @@ function queueBlast(ctx: SimContext, x: number, y: number, owner: number): void 
 
 /** Pushes `z` `px` along (dirX, dirY), sliding on walls; only zombies moving freely, never off a window or a climb. */
 export function knockZombie(ctx: SimContext, z: ZombieState, dirX: number, dirY: number, px: number): void {
-  if (px <= 0 || !isZombieAlive(z) || (z.ai !== 'chasing' && z.ai !== 'attacking')) return;
+  // Nothing pushes the brute (spec 09 §5.2).
+  if (px <= 0 || !isZombieAlive(z) || z.kind === 'brute' || (z.ai !== 'chasing' && z.ai !== 'attacking')) return;
   moveCircle(ctx.grid, z, dirX * px, dirY * px, ZOMBIES.hitboxRadius, BLOCK_ZOMBIE);
 }
 

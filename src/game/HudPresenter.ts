@@ -1,3 +1,7 @@
+import { rules } from './rules';
+import { dungeonOffer } from './systems/DungeonSystem';
+import { playerStats } from './dungeon/stats';
+import { bossChestRows, wizardRows } from './dungeon/wizardShop';
 import { BARRICADES, BOOSTS, BOSS, DASH, PLAYER } from '../config/balance';
 import { WEAPONS, type WeaponId } from '../config/weapons';
 import { bossesForRound } from '../config/bosses';
@@ -51,6 +55,7 @@ export class HudPresenter {
   private actionCase = '';
   /** Last published shop panel, as a comparable string. */
   private shopKey = '';
+  private upgradesKey = '';
   /** Last published boost slot, as a comparable string. */
   private boostKey = '';
   private itemsKey: string | null = null;
@@ -73,8 +78,12 @@ export class HudPresenter {
   private publishShop(state: GameState, playerIndex: number): void {
     const p = state.players[playerIndex];
     const m = p ? state.merchants[p.shopMerchant] : undefined;
+    const run = state.run;
     let shop: GameEvents['shop:state'] = { merchant: null, rows: [] };
-    if (m) {
+    // The dungeon (spec 09 §7): the boss chest's choice, or the wizard's rows.
+    if (p && run?.bossChoice && p.shopChest === run.bossChoice.chest) shop = { merchant: 'boss_chest', rows: bossChestRows(state) };
+    else if (m && run?.shop && p?.shopMerchant === run.shop.merchant) shop = { merchant: m.id, rows: wizardRows(state, playerIndex) };
+    else if (m) {
       const merchant = p?.shopMerchant ?? -1;
       const rows = merchantDef(m.id).items.flatMap((item, index): GameEvents['shop:state']['rows'] => {
         if (isPerWeapon(item.id)) {
@@ -185,7 +194,18 @@ export class HudPresenter {
     // A special item on the floor (spec 05 §3): picked up while there is room.
     const item = kind === 'pickup' ? state.groundItems[p.contextTarget]?.item : undefined;
     if (kind === 'pickup') enabled = hasItemRoom(p);
-    const caseKey = weaponCase ? JSON.stringify(weaponCase) : hand ? JSON.stringify(hand) : (item ?? '');
+    // The dungeon (spec 09): a chest, a keyed door, the challenge's warning or the way down.
+    let dungeon: GameEvents['action:context']['dungeon'];
+    if (kind === 'dungeon') {
+      const offer = dungeonOffer(this.map, state, p);
+      if (offer) {
+        enabled = offer.enabled;
+        dungeon = { action: offer.action };
+        if (offer.weapon !== undefined) dungeon.weapon = offer.weapon;
+        if (offer.pact) dungeon.pact = offer.pact;
+      }
+    }
+    const caseKey = weaponCase ? JSON.stringify(weaponCase) : hand ? JSON.stringify(hand) : dungeon ? JSON.stringify(dungeon) : (item ?? '');
     if (
       kind !== this.actionKind ||
       merchant !== this.actionMerchant ||
@@ -205,12 +225,21 @@ export class HudPresenter {
       if (kind === 'portal') this.events.emit('action:context', { kind, amount, enabled, portal: portalKind, locked });
       else if (weaponCase) this.events.emit('action:context', { kind, amount, enabled, weaponCase });
       else if (hand) this.events.emit('action:context', { kind, amount, enabled, hand });
+      else if (dungeon) this.events.emit('action:context', { kind, amount, enabled, dungeon });
       else if (merchant) this.events.emit('action:context', { kind, amount, enabled, merchant });
       else if (item) this.events.emit('action:context', { kind, amount, enabled, item });
       else this.events.emit('action:context', { kind, amount, enabled });
     }
 
     this.publishShop(state, playerIndex);
+
+    // The dungeon's upgrades and curses (spec 09 §7, §9), only when they change.
+    const run = state.run;
+    const upgradesKey = run ? `${run.upgrades.join(',')}|${run.curses.join(',')}` : '';
+    if (upgradesKey !== this.upgradesKey) {
+      this.upgradesKey = upgradesKey;
+      if (run) this.events.emit('dungeon:upgrades', { upgrades: [...run.upgrades], curses: [...run.curses] });
+    }
 
     // The inventory (spec 05 §4), only when it changes.
     const itemsKey = p.items.join(',');
@@ -230,14 +259,14 @@ export class HudPresenter {
 
     this.publishBosses(state);
 
-    if (state.wave.round !== this.round) {
+    if (rules(state).waves && state.wave.round !== this.round) {
       this.round = state.wave.round;
       this.events.emit('round:changed', { round: this.round, boss: bossesForRound(this.round).length > 0 });
     }
 
     const slot = p.weapons[p.activeSlot];
     if (slot) {
-      const progress = reloadProgress(p);
+      const progress = reloadProgress(p, playerStats(state.run).reload);
       const quantised = progress === null ? null : Math.floor(progress * RELOAD_STEPS) / RELOAD_STEPS;
       const switching = p.switchTimer > 0;
       // A beam weapon's battery, in steps so the bar is not republished every tick (spec 06 §2.1).

@@ -26,8 +26,8 @@ describe('HapticFeedback', () => {
   it('taps lightly when the local player is hurt and medium when they buy a door or a portal', () => {
     const { events, played } = setup();
     events.emit('player:damaged', { playerId: 0, hp: 80, maxHp: 100, x: 0, y: 0, fromX: 10, fromY: 0 });
-    events.emit('door:opened', { doorId: 'd1', playerId: 0 });
-    events.emit('portal:opened', { portalId: 'p1', playerId: 0 });
+    events.emit('door:opened', { doorId: 'd1', playerId: 0, x: 0, y: 0 });
+    events.emit('portal:opened', { portalId: 'p1', playerId: 0, x: 0, y: 0 });
     events.emit('merchant:purchase', { playerId: 0, merchant: 'blue', item: 'max_ammo' });
     events.emit('boost:activated', { playerId: 0, boost: 'speed' });
     expect(played).toEqual(['light', 'medium', 'medium', 'medium', 'light']);
@@ -36,7 +36,7 @@ describe('HapticFeedback', () => {
   it('ignores what happens to other players', () => {
     const { events, played } = setup();
     events.emit('player:damaged', { playerId: 1, hp: 80, maxHp: 100, x: 0, y: 0, fromX: 10, fromY: 0 });
-    events.emit('door:opened', { doorId: 'd1', playerId: 2 });
+    events.emit('door:opened', { doorId: 'd1', playerId: 2, x: 0, y: 0 });
     expect(played).toEqual([]);
   });
 
@@ -46,7 +46,7 @@ describe('HapticFeedback', () => {
     events.emit('player:damaged', { playerId: 0, hp: 80, maxHp: 100, x: 0, y: 0, fromX: 10, fromY: 0 });
     preferences.vibration = true;
     haptics.destroy();
-    events.emit('door:opened', { doorId: 'd1', playerId: 0 });
+    events.emit('door:opened', { doorId: 'd1', playerId: 0, x: 0, y: 0 });
     expect(played).toEqual([]);
   });
 });

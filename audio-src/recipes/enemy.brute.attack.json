@@ -1,0 +1,79 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Un impacto carnoso con un swoosh pesado delante.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/475131_fx_swoosh_super_heavy_for_swords_sticks_.ogg",
+                "process": {
+                  "end": 0.35
+                }
+              },
+              "gain": 0.7
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/779805_meaty_damage_impact.ogg",
+                "process": {
+                  "end": 0.4,
+                  "lowcut": 100
+                }
+              },
+              "gain": 1,
+              "delay": 0.12
+            }
+          ],
+          "process": {
+            "length": 0.55,
+            "fadeOut": 0.08
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Bofetón de carne y un whoosh ligero.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/683178_whoosh.ogg",
+                "process": {
+                  "end": 0.3
+                }
+              },
+              "gain": 0.6
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/540075_meat_slap_3.ogg",
+                "process": {
+                  "end": 0.4,
+                  "lowcut": 100
+                }
+              },
+              "gain": 1,
+              "delay": 0.1
+            }
+          ],
+          "process": {
+            "length": 0.5,
+            "fadeOut": 0.08
+          }
+        }
+      ]
+    }
+  }
+}

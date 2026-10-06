@@ -20,11 +20,16 @@ art-src/
   pixellab/<asset>/      exports de PixelLab tal cual, sin tocar
   aseprite/              archivos .aseprite retocados (opcional)
   tiled/                 proyecto de Tiled (.tmx/.tsx de trabajo)
+audio-src/
+  recipes/<id>.json       recetas de cada sonido, con sus candidatos (npm run audio:gen)
+  preview/report.md       informe de audio:gen
 public/assets/
   manifest.json
   sprites/<asset>/<animacion>.png
   tiles/<tileset>.png
   maps/<mapa>.tmj
+  audio/sfx/<clave>.wav          los efectos del juego (el candidato elegido)
+  audio/candidates/<clave>__<a|b|c>.wav   candidatos aún sin elegir (solo los carga el debug)
 ```
 
 ## 3. Sprites de personajes
@@ -39,7 +44,7 @@ public/assets/
 
 | Asset | Animaciones |
 |---|---|
-| `player` | `idle`, `walk`, `shoot`, `dash`, `death`. Opcionales: `shoot_walk` (disparar andando; al retroceder mientras dispara se reproduce al revés) y `melee` (cuchillada; dura `MELEE.swingTime`, 0,25 s, y mientras no exista se dibuja el tajo provisional `melee_slash`) |
+| `player` | `idle`, `walk`, `shoot`, `dash`, `death`. Opcionales: `shoot_walk` (disparar andando; al retroceder mientras dispara se reproduce al revés) y `melee` (cuchillada del cuerpo; dura `MELEE.swingTime`, 0,25 s). El tajo `melee_slash` se dibuja siempre, con animación o sin ella |
 | `zombie_walker`, `zombie_runner` | `walk`, `attack` (también se usa para arrancar tablones), `death`. Opcionales: `climb` (el pequeño dash al entrar por la ventana; si falta, `walk`), `crawl` y `crawl_attack` (sin piernas: arrastrarse y el zarpazo desde el suelo; si faltan, `walk` más lento y `attack`) |
 
 **Sincronía de los zarpazos:** el golpe hace daño `ZOMBIES.attackWindup` (0,35 s) después de empezar, así que los `fps` de `attack` y `crawl_attack` se eligen para que el fotograma del impacto caiga ahí: 12 fps con el impacto en el fotograma 4 y 15 fps con el impacto en el 5. Al arrancar tablones, el zarpazo empieza ese mismo tiempo antes de que caiga el tablón. Un zarpazo se termina de reproducir aunque el zombi eche a andar justo después.
@@ -95,8 +100,16 @@ public/assets/
 - **Sin destello en el arte:** el motor dibuja el destello (`muzzle_flash`, 12×12, 2 variantes) en cada bala. Las animaciones de disparo no deben llevarlo. La escopeta lo dibuja un 60 % más grande (`muzzleFlashScale` en `weapons.ts`).
 - **`anchor`** es el punto de los pies (centro de la hitbox) en fracción del frame. El del jugador (`0.5, 0.875`) coloca los pies en y = 42 de 48, que es donde apoyan las botas en el export de PixelLab.
 - **`window_planks`:** el frame N representa la ventana con N tablones (del 0 al 5).
+  - La ventana es un hueco en su pared: su celda lleva el tramo de pared del muro (borde superior y cara del lado que mira, tablas por fuera o yeso hacia una habitación), y la hoja se dibuja encima con fondo transparente. Va justo por encima de su tramo de pared, que se ordena con los personajes.
+  - Se monta con `npm run windows:compose`. El hueco se dibuja por código (`scripts/lib/window-art.ts`, `brokenHole` y `brokenGap`). Los tablones se cortan de la madera clara del suelo interior (`floors_interior.png`, bandas sin juntas), con contorno oscuro y dos clavos, y se clavan del centro hacia fuera, algo torcidos.
+  - **Frontal** (paredes horizontales): la cara reventada casi entera, recta con la pared (columnas 2–29 y filas 15–29, bajo el borde superior). Lleva el borde de arriba y los lados rotos a escalones de 2 px o más (sin píxeles sueltos), contorno oscuro, astillas de dos píxeles y cristales en las esquinas. Por dentro, oscuridad (más honda arriba), el grosor del muro en sombra a la izquierda y con luz a la derecha, y el alféizar abajo.
+  - **Vertical** (`window_planks_v`): la franja de 12 px del muro visto desde arriba (columnas 10–21) rota a lo largo de las filas 5–26, con los extremos rotos a escalones y contorno oscuro, el grosor del muro y el alféizar más abajo, en el centro. Lleva tablas cortas que la cruzan.
+  - **Vallas** (`fence_planks`, `fence_planks_v`): los huecos de valla del jardín llevan solo los tablones, de poste a poste. El fotograma 0 está vacío, porque el hueco ya se ve como el suelo.
 - **`door`:** frame 0 = cerrada, frame 1 = abierta.
 - **Otros objetos del juego** (en el manifiesto como placeholder hasta tener arte): `bullet` (5×2, trazadora dibujada hacia +x: cola naranja y punta blanca, para no confundirse con la línea de apuntado ámbar), `aim_dot` (2×2), `blood` (16×16, 3 variantes), `pickup_ammo` y `pickup_health` (16×16, se dibujan apoyados en el suelo con el borde inferior como ancla), `flame` (8×12, con arte de PixelLab en la paleta del fuego de la mano: 3 lenguas de fuego, centrada, inclinada a la derecha y la misma en espejo, apoyadas en el borde inferior, que es el ancla; las usan los zombis ardiendo, el chorro del lanzallamas y los estallidos del fuego infernal, mezcladas con las chispas `hand_ember`), `weapon_case` (28×18, de frente al sur) y `weapon_case_v` (18×28, de frente al este; al oeste se dibuja en espejo): vitrinas de armas, un fotograma por arma en el orden de `WEAPON_IDS` (pistola, SMG, escopeta), apoyadas en el borde inferior de su casilla. Con arte de PixelLab y centrados en el punto: `hand_crack` (48×40, el agujero sellado por una costra cuyas grietas laten, en bucle), `hand_crack_opening` (48×40, la costra rompiéndose; al cerrarse se reproduce al revés), `hand_crack_open` (48×40, abierto con el fuego dentro, en bucle), `demon_hand` (32×48: puño, abierta sosteniendo el arma con la palma encendida, abierta y vacía, y el gesto obsceno; anclada por abajo, con la base del antebrazo en el borde inferior, que el juego recorta a ras de suelo al salir y al hundirse) y `hand_ember` (8×8, una brasa por fotograma, para la columna); y `weapon_icon` (32×16, con arte de PixelLab: cada arma de perfil apuntando a la derecha, un fotograma por arma en el orden de `WEAPON_IDS`; flota a 1× sobre la mano y se ve en los huecos de armas y en el botón de acción del HUD): la Mano del Demonio (spec 06 §3.7). `item_<id>` (`item_living_heart`, `item_worn_wand`; 24×24, con arte de PixelLab, 8 fotogramas en bucle a los fps del objeto en `items.ts`): cada objeto especial (spec 05) con su animación: el corazón latiendo y la varita con rayos en la punta. La misma hoja sirve en el suelo (dentro de un foco circular de luz ámbar que late, como los marcadores de misión de GTA San Andreas; la varita flota 5 px sobre él y sube y baja), en vuelo hacia la piscina y en su hueco del inventario del HUD, que la reproduce con CSS (`src/ui/itemSprites.ts`). Sin arte, se dibuja el icono del HUD (`src/ui/icons.ts`) centrado.
+- **Tajos** (de PixelLab, dibujados mirando a la derecha alrededor del centro izquierdo de su fotograma; el juego los gira hacia el corte, los coloca delante del jugador y los desvanece en el último 40 % del golpe):
+  - `melee_slash` (32×48, 6 fotogramas): el del cuchillo, una media luna blanca fina que se disipa.
+  - `katana_slash` (88×168, 4 fotogramas): el barrido de la katana, plateado con estelas y filo carmesí. Llega más o menos hasta su alcance de 102 px. Se importa en espejo (PixelLab lo dibujó abultando hacia la izquierda), y de su animación solo valen los 4 primeros fotogramas: los siguientes apagaban la media luna sin adelgazarla.
 - **Bosses (spec 07):** `boss_<id>` (hoy solo `boss_butcher`) es un personaje con arte de PixelLab (`art-src/pixellab/boss_butcher/`), en lienzos de 172×172 con los pies en y = 146 (ancla `0.5, 0.85`) sobre el borde inferior de su huella. Sus animaciones son las de `BOSS_ANIMATIONS` (`src/game/assets/manifest.ts`): `idle` (las rotaciones), `walk`, `charge`, `slam` y `leap` en 8 direcciones, y `charge_windup`, `stunned`, `roar` y `death` en 4. El oeste y sus diagonales son el este y las suyas en espejo, para que el mazo siga en la misma mano. Las diagonales se generaron aparte, con descripciones de acción fotograma a fotograma (`*_diag`). `BossView` no las reproduce solas: elige el fotograma por el estado del boss (la preparación de la embestida dura lo que su windup, el mazo baja en cada golpe…), con las marcas del manifiesto. Las variantes se tiñen. `boss_rubble` (32×32, 2 variantes) es la mancha de astillas que queda donde aplasta un mueble, repetida en mosaico sobre su huella. `boss_puddle` (88×88, 6 fotogramas de burbujeo en bucle, de PixelLab) es el charco de ácido del pútrido: se dibuja del tamaño del charco (entero al aterrizar, a algo más de la mitad en el rastro de la embestida), en espejo y desfasado según su hueco del pool.
 - **Iconos de los botones redondos** (`icon_reload`, `icon_repair`, `icon_knife`, `icon_dash`; 36×36, un fotograma, con arte de PixelLab): un cargador doble, un martillo cruzado con una llave inglesa, el cuchillo y una bota con líneas de velocidad. El lienzo es más grande que el botón (34 px) para que el dibujo sobresalga, igual que las armas (30-31 px) en sus huecos de 32. El HUD los recorta de su hoja con CSS (`src/ui/sheetIcons.ts`, igual que `weapon_icon`); sin arte, cada botón conserva su glifo de `src/ui/icons.ts`.
 - **`portal`:** escalera, escalera de mano o trampilla vista desde arriba (spec 02 §3.6). Frame 0 = cerrada, frame 1 = abierta. Se dibuja un sprite por casilla del portal.
@@ -169,6 +182,43 @@ Nombres válidos: `ringLarge`, `ringMedium`, `ringSmall`, `hexagon`, `octagon`, 
 
   Si falta alguna pieza, el HUD conserva su aspecto solo con CSS.
 
+### Salas de la mazmorra (`rooms`) y tilesets para compilar (`tilesetData`, spec 09)
+
+```json
+"rooms": { "mansion": "rooms/mansion.json" },
+"tilesetData": "tiles/tilesets.json"
+```
+
+- **`rooms.<ambiente>`:** las plantillas de sala de un ambiente, ya leídas y comprobadas, que escribe `npm run rooms:build` desde `maps/src/rooms/<ambiente>/*.txt` (el mismo plano ASCII de los mapas, con las tablas `## Sala`, `## Enemigos`, `## Magos`, `## Cofre`, `## Bosses`, `## Mano` y `## Atrezo` en coordenadas de la sala). El juego las coloca sobre el plano de cada planta y compila la planta entera en tiempo de ejecución (`src/game/dungeon/assembleFloor.ts`).
+- **`tilesetData`:** los 14 tilesets tal como los lee el compilador de planos (`art-src/tiled/tilesets/*.tsj`, con la ruta de su imagen dentro de `public/assets/`), que escribe `map:build` (y `rooms:build`). Sin él la mazmorra no puede montar sus plantas.
+- **Objetos nuevos en los mapas:** `enemy_spawn` (punto donde aparecen los enemigos de una sala) y `chest_spot` (punto del cofre o del premio), ambos con `zone`. La mansión no tiene ninguno.
+
+### Sonidos (`audio`, spec 08)
+
+Una entrada por archivo de sonido, con su clave en snake_case:
+
+```json
+"audio": {
+  "ui_tap": { "file": "audio/sfx/ui_tap.wav", "duration": 0.0928, "placeholder": false, "picked": "A", "pending": true },
+  "ui_tap__b": { "file": "audio/candidates/ui_tap__b.wav", "duration": 0.0818, "placeholder": false, "candidate": "B" }
+}
+```
+
+- **`file`:** ruta dentro de `public/assets/`. Los efectos son WAV de 44,1 kHz y 16 bits: mono los posicionales y los frecuentes, estéreo solo los grandes que no son posicionales. La música es M4A (AAC a 128 kbps, estéreo) en `audio/music/`.
+- **`duration`:** segundos. El director la usa para saber cuándo queda libre una voz.
+- **`placeholder`:** `true` si todavía no hay archivo. El sonido es silencio, nunca un error.
+- **`picked` y `pending`:** el candidato del que sale un archivo del juego y, con `pending`, que todavía no se ha elegido (mientras tanto suena A).
+- **`candidate`:** un archivo candidato (A, B o C). Solo se carga con el debug activo, para compararlos en PRUEBA DE SONIDOS.
+- **`loopStart` y `loopEnd`:** solo la música, en segundos y al microsegundo. El motor repite entre esos dos puntos; antes y después hay 0,25 s del propio bucle (`docs/AUDIO.md`, sección 3.4).
+- **Claves:** el código nunca nombra estas claves. Las nombra el catálogo (`src/config/audio.ts`): cada sonido (`ui.tap`, `weapon.pistol.fire`…) lista sus variantes, de 1 a 4, que son claves de esta sección. La clave de un candidato es la de la variante con `__a`, `__b` o `__c`.
+- **De dónde salen:** `npm run audio:gen` monta cada sonido desde su receta, `audio-src/recipes/<id>.json`, y escribe aquí sus entradas. A una variante sin receta le pone una entrada `placeholder`. El taller (recetas, proceso, acabados e informe), las fuentes y sus licencias, la dirección de sonido y el panel de prueba están en `docs/AUDIO.md`.
+- **`assets:check`** comprueba que:
+  - cada variante del catálogo tenga entrada y archivo;
+  - los efectos sean WAV de 44,1 kHz y 16 bits, mono o estéreo (y avisa de un estéreo en un sonido posicional), y su duración coincida con la del manifiesto;
+  - los efectos del juego ocupen menos de 8 MB (los candidatos y la música no cuentan);
+  - la música sea M4A, con `loopStart` y `loopEnd` dentro del archivo y un bucle de 30 a 90 s;
+  - cada fuente que usa una receta exista y tenga su ficha de licencia completa. Si falta una, falla.
+
 ## 5. Mapas (Tiled JSON, `.tmj`)
 
 Los tilesets deben ir **embebidos** en el `.tmj` que carga el juego (`public/assets/maps/`). Los mapas que se editan en Tiled viven en `art-src/tiled/` con tilesets externos y `npm run map:build` los embebe (ver §7).
@@ -219,6 +269,7 @@ Los tilesets deben ir **embebidos** en el `.tmj` que carga el juego (`public/ass
    { "frames": ["retocado/fist.png", "retocado/offer.png", "retocado/empty.png", "retocado/mock.png"] }
    ```
 
+   - Con `"mirror": true` voltea todos los fotogramas en horizontal: para un dibujo hecho mirando al otro lado, como el tajo de la katana.
    - El tamaño de fotograma lo manda el manifiesto. Un PNG de otro tamaño se centra en él, con aviso si se recorta algo.
    - El importador pone los fotogramas de izquierda a derecha, pasa el alfa a 0/255, cuantiza a la paleta si existe, escribe el `file` de la entrada y la marca con `"placeholder": false`.
    - Los retoques a mano (puntas de brasa, contornos, recolocar en el lienzo, paleta común de 32 colores) van en una subcarpeta `retocado/`, junto a los originales sin tocar.
@@ -434,6 +485,7 @@ npm run map:preview     maps/preview/: el mapa completo a 1:4, cada zona a 1:1 y
 - **Activaciones:** tabla `## Activaciones` del plano (`id`, `casillas` de esquina a esquina, `zona`, `nota`). `map:build` escribe un `activation_site` con ese rectángulo y `map:preview` lo marca con un marco violeta discontinuo.
 - **Magos:** tabla `## Magos` del plano (`id`, `casilla`, `zona`, `nota`). La casilla conserva su suelo en el plano; `map:build` escribe un `merchant_spot` en su centro y `map:preview` lo marca con un rombo azul.
 - **Atrezo:** tabla `## Atrezo` del plano (`id`, `objeto`, `casillas` como una casilla o dos esquinas, `colisión`, `volteo`). Cada clave tiene un solo tamaño; `map:build` registra en el manifiesto los objetos que falten como placeholder del tamaño de su huella, y el arte pendiente se apunta en `docs/ASSETS-TODO.md`.
+  - **Arte del atrezo:** cada objeto se importa desde `art-src/pixellab/objects/<clave>/` con `npm run assets:import` (un fotograma). Se dibuja centrado sobre la base de su huella: un arte más alto crece hacia arriba (la farola, de 32×80) y uno más ancho, hacia los dos lados (el árbol, de 96×105, sobre una huella de 64×64). El lienzo del arte va en `frameWidth` y `frameHeight` del manifiesto, siempre de ancho par para que el centrado caiga en un píxel entero. `map:build` respeta el tamaño de un objeto con arte, pero devuelve un placeholder al tamaño de su huella: si el lienzo cambia, hay que ponerlo en el manifiesto después de compilar el mapa o volver a importarlo.
 - `map:build` no escribe el mapa del juego si el validador falla, y lista los errores (zonas, barricadas, costes, salidas, alcanzabilidad, portales, atrezo a menos de 2 tiles de barricadas, puertas o portales de su zona, pasos de menos de 2 tiles junto a un mueble, casillas aisladas, puntos de mago mal colocados…).
 - `map:preview` imprime la densidad de decoración de cada zona (objetivo de la skill: 15–25 %).
 - `assets:check` (y por tanto `npm run build`) pasa el mismo validador a los mapas que tienen fuente en `art-src/tiled/` y avisa si el plano o la fuente son más recientes que el mapa del juego.

@@ -8,6 +8,7 @@
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { AUDIO_GEN, SOUNDS } from '../src/config/audio';
 import { BOSS, MERCHANT, PLAYER, ZOMBIES } from '../src/config/balance';
 import { BOSS_IDS, BOSSES } from '../src/config/bosses';
 import {
@@ -20,6 +21,8 @@ import {
   type Manifest,
 } from '../src/game/assets/manifest';
 import { parseMap } from '../src/game/map/MapLoader';
+import { Credits, recipeSources } from './lib/audio/credits';
+import { decodeWav } from './lib/audio/wav';
 import { colorsOutsidePalette, decodePng, parsePaletteHex, readPngInfo } from './lib/png';
 import { validateMap } from './lib/validate-map';
 
@@ -229,7 +232,100 @@ export function checkAssets(root: string): CheckReport {
     }
   }
 
+  checkAudio(assetsDir, manifest, report);
+  checkAudioSources(root, report);
   return report;
+}
+
+/** Spec 08 §5.1: every source a recipe uses exists and has its licence record. */
+export function checkAudioSources(root: string, report: CheckReport): void {
+  const audioSrc = resolve(root, 'audio-src');
+  let used: Map<string, string[]>;
+  try {
+    used = recipeSources(resolve(audioSrc, 'recipes'));
+  } catch (err) {
+    report.errors.push(`audio-src/recipes: ${(err as Error).message}`);
+    return;
+  }
+  const credits = new Credits(audioSrc);
+  for (const [source, sounds] of used) {
+    if (!existsSync(resolve(audioSrc, source))) report.errors.push(`audio: ${sounds.join(', ')} usa audio-src/${source}, que no existe`);
+    const found = credits.of(source);
+    if ('problem' in found) report.errors.push(`audio: ${found.problem}`);
+  }
+  report.info.push(`audio: ${used.size} archivos de origen en las recetas, todos con su ficha de licencia si no hay errores arriba.`);
+}
+
+/**
+ * Spec 08 §1.2 and §2: every variant of the sound catalog has its manifest
+ * entry and its file, the effects are WAV of 44.1 kHz and 16 bits (mono
+ * for the positional sounds), and all of them together stay under the
+ * budget. The candidates (only the debug build loads them) do not count.
+ * The music (§7) is M4A with its loop inside the file, of 30 to 90 s.
+ */
+function checkAudio(assetsDir: string, manifest: Manifest, report: CheckReport): void {
+  const ids = new Set<string>();
+  for (const sound of SOUNDS) {
+    if (ids.has(sound.id)) report.errors.push(`audio: el sonido ${sound.id} está dos veces en el catálogo`);
+    ids.add(sound.id);
+    for (const key of [...sound.variants, ...sound.shine]) {
+      if (!manifest.audio[key]) report.errors.push(`audio: falta "${key}" (${sound.id}) en el manifiesto; ejecuta npm run audio:gen`);
+    }
+  }
+  const positional = new Set<string>();
+  for (const sound of SOUNDS) if (sound.positional) for (const key of [...sound.variants, ...sound.shine]) positional.add(key);
+  let sfxBytes = 0;
+  let candidateBytes = 0;
+  let musicBytes = 0;
+  let placeholders = 0;
+  let missingCandidates = 0;
+  for (const [key, def] of Object.entries(manifest.audio)) {
+    if (!SNAKE.test(key)) report.errors.push(`audio.${key}: nombre no válido (usa snake_case)`);
+    if (def.placeholder) {
+      placeholders++;
+      continue;
+    }
+    const path = resolve(assetsDir, def.file);
+    if (!existsSync(path)) {
+      // The candidates are not in git: npm run audio:gen writes them again, the same.
+      if (def.candidate) missingCandidates++;
+      else report.errors.push(`audio.${key}: no existe ${def.file}`);
+      continue;
+    }
+    if (def.file.startsWith('audio/candidates/')) {
+      candidateBytes += statSync(path).size;
+      continue;
+    }
+    if (def.file.startsWith('audio/music/')) {
+      musicBytes += statSync(path).size;
+      const [min, max] = AUDIO_GEN.music.length;
+      if (!def.file.endsWith('.m4a')) report.errors.push(`audio.${key}: la música va en M4A (spec 08 §7, docs/DECISIONS.md)`);
+      if (def.loopStart === undefined || def.loopEnd === undefined || def.loopStart >= def.loopEnd || def.loopEnd > def.duration) {
+        report.errors.push(`audio.${key}: le faltan loopStart y loopEnd dentro del archivo; ejecuta npm run audio:gen`);
+      } else if (Math.round((def.loopEnd - def.loopStart) * 10) / 10 < min || def.loopEnd - def.loopStart > max) {
+        report.warnings.push(`audio.${key}: bucle de ${(def.loopEnd - def.loopStart).toFixed(1)} s, fuera de ${min}–${max} s`);
+      }
+      continue;
+    }
+    if (!def.file.startsWith('audio/sfx/')) continue;
+    sfxBytes += statSync(path).size;
+    try {
+      const wav = decodeWav(new Uint8Array(readFileSync(path)));
+      const channels = wav.channels.length;
+      if (channels > 2 || wav.sampleRate !== AUDIO_GEN.sampleRate || wav.bitsPerSample !== 16) {
+        report.errors.push(`audio.${key}: ${channels} canales a ${wav.sampleRate} Hz y ${wav.bitsPerSample} bits; tiene que ser mono o estéreo, ${AUDIO_GEN.sampleRate} Hz y 16 bits`);
+      }
+      if (channels > 1 && positional.has(key)) report.warnings.push(`audio.${key}: es estéreo y su sonido es posicional (spec 08 §2)`);
+      if (Math.abs(wav.duration - def.duration) > 0.001) report.warnings.push(`audio.${key}: dura ${wav.duration.toFixed(3)} s y el manifiesto dice ${def.duration} s`);
+    } catch (err) {
+      report.errors.push(`audio.${key}: ${def.file} no es un WAV válido (${(err as Error).message})`);
+    }
+  }
+  if (missingCandidates > 0) report.warnings.push(`audio: faltan ${missingCandidates} archivos de candidatos (no van en git); ejecuta npm run audio:gen para oírlos en PRUEBA DE SONIDOS`);
+  if (sfxBytes > AUDIO_GEN.budgetBytes) report.errors.push(`audio: los efectos ocupan ${(sfxBytes / 1048576).toFixed(2)} MB (máximo ${AUDIO_GEN.budgetBytes / 1048576} MB)`);
+  report.info.push(
+    `audio: ${SOUNDS.length} sonidos en el catálogo, ${Object.keys(manifest.audio).length} archivos (${placeholders} sin generar), ${(sfxBytes / 1024).toFixed(0)} KB de efectos, ${(musicBytes / 1024).toFixed(0)} KB de música y ${(candidateBytes / 1024).toFixed(0)} KB de candidatos.`,
+  );
 }
 
 function main(): void {

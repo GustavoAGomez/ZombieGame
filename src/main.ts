@@ -2,10 +2,13 @@ import Phaser from 'phaser';
 import '@fontsource/press-start-2p/latin-400.css';
 import '@fontsource/silkscreen/latin-400.css';
 import './ui/global.css';
+import { AudioDirector } from './audio/AudioDirector';
+import { WebAudioEngine } from './audio/AudioEngine';
+import { keepAudioAlive } from './audio/lifecycle';
 import { COLORS, applyThemeTokens } from './config/theme';
 import { blockZoom } from './ui/noZoom';
 import { EventBus } from './core/EventBus';
-import { DebugOverlay, isDebugRequested, requestedMap, requestedStartRound } from './debug/DebugOverlay';
+import { DebugOverlay, isDebugRequested, requestedMap, requestedMode, requestedSeed, requestedStartRound } from './debug/DebugOverlay';
 import { BootScene } from './game/scenes/BootScene';
 import { GameOverScene } from './game/scenes/GameOverScene';
 import { GameScene } from './game/scenes/GameScene';
@@ -14,6 +17,7 @@ import type { Services } from './game/services';
 import { measureViewport, watchViewport } from './game/viewport';
 import { HapticFeedback } from './native/haptics';
 import { Preferences } from './native/preferences';
+import { Records } from './native/records';
 import { mountRotateOverlay } from './ui/RotateOverlay';
 
 function requireElement(id: string): HTMLElement {
@@ -30,15 +34,26 @@ const gameRoot = requireElement('game');
 const hudRoot = requireElement('hud');
 mountRotateOverlay(document.body);
 
+const events = new EventBus();
+const preferences = new Preferences();
+// Sound outside Phaser (spec 08 §1): the DOM menus sound too, with one engine, volume and unlock.
+const audioEngine = new WebAudioEngine();
+keepAudioAlive(audioEngine);
+const audio = new AudioDirector(audioEngine, preferences, events);
+
 const services: Services = {
-  events: new EventBus(),
+  events,
   hudRoot,
   debug: isDebugRequested(),
   stats: { fps: 0 },
   startRound: requestedStartRound(),
   mapKey: requestedMap(),
+  mode: requestedMode(),
+  seed: requestedSeed(),
+  records: new Records(),
   debugActions: null,
-  preferences: new Preferences(),
+  preferences,
+  audio,
 };
 
 new HapticFeedback(services.events, services.preferences);
@@ -56,6 +71,7 @@ const game = new Phaser.Game({
   scale: { mode: Phaser.Scale.NONE, autoRound: true },
   // Touch controls are DOM elements; Phaser does not need to listen to input.
   input: { keyboard: false, mouse: false, touch: false, gamepad: false },
+  // The sound is our own engine (src/audio/): Phaser makes none.
   audio: { noAudio: true },
   banner: false,
   scene: [new BootScene(services), new TitleScene(), new GameScene(), new GameOverScene()],
@@ -71,6 +87,7 @@ new DebugOverlay(
   },
   services.debug,
   () => services.debugActions,
+  audio,
 );
 
 if (services.debug) {

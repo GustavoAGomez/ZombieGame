@@ -6,7 +6,7 @@ import { createWeaponSlot } from '../../core/GameState';
 import { command, createTestContext, holdFire, placeZombie, player, runTicks } from '../../test/fixtures';
 import { updateBurns } from './BurnSystem';
 import type { SimContext } from './SimContext';
-import { shopItemStatus } from './ShopSystem';
+import { buyItem, shopItemStatus } from './ShopSystem';
 import { stepSimulation } from './Simulation';
 import { updateWeapons } from './WeaponSystem';
 
@@ -25,7 +25,11 @@ function holding(id: WeaponId, special = false): SimContext {
 }
 
 /** Fire held past the first-shot delay, dragged east. */
-const fireEast = (ctx: SimContext): void => void Object.assign(holdFire(ctx), { aimManual: true, aimX: 1, aimY: 0 });
+/** Fires east: dragged east, and facing east (the katana only cuts where the player faces). */
+const fireEast = (ctx: SimContext): void => {
+  player(ctx).facing = 0;
+  Object.assign(holdFire(ctx), { aimManual: true, aimX: 1, aimY: 0 });
+};
 const slot = (ctx: SimContext) => player(ctx).weapons[0]!;
 
 describe('flamethrower', () => {
@@ -195,6 +199,19 @@ describe('merchants with a special weapon (spec 06 §4)', () => {
         expect(shopItemStatus(ctx.state, red, 0, item('red', kind)), `${id} ${kind}`).toEqual({ kind: 'unavailable', reason: 'notUpgradable' });
       }
     }
+  });
+
+  it('red: an upgrade bought says its level, the upgrade streak (spec 08 §3.4)', () => {
+    const ctx = createTestContext();
+    player(ctx).money = 100_000;
+    const red = merchant(ctx, 'red');
+    const levels: (number | undefined)[] = [];
+    ctx.events.on('merchant:purchase', (e) => levels.push(e.level));
+    expect(buyItem(ctx, 0, red, item('red', 'upgrade_damage'))).toBe(true);
+    // The next visit.
+    ctx.state.merchants[red]!.visitPurchases[0] = 0;
+    expect(buyItem(ctx, 0, red, item('red', 'upgrade_damage'))).toBe(true);
+    expect(levels).toEqual([1, 2]);
   });
 
   it('gold: sells the special of each one', () => {

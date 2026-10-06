@@ -49,7 +49,9 @@ describe('a boss as a target', () => {
     const ctx = holding(createTestContext(), 'katana');
     const b = bossEast(ctx, 40);
     const x = b.x;
-    Object.assign(command(ctx), { fire: true, aimManual: true, aimX: 1, aimY: 0 });
+    // It cuts where the player faces: east, at the boss.
+    player(ctx).facing = 0;
+    command(ctx).fire = true;
     updateWeapons(ctx, DT);
     expect(b.hp).toBe(HP - WEAPONS.katana.damage);
     expect(b.x).toBe(x);

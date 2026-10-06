@@ -1,0 +1,144 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Cristal al revés que crece y desemboca en un La 5.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "E6",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.5,
+                "process": {
+                  "reverse": true
+                }
+              },
+              "gain": 0.9
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "A5",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.4
+              },
+              "gain": 1,
+              "delay": 0.42
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.18,
+            "length": 0.88,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "El cristal brillante de Kenney al revés, y un La 5 de campana.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-interface-sounds/glass_004.ogg",
+                "process": {
+                  "reverse": true,
+                  "highcut": 9000
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "A5",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.4
+              },
+              "gain": 1,
+              "delay": 0.62
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.18,
+            "length": 0.88,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Un destello mágico grabado, al revés, que desemboca en un Mi 6.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/715067_achievement_sparkle.ogg",
+                "process": {
+                  "end": 0.5,
+                  "reverse": true
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "E6",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.35
+              },
+              "gain": 1,
+              "delay": 0.45
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.18,
+            "length": 0.88,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    }
+  }
+}

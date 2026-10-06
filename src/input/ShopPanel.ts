@@ -1,3 +1,5 @@
+import { COLORS } from '../config/theme';
+import type { Rarity, UpgradeId } from '../config/upgrades';
 import type { BoostKind } from '../config/balance';
 import { UPGRADE_LEVELS, WEAPONS, type UpgradeKind } from '../config/weapons';
 import { merchantDef, type MerchantId, type MerchantItemId } from '../config/merchants';
@@ -18,7 +20,13 @@ const ITEM_ICONS: Record<MerchantItemId, IconName> = {
   upgrade_damage: 'crosshair',
   weapon_special: 'star',
   repair: 'hammer',
+  upgrade: 'star',
+  reroll: 'reload',
+  key: 'door',
+  medkit: 'heart',
 };
+/** The dungeon's rarities (spec 09 §7.1), in the wizards' colours: a rarity sells with its wizard. */
+const RARITY_COLORS: Record<Rarity, string> = { common: COLORS.merchantBlue, rare: COLORS.red, legendary: COLORS.amber };
 /** The red merchant's items, by the kind of upgrade they sell. */
 const UPGRADE_OF: Partial<Record<MerchantItemId, UpgradeKind>> = { upgrade_ammo: 'ammo', upgrade_fire_rate: 'fire_rate', upgrade_damage: 'damage' };
 /** The round boost row shows the boost drawn for this visit. */
@@ -54,6 +62,8 @@ export class ShopPanel {
   private buy = -1;
   private buySlot = -1;
   private close = false;
+  /** An upgrade row's ⓘ (spec 09 §7.1): the HUD shows what it does. Wired by the scene. */
+  onInfo: ((upgrade: UpgradeId) => void) | null = null;
 
   constructor(parent: HTMLElement, events: EventBus) {
     this.el = document.createElement('div');
@@ -116,7 +126,7 @@ export class ShopPanel {
       this.reset();
       return;
     }
-    const key = `${e.merchant}:${e.rows.map((r) => `${r.index}${r.boost ?? ''}${r.slot ?? ''}${r.weapon ?? ''}${r.level ?? ''}${r.uses ?? ''}`).join(',')}`;
+    const key = `${e.merchant}:${e.rows.map((r) => `${r.index}${r.boost ?? ''}${r.slot ?? ''}${r.weapon ?? ''}${r.level ?? ''}${r.uses ?? ''}${r.upgrade ?? ''}:${r.price}`).join(',')}`;
     if (key !== this.builtFor) this.build(e.merchant, e.rows, key);
     this.el.hidden = false;
     e.rows.forEach((r, i) => {
@@ -125,11 +135,11 @@ export class ShopPanel {
     });
   };
 
-  private build(merchant: MerchantId, rows: readonly ShopRow[], key: string): void {
+  private build(merchant: MerchantId | 'boss_chest', rows: readonly ShopRow[], key: string): void {
     this.builtFor = key;
-    const color = merchantDef(merchant).color;
+    const color = merchant === 'boss_chest' ? COLORS.amber : merchantDef(merchant).color;
     this.el.style.setProperty('--merchant', color);
-    this.title.textContent = STRINGS.merchants.names[merchant];
+    this.title.textContent = merchant === 'boss_chest' ? STRINGS.shop.bossChest : STRINGS.merchants.names[merchant];
     this.rows = rows.map((r) => {
       const row = document.createElement('div');
       row.className = 'shop-row';
@@ -137,19 +147,45 @@ export class ShopPanel {
       icon.className = 'shop-row__icon';
       // An upgrade or repair row shows its item (the weapon is in its text); the special's rows, their weapon.
       const iconName = r.boost ? BOOST_ICONS[r.boost] : UPGRADE_OF[r.item] || r.item === 'repair' ? ITEM_ICONS[r.item] : r.weapon ? WEAPON_ICONS[r.weapon] : ITEM_ICONS[r.item];
-      icon.appendChild(pixelIcon(iconName, 18, color));
+      // A dungeon upgrade (spec 09 §7.1) shows in its rarity's colour, with the rarity under its name.
+      icon.appendChild(pixelIcon(iconName, 18, r.rarity ? RARITY_COLORS[r.rarity] : color));
       const text = document.createElement('span');
       text.className = 'shop-row__text';
       const name = document.createElement('span');
       name.className = 'shop-row__name';
-      name.textContent = STRINGS.shop.items[r.item].name;
+      name.textContent = r.upgrade ? (STRINGS.upgrades.names[r.upgrade] ?? r.upgrade) : STRINGS.shop.items[r.item].name;
+      // The rarity on the name's line, and the ⓘ that opens the legend for that upgrade.
+      const head = document.createElement('span');
+      head.className = 'shop-row__head';
+      head.append(name);
+      if (r.rarity) {
+        const rarity = document.createElement('span');
+        rarity.className = 'shop-row__rarity';
+        rarity.textContent = STRINGS.upgrades.rarities[r.rarity] ?? r.rarity;
+        rarity.style.color = RARITY_COLORS[r.rarity];
+        head.append(rarity);
+      }
+      if (r.upgrade) {
+        const upgrade = r.upgrade;
+        const info = document.createElement('button');
+        info.type = 'button';
+        info.className = 'shop-row__info';
+        info.textContent = 'i';
+        info.setAttribute('aria-label', STRINGS.legend.info);
+        info.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          this.onInfo?.(upgrade);
+        });
+        head.append(info);
+      }
+      text.append(head);
       const description = document.createElement('span');
       description.className = 'shop-row__description';
       description.textContent = rowDescription(r);
-      text.append(name, description);
+      text.append(description);
       const price = document.createElement('span');
       price.className = 'shop-row__price';
-      price.textContent = STRINGS.hud.money(r.price);
+      price.textContent = r.price === 0 ? STRINGS.shop.free : STRINGS.hud.money(r.price);
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'shop-row__buy';
@@ -160,13 +196,15 @@ export class ShopPanel {
       return elements;
     });
     this.list.replaceChildren(...this.rows.map((r) => r.row));
+    // With many rows (the dungeon wizard's six) the panel climbs and packs tighter, so everything stays on screen.
+    this.el.classList.toggle('shop-panel--tall', rows.length > 3);
   }
 
   private showStatus(row: RowElements, r: ShopRow): void {
     row.status = r.status;
     const s = r.status;
     const label =
-      s.kind === 'buy' ? STRINGS.shop.buy
+      s.kind === 'buy' ? (r.price === 0 ? STRINGS.shop.take : STRINGS.shop.buy)
       : s.kind === 'short' ? STRINGS.shop.missing(s.missing)
       : s.kind === 'unavailable' ? STRINGS.shop.reasons[s.reason]
       : s.kind === 'limit' ? STRINGS.shop.comeBack
@@ -193,6 +231,7 @@ export class ShopPanel {
 
 /** What the row says under its name: the boost drawn, the weapon to upgrade and the next level, the weapon's special, the wear to repair. */
 function rowDescription(r: ShopRow): string {
+  if (r.upgrade) return STRINGS.upgrades.descriptions[r.upgrade] ?? '';
   if (r.boost) return STRINGS.shop.boosts[r.boost];
   const kind = UPGRADE_OF[r.item];
   if (kind && r.weapon) {

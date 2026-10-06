@@ -59,14 +59,14 @@ export function drawUses(rng: RngState): number {
   return HAND.usesMin + Math.floor(random(rng) * (HAND.usesMax - HAND.usesMin + 1));
 }
 
-/** The hand as the match starts: in the spot of a zone drawn among startingHandZones, with its uses drawn. */
-export function createHandState(rng: RngState, map: MapData): HandState {
+/** The hand as the match starts: in the spot of a zone drawn among startingHandZones, with its uses drawn (or `uses`, the mode's fixed number). */
+export function createHandState(rng: RngState, map: MapData, uses: number | null = null): HandState {
   const hand = emptyHand();
   const zones = startingHandZones(map);
   if (zones.length === 0) return hand;
   const zone = zones[Math.floor(random(rng) * zones.length)] ?? zones[0];
   hand.spot = map.handSpots.findIndex((s) => s.zoneIndex === zone);
-  hand.usesLeft = drawUses(rng);
+  hand.usesLeft = uses ?? drawUses(rng);
   return hand;
 }
 

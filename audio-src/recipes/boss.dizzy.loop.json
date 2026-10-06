@@ -1,0 +1,110 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Un lamento largo de zombi, cuatro semitonos más grave, con una pausa para respirar antes de repetirse.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/797708_zombie_moaning.ogg",
+                "process": {
+                  "start": 0.3,
+                  "end": 1.9,
+                  "semitones": -4,
+                  "lowcut": 120,
+                  "fadeIn": 0.05,
+                  "fadeOut": 0.3
+                }
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.12,
+            "length": 2.3
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Una queja de zombi, «uhhh», tres semitonos más grave, y un respiro.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/445993_zombie_moan_1.ogg",
+                "process": {
+                  "end": 1.5,
+                  "semitones": -3,
+                  "lowcut": 130,
+                  "fadeIn": 0.05,
+                  "fadeOut": 0.3
+                }
+              },
+              "gain": 1
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.12,
+            "length": 2.1
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Un quejido más vocal y dolorido, tres semitonos más grave, y un respiro.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/594009_frankie_groan_02.ogg",
+                "process": {
+                  "end": 1.3,
+                  "semitones": -3,
+                  "lowcut": 120,
+                  "fadeIn": 0.03,
+                  "fadeOut": 0.3
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/594008_frankie_groan_03.ogg",
+                "process": {
+                  "end": 0.6,
+                  "semitones": -5,
+                  "lowcut": 120,
+                  "fadeOut": 0.25
+                }
+              },
+              "gain": 0.5,
+              "delay": 1.2
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.12,
+            "length": 2.1
+          }
+        }
+      ]
+    }
+  }
+}

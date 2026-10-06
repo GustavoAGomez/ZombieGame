@@ -1,0 +1,38 @@
+#########oo#########
+#.............######
+#.............######
+#..................#
+#..................#
+o..................o
+o..................o
+#..................#
+#..................#
+#########oo#########
+
+## Sala
+| tipo | dificultad | ambiente | nota |
+|---|---|---|---|
+| combat | medium | mansion | sala en L: el bloque del noreste es un armario empotrado |
+
+## Enemigos (puntos de aparición, a 4 casillas o más de los huecos)
+| id | casilla |
+|---|---|
+| E1 | 4,2 |
+| E2 | 15,7 |
+| E3 | 15,5 |
+| E4 | 10,5 |
+| E5 | 4,7 |
+
+## Magos
+| id | casilla | nota |
+|---|---|---|
+| M1 | 1,1 | rincón noroeste |
+
+## Atrezo (muebles; con colisión es la cobertura de la sala)
+| id | objeto | casillas | colisión | volteo | nota |
+|---|---|---|---|---|---|
+| A1 | prop_barricada_muebles | 7,2 8,3 | sí | — | barricada vieja de los supervivientes |
+| A2 | prop_alfombra | 2,6 4,7 | no | — |  |
+| A3 | prop_sillon | 12,7 | sí | — |  |
+| A4 | prop_escombros | 16,7 | no | — |  |
+| A5 | prop_charco_sangre | 3,2 | no | — |  |

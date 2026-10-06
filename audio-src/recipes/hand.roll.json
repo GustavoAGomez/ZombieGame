@@ -1,0 +1,336 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Retumbo de rocas (2 s, lo que dura el sorteo) con crujidos de hueso cada vez más seguidos.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/426318_rocks_falling.ogg",
+                "process": {
+                  "lowcut": 150,
+                  "end": 2.0
+                }
+              },
+              "gain": 0.6
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/145362_kleaudio_crackingbone3_msst.ogg"
+              },
+              "gain": 0.8,
+              "delay": 0.1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/145362_kleaudio_crackingbone3_msst.ogg"
+              },
+              "gain": 0.8,
+              "delay": 0.65
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/145362_kleaudio_crackingbone3_msst.ogg"
+              },
+              "gain": 0.8,
+              "delay": 1.05
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/145362_kleaudio_crackingbone3_msst.ogg"
+              },
+              "gain": 0.8,
+              "delay": 1.35
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/145362_kleaudio_crackingbone3_msst.ogg"
+              },
+              "gain": 0.8,
+              "delay": 1.57
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/145362_kleaudio_crackingbone3_msst.ogg"
+              },
+              "gain": 0.8,
+              "delay": 1.73
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/145362_kleaudio_crackingbone3_msst.ogg"
+              },
+              "gain": 0.8,
+              "delay": 1.85
+            }
+          ],
+          "process": {
+            "length": 2.0,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Otras rocas, crujidos más gruesos y un gruñido de fondo.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/576107_s_o_1_rocks_falling_06.ogg",
+                "process": {
+                  "lowcut": 150,
+                  "end": 2.0
+                }
+              },
+              "gain": 0.6
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/147993_bone_cracking.ogg",
+                "process": {
+                  "start": 0.2,
+                  "end": 0.4
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/147993_bone_cracking.ogg",
+                "process": {
+                  "start": 0.2,
+                  "end": 0.4
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.65
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/147993_bone_cracking.ogg",
+                "process": {
+                  "start": 0.2,
+                  "end": 0.4
+                }
+              },
+              "gain": 0.8,
+              "delay": 1.05
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/147993_bone_cracking.ogg",
+                "process": {
+                  "start": 0.2,
+                  "end": 0.4
+                }
+              },
+              "gain": 0.8,
+              "delay": 1.35
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/147993_bone_cracking.ogg",
+                "process": {
+                  "start": 0.2,
+                  "end": 0.4
+                }
+              },
+              "gain": 0.8,
+              "delay": 1.57
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/147993_bone_cracking.ogg",
+                "process": {
+                  "start": 0.2,
+                  "end": 0.4
+                }
+              },
+              "gain": 0.8,
+              "delay": 1.73
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/147993_bone_cracking.ogg",
+                "process": {
+                  "start": 0.2,
+                  "end": 0.4
+                }
+              },
+              "gain": 0.8,
+              "delay": 1.85
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/556878_growl_or_groan_of_a_synthetic_monster_3.ogg",
+                "process": {
+                  "lowcut": 120,
+                  "fadeOut": 0.1
+                }
+              },
+              "gain": 0.3
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/389618_rock_tumble_2.ogg",
+                "process": {
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.4,
+              "delay": 0.9
+            }
+          ],
+          "process": {
+            "length": 2.0,
+            "fadeOut": 0.06
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Piedras que ruedan (OpenGameArt y Freesound) con crujidos secos.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/389618_rock_tumble_2.ogg",
+                "process": {
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.6
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/stones_03.ogg"
+              },
+              "gain": 0.5,
+              "delay": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/145361_kleaudio_crackingbone_msst.ogg",
+                "process": {
+                  "start": 0.3,
+                  "end": 0.45
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/145361_kleaudio_crackingbone_msst.ogg",
+                "process": {
+                  "start": 0.3,
+                  "end": 0.45
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.65
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/145361_kleaudio_crackingbone_msst.ogg",
+                "process": {
+                  "start": 0.3,
+                  "end": 0.45
+                }
+              },
+              "gain": 0.8,
+              "delay": 1.05
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/145361_kleaudio_crackingbone_msst.ogg",
+                "process": {
+                  "start": 0.3,
+                  "end": 0.45
+                }
+              },
+              "gain": 0.8,
+              "delay": 1.35
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/145361_kleaudio_crackingbone_msst.ogg",
+                "process": {
+                  "start": 0.3,
+                  "end": 0.45
+                }
+              },
+              "gain": 0.8,
+              "delay": 1.57
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/145361_kleaudio_crackingbone_msst.ogg",
+                "process": {
+                  "start": 0.3,
+                  "end": 0.45
+                }
+              },
+              "gain": 0.8,
+              "delay": 1.73
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/145361_kleaudio_crackingbone_msst.ogg",
+                "process": {
+                  "start": 0.3,
+                  "end": 0.45
+                }
+              },
+              "gain": 0.8,
+              "delay": 1.85
+            }
+          ],
+          "process": {
+            "length": 2.0,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    }
+  }
+}

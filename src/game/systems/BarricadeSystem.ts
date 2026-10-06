@@ -65,6 +65,7 @@ export function updateRepair(ctx: SimContext, p: PlayerState, cmd: InputCommand 
   p.repairCooldown = underAttack ? BARRICADES.repairTapCooldownUnderAttack : BARRICADES.repairTapCooldown;
   p.repairing = true;
   p.facing = Math.atan2(w.center.y - p.y, w.center.x - p.x);
+  ctx.events.emit('barricade:repaired', { playerId: p.id, x: w.center.x, y: w.center.y });
   const gained = repairPointsAvailable(p);
   if (gained > 0) {
     p.repairPoints += gained;

@@ -1,0 +1,152 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Corte de cuchillo (Kenney), puñetazo blando y el filo de OpenGameArt.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/knifeSlice.ogg",
+                "process": {
+                  "end": 0.3,
+                  "lowcut": 200
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPunch_medium_001.ogg",
+                "process": {
+                  "end": 0.2,
+                  "lowcut": 100
+                }
+              },
+              "gain": 0.7
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/blade_02.ogg",
+                "process": {
+                  "end": 0.15
+                }
+              },
+              "gain": 0.25,
+              "delay": 0.01
+            }
+          ],
+          "process": {
+            "length": 0.3,
+            "fadeOut": 0.1
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Tajo de samurái grabado con un golpe blando de 180 Hz y un destello de cristal.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/370204_samurai_slash.ogg",
+                "process": {
+                  "end": 0.3,
+                  "lowcut": 120
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactSoft_medium_000.ogg",
+                "process": {
+                  "lowcut": 110,
+                  "peaks": [
+                    {
+                      "freq": 180,
+                      "gainDb": 4,
+                      "q": 1
+                    }
+                  ]
+                }
+              },
+              "gain": 0.6
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "note": "E7",
+                "duration": 0.15
+              },
+              "gain": 0.1,
+              "delay": 0.02
+            }
+          ],
+          "process": {
+            "length": 0.3,
+            "fadeOut": 0.1
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Hoja ensangrentada con salpicadura y un golpe de metal muy corto.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/323525_bloody_blade.ogg",
+                "process": {
+                  "end": 0.3,
+                  "lowcut": 120
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/460868_splat02.ogg",
+                "process": {
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.6
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/metal_03.ogg",
+                "process": {
+                  "end": 0.1
+                }
+              },
+              "gain": 0.2
+            }
+          ],
+          "process": {
+            "length": 0.3,
+            "fadeOut": 0.1
+          }
+        }
+      ]
+    }
+  }
+}

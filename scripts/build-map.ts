@@ -15,30 +15,13 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { basename, dirname, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import type { TiledMap, TiledProperty, TiledSourceMap, TiledTileset } from '../src/game/map/tiled';
-import { COMPILED_HASH, TILESET_ORDER, compileAsciiMap, contentHash, parseAsciiMap, type TilesetName } from './lib/ascii-map';
-import type { Tsj } from './lib/tiled-tileset';
-import { validateMap } from './lib/validate-map';
+import type { TiledMap, TiledProperty, TiledSourceMap } from '../src/game/map/tiled';
+import { embedTilesets } from '../src/game/map/ascii/embed';
 
-/**
- * Embeds every external tileset. `readTsj` receives the `source` as written
- * in the map; `imagePath` turns the tileset's image into the path to store.
- */
-export function embedTilesets(
-  map: TiledSourceMap,
-  readTsj: (source: string) => Tsj,
-  imagePath: (source: string, image: string) => string,
-): TiledMap {
-  const tilesets = map.tilesets.map((t): TiledTileset => {
-    const source = t.source;
-    // Only references carry a source; an embedded tileset is kept as it is.
-    if (!source) return t as TiledTileset;
-    const tsj = readTsj(source);
-    const { type: _type, version: _version, tiledversion: _tiledversion, ...data } = tsj;
-    return { firstgid: t.firstgid, ...data, image: imagePath(source, tsj.image) };
-  });
-  return { ...map, tilesets };
-}
+export { embedTilesets };
+import { COMPILED_HASH, TILESET_ORDER, compileAsciiMap, contentHash, parseAsciiMap, type TilesetName } from './lib/ascii-map';
+import type { Tsj } from '../src/game/map/tsj';
+import { validateMap } from './lib/validate-map';
 
 export interface BuildResult {
   name: string;
@@ -76,6 +59,28 @@ export function readTilesets(tilesetsDir: string): Record<TilesetName, Tsj> {
     out[name] = JSON.parse(readFileSync(path, 'utf8')) as Tsj;
   }
   return out;
+}
+
+/** The game's path of a tileset's image, from public/assets/. */
+export const TILESET_DATA_FILE = 'tiles/tilesets.json';
+
+/**
+ * Writes public/assets/tiles/tilesets.json: every tileset as the compiler
+ * needs it, with its image's path inside public/assets/, and registers it in
+ * the manifest. The dungeon compiles its floors at runtime from it (spec 09 §3.3).
+ */
+export function writeTilesetData(root: string): void {
+  const tilesets = readTilesets(resolve(root, 'art-src/tiled/tilesets'));
+  const data = Object.fromEntries(Object.entries(tilesets).map(([name, tsj]) => [name, { ...tsj, image: `tiles/${basename(tsj.image)}` }]));
+  const out = resolve(root, 'public/assets', TILESET_DATA_FILE);
+  mkdirSync(dirname(out), { recursive: true });
+  writeFileSync(out, `${JSON.stringify(data)}\n`);
+  const path = resolve(root, 'public/assets/manifest.json');
+  const manifest = JSON.parse(readFileSync(path, 'utf8')) as { tilesetData?: string };
+  if (manifest.tilesetData !== TILESET_DATA_FILE) {
+    manifest.tilesetData = TILESET_DATA_FILE;
+    writeFileSync(path, `${JSON.stringify(manifest, null, 2)}\n`);
+  }
 }
 
 export type CompileOutcome = 'written' | 'unchanged' | 'kept-edited';
@@ -155,6 +160,12 @@ function main(): void {
     for (const f of readdirSync(folder)) if (f.endsWith(ext)) names.add(basename(f, ext));
   }
   const selected = [...names].filter((n) => only.length === 0 || only.includes(n)).sort();
+  try {
+    writeTilesetData(root);
+  } catch (err) {
+    console.error(`✖ tilesets.json: ${(err as Error).message}`);
+    process.exitCode = 1;
+  }
   if (selected.length === 0) {
     console.error(`✖ No hay mapas que construir${only.length ? `: ${only.join(', ')}` : ''} (planos en maps/src/*.txt)`);
     process.exitCode = 1;

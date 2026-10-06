@@ -1,0 +1,97 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Timbal y braam: la planta se anuncia.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/573269_timpani_17.ogg",
+                "process": {
+                  "end": 1.2,
+                  "lowcut": 80
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/592041_braams_and_timpani.ogg",
+                "process": {
+                  "end": 2.0,
+                  "lowcut": 80,
+                  "highcut": 6000
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.1
+            }
+          ],
+          "process": {
+            "length": 2.2,
+            "fadeOut": 0.6
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Un taiko largo y un gong.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/801829_taiko_tom_1_long.ogg",
+                "process": {
+                  "end": 1.6,
+                  "lowcut": 80
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/518292_gong_2.ogg",
+                "process": {
+                  "end": 1.6,
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.3
+            }
+          ],
+          "process": {
+            "length": 2.2,
+            "fadeOut": 0.6
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Tambores cinematográficos pesados.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/577402_crdn_cinematic_heavy_drums_09.ogg",
+          "process": {
+            "end": 2.0,
+            "lowcut": 80,
+            "fadeOut": 0.5
+          }
+        }
+      ]
+    }
+  }
+}

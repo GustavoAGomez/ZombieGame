@@ -1,0 +1,53 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Salpicón húmedo al caer.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/495117_wet_splat_2.ogg",
+          "process": {
+            "end": 0.35,
+            "lowcut": 150,
+            "fadeOut": 0.05
+          }
+        },
+        {
+          "type": "file",
+          "source": "library/freesound/719130_splat_2.ogg",
+          "process": {
+            "end": 0.35,
+            "lowcut": 150,
+            "fadeOut": 0.05
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Aplastamiento más blando.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/515618_splat_squish_1.ogg",
+          "process": {
+            "end": 0.35,
+            "lowcut": 150,
+            "fadeOut": 0.05
+          }
+        },
+        {
+          "type": "file",
+          "source": "library/freesound/515620_splat_squish_3.ogg",
+          "process": {
+            "end": 0.35,
+            "lowcut": 150,
+            "fadeOut": 0.05
+          }
+        }
+      ]
+    }
+  }
+}

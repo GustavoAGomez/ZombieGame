@@ -1,0 +1,126 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "SALTO: un gruñido de esfuerzo cinco semitonos más grave y el suelo de madera que cruje.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/661242_swing_grunt.ogg",
+                "process": {
+                  "semitones": -5,
+                  "end": 0.7,
+                  "lowcut": 120,
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/504077_wood_floor_crack_1_4.ogg"
+              },
+              "gain": 0.8,
+              "delay": 0.2
+            }
+          ],
+          "process": {
+            "length": 1.0,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "SALTO: otro esfuerzo, más grave, y un crujido como de hielo.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/714588_a_character_effort06.ogg",
+                "process": {
+                  "semitones": -6,
+                  "lowcut": 120,
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/262635_ice_crack_1.ogg",
+                "process": {
+                  "highcut": 6000
+                }
+              },
+              "gain": 0.7,
+              "delay": 0.25
+            }
+          ],
+          "process": {
+            "length": 1.0,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "SALTO: un esfuerzo corto, el suelo que cruje y una piedra.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/507730_effortnoise.ogg",
+                "process": {
+                  "semitones": -7,
+                  "lowcut": 120
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/504079_wood_floor_crack_1_8.ogg"
+              },
+              "gain": 0.8,
+              "delay": 0.15
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/159419_120619_10_single_rock.ogg",
+                "process": {
+                  "start": 0.26,
+                  "end": 0.8,
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.3
+            }
+          ],
+          "process": {
+            "length": 1.0,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    }
+  }
+}

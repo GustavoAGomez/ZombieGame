@@ -41,8 +41,12 @@ describe('ZombieSystem · window cycle', () => {
     const w = ctx.map.windows[0]!;
     expect(Math.hypot(z.x - w.exterior.x, z.y - w.exterior.y)).toBeLessThanOrEqual(ZOMBIES.windowArriveRadius);
 
+    const broken = vi.fn();
+    ctx.events.on('barricade:plankBroken', broken);
     const t0 = ctx.state.time;
     ticksUntil(ctx, () => ctx.state.windowPlanks[0] === 4, 5);
+    // Each plank torn off sounds at the window (spec 08 §6.4).
+    expect(broken).toHaveBeenCalledWith({ x: w.center.x, y: w.center.y });
     expect(ctx.state.time - t0).toBeCloseTo(ZOMBIES.kinds.walker.tearTime, 1);
     ticksUntil(ctx, () => ctx.state.windowPlanks[0] === 0, 10);
     expect(ctx.state.time - t0).toBeCloseTo(5 * ZOMBIES.kinds.walker.tearTime, 1);
@@ -225,8 +229,12 @@ describe('ZombieSystem · chasing', () => {
     p.y = inicio.y + 20;
     const z = placeZombie(ctx, 0, pasillo.x + pasillo.width - 20, pasillo.y + pasillo.height - 20, 1000, 'chasing');
     z.kind = 'runner';
+    const attack = vi.fn();
+    ctx.events.on('zombie:attack', attack);
     const ticks = ticksUntil(ctx, () => z.ai === 'attacking', 30);
     expect(z.ai).toBe('attacking');
+    // The windup's sound warns before the blow lands (spec 08 §6.4).
+    expect(attack).toHaveBeenCalledTimes(1);
     // Never inside a wall along the way is covered by moveCircle; here check it made it in time.
     expect(ticks / 60).toBeLessThan(20);
   });
@@ -267,10 +275,14 @@ describe('ZombieSystem · crawling', () => {
   it('starts crawling after two pistol shots in round 1 and dies at the third', () => {
     const ctx = createTestContext();
     const z = placeZombie(ctx, 0, 100, 100, zombieHp(1), 'chasing');
+    const crippled = vi.fn();
+    ctx.events.on('zombie:crippled', crippled);
     damageZombie(ctx, z, WEAPONS.pistol.damage, 0);
     expect(isCrawling(z)).toBe(false);
     damageZombie(ctx, z, WEAPONS.pistol.damage, 0);
     expect(isCrawling(z)).toBe(true);
+    // Once, as it loses its legs (spec 08 §6.4).
+    expect(crippled).toHaveBeenCalledTimes(1);
     expect(damageZombie(ctx, z, WEAPONS.pistol.damage, 0)).toBe(true);
   });
 

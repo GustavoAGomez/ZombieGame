@@ -1,0 +1,125 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Dos golpes sordos de madera, apagados, el segundo más grave.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactWood_medium_000.ogg",
+                "process": {
+                  "end": 0.08,
+                  "lowcut": 150,
+                  "highcut": 1200
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactWood_medium_000.ogg",
+                "process": {
+                  "end": 0.08,
+                  "lowcut": 150,
+                  "highcut": 1200,
+                  "semitones": -1
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.09
+            }
+          ],
+          "process": {
+            "length": 0.19,
+            "fadeOut": 0.05
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Dos «bong» graves de Kenney (afinados a La 3), apagados.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-interface-sounds/bong_001.ogg",
+                "process": {
+                  "semitones": -0.28,
+                  "highcut": 1500
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-interface-sounds/bong_001.ogg",
+                "process": {
+                  "semitones": -2.28,
+                  "highcut": 1500
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.09
+            }
+          ],
+          "process": {
+            "length": 0.19,
+            "fadeOut": 0.05
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Dos puñetazos sordos, apagados.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPunch_medium_000.ogg",
+                "process": {
+                  "end": 0.07,
+                  "lowcut": 150,
+                  "highcut": 1000
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPunch_medium_000.ogg",
+                "process": {
+                  "end": 0.07,
+                  "lowcut": 150,
+                  "highcut": 1000,
+                  "semitones": -1
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.09
+            }
+          ],
+          "process": {
+            "length": 0.19,
+            "fadeOut": 0.05
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,186 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Cerrojo grabado, la puerta de Kenney y un acorde grave La-Mi que se abre.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/448410_bolt_lock_3.ogg",
+                "process": {
+                  "start": 0.28,
+                  "end": 0.6
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/doorOpen_1.ogg",
+                "process": {
+                  "start": 0.12,
+                  "end": 0.7
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.15
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "pad",
+                "notes": [
+                  [
+                    "A3",
+                    0,
+                    1
+                  ],
+                  [
+                    "E4",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.6,
+                "attack": 0.05,
+                "width": 8
+              },
+              "gain": 0.3,
+              "delay": 0.2
+            }
+          ],
+          "process": {
+            "length": 0.88,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Un cerrojo pesado que se descorre, otra puerta y un acorde de campanas graves.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/364683_unlock_deadbolt.ogg",
+                "process": {
+                  "start": 0.88,
+                  "end": 1.3
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/691473_door.ogg",
+                "process": {
+                  "end": 0.6
+                }
+              },
+              "gain": 0.7,
+              "delay": 0.15
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "A3",
+                    0,
+                    1
+                  ],
+                  [
+                    "E4",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.6
+              },
+              "gain": 0.35,
+              "delay": 0.2
+            }
+          ],
+          "process": {
+            "length": 0.88,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "El cerrojo de OpenGameArt, la puerta larga de Kenney y un acorde de La menor.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/lock_02.ogg"
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/doorOpen_2.ogg",
+                "process": {
+                  "start": 0.06,
+                  "end": 0.7
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.12
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "pad",
+                "notes": [
+                  [
+                    "A3",
+                    0,
+                    1
+                  ],
+                  [
+                    "C4",
+                    0,
+                    1
+                  ],
+                  [
+                    "E4",
+                    0,
+                    1
+                  ]
+                ],
+                "duration": 0.6,
+                "attack": 0.05,
+                "width": 8
+              },
+              "gain": 0.3,
+              "delay": 0.2
+            }
+          ],
+          "process": {
+            "length": 0.88,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    }
+  }
+}

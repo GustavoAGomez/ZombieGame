@@ -1,14 +1,19 @@
+import { UPGRADE_IDS, type UpgradeId } from '../../config/upgrades';
+import { takeUpgrade } from '../dungeon/wizardShop';
+import { debugCallWizard, debugClearRoom, debugDescend, debugGiveKey, debugGoToBoss, debugRevealMap } from '../systems/DungeonSystem';
 import { App } from '@capacitor/app';
 import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
 import Phaser from 'phaser';
-import { DEBUG, SIM, type BoostKind } from '../../config/balance';
+import { QUIET_SNAPSHOT, type AudioSnapshot } from '../../audio/AudioDirector';
+import { AUDIO } from '../../config/audio';
+import { DEBUG, PLAYER, SIM, type BoostKind } from '../../config/balance';
 import { DISPLAY, computeWorldZoom } from '../../config/display';
 import { FixedStep } from '../../core/FixedStep';
 import { createGameState, type GameState } from '../../core/GameState';
 import { createInputCommand } from '../../core/InputCommand';
 import { InputCollector } from '../../input/InputCollector';
 import { Hud } from '../../ui/hud/Hud';
-import { PauseButton, PauseMenu } from '../../ui/screens/Screens';
+import { PauseButton, PauseMenu, upgradeLines } from '../../ui/screens/Screens';
 import type { AssetLibrary } from '../assets/AssetLibrary';
 import { ASSET_KEYS } from '../assets/manifest';
 import { AimLine } from '../entities/AimLine';
@@ -44,9 +49,20 @@ import { buildCollisionGrid } from '../map/CollisionGrid';
 import type { MapData } from '../map/MapLoader';
 import { MapView } from '../map/MapView';
 import { cameraBounds, computeLevels, type MapLevels } from '../map/levels';
+import { createRunState, descend } from '../dungeon/run';
+import { bankOf } from '../dungeon/templates';
+import { assembleFloor, templatesById } from '../dungeon/assembleFloor';
+import { dungeonMusic } from '../systems/DungeonSystem';
+import { SpawnMarks } from '../entities/SpawnMarks';
+import { DungeonViews } from '../entities/DungeonViews';
+import { DungeonEffects } from '../entities/DungeonEffects';
+import { DUNGEON, floorConfig } from '../../config/dungeon';
+import type { RunState } from '../../core/RunState';
+import type { RunCarry } from './BootScene';
 import type { Services } from '../services';
 import { activeBulletCount } from '../systems/BulletSystem';
 import { isZombieAlive } from '../systems/Combat';
+import { isPlayerAlive } from '../systems/HealthSystem';
 import { createBossNavs, createNav, type SimContext } from '../systems/SimContext';
 import { stepSimulation } from '../systems/Simulation';
 import { roundsSurvived, startRound } from '../systems/WaveSystem';
@@ -73,6 +89,19 @@ export class GameScene extends Phaser.Scene {
   private services!: Services;
   private assets!: AssetLibrary;
   private map!: MapData;
+  /** The match's seed (spec 09 §1), shown in the debug panel. */
+  private seed = 0;
+  private spawnMarks!: SpawnMarks;
+  private dungeonViews!: DungeonViews;
+  private dungeonEffects!: DungeonEffects;
+  /** Spec 09 §10: whether this run counts for the records. */
+  private recordable = true;
+  /** The scene is already going down to the next floor. */
+  private descended = false;
+  /** The run coming down from the floor above (spec 09 §4), or null. */
+  private carry: RunCarry | null = null;
+  /** The dungeon's camera (spec 09 §4): the room it shows, sliding from the last one. */
+  private roomCamera: { room: number; from: CameraRect; to: CameraRect; t: number } | null = null;
   private state!: GameState;
   private sim!: SimContext;
   private controls!: InputCollector;
@@ -114,6 +143,8 @@ export class GameScene extends Phaser.Scene {
   private pauseMenu!: PauseMenu;
   /** The match is frozen behind the pause menu. */
   private paused = false;
+  /** Filled in place every frame for the audio (spec 08 §1.3): no garbage. */
+  private readonly audioSnapshot: AudioSnapshot = { ...QUIET_SNAPSHOT };
   /** ms since the match ended; the game over screen shows after GAME_OVER_DELAY_MS. */
   private overFor = 0;
   private overShown = false;
@@ -125,6 +156,8 @@ export class GameScene extends Phaser.Scene {
   private shownTeleports = 0;
   /** The variant INVOCAR MATARIFE calls up (the debug panel's selector). */
   private debugVariant: BossVariantId = 'base';
+  /** The upgrade DAR MEJORA gives (spec 09 §13). */
+  private debugUpgrade: UpgradeId = UPGRADE_IDS[0] ?? 'vitality';
   /** Last boost given from the debug panel (they alternate). */
   private debugBoost: BoostKind = 'double_damage';
   private readonly fixedStep = new FixedStep(SIM.hz, SIM.maxStepsPerFrame, SIM.maxFrameMs);
@@ -136,12 +169,37 @@ export class GameScene extends Phaser.Scene {
   init(data: GameSceneData): void {
     this.services = data.services;
     this.assets = data.assets;
+    this.carry = data.carry ?? null;
   }
 
   create(): void {
     const { events, hudRoot } = this.services;
-    this.map = this.assets.mapOrDefault(this.services.mapKey);
-    this.state = createGameState(this.map, { seed: Date.now() | 0, startRound: this.services.startRound });
+    // The seed (spec 09 §1): a fixed one from ?seed= or MISMA SEMILLA, or a new one; the dungeon's plan comes from it alone.
+    const seed = this.services.seed ?? Date.now() | 0;
+    this.seed = seed;
+    const mode = this.services.mode;
+    let run: RunState | null = null;
+    const carry = this.carry;
+    this.recordable = carry ? carry.recordable : !this.services.debug && this.services.seed === null;
+    this.descended = false;
+    if (mode === 'dungeon') {
+      // The dungeon's floor (spec 09 §3.3): the run going down, or a new one from the seed; its map assembled from the ambient's templates.
+      const floorRun = carry?.run ?? createRunState(seed, bankOf(this.assets.roomTemplates(floorConfig(1).ambient)));
+      const templates = this.assets.roomTemplates(floorRun.plan.ambient);
+      const tilesets = this.assets.tilesetData();
+      if (templates.length === 0 || !tilesets) throw new Error(`La mazmorra necesita las plantillas de ${floorRun.plan.ambient} y los tilesets: npm run rooms:build`);
+      this.map = assembleFloor(floorRun.plan, templatesById(templates), tilesets);
+      run = floorRun;
+    } else {
+      this.map = this.assets.mapOrDefault(this.services.mapKey);
+    }
+    this.state = createGameState(this.map, { seed, startRound: this.services.startRound, mode, run });
+    // Down a floor (spec 09 §4): the player keeps life, weapons, ammo, money and items; only the place is new.
+    const local = this.state.players[0];
+    if (carry && local) {
+      Object.assign(local, carry.player, { weapons: carry.player.weapons.map((w) => ({ ...w, levels: { ...w.levels } })), items: [...carry.player.items] });
+      this.seed = carry.run.seed;
+    }
     // The gun's drawn muzzle per direction, from the player art: bullets are drawn and hit from there.
     const muzzles: MuzzleTable = Array.from({ length: 8 }, (_, dir) =>
       muzzleOffset(this.assets.manifest.characters[ASSET_KEYS.player], angleFromDir8(dir), { x: 0, y: 0 }),
@@ -163,10 +221,13 @@ export class GameScene extends Phaser.Scene {
     this.overShown = false;
     this.shownTeleports = 0;
 
-    this.hud = new Hud(hudRoot, events);
+    this.hud = new Hud(hudRoot, events, 0, mode);
     this.controls = new InputCollector(hudRoot, events);
+    this.controls.onInfo = (upgrade) => this.hud.showUpgradeInfo(upgrade);
     this.presenter = new HudPresenter(events, this.map);
-    this.pauseMenu = new PauseMenu(hudRoot, () => this.setPaused(false), () => this.scene.restart(), this.services.preferences);
+    this.pauseMenu = new PauseMenu(hudRoot, () => this.setPaused(false), () => this.scene.restart(), this.services.preferences, this.services.audio.playUi, () =>
+      this.state.run ? upgradeLines(this.state.run.upgrades, this.state.run.curses) : null,
+    );
     this.pauseButton = new PauseButton(hudRoot, () => this.setPaused(true));
     this.listenToApp();
 
@@ -197,16 +258,21 @@ export class GameScene extends Phaser.Scene {
     this.flameJet = new FlameJet(this, playerDef, events, manifest);
     this.handView = new HandView(this, this.map, events, manifest);
     this.muzzleFlash = new MuzzleFlash(this, playerDef);
-    this.meleeSlash = new MeleeSlash(this, playerDef, manifest.objects[ASSET_KEYS.meleeSlash]);
+    this.meleeSlash = new MeleeSlash(this, manifest.objects[ASSET_KEYS.meleeSlash], manifest.objects[ASSET_KEYS.katanaSlash]);
     this.worldTexts = new WorldTextPool(this, events);
     this.cantUseText = new CantUseText(this, events);
     this.thrownItems = new ThrownItemViews(this, events, manifest);
+    this.spawnMarks = new SpawnMarks(this);
+    this.dungeonViews = new DungeonViews(this);
+    this.dungeonEffects = new DungeonEffects(this);
     this.debugDraw = new DebugDraw(this, this.map);
     this.services.debugActions = this.createDebugActions();
     this.syncViews(0);
 
     const camera = this.cameras.main;
     this.levels = computeLevels(this.map);
+    // What happens on another level is not heard (spec 08 §3.5).
+    this.services.audio.setLevels((x, y) => levelAt(this.map, x, y));
     this.currentLevel = -1;
     this.updateLevel();
     camera.setRoundPixels(true);
@@ -238,13 +304,17 @@ export class GameScene extends Phaser.Scene {
       this.services.debugActions = null;
       this.stopListeningToApp();
       this.anims.resumeAll();
+      this.services.audio.update(QUIET_SNAPSHOT);
+      this.services.audio.setLevels(null);
     });
   }
 
   override update(time: number, delta: number): void {
+    this.updateAudio();
     if (!this.paused && !this.overShown) this.fixedStep.advance(delta, (dt) => this.step(dt));
     // Before the views: a teleport snaps the camera, which must already be inside the new level.
     this.updateLevel();
+    this.updateRoomCamera(delta);
     this.updateShopCamera();
     this.syncViews(this.fixedStep.alpha, time);
     // The blood of hits freezes with the match (pause, game over).
@@ -257,16 +327,87 @@ export class GameScene extends Phaser.Scene {
     const handZone = this.map.handSpots[this.state.hand.spot]?.zoneIndex ?? -1;
     this.handView.sync(this.state.hand, this.state.time, effectsDt, this.state.zonesUnlocked[handZone] === true);
     if (player) this.playerStains.sync(player, this.playerView.sprite, effectsDt);
+    this.spawnMarks.sync(this.state.run);
+    this.dungeonViews.sync(this.state.run);
+    this.dungeonEffects.sync(this.state);
     this.debugDraw.draw(this.state, this.sim.nav, this.sim.grid);
     this.presenter.publish(this.state);
     this.updateStats();
     this.checkGameOver(delta);
+    this.checkDescent();
+  }
+
+  /** BAJAR was tapped (spec 09 §4): the next floor, with the player as they are, behind the floor's banner. */
+  private checkDescent(): void {
+    const run = this.state.run;
+    if (!run?.descending || this.descended) return;
+    this.descended = true;
+    this.scene.restart({ services: this.services, assets: this.assets, carry: this.carryOf(descend(run, bankOf(this.assets.roomTemplates(floorConfig(run.floor + 1).ambient)))) });
+  }
+
+  /** What goes down with the player (spec 09 §4). */
+  private carryOf(run: RunState): RunCarry {
+    const p = this.state.players[0];
+    if (!p) throw new Error('no player to carry');
+    return {
+      run,
+      player: { hp: p.hp, maxHp: p.maxHp, weapons: p.weapons.map((w) => ({ ...w, levels: { ...w.levels } })), activeSlot: p.activeSlot, money: p.money, score: p.score, items: [...p.items], boostStored: p.boostStored },
+      recordable: this.recordable,
+    };
+  }
+
+  /** What the audio needs every frame (spec 08 §1.3): the pause, and the local player's beam or jet and the laser's heat. */
+  private updateAudio(): void {
+    const s = this.audioSnapshot;
+    const p = this.state.players[0];
+    const slot = p ? p.weapons[p.activeSlot] : undefined;
+    s.paused = this.paused;
+    s.continuous = p && isPlayerAlive(p) ? (p.beamOn ? 'laser' : p.coneOn ? 'flamethrower' : null) : null;
+    s.heat = slot && s.continuous === 'laser' ? 1 - slot.battery : 0;
+    // Where it is all heard from, and low health (spec 08 §3.5).
+    s.x = p?.x ?? 0;
+    s.y = p?.y ?? 0;
+    s.level = p ? this.currentLevel : -1;
+    s.lowHealth = p !== undefined && p.hp > 0 && p.hp < PLAYER.lowHpThreshold;
+    // The zombies near enough to groan, and the nearest one (spec 08 §6.4).
+    s.zombiesNear = 0;
+    let nearest = AUDIO.groanRange ** 2;
+    for (const z of this.state.zombies) {
+      if (!p || !isZombieAlive(z)) continue;
+      const d = (z.x - p.x) ** 2 + (z.y - p.y) ** 2;
+      if (d > AUDIO.groanRange ** 2) continue;
+      s.zombiesNear++;
+      if (d <= nearest) {
+        nearest = d;
+        s.nearestZombieX = z.x;
+        s.nearestZombieY = z.y;
+      }
+    }
+    // A boss galloping or stunned: its loops follow it.
+    s.bossCharging = false;
+    s.bossStunned = false;
+    for (const b of this.state.bosses) {
+      if (b.phase !== 'attacking') continue;
+      const charging = b.attack === 'charge' && b.stage === 'run';
+      if (!charging && b.stage !== 'stunned') continue;
+      s.bossCharging ||= charging;
+      s.bossStunned ||= b.stage === 'stunned';
+      s.bossX = b.x;
+      s.bossY = b.y;
+      break;
+    }
+    // The music of the moment (spec 08 §7): the boss's from its fall, the round's or the rest's, and silence at the end.
+    const phase = this.state.wave.phase;
+    const bossOn = this.state.bosses.some((b) => b.active && b.phase !== 'warning' && b.phase !== 'dead');
+    s.music = phase === 'over' ? 'over' : this.state.run ? dungeonMusic(this.state.run) : bossOn ? 'boss' : phase === 'active' ? 'round' : 'calm';
+    this.services.audio.update(s);
   }
 
   /** Freezes or resumes the match behind the pause menu (spec 01 §2.5). */
   private setPaused(paused: boolean): void {
     if (this.overShown || paused === this.paused) return;
     this.paused = paused;
+    this.services.audio.playUi(paused ? 'ui.pause.open' : 'ui.pause.close');
     this.pauseMenu[paused ? 'show' : 'hide']();
     this.pauseButton.visible = !paused;
     // The HUD's notices freeze too (hud.css).
@@ -282,21 +423,38 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  /** Every player is dead: a moment to see it, then the game over screen. */
+  /** Every player is dead (or the run is won, spec 09 §10): a moment to see it, then the game over screen. */
   private checkGameOver(delta: number): void {
-    if (this.overShown || this.state.wave.phase !== 'over') return;
+    const run = this.state.run;
+    const won = run?.outcome === 'won';
+    if (this.overShown || (this.state.wave.phase !== 'over' && !won)) return;
     this.overFor += delta;
     if (this.overFor < GAME_OVER_DELAY_MS) return;
     this.overShown = true;
     this.pauseMenu.hide();
     this.pauseButton.visible = false;
     this.controls.resetAll();
+    // Survival's record (spec 09 §1, §10): not from a debug match nor one started past round 1.
+    if (this.state.mode === 'survival' && !this.services.debug && this.services.startRound === 1) this.services.records.recordSurvival(roundsSurvived(this.state));
     const data: GameOverData = {
       services: this.services,
       assets: this.assets,
       rounds: roundsSurvived(this.state),
       score: this.state.players[0]?.score ?? 0,
     };
+    if (run) {
+      const result = { floor: run.floor, rooms: run.roomsCleared, won, time: run.time };
+      const newRecord = this.recordable ? this.services.records.recordRun(result) : false;
+      data.run = {
+        ...result,
+        kills: run.kills,
+        seed: run.seed,
+        newRecord,
+        upgrades: [...run.upgrades],
+        curses: [...run.curses],
+        keepGoing: won ? this.carryOf(descend(run, bankOf(this.assets.roomTemplates(floorConfig(run.floor + 1).ambient)))) : null,
+      };
+    }
     this.scene.launch(SCENE_KEYS.gameOver, data);
   }
 
@@ -381,6 +539,26 @@ export class GameScene extends Phaser.Scene {
         return STRINGS.debug.bossVariant(STRINGS.bosses.variants[this.debugVariant]);
       },
       toggleBossZones: () => (this.debugDraw.showBossZones = !this.debugDraw.showBossZones),
+      // The dungeon (spec 09 §13).
+      revealMap: () => debugRevealMap(this.sim),
+      giveKey: () => debugGiveKey(this.sim, false),
+      giveBossKey: () => debugGiveKey(this.sim, true),
+      addDungeonMoney: () => {
+        const p = this.state.players[0];
+        if (p) p.money += DEBUG.dungeonMoney;
+      },
+      clearRoom: () => debugClearRoom(this.sim),
+      goToBoss: () => debugGoToBoss(this.sim),
+      descendFloor: () => debugDescend(this.sim),
+      cycleUpgrade: () => {
+        this.debugUpgrade = UPGRADE_IDS[(UPGRADE_IDS.indexOf(this.debugUpgrade) + 1) % UPGRADE_IDS.length] ?? this.debugUpgrade;
+        return STRINGS.debug.upgradeChoice(STRINGS.upgrades.names[this.debugUpgrade] ?? this.debugUpgrade);
+      },
+      giveUpgrade: () => {
+        const p = this.state.players[0];
+        if (p && this.state.run) takeUpgrade(this.sim, this.state.run, p, this.debugUpgrade, true);
+      },
+      callWizard: () => debugCallWizard(this.sim),
       addPoints: () => {
         const p = this.state.players[0];
         if (p) p.money += DEBUG.points;
@@ -507,6 +685,13 @@ export class GameScene extends Phaser.Scene {
     stats.bullets = activeBulletCount(this.state.bullets);
     stats.round = this.state.wave.round;
     stats.tick = this.state.tick;
+    // Always in view (spec 09 §13): the seed reproduces the match.
+    stats.seed = this.seed;
+    stats.mode = this.state.mode;
+    if (this.state.run) {
+      stats.floor = this.state.run.floor;
+      stats.room = `${this.state.run.room} (${this.state.run.plan.rooms[this.state.run.room]?.type ?? '?'})${this.state.run.fight ? ` · ${this.state.run.fight.phase}` : ''}`;
+    }
   }
 
   private readonly applyZoom = (): void => {
@@ -616,12 +801,61 @@ export class GameScene extends Phaser.Scene {
 
   private applyCameraBounds(): void {
     const camera = this.cameras.main;
+    // The dungeon's camera stays inside the current room (spec 09 §4).
+    if (this.roomCamera) {
+      this.setCameraRect(this.roomCamera.t >= 1 ? this.roomCamera.to : lerpRect(this.roomCamera.from, this.roomCamera.to, this.roomCamera.t));
+      return;
+    }
     const level = this.levels?.levels[this.currentLevel];
     if (!level) {
       camera.setBounds(0, 0, this.map.widthPx, this.map.heightPx);
       return;
     }
-    const b = cameraBounds(level.bounds, camera.width / camera.zoom, camera.height / camera.zoom);
+    this.setCameraRect(level.bounds);
+  }
+
+  /** The camera's bounds: `rect`, widened where the view is bigger (a small room sits in the middle). */
+  private setCameraRect(rect: CameraRect): void {
+    const camera = this.cameras.main;
+    const b = cameraBounds(rect, camera.width / camera.zoom, camera.height / camera.zoom);
     camera.setBounds(b.x, b.y, b.width, b.height);
   }
+
+  /** A room and its walls, in world px. */
+  private roomRect(room: number): CameraRect {
+    const zone = this.map.zones[room];
+    const ts = this.map.tileSize;
+    if (!zone) return { x: 0, y: 0, width: this.map.widthPx, height: this.map.heightPx };
+    return { x: zone.x - ts, y: zone.y - ts, width: zone.width + 2 * ts, height: zone.height + 2 * ts };
+  }
+
+  /** The dungeon (spec 09 §4): the camera keeps to the player's room and slides to the next one. */
+  private updateRoomCamera(deltaMs: number): void {
+    const run = this.state.run;
+    if (!run) return;
+    const rc = this.roomCamera;
+    if (!rc || rc.room !== run.room) {
+      const to = this.roomRect(run.room);
+      // The first room shows at once; the next ones slide in from where the camera was.
+      this.roomCamera = rc ? { room: run.room, from: lerpRect(rc.from, rc.to, rc.t), to, t: 0 } : { room: run.room, from: to, to, t: 1 };
+    } else if (rc.t < 1) {
+      rc.t = Math.min(1, rc.t + deltaMs / 1000 / DUNGEON.camera.slide);
+    } else {
+      return;
+    }
+    this.applyCameraBounds();
+  }
+}
+
+interface CameraRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/** Between two rectangles, eased so the slide starts and ends softly. */
+function lerpRect(a: CameraRect, b: CameraRect, t: number): CameraRect {
+  const k = t >= 1 ? 1 : t <= 0 ? 0 : t * t * (3 - 2 * t);
+  return { x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k, width: a.width + (b.width - a.width) * k, height: a.height + (b.height - a.height) * k };
 }

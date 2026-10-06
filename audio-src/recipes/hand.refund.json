@@ -1,0 +1,123 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Risa grave y corta, y monedas al revés, que vuelven.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/350679_deep_evil_laugh.ogg",
+                "process": {
+                  "start": 0.24,
+                  "end": 1.2,
+                  "fadeOut": 0.3
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/item_coins_02.ogg",
+                "process": {
+                  "reverse": true
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.6
+            }
+          ],
+          "process": {
+            "length": 1.3,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Otra risa, tres semitonos más gutural, y monedas de Kenney al revés.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/609909_evil_laugh_2.ogg",
+                "process": {
+                  "start": 0.12,
+                  "end": 1.1,
+                  "semitones": -3,
+                  "fadeOut": 0.3
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/handleCoins.ogg",
+                "process": {
+                  "reverse": true
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.6
+            }
+          ],
+          "process": {
+            "length": 1.3,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Risa malvada cuatro semitonos más grave y monedas que vuelven.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/829881_evil_laugh.ogg",
+                "process": {
+                  "start": 0.2,
+                  "end": 1.2,
+                  "semitones": -4,
+                  "fadeOut": 0.3
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/485750_coins_drop_14.ogg",
+                "process": {
+                  "start": 0.24,
+                  "end": 0.8,
+                  "reverse": true
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.55
+            }
+          ],
+          "process": {
+            "length": 1.3,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    }
+  }
+}

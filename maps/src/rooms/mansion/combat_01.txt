@@ -1,0 +1,38 @@
+#########oo#########
+#..................#
+#..................#
+#..................#
+#..................#
+o..................o
+o..................o
+#..................#
+#..................#
+#########oo#########
+
+## Sala
+| tipo | dificultad | ambiente | nota |
+|---|---|---|---|
+| combat | easy | mansion | salón |
+
+## Enemigos (puntos de aparición, a 4 casillas o más de los huecos)
+| id | casilla |
+|---|---|
+| E1 | 4,7 |
+| E2 | 15,7 |
+| E3 | 15,2 |
+| E4 | 14,3 |
+
+## Magos
+| id | casilla | nota |
+|---|---|---|
+| M1 | 1,1 | rincón noroeste |
+
+## Atrezo (muebles; con colisión es la cobertura de la sala)
+| id | objeto | casillas | colisión | volteo | nota |
+|---|---|---|---|---|---|
+| A1 | prop_sofa | 3,2 3,4 | sí | — | sofá de cara a la pared este |
+| A2 | prop_sillon | 5,2 | sí | — |  |
+| A3 | prop_alfombra_hogar | 8,4 9,5 | no | — | alfombra quemada |
+| A4 | prop_mesa | 12,6 13,6 | sí | — | mesa baja |
+| A5 | prop_piano | 16,1 17,2 | sí | — | piano de pared |
+| A6 | prop_cuadro_caido | 1,8 | no | — |  |

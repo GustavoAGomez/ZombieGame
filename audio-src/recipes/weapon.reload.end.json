@@ -1,0 +1,135 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Cargador entrando, cerrojo grabado y un La 6 de cristal muy suave al final.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/871580_pm_makarov_pistol_magazine.ogg",
+                "process": {
+                  "end": 0.2
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/182252_loy_s_gun_cock_bullet_in_clip.ogg",
+                "process": {
+                  "start": 0.06,
+                  "end": 0.3
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.12
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "note": "A6",
+                "duration": 0.2
+              },
+              "gain": 0.12,
+              "delay": 0.26
+            }
+          ],
+          "process": {
+            "length": 0.4,
+            "fadeOut": 0.1
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "La segunda mitad de una recarga grabada, cerrojo lento y un Mi 6 de cristal.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/455921_pistol_magazine_reload_only.ogg",
+                "process": {
+                  "start": 0.2,
+                  "end": 0.42
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/182248_gun_cock_slow_clip.ogg",
+                "process": {
+                  "end": 0.3
+                }
+              },
+              "gain": 0.8,
+              "delay": 0.1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "note": "E6",
+                "duration": 0.2
+              },
+              "gain": 0.12,
+              "delay": 0.28
+            }
+          ],
+          "process": {
+            "length": 0.4,
+            "fadeOut": 0.1
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Dos golpes de armero grabados y un Do 7 de cristal.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/679876_gunrack1.ogg",
+                "process": {
+                  "start": 0.18,
+                  "end": 0.55
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "note": "C7",
+                "duration": 0.18
+              },
+              "gain": 0.1,
+              "delay": 0.3
+            }
+          ],
+          "process": {
+            "length": 0.4,
+            "fadeOut": 0.1
+          }
+        }
+      ]
+    }
+  }
+}

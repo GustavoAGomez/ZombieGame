@@ -1,0 +1,114 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Soplo grabado con un Mi 7 de cristal al final.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/733889_whoosh_02.ogg",
+                "process": {
+                  "end": 0.3,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "note": "E7",
+                "duration": 0.18
+              },
+              "gain": 0.15,
+              "delay": 0.2
+            }
+          ],
+          "process": {
+            "length": 0.4,
+            "fadeOut": 0.1
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Barrido grabado dos semitonos más grave con un La 6 de cristal.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/389590_swing_woosh.ogg",
+                "process": {
+                  "semitones": -2,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "note": "A6",
+                "duration": 0.2
+              },
+              "gain": 0.2,
+              "delay": 0.18
+            }
+          ],
+          "process": {
+            "length": 0.4,
+            "fadeOut": 0.1
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Aire generado que sube de 600 a 2400 Hz y un Do 7 de cristal.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "air",
+                "freq": 600,
+                "freqEnd": 2400,
+                "duration": 0.25,
+                "width": 1.2,
+                "seed": 3
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "note": "C7",
+                "duration": 0.18
+              },
+              "gain": 0.2,
+              "delay": 0.2
+            }
+          ],
+          "process": {
+            "length": 0.4,
+            "fadeOut": 0.1
+          }
+        }
+      ]
+    }
+  }
+}

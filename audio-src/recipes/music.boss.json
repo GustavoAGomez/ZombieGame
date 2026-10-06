@@ -1,0 +1,42 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Batalla de boss orquestal (B_Sean), entera.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/421886_boss_battle.ogg",
+          "process": {}
+        }
+      ]
+    },
+    "B": {
+      "about": "Ataque épico con tambores (SieuAmThanh), sus primeros 85 s.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/559020_ta_n_co_ng.ogg",
+          "process": {
+            "end": 85
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Pelea tensa con sintes (SnowFightStudios), sus primeros 88 s.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/676998_fight_music_synth_tense_loop.ogg",
+          "process": {
+            "end": 88
+          }
+        }
+      ]
+    }
+  }
+}

@@ -198,8 +198,9 @@ export function createCharacterPlaceholder(
  * Frame N = window with N planks. Horizontal walls stack planks top to
  * bottom; vertical walls (the `_v` variant) stack them left to right.
  */
-function drawWindowPlanks(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number, vertical: boolean): void {
-  rect(ctx, PLACEHOLDER_COLORS.windowGap, ox, oy, w, h);
+function drawWindowPlanks(ctx: Ctx, frame: number, ox: number, oy: number, w: number, h: number, vertical: boolean, hole: boolean): void {
+  // A window's gap is dark; a fence's gap is the ground (nothing drawn but the planks).
+  if (hole) rect(ctx, PLACEHOLDER_COLORS.windowGap, ox, oy, w, h);
   const across = vertical ? w : h;
   const along = vertical ? h : w;
   const thickness = Math.max(2, Math.floor(across / 8));
@@ -441,25 +442,31 @@ function drawProp(ctx: Ctx, key: string, ox: number, oy: number, w: number, h: n
 }
 
 /**
- * Provisional knife slash, drawn pointing right (+x; the view rotates it to
- * the slash's direction): an arc that sweeps from top to bottom and fades.
+ * Provisional slash (the knife's, the katana's), drawn pointing right (+x;
+ * the view rotates it to the slash's direction) around the frame's left
+ * middle: an arc that sweeps from top to bottom and fades.
  * Pixel by pixel on a ring, so it reads as a swoosh rather than a box.
  */
 function drawMeleeSlash(ctx: Ctx, frame: number, frames: number, ox: number, oy: number, w: number, h: number): void {
-  const cx = ox + Math.floor(w * 0.3);
+  // The swing's centre is the frame's left middle (the player, MeleeSlash); the arc runs along its right part.
+  const cx = ox + 1;
   const cy = oy + Math.floor(h / 2);
+  const outer = Math.min(w - 2, h / 2 - 2);
+  const inner = Math.round(outer * 0.8);
   // Frame f shows the sweep at (f + 1) / frames, so the first frame already shows a quarter of it.
   const t = (frame + 1) / Math.max(1, frames);
   // The lit part of the arc grows during the first half and the tail fades during the second.
   const from = -70 + Math.max(0, t - 0.5) * 2 * 120;
   const to = -70 + Math.min(1, t * 2) * 140;
   const fade = 1 - Math.max(0, t - 0.5) * 1.4;
-  for (let deg = from; deg <= to; deg += 4) {
+  // About a pixel of arc per step, whatever its size.
+  const step = Math.max(0.5, 180 / (Math.PI * outer));
+  for (let deg = from; deg <= to; deg += step) {
     const a = (deg * Math.PI) / 180;
     const edge = (deg - from) / Math.max(1, to - from); // brighter towards the leading edge
-    for (let r = 9; r <= 13; r++) {
-      const inner = r === 9 || r === 13;
-      const alpha = (inner ? 0.35 : 0.85) * fade * (0.4 + 0.6 * edge);
+    for (let r = inner; r <= outer; r++) {
+      const rim = r === inner || r === outer;
+      const alpha = (rim ? 0.35 : 0.85) * fade * (0.4 + 0.6 * edge);
       rect(ctx, `rgba(255, 246, 216, ${alpha.toFixed(2)})`, Math.round(cx + Math.cos(a) * r), Math.round(cy + Math.sin(a) * r), 1, 1);
     }
   }
@@ -677,7 +684,11 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
     switch (object) {
       case ASSET_KEYS.windowPlanks:
       case ASSET_KEYS.windowPlanksV:
-        drawWindowPlanks(ctx, col, ox, oy, w, h, object === ASSET_KEYS.windowPlanksV);
+        drawWindowPlanks(ctx, col, ox, oy, w, h, object === ASSET_KEYS.windowPlanksV, true);
+        break;
+      case ASSET_KEYS.fencePlanks:
+      case ASSET_KEYS.fencePlanksV:
+        drawWindowPlanks(ctx, col, ox, oy, w, h, object === ASSET_KEYS.fencePlanksV, false);
         break;
       case ASSET_KEYS.door:
       case ASSET_KEYS.doorV:
@@ -716,6 +727,7 @@ export function createObjectPlaceholder(scene: Phaser.Scene, object: string, def
         drawMuzzleFlash(ctx, col, ox, oy, w, h);
         break;
       case ASSET_KEYS.meleeSlash:
+      case ASSET_KEYS.katanaSlash:
         drawMeleeSlash(ctx, col, def.frames, ox, oy, w, h);
         break;
       case ASSET_KEYS.merchantGem:
@@ -869,7 +881,7 @@ function butcherPose(animation: string, col: number, frames: number, marks: Reco
   }
 }
 
-/** A boss's animation drawn as El Matarife's placeholder poses, the same in every direction. */
+/** A boss's animation drawn as Matarife's placeholder poses, the same in every direction. */
 function createBossPlaceholder(scene: Phaser.Scene, character: string, def: CharacterDef, animation: string): void {
   const anim = def.animations[animation];
   if (!anim) return;
@@ -883,7 +895,7 @@ function createBossPlaceholder(scene: Phaser.Scene, character: string, def: Char
 }
 
 /**
- * El Matarife (spec 07 §8): a rounded body of 64×84 in dark greyish green
+ * Matarife (spec 07 §8): a rounded body of 64×84 in dark greyish green
  * with a lighter belly, and a brown mallet of 12×40, standing on the bottom
  * edge of its 96×110 box, facing the camera with the mallet on its right.
  */

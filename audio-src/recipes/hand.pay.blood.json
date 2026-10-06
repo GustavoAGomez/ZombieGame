@@ -1,0 +1,154 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Golpe húmedo y grave con un siseo.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/515618_splat_squish_1.ogg",
+                "process": {
+                  "end": 0.5,
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.9
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPunch_heavy_000.ogg",
+                "process": {
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/436791_sizzle.ogg",
+                "process": {
+                  "end": 0.5,
+                  "fadeOut": 0.25
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.1
+            }
+          ],
+          "process": {
+            "length": 0.8,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Salpicadura húmeda, golpe de carne y siseo suave.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/495117_wet_splat_2.ogg",
+                "process": {
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.9
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/779805_meaty_damage_impact.ogg",
+                "process": {
+                  "end": 0.4,
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/478800_simple_sizzle.ogg",
+                "process": {
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.1
+            }
+          ],
+          "process": {
+            "length": 0.8,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Salpicadura, golpe blando con peso en 180 Hz y siseo fuerte.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/719130_splat_2.ogg",
+                "process": {
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.9
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactSoft_heavy_001.ogg",
+                "process": {
+                  "lowcut": 150,
+                  "peaks": [
+                    {
+                      "freq": 180,
+                      "gainDb": 5,
+                      "q": 1
+                    }
+                  ]
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/234124_sizzle.ogg",
+                "process": {
+                  "end": 0.5,
+                  "fadeOut": 0.25
+                }
+              },
+              "gain": 0.4,
+              "delay": 0.1
+            }
+          ],
+          "process": {
+            "length": 0.8,
+            "fadeOut": 0.25
+          }
+        }
+      ]
+    }
+  }
+}

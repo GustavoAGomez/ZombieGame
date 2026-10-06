@@ -1,7 +1,8 @@
+import { playerStats } from '../dungeon/stats';
 import type { PlayerState } from '../../core/GameState';
 import type { SimContext } from './SimContext';
 
-export type PointsReason = 'repair' | 'hit' | 'kill';
+export type PointsReason = 'repair' | 'hit' | 'kill' | 'room' | 'chest';
 
 /**
  * Points and money (spec 01 §4.7): +10 per hit, +50 per kill, +10 per
@@ -20,7 +21,8 @@ export function awardPoints(
   if (amount <= 0) return;
   const p = playerById(ctx, playerId);
   if (!p) return;
-  p.money += amount;
+  // Codicia (spec 09 §7.2) pays more money, not more score.
+  p.money += Math.round(amount * playerStats(ctx.state.run).money);
   p.score += amount;
   ctx.events.emit('points:gained', x !== undefined && y !== undefined ? { playerId, amount, reason, x, y } : { playerId, amount, reason });
 }

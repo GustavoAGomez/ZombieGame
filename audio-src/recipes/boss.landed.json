@@ -1,0 +1,178 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Estéreo: una pisada enorme, escombros que caen, una explosión sorda y peso a 110 Hz, con sala.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/813053_big_robot_footstep_002.ogg",
+                "process": {
+                  "end": 1.0,
+                  "lowcut": 100
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/392999_escombros_caen_por_explosion.ogg",
+                "process": {
+                  "start": 0.1,
+                  "end": 1.2,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.05
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/523089_explosion_1.ogg",
+                "process": {
+                  "lowcut": 130,
+                  "end": 1.0
+                }
+              },
+              "gain": 0.5
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 110,
+                "duration": 0.6
+              },
+              "gain": 0.6
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.18,
+            "length": 1.45,
+            "fadeOut": 0.5
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Estéreo: un tom enorme, una piedra grande y rocas.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/687924_jh_big_tom_2_f_1_5_sec.ogg",
+                "process": {
+                  "lowcut": 110,
+                  "end": 1.2
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/536803_stone.ogg",
+                "process": {
+                  "lowcut": 120,
+                  "end": 1.2
+                }
+              },
+              "gain": 0.7
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/426318_rocks_falling.ogg",
+                "process": {
+                  "lowcut": 150,
+                  "end": 1.2,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 110,
+                "duration": 0.6
+              },
+              "gain": 0.5
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.18,
+            "length": 1.45,
+            "fadeOut": 0.5
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Estéreo: otra pisada enorme, un derrumbe de escombros y un timbal en La.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/813055_big_robot_footstep_004.ogg",
+                "process": {
+                  "end": 1.0,
+                  "lowcut": 100
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/848472_vintage_debris_smash.ogg",
+                "process": {
+                  "end": 1.2,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 0.6
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/573275_timpani_2.ogg",
+                "process": {
+                  "semitones": -0.47,
+                  "lowcut": 90,
+                  "end": 1.2
+                }
+              },
+              "gain": 0.6
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.18,
+            "length": 1.45,
+            "fadeOut": 0.5
+          }
+        }
+      ]
+    }
+  }
+}

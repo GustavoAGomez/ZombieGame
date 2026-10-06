@@ -1,0 +1,38 @@
+#########oo#########
+#..................#
+#..................#
+#..................#
+#....#........#....#
+o....#........#....o
+o..................o
+#..................#
+#..................#
+#########oo#########
+
+## Sala
+| tipo | dificultad | ambiente | nota |
+|---|---|---|---|
+| elite | — | mansion | biblioteca grande con dos pilares |
+
+## Enemigos (puntos de aparición, a 4 casillas o más de los huecos)
+| id | casilla |
+|---|---|
+| E1 | 4,2 |
+| E2 | 15,2 |
+| E3 | 4,7 |
+| E4 | 15,7 |
+| E5 | 15,5 |
+
+## Magos
+| id | casilla | nota |
+|---|---|---|
+| M1 | 1,1 | rincón noroeste |
+
+## Atrezo (muebles; con colisión es la cobertura de la sala)
+| id | objeto | casillas | colisión | volteo | nota |
+|---|---|---|---|---|---|
+| A1 | prop_mesa_lectura | 9,4 10,5 | sí | — |  |
+| A2 | prop_estanteria_caida | 2,8 4,8 | sí | — | estantería caída |
+| A3 | prop_libros_suelo | 7,7 | no | — |  |
+| A4 | prop_libros_suelo | 12,6 | no | — |  |
+| A5 | prop_sillon | 17,8 | sí | — |  |
