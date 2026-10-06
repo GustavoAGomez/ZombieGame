@@ -3,13 +3,14 @@
  * audio-src/recipes/<sound id>.json and writes, for each sound of the
  * catalog:
  * - the files the game plays (its chosen candidate, or A until one is
- *   chosen) in public/assets/audio/sfx/<key>.wav;
+ *   chosen) in public/assets/audio/sfx/<key>.wav, and the music's in
+ *   public/assets/audio/music/<key>.m4a with its loop points (§7);
  * - while no candidate is chosen, every candidate in
- *   public/assets/audio/candidates/<key>__<letter>.wav, which only the
- *   debug build loads (§8).
- * Then it rewrites the effects of the manifest's `audio` section and the
- * report in audio-src/preview/report.md. The same recipes and sources
- * always give the same bytes.
+ *   public/assets/audio/candidates/<key>__<letter>.wav (or .m4a), which
+ *   only the debug build loads (§8).
+ * Then it rewrites the manifest's `audio` section and the report in
+ * audio-src/preview/report.md. The same recipes and sources always give
+ * the same bytes.
  */
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { basename, dirname, resolve } from 'node:path';
@@ -17,11 +18,12 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { AUDIO_GEN, SOUNDS, type SoundDef } from '../src/config/audio';
 import { measure } from './lib/audio/analyze';
 import { Credits, creditsMarkdown, recipeSources, type CreditRow } from './lib/audio/credits';
-import { finish, finishLoop } from './lib/audio/dsp';
+import { finish, finishLoop, finishMusic } from './lib/audio/dsp';
 import { LETTERS, parseSoundRecipes, type Candidate, type Letter, type Recipe } from './lib/audio/recipes';
 import { render } from './lib/audio/render';
 import { buildReport, type ReportRow } from './lib/audio/report';
-import { decodeWav, encodeWav } from './lib/audio/wav';
+import { encodeM4a } from './lib/audio/source';
+import { decodeWav, encodeWav, frames, type Audio } from './lib/audio/wav';
 
 /** Duration a placeholder entry declares: no file, so silence (CLAUDE.md rule 5). */
 const PLACEHOLDER_DURATION = 0.1;
@@ -39,6 +41,12 @@ export function renderFile(recipe: Recipe, channels: 1 | 2, sourceRoot = '', loo
   return encodeWav(loop ? finishLoop(audio) : finish(audio));
 }
 
+/** A music recipe to its M4A bytes, the audio in it and its loop points (§7). */
+export function renderMusic(recipe: Recipe, channels: 1 | 2, sourceRoot = ''): { bytes: Uint8Array; audio: Audio; loopStart: number; loopEnd: number } {
+  const finished = finishMusic(render(recipe, channels, { sampleRate: AUDIO_GEN.sampleRate, sourceRoot }));
+  return { bytes: encodeM4a(finished.audio, AUDIO_GEN.music.bitrate), ...finished };
+}
+
 export interface GenerateResult {
   generated: number;
   warnings: string[];
@@ -48,17 +56,18 @@ export function generateAudio(root: string, log: (line: string) => void): Genera
   const at = (p: string): string => resolve(root, p);
   const recipesDir = at('audio-src/recipes');
   const sfxDir = at('public/assets/audio/sfx');
+  const musicDir = at('public/assets/audio/music');
   const candidatesDir = at('public/assets/audio/candidates');
-  // Both folders are the workshop's output: written again from scratch.
-  for (const dir of [sfxDir, candidatesDir]) {
+  // The three folders are the workshop's output: written again from scratch.
+  for (const dir of [sfxDir, musicDir, candidatesDir]) {
     rmSync(dir, { recursive: true, force: true });
     mkdirSync(dir, { recursive: true });
   }
   const manifestPath = at('public/assets/manifest.json');
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Json;
-  // The music's entries stay; the effects' are written again.
+  // Every entry of the workshop's folders is written again; anything else in the section stays.
   const audio = Object.fromEntries(
-    Object.entries((manifest.audio ?? {}) as Record<string, Json>).filter(([, def]) => typeof def.file === 'string' && !/^audio\/(sfx|candidates)\//.test(def.file)),
+    Object.entries((manifest.audio ?? {}) as Record<string, Json>).filter(([, def]) => typeof def.file === 'string' && !/^audio\/(sfx|music|candidates)\//.test(def.file)),
   );
   const rows: ReportRow[] = [];
   const warnings: string[] = [];
@@ -66,12 +75,11 @@ export function generateAudio(root: string, log: (line: string) => void): Genera
   const done = new Set<string>();
   const names = existsSync(recipesDir) ? readdirSync(recipesDir).filter((f) => f.endsWith('.json')).sort() : [];
 
-  const write = (dir: string, key: string, bytes: Uint8Array, entry: Json): number => {
-    const file = `audio/${dir}/${key}.wav`;
+  const round = (s: number): number => Math.round(s * 10000) / 10000;
+  const write = (dir: string, key: string, bytes: Uint8Array, entry: Json, ext = 'wav', duration = decodeWav(bytes).duration): void => {
+    const file = `audio/${dir}/${key}.${ext}`;
     writeFileSync(at(`public/assets/${file}`), bytes);
-    const wav = decodeWav(bytes);
-    audio[key] = { file, duration: Math.round(wav.duration * 10000) / 10000, placeholder: false, ...entry };
-    return wav.duration;
+    audio[key] = { file, duration: round(duration), placeholder: false, ...entry };
   };
 
   for (const name of names) {
@@ -97,13 +105,26 @@ export function generateAudio(root: string, log: (line: string) => void): Genera
         ...candidate.variants.map((recipe, i) => ({ recipe, key: sound.variants[i] ?? '', layer: 'body' as const })),
         ...candidate.shine.map((recipe, i) => ({ recipe, key: sound.shine[i] ?? '', layer: 'shine' as const })),
       ];
+      const pick = recipes.chosen === null ? { picked: letter, pending: true } : { picked: letter };
+      // Until one is chosen, every candidate (A too) goes to the debug build's folder.
+      const shownKey = (key: string): string => (recipes.chosen === null ? candidateKey(key, letter) : key);
       files.forEach(({ recipe, key, layer }) => {
+        if (sound.bus === 'music') {
+          // The music (§7): M4A, with its loop and the margins that keep it clean.
+          const music = renderMusic(recipe, candidate.channels, at('audio-src'));
+          // To the microsecond: at 0.1 ms the loop could be a sample long or short, a click at each turn.
+          const exact = (t: number): number => Math.round(t * 1e6) / 1e6;
+          const loop = { loopStart: exact(music.loopStart), loopEnd: exact(music.loopEnd) };
+          const duration = frames(music.audio) / music.audio.sampleRate;
+          if (inGame) write('music', key, music.bytes, { ...pick, ...loop }, 'm4a', duration);
+          if (recipes.chosen === null) write('candidates', shownKey(key), music.bytes, { candidate: letter, ...loop }, 'm4a', duration);
+          rows.push({ key: shownKey(key), sound, letter, inGame, about: candidate.about, layer, measures: measure(music.audio), loop: music.loopEnd - music.loopStart });
+          return;
+        }
         const bytes = renderFile(recipe, candidate.channels, at('audio-src'), sound.loop);
-        if (inGame) write('sfx', key, bytes, recipes.chosen === null ? { picked: letter, pending: true } : { picked: letter });
-        // Until one is chosen, every candidate (A too) goes to the debug build's folder.
-        const shown = recipes.chosen === null ? candidateKey(key, letter) : key;
-        if (recipes.chosen === null) write('candidates', shown, bytes, { candidate: letter });
-        rows.push({ key: shown, sound, letter, inGame, about: candidate.about, layer, measures: measure(decodeWav(bytes)) });
+        if (inGame) write('sfx', key, bytes, pick);
+        if (recipes.chosen === null) write('candidates', shownKey(key), bytes, { candidate: letter });
+        rows.push({ key: shownKey(key), sound, letter, inGame, about: candidate.about, layer, measures: measure(decodeWav(bytes)) });
       });
     }
     done.add(id);
@@ -112,8 +133,9 @@ export function generateAudio(root: string, log: (line: string) => void): Genera
 
   // Every variant of the catalog has its entry: without a recipe yet, a placeholder (silence).
   for (const sound of SOUNDS) {
-    if (sound.bus === 'music' || done.has(sound.id)) continue;
-    for (const key of [...sound.variants, ...sound.shine]) audio[key] = { file: `audio/sfx/${key}.wav`, duration: PLACEHOLDER_DURATION, placeholder: true };
+    if (done.has(sound.id)) continue;
+    const file = (key: string): string => (sound.bus === 'music' ? `audio/music/${key}.m4a` : `audio/sfx/${key}.wav`);
+    for (const key of [...sound.variants, ...sound.shine]) audio[key] = { file: file(key), duration: PLACEHOLDER_DURATION, placeholder: true };
     warnings.push(`${sound.id}: sin receta en audio-src/recipes/, suena como silencio`);
   }
 
@@ -137,7 +159,7 @@ export function generateAudio(root: string, log: (line: string) => void): Genera
   if (sfxBytes > AUDIO_GEN.budgetBytes) warnings.push(`los efectos ocupan ${(sfxBytes / 1048576).toFixed(2)} MB, más que el presupuesto de ${AUDIO_GEN.budgetBytes / 1048576} MB`);
   mkdirSync(at('audio-src/preview'), { recursive: true });
   writeFileSync(at('audio-src/preview/report.md'), report.markdown);
-  log(`  ✓ informe → audio-src/preview/report.md (${rows.length} archivos; efectos ${(sfxBytes / 1024).toFixed(0)} KB, candidatos ${(size(candidatesDir) / 1024).toFixed(0)} KB)`);
+  log(`  ✓ informe → audio-src/preview/report.md (${rows.length} archivos; efectos ${(sfxBytes / 1024).toFixed(0)} KB, música ${(size(musicDir) / 1024).toFixed(0)} KB, candidatos ${(size(candidatesDir) / 1024).toFixed(0)} KB)`);
   log(`  ✓ créditos → docs/AUDIO-CREDITS.md (${creditRows.length} archivos de origen)`);
   return { generated: rows.length, warnings };
 }

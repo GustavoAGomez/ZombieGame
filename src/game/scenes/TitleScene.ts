@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { QUIET_SNAPSHOT } from '../../audio/AudioDirector';
 import { TitleScreen } from '../../ui/screens/Screens';
 import { SCENE_KEYS, type GameSceneData } from './BootScene';
 
@@ -16,6 +17,8 @@ export class TitleScene extends Phaser.Scene {
 
   create(): void {
     const { services } = this.sceneData;
+    // The title's music (spec 08 §7): it starts with the first tap that lets the sound out.
+    services.audio.update({ ...QUIET_SNAPSHOT, music: 'title' });
     const screen = new TitleScreen(services.hudRoot, () => {
       // The JUGAR tap lets the sound out (spec 08 §2): it must happen inside the gesture.
       services.audio.unlock();

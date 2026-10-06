@@ -2447,6 +2447,138 @@
       "placeholder": false,
       "candidate": "C"
     },
+    "music_boss": {
+      "file": "audio/music/music_boss.m4a",
+      "duration": 30.7786,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true,
+      "loopStart": 0.25,
+      "loopEnd": 30.528617
+    },
+    "music_boss__a": {
+      "file": "audio/candidates/music_boss__a.m4a",
+      "duration": 30.7786,
+      "placeholder": false,
+      "candidate": "A",
+      "loopStart": 0.25,
+      "loopEnd": 30.528617
+    },
+    "music_boss__b": {
+      "file": "audio/candidates/music_boss__b.m4a",
+      "duration": 83.5,
+      "placeholder": false,
+      "candidate": "B",
+      "loopStart": 0.25,
+      "loopEnd": 83.249977
+    },
+    "music_boss__c": {
+      "file": "audio/candidates/music_boss__c.m4a",
+      "duration": 86.4675,
+      "placeholder": false,
+      "candidate": "C",
+      "loopStart": 0.25,
+      "loopEnd": 86.217506
+    },
+    "music_calm": {
+      "file": "audio/music/music_calm.m4a",
+      "duration": 78.4995,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true,
+      "loopStart": 0.25,
+      "loopEnd": 78.249524
+    },
+    "music_calm__a": {
+      "file": "audio/candidates/music_calm__a.m4a",
+      "duration": 78.4995,
+      "placeholder": false,
+      "candidate": "A",
+      "loopStart": 0.25,
+      "loopEnd": 78.249524
+    },
+    "music_calm__b": {
+      "file": "audio/candidates/music_calm__b.m4a",
+      "duration": 50.1833,
+      "placeholder": false,
+      "candidate": "B",
+      "loopStart": 0.25,
+      "loopEnd": 49.933288
+    },
+    "music_calm__c": {
+      "file": "audio/candidates/music_calm__c.m4a",
+      "duration": 40.7983,
+      "placeholder": false,
+      "candidate": "C",
+      "loopStart": 0.25,
+      "loopEnd": 40.548299
+    },
+    "music_round": {
+      "file": "audio/music/music_round.m4a",
+      "duration": 58.7857,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true,
+      "loopStart": 0.25,
+      "loopEnd": 58.535714
+    },
+    "music_round__a": {
+      "file": "audio/candidates/music_round__a.m4a",
+      "duration": 58.7857,
+      "placeholder": false,
+      "candidate": "A",
+      "loopStart": 0.25,
+      "loopEnd": 58.535714
+    },
+    "music_round__b": {
+      "file": "audio/candidates/music_round__b.m4a",
+      "duration": 58.5096,
+      "placeholder": false,
+      "candidate": "B",
+      "loopStart": 0.25,
+      "loopEnd": 58.259569
+    },
+    "music_round__c": {
+      "file": "audio/candidates/music_round__c.m4a",
+      "duration": 52.4989,
+      "placeholder": false,
+      "candidate": "C",
+      "loopStart": 0.25,
+      "loopEnd": 52.248866
+    },
+    "music_title": {
+      "file": "audio/music/music_title.m4a",
+      "duration": 30.4974,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true,
+      "loopStart": 0.25,
+      "loopEnd": 30.247415
+    },
+    "music_title__a": {
+      "file": "audio/candidates/music_title__a.m4a",
+      "duration": 30.4974,
+      "placeholder": false,
+      "candidate": "A",
+      "loopStart": 0.25,
+      "loopEnd": 30.247415
+    },
+    "music_title__b": {
+      "file": "audio/candidates/music_title__b.m4a",
+      "duration": 37.5835,
+      "placeholder": false,
+      "candidate": "B",
+      "loopStart": 0.25,
+      "loopEnd": 37.333469
+    },
+    "music_title__c": {
+      "file": "audio/candidates/music_title__c.m4a",
+      "duration": 72.4105,
+      "placeholder": false,
+      "candidate": "C",
+      "loopStart": 0.25,
+      "loopEnd": 72.160522
+    },
     "pickup_ammo": {
       "file": "audio/sfx/pickup_ammo.wav",
       "duration": 0.3658,

@@ -6,9 +6,11 @@
  * gets WAV.
  */
 import { execFileSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import type { Audio } from './wav';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { frames, type Audio } from './wav';
 
 const require = createRequire(import.meta.url);
 const cache = new Map<string, Audio>();
@@ -36,3 +38,28 @@ export function decodeSource(path: string, channels: 1 | 2, sampleRate: number):
   cache.set(id, audio);
   return { sampleRate, channels: out.map((c) => c.slice()) };
 }
+
+/**
+ * Encodes audio as M4A (AAC at `bitrate`), the music's format (§7): it
+ * decodes on iOS and Android alike. Bit-exact and without metadata, so the
+ * same audio always gives the same bytes.
+ */
+export function encodeM4a(audio: Audio, bitrate: string): Uint8Array {
+  const n = frames(audio);
+  const count = audio.channels.length;
+  const interleaved = new Float32Array(n * count);
+  for (let i = 0; i < n; i++) for (let c = 0; c < count; c++) interleaved[i * count + c] = audio.channels[c]?.[i] ?? 0;
+  const dir = mkdtempSync(join(tmpdir(), 'music-'));
+  const out = join(dir, 'out.m4a');
+  try {
+    execFileSync(
+      ffmpegPath(),
+      ['-v', 'error', '-f', 'f32le', '-ar', String(audio.sampleRate), '-ac', String(count), '-i', 'pipe:0', '-c:a', 'aac', '-b:a', bitrate, '-map_metadata', '-1', '-fflags', '+bitexact', '-flags:a', '+bitexact', '-movflags', '+faststart', '-y', out],
+      { input: Buffer.from(interleaved.buffer), maxBuffer: 1 << 28 },
+    );
+    return new Uint8Array(readFileSync(out));
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+

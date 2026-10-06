@@ -36,6 +36,8 @@ export function creditsHome(source: string): { folder: string; file: string } | 
   const parts = source.split('/');
   if (parts[0] === 'library' && parts.length >= 3) return { folder: `library/${parts[1] ?? ''}`, file: parts.slice(2).join('/') };
   if (parts[0] === 'generated' && parts.length >= 2) return { folder: 'generated', file: parts.slice(1).join('/') };
+  // The tracks the user picks (§7): CC0 or a licence like it, each with its record.
+  if (parts[0] === 'music' && parts.length >= 2) return { folder: 'music', file: parts.slice(1).join('/') };
   return null;
 }
 
@@ -59,7 +61,7 @@ export class Credits {
     if (missing.length > 0) return { problem: `${source}: sin ficha completa en audio-src/${home.folder}/credits.json (falta ${missing.join(', ')})` };
     const credit = merged as Credit;
     // The repository is public: from a library, only CC0 (§5.1).
-    if (home.folder !== 'generated' && !/\bCC0\b/i.test(credit.license)) return { problem: `${source}: licencia «${credit.license}»; de las bibliotecas solo vale CC0` };
+    if (home.folder.startsWith('library/') && !/\bCC0\b/i.test(credit.license)) return { problem: `${source}: licencia «${credit.license}»; de las bibliotecas solo vale CC0` };
     return { credit: { origin: credit.origin, author: credit.author, license: credit.license, url: credit.url, ...(credit.prompt ? { prompt: credit.prompt, model: credit.model } : {}) } };
   }
 

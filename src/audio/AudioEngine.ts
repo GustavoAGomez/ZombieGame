@@ -12,6 +12,9 @@ export interface PlayOptions {
   fadeIn?: number;
   /** It may move while it plays (a boss's loop): its pan can change even from the centre. */
   positional?: boolean;
+  /** A loop repeats between these seconds of its file (the music's measured loop, §7); the whole file otherwise. */
+  loopStart?: number;
+  loopEnd?: number;
 }
 
 /** A sound playing. */
@@ -29,8 +32,22 @@ export interface Voice {
  * is Web Audio; the tests pass a fake one, like HapticFeedback's Vibrate.
  */
 export interface AudioOutput {
-  /** Creates the context (it may stay suspended until a gesture) and decodes every file of the manifest. */
-  load(defs: Readonly<Record<string, AudioDef>>, baseUrl: string): void;
+  /**
+   * Creates the context (it may stay suspended until a gesture) and decodes
+   * every file of the manifest but the `lazy` ones (the music), which wait
+   * for prepare().
+   */
+  load(defs: Readonly<Record<string, AudioDef>>, baseUrl: string, lazy?: ReadonlySet<string>): void;
+  /**
+   * Decodes these lazy files (the music) and frees every other lazy one, so
+   * at most the current track and the next are in memory (§7). Resolves
+   * when they are ready (or failed: silence).
+   */
+  prepare(keys: readonly string[]): Promise<void>;
+  /** The music bus through a low-pass at `frequency` Hz, reached in `fade` s (low health, §3.5). */
+  setMusicFilter(frequency: number, fade: number): void;
+  /** Calls `listener` each time the context starts running (unlocked, back from the background). */
+  whenRunning(listener: () => void): void;
   /** Inside a user gesture: lets the sound out (iOS and Android start muted). */
   unlock(): void;
   /** Plays the file of `key`; null when it is missing or not decoded yet (silence, not an error). */
@@ -62,6 +79,13 @@ export class WebAudioEngine implements AudioOutput {
   /** Gains asked for before the context existed. */
   private readonly pendingGains = new Map<AudioBus, number>();
   private readonly buffers = new Map<string, AudioBuffer>();
+  /** The lazy files (the music): their urls, and the decodes under way. */
+  private readonly lazyUrls = new Map<string, string>();
+  private readonly decoding = new Map<string, Promise<void>>();
+  /** The lazy files asked for by the last prepare(). */
+  private wanted = new Set<string>();
+  private musicFilter: BiquadFilterNode | null = null;
+  private readonly runningListeners: (() => void)[] = [];
   /** In the background (app or tab hidden): no gesture may wake it until it comes back. */
   private hidden = false;
   private unlocked = false;
@@ -71,17 +95,53 @@ export class WebAudioEngine implements AudioOutput {
     return this.hidden ? `${this.ctx.state} (en segundo plano)` : this.ctx.state;
   }
 
-  load(defs: Readonly<Record<string, AudioDef>>, baseUrl: string): void {
+  load(defs: Readonly<Record<string, AudioDef>>, baseUrl: string, lazy: ReadonlySet<string> = new Set()): void {
     const ctx = this.ensureContext();
     if (!ctx) return;
     for (const [key, def] of Object.entries(defs)) {
       if (def.placeholder || this.buffers.has(key)) continue;
-      void fetch(`${baseUrl}${def.file}`)
-        .then((response) => (response.ok ? response.arrayBuffer() : Promise.reject(new Error(`${response.status}`))))
-        .then((data) => ctx.decodeAudioData(data))
-        .then((buffer) => this.buffers.set(key, buffer))
-        .catch((err: unknown) => console.warn(`audio: no se pudo cargar ${key} (${def.file})`, err));
+      if (lazy.has(key)) this.lazyUrls.set(key, `${baseUrl}${def.file}`);
+      else void this.decode(ctx, key, `${baseUrl}${def.file}`);
     }
+  }
+
+  prepare(keys: readonly string[]): Promise<void> {
+    const ctx = this.ctx;
+    this.wanted = new Set(keys);
+    // The music not asked for leaves memory: at most the current track and the next (§7).
+    for (const key of this.lazyUrls.keys()) if (!this.wanted.has(key)) this.buffers.delete(key);
+    if (!ctx) return Promise.resolve();
+    const loads = keys.flatMap((key) => {
+      const url = this.lazyUrls.get(key);
+      if (!url || this.buffers.has(key)) return [];
+      return [this.decoding.get(key) ?? this.decode(ctx, key, url)];
+    });
+    return Promise.all(loads).then(() => undefined);
+  }
+
+  setMusicFilter(frequency: number, fade: number): void {
+    if (!this.ctx || !this.musicFilter) return;
+    const t = this.ctx.currentTime;
+    this.musicFilter.frequency.cancelScheduledValues(t);
+    this.musicFilter.frequency.setTargetAtTime(frequency, t, Math.max(fade, 0.001) / 3);
+  }
+
+  whenRunning(listener: () => void): void {
+    this.runningListeners.push(listener);
+  }
+
+  private decode(ctx: AudioContext, key: string, url: string): Promise<void> {
+    const done = fetch(url)
+      .then((response) => (response.ok ? response.arrayBuffer() : Promise.reject(new Error(`${response.status}`))))
+      .then((data) => ctx.decodeAudioData(data))
+      .then((buffer) => {
+        // A lazy file no longer asked for by the time it decoded is not kept.
+        if (!this.lazyUrls.has(key) || this.wanted.has(key)) this.buffers.set(key, buffer);
+      })
+      .catch((err: unknown) => console.warn(`audio: no se pudo cargar ${key} (${url})`, err))
+      .finally(() => this.decoding.delete(key));
+    this.decoding.set(key, done);
+    return done;
   }
 
   unlock(): void {
@@ -118,6 +178,10 @@ export class WebAudioEngine implements AudioOutput {
     source.buffer = buffer;
     source.playbackRate.value = options.rate;
     source.loop = options.loop === true;
+    if (source.loop && options.loopStart !== undefined && options.loopEnd !== undefined && options.loopEnd > options.loopStart) {
+      source.loopStart = options.loopStart;
+      source.loopEnd = options.loopEnd;
+    }
     const gain = ctx.createGain();
     if (options.fadeIn) {
       gain.gain.setValueAtTime(0, ctx.currentTime);
@@ -194,9 +258,21 @@ export class WebAudioEngine implements AudioOutput {
     for (const bus of BUSES) {
       const node = ctx.createGain();
       node.gain.value = this.pendingGains.get(bus) ?? 1;
-      node.connect(this.master);
+      if (bus === 'music') {
+        // The music through a low-pass, wide open until health is low (§3.5).
+        this.musicFilter = ctx.createBiquadFilter();
+        this.musicFilter.type = 'lowpass';
+        this.musicFilter.frequency.value = AUDIO.music.openCutoff;
+        node.connect(this.musicFilter);
+        this.musicFilter.connect(this.master);
+      } else {
+        node.connect(this.master);
+      }
       this.buses.set(bus, node);
     }
+    ctx.addEventListener('statechange', () => {
+      if (ctx.state === 'running') for (const listener of this.runningListeners) listener();
+    });
     return ctx;
   }
 }

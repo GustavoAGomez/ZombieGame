@@ -193,12 +193,12 @@ Una entrada por archivo de sonido, con su clave en snake_case:
 }
 ```
 
-- **`file`:** ruta dentro de `public/assets/`. Los efectos son WAV de 44,1 kHz y 16 bits: mono los posicionales y los frecuentes, estéreo solo los grandes que no son posicionales.
+- **`file`:** ruta dentro de `public/assets/`. Los efectos son WAV de 44,1 kHz y 16 bits: mono los posicionales y los frecuentes, estéreo solo los grandes que no son posicionales. La música es M4A (AAC a 128 kbps, estéreo) en `audio/music/`.
 - **`duration`:** segundos. El director la usa para saber cuándo queda libre una voz.
 - **`placeholder`:** `true` si todavía no hay archivo. El sonido es silencio, nunca un error.
 - **`picked` y `pending`:** el candidato del que sale un archivo del juego y, con `pending`, que todavía no se ha elegido (mientras tanto suena A).
 - **`candidate`:** un archivo candidato (A, B o C). Solo se carga con el debug activo, para compararlos en PRUEBA DE SONIDOS.
-- **`loopStart` y `loopEnd`:** solo la música (fase S5), en segundos.
+- **`loopStart` y `loopEnd`:** solo la música, en segundos y al microsegundo. El motor repite entre esos dos puntos; antes y después hay 0,25 s del propio bucle (ver **Música** más abajo).
 - **Claves:** el código nunca nombra estas claves. Las nombra el catálogo (`src/config/audio.ts`): cada sonido (`ui.tap`, `weapon.pistol.fire`…) lista sus variantes, de 1 a 4, que son claves de esta sección. La clave de un candidato es la de la variante con `__a`, `__b` o `__c`.
 - **De dónde salen:** `npm run audio:gen` monta cada sonido desde su receta, `audio-src/recipes/<id>.json`, y escribe aquí sus entradas.
   - **Formato de la receta:** `{ "chosen": null, "candidates": { "A": { "about": "…", "channels": 1, "variants": [ … ] }, "B": … } }`.
@@ -208,7 +208,7 @@ Una entrada por archivo de sonido, con su clave en snake_case:
   - **Sin receta:** a una variante del catálogo que no tiene receta le pone una entrada `placeholder`.
   - **Informe:** las medidas y los avisos quedan en `audio-src/preview/report.md`.
 - **Tipos de receta:**
-  - `file`, una fuente grabada: `{ "type": "file", "source": "library/<origen>/<archivo>.ogg" }`, con la ruta desde `audio-src/` (de `library/` o de `generated/`). ffmpeg la decodifica y se normaliza a escala completa tras su recorte, así que el `gain` de una capa no depende del volumen al que se grabó.
+  - `file`, una fuente grabada: `{ "type": "file", "source": "library/<origen>/<archivo>.ogg" }`, con la ruta desde `audio-src/` (de `library/`, `generated/` o `music/`). ffmpeg la decodifica y se normaliza a escala completa tras su recorte, así que el `gain` de una capa no depende del volumen al que se grabó.
   - `synth`, una capa hecha por código con `timbre` (`bell`, `glass`, `sub`, `air` o `pad`) y sus parámetros: `note` o `notes` (solo de La menor), `duration`, `attack`, `freq`, `freqEnd`, `width` y `seed`.
   - `layers`: `{ "recipe": {…}, "gain": 0..1, "delay": segundos }`.
 - **Proceso (`process`, en cualquier receta y en este orden), todo opcional:**
@@ -224,6 +224,12 @@ Una entrada por archivo de sonido, con su clave en snake_case:
   - `fadeIn` y `fadeOut`.
 - **Acabado común:** el archivo empieza donde el sonido llega a −40 dB de su pico (lo de antes es ruido de sala), tras 1 ms de fundido; termina con al menos 5 ms de fundido; no tiene nada por debajo de 60 Hz y su pico está a −1 dB.
 - **Bucles** (los sonidos con `loop` en el catálogo: láser, lanzallamas, latido): sin recorte ni fundidos. Sus últimos 120 ms se funden con el principio, para que se repitan sin costura ni clic.
+- **Música** (`music.title`, `music.calm`, `music.round` y `music.boss`, en estéreo):
+  - El acabado es otro: nada por debajo de 40 Hz, sin el silencio de los extremos, y los últimos 2 s fundidos sobre el principio. Si los dos extremos son la misma música (una fuente que ya era un bucle, con sus primeros 2 s añadidos detrás en una receta `layers`), el fundido es lineal y el bucle queda exacto; si no, de potencia constante.
+  - Todas suenan igual de fuertes de media (−18 dBFS RMS), salvo que su pico pase de −1 dB: entonces quedan algo más bajas.
+  - El archivo lleva 0,25 s del final del bucle antes de `loopStart` y 0,25 s de su principio después de `loopEnd`. Así, si un decodificador desplaza el audio menos de eso, el bucle sigue sin salto.
+  - Cada bucle dura de 30 a 90 s (el informe avisa si no). Una fuente más corta que ya es un bucle se repite con `layers`; una más larga se corta con `end`.
+  - El juego no las decodifica al cargar: las decodifica cuando llega su estado y suelta las demás.
 - **Rachas** (los sonidos con `ladder` y `shine` en el catálogo: `reward.repair` y `buy.upgrade`): cada candidato lleva, además de `variants`, una receta `shine` por variante. Es la capa de brillo, que va a su propio archivo (`<variante>_shine`) y que el director sube de tono con la racha mientras el cuerpo no cambia.
 - **Sonidos de mago** (`keyed` en el catálogo: `buy.merchant`, `merchant.arrive`, `ui.shop.open`, `ui.shop.close`): tres variantes, una por mago (azul, rojo y dorado, en ese orden). No se eligen al azar: las elige el evento.
 - **Longitud fija** (`length` en el catálogo): `hand.roll` dura lo que el sorteo (`HAND.rollingTime`). El informe avisa si se aparta más de 50 ms.
@@ -235,7 +241,8 @@ Una entrada por archivo de sonido, con su clave en snake_case:
 - **`assets:check`** comprueba que:
   - cada variante del catálogo tenga entrada y archivo;
   - los efectos sean WAV de 44,1 kHz y 16 bits, mono o estéreo (y avisa de un estéreo en un sonido posicional), y su duración coincida con la del manifiesto;
-  - los efectos del juego ocupen menos de 8 MB (los candidatos no cuentan);
+  - los efectos del juego ocupen menos de 8 MB (los candidatos y la música no cuentan);
+  - la música sea M4A, con `loopStart` y `loopEnd` dentro del archivo y un bucle de 30 a 90 s;
   - cada fuente que usa una receta exista y tenga su ficha de licencia completa. Si falta una, falla.
 
 ## 5. Mapas (Tiled JSON, `.tmj`)

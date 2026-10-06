@@ -143,6 +143,64 @@ export function finishLoop(input: Audio): Audio {
   return normalize(looped, AUDIO_GEN.peakDb);
 }
 
+/**
+ * The music's finish (§7): nothing under AUDIO_GEN.music.highpass, its
+ * silent ends trimmed, its last `crossfade` s blended into its start (the
+ * loop, with no seam), and `margin` s of the loop on each side, so a
+ * decoder that shifts the audio by less than that still loops between
+ * `loopStart` and `loopEnd` without a jump. Every track equally loud on
+ * average (`rmsDb`), unless its peak would pass −1 dB.
+ */
+export function finishMusic(input: Audio): { audio: Audio; loopStart: number; loopEnd: number } {
+  const sr = input.sampleRate;
+  const { highpass, crossfade, margin } = AUDIO_GEN.music;
+  const a = eachChannel(input, (ch) => biquad(ch, 'highpass', highpass, sr));
+  const p = peakOf(a);
+  const floor = p * dbToGain(AUDIO_GEN.silenceDb);
+  const above = (i: number): boolean => a.channels.some((ch) => Math.abs(ch[i] ?? 0) >= floor);
+  let start = 0;
+  let end = frames(a);
+  while (start < end && !above(start)) start++;
+  while (end > start && !above(end - 1)) end--;
+  const n = end - start;
+  const x = Math.min(Math.floor(n / 4), Math.round(crossfade * sr));
+  const period = n - x;
+  const m = Math.min(Math.round(margin * sr), period);
+  // The same music at both ends (a source that already loops, its start appended): a linear fade adds up to it exactly.
+  let both = 0;
+  let head = 0;
+  let tail = 0;
+  for (const ch of a.channels) {
+    for (let i = 0; i < x; i++) {
+      const h = ch[start + i] ?? 0;
+      const t = ch[start + period + i] ?? 0;
+      both += h * t;
+      head += h * h;
+      tail += t * t;
+    }
+  }
+  const linear = head > 0 && tail > 0 && both / Math.sqrt(head * tail) > AUDIO_GEN.music.sameMaterial;
+  const looped = eachChannel(a, (ch) => {
+    const body = ch.slice(start, start + period);
+    for (let i = 0; i < x; i++) {
+      const t = (i / x) * (Math.PI / 2);
+      const [fadeIn, fadeOut] = linear ? [i / x, 1 - i / x] : [Math.sin(t), Math.cos(t)];
+      body[i] = (ch[start + i] ?? 0) * fadeIn + (ch[start + period + i] ?? 0) * fadeOut;
+    }
+    // The loop's own end before it and its own start after it.
+    const out = new Float32Array(period + 2 * m);
+    out.set(body.subarray(period - m), 0);
+    out.set(body, m);
+    out.set(body.subarray(0, m), m + period);
+    return out;
+  });
+  let sum = 0;
+  for (const ch of looped.channels) for (let i = m; i < m + period; i++) sum += (ch[i] ?? 0) ** 2;
+  const rms = Math.sqrt(sum / Math.max(1, period * looped.channels.length));
+  const gain = Math.min(rms > 0 ? dbToGain(AUDIO_GEN.music.rmsDb) / rms : 1, dbToGain(AUDIO_GEN.peakDb) / Math.max(peakOf(looped), 1e-9));
+  return { audio: eachChannel(looped, (ch) => ch.map((v) => v * gain)), loopStart: m / sr, loopEnd: (m + period) / sr };
+}
+
 /** Mixes `src` into `dst` (same channel count, or mono into any) at `offset` frames, scaled by `gain`. */
 export function mixInto(dst: Audio, src: Audio, offset: number, gain: number): void {
   dst.channels.forEach((ch, c) => {

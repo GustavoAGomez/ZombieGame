@@ -18,6 +18,8 @@ export interface ReportRow {
   /** A variant's file, or a streak sound's shine layer (§3.4). */
   layer: 'body' | 'shine';
   measures: SoundMeasures;
+  /** The music's loop length, seconds (§7). */
+  loop?: number;
 }
 
 export interface Report {
@@ -41,11 +43,18 @@ const median = (values: number[]): number => {
 export function buildReport(rows: readonly ReportRow[]): Report {
   const warnings: string[] = [];
 
-  for (const { key, sound, measures: m } of rows) {
+  for (const row of rows) {
+    const { key, sound, measures: m } = row;
     if (sound.length !== null) {
       // Its own length (the hand's draw lasts as the draw), instead of its family's range.
       if (Math.abs(m.duration - sound.length) > AUDIO_GEN.lengthTolerance) warnings.push(`${key}: dura ${ms(m.duration)} y tiene que durar ${ms(sound.length)}`);
-    } else if (sound.family !== 'music' && !sound.loop) {
+    } else if (sound.family === 'music') {
+      // A music loop of 30 to 90 s (§7): at most two decoded at once.
+      const [min, max] = AUDIO_GEN.music.length;
+      // To the tenth it is shown with: a loop of 29.997 s is one of 30.0 s.
+      const loop = Math.round((row.loop ?? m.duration) * 10) / 10;
+      if (loop < min || loop > max) warnings.push(`${key}: bucle de ${loop.toFixed(1)} s, fuera de ${min}–${max} s`);
+    } else if (!sound.loop) {
       // Its family's length and tail; a loop has none of its own: it repeats while it sounds.
       const { duration: [min, max], tail } = AUDIO_GEN.families[sound.family];
       if (m.duration < min || m.duration > max) warnings.push(`${key}: dura ${ms(m.duration)}, fuera del rango de ${FAMILY_NAMES[sound.family]} (${ms(min)}–${ms(max)})`);
@@ -54,7 +63,8 @@ export function buildReport(rows: readonly ReportRow[]): Report {
     if (!sound.loop && m.leadingSilence > AUDIO_GEN.maxLeadingSilence) warnings.push(`${key}: ${ms(m.leadingSilence)} de silencio al principio`);
     if (m.clippedRuns > 0) warnings.push(`${key}: saturado (${m.clippedRuns} tramos recortados)`);
     const low = m.bands[0] ?? 0;
-    if (low > AUDIO_GEN.maxLowShare) warnings.push(`${key}: ${pct(low)} % de la energía por debajo de 100 Hz: en el móvil no se oirá`);
+    // The music keeps its bass (headphones); the phone's speaker simply plays less of it.
+    if (sound.family !== 'music' && low > AUDIO_GEN.maxLowShare) warnings.push(`${key}: ${pct(low)} % de la energía por debajo de 100 Hz: en el móvil no se oirá`);
     if (sound.positional && m.channels > 1) warnings.push(`${key}: es estéreo y ${sound.id} es posicional`);
   }
 

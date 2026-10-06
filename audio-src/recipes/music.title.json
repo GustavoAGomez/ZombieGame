@@ -1,0 +1,57 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Pieza orquestal oscura y lenta (furbyguy), entera.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/365188_dark_orchestral_piece.ogg",
+          "process": {}
+        }
+      ]
+    },
+    "B": {
+      "about": "Piano fantasmal, de caja de música rota (szegvari), entero.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/557192_ghosts_play_piano.ogg",
+          "process": {}
+        }
+      ]
+    },
+    "C": {
+      "about": "Silbido inquietante sobre un fondo grave (kkenny101), un bucle ya hecho.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/869911_eerie_whistling_loop.ogg"
+              },
+              "gain": 1,
+              "delay": 0.0
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/869911_eerie_whistling_loop.ogg",
+                "process": {
+                  "end": 2
+                }
+              },
+              "gain": 1,
+              "delay": 71.910521
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

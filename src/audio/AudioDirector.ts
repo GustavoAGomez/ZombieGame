@@ -1,4 +1,4 @@
-import { AUDIO, MERCHANT_VARIANT, SOUNDS, WEAPON_FIRE_SOUND, type AudioPriority, type LadderId, type SoundDef, type VolumeLevel } from '../config/audio';
+import { AUDIO, MERCHANT_VARIANT, SOUNDS, WEAPON_FIRE_SOUND, type AudioPriority, type LadderId, type MusicState, type SoundDef, type VolumeLevel } from '../config/audio';
 import { ITEMS } from '../config/balance';
 import type { MerchantId } from '../config/merchants';
 import { WEAPONS } from '../config/weapons';
@@ -32,6 +32,8 @@ export interface AudioSnapshot {
   bossStunned: boolean;
   bossX: number;
   bossY: number;
+  /** What the music plays (§7); null: none. */
+  music: MusicState | null;
 }
 
 /** No match: nothing fires, nothing is paused, nobody listens from anywhere. */
@@ -50,6 +52,7 @@ export const QUIET_SNAPSHOT: Readonly<AudioSnapshot> = {
   bossStunned: false,
   bossX: 0,
   bossY: 0,
+  music: null,
 };
 
 /** A world point. */
@@ -126,6 +129,8 @@ interface ActiveVoice {
   voice: Voice;
   /** Its gain before its place (the catalog's volume). */
   gain: number;
+  /** The file it plays. */
+  key: string;
 }
 
 interface PlayRequest {
@@ -142,6 +147,8 @@ interface PlayRequest {
   at?: Place;
   /** Played by the sound test: it sounds while the test silences the match. */
   test?: boolean;
+  /** Seconds to rise from silence (a music track's crossfade); a loop's own otherwise. */
+  fadeIn?: number;
 }
 
 /** A candidate's files: its variants and, for a streak sound, their shine layers. */
@@ -207,6 +214,17 @@ export class AudioDirector implements GameAudio, SoundTest {
   private testing = false;
   /** «Probar en partida»: the candidate the game plays instead of its own, by sound id. */
   private readonly trialPicks = new Map<string, AudioCandidate>();
+  /** Each looping file's measured loop (the music, §7). */
+  private loopPoints = new Map<string, { start: number; end: number }>();
+  /** The music (§7): the state asked for, the track's sound id and voice, and a token that outdates a pending change. */
+  private musicState: MusicState | null = null;
+  private musicId: string | null = null;
+  private music: ActiveVoice | null = null;
+  private musicToken = 0;
+  /** The music ducks under a `duck` sound until then (§3.5); and it is muffled by low health. */
+  private ducked = false;
+  private duckUntil = 0;
+  private muffled = false;
   private dropped = 0;
   private lastDropped = '';
 
@@ -223,6 +241,8 @@ export class AudioDirector implements GameAudio, SoundTest {
     this.schedule = options.schedule ?? ((seconds, run) => void setTimeout(run, seconds * 1000));
     settings.onChange(() => this.applyLevels());
     this.applyLevels();
+    // A track asked for before the sound could play (the title, before any tap) starts once it can.
+    engine.whenRunning(() => this.resumeMusic());
     if (events) this.listen(events);
   }
 
@@ -232,6 +252,14 @@ export class AudioDirector implements GameAudio, SoundTest {
     const durations: Record<string, number> = {};
     for (const [key, def] of Object.entries(loaded)) if (!def.placeholder) durations[key] = def.duration;
     this.durations = durations;
+    this.loopPoints = new Map();
+    for (const [key, def] of Object.entries(loaded)) if (def.loopStart !== undefined && def.loopEnd !== undefined) this.loopPoints.set(key, { start: def.loopStart, end: def.loopEnd });
+    // The music (and its candidates) decodes only when its state comes: at most two tracks in memory (§7).
+    const lazy = new Set<string>();
+    for (const sound of this.sounds) {
+      if (sound.bus !== 'music') continue;
+      for (const v of sound.variants) for (const key of [v, `${v}__a`, `${v}__b`, `${v}__c`]) if (loaded[key]) lazy.add(key);
+    }
     this.candidates = new Map();
     this.picks = new Map();
     for (const sound of this.sounds) {
@@ -246,7 +274,7 @@ export class AudioDirector implements GameAudio, SoundTest {
       }
       if (byLetter.size > 0) this.candidates.set(sound.id, byLetter);
     }
-    this.engine.load(loaded, baseUrl);
+    this.engine.load(loaded, baseUrl, lazy);
   }
 
   candidatesOf(id: string): AudioCandidate[] {
@@ -268,12 +296,14 @@ export class AudioDirector implements GameAudio, SoundTest {
   setTesting(on: boolean): void {
     if (on === this.testing) return;
     this.testing = on;
-    if (on) {
-      // Whatever the match was playing stops at once: its loops too.
-      this.stopBus('sfx');
-      this.stopBus('ui');
-      this.firing = null;
-    }
+    // Whatever was playing stops at once: the match's sounds, loops and music going in, what was tested coming out.
+    this.stopBus('sfx');
+    this.stopBus('ui');
+    this.stopBus('music');
+    this.firing = null;
+    this.switchMusic(null, AUDIO.voiceFade);
+    // The match's music comes back with its state's next update.
+    this.musicState = null;
     this.applyLevels();
   }
 
@@ -300,6 +330,17 @@ export class AudioDirector implements GameAudio, SoundTest {
 
   update(snapshot: Readonly<AudioSnapshot>): void {
     this.listener = { x: snapshot.x, y: snapshot.y, level: snapshot.level };
+    if (!this.testing) this.setMusic(snapshot.music);
+    // The music ducks while a `duck` sound plays, and comes back slowly (§3.5).
+    if (this.ducked && this.clock() >= this.duckUntil) {
+      this.ducked = false;
+      this.applyLevels(AUDIO.music.duckOut);
+    }
+    // Low health muffles it (§3.5).
+    if (snapshot.lowHealth !== this.muffled) {
+      this.muffled = snapshot.lowHealth;
+      this.engine.setMusicFilter(this.muffled ? AUDIO.music.lowHealthCutoff : AUDIO.music.openCutoff, AUDIO.music.filterFade);
+    }
     if (snapshot.paused !== this.paused) {
       this.paused = snapshot.paused;
       if (this.paused) this.stopBus('sfx');
@@ -374,11 +415,12 @@ export class AudioDirector implements GameAudio, SoundTest {
     return Math.max(-1, Math.min(1, (at.x - this.listener.x) / far)) * maxPan;
   }
 
-  /** Plays a sound as the game would: a loop starts or stops, and a streak climbs (the upgrade one by levels 1, 2, 3 in turn). */
+  /** Plays a sound as the game would: a loop (and a music track) starts or stops, and a streak climbs (the upgrade one by levels 1, 2, 3 in turn). */
   test(id: string, asked: PlayRequest = {}): void {
     const def = this.byId.get(id);
     const request = { ...asked, test: true };
-    if (def?.loop) this.toggleLoop(id, request);
+    if (def?.bus === 'music') this.testMusic(id, request);
+    else if (def?.loop) this.toggleLoop(id, request);
     else if (def?.ladder === 'upgrade') this.play(id, { ...request, rung: this.climb('upgrade', (this.testLevel++ % 3) + 1) });
     else if (def?.ladder) this.play(id, { ...request, rung: this.climb(def.ladder) });
     else this.play(id, request);
@@ -412,6 +454,79 @@ export class AudioDirector implements GameAudio, SoundTest {
   stats(): AudioStats {
     this.prune(this.clock());
     return { voices: this.voices.filter((v) => v.bus !== 'music').length, dropped: this.dropped, lastDropped: this.lastDropped, state: this.engine.state };
+  }
+
+  /**
+   * The music's state (§7): a new state's track comes in over the old one's
+   * with a crossfade, once decoded; `calm` and `round` keep playing the
+   * same track when they share it; `over` fades it out.
+   */
+  private setMusic(state: MusicState | null): void {
+    if (state === this.musicState) return;
+    this.musicState = state;
+    const id = state === null || state === 'over' ? null : this.trackFor(state);
+    if (id !== null && id === this.musicId && this.music) return;
+    this.switchMusic(id, state === 'over' ? AUDIO.music.overFade : AUDIO.music.crossfade);
+  }
+
+  /** The track of a state: its own, or for `calm` and `round` the other one's when only it has a file (§7). */
+  private trackFor(state: Exclude<MusicState, 'over'>): string | null {
+    const own = `music.${state}`;
+    if (this.hasMusic(own)) return own;
+    const shared = state === 'calm' ? 'music.round' : state === 'round' ? 'music.calm' : null;
+    return shared && this.hasMusic(shared) ? shared : null;
+  }
+
+  private hasMusic(id: string): boolean {
+    const key = this.musicFiles(id)[0];
+    return key !== undefined && this.durations[key] !== undefined;
+  }
+
+  /** A track's files: the candidate on trial, or its own. */
+  private musicFiles(id: string): readonly string[] {
+    const letter = this.trialPicks.get(id);
+    const trial = letter ? this.candidates.get(id)?.get(letter) : undefined;
+    return trial?.keys ?? this.byId.get(id)?.variants ?? [];
+  }
+
+  /** From the current track to `id` (null: silence) over `fade` s; at most the two of them in memory. */
+  private switchMusic(id: string | null, fade: number): void {
+    const token = ++this.musicToken;
+    const old = this.music;
+    this.music = null;
+    this.musicId = id;
+    if (id === null) {
+      this.stopVoice(old, fade);
+      this.schedule(fade, () => token === this.musicToken && void this.engine.prepare([]));
+      return;
+    }
+    const keys = this.musicFiles(id);
+    const key = keys[0] ?? '';
+    void this.engine.prepare(old ? [old.key, key] : [key]).then(() => {
+      // Another change came while it decoded: this one is outdated.
+      if (token !== this.musicToken) return;
+      this.music = this.play(id, { keys, fadeIn: fade });
+      this.stopVoice(old, fade);
+      // The old track leaves memory once it is silent.
+      this.schedule(fade, () => token === this.musicToken && void this.engine.prepare([key]));
+    });
+  }
+
+  /** The sound can play now (unlocked, back from the background): the track asked for starts if it could not. */
+  private resumeMusic(): void {
+    if (this.musicId !== null && !this.music && !this.testing) this.switchMusic(this.musicId, AUDIO.music.crossfade);
+  }
+
+  /** The sound test: a track (or a candidate of it) starts, once decoded, and the next tap stops it. */
+  private testMusic(id: string, request: PlayRequest): void {
+    if (this.loops.has(id)) {
+      this.stopLoop(id, AUDIO.voiceFade);
+      return;
+    }
+    // One track at a time: the one tested before stops.
+    this.stopBus('music');
+    const keys = request.keys ?? this.musicFiles(id);
+    void this.engine.prepare(keys.slice(0, 1)).then(() => this.testing && this.startLoop(id, { ...request, keys, fadeIn: AUDIO.voiceFade }));
   }
 
   /** The events of spec 08 §6.1: the local player's own sounds, and the hits anyone makes. */
@@ -582,7 +697,18 @@ export class AudioDirector implements GameAudio, SoundTest {
     const at = def.positional ? request.at : undefined;
     const gain = at ? def.volume * this.distanceGain(at) : def.volume;
     const pan = at ? this.panOf(at) : 0;
-    const options = { bus: def.bus, gain, rate, pan, loop: def.loop, positional: def.positional, ...(def.loop ? { fadeIn: AUDIO.loopFadeIn } : {}) };
+    const loopPoints = def.loop ? this.loopPoints.get(key) : undefined;
+    const fadeIn = request.fadeIn ?? (def.loop ? AUDIO.loopFadeIn : undefined);
+    const options = {
+      bus: def.bus,
+      gain,
+      rate,
+      pan,
+      loop: def.loop,
+      positional: def.positional,
+      ...(fadeIn !== undefined ? { fadeIn } : {}),
+      ...(loopPoints ? { loopStart: loopPoints.start, loopEnd: loopPoints.end } : {}),
+    };
     const body = this.engine.play(key, options);
     this.lastPlay.set(id, now);
     if (!body) return null;
@@ -599,8 +725,16 @@ export class AudioDirector implements GameAudio, SoundTest {
         ends = Math.max(ends, shineDuration / shineRate);
       }
     }
-    const active: ActiveVoice = { id, bus: def.bus, priority: def.priority, startedAt: now, endsAt: def.loop ? Infinity : now + ends, voice, gain: def.volume };
+    const active: ActiveVoice = { id, bus: def.bus, priority: def.priority, startedAt: now, endsAt: def.loop ? Infinity : now + ends, voice, gain: def.volume, key };
     this.voices.push(active);
+    // The music ducks under it until it ends (§3.5).
+    if (def.duck && !def.loop) {
+      this.duckUntil = Math.max(this.duckUntil, active.endsAt);
+      if (!this.ducked) {
+        this.ducked = true;
+        this.applyLevels(AUDIO.music.duckIn);
+      }
+    }
     return active;
   }
 
@@ -660,13 +794,17 @@ export class AudioDirector implements GameAudio, SoundTest {
     }
   }
 
-  /** The buses' volume: the settings (the menus follow the effects), the music under the effects, the pause and the sound test. */
-  private applyLevels(): void {
+  /**
+   * The buses' volume: the settings (the menus follow the effects), the
+   * music under the effects, the pause and the sound test (heard even in
+   * pause), and the music ducking under a big sound over `musicFade` s.
+   */
+  private applyLevels(musicFade: number = AUDIO.busFade): void {
     const sfx = AUDIO.levels[this.settings.sfx];
-    const music = AUDIO.levels[this.settings.music] * AUDIO.musicGain;
-    // The sound test is heard even in pause; the music is silent under it.
+    const duck = this.ducked ? 10 ** (AUDIO.music.duckDb / 20) : 1;
+    const music = AUDIO.levels[this.settings.music] * AUDIO.musicGain * duck;
     this.engine.setBusGain('sfx', this.paused && !this.testing ? 0 : sfx, AUDIO.busFade);
     this.engine.setBusGain('ui', sfx, AUDIO.busFade);
-    this.engine.setBusGain('music', this.testing ? 0 : this.paused ? music * AUDIO.pausedMusic : music, AUDIO.busFade);
+    this.engine.setBusGain('music', this.paused && !this.testing ? music * AUDIO.pausedMusic : music, musicFade);
   }
 }

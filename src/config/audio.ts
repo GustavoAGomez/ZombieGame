@@ -19,6 +19,9 @@ export type SoundFamily = 'hit' | 'reward' | 'threat' | 'ui' | 'jingle' | 'music
 /** A streak that raises the pitch of a sound's shine layer on each repetition (spec 08 §3.4). */
 export type LadderId = 'repair' | 'upgrade';
 
+/** What the music plays (§7): the title, the rest between rounds, a round, a boss round; `over` fades it out. */
+export type MusicState = 'title' | 'calm' | 'round' | 'boss' | 'over';
+
 /** A player's volume setting for the effects or the music (pause menu). */
 export type VolumeLevel = 'high' | 'medium' | 'low' | 'off';
 
@@ -115,6 +118,17 @@ export const AUDIO = {
   position: { near: 160, far: 480, minGain: 0.25, maxPan: 0.7 },
   /** What sounds on any level, not only the local player's (§3.5): the boss's warnings. The banners have no place. */
   anyLevel: ['boss.warning', 'boss.windup.charge', 'boss.windup.slam', 'boss.windup.leap'] as readonly string[],
+  /**
+   * The music (§7, §3.5):
+   * - `crossfade`: s between two states' tracks;
+   * - `overFade`: s for it to fade out when the match is over;
+   * - `duckDb`: how much it drops while a `duck` sound plays, reached in
+   *   `duckIn` s and back in `duckOut` s;
+   * - `lowHealthCutoff`: with low health it goes through a low-pass at
+   *   this many Hz (muffled), reached in `filterFade` s; `openCutoff` is
+   *   the filter wide open.
+   */
+  music: { crossfade: 1.5, overFade: 1, duckDb: -6, duckIn: 0.15, duckOut: 0.4, lowHealthCutoff: 800, openCutoff: 20000, filterFade: 0.4 },
   /** Zombies groan (§6.4) when one is within this many px, one groan every 2 to 5 s, never two at once. */
   groanRange: 400,
   groanInterval: [2, 5] as const,
@@ -182,6 +196,21 @@ export const AUDIO_GEN = {
   loopCrossfade: 0.12,
   /** Report: a sound with a set `length` may be off it by this much, seconds. */
   lengthTolerance: 0.05,
+  /**
+   * The music (§7), M4A (AAC): its loop's end is blended into its start
+   * over `crossfade` s; the file carries `margin` s of the loop itself on
+   * each side, so a decoder that shifts the audio a little still loops
+   * cleanly; a loop lasts 30 to 90 s (`length`).
+   */
+  /**
+   * The music (§7): its lows cut, a crossfade into its own start, the loop
+   * repeated `margin` s on each side, 30 to 90 s per loop, M4A at
+   * `bitrate`, and every track as loud on average (`rmsDb`, its peak at
+   * most −1 dB). Above `sameMaterial` of correlation the crossfade's two
+   * ends are the same music (a source that already loops): a linear fade,
+   * with no bump in the middle.
+   */
+  music: { highpass: 40, crossfade: 2, margin: 0.25, length: [30, 90] as const, bitrate: '128k', rmsDb: -18, sameMaterial: 0.5 },
 } as const;
 
 /** The default of every catalog field a sound does not set. */
@@ -298,6 +327,11 @@ export const SOUNDS: readonly SoundDef[] = [
   sound({ id: 'jingle.round.clear', family: 'jingle', variants: keys('jingle.round.clear'), bus: 'sfx', volume: 0.8, maxVoices: 1, priority: 'high', duck: true }),
   sound({ id: 'jingle.boss.dead', family: 'jingle', variants: keys('jingle.boss.dead'), bus: 'sfx', volume: 0.85, maxVoices: 1, priority: 'high', duck: true }),
   sound({ id: 'jingle.gameover', family: 'jingle', variants: keys('jingle.gameover'), bus: 'sfx', volume: 0.8, maxVoices: 1, priority: 'high' }),
+  // §7 Music, one track per state; `calm` and `round` share one when only one has a file.
+  sound({ id: 'music.title', family: 'music', variants: keys('music.title'), bus: 'music', volume: 1, maxVoices: 2, priority: 'high', loop: true }),
+  sound({ id: 'music.calm', family: 'music', variants: keys('music.calm'), bus: 'music', volume: 1, maxVoices: 2, priority: 'high', loop: true }),
+  sound({ id: 'music.round', family: 'music', variants: keys('music.round'), bus: 'music', volume: 1, maxVoices: 2, priority: 'high', loop: true }),
+  sound({ id: 'music.boss', family: 'music', variants: keys('music.boss'), bus: 'music', volume: 1, maxVoices: 2, priority: 'high', loop: true }),
   // §6.6 Interface.
   sound({ id: 'ui.tap', family: 'ui', variants: ['ui_tap'], bus: 'ui', volume: 0.5, pitchVar: 3, maxVoices: 2, minInterval: 0.03, priority: 'low' }),
   sound({ id: 'ui.shop.open', family: 'ui', variants: wizards('ui.shop.open'), keyed: true, bus: 'ui', volume: 0.5, maxVoices: 1 }),

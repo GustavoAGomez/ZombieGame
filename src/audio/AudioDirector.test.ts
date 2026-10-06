@@ -14,19 +14,43 @@ class FakeEngine implements AudioOutput {
   unlocked = 0;
   readonly state = 'running';
   loaded: string[] = [];
-  load(defs: Record<string, AudioDef>): void {
+  /** The files that wait for prepare() (the music). */
+  lazy: string[] = [];
+  /** Before the first tap: nothing can play yet. */
+  muted = false;
+  load(defs: Record<string, AudioDef>, _baseUrl: string, lazy: ReadonlySet<string> = new Set()): void {
     this.loaded = Object.keys(defs);
+    this.lazy = [...lazy];
   }
   unlock(): void {
     this.unlocked++;
   }
-  play(key: string, options: PlayOptions): Voice {
+  play(key: string, options: PlayOptions): Voice | null {
+    if (this.muted) return null;
     const entry = { key, options, stopped: false, rate: options.rate };
     this.played.push(entry);
     return { stop: () => (entry.stopped = true), setRate: (r) => (entry.rate = r), place: () => undefined };
   }
   setBusGain(bus: AudioBus, gain: number): void {
     this.gains[bus] = gain;
+  }
+  /** What prepare() was last asked for, and the low-pass of the music. */
+  prepared: string[] = [];
+  filter = 20000;
+  private readonly running: (() => void)[] = [];
+  prepare(keys: readonly string[]): Promise<void> {
+    this.prepared = [...keys];
+    return Promise.resolve();
+  }
+  setMusicFilter(frequency: number): void {
+    this.filter = frequency;
+  }
+  whenRunning(listener: () => void): void {
+    this.running.push(listener);
+  }
+  /** The context starts running (an unlock). */
+  run(): void {
+    for (const l of this.running) l();
   }
 }
 
@@ -564,12 +588,12 @@ describe('AudioDirector: the sound test (spec 08 §8, §4.4)', () => {
     return g;
   }
 
-  it('silences the match while it is open: only what is tested sounds, and the music bus is shut', () => {
+  it('silences the match while it is open: only what is tested sounds, the music bus open for the tracks tested', () => {
     const { engine, events, director, keys, advance } = gameSetup();
     director.update({ ...QUIET_SNAPSHOT, continuous: 'laser' });
     director.setTesting(true);
     expect(engine.played[0]?.stopped).toBe(true);
-    expect(engine.gains.music).toBe(0);
+    expect(engine.gains.music).toBe(AUDIO.musicGain);
     advance(1);
     events.emit('weapon:fired', { playerId: 0, weapon: 'pistol', x: 0, y: 0 });
     events.emit('zombie:hit', { x: 0, y: 0, groundY: 0, dirX: 1, dirY: 0, killed: false });
@@ -598,6 +622,138 @@ describe('AudioDirector: the sound test (spec 08 §8, §4.4)', () => {
     events.emit('weapon:fired', { playerId: 0, weapon: 'shotgun', x: 0, y: 0 });
     expect(keys()).toEqual(['weapon_shotgun_fire__c', 'weapon_shotgun_fire']);
     expect(director.pickOf('weapon.shotgun.fire')).toEqual({ letter: 'A', pending: true });
+  });
+});
+
+describe('AudioDirector: the music (spec 08 §7)', () => {
+  /** Lets a prepare() resolve and what waits for it run. */
+  const flush = (): Promise<void> => new Promise((done) => setTimeout(done, 0));
+
+  /** The game's files and every candidate's, the music's with its measured loop; the tracks of `without` have no file. */
+  function musicSetup(without: string[] = []) {
+    const g = gameSetup();
+    const defs: Record<string, AudioDef> = {};
+    for (const s of SOUNDS) {
+      for (const v of [...s.variants, ...s.shine]) {
+        if (s.bus !== 'music') {
+          defs[v] = { file: `audio/sfx/${v}.wav`, duration: 0.2, placeholder: false };
+          continue;
+        }
+        const track = { duration: 40.5, placeholder: without.includes(s.id), loopStart: 0.25, loopEnd: 40.25 };
+        defs[v] = { ...track, file: `audio/music/${v}.m4a`, picked: 'A', pending: true };
+        for (const letter of ['A', 'B', 'C'] as const) defs[`${v}__${letter.toLowerCase()}`] = { ...track, file: `audio/candidates/${v}__${letter.toLowerCase()}.m4a`, candidate: letter };
+      }
+    }
+    g.director.load(defs, 'assets/', true);
+    const music = () => g.engine.played.filter((p) => p.options.bus === 'music');
+    const now = (): string[] => music().filter((p) => !p.stopped).map((p) => p.key);
+    return { ...g, music, now };
+  }
+
+  it('decodes a track only when its state comes, and loops it between its measured points', async () => {
+    const { engine, director, music } = musicSetup();
+    expect(engine.lazy).toEqual(expect.arrayContaining(['music_title', 'music_calm', 'music_round', 'music_boss', 'music_round__b']));
+    expect(engine.lazy).not.toContain('weapon_pistol_fire');
+    director.update({ ...QUIET_SNAPSHOT, music: 'title' });
+    expect(engine.prepared).toEqual(['music_title']);
+    await flush();
+    director.update({ ...QUIET_SNAPSHOT, music: 'title' });
+    await flush();
+    expect(music()).toHaveLength(1);
+    expect(music()[0]?.key).toBe('music_title');
+    expect(music()[0]?.options).toMatchObject({ loop: true, loopStart: 0.25, loopEnd: 40.25, fadeIn: AUDIO.music.crossfade });
+  });
+
+  it('crossfades into the next state\'s track, with at most two tracks in memory', async () => {
+    const { engine, director, music, now } = musicSetup();
+    director.update({ ...QUIET_SNAPSHOT, music: 'calm' });
+    await flush();
+    director.update({ ...QUIET_SNAPSHOT, music: 'round' });
+    expect(engine.prepared).toEqual(['music_calm', 'music_round']);
+    expect(now()).toEqual(['music_calm']);
+    await flush();
+    expect(now()).toEqual(['music_round']);
+    expect(music().at(-1)?.options.fadeIn).toBe(AUDIO.music.crossfade);
+    // The old one leaves memory once it has faded.
+    expect(engine.prepared).toEqual(['music_round']);
+    director.update({ ...QUIET_SNAPSHOT, music: 'boss' });
+    await flush();
+    expect(now()).toEqual(['music_boss']);
+  });
+
+  it('keeps one track for the rest and the round when only one has a file, and is silence without any', async () => {
+    const { director, music, now } = musicSetup(['music.round', 'music.boss']);
+    director.update({ ...QUIET_SNAPSHOT, music: 'round' });
+    await flush();
+    director.update({ ...QUIET_SNAPSHOT, music: 'calm' });
+    await flush();
+    expect(music().map((p) => p.key)).toEqual(['music_calm']);
+    expect(now()).toEqual(['music_calm']);
+    // The boss has no file: silence, and the game goes on.
+    director.update({ ...QUIET_SNAPSHOT, music: 'boss' });
+    await flush();
+    expect(now()).toEqual([]);
+  });
+
+  it('fades out at the end of the match', async () => {
+    const { director, music, now } = musicSetup();
+    director.update({ ...QUIET_SNAPSHOT, music: 'round' });
+    await flush();
+    director.update({ ...QUIET_SNAPSHOT, music: 'over' });
+    await flush();
+    expect(now()).toEqual([]);
+    expect(music()).toHaveLength(1);
+  });
+
+  it('starts the track asked for once the sound can play (the first tap)', async () => {
+    const { engine, director, now } = musicSetup();
+    engine.muted = true;
+    director.update({ ...QUIET_SNAPSHOT, music: 'title' });
+    await flush();
+    expect(now()).toEqual([]);
+    engine.muted = false;
+    engine.run();
+    await flush();
+    expect(now()).toEqual(['music_title']);
+  });
+
+  it('ducks under a big sound until it ends, and is muffled while health is low', () => {
+    const { engine, director, advance } = musicSetup();
+    director.update({ ...QUIET_SNAPSHOT, music: 'round' });
+    director.test('jingle.round.start');
+    expect(engine.gains.music).toBeCloseTo(AUDIO.musicGain * 10 ** (AUDIO.music.duckDb / 20));
+    advance(0.1);
+    director.update({ ...QUIET_SNAPSHOT, music: 'round' });
+    expect(engine.gains.music).toBeLessThan(AUDIO.musicGain);
+    advance(0.2);
+    director.update({ ...QUIET_SNAPSHOT, music: 'round' });
+    expect(engine.gains.music).toBe(AUDIO.musicGain);
+    director.update({ ...QUIET_SNAPSHOT, music: 'round', lowHealth: true });
+    expect(engine.filter).toBe(AUDIO.music.lowHealthCutoff);
+    director.update({ ...QUIET_SNAPSHOT, music: 'round' });
+    expect(engine.filter).toBe(AUDIO.music.openCutoff);
+  });
+
+  it('in the sound test, stops the match\'s track and plays one at a time, a candidate or on trial', async () => {
+    const { director, now } = musicSetup();
+    director.update({ ...QUIET_SNAPSHOT, music: 'round' });
+    await flush();
+    director.setTesting(true);
+    expect(now()).toEqual([]);
+    director.test('music.boss');
+    await flush();
+    expect(now()).toEqual(['music_boss']);
+    director.testCandidate('music.calm', 'C');
+    await flush();
+    expect(now()).toEqual(['music_calm__c']);
+    director.testCandidate('music.calm', 'C');
+    expect(now()).toEqual([]);
+    // Closed, with round B on trial: the match's music comes back with it.
+    director.setTrial('music.round', 'B');
+    director.setTesting(false);
+    director.update({ ...QUIET_SNAPSHOT, music: 'round' });
+    await flush();
+    expect(now()).toEqual(['music_round__b']);
   });
 });
 

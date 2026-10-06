@@ -165,8 +165,8 @@ export function parseRecipe(json: unknown, where: string): Recipe {
       return synth(json, where);
     case 'file': {
       const source = json.source;
-      if (typeof source !== 'string' || !/^(library|generated)\/[^.][^]*\.(ogg|wav|mp3|flac)$/i.test(source)) {
-        throw new RecipeError(`${where}.source: la ruta desde audio-src/ de un archivo de library/ o generated/ (ogg, wav, mp3 o flac)`);
+      if (typeof source !== 'string' || !/^(library|generated|music)\/[^.][^]*\.(ogg|wav|mp3|flac|m4a|aiff)$/i.test(source)) {
+        throw new RecipeError(`${where}.source: la ruta desde audio-src/ de un archivo de library/, generated/ o music/ (ogg, wav, mp3, flac, m4a o aiff)`);
       }
       return { type: 'file', source, process: processOf(json.process, where) };
     }

@@ -313,6 +313,10 @@ export class GameScene extends Phaser.Scene {
       s.bossY = b.y;
       break;
     }
+    // The music of the moment (spec 08 §7): the boss's from its fall, the round's or the rest's, and silence at the end.
+    const phase = this.state.wave.phase;
+    const bossOn = this.state.bosses.some((b) => b.active && b.phase !== 'warning' && b.phase !== 'dead');
+    s.music = phase === 'over' ? 'over' : bossOn ? 'boss' : phase === 'active' ? 'round' : 'calm';
     this.services.audio.update(s);
   }
 

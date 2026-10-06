@@ -261,6 +261,7 @@ export function checkAudioSources(root: string, report: CheckReport): void {
  * entry and its file, the effects are WAV of 44.1 kHz and 16 bits (mono
  * for the positional sounds), and all of them together stay under the
  * budget. The candidates (only the debug build loads them) do not count.
+ * The music (§7) is M4A with its loop inside the file, of 30 to 90 s.
  */
 function checkAudio(assetsDir: string, manifest: Manifest, report: CheckReport): void {
   const ids = new Set<string>();
@@ -275,6 +276,7 @@ function checkAudio(assetsDir: string, manifest: Manifest, report: CheckReport):
   for (const sound of SOUNDS) if (sound.positional) for (const key of [...sound.variants, ...sound.shine]) positional.add(key);
   let sfxBytes = 0;
   let candidateBytes = 0;
+  let musicBytes = 0;
   let placeholders = 0;
   let missingCandidates = 0;
   for (const [key, def] of Object.entries(manifest.audio)) {
@@ -294,6 +296,17 @@ function checkAudio(assetsDir: string, manifest: Manifest, report: CheckReport):
       candidateBytes += statSync(path).size;
       continue;
     }
+    if (def.file.startsWith('audio/music/')) {
+      musicBytes += statSync(path).size;
+      const [min, max] = AUDIO_GEN.music.length;
+      if (!def.file.endsWith('.m4a')) report.errors.push(`audio.${key}: la música va en M4A (spec 08 §7, docs/DECISIONS.md)`);
+      if (def.loopStart === undefined || def.loopEnd === undefined || def.loopStart >= def.loopEnd || def.loopEnd > def.duration) {
+        report.errors.push(`audio.${key}: le faltan loopStart y loopEnd dentro del archivo; ejecuta npm run audio:gen`);
+      } else if (Math.round((def.loopEnd - def.loopStart) * 10) / 10 < min || def.loopEnd - def.loopStart > max) {
+        report.warnings.push(`audio.${key}: bucle de ${(def.loopEnd - def.loopStart).toFixed(1)} s, fuera de ${min}–${max} s`);
+      }
+      continue;
+    }
     if (!def.file.startsWith('audio/sfx/')) continue;
     sfxBytes += statSync(path).size;
     try {
@@ -311,7 +324,7 @@ function checkAudio(assetsDir: string, manifest: Manifest, report: CheckReport):
   if (missingCandidates > 0) report.warnings.push(`audio: faltan ${missingCandidates} archivos de candidatos (no van en git); ejecuta npm run audio:gen para oírlos en PRUEBA DE SONIDOS`);
   if (sfxBytes > AUDIO_GEN.budgetBytes) report.errors.push(`audio: los efectos ocupan ${(sfxBytes / 1048576).toFixed(2)} MB (máximo ${AUDIO_GEN.budgetBytes / 1048576} MB)`);
   report.info.push(
-    `audio: ${SOUNDS.length} sonidos en el catálogo, ${Object.keys(manifest.audio).length} archivos (${placeholders} sin generar), ${(sfxBytes / 1024).toFixed(0)} KB de efectos y ${(candidateBytes / 1024).toFixed(0)} KB de candidatos.`,
+    `audio: ${SOUNDS.length} sonidos en el catálogo, ${Object.keys(manifest.audio).length} archivos (${placeholders} sin generar), ${(sfxBytes / 1024).toFixed(0)} KB de efectos, ${(musicBytes / 1024).toFixed(0)} KB de música y ${(candidateBytes / 1024).toFixed(0)} KB de candidatos.`,
   );
 }
 

@@ -2022,3 +2022,38 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - Ahora `reward.repair` es seco: sin sala y de unos 200 ms. Es un golpe grueso de madera con otro más corto encima, dos golpes de apoyar y asentar, o un tablón macizo.
   - La capa de brillo de la racha es un «toc» corto de bloque de madera, de unos 120 ms, sin graves. Los golpes de madera no tienen una nota clara, así que la racha se oye como un toque que se agudiza más que como una melodía.
 
+## Audio: la música (spec 08, fase S5)
+
+- **Formato: M4A (AAC a 128 kbps, estéreo).** Safari en el iPhone no decodifica OGG en todas las versiones de iOS; AAC lo decodifican el iPhone y Android sin problema, y pesa menos que un MP3 de la misma calidad.
+  - AAC (como MP3) puede añadir un retardo al principio que cada decodificador compensa a su manera. Por eso el archivo lleva 0,25 s del final del bucle delante de `loopStart` y 0,25 s de su principio detrás de `loopEnd`, y el motor repite entre esos dos puntos (`loopStart`/`loopEnd` del `AudioBufferSourceNode`). Un desplazamiento de menos de 0,25 s no rompe el bucle.
+  - Los puntos se guardan al microsegundo. Redondeados a 0,1 ms, el bucle podía quedar una muestra largo o corto. Comprobado en Chrome: el archivo decodificado mide lo que dice el manifiesto, y el audio en `loopEnd` coincide muestra a muestra con el de `loopStart` (solo queda el ruido del códec).
+- **Acabado (`finishMusic`):**
+  - un paso alto a 40 Hz y fuera el silencio de los extremos;
+  - los últimos 2 s fundidos sobre el principio. Si los dos extremos son la misma música (una fuente que ya era un bucle, con sus primeros 2 s añadidos detrás), el fundido es lineal y el bucle queda exacto. Si no lo son, es de potencia constante, como en los efectos.
+- **Mismo volumen de media en todas (−18 dBFS RMS),** salvo que su pico pase de −1 dB. Las de calma quedan algo más bajas (de −21 a −23 dB), que les va bien.
+- **Duración:**
+  - las fuentes en bucle de menos de 30 s se repiten dos veces (calma B, ronda A);
+  - las de más de 90 s se cortan (calma A en 80 s, boss B en 85 s, boss C en 88 s).
+- **Candidatos:** tres por estado, todos CC0 de Freesound (los autores están en `docs/AUDIO-CREDITS.md`).
+  - Título: pieza orquestal oscura, piano fantasmal o silbido inquietante.
+  - Calma: ambiente frío, bucle de terror tenue o piano sigiloso.
+  - Ronda: acción con percusión sobre un dron, ritmo tenso a 120 ppm o cinemática eléctrica.
+  - Boss: batalla orquestal, ataque épico con tambores o pelea tensa con sintes.
+- **Estados:**
+  - `title` en la pantalla de título.
+  - `boss` desde que cae un boss hasta que muere. Durante la alerta sigue la música de la ronda, porque el aviso ya baja la música.
+  - `round` con la ronda en marcha y `calm` en el descanso.
+  - `over` al acabar la partida.
+- **Cambios:**
+  - fundido cruzado de 1,5 s en cada cambio y apagado de 1 s al acabar la partida;
+  - si solo una de `calm` y `round` tiene archivo, las dos usan esa pista y no se corta al cambiar;
+  - un estado sin archivo es silencio.
+- **Memoria:** la música y sus candidatos no se decodifican al cargar. El motor decodifica la pista de un estado cuando llega (`prepare`) y suelta las demás. Durante un fundido hay como mucho dos pistas, la que sale y la que entra; la que sale se suelta al acabar.
+- **Primer toque:** el móvil no deja sonar nada hasta el primer toque. La pista pedida antes (la del título) arranca en cuanto el sonido se desbloquea. Si ese primer toque es JUGAR, la del título apenas se oye: entra y enseguida funde a la de la partida. Lo dejamos así porque es lo más simple.
+- **Ceder el paso (§3.5):** la música baja 6 dB mientras suena un sonido con `duck` (carteles, compras grandes, el rugido o la muerte del jugador). Tarda 0,15 s en bajar y 0,4 s en volver.
+- **Vida baja:** el bus de música pasa por un paso bajo que cae a 800 Hz mientras la vida está baja, y se abre al curarse.
+- **Panel de prueba:**
+  - Al abrirlo, se para la música de la partida, pero el bus de música sigue abierto para probar pistas. Esto corrige lo que decía «Panel abierto = partida en silencio».
+  - Tocar una pista o uno de sus candidatos la pone en bucle, una sola a la vez, y otro toque la para.
+  - **Probar en partida** también vale para la música: al cerrar el panel, cada estado suena con la pista que esté en prueba.
+- **Peso:** las cuatro pistas del juego ocupan 3,2 MB, fuera del presupuesto de 8 MB de los efectos.
