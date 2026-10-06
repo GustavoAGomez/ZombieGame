@@ -2018,4 +2018,7 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - **Latido sin parar con la vida baja:** el latido suena mientras la vida esté baja, hasta que el jugador se cure (o muera), y no solo los 5 s de la §3.5. La pausa y el panel de prueba lo cortan, y vuelve con la partida si la vida sigue baja.
   - **Colocar el tablón** (`reward.repair`) suena solo a madera, sin martillo ni clavo: un tablón que se desliza y encaja con un golpe macizo, un golpe seco con un crujido corto de la tabla, o un golpe hueco que se asienta.
   - **Nota de su racha:** pasa a ser orgánica, como la que tuvo la racha de bajas: marimba en Mi 6, xilófono en La 5 o pizzicato de cuerdas en Mi 5.
+- **Novena tanda (tablón seco):** el usuario seguía oyendo el tablón metálico. Lo que resonaba era la nota de la racha (marimba, xilófono o pizzicato, casi medio segundo encima de cada tablón) y la sala.
+  - Ahora `reward.repair` es seco: sin sala y de unos 200 ms. Es un golpe grueso de madera con otro más corto encima, dos golpes de apoyar y asentar, o un tablón macizo.
+  - La capa de brillo de la racha es un «toc» corto de bloque de madera, de unos 120 ms, sin graves. Los golpes de madera no tienen una nota clara, así que la racha se oye como un toque que se agudiza más que como una melodía.
 

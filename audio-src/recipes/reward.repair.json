@@ -2,83 +2,7 @@
   "chosen": null,
   "candidates": {
     "A": {
-      "about": "TABLÓN QUE ENCAJA: la madera se desliza un instante y encaja con un golpe macizo; la nota de la racha es una marimba en Mi 6.",
-      "channels": 1,
-      "variants": [
-        {
-          "type": "layers",
-          "layers": [
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/freesound/683412_drag_book_wood_2n.ogg",
-                "process": {
-                  "start": 0.06,
-                  "end": 0.18,
-                  "highcut": 6000,
-                  "fadeOut": 0.05
-                }
-              },
-              "gain": 0.5
-            },
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/freesound/495645_mug_wood1.ogg",
-                "process": {
-                  "lowcut": 120
-                }
-              },
-              "gain": 1,
-              "delay": 0.09
-            },
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/kenney-impact-sounds/impactPlank_medium_001.ogg",
-                "process": {
-                  "end": 0.25,
-                  "lowcut": 140
-                }
-              },
-              "gain": 0.6,
-              "delay": 0.09
-            }
-          ],
-          "process": {
-            "reverb": "room",
-            "wet": 0.1,
-            "length": 0.4,
-            "fadeOut": 0.12
-          }
-        }
-      ],
-      "shine": [
-        {
-          "type": "layers",
-          "layers": [
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/freesound/373584_marimba_e_6_marimba_hit_outrigger_f5_lou.ogg",
-                "process": {
-                  "semitones": -0.97,
-                  "end": 0.35,
-                  "fadeOut": 0.15
-                }
-              },
-              "gain": 1
-            }
-          ],
-          "process": {
-            "length": 0.5,
-            "fadeOut": 0.2
-          }
-        }
-      ]
-    },
-    "B": {
-      "about": "TABLÓN APOYADO: un golpe seco de madera maciza y un crujido corto de la tabla; la nota de la racha es un xilófono en La 5.",
+      "about": "GOLPE SECO: un golpe de madera grueso y otro más corto encima, sin sala; la racha es un «toc» de bloque de madera que se agudiza.",
       "channels": 1,
       "variants": [
         {
@@ -89,7 +13,7 @@
                 "type": "file",
                 "source": "library/freesound/742356_singleknock_wood.ogg",
                 "process": {
-                  "lowcut": 120
+                  "lowcut": 110
                 }
               },
               "gain": 1
@@ -100,25 +24,12 @@
                 "source": "library/kenney-impact-sounds/impactWood_light_000.ogg"
               },
               "gain": 0.6
-            },
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/freesound/504136_wood_floor_creaking_2_14.ogg",
-                "process": {
-                  "end": 0.25,
-                  "fadeOut": 0.1
-                }
-              },
-              "gain": 0.35,
-              "delay": 0.06
             }
           ],
           "process": {
-            "reverb": "room",
-            "wet": 0.1,
-            "length": 0.4,
-            "fadeOut": 0.12
+            "highcut": 6000,
+            "length": 0.22,
+            "fadeOut": 0.06
           }
         }
       ],
@@ -129,25 +40,27 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/374700_xylophone_c5_xylo_medium_c5_ff_01_far_wa.ogg",
+                "source": "library/freesound/218460_wood_block_hit.ogg",
                 "process": {
-                  "semitones": -3.14,
-                  "end": 0.3,
-                  "fadeOut": 0.15
+                  "semitones": -1.17,
+                  "end": 0.14,
+                  "lowcut": 450,
+                  "fadeOut": 0.05
                 }
               },
-              "gain": 1
+              "gain": 0.8
             }
           ],
           "process": {
-            "length": 0.5,
-            "fadeOut": 0.2
+            "highcut": 7000,
+            "length": 0.13,
+            "fadeOut": 0.05
           }
         }
       ]
     },
-    "C": {
-      "about": "MADERA HUECA: un golpe hueco de madera y la tabla que termina de asentarse; la nota de la racha es un pizzicato de cuerdas en Mi 5.",
+    "B": {
+      "about": "APOYAR Y ASENTAR: dos golpes secos y seguidos, la tabla que se apoya y se asienta; la racha es otro bloque de madera, más claro, que se agudiza.",
       "channels": 1,
       "variants": [
         {
@@ -156,11 +69,9 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/369710_wood_knock.ogg",
+                "source": "library/freesound/495645_mug_wood1.ogg",
                 "process": {
-                  "end": 0.3,
-                  "lowcut": 120,
-                  "fadeOut": 0.1
+                  "lowcut": 110
                 }
               },
               "gain": 1
@@ -168,22 +79,19 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/245923_wooden_slide_drawer_shutting_3.ogg",
+                "source": "library/freesound/495644_mug_wood2.ogg",
                 "process": {
-                  "start": 0.2,
-                  "end": 0.45,
-                  "lowcut": 150
+                  "lowcut": 110
                 }
               },
-              "gain": 0.5,
+              "gain": 0.7,
               "delay": 0.06
             }
           ],
           "process": {
-            "reverb": "room",
-            "wet": 0.1,
-            "length": 0.4,
-            "fadeOut": 0.12
+            "highcut": 6000,
+            "length": 0.22,
+            "fadeOut": 0.06
           }
         }
       ],
@@ -194,19 +102,83 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/374518_violin_section_pizzicato_e5_vlnens_pizz_.ogg",
+                "source": "library/freesound/218461_wood_block.ogg",
                 "process": {
-                  "semitones": 0.21,
-                  "end": 0.4,
-                  "fadeOut": 0.15
+                  "semitones": -1.17,
+                  "end": 0.14,
+                  "lowcut": 450,
+                  "fadeOut": 0.05
                 }
               },
-              "gain": 1
+              "gain": 0.8
             }
           ],
           "process": {
-            "length": 0.5,
-            "fadeOut": 0.2
+            "highcut": 7000,
+            "length": 0.13,
+            "fadeOut": 0.05
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "TABLÓN MACIZO: un golpe de tablón grueso y la madera que choca, sin sala; la racha es un «tic» seco de madera que se agudiza.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactWood_medium_001.ogg",
+                "process": {
+                  "lowcut": 120
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/wood_03.ogg",
+                "process": {
+                  "end": 0.2,
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.01
+            }
+          ],
+          "process": {
+            "highcut": 6000,
+            "length": 0.22,
+            "fadeOut": 0.06
+          }
+        }
+      ],
+      "shine": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/wood_02.ogg",
+                "process": {
+                  "end": 0.16,
+                  "lowcut": 300,
+                  "fadeOut": 0.05
+                }
+              },
+              "gain": 0.8
+            }
+          ],
+          "process": {
+            "highcut": 7000,
+            "length": 0.13,
+            "fadeOut": 0.05
           }
         }
       ]

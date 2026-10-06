@@ -170,12 +170,12 @@ Bandas: porcentaje de la energía por debajo de 100 Hz, 100–250, 250–1000, 1
 | player_hurt_2__b | player.hurt | B | Amenaza | mono | 254 ms | 74 ms | -1.0 dB | -16.3 dB | 2145 Hz | 93 Hz | 13 · 7 · 11 · 68 · 0 |
 | player_hurt_1__c | player.hurt | C | Amenaza | mono | 321 ms | 31 ms | -1.0 dB | -16.1 dB | 3057 Hz | 341 Hz | 2 · 7 · 76 · 14 · 1 |
 | player_hurt_2__c | player.hurt | C | Amenaza | mono | 320 ms | 10 ms | -1.0 dB | -13.1 dB | 3158 Hz | 406 Hz | 1 · 4 · 90 · 5 · 1 |
-| reward_repair__a | reward.repair | A ✓ | Premio | mono | 310 ms | 140 ms | -1.0 dB | -21.9 dB | 2004 Hz | 206 Hz | 4 · 44 · 44 · 6 · 1 |
-| reward_repair_shine__a | reward.repair | A ✓ | Premio | mono | 354 ms | 104 ms | -1.0 dB | -13.4 dB | 1619 Hz | 1325 Hz | 0 · 0 · 0 · 100 · 0 |
-| reward_repair__b | reward.repair | B | Premio | mono | 339 ms | 109 ms | -1.0 dB | -18.4 dB | 1345 Hz | 190 Hz | 3 · 44 · 47 · 7 · 0 |
-| reward_repair_shine__b | reward.repair | B | Premio | mono | 353 ms | 53 ms | -1.0 dB | -13.4 dB | 2194 Hz | 878 Hz | 0 · 0 · 89 · 11 · 0 |
-| reward_repair__c | reward.repair | C | Premio | mono | 243 ms | 163 ms | -1.0 dB | -20.3 dB | 1319 Hz | 329 Hz | 0 · 2 · 94 · 4 · 0 |
-| reward_repair_shine__c | reward.repair | C | Premio | mono | 367 ms | 107 ms | -1.0 dB | -15.2 dB | 1654 Hz | 652 Hz | 0 · 0 · 81 · 19 · 0 |
+| reward_repair__a | reward.repair | A ✓ | Premio | mono | 198 ms | 58 ms | -1.0 dB | -16.8 dB | 616 Hz | 190 Hz | 3 · 50 · 45 · 1 · 0 |
+| reward_repair_shine__a | reward.repair | A ✓ | Premio | mono | 117 ms | 17 ms | -1.0 dB | -15.0 dB | 1600 Hz | 656 Hz | 0 · 0 · 75 · 25 · 0 |
+| reward_repair__b | reward.repair | B | Premio | mono | 176 ms | 76 ms | -1.0 dB | -18.9 dB | 767 Hz | 206 Hz | 0 · 60 · 37 · 3 · 0 |
+| reward_repair_shine__b | reward.repair | B | Premio | mono | 119 ms | 39 ms | -1.0 dB | -15.2 dB | 1957 Hz | 653 Hz | 0 · 0 · 67 · 32 · 0 |
+| reward_repair__c | reward.repair | C | Premio | mono | 197 ms | 97 ms | -1.0 dB | -17.1 dB | 2137 Hz | 167 Hz | 3 · 39 · 45 · 10 · 2 |
+| reward_repair_shine__c | reward.repair | C | Premio | mono | 105 ms | 45 ms | -1.0 dB | -24.7 dB | 3228 Hz | 896 Hz | 0 · 0 · 45 · 45 · 9 |
 | ritual_done__a | ritual.done | A ✓ | Carteles | estéreo | 1907 ms | 377 ms | -1.0 dB | -18.2 dB | 3291 Hz | 513 Hz | 4 · 14 · 71 · 9 · 1 |
 | ritual_done__b | ritual.done | B | Carteles | estéreo | 1901 ms | 351 ms | -1.0 dB | -19.2 dB | 3556 Hz | 202 Hz | 6 · 23 · 34 · 35 · 3 |
 | ritual_done__c | ritual.done | C | Carteles | estéreo | 1920 ms | 390 ms | -1.0 dB | -17.5 dB | 4572 Hz | 497 Hz | 5 · 14 · 74 · 5 · 2 |
@@ -439,9 +439,9 @@ Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.
 - **player.hurt A** (en el juego): Puñetazo medio y un gruñido corto de dolor (MrFossy).
 - **player.hurt B**: Golpe sordo con el peso en 180 Hz y otros dos gruñidos.
 - **player.hurt C**: Golpe contra el suelo de madera y gruñidos más largos.
-- **reward.repair A** (en el juego): TABLÓN QUE ENCAJA: la madera se desliza un instante y encaja con un golpe macizo; la nota de la racha es una marimba en Mi 6.
-- **reward.repair B**: TABLÓN APOYADO: un golpe seco de madera maciza y un crujido corto de la tabla; la nota de la racha es un xilófono en La 5.
-- **reward.repair C**: MADERA HUECA: un golpe hueco de madera y la tabla que termina de asentarse; la nota de la racha es un pizzicato de cuerdas en Mi 5.
+- **reward.repair A** (en el juego): GOLPE SECO: un golpe de madera grueso y otro más corto encima, sin sala; la racha es un «toc» de bloque de madera que se agudiza.
+- **reward.repair B**: APOYAR Y ASENTAR: dos golpes secos y seguidos, la tabla que se apoya y se asienta; la racha es otro bloque de madera, más claro, que se agudiza.
+- **reward.repair C**: TABLÓN MACIZO: un golpe de tablón grueso y la madera que choca, sin sala; la racha es un «tic» seco de madera que se agudiza.
 - **ritual.done A** (en el juego): Estéreo: agua que hierve, una subida de aire y La-Do-Mi-La, y un golpe grave con fuego.
 - **ritual.done B**: Estéreo: agua hirviendo derramándose, una subida de energía y un tambor con llamarada.
 - **ritual.done C**: Estéreo: hervor, un acorde que sube una octava y un taiko con fuego.
@@ -521,6 +521,6 @@ Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.
 ## Avisos
 
 - buy.door: Premio más grave (tono 219 Hz) que los de Golpe (mediana 438 Hz)
-- weapon.empty: Golpe más agudo (tono 2368 Hz) que los de Premio (mediana 893 Hz)
-- weapon.reload.end: Golpe más agudo (tono 3911 Hz) que los de Premio (mediana 893 Hz)
-- weapon.reload.start: Golpe más agudo (tono 3518 Hz) que los de Premio (mediana 893 Hz)
+- weapon.empty: Golpe más agudo (tono 2368 Hz) que los de Premio (mediana 880 Hz)
+- weapon.reload.end: Golpe más agudo (tono 3911 Hz) que los de Premio (mediana 880 Hz)
+- weapon.reload.start: Golpe más agudo (tono 3518 Hz) que los de Premio (mediana 880 Hz)
