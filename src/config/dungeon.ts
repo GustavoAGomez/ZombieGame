@@ -54,6 +54,8 @@ export const DUNGEON = {
   mirrorChance: 0.5,
   /** The boss arena, in cells per side (§3.1). */
   arenaSize: 2,
+  /** Rooms between the start and the boss, at least (the user's choice, docs/DECISIONS.md): a plan with it nearer is drawn again. */
+  minBossDepth: 3,
   /** A plan that fails its checks is drawn again, up to this many times, before giving up (never seen with these numbers). */
   maxAttempts: 200,
   /** The difficulties a floor draws its rooms from (§3.2): the first floor, and the rest. */

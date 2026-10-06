@@ -4,31 +4,31 @@ SEMILLA 11
 
  .   .   .   .   .   .   .   .   .
 
- .   .  [B]=[B]  .   .   .   .   .
-         :   :
- .   .  [B]=[B]  .   .   .   .   .
-             K
- .   .   .  [C]-[S]-[C]-[C]  .   .
-                 |       |
- .   .   .   .  [H]  .  [C]-[C]  .
-                             |
- .   .   .   .   .   .   .  [E]k[T]
-                             !
- .   .   .   .   .   .   .  [R]  .
+ .   .   .   .   .   .   .   .   .
+
+ .   .   .  [T]  .   .   .   .   .
+             k
+ .   .  [H]-[C]-[S]-[C]-[C]![R]  .
+             |           |
+ .   .   .  [C]  .   .  [C]  .   .
+                         |
+ .   .   .   .   .   .  [E]K[B]=[B]
+                             :   :
+ .   .   .   .   .   .   .  [B]=[B]
 
 | Celda | Tipo | Dificultad | Plantilla | Espejo | Puertas |
 |---|---|---|---|---|---|
-| 4,3 | start | — | mansion/start_01 | no | e→C s→H w→C |
-| 5,3 | combat | medium | mansion/combat_08 | sí | e→C w→S |
-| 4,4 | hand | — | mansion/hand_01 | no | n→S |
-| 3,3 | combat | medium | mansion/combat_04 | no | n→B e→S |
-| 6,3 | combat | medium | mansion/combat_06 | sí | s→C w→C |
-| 2,1 | boss | — | mansion/boss_01 | no | s→C |
-| 6,4 | combat | medium | mansion/combat_02 | no | n→C e→C |
-| 7,4 | combat | easy | mansion/combat_01 | no | s→E w→C |
-| 7,5 | elite | medium | mansion/elite_01 | no | n→C e→T s→R |
-| 8,5 | treasure | — | mansion/treasure_01 | no | w→E |
-| 7,6 | challenge | easy | mansion/challenge_02 | no | n→E |
+| 4,3 | start | — | mansion/start_01 | no | e→C w→C |
+| 5,3 | combat | easy | mansion/combat_05 | no | e→C w→S |
+| 3,3 | combat | medium | mansion/combat_02 | sí | n→T e→S s→C w→H |
+| 6,3 | combat | medium | mansion/combat_08 | no | e→R s→C w→C |
+| 3,2 | treasure | — | mansion/treasure_01 | sí | s→C |
+| 3,4 | combat | medium | mansion/combat_04 | no | n→C |
+| 2,3 | hand | — | mansion/hand_01 | sí | e→C |
+| 7,3 | challenge | easy | mansion/challenge_02 | no | w→C |
+| 6,4 | combat | medium | mansion/combat_06 | sí | n→C s→E |
+| 6,5 | elite | medium | mansion/elite_01 | no | n→C e→B |
+| 7,5 | boss | — | mansion/boss_01 | no | w→E |
 
 ## Planta 2 · basement · 13 salas
 

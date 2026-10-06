@@ -194,6 +194,8 @@ function tryGenerate(rng: RngState, floor: number, bank: TemplateBank): FloorPla
     }
   }
   if (!arena || bossIndex === -1) return null;
+  // Too near the start (a small floor whose far dead ends had no room): drawn again.
+  if ((depth[bossIndex] as number) < DUNGEON.minBossDepth) return null;
   const arenaCells: Cell[] = arena;
   types[bossIndex] = 'boss';
   // Step 5: the arena must not touch the start room.

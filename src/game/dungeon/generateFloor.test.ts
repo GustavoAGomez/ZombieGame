@@ -139,6 +139,7 @@ describe('generateFloor (spec 09 §3.1), over 1000 seeds and the 3 floors', () =
       expect(boss.doors).toHaveLength(1);
       const start = (plan.rooms[plan.start] as Room).cells[0] as Cell;
       for (const c of boss.cells) expect(adjacent(c, start)).toBe(false);
+      expect(boss.depth).toBeGreaterThanOrEqual(DUNGEON.minBossDepth);
       // No dead end farther away had room for the arena.
       const grown = grownCells(plan);
       for (const room of plan.rooms) {
