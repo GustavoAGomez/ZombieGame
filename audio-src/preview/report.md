@@ -170,9 +170,9 @@ Bandas: porcentaje de la energía por debajo de 100 Hz, 100–250, 250–1000, 1
 | player_hurt_2__b | player.hurt | B | Amenaza | mono | 254 ms | 74 ms | -1.0 dB | -16.3 dB | 2145 Hz | 93 Hz | 13 · 7 · 11 · 68 · 0 |
 | player_hurt_1__c | player.hurt | C | Amenaza | mono | 321 ms | 31 ms | -1.0 dB | -16.1 dB | 3057 Hz | 341 Hz | 2 · 7 · 76 · 14 · 1 |
 | player_hurt_2__c | player.hurt | C | Amenaza | mono | 320 ms | 10 ms | -1.0 dB | -13.1 dB | 3158 Hz | 406 Hz | 1 · 4 · 90 · 5 · 1 |
-| reward_hit__a | reward.hit | A ✓ | Premio | mono | 122 ms | 22 ms | -1.0 dB | -22.4 dB | 4776 Hz | 1763 Hz | 0 · 0 · 0 · 79 · 21 |
-| reward_hit__b | reward.hit | B | Premio | mono | 111 ms | 21 ms | -1.0 dB | -20.5 dB | 10546 Hz | 4556 Hz | 0 · 0 · 0 · 1 · 99 |
-| reward_hit__c | reward.hit | C | Premio | mono | 119 ms | 39 ms | -1.0 dB | -19.0 dB | 2032 Hz | 1327 Hz | 0 · 0 · 0 · 99 · 0 |
+| reward_hit__a | reward.hit | A ✓ | Premio | mono | 137 ms | 27 ms | -1.0 dB | -16.7 dB | 2489 Hz | 2549 Hz | 2 · 0 · 27 · 71 · 0 |
+| reward_hit__b | reward.hit | B | Premio | mono | 132 ms | 52 ms | -1.0 dB | -17.9 dB | 4262 Hz | 1764 Hz | 7 · 1 · 44 · 36 · 13 |
+| reward_hit__c | reward.hit | C | Premio | mono | 134 ms | 44 ms | -1.0 dB | -13.9 dB | 3453 Hz | 294 Hz | 2 · 17 · 76 · 3 · 1 |
 | reward_kill__a | reward.kill | A ✓ | Premio | mono | 160 ms | 60 ms | -1.0 dB | -15.0 dB | 2621 Hz | 306 Hz | 2 · 16 · 81 · 0 · 1 |
 | reward_kill_shine__a | reward.kill | A ✓ | Premio | mono | 434 ms | 64 ms | -1.0 dB | -21.6 dB | 2766 Hz | 878 Hz | 0 · 0 · 85 · 15 · 0 |
 | reward_kill__b | reward.kill | B | Premio | mono | 150 ms | 30 ms | -1.0 dB | -24.5 dB | 4727 Hz | 171 Hz | 0 · 34 · 15 · 22 · 29 |
@@ -448,9 +448,9 @@ Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.
 - **player.hurt A** (en el juego): Puñetazo medio y un gruñido corto de dolor (MrFossy).
 - **player.hurt B**: Golpe sordo con el peso en 180 Hz y otros dos gruñidos.
 - **player.hurt C**: Golpe contra el suelo de madera y gruñidos más largos.
-- **reward.hit A** (en el juego): Un toque mínimo de glockenspiel real en La 6.
-- **reward.hit B**: El tintineo de una moneda, muy corto.
-- **reward.hit C**: Un toque mínimo de kalimba en Mi 6.
+- **reward.hit A** (en el juego): HITMARKER METÁLICO: un golpe de metal afinado a La 5 con un toque seco debajo y un poco de peso, comprimido.
+- **reward.hit B**: GOLPE SECO CON CHISPA: un golpe de lata en Do 5, el chasquido de un pestillo y un tic de glockenspiel en La 6.
+- **reward.hit C**: HITMARKER GRAVE: un golpe seco en Re 5, un puñetazo corto y el filo de una moneda.
 - **reward.kill A** (en el juego): Golpe seco con un tintineo de moneda; el brillo es un glockenspiel real en La 5, que sube con la racha.
 - **reward.kill B**: Bofetada con madera; el brillo es una caja de música real en Re 6.
 - **reward.kill C**: Golpe pesado con salpicadura; el brillo es una copa de cristal golpeada, bajada a La 5.

@@ -173,7 +173,7 @@ Generado por `npm run audio:gen` a partir de los `credits.json` de `audio-src/` 
 | `library/freesound/687924_jh_big_tom_2_f_1_5_sec.ogg` | Freesound (previsualización HQ OGG) | Johnnie_Holiday | CC0 1.0 | https://freesound.org/people/Johnnie_Holiday/sounds/687924/ | boss.landed, boss.stunned |
 | `library/freesound/688765_unholster_gun.ogg` | Freesound (previsualización HQ OGG) | qubodup | CC0 1.0 | https://freesound.org/people/qubodup/sounds/688765/ | hand.taken, weapon.switch |
 | `library/freesound/691473_door.ogg` | Freesound (previsualización HQ OGG) | saha213131 | CC0 1.0 | https://freesound.org/people/saha213131/sounds/691473/ | buy.door |
-| `library/freesound/691796_e5_hard_kalimba.ogg` | Freesound (previsualización HQ OGG) | hollandm | CC0 1.0 | https://freesound.org/people/hollandm/sounds/691796/ | buy.upgrade, reward.hit, reward.repair |
+| `library/freesound/691796_e5_hard_kalimba.ogg` | Freesound (previsualización HQ OGG) | hollandm | CC0 1.0 | https://freesound.org/people/hollandm/sounds/691796/ | buy.upgrade, reward.repair |
 | `library/freesound/699528_coin_hit_05.ogg` | Freesound (previsualización HQ OGG) | Valenspire | CC0 1.0 | https://freesound.org/people/Valenspire/sounds/699528/ | reward.hit, reward.kill |
 | `library/freesound/700034_electric_train_motor_idle_loop_queenslan.ogg` | Freesound (previsualización HQ OGG) | JotrainG | CC0 1.0 | https://freesound.org/people/JotrainG/sounds/700034/ | weapon.laser.loop |
 | `library/freesound/702796_choir_warm_up.ogg` | Freesound (previsualización HQ OGG) | ChaliceWell | CC0 1.0 | https://freesound.org/people/ChaliceWell/sounds/702796/ | buy.merchant, buy.special, hand.offer.special, jingle.boss.dead, jingle.round.clear, merchant.arrive |
@@ -237,16 +237,18 @@ Generado por `npm run audio:gen` a partir de los `credits.json` de `audio-src/` 
 | `library/kenney-impact-sounds/footstep_concrete_000.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | boss.windup.charge |
 | `library/kenney-impact-sounds/footstep_concrete_002.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | boss.windup.charge |
 | `library/kenney-impact-sounds/impactBell_heavy_000.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | player.death |
+| `library/kenney-impact-sounds/impactGeneric_light_001.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | reward.hit |
+| `library/kenney-impact-sounds/impactGeneric_light_002.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | reward.hit |
 | `library/kenney-impact-sounds/impactGlass_heavy_001.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | weapon.broken, weapon.laser.overheat |
 | `library/kenney-impact-sounds/impactGlass_light_000.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | buy.weapon |
 | `library/kenney-impact-sounds/impactGlass_light_002.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | buy.weapon |
 | `library/kenney-impact-sounds/impactMetal_heavy_001.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | boss.slam, weapon.broken |
-| `library/kenney-impact-sounds/impactMetal_light_000.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | pickup.ammo, weapon.pistol.fire |
+| `library/kenney-impact-sounds/impactMetal_light_000.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | pickup.ammo, reward.hit, weapon.pistol.fire |
 | `library/kenney-impact-sounds/impactPlank_medium_000.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | barricade.break |
 | `library/kenney-impact-sounds/impactPlank_medium_001.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | barricade.break |
 | `library/kenney-impact-sounds/impactPunch_heavy_000.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | boss.stunned, buy.special, hand.pay.blood, player.death, ritual.done, ui.play |
 | `library/kenney-impact-sounds/impactPunch_heavy_001.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | reward.kill |
-| `library/kenney-impact-sounds/impactPunch_medium_000.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | denied, item.cantUse |
+| `library/kenney-impact-sounds/impactPunch_medium_000.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | denied, item.cantUse, reward.hit |
 | `library/kenney-impact-sounds/impactPunch_medium_001.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | reward.kill, weapon.katana.hit |
 | `library/kenney-impact-sounds/impactPunch_medium_002.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | player.hurt |
 | `library/kenney-impact-sounds/impactSoft_heavy_000.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | player.hurt |
@@ -255,6 +257,7 @@ Generado por `npm run audio:gen` a partir de los `credits.json` de `audio-src/` 
 | `library/kenney-impact-sounds/impactSoft_medium_001.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | impact.flesh, player.heartbeat |
 | `library/kenney-impact-sounds/impactSoft_medium_002.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | impact.flesh |
 | `library/kenney-impact-sounds/impactSoft_medium_003.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | impact.flesh |
+| `library/kenney-impact-sounds/impactTin_medium_001.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | reward.hit |
 | `library/kenney-impact-sounds/impactWood_medium_000.ogg` | Kenney · Impact Sounds 1.0 | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/impact-sounds | denied, item.cantUse, reward.kill, reward.repair |
 | `library/kenney-interface-sounds/bong_001.ogg` | Kenney · Interface Sounds | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/interface-sounds | denied, item.cantUse |
 | `library/kenney-interface-sounds/glass_001.ogg` | Kenney · Interface Sounds | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/interface-sounds | buy.weapon |
@@ -277,7 +280,7 @@ Generado por `npm run audio:gen` a partir de los `credits.json` de `audio-src/` 
 | `library/kenney-rpg-audio/knifeSlice.ogg` | Kenney · RPG Audio | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/rpg-audio | weapon.katana.hit, weapon.knife |
 | `library/kenney-rpg-audio/knifeSlice2.ogg` | Kenney · RPG Audio | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/rpg-audio | weapon.knife |
 | `library/kenney-rpg-audio/metalClick.ogg` | Kenney · RPG Audio | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/rpg-audio | hand.taken, pickup.ammo, weapon.empty, weapon.pistol.fire, weapon.reload.start, weapon.smg.fire |
-| `library/kenney-rpg-audio/metalLatch.ogg` | Kenney · RPG Audio | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/rpg-audio | buy.weapon, hand.taken, weapon.pistol.fire, weapon.switch |
+| `library/kenney-rpg-audio/metalLatch.ogg` | Kenney · RPG Audio | Kenney (www.kenney.nl) | CC0 1.0 | https://kenney.nl/assets/rpg-audio | buy.weapon, hand.taken, reward.hit, weapon.pistol.fire, weapon.switch |
 | `library/oga-80-cc0-rpg-sfx/blade_01.ogg` | OpenGameArt · 80 CC0 RPG SFX | rubberduck | CC0 1.0 | https://opengameart.org/content/80-cc0-rpg-sfx | weapon.katana.swing |
 | `library/oga-80-cc0-rpg-sfx/blade_02.ogg` | OpenGameArt · 80 CC0 RPG SFX | rubberduck | CC0 1.0 | https://opengameart.org/content/80-cc0-rpg-sfx | weapon.katana.hit, weapon.katana.swing |
 | `library/oga-80-cc0-rpg-sfx/blade_03.ogg` | OpenGameArt · 80 CC0 RPG SFX | rubberduck | CC0 1.0 | https://opengameart.org/content/80-cc0-rpg-sfx | weapon.katana.swing |

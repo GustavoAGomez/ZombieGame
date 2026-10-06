@@ -2649,26 +2649,26 @@
     },
     "reward_hit": {
       "file": "audio/sfx/reward_hit.wav",
-      "duration": 0.1224,
+      "duration": 0.137,
       "placeholder": false,
       "picked": "A",
       "pending": true
     },
     "reward_hit__a": {
       "file": "audio/candidates/reward_hit__a.wav",
-      "duration": 0.1224,
+      "duration": 0.137,
       "placeholder": false,
       "candidate": "A"
     },
     "reward_hit__b": {
       "file": "audio/candidates/reward_hit__b.wav",
-      "duration": 0.1112,
+      "duration": 0.1322,
       "placeholder": false,
       "candidate": "B"
     },
     "reward_hit__c": {
       "file": "audio/candidates/reward_hit__c.wav",
-      "duration": 0.119,
+      "duration": 0.1337,
       "placeholder": false,
       "candidate": "C"
     },

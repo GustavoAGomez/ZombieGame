@@ -2,7 +2,7 @@
   "chosen": null,
   "candidates": {
     "A": {
-      "about": "Un toque mínimo de glockenspiel real en La 6.",
+      "about": "HITMARKER METÁLICO: un golpe de metal afinado a La 5 con un toque seco debajo y un poco de peso, comprimido.",
       "channels": 1,
       "variants": [
         {
@@ -11,17 +11,40 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/348890_glockenspiel_20_a3_02.ogg",
+                "source": "library/kenney-impact-sounds/impactMetal_light_000.ogg",
                 "process": {
-                  "semitones": 0,
-                  "end": 0.13,
-                  "fadeOut": 0.15
+                  "semitones": -0.58,
+                  "end": 0.12
                 }
               },
               "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactGeneric_light_001.ogg",
+                "process": {
+                  "semitones": 0.16
+                }
+              },
+              "gain": 0.7
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "sub",
+                "freq": 180,
+                "duration": 0.05
+              },
+              "gain": 0.35
             }
           ],
           "process": {
+            "threshold": -18,
+            "ratio": 4,
+            "drive": 0.2,
+            "reverb": "room",
+            "wet": 0.1,
             "length": 0.14,
             "fadeOut": 0.05
           }
@@ -29,7 +52,7 @@
       ]
     },
     "B": {
-      "about": "El tintineo de una moneda, muy corto.",
+      "about": "GOLPE SECO CON CHISPA: un golpe de lata en Do 5, el chasquido de un pestillo y un tic de glockenspiel en La 6.",
       "channels": 1,
       "variants": [
         {
@@ -38,24 +61,46 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/699528_coin_hit_05.ogg",
-                "process": {
-                  "end": 0.13,
-                  "highcut": 10000
-                }
+                "source": "library/kenney-impact-sounds/impactTin_medium_001.ogg"
               },
               "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/metalLatch.ogg",
+                "process": {
+                  "end": 0.04
+                }
+              },
+              "gain": 0.4
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/348890_glockenspiel_20_a3_02.ogg",
+                "process": {
+                  "end": 0.09,
+                  "fadeOut": 0.04
+                }
+              },
+              "gain": 0.45
             }
           ],
           "process": {
-            "length": 0.13,
+            "threshold": -18,
+            "ratio": 4,
+            "drive": 0.2,
+            "reverb": "room",
+            "wet": 0.1,
+            "length": 0.14,
             "fadeOut": 0.05
           }
         }
       ]
     },
     "C": {
-      "about": "Un toque mínimo de kalimba en Mi 6.",
+      "about": "HITMARKER GRAVE: un golpe seco en Re 5, un puñetazo corto y el filo de una moneda.",
       "channels": 1,
       "variants": [
         {
@@ -64,17 +109,42 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/691796_e5_hard_kalimba.ogg",
+                "source": "library/kenney-impact-sounds/impactGeneric_light_002.ogg",
                 "process": {
-                  "semitones": 0.28,
-                  "end": 0.13,
-                  "fadeOut": 0.2
+                  "semitones": -0.14
                 }
               },
               "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-impact-sounds/impactPunch_medium_000.ogg",
+                "process": {
+                  "end": 0.08,
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.7
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/699528_coin_hit_05.ogg",
+                "process": {
+                  "end": 0.05,
+                  "highcut": 10000
+                }
+              },
+              "gain": 0.45
             }
           ],
           "process": {
+            "threshold": -18,
+            "ratio": 4,
+            "drive": 0.2,
+            "reverb": "room",
+            "wet": 0.1,
             "length": 0.14,
             "fadeOut": 0.05
           }
