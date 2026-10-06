@@ -2,6 +2,13 @@
   "sources": {
     "crawl_attack": [
       "crawl_claw"
+    ],
+    "walk": [
+      "gallop_fb",
+      "gallop"
+    ],
+    "attack": [
+      "claw_v2"
     ]
   },
   "mirrorMissing": {
@@ -22,5 +29,15 @@
       "south-east": 0.8,
       "south-west": 0.8
     }
+  },
+  "trim": {
+    "walk": [
+      2,
+      7
+    ],
+    "attack": [
+      0,
+      6
+    ]
   }
 }

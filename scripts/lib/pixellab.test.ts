@@ -6,6 +6,7 @@ import {
   directionRows,
   MIRRORED,
   mirrorDirections,
+  trimFrames,
   nearestDirection,
   normaliseAnimationName,
   parsePixelLabMetadata,
@@ -273,6 +274,17 @@ describe('applySources', () => {
   it('says when a listed take is not in the export', () => {
     const { notes } = applySources(animations, { walk: ['walk_v4', 'walk_v3'] });
     expect(notes[0]).toContain('walk_v4');
+  });
+});
+
+describe('trimFrames', () => {
+  it('keeps the same frames of every direction, or all of them without a range', () => {
+    const frames = new Map([
+      ['south', ['s0', 's1', 's2', 's3']],
+      ['east', ['e0', 'e1', 'e2', 'e3']],
+    ]);
+    expect(trimFrames(frames, [1, 3])).toEqual(new Map([['south', ['s1', 's2']], ['east', ['e1', 'e2']]]));
+    expect(trimFrames(frames, undefined)).toEqual(frames);
   });
 });
 

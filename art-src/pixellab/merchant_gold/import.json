@@ -1,0 +1,7 @@
+{
+  "scale": {
+    "breathing": 0.85,
+    "idle": 0.85,
+    "open_coat": 0.85
+  }
+}

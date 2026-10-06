@@ -15,8 +15,8 @@ const GEM_PERIOD = 1.2;
 const GEM_GAP = 3;
 /** The placeholder body's bottom edge sits this far below the merchant's feet point, like other actors. */
 const FEET_OFFSET = 4;
-/** Height of the drawn merchant over its feet, measured on the PixelLab wizard (hat included). */
-const ART_BODY_HEIGHT = 44;
+/** Height of each drawn wizard over its feet, hat included, measured on its art (the better the wizard, the taller). */
+const ART_BODY_HEIGHT: Record<MerchantId, number> = { blue: 44, red: 46, gold: 48 };
 
 export function merchantTextureKey(id: MerchantId): string {
   return objectTextureKey(`merchant_${id}`);
@@ -76,7 +76,7 @@ export class MerchantViewPool {
         departure: puffImage(),
         character: animated ? key : null,
         coat: 'closed',
-        bodyHeight: animated ? ART_BODY_HEIGHT : body.height,
+        bodyHeight: animated ? ART_BODY_HEIGHT[m.id] : body.height,
       };
     });
   }

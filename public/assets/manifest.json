@@ -218,13 +218,13 @@
       "animations": {
         "walk": {
           "file": "sprites/zombie_sprinter/walk.png",
-          "frames": 8,
-          "fps": 19,
+          "frames": 5,
+          "fps": 12,
           "loop": true
         },
         "attack": {
           "file": "sprites/zombie_sprinter/attack.png",
-          "frames": 9,
+          "frames": 6,
           "fps": 12,
           "loop": false
         },
@@ -498,6 +498,60 @@
           "file": "sprites/zombie_brute/death.png",
           "frames": 6,
           "fps": 8,
+          "loop": false
+        }
+      }
+    },
+    "merchant_red": {
+      "frameWidth": 68,
+      "frameHeight": 68,
+      "anchor": {
+        "x": 0.5,
+        "y": 0.87
+      },
+      "hitbox": {
+        "radius": 8
+      },
+      "directions": 1,
+      "placeholder": false,
+      "animations": {
+        "idle": {
+          "file": "sprites/merchant_red/idle.png",
+          "frames": 9,
+          "fps": 6,
+          "loop": true
+        },
+        "open_coat": {
+          "file": "sprites/merchant_red/open_coat.png",
+          "frames": 9,
+          "fps": 14,
+          "loop": false
+        }
+      }
+    },
+    "merchant_gold": {
+      "frameWidth": 68,
+      "frameHeight": 68,
+      "anchor": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "hitbox": {
+        "radius": 8
+      },
+      "directions": 1,
+      "placeholder": false,
+      "animations": {
+        "idle": {
+          "file": "sprites/merchant_gold/idle.png",
+          "frames": 6,
+          "fps": 4,
+          "loop": true
+        },
+        "open_coat": {
+          "file": "sprites/merchant_gold/open_coat.png",
+          "frames": 9,
+          "fps": 14,
           "loop": false
         }
       }
@@ -1313,16 +1367,16 @@
     "pickup_key": {
       "file": "sprites/objects/pickup_key.png",
       "frameWidth": 16,
-      "frameHeight": 16,
+      "frameHeight": 24,
       "frames": 1,
-      "placeholder": true
+      "placeholder": false
     },
     "pickup_boss_key": {
       "file": "sprites/objects/pickup_boss_key.png",
       "frameWidth": 16,
-      "frameHeight": 16,
+      "frameHeight": 24,
       "frames": 1,
-      "placeholder": true
+      "placeholder": false
     },
     "enemy_shot": {
       "file": "sprites/objects/enemy_shot.png",

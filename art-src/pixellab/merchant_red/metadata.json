@@ -1,0 +1,52 @@
+{
+  "export_version": "3.1",
+  "export_date": "pixflux img2img + animate_image (see docs/DECISIONS.md)",
+  "states": [
+    {
+      "character": {
+        "name": "Idle",
+        "prompt": "the blue wizard merchant's sprite (pixflux img2img, strength 90): crimson hat and coat, eyepatch and scars, cigar, brass cartridges; inside the coat crimson velvet with brass bullets, red potions and silver pistols",
+        "size": {
+          "width": 64,
+          "height": 64
+        },
+        "directions": 1,
+        "view": "high top-down"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png"
+        },
+        "animations": {
+          "breathing": {
+            "south": [
+              "Idle/animations/breathing/south/frame_000.png",
+              "Idle/animations/breathing/south/frame_001.png",
+              "Idle/animations/breathing/south/frame_002.png",
+              "Idle/animations/breathing/south/frame_003.png",
+              "Idle/animations/breathing/south/frame_004.png",
+              "Idle/animations/breathing/south/frame_005.png",
+              "Idle/animations/breathing/south/frame_006.png",
+              "Idle/animations/breathing/south/frame_007.png",
+              "Idle/animations/breathing/south/frame_008.png"
+            ]
+          },
+          "open_coat": {
+            "south": [
+              "Idle/animations/open_coat/south/frame_000.png",
+              "Idle/animations/open_coat/south/frame_001.png",
+              "Idle/animations/open_coat/south/frame_002.png",
+              "Idle/animations/open_coat/south/frame_003.png",
+              "Idle/animations/open_coat/south/frame_004.png",
+              "Idle/animations/open_coat/south/frame_005.png",
+              "Idle/animations/open_coat/south/frame_006.png",
+              "Idle/animations/open_coat/south/frame_007.png",
+              "Idle/animations/open_coat/south/frame_008.png"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

@@ -202,6 +202,17 @@ export function applySources(
   return { animations: out, notes };
 }
 
+/**
+ * import.json "trim": { "<animation>": [start, end] } keeps frames start..end-1
+ * of every direction, before mirroring and resampling: the take of a loop
+ * that opens with the move from standing, or a strike that turns away at
+ * its end.
+ */
+export function trimFrames(frames: ReadonlyMap<string, string[]>, range: readonly [number, number] | undefined): Map<string, string[]> {
+  if (!range) return new Map(frames);
+  return new Map([...frames].map(([dir, paths]) => [dir, paths.slice(range[0], range[1])]));
+}
+
 /** Prefix of a frame path that is read mirrored left to right (import.json "mirror"). */
 export const MIRRORED = 'mirror:';
 

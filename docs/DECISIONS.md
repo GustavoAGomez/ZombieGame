@@ -2306,3 +2306,27 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 - De pie medía 44–46 px frente a los 41 del caminante. `"scale"` ×0,9 en todas sus animaciones de pie (andar, escupir, zarpazo, muerte y reposo); ahora mide 40–41.
 - Tumbado, ×0,9 también sobre sus factores: ×0,63 al sur y ×0,72 el resto, diagonales del sur incluidas, para que no queden pequeñas como le pasó al corredor.
 
+## Magos rojo y dorado, llaves y sprinter rehecho (PixelLab, petición del usuario)
+
+- **Magos rojo y dorado:**
+  - **Petición:** partir del mago azul («está perfecto»), con el mismo estilo de superviviente y traficante de armas y elixires. Cada uno con personalidad propia y más calidad según su nivel, no el mismo mago coloreado: el rojo, mejor que el azul; el dorado, el mejor, con iluminación. Lo de dentro de la gabardina, de mejor calidad en cada nivel.
+  - **Proceso:**
+    - un primer intento como personajes nuevos salió demasiado limpio y se descartó (2 generaciones);
+    - después, el sprite del azul en un lienzo de 64×64 y *pixflux* imagen a imagen. Con fuerza 160 quedaban azules y con 90 cambiaron. El rojo salió a la primera de esas; el dorado salía negro o azul marino y necesitó una paleta forzada de dorados, cremas, marrones y piel.
+  - **Resultado:**
+    - **rojo:** gabardina y sombrero carmesí, cara curtida con cicatrices. Dentro, forro de terciopelo carmesí con frascos rojos y pistolas;
+    - **dorado:** sombrero de oro, gabardina con paneles dorados, barba blanca y monóculo. Al abrirla, un destello y forro de oro iluminado con elixires, monedas y armas doradas.
+  - **Animación:** *animate image* (1 generación cada una), solo hacia el sur, como el azul. El reposo del dorado empezaba bien y luego le crecían hombreras doradas, así que su bucle usa los fotogramas 0-1-2-2-1-0.
+  - **Importación:** no son personajes de PixelLab, así que su `metadata.json` se montó a mano con el formato del export.
+    - Escala ×0,92 el rojo y ×0,85 el dorado, para que no saquen una cabeza al azul: miden 43, 45 y 47 px sobre los pies.
+    - Anclas 0,87 y 0,9, medidas en los pies.
+    - `Merchant.ts` usa la altura de cada mago (44, 46 y 48) para centrar el humo; antes era una sola, la del azul.
+  - Con los tres magos con arte, el rombo `merchant_gem` ya no sale (queda para un mago sin arte).
+- **Llaves:** *pixflux* de 32×32. La de latón vino con el suelo de fondo y se repitió sin la palabra «floor» (1 generación); la del boss, con la calavera, salió bien a la primera. Recortadas, reducidas ×0,75 y centradas en 16×24 (`retocado/`). El marco de las dos llaves pasa de 16×16 a 16×24 para que se lean.
+- **Sprinter:**
+  - **Problemas:** al correr hacía el pino con las piernas al aire (sur y este) y abría las piernas (norte). El zarpazo se giraba hacia la cámara (este y noreste) y de espaldas parecía agarrarse la cabeza.
+  - **Galope a cuatro patas** (`gallop`, 5 direcciones): de lado, bien. Hacia el sur y el norte se veían las patas traseras por encima de la cabeza, así que esas dos se repitieron (`gallop_fb`, «the head stays at the top of the body»). Todas empezaban con la transición desde estar de pie: `"trim": [2, 7]` deja un bucle de 5 fotogramas, a 12 fps.
+  - **Zarpazo** (`claw_v2`): el sur, bien. Las demás direcciones aún se giraban al final, así que `"trim": [0, 6]` se queda con los 6 primeros; el golpe sigue en el 4.º.
+  - El importador gana `"trim"`, con test.
+- **Coste:** unas 22 generaciones.
+
