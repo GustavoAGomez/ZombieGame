@@ -3,5 +3,13 @@
     "west": "east",
     "south-west": "south-east",
     "north-west": "north-east"
+  },
+  "scale": {
+    "crawl": {
+      "*": 0.9,
+      "south": 0.85,
+      "south-east": 0.85,
+      "south-west": 0.85
+    }
   }
 }

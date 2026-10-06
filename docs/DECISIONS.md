@@ -2261,3 +2261,19 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 - **Efectos** (`DungeonEffects`): el escupitajo y la explosión pasan a ser sprites de un pool. El escupitajo se gira hacia donde vuela y se bambolea; la explosión recorre sus 9 fotogramas en los 0,35 s de `explosionFade`, a la escala de su radio. Los círculos dibujados por código desaparecen; las brasas de Paso de sombra siguen igual.
 - **Comprobado:** typecheck, lint y tests. Los seis zombis, alineados por su ancla en una hoja de revisión, apoyan los pies en la misma línea, y el bruto mide 1,5 veces el caminante. No se pudo jugar a velocidad normal: el panel del navegador estaba oculto y la animación iba a 1 FPS.
 
+## Los zombis sin piernas, a su tamaño (petición del usuario)
+
+- **Problema:** como le pasó al caminante, PixelLab dibujó a los zombis tumbados más grandes que de pie. Ocupan todo el ancho del lienzo y tienen la cabeza más grande, así que sin piernas parecían más grandes. Comparando las cabezas ampliadas:
+  - escupidor y corredor, entre un 20 y un 35 % más grandes (ojos a 5 px de pie y a 6–8 tumbados);
+  - sprinter, algo más grande;
+  - explosivo, la cabeza casi igual, pero los brazos abiertos ocupan más ancho.
+- **Arreglo:** `"scale"` en el `import.json` de cada uno, para `crawl` y `crawl_attack` (el explosivo solo tiene `crawl`). Hacia el sur, el factor es menor porque de cara se ven más grandes, como en el caminante:
+
+| Zombi | Sur y sus diagonales | Resto |
+|---|---|---|
+| Corredor y escupidor | ×0,7 | ×0,8 (los factores del caminante) |
+| Sprinter | ×0,8 | ×0,85 |
+| Explosivo | ×0,85 | ×0,9 |
+
+- **Comprobado** en hojas de revisión, de pie y tumbados lado a lado sobre su ancla, hacia el sur, el este y el noreste: la cabeza tumbada queda igual o algo menor que de pie, y siguen apoyados en el suelo porque se escala alrededor de los pies. No se recorta ningún píxel.
+

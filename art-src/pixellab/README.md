@@ -28,6 +28,7 @@ su caja delimitadora sobre el fondo transparente.
 - zombie_walker: el zombi (andar, zarpazo, climb de 4 direcciones, muerte, y en el estado sin piernas gatear y zarpazo en el suelo).
 - zombie_runner, zombie_sprinter: corredor (sudadera ocre) y sprinter (chaqueta roja de paramédico), cada uno con su arte: correr, zarpazo, climb, muerte y, sin piernas, arrastrarse y zarpazo en el suelo.
 - zombie_spitter, zombie_exploder, zombie_brute: los de la mazmorra. El escupidor anda, escupe, da zarpazos y muere; sin piernas, se arrastra y da zarpazos. El explosivo (la versión con barriga) corre y se hincha con la mecha; sin piernas, se arrastra. El bruto (72 px, en un lienzo de 104) anda, da el mazazo (`smash` → `attack`) y muere.
+- Los zombis tumbados vienen más grandes que de pie y `"scale"` los reduce (`docs/DECISIONS.md`, «Los zombis sin piernas, a su tamaño»).
 - En los zombis, lo generado en 5 direcciones se completa con el oeste en espejo (`"mirrorMissing"` en `import.json`); el zarpazo en el suelo se llama `crawl_claw` y `"sources"` lo lleva a `crawl_attack`.
 
 ## Objetos (`objects/<clave>/`, imágenes sueltas y `import.json` con el orden de fotogramas)

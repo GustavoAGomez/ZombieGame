@@ -8,5 +8,19 @@
     "west": "east",
     "south-west": "south-east",
     "north-west": "north-east"
+  },
+  "scale": {
+    "crawl": {
+      "*": 0.85,
+      "south": 0.8,
+      "south-east": 0.8,
+      "south-west": 0.8
+    },
+    "crawl_attack": {
+      "*": 0.85,
+      "south": 0.8,
+      "south-east": 0.8,
+      "south-west": 0.8
+    }
   }
 }
