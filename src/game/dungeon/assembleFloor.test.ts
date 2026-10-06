@@ -42,10 +42,10 @@ describe('assembleFloor (spec 09 §3.3)', () => {
         if (room.type === 'treasure' || room.type === 'challenge' || room.type === 'boss') expect(map.chestSpots.some((s) => s.zoneIndex === i)).toBe(true);
         if (room.type === 'boss') {
           expect(map.bossSpots.some((s) => s.zoneIndex === i)).toBe(true);
-          // The arena's four cells make one zone of 33×15 floor tiles.
+          // The arena's four cells make one zone of 37×17 floor tiles.
           const zone = map.zones[i];
-          expect(zone?.width).toBe(33 * ts);
-          expect(zone?.height).toBe(15 * ts);
+          expect(zone?.width).toBe(37 * ts);
+          expect(zone?.height).toBe(17 * ts);
         }
         if (room.type === 'hand') expect(map.handSpots.some((s) => s.zoneIndex === i)).toBe(true);
       });

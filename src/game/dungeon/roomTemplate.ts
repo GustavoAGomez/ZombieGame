@@ -1,8 +1,8 @@
 /**
  * Room templates (spec 09 §3.2): hand-made plans of one room in the ASCII
  * format of maps/src/ (skill level-design), in maps/src/rooms/<ambient>/.
- * A template is 18×9 tiles (16×7 of floor inside its walls; the boss arena
- * 35×17, four cells with shared walls), with one door hole per side at a
+ * A template is 20×10 tiles (18×8 of floor inside its walls; the boss arena
+ * 39×19, four cells with shared walls), with one door hole per side at a
  * fixed place, marked `o`. Under the plan, its tables: `## Sala` (type,
  * difficulty, ambient), `## Enemigos`, `## Magos`, `## Cofre`, `## Bosses`,
  * `## Mano` and `## Atrezo`, in the room's own coordinates.

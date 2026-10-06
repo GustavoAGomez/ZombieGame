@@ -1,12 +1,13 @@
-########oo########
-#................#
-#................#
-#................#
-o................o
-o................o
-#................#
-#................#
-########oo########
+#########oo#########
+#..................#
+#..................#
+#..................#
+#..................#
+o..................o
+o..................o
+#..................#
+#..................#
+#########oo#########
 
 ## Sala
 | tipo | dificultad | ambiente | nota |
@@ -16,12 +17,12 @@ o................o
 ## Cofre
 | id | casilla |
 |---|---|
-| C1 | 8,5 |
+| C1 | 9,6 |
 
 ## Atrezo (muebles; con colisión es la cobertura de la sala)
 | id | objeto | casillas | colisión | volteo | nota |
 |---|---|---|---|---|---|
-| A1 | prop_alfombra | 7,3 9,4 | no | — | alfombra bajo el cofre |
+| A1 | prop_alfombra | 8,4 10,5 | no | — | alfombra bajo el cofre |
 | A2 | prop_aparador | 1,1 1,3 | sí | — |  |
-| A3 | prop_cuadro_caido | 15,2 | no | — |  |
-| A4 | prop_escombros | 4,7 | no | — |  |
+| A3 | prop_cuadro_caido | 17,2 | no | — |  |
+| A4 | prop_escombros | 4,8 | no | — |  |

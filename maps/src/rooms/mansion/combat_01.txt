@@ -1,12 +1,13 @@
-########oo########
-#................#
-#................#
-#................#
-o................o
-o................o
-#................#
-#................#
-########oo########
+#########oo#########
+#..................#
+#..................#
+#..................#
+#..................#
+o..................o
+o..................o
+#..................#
+#..................#
+#########oo#########
 
 ## Sala
 | tipo | dificultad | ambiente | nota |
@@ -16,10 +17,10 @@ o................o
 ## Enemigos (puntos de aparición, a 4 casillas o más de los huecos)
 | id | casilla |
 |---|---|
-| E1 | 4,6 |
-| E2 | 13,6 |
-| E3 | 13,2 |
-| E4 | 12,3 |
+| E1 | 4,7 |
+| E2 | 15,7 |
+| E3 | 15,2 |
+| E4 | 14,3 |
 
 ## Magos
 | id | casilla | nota |
@@ -31,7 +32,7 @@ o................o
 |---|---|---|---|---|---|
 | A1 | prop_sofa | 3,2 3,4 | sí | — | sofá de cara a la pared este |
 | A2 | prop_sillon | 5,2 | sí | — |  |
-| A3 | prop_alfombra_hogar | 7,3 8,4 | no | — | alfombra quemada |
-| A4 | prop_mesa | 11,5 12,5 | sí | — | mesa baja |
-| A5 | prop_piano | 14,1 15,2 | sí | — | piano de pared |
-| A6 | prop_cuadro_caido | 1,7 | no | — |  |
+| A3 | prop_alfombra_hogar | 8,4 9,5 | no | — | alfombra quemada |
+| A4 | prop_mesa | 12,6 13,6 | sí | — | mesa baja |
+| A5 | prop_piano | 16,1 17,2 | sí | — | piano de pared |
+| A6 | prop_cuadro_caido | 1,8 | no | — |  |

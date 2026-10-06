@@ -1,12 +1,13 @@
-########oo########
-#................#
-#................#
-#................#
-o................o
-o................o
-#................#
-#................#
-########oo########
+#########oo#########
+#..................#
+#..................#
+#..................#
+#..................#
+o..................o
+o..................o
+#..................#
+#..................#
+#########oo#########
 
 ## Sala
 | tipo | dificultad | ambiente | nota |
@@ -16,22 +17,22 @@ o................o
 ## Enemigos (puntos de aparición, a 4 casillas o más de los huecos)
 | id | casilla |
 |---|---|
-| E1 | 4,6 |
-| E2 | 13,6 |
-| E3 | 12,3 |
+| E1 | 4,7 |
+| E2 | 15,7 |
+| E3 | 14,3 |
 | E4 | 5,3 |
 
 ## Magos
 | id | casilla | nota |
 |---|---|---|
-| M1 | 1,7 | rincón suroeste |
+| M1 | 1,8 | rincón suroeste |
 
 ## Atrezo (muebles; con colisión es la cobertura de la sala)
 | id | objeto | casillas | colisión | volteo | nota |
 |---|---|---|---|---|---|
 | A1 | prop_colchon | 2,2 3,3 | sí | — | colchón tirado |
-| A2 | prop_alfombra | 7,5 9,6 | no | — |  |
-| A3 | prop_escritorio | 13,1 14,1 | sí | — | escritorio |
-| A4 | prop_sillon | 15,2 | sí | — |  |
-| A5 | prop_cuadro_caido | 5,7 | no | — |  |
-| A6 | prop_charco_sangre | 10,2 | no | — |  |
+| A2 | prop_alfombra | 8,6 10,7 | no | — |  |
+| A3 | prop_escritorio | 15,1 16,1 | sí | — | escritorio |
+| A4 | prop_sillon | 17,2 | sí | — |  |
+| A5 | prop_cuadro_caido | 5,8 | no | — |  |
+| A6 | prop_charco_sangre | 12,2 | no | — |  |

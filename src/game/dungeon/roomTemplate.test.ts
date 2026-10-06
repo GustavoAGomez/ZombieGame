@@ -25,21 +25,22 @@ describe('room templates (spec 09 §3.2)', () => {
   it('has its door holes at the same place in every room: the middle of the north and south walls, just under the middle of the others', () => {
     const holes = doorHoles(1, 1);
     expect(holes.map((h) => h.side)).toEqual(['n', 's', 'w', 'e']);
+    expect(templateSize(1, 1)).toEqual({ width: 20, height: 10 });
     expect(holes.find((h) => h.side === 'n')?.tiles).toEqual([
-      { x: 8, y: 0 },
       { x: 9, y: 0 },
+      { x: 10, y: 0 },
     ]);
     expect(holes.find((h) => h.side === 'e')?.tiles).toEqual([
-      { x: 17, y: 4 },
-      { x: 17, y: 5 },
+      { x: 19, y: 5 },
+      { x: 19, y: 6 },
     ]);
-    // The arena: a hole per cell and side, eight in all, on its 35×17 ring.
+    // The arena: a hole per cell and side, eight in all, on its 39×19 ring.
     const arena = doorHoles(DUNGEON.arenaSize, DUNGEON.arenaSize);
     expect(arena).toHaveLength(8);
-    expect(templateSize(2, 2)).toEqual({ width: 35, height: 17 });
+    expect(templateSize(2, 2)).toEqual({ width: 39, height: 19 });
     expect(arena.find((h) => h.side === 's' && h.cell.x === 1)?.tiles).toEqual([
-      { x: 25, y: 16 },
-      { x: 26, y: 16 },
+      { x: 28, y: 18 },
+      { x: 29, y: 18 },
     ]);
   });
 
@@ -59,12 +60,12 @@ describe('room templates (spec 09 §3.2)', () => {
     const m = mirrorTemplate(t);
     expect(m.mirrored).toBe(true);
     expect(m.enemies).toEqual([
-      { x: 13, y: 2 },
-      { x: 4, y: 6 },
+      { x: 15, y: 2 },
+      { x: 6, y: 6 },
     ]);
     expect(m.props[0]?.cells).toEqual([
-      { x: 15, y: 2 },
-      { x: 14, y: 2 },
+      { x: 17, y: 2 },
+      { x: 16, y: 2 },
     ]);
     expect(m.props[0]?.flipX).toBe(true);
     expect(m.grid[0]).toBe(t.grid[0]);

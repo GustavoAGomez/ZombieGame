@@ -1,12 +1,13 @@
-########oo########
-#................#
-#................#
-#................#
-o................o
-o.......P........o
-#................#
-#................#
-########oo########
+#########oo#########
+#..................#
+#..................#
+#..................#
+#..................#
+o..................o
+o........P.........o
+#..................#
+#..................#
+#########oo#########
 
 ## Sala
 | tipo | dificultad | ambiente | nota |
@@ -16,8 +17,8 @@ o.......P........o
 ## Atrezo (muebles; con colisión es la cobertura de la sala)
 | id | objeto | casillas | colisión | volteo | nota |
 |---|---|---|---|---|---|
-| A1 | prop_alfombra | 7,2 9,3 | no | — | alfombra del hall, arrugada |
+| A1 | prop_alfombra | 8,3 10,4 | no | — | alfombra del hall, arrugada |
 | A2 | prop_consola_volcada | 2,1 3,1 | sí | — | consola volcada contra la pared |
-| A3 | prop_cuadro_caido | 14,1 | no | — |  |
-| A4 | prop_escombros | 3,6 | no | — | yeso del techo |
-| A5 | prop_cajas | 14,6 15,7 | sí | — | cajas de la mudanza que nunca se deshizo |
+| A3 | prop_cuadro_caido | 16,1 | no | — |  |
+| A4 | prop_escombros | 3,7 | no | — | yeso del techo |
+| A5 | prop_cajas | 16,7 17,8 | sí | — | cajas de la mudanza que nunca se deshizo |

@@ -1,12 +1,13 @@
-########oo########
-#................#
-#................#
-#................#
-o................o
-o................o
-#................#
-#................#
-########oo########
+#########oo#########
+#..................#
+#..................#
+#..................#
+#..................#
+o..................o
+o..................o
+#..................#
+#..................#
+#########oo#########
 
 ## Sala
 | tipo | dificultad | ambiente | nota |
@@ -16,12 +17,12 @@ o................o
 ## Mano
 | id | casilla |
 |---|---|
-| H1 | 8,4 |
+| H1 | 9,5 |
 
 ## Atrezo (muebles; con colisión es la cobertura de la sala)
 | id | objeto | casillas | colisión | volteo | nota |
 |---|---|---|---|---|---|
-| A1 | prop_charco_sangre | 6,3 | no | — |  |
-| A2 | prop_charco_sangre | 10,5 | no | — |  |
-| A3 | prop_escombros | 3,6 | no | — |  |
-| A4 | prop_cajas | 14,1 15,2 | sí | — |  |
+| A1 | prop_charco_sangre | 7,3 | no | — |  |
+| A2 | prop_charco_sangre | 12,6 | no | — |  |
+| A3 | prop_escombros | 3,7 | no | — |  |
+| A4 | prop_cajas | 16,1 17,2 | sí | — |  |

@@ -1,12 +1,13 @@
-########oo########
-#kkkkkkkkkkkkkkkk#
-#kkkkkkkkkkkkkkkk#
-#kkkkkkkkkkkkkkkk#
-okkkkkkkkkkkkkkkko
-okkkkkkkkkkkkkkkko
-#kkkkkkkkkkkkkkkk#
-#kkkkkkkkkkkkkkkk#
-########oo########
+#########oo#########
+#kkkkkkkkkkkkkkkkkk#
+#kkkkkkkkkkkkkkkkkk#
+#kkkkkkkkkkkkkkkkkk#
+#kkkkkkkkkkkkkkkkkk#
+okkkkkkkkkkkkkkkkkko
+okkkkkkkkkkkkkkkkkko
+#kkkkkkkkkkkkkkkkkk#
+#kkkkkkkkkkkkkkkkkk#
+#########oo#########
 
 ## Sala
 | tipo | dificultad | ambiente | nota |
@@ -16,15 +17,15 @@ okkkkkkkkkkkkkkkko
 ## Enemigos (puntos de aparición, a 4 casillas o más de los huecos)
 | id | casilla |
 |---|---|
-| E1 | 4,6 |
-| E2 | 13,6 |
-| E3 | 13,2 |
+| E1 | 4,7 |
+| E2 | 15,7 |
+| E3 | 15,2 |
 | E4 | 4,3 |
 
 ## Magos
 | id | casilla | nota |
 |---|---|---|
-| M1 | 16,1 | rincón noreste |
+| M1 | 18,1 | rincón noreste |
 
 ## Atrezo (muebles; con colisión es la cobertura de la sala)
 | id | objeto | casillas | colisión | volteo | nota |
@@ -32,7 +33,7 @@ okkkkkkkkkkkkkkkko
 | A1 | prop_encimera | 1,1 3,1 | sí | — | encimera |
 | A2 | prop_nevera | 4,1 | sí | — | nevera abierta |
 | A3 | prop_horno | 5,1 | sí | — |  |
-| A4 | prop_isla_cocina | 7,4 10,4 | sí | — | isla en el centro |
-| A5 | prop_vajilla_rota | 6,5 | no | — |  |
-| A6 | prop_latas_suelo | 12,2 | no | — |  |
-| A7 | prop_cubo_basura | 15,7 | sí | — |  |
+| A4 | prop_isla_cocina | 8,5 11,5 | sí | — | isla en el centro |
+| A5 | prop_vajilla_rota | 7,6 | no | — |  |
+| A6 | prop_latas_suelo | 14,2 | no | — |  |
+| A7 | prop_cubo_basura | 17,8 | sí | — |  |

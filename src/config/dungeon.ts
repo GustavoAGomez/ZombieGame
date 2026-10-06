@@ -63,14 +63,15 @@ export const DUNGEON = {
   /** The difficulties a floor draws its rooms from (§3.2): the first floor, and the rest. */
   difficulties: { first: ['easy', 'medium'], later: ['medium', 'hard'] } as const satisfies Record<string, readonly RoomDifficulty[]>,
   /**
-   * A room template (§3.2): 16×7 tiles of floor inside its walls (18×9 with
-   * them); rooms share their walls, so the plan's cells are 17×8 tiles
-   * apart. One door hole per side, `doorSpan` tiles wide, always at the
-   * same place: the middle of the north and south walls, and just under the
-   * middle of the west and east ones. Enemies appear `spawnClearTiles` or
-   * more from every hole, and never nearer the player (§4).
+   * A room template (§3.2): 18×8 tiles of floor inside its walls (20×10 with
+   * them; the spec's 16×7 left room on the phone's screen, docs/DECISIONS.md);
+   * rooms share their walls, so the plan's cells are 19×9 tiles apart. One
+   * door hole per side, `doorSpan` tiles wide, always at the same place: the
+   * middle of the north and south walls, and just under the middle of the
+   * west and east ones. Enemies appear `spawnClearTiles` or more from every
+   * hole, and never nearer the player (§4).
    */
-  room: { floor: { width: 16, height: 7 }, doorSpan: 2, spawnClearTiles: 4 },
+  room: { floor: { width: 18, height: 8 }, doorSpan: 2, spawnClearTiles: 4 },
   /**
    * Combat (§5.1): a zombie's scratch, what a medkit heals and the +life of
    * a dead boss; the weapons whose reserve never runs out (the magazine
