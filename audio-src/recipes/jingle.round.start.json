@@ -2,64 +2,7 @@
   "chosen": null,
   "candidates": {
     "A": {
-      "about": "Tambor grave afinado en La y La-Do-Re-Mi de campana, tensas.",
-      "channels": 2,
-      "variants": [
-        {
-          "type": "layers",
-          "layers": [
-            {
-              "recipe": {
-                "type": "file",
-                "source": "library/freesound/577402_crdn_cinematic_heavy_drums_09.ogg",
-                "process": {
-                  "semitones": 0.36,
-                  "end": 0.9,
-                  "lowcut": 90,
-                  "fadeOut": 0.4
-                }
-              },
-              "gain": 1
-            },
-            {
-              "recipe": {
-                "type": "synth",
-                "timbre": "bell",
-                "notes": [
-                  [
-                    "A4",
-                    0.14
-                  ],
-                  [
-                    "C5",
-                    0.14
-                  ],
-                  [
-                    "D5",
-                    0.14
-                  ],
-                  [
-                    "E5",
-                    0
-                  ]
-                ],
-                "duration": 0.7
-              },
-              "gain": 0.7,
-              "delay": 0.05
-            }
-          ],
-          "process": {
-            "reverb": "hall",
-            "wet": 0.22,
-            "length": 1.5,
-            "fadeOut": 0.4
-          }
-        }
-      ]
-    },
-    "B": {
-      "about": "Taiko y timbal en La, con Mi-La-Si-Do (el semitono Si-Do da la tensión).",
+      "about": "Estéreo: CUERNO DE GUERRA. Un taiko y un tambor de cine en La, y un cuerno de batalla grabado, afinado a La 3.",
       "channels": 2,
       "variants": [
         {
@@ -73,7 +16,7 @@
                   "semitones": 1.26,
                   "end": 0.38,
                   "lowcut": 90,
-                  "fadeOut": 0.4
+                  "fadeOut": 0.15
                 }
               },
               "gain": 1
@@ -81,55 +24,45 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/573275_timpani_2.ogg",
+                "source": "library/freesound/577402_crdn_cinematic_heavy_drums_09.ogg",
                 "process": {
-                  "semitones": -0.47,
-                  "end": 1.2,
+                  "semitones": 0.36,
+                  "end": 0.9,
                   "lowcut": 90,
                   "fadeOut": 0.4
                 }
               },
-              "gain": 0.7
+              "gain": 0.8,
+              "delay": 0.45
             },
             {
               "recipe": {
-                "type": "synth",
-                "timbre": "bell",
-                "notes": [
-                  [
-                    "E4",
-                    0.15
-                  ],
-                  [
-                    "A4",
-                    0.15
-                  ],
-                  [
-                    "B4",
-                    0.15
-                  ],
-                  [
-                    "C5",
-                    0
-                  ]
-                ],
-                "duration": 0.7
+                "type": "file",
+                "source": "library/freesound/392180_battle_horn_1.ogg",
+                "process": {
+                  "semitones": -5.14,
+                  "start": 0.04,
+                  "end": 1.3,
+                  "fadeIn": 0.05,
+                  "fadeOut": 0.5,
+                  "lowcut": 100
+                }
               },
-              "gain": 0.7,
-              "delay": 0.05
+              "gain": 0.8,
+              "delay": 0.12
             }
           ],
           "process": {
             "reverb": "hall",
-            "wet": 0.22,
-            "length": 1.5,
-            "fadeOut": 0.4
+            "wet": 0.2,
+            "length": 2.2,
+            "fadeOut": 0.5
           }
         }
       ]
     },
-    "C": {
-      "about": "Otro tambor y La-Si-Do-Mi de campana con cristal.",
+    "B": {
+      "about": "Estéreo: GOLPE DE CINE. Un «braam» de metales con timbal, afinado a La 2, y un taiko encima.",
       "channels": 2,
       "variants": [
         {
@@ -138,76 +71,122 @@
             {
               "recipe": {
                 "type": "file",
-                "source": "library/freesound/577403_crdn_cinematic_heavy_drums_12.ogg",
+                "source": "library/freesound/592041_braams_and_timpani.ogg",
                 "process": {
-                  "semitones": 0,
-                  "end": 0.9,
+                  "semitones": -0.47,
+                  "end": 2.0,
                   "lowcut": 90,
-                  "fadeOut": 0.4
+                  "fadeOut": 0.6
                 }
               },
               "gain": 1
             },
             {
               "recipe": {
-                "type": "synth",
-                "timbre": "bell",
-                "notes": [
-                  [
-                    "A4",
-                    0.14
-                  ],
-                  [
-                    "B4",
-                    0.14
-                  ],
-                  [
-                    "C5",
-                    0.14
-                  ],
-                  [
-                    "E5",
-                    0
-                  ]
-                ],
-                "duration": 0.7
+                "type": "file",
+                "source": "library/freesound/801829_taiko_tom_1_long.ogg",
+                "process": {
+                  "semitones": 1.26,
+                  "end": 0.38,
+                  "lowcut": 90,
+                  "fadeOut": 0.15
+                }
               },
-              "gain": 0.6,
-              "delay": 0.05
-            },
-            {
-              "recipe": {
-                "type": "synth",
-                "timbre": "glass",
-                "notes": [
-                  [
-                    "A5",
-                    0.14
-                  ],
-                  [
-                    "B5",
-                    0.14
-                  ],
-                  [
-                    "C6",
-                    0.14
-                  ],
-                  [
-                    "E6",
-                    0
-                  ]
-                ],
-                "duration": 0.3
-              },
-              "gain": 0.25,
-              "delay": 0.05
+              "gain": 0.7
             }
           ],
           "process": {
             "reverb": "hall",
-            "wet": 0.22,
-            "length": 1.5,
-            "fadeOut": 0.4
+            "wet": 0.2,
+            "length": 2.2,
+            "fadeOut": 0.5
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Estéreo: TAMBORES DE GUERRA. Tres taikos que se aceleran y un cuerno grave en Mi 4 sobre ellos.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/801829_taiko_tom_1_long.ogg",
+                "process": {
+                  "semitones": 1.26,
+                  "end": 0.38,
+                  "lowcut": 90,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/801829_taiko_tom_1_long.ogg",
+                "process": {
+                  "semitones": 1.26,
+                  "end": 0.38,
+                  "lowcut": 90,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 0.85,
+              "delay": 0.3
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/801829_taiko_tom_1_long.ogg",
+                "process": {
+                  "semitones": 1.26,
+                  "end": 0.38,
+                  "lowcut": 90,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1,
+              "delay": 0.5
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/577402_crdn_cinematic_heavy_drums_09.ogg",
+                "process": {
+                  "semitones": 0.36,
+                  "end": 0.9,
+                  "lowcut": 90,
+                  "fadeOut": 0.4
+                }
+              },
+              "gain": 0.7,
+              "delay": 0.5
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/720204_booga_booga_war_horn_variant_4.ogg",
+                "process": {
+                  "semitones": -7.42,
+                  "end": 1.2,
+                  "fadeIn": 0.05,
+                  "fadeOut": 0.5,
+                  "lowcut": 100
+                }
+              },
+              "gain": 0.7,
+              "delay": 0.5
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.2,
+            "length": 2.2,
+            "fadeOut": 0.5
           }
         }
       ]

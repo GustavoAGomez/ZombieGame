@@ -2,7 +2,7 @@
   "chosen": null,
   "candidates": {
     "A": {
-      "about": "Golpe seco de puñetazo con peso a 150 Hz; la campanilla (La 5) sube de tono con la racha.",
+      "about": "Golpe seco con un tintineo de moneda; el brillo es un glockenspiel real en La 5, que sube con la racha.",
       "channels": 1,
       "variants": [
         {
@@ -21,10 +21,11 @@
             },
             {
               "recipe": {
-                "type": "synth",
-                "timbre": "sub",
-                "freq": 150,
-                "duration": 0.08
+                "type": "file",
+                "source": "library/freesound/699528_coin_hit_05.ogg",
+                "process": {
+                  "highcut": 12000
+                }
               },
               "gain": 0.3
             }
@@ -37,21 +38,30 @@
       ],
       "shine": [
         {
-          "type": "synth",
-          "timbre": "bell",
-          "notes": [
-            [
-              "A5",
-              0,
-              1
-            ]
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/348890_glockenspiel_20_a3_02.ogg",
+                "process": {
+                  "semitones": -12,
+                  "end": 0.25,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1
+            }
           ],
-          "duration": 0.35
+          "process": {
+            "length": 0.45,
+            "fadeOut": 0.2
+          }
         }
       ]
     },
     "B": {
-      "about": "Bofetada grabada con madera; el brillo es un cristal en La 6, más corto.",
+      "about": "Bofetada con madera; el brillo es una caja de música real en Re 6.",
       "channels": 1,
       "variants": [
         {
@@ -87,21 +97,30 @@
       ],
       "shine": [
         {
-          "type": "synth",
-          "timbre": "glass",
-          "notes": [
-            [
-              "A6",
-              0,
-              1
-            ]
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/732949_wind_up_music_box_d6_note.ogg",
+                "process": {
+                  "semitones": -0.3,
+                  "end": 0.4,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1
+            }
           ],
-          "duration": 0.22
+          "process": {
+            "length": 0.45,
+            "fadeOut": 0.2
+          }
         }
       ]
     },
     "C": {
-      "about": "Golpe pesado con salpicadura; el brillo mezcla campana y cristal en La.",
+      "about": "Golpe pesado con salpicadura; el brillo es una copa de cristal golpeada, bajada a La 5.",
       "channels": 1,
       "variants": [
         {
@@ -141,35 +160,21 @@
           "layers": [
             {
               "recipe": {
-                "type": "synth",
-                "timbre": "bell",
-                "notes": [
-                  [
-                    "A6",
-                    0,
-                    1
-                  ]
-                ],
-                "duration": 0.3
+                "type": "file",
+                "source": "library/freesound/865788_classic_glass_hit_c5.ogg",
+                "process": {
+                  "semitones": -2.96,
+                  "end": 0.35,
+                  "fadeOut": 0.2
+                }
               },
-              "gain": 0.8
-            },
-            {
-              "recipe": {
-                "type": "synth",
-                "timbre": "glass",
-                "notes": [
-                  [
-                    "A7",
-                    0,
-                    1
-                  ]
-                ],
-                "duration": 0.15
-              },
-              "gain": 0.3
+              "gain": 1
             }
-          ]
+          ],
+          "process": {
+            "length": 0.45,
+            "fadeOut": 0.2
+          }
         }
       ]
     }

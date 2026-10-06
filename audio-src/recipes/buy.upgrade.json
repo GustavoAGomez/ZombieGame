@@ -2,7 +2,7 @@
   "chosen": null,
   "candidates": {
     "A": {
-      "about": "Un mechero que prende y una llamarada; la subida La-Do-Mi-La sube un peldaño por nivel.",
+      "about": "Un mechero que prende y una llamarada; La-Do-Mi-La de glockenspiel real, un peldaño más por nivel.",
       "channels": 1,
       "variants": [
         {
@@ -41,32 +41,69 @@
       ],
       "shine": [
         {
-          "type": "synth",
-          "timbre": "bell",
-          "notes": [
-            [
-              "A4",
-              0.07
-            ],
-            [
-              "C5",
-              0.07
-            ],
-            [
-              "E5",
-              0.07
-            ],
-            [
-              "A5",
-              0
-            ]
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/348890_glockenspiel_20_a3_02.ogg",
+                "process": {
+                  "semitones": -12,
+                  "end": 0.3,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/348890_glockenspiel_20_a3_02.ogg",
+                "process": {
+                  "semitones": -9,
+                  "end": 0.3,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1,
+              "delay": 0.07
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/348890_glockenspiel_20_a3_02.ogg",
+                "process": {
+                  "semitones": -5,
+                  "end": 0.3,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1,
+              "delay": 0.14
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/348890_glockenspiel_20_a3_02.ogg",
+                "process": {
+                  "semitones": 0,
+                  "end": 0.3,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1.1,
+              "delay": 0.21000000000000002
+            }
           ],
-          "duration": 0.35
+          "process": {
+            "length": 0.6,
+            "fadeOut": 0.25
+          }
         }
       ]
     },
     "B": {
-      "about": "Una cerilla y un hechizo de fuego; la subida es de cristal.",
+      "about": "Una cerilla y un hechizo de fuego; Re-Fa-La-Re de caja de música.",
       "channels": 1,
       "variants": [
         {
@@ -102,32 +139,69 @@
       ],
       "shine": [
         {
-          "type": "synth",
-          "timbre": "glass",
-          "notes": [
-            [
-              "A5",
-              0.07
-            ],
-            [
-              "C6",
-              0.07
-            ],
-            [
-              "E6",
-              0.07
-            ],
-            [
-              "A6",
-              0
-            ]
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/732949_wind_up_music_box_d6_note.ogg",
+                "process": {
+                  "semitones": -0.3,
+                  "end": 0.3,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/732949_wind_up_music_box_d6_note.ogg",
+                "process": {
+                  "semitones": 2.7,
+                  "end": 0.3,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1,
+              "delay": 0.07
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/732949_wind_up_music_box_d6_note.ogg",
+                "process": {
+                  "semitones": 6.7,
+                  "end": 0.3,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1,
+              "delay": 0.14
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/732949_wind_up_music_box_d6_note.ogg",
+                "process": {
+                  "semitones": 11.7,
+                  "end": 0.3,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1.1,
+              "delay": 0.21000000000000002
+            }
           ],
-          "duration": 0.3
+          "process": {
+            "length": 0.6,
+            "fadeOut": 0.25
+          }
         }
       ]
     },
     "C": {
-      "about": "Cerilla que prende sola y fuego de OpenGameArt; la subida mezcla campana y cristal.",
+      "about": "Cerilla que prende sola y fuego; Mi-Sol-Si-Mi de kalimba.",
       "channels": 1,
       "variants": [
         {
@@ -167,57 +241,60 @@
           "layers": [
             {
               "recipe": {
-                "type": "synth",
-                "timbre": "bell",
-                "notes": [
-                  [
-                    "A4",
-                    0.07
-                  ],
-                  [
-                    "C5",
-                    0.07
-                  ],
-                  [
-                    "E5",
-                    0.07
-                  ],
-                  [
-                    "A5",
-                    0
-                  ]
-                ],
-                "duration": 0.35
+                "type": "file",
+                "source": "library/freesound/691796_e5_hard_kalimba.ogg",
+                "process": {
+                  "semitones": 0.28,
+                  "end": 0.35,
+                  "fadeOut": 0.2
+                }
               },
               "gain": 1
             },
             {
               "recipe": {
-                "type": "synth",
-                "timbre": "glass",
-                "notes": [
-                  [
-                    "A5",
-                    0.07
-                  ],
-                  [
-                    "C6",
-                    0.07
-                  ],
-                  [
-                    "E6",
-                    0.07
-                  ],
-                  [
-                    "A6",
-                    0
-                  ]
-                ],
-                "duration": 0.2
+                "type": "file",
+                "source": "library/freesound/691796_e5_hard_kalimba.ogg",
+                "process": {
+                  "semitones": 3.2800000000000002,
+                  "end": 0.35,
+                  "fadeOut": 0.2
+                }
               },
-              "gain": 0.3
+              "gain": 1,
+              "delay": 0.07
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/691796_e5_hard_kalimba.ogg",
+                "process": {
+                  "semitones": 7.28,
+                  "end": 0.35,
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 1,
+              "delay": 0.14
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/691796_e5_hard_kalimba.ogg",
+                "process": {
+                  "semitones": 12.28,
+                  "end": 0.35,
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 1.1,
+              "delay": 0.21000000000000002
             }
-          ]
+          ],
+          "process": {
+            "length": 0.6,
+            "fadeOut": 0.25
+          }
         }
       ]
     }

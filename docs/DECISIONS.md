@@ -1975,3 +1975,16 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 - **SIMULAR COMBATE**, para el criterio de S4 (20 zombies y la SMG): añade una multitud alrededor del jugador, con un zarpazo cada 4 disparos y un gruñido cada 25. Un test comprueba que nunca se pasa de 12 voces y que los disparos siguen sonando.
 - **Presupuesto:** los efectos ocupan 7,0 MB de los 8. Lo que más pesa son los sonidos estéreo largos (carteles, compras grandes, el boss). Si al elegir candidatos se pasara, se harían mono los menos importantes.
 
+## Audio: alternativas para las rachas y el cambio de ronda (petición del usuario)
+
+- **Rachas** (`reward.kill`, `reward.repair` y `buy.upgrade`): la capa de brillo pasa de campana y cristal sintéticos a instrumentos grabados, afinados para que todos los peldaños queden en La menor:
+  - glockenspiel en La 5;
+  - caja de música en Re 6;
+  - kalimba en Mi 6;
+  - una copa de cristal golpeada, bajada a La 5;
+  - un «ding» de cristal en Mi 6.
+
+  La subida de cuatro notas de las mejoras es la misma nota grabada movida a cada altura.
+- **Cambio de ronda** (`jingle.round.start`): en lugar de las cuatro notas de campana de §6.5, tres direcciones grabadas. Son un cuerno de guerra sobre tambores, un «braam» de metales de cine con timbal y tambores de guerra con un cuerno grave.
+- Los candidatos anteriores siguen en el historial de git (commit `c02b291`) por si hubiera que recuperar alguno.
+

@@ -66,11 +66,11 @@ Bandas: porcentaje de la energía por debajo de 100 Hz, 100–250, 250–1000, 1
 | buy_special__b | buy.special | B | Carteles | estéreo | 1536 ms | 256 ms | -1.0 dB | -20.7 dB | 2137 Hz | 174 Hz | 3 · 28 · 49 · 20 · 0 |
 | buy_special__c | buy.special | C | Carteles | estéreo | 1525 ms | 305 ms | -1.0 dB | -17.5 dB | 714 Hz | 875 Hz | 3 · 19 · 77 · 2 · 0 |
 | buy_upgrade__a | buy.upgrade | A ✓ | Premio | mono | 419 ms | 0 ms | -1.0 dB | -14.4 dB | 5490 Hz | 301 Hz | 1 · 7 · 55 · 26 · 12 |
-| buy_upgrade_shine__a | buy.upgrade | A ✓ | Premio | mono | 558 ms | 218 ms | -1.0 dB | -15.7 dB | 805 Hz | 504 Hz | 0 · 3 · 89 · 8 · 0 |
+| buy_upgrade_shine__a | buy.upgrade | A ✓ | Premio | mono | 561 ms | 81 ms | -1.0 dB | -19.0 dB | 3689 Hz | 877 Hz | 0 · 0 · 28 · 64 · 8 |
 | buy_upgrade__b | buy.upgrade | B | Premio | mono | 489 ms | 49 ms | -1.0 dB | -15.9 dB | 3263 Hz | 194 Hz | 1 · 21 · 59 · 14 · 5 |
-| buy_upgrade_shine__b | buy.upgrade | B | Premio | mono | 449 ms | 129 ms | -1.0 dB | -14.7 dB | 2355 Hz | 1763 Hz | 0 · 0 · 23 · 77 · 1 |
+| buy_upgrade_shine__b | buy.upgrade | B | Premio | mono | 212 ms | 32 ms | -1.0 dB | -19.2 dB | 11051 Hz | 1170 Hz | 0 · 0 · 0 · 38 · 62 |
 | buy_upgrade__c | buy.upgrade | C | Premio | mono | 495 ms | 65 ms | -1.0 dB | -16.2 dB | 6290 Hz | 292 Hz | 1 · 3 · 18 · 41 · 37 |
-| buy_upgrade_shine__c | buy.upgrade | C | Premio | mono | 557 ms | 217 ms | -1.0 dB | -16.0 dB | 979 Hz | 504 Hz | 0 · 3 · 82 · 15 · 0 |
+| buy_upgrade_shine__c | buy.upgrade | C | Premio | mono | 369 ms | 69 ms | -1.0 dB | -18.8 dB | 4217 Hz | 1326 Hz | 0 · 0 · 0 · 98 · 1 |
 | buy_weapon__a | buy.weapon | A ✓ | Premio | mono | 479 ms | 109 ms | -1.0 dB | -20.8 dB | 6450 Hz | 1764 Hz | 0 · 0 · 1 · 76 · 23 |
 | buy_weapon__b | buy.weapon | B | Premio | mono | 520 ms | 70 ms | -1.0 dB | -19.2 dB | 5888 Hz | 1905 Hz | 2 · 3 · 7 · 61 · 28 |
 | buy_weapon__c | buy.weapon | C | Premio | estéreo | 640 ms | 150 ms | -1.0 dB | -18.4 dB | 7923 Hz | 1099 Hz | 0 · 0 · 2 · 43 · 55 |
@@ -134,9 +134,9 @@ Bandas: porcentaje de la energía por debajo de 100 Hz, 100–250, 250–1000, 1
 | jingle_round_clear__a | jingle.round.clear | A ✓ | Carteles | estéreo | 1443 ms | 603 ms | -1.0 dB | -17.8 dB | 944 Hz | 781 Hz | 0 · 1 · 90 · 9 · 0 |
 | jingle_round_clear__b | jingle.round.clear | B | Carteles | estéreo | 1510 ms | 510 ms | -1.0 dB | -17.5 dB | 871 Hz | 513 Hz | 0 · 2 · 88 · 9 · 0 |
 | jingle_round_clear__c | jingle.round.clear | C | Carteles | estéreo | 1417 ms | 577 ms | -1.0 dB | -16.9 dB | 983 Hz | 614 Hz | 0 · 0 · 84 · 15 · 0 |
-| jingle_round_start__a | jingle.round.start | A ✓ | Carteles | estéreo | 1294 ms | 564 ms | -1.0 dB | -17.5 dB | 1888 Hz | 571 Hz | 1 · 7 · 87 · 6 · 0 |
-| jingle_round_start__b | jingle.round.start | B | Carteles | estéreo | 1302 ms | 522 ms | -1.0 dB | -16.7 dB | 612 Hz | 512 Hz | 4 · 12 · 81 · 2 · 0 |
-| jingle_round_start__c | jingle.round.start | C | Carteles | estéreo | 1303 ms | 583 ms | -1.0 dB | -18.8 dB | 2462 Hz | 511 Hz | 1 · 9 · 77 · 12 · 1 |
+| jingle_round_start__a | jingle.round.start | A ✓ | Carteles | estéreo | 2052 ms | 672 ms | -1.0 dB | -19.3 dB | 2561 Hz | 213 Hz | 15 · 56 · 19 · 10 · 1 |
+| jingle_round_start__b | jingle.round.start | B | Carteles | estéreo | 2162 ms | 272 ms | -1.0 dB | -20.1 dB | 1052 Hz | 124 Hz | 23 · 52 · 23 · 2 · 0 |
+| jingle_round_start__c | jingle.round.start | C | Carteles | estéreo | 2191 ms | 151 ms | -1.0 dB | -17.6 dB | 1376 Hz | 124 Hz | 13 · 37 · 49 · 1 · 0 |
 | merchant_arrive_blue__a | merchant.arrive | A ✓ | Premio | mono | 521 ms | 201 ms | -1.0 dB | -16.8 dB | 3188 Hz | 1764 Hz | 1 · 3 · 13 · 82 · 1 |
 | merchant_arrive_red__a | merchant.arrive | A ✓ | Premio | mono | 631 ms | 191 ms | -1.0 dB | -20.7 dB | 7149 Hz | 207 Hz | 4 · 11 · 36 · 15 · 34 |
 | merchant_arrive_gold__a | merchant.arrive | A ✓ | Premio | mono | 682 ms | 372 ms | -1.0 dB | -20.9 dB | 2122 Hz | 879 Hz | 0 · 1 · 56 · 42 · 0 |
@@ -173,18 +173,18 @@ Bandas: porcentaje de la energía por debajo de 100 Hz, 100–250, 250–1000, 1
 | reward_hit__a | reward.hit | A ✓ | Premio | mono | 120 ms | 60 ms | -1.0 dB | -16.8 dB | 2707 Hz | 1763 Hz | 0 · 0 · 0 · 100 · 0 |
 | reward_hit__b | reward.hit | B | Premio | mono | 120 ms | 60 ms | -1.0 dB | -17.0 dB | 3830 Hz | 2633 Hz | 0 · 0 · 0 · 96 · 4 |
 | reward_hit__c | reward.hit | C | Premio | mono | 128 ms | 48 ms | -1.0 dB | -14.7 dB | 1908 Hz | 1951 Hz | 1 · 1 · 2 · 95 · 0 |
-| reward_kill__a | reward.kill | A ✓ | Premio | mono | 160 ms | 60 ms | -1.0 dB | -14.9 dB | 694 Hz | 304 Hz | 2 · 19 · 79 · 0 · 0 |
-| reward_kill_shine__a | reward.kill | A ✓ | Premio | mono | 348 ms | 218 ms | -1.0 dB | -19.4 dB | 1063 Hz | 877 Hz | 0 · 0 · 82 · 18 · 0 |
+| reward_kill__a | reward.kill | A ✓ | Premio | mono | 160 ms | 60 ms | -1.0 dB | -15.0 dB | 2621 Hz | 306 Hz | 2 · 16 · 81 · 0 · 1 |
+| reward_kill_shine__a | reward.kill | A ✓ | Premio | mono | 434 ms | 64 ms | -1.0 dB | -21.6 dB | 2766 Hz | 878 Hz | 0 · 0 · 85 · 15 · 0 |
 | reward_kill__b | reward.kill | B | Premio | mono | 150 ms | 30 ms | -1.0 dB | -24.5 dB | 4727 Hz | 171 Hz | 0 · 34 · 15 · 22 · 29 |
-| reward_kill_shine__b | reward.kill | B | Premio | mono | 174 ms | 94 ms | -1.0 dB | -17.0 dB | 2866 Hz | 1763 Hz | 0 · 0 · 0 · 100 · 0 |
+| reward_kill_shine__b | reward.kill | B | Premio | mono | 234 ms | 84 ms | -1.0 dB | -21.4 dB | 9498 Hz | 1169 Hz | 0 · 0 · 0 · 52 · 48 |
 | reward_kill__c | reward.kill | C | Premio | mono | 153 ms | 33 ms | -1.0 dB | -15.3 dB | 4765 Hz | 290 Hz | 8 · 16 · 66 · 6 · 4 |
-| reward_kill_shine__c | reward.kill | C | Premio | mono | 287 ms | 177 ms | -1.0 dB | -20.3 dB | 2431 Hz | 1763 Hz | 0 · 0 · 14 · 86 · 0 |
+| reward_kill_shine__c | reward.kill | C | Premio | mono | 399 ms | 79 ms | -1.0 dB | -14.8 dB | 2372 Hz | 881 Hz | 0 · 14 · 73 · 10 · 3 |
 | reward_repair__a | reward.repair | A ✓ | Premio | mono | 223 ms | 83 ms | -1.0 dB | -19.6 dB | 1850 Hz | 126 Hz | 11 · 33 · 48 · 9 · 0 |
-| reward_repair_shine__a | reward.repair | A ✓ | Premio | mono | 398 ms | 248 ms | -1.0 dB | -19.3 dB | 801 Hz | 654 Hz | 0 · 0 · 94 · 6 · 0 |
+| reward_repair_shine__a | reward.repair | A ✓ | Premio | mono | 404 ms | 114 ms | -1.0 dB | -21.8 dB | 1812 Hz | 1326 Hz | 0 · 0 · 0 · 100 · 0 |
 | reward_repair__b | reward.repair | B | Premio | mono | 197 ms | 127 ms | -1.0 dB | -19.1 dB | 1661 Hz | 207 Hz | 10 · 53 · 35 · 1 · 0 |
-| reward_repair_shine__b | reward.repair | B | Premio | mono | 398 ms | 248 ms | -1.0 dB | -19.6 dB | 1067 Hz | 877 Hz | 0 · 0 · 82 · 18 · 0 |
+| reward_repair_shine__b | reward.repair | B | Premio | mono | 468 ms | 68 ms | -1.0 dB | -21.7 dB | 2737 Hz | 877 Hz | 0 · 0 · 86 · 14 · 0 |
 | reward_repair__c | reward.repair | C | Premio | mono | 198 ms | 98 ms | -1.0 dB | -23.6 dB | 4544 Hz | 160 Hz | 2 · 20 · 13 · 36 · 29 |
-| reward_repair_shine__c | reward.repair | C | Premio | mono | 238 ms | 128 ms | -1.0 dB | -16.8 dB | 2188 Hz | 1323 Hz | 0 · 0 · 0 · 99 · 1 |
+| reward_repair_shine__c | reward.repair | C | Premio | mono | 319 ms | 69 ms | -1.0 dB | -15.5 dB | 4016 Hz | 1323 Hz | 0 · 0 · 0 · 98 · 2 |
 | ritual_done__a | ritual.done | A ✓ | Carteles | estéreo | 1907 ms | 377 ms | -1.0 dB | -18.2 dB | 3291 Hz | 513 Hz | 4 · 14 · 71 · 9 · 1 |
 | ritual_done__b | ritual.done | B | Carteles | estéreo | 1901 ms | 351 ms | -1.0 dB | -19.2 dB | 3556 Hz | 202 Hz | 6 · 23 · 34 · 35 · 3 |
 | ritual_done__c | ritual.done | C | Carteles | estéreo | 1920 ms | 390 ms | -1.0 dB | -17.5 dB | 4572 Hz | 497 Hz | 5 · 14 · 74 · 5 · 2 |
@@ -364,9 +364,9 @@ Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.
 - **buy.special A** (en el juego): Estéreo: acorde de campanas La-Mi-La, coro afinado en La y golpe grave, con sala grande.
 - **buy.special B**: Estéreo: gong afinado, coro en Si y un tambor de cine.
 - **buy.special C**: Estéreo: campana de iglesia afinada en Re menor, coro en La y un taiko.
-- **buy.upgrade A** (en el juego): Un mechero que prende y una llamarada; la subida La-Do-Mi-La sube un peldaño por nivel.
-- **buy.upgrade B**: Una cerilla y un hechizo de fuego; la subida es de cristal.
-- **buy.upgrade C**: Cerilla que prende sola y fuego de OpenGameArt; la subida mezcla campana y cristal.
+- **buy.upgrade A** (en el juego): Un mechero que prende y una llamarada; La-Do-Mi-La de glockenspiel real, un peldaño más por nivel.
+- **buy.upgrade B**: Una cerilla y un hechizo de fuego; Re-Fa-La-Re de caja de música.
+- **buy.upgrade C**: Cerilla que prende sola y fuego; Mi-Sol-Si-Mi de kalimba.
 - **buy.weapon A** (en el juego): Cristal de la vitrina, un arma que se monta y un La 6 de brillo.
 - **buy.weapon B**: Cristal de Kenney, dos golpes de armero y un pestillo.
 - **buy.weapon C**: Estéreo: cristal, recarga y cerrojo lento, con sala.
@@ -421,9 +421,9 @@ Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.
 - **jingle.round.clear A** (en el juego): Do-Mi-Sol que resuelve en La, con brillo de cristal y un acorde suave debajo.
 - **jingle.round.clear B**: La-Do-Mi-Sol-La de campana con un destello grabado.
 - **jingle.round.clear C**: Mi-Re-Do-Mi-La de campana y cristal.
-- **jingle.round.start A** (en el juego): Tambor grave afinado en La y La-Do-Re-Mi de campana, tensas.
-- **jingle.round.start B**: Taiko y timbal en La, con Mi-La-Si-Do (el semitono Si-Do da la tensión).
-- **jingle.round.start C**: Otro tambor y La-Si-Do-Mi de campana con cristal.
+- **jingle.round.start A** (en el juego): Estéreo: CUERNO DE GUERRA. Un taiko y un tambor de cine en La, y un cuerno de batalla grabado, afinado a La 3.
+- **jingle.round.start B**: Estéreo: GOLPE DE CINE. Un «braam» de metales con timbal, afinado a La 2, y un taiko encima.
+- **jingle.round.start C**: Estéreo: TAMBORES DE GUERRA. Tres taikos que se aceleran y un cuerno grave en Mi 4 sobre ellos.
 - **merchant.arrive A** (en el juego): Humo y la firma del mago (como buy.merchant A).
 - **merchant.arrive B**: Otro humo y la firma B.
 - **merchant.arrive C**: Humo corto y la firma C.
@@ -451,12 +451,12 @@ Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.
 - **reward.hit A** (en el juego): Toque mínimo de cristal en La 6 con un brillo de Kenney.
 - **reward.hit B**: Cristal en Mi 7, más agudo, con un clic suave.
 - **reward.hit C**: El cristal de Kenney (Si 6) con un Do 7 generado muy bajo.
-- **reward.kill A** (en el juego): Golpe seco de puñetazo con peso a 150 Hz; la campanilla (La 5) sube de tono con la racha.
-- **reward.kill B**: Bofetada grabada con madera; el brillo es un cristal en La 6, más corto.
-- **reward.kill C**: Golpe pesado con salpicadura; el brillo mezcla campana y cristal en La.
-- **reward.repair A** (en el juego): Martillazo grabado sobre madera; el toque de campana (Mi 5) sube con la racha.
-- **reward.repair B**: Madera y tablón de Kenney; campana en La 5.
-- **reward.repair C**: Madera de OpenGameArt con golpe seco; el brillo es un cristal en Mi 6.
+- **reward.kill A** (en el juego): Golpe seco con un tintineo de moneda; el brillo es un glockenspiel real en La 5, que sube con la racha.
+- **reward.kill B**: Bofetada con madera; el brillo es una caja de música real en Re 6.
+- **reward.kill C**: Golpe pesado con salpicadura; el brillo es una copa de cristal golpeada, bajada a La 5.
+- **reward.repair A** (en el juego): Martillazo sobre madera; el brillo es una kalimba real en Mi 6, que sube con cada tablón.
+- **reward.repair B**: Madera y tablón de Kenney; el brillo es el glockenspiel en La 5.
+- **reward.repair C**: Madera de OpenGameArt; el brillo es un «ding» de cristal grabado en Mi 6.
 - **ritual.done A** (en el juego): Estéreo: agua que hierve, una subida de aire y La-Do-Mi-La, y un golpe grave con fuego.
 - **ritual.done B**: Estéreo: agua hirviendo derramándose, una subida de energía y un tambor con llamarada.
 - **ritual.done C**: Estéreo: hervor, un acorde que sube una octava y un taiko con fuego.
@@ -536,6 +536,6 @@ Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.
 ## Avisos
 
 - buy.door: Premio más grave (tono 219 Hz) que los de Golpe (mediana 438 Hz)
-- weapon.empty: Golpe más agudo (tono 2368 Hz) que los de Premio (mediana 880 Hz)
-- weapon.reload.end: Golpe más agudo (tono 3911 Hz) que los de Premio (mediana 880 Hz)
-- weapon.reload.start: Golpe más agudo (tono 3518 Hz) que los de Premio (mediana 880 Hz)
+- weapon.empty: Golpe más agudo (tono 2368 Hz) que los de Premio (mediana 893 Hz)
+- weapon.reload.end: Golpe más agudo (tono 3911 Hz) que los de Premio (mediana 893 Hz)
+- weapon.reload.start: Golpe más agudo (tono 3518 Hz) que los de Premio (mediana 893 Hz)

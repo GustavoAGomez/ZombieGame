@@ -2,7 +2,7 @@
   "chosen": null,
   "candidates": {
     "A": {
-      "about": "Martillazo grabado sobre madera; el toque de campana (Mi 5) sube con la racha.",
+      "about": "Martillazo sobre madera; el brillo es una kalimba real en Mi 6, que sube con cada tablón.",
       "channels": 1,
       "variants": [
         {
@@ -17,21 +17,30 @@
       ],
       "shine": [
         {
-          "type": "synth",
-          "timbre": "bell",
-          "notes": [
-            [
-              "E5",
-              0,
-              1
-            ]
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/691796_e5_hard_kalimba.ogg",
+                "process": {
+                  "semitones": 0.28,
+                  "end": 0.45,
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 1
+            }
           ],
-          "duration": 0.4
+          "process": {
+            "length": 0.5,
+            "fadeOut": 0.2
+          }
         }
       ]
     },
     "B": {
-      "about": "Madera y tablón de Kenney; campana en La 5.",
+      "about": "Madera y tablón de Kenney; el brillo es el glockenspiel en La 5.",
       "channels": 1,
       "variants": [
         {
@@ -67,21 +76,30 @@
       ],
       "shine": [
         {
-          "type": "synth",
-          "timbre": "bell",
-          "notes": [
-            [
-              "A5",
-              0,
-              1
-            ]
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/348890_glockenspiel_20_a3_02.ogg",
+                "process": {
+                  "semitones": -12,
+                  "end": 0.25,
+                  "fadeOut": 0.15
+                }
+              },
+              "gain": 1
+            }
           ],
-          "duration": 0.4
+          "process": {
+            "length": 0.5,
+            "fadeOut": 0.2
+          }
         }
       ]
     },
     "C": {
-      "about": "Madera de OpenGameArt con golpe seco; el brillo es un cristal en Mi 6.",
+      "about": "Madera de OpenGameArt; el brillo es un «ding» de cristal grabado en Mi 6.",
       "channels": 1,
       "variants": [
         {
@@ -117,16 +135,25 @@
       ],
       "shine": [
         {
-          "type": "synth",
-          "timbre": "glass",
-          "notes": [
-            [
-              "E6",
-              0,
-              1
-            ]
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/627794_pling_sound_effect_ui_interface_ding_tin.ogg",
+                "process": {
+                  "semitones": 0.07,
+                  "end": 0.4,
+                  "fadeOut": 0.2
+                }
+              },
+              "gain": 1
+            }
           ],
-          "duration": 0.3
+          "process": {
+            "length": 0.5,
+            "fadeOut": 0.2
+          }
         }
       ]
     }
