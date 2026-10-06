@@ -9,7 +9,9 @@ import { createHandState, emptyHand } from '../game/systems/handSpawn';
 import { placeMatchItems } from '../game/systems/itemSpawns';
 import { initialAccesses } from '../game/systems/ZoneSystem';
 import { bossDelayOf, roundZombies } from '../game/systems/waveFormulas';
+import type { GameMode } from '../config/dungeon';
 import type { RngState } from './Rng';
+import type { RunState } from './RunState';
 
 /**
  * Flat, serialisable state of a match. Systems mutate it at a fixed 60 Hz;
@@ -510,6 +512,10 @@ export interface WaveState {
 }
 
 export interface GameState extends RngState {
+  /** Survival or the dungeon (spec 09 §1): the mode's rules ask for it in one place. */
+  mode: GameMode;
+  /** The dungeon run (spec 09); null in Survival. */
+  run: RunState | null;
   tick: number;
   /** Simulated seconds since the match started. */
   time: number;
@@ -768,6 +774,10 @@ export interface GameOptions {
   toSpawn?: number;
   /** Rounds follow one another (default). Off keeps the first round going (system tests). */
   waveFlow?: boolean;
+  /** Survival unless told otherwise (spec 09 §1). */
+  mode?: GameMode;
+  /** The dungeon run, made by src/game/dungeon/run.ts. */
+  run?: RunState | null;
 }
 
 export function createGameState(map: MapData, options: GameOptions = {}): GameState {
@@ -775,6 +785,8 @@ export function createGameState(map: MapData, options: GameOptions = {}): GameSt
   const { seed = 1, toSpawn = roundZombies(round), waveFlow = true } = options;
   const players = [createPlayerState(0, map.playerSpawn.x, map.playerSpawn.y)];
   const state: GameState = {
+    mode: options.mode ?? 'survival',
+    run: options.run ?? null,
     tick: 0,
     time: 0,
     rng: seed | 0,

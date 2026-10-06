@@ -25,7 +25,8 @@
     "hud:import": "tsx scripts/import-hud.ts",
     "windows:compose": "tsx scripts/compose-windows.ts",
     "audio:gen": "tsx scripts/audio-gen.ts",
-    "audio:search": "tsx scripts/audio-search.ts"
+    "audio:search": "tsx scripts/audio-search.ts",
+    "dungeon:preview": "tsx scripts/dungeon-preview.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",

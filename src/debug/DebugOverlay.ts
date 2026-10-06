@@ -1,4 +1,5 @@
 import type { SoundTest } from '../audio/AudioDirector';
+import type { GameMode } from '../config/dungeon';
 import type { SoundFamily } from '../config/audio';
 import { STRINGS } from '../ui/strings';
 import { choiceText, loadTrials, saveTrials, type TrialStorage } from './soundTrials';
@@ -399,6 +400,18 @@ export function requestedStartRound(search: string = window.location.search): nu
 }
 
 /** ?map=<key> chooses the map from the manifest (default: the first one). */
+/** ?mode=dungeon preselects the dungeon on the title (spec 09 §1); anything else is Survival. */
+export function requestedMode(search: string = window.location.search): GameMode {
+  return new URLSearchParams(search).get('mode') === 'dungeon' ? 'dungeon' : 'survival';
+}
+
+/** ?seed=N fixes the match's seed (spec 09 §1): the same dungeon every time. */
+export function requestedSeed(search: string = window.location.search): number | null {
+  const raw = new URLSearchParams(search).get('seed');
+  if (raw === null || !/^-?\d+$/.test(raw)) return null;
+  return Number(raw) | 0;
+}
+
 export function requestedMap(search: string = window.location.search): string | null {
   const key = new URLSearchParams(search).get('map');
   return key && /^[a-z0-9_]+$/.test(key) ? key : null;

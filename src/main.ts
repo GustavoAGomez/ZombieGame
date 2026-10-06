@@ -8,7 +8,7 @@ import { keepAudioAlive } from './audio/lifecycle';
 import { COLORS, applyThemeTokens } from './config/theme';
 import { blockZoom } from './ui/noZoom';
 import { EventBus } from './core/EventBus';
-import { DebugOverlay, isDebugRequested, requestedMap, requestedStartRound } from './debug/DebugOverlay';
+import { DebugOverlay, isDebugRequested, requestedMap, requestedMode, requestedSeed, requestedStartRound } from './debug/DebugOverlay';
 import { BootScene } from './game/scenes/BootScene';
 import { GameOverScene } from './game/scenes/GameOverScene';
 import { GameScene } from './game/scenes/GameScene';
@@ -17,6 +17,7 @@ import type { Services } from './game/services';
 import { measureViewport, watchViewport } from './game/viewport';
 import { HapticFeedback } from './native/haptics';
 import { Preferences } from './native/preferences';
+import { Records } from './native/records';
 import { mountRotateOverlay } from './ui/RotateOverlay';
 
 function requireElement(id: string): HTMLElement {
@@ -47,6 +48,9 @@ const services: Services = {
   stats: { fps: 0 },
   startRound: requestedStartRound(),
   mapKey: requestedMap(),
+  mode: requestedMode(),
+  seed: requestedSeed(),
+  records: new Records(),
   debugActions: null,
   preferences,
   audio,

@@ -121,8 +121,20 @@ export const STRINGS = {
     dead: 'HAS MUERTO',
   },
   title: {
-    subtitle: 'SOBREVIVE TODAS LAS RONDAS QUE PUEDAS',
-    play: 'JUGAR',
+    /** Spec 09 §1: the two games, each with its line and its record under its button. */
+    survival: 'SUPERVIVENCIA',
+    survivalSubtitle: 'SOBREVIVE TODAS LAS RONDAS QUE PUEDAS',
+    survivalRecord: (round: number): string => `MEJOR RONDA: ${round}`,
+    dungeon: 'MAZMORRA',
+    dungeonSubtitle: 'TRES PLANTAS AL AZAR Y UN BOSS EN CADA UNA',
+    dungeonRecord: (floor: number, rooms: number): string => `MEJOR PLANTA: ${floor} · ${rooms === 1 ? '1 SALA' : `${rooms} SALAS`}`,
+    dungeonWins: (wins: number, time: string): string => `${wins === 1 ? '1 VICTORIA' : `${wins} VICTORIAS`} · MEJOR ${time}`,
+    noRecord: 'SIN RÉCORD',
+  },
+  /** Seconds as M:SS (a run's time, spec 09 §10). */
+  clock: (seconds: number): string => {
+    const s = Math.max(0, Math.floor(seconds));
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   },
   pause: {
     button: 'Pausa',

@@ -18,7 +18,7 @@ export type PreferenceStorage = Pick<Storage, 'getItem' | 'setItem'>;
 const KEY = 'zombies.preferences';
 const DEFAULTS: PreferenceValues = { vibration: true, sfx: 'high', music: 'high' };
 
-function browserStorage(): PreferenceStorage | null {
+export function browserStorage(): PreferenceStorage | null {
   try {
     return globalThis.localStorage ?? null;
   } catch {

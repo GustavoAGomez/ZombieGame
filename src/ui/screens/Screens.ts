@@ -1,4 +1,6 @@
 import { nextVolumeLevel, type VolumeLevel } from '../../config/audio';
+import type { GameMode } from '../../config/dungeon';
+import type { RecordValues } from '../../native/records';
 import { pixelIcon } from '../icons';
 import { STRINGS } from '../strings';
 import './screens.css';
@@ -36,16 +38,41 @@ function focusForKeyboard(b: HTMLButtonElement): void {
   if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) b.focus();
 }
 
-/** Title screen: JUGAR over the whole screen. That tap is also where audio will be unlocked. */
+/** The records under each mode's button (spec 09 §10), as lines; none says so. */
+export function recordLines(records: Readonly<RecordValues>, mode: GameMode): string[] {
+  if (mode === 'survival') return [records.survival.bestRound > 0 ? STRINGS.title.survivalRecord(records.survival.bestRound) : STRINGS.title.noRecord];
+  const d = records.dungeon;
+  if (d.bestFloor === 0) return [STRINGS.title.noRecord];
+  const lines = [STRINGS.title.dungeonRecord(d.bestFloor, d.mostRooms)];
+  if (d.wins > 0 && d.bestWinTime !== null) lines.push(STRINGS.title.dungeonWins(d.wins, STRINGS.clock(d.bestWinTime)));
+  return lines;
+}
+
+/**
+ * Title screen (spec 09 §1): SUPERVIVENCIA and MAZMORRA, each with its line
+ * and its record. Either tap is also where the audio is unlocked.
+ */
 export class TitleScreen {
   private readonly root: HTMLDivElement;
 
-  constructor(parent: HTMLElement, onPlay: () => void) {
+  constructor(parent: HTMLElement, onPlay: (mode: GameMode) => void, records: Readonly<RecordValues>, preselected: GameMode = 'survival') {
     this.root = el('div', 'screen screen--title');
-    const play = button(STRINGS.title.play, onPlay, 'screen-button--primary screen-button--big');
-    this.root.append(el('h1', 'screen-title', STRINGS.gameTitle), el('p', 'screen-subtitle', STRINGS.title.subtitle), play);
+    const modes = el('div', 'screen-modes');
+    const buttons: Partial<Record<GameMode, HTMLButtonElement>> = {};
+    const add = (mode: GameMode, name: string, subtitle: string): void => {
+      const column = el('div', 'screen-mode');
+      const play = button(name, () => onPlay(mode), 'screen-button--primary screen-button--big');
+      buttons[mode] = play;
+      column.append(play, el('p', 'screen-subtitle', subtitle));
+      for (const line of recordLines(records, mode)) column.append(el('p', 'screen-mode__record', line));
+      modes.appendChild(column);
+    };
+    add('survival', STRINGS.title.survival, STRINGS.title.survivalSubtitle);
+    add('dungeon', STRINGS.title.dungeon, STRINGS.title.dungeonSubtitle);
+    this.root.append(el('h1', 'screen-title', STRINGS.gameTitle), modes);
     parent.appendChild(this.root);
-    focusForKeyboard(play);
+    const focus = buttons[preselected];
+    if (focus) focusForKeyboard(focus);
   }
 
   destroy(): void {

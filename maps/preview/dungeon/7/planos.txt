@@ -1,0 +1,98 @@
+SEMILLA 7
+
+## Planta 1 · mansion · 11 salas
+
+ .   .   .   .   .   .   .   .   .
+
+ .   .   .   .   .   .   .   .   .
+
+ .   .   .   .   .  [R]  .   .   .
+                     !
+ .   .   .   .  [S]-[C] [B]=[B]  .
+                 |       :   :
+ .   .   .   .  [C]  .  [B]=[B]  .
+                 |       K
+ .   .   .   .  [C]-[C]-[E]k[T]  .
+                 |       |
+ .   .   .   .  [C]  .  [H]  .   .
+
+| Celda | Tipo | Dificultad | Plantilla | Espejo | Puertas |
+|---|---|---|---|---|---|
+| 4,3 | start | — | mansion/start_01 | sí | e→C s→C |
+| 5,3 | combat | easy | mansion/combat_03 | no | n→R w→S |
+| 4,4 | combat | easy | mansion/combat_05 | sí | n→S s→C |
+| 5,2 | challenge | easy | mansion/challenge_01 | no | s→C |
+| 4,5 | combat | medium | mansion/combat_02 | no | n→C e→C s→C |
+| 5,5 | combat | medium | mansion/combat_04 | sí | e→E w→C |
+| 4,6 | combat | easy | mansion/combat_01 | no | n→C |
+| 6,5 | elite | easy | mansion/elite_01 | sí | n→B e→T s→H w→C |
+| 6,3 | boss | — | mansion/boss_01 | no | s→E |
+| 7,5 | treasure | — | mansion/treasure_01 | sí | w→E |
+| 6,6 | hand | — | mansion/hand_01 | sí | n→E |
+
+## Planta 2 · basement · 13 salas
+
+ .   .   .   .  [E]  .   .   .   .
+                 |
+ .   .   .   .  [C]-[H]  .   .   .
+                 |
+ .   .   .   .  [C]  .  [T]  .   .
+                 |       k
+ .   .   .  [C]-[S]-[C]-[C]![R]  .
+                     |
+ .   .   .   .   .  [C]  .   .   .
+                     |
+ .   .   .  [B]=[B]K[C]  .   .   .
+             :   :
+ .   .   .  [B]=[B]  .   .   .   .
+
+| Celda | Tipo | Dificultad | Plantilla | Espejo | Puertas |
+|---|---|---|---|---|---|
+| 4,3 | start | — | basement/start_01 | no | n→C e→C w→C |
+| 4,2 | combat | medium | basement/combat_03 | sí | n→C s→S |
+| 5,3 | combat | hard | basement/combat_06 | sí | e→C s→C w→S |
+| 3,3 | combat | hard | basement/combat_04 | sí | e→S |
+| 4,1 | combat | hard | basement/combat_08 | sí | n→E e→H s→C |
+| 6,3 | combat | hard | basement/combat_02 | sí | n→T e→R w→C |
+| 5,4 | combat | hard | basement/combat_05 | sí | n→C s→C |
+| 4,0 | elite | hard | basement/elite_01 | sí | s→C |
+| 5,1 | hand | — | basement/hand_01 | sí | w→C |
+| 6,2 | treasure | — | basement/treasure_01 | sí | s→C |
+| 7,3 | challenge | hard | basement/challenge_02 | no | w→C |
+| 5,5 | combat | medium | basement/combat_07 | no | n→C w→B |
+| 3,5 | boss | — | basement/boss_01 | sí | e→C |
+
+## Planta 3 · garden · 15 salas
+
+ .   .   .   .   .   .   .   .   .
+
+ .   .   .   .   .  [H]  .  [B]=[B]
+                     |       :   :
+ .  [T]  .  [C]  .  [C]-[C]K[B]=[B]
+     k       |       |
+ .  [C]-[C]-[C]-[S]-[C]  .   .   .
+             !       |
+ .   .   .  [R]  .  [C]-[C]-[E]  .
+
+ .   .   .   .   .   .   .   .   .
+
+ .   .   .   .   .   .   .   .   .
+
+| Celda | Tipo | Dificultad | Plantilla | Espejo | Puertas |
+|---|---|---|---|---|---|
+| 4,3 | start | — | garden/start_01 | no | e→C w→C |
+| 5,3 | combat | medium | garden/combat_03 | no | n→C s→C w→S |
+| 3,3 | combat | medium | garden/combat_05 | sí | n→C e→S s→R w→C |
+| 5,2 | combat | medium | garden/combat_01 | no | n→H e→C s→C |
+| 5,4 | combat | medium | garden/combat_07 | no | n→C e→C |
+| 3,2 | combat | hard | garden/combat_02 | sí | s→C |
+| 3,4 | challenge | hard | garden/challenge_01 | no | n→C |
+| 2,3 | combat | medium | garden/combat_06 | no | e→C w→C |
+| 5,1 | hand | — | garden/hand_01 | sí | s→C |
+| 6,2 | combat | medium | garden/combat_04 | no | e→B w→C |
+| 6,4 | combat | hard | garden/combat_08 | sí | e→E w→C |
+| 1,3 | combat | hard | garden/combat_04 | sí | n→T e→C |
+| 7,1 | boss | — | garden/boss_01 | sí | w→C |
+| 7,4 | elite | medium | garden/elite_01 | no | w→C |
+| 1,2 | treasure | — | garden/treasure_01 | sí | s→C |
+

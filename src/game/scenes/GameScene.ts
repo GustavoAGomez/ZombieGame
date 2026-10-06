@@ -46,6 +46,8 @@ import { buildCollisionGrid } from '../map/CollisionGrid';
 import type { MapData } from '../map/MapLoader';
 import { MapView } from '../map/MapView';
 import { cameraBounds, computeLevels, type MapLevels } from '../map/levels';
+import { createRunState } from '../dungeon/run';
+import { placeholderBank } from '../dungeon/templates';
 import type { Services } from '../services';
 import { activeBulletCount } from '../systems/BulletSystem';
 import { isZombieAlive } from '../systems/Combat';
@@ -76,6 +78,8 @@ export class GameScene extends Phaser.Scene {
   private services!: Services;
   private assets!: AssetLibrary;
   private map!: MapData;
+  /** The match's seed (spec 09 §1), shown in the debug panel. */
+  private seed = 0;
   private state!: GameState;
   private sim!: SimContext;
   private controls!: InputCollector;
@@ -146,7 +150,12 @@ export class GameScene extends Phaser.Scene {
   create(): void {
     const { events, hudRoot } = this.services;
     this.map = this.assets.mapOrDefault(this.services.mapKey);
-    this.state = createGameState(this.map, { seed: Date.now() | 0, startRound: this.services.startRound });
+    // The seed (spec 09 §1): a fixed one from ?seed= or MISMA SEMILLA, or a new one; the dungeon's plan comes from it alone.
+    const seed = this.services.seed ?? Date.now() | 0;
+    this.seed = seed;
+    const mode = this.services.mode;
+    const run = mode === 'dungeon' ? createRunState(seed, placeholderBank('mansion')) : null;
+    this.state = createGameState(this.map, { seed, startRound: this.services.startRound, mode, run });
     // The gun's drawn muzzle per direction, from the player art: bullets are drawn and hit from there.
     const muzzles: MuzzleTable = Array.from({ length: 8 }, (_, dir) =>
       muzzleOffset(this.assets.manifest.characters[ASSET_KEYS.player], angleFromDir8(dir), { x: 0, y: 0 }),
@@ -349,6 +358,8 @@ export class GameScene extends Phaser.Scene {
     this.pauseMenu.hide();
     this.pauseButton.visible = false;
     this.controls.resetAll();
+    // Survival's record (spec 09 §1, §10): not from a debug match nor one started past round 1.
+    if (this.state.mode === 'survival' && !this.services.debug && this.services.startRound === 1) this.services.records.recordSurvival(roundsSurvived(this.state));
     const data: GameOverData = {
       services: this.services,
       assets: this.assets,
@@ -565,6 +576,9 @@ export class GameScene extends Phaser.Scene {
     stats.bullets = activeBulletCount(this.state.bullets);
     stats.round = this.state.wave.round;
     stats.tick = this.state.tick;
+    // Always in view (spec 09 §13): the seed reproduces the match.
+    stats.seed = this.seed;
+    stats.mode = this.state.mode;
   }
 
   private readonly applyZoom = (): void => {
