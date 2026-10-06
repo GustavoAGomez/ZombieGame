@@ -1,3 +1,6 @@
+import { UPGRADE_IDS, type UpgradeId } from '../../config/upgrades';
+import { takeUpgrade } from '../dungeon/wizardShop';
+import { debugCallWizard, debugClearRoom, debugDescend, debugGiveKey, debugGoToBoss, debugRevealMap } from '../systems/DungeonSystem';
 import { App } from '@capacitor/app';
 import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
 import Phaser from 'phaser';
@@ -153,6 +156,8 @@ export class GameScene extends Phaser.Scene {
   private shownTeleports = 0;
   /** The variant INVOCAR MATARIFE calls up (the debug panel's selector). */
   private debugVariant: BossVariantId = 'base';
+  /** The upgrade DAR MEJORA gives (spec 09 §13). */
+  private debugUpgrade: UpgradeId = UPGRADE_IDS[0] ?? 'vitality';
   /** Last boost given from the debug panel (they alternate). */
   private debugBoost: BoostKind = 'double_damage';
   private readonly fixedStep = new FixedStep(SIM.hz, SIM.maxStepsPerFrame, SIM.maxFrameMs);
@@ -445,6 +450,8 @@ export class GameScene extends Phaser.Scene {
         kills: run.kills,
         seed: run.seed,
         newRecord,
+        upgrades: [...run.upgrades],
+        curses: [...run.curses],
         keepGoing: won ? this.carryOf(descend(run, bankOf(this.assets.roomTemplates(floorConfig(run.floor + 1).ambient)))) : null,
       };
     }
@@ -532,6 +539,26 @@ export class GameScene extends Phaser.Scene {
         return STRINGS.debug.bossVariant(STRINGS.bosses.variants[this.debugVariant]);
       },
       toggleBossZones: () => (this.debugDraw.showBossZones = !this.debugDraw.showBossZones),
+      // The dungeon (spec 09 §13).
+      revealMap: () => debugRevealMap(this.sim),
+      giveKey: () => debugGiveKey(this.sim, false),
+      giveBossKey: () => debugGiveKey(this.sim, true),
+      addDungeonMoney: () => {
+        const p = this.state.players[0];
+        if (p) p.money += DEBUG.dungeonMoney;
+      },
+      clearRoom: () => debugClearRoom(this.sim),
+      goToBoss: () => debugGoToBoss(this.sim),
+      descendFloor: () => debugDescend(this.sim),
+      cycleUpgrade: () => {
+        this.debugUpgrade = UPGRADE_IDS[(UPGRADE_IDS.indexOf(this.debugUpgrade) + 1) % UPGRADE_IDS.length] ?? this.debugUpgrade;
+        return STRINGS.debug.upgradeChoice(STRINGS.upgrades.names[this.debugUpgrade] ?? this.debugUpgrade);
+      },
+      giveUpgrade: () => {
+        const p = this.state.players[0];
+        if (p && this.state.run) takeUpgrade(this.sim, this.state.run, p, this.debugUpgrade, true);
+      },
+      callWizard: () => debugCallWizard(this.sim),
       addPoints: () => {
         const p = this.state.players[0];
         if (p) p.money += DEBUG.points;

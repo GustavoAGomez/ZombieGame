@@ -32,6 +32,7 @@ o.....................................o
 | id | casilla |
 |---|---|
 | B1 | 19,9 |
+| B2 | 27,9 |
 
 ## Atrezo (muebles; con colisión es la cobertura de la sala)
 | id | objeto | casillas | colisión | volteo | nota |

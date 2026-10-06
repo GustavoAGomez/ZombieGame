@@ -1911,6 +1911,535 @@
       "placeholder": false,
       "candidate": "C"
     },
+    "dungeon_chest_1": {
+      "file": "audio/sfx/dungeon_chest_1.wav",
+      "duration": 0.5394,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "dungeon_chest_1__a": {
+      "file": "audio/candidates/dungeon_chest_1__a.wav",
+      "duration": 0.5394,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "dungeon_chest_1__b": {
+      "file": "audio/candidates/dungeon_chest_1__b.wav",
+      "duration": 0.6139,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "dungeon_chest_2": {
+      "file": "audio/sfx/dungeon_chest_2.wav",
+      "duration": 0.6792,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "dungeon_chest_2__a": {
+      "file": "audio/candidates/dungeon_chest_2__a.wav",
+      "duration": 0.6792,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "dungeon_chest_2__b": {
+      "file": "audio/candidates/dungeon_chest_2__b.wav",
+      "duration": 0.62,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "dungeon_curse": {
+      "file": "audio/sfx/dungeon_curse.wav",
+      "duration": 1.1876,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "dungeon_curse__a": {
+      "file": "audio/candidates/dungeon_curse__a.wav",
+      "duration": 1.1876,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "dungeon_curse__b": {
+      "file": "audio/candidates/dungeon_curse__b.wav",
+      "duration": 1.2398,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "dungeon_curse__c": {
+      "file": "audio/candidates/dungeon_curse__c.wav",
+      "duration": 1.3304,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "dungeon_door_open": {
+      "file": "audio/sfx/dungeon_door_open.wav",
+      "duration": 0.6548,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "dungeon_door_open__a": {
+      "file": "audio/candidates/dungeon_door_open__a.wav",
+      "duration": 0.6548,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "dungeon_door_open__b": {
+      "file": "audio/candidates/dungeon_door_open__b.wav",
+      "duration": 0.6714,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "dungeon_door_shut": {
+      "file": "audio/sfx/dungeon_door_shut.wav",
+      "duration": 0.3683,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "dungeon_door_shut__a": {
+      "file": "audio/candidates/dungeon_door_shut__a.wav",
+      "duration": 0.3683,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "dungeon_door_shut__b": {
+      "file": "audio/candidates/dungeon_door_shut__b.wav",
+      "duration": 0.3698,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "dungeon_door_shut__c": {
+      "file": "audio/candidates/dungeon_door_shut__c.wav",
+      "duration": 0.3382,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "dungeon_pact": {
+      "file": "audio/sfx/dungeon_pact.wav",
+      "duration": 1.8273,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "dungeon_pact__a": {
+      "file": "audio/candidates/dungeon_pact__a.wav",
+      "duration": 1.8273,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "dungeon_pact__b": {
+      "file": "audio/candidates/dungeon_pact__b.wav",
+      "duration": 1.831,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "dungeon_pact__c": {
+      "file": "audio/candidates/dungeon_pact__c.wav",
+      "duration": 1.8746,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "dungeon_reroll": {
+      "file": "audio/sfx/dungeon_reroll.wav",
+      "duration": 0.1893,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "dungeon_reroll__a": {
+      "file": "audio/candidates/dungeon_reroll__a.wav",
+      "duration": 0.1893,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "dungeon_reroll__b": {
+      "file": "audio/candidates/dungeon_reroll__b.wav",
+      "duration": 0.18,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "dungeon_room_clear": {
+      "file": "audio/sfx/dungeon_room_clear.wav",
+      "duration": 0.799,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "dungeon_room_clear__a": {
+      "file": "audio/candidates/dungeon_room_clear__a.wav",
+      "duration": 0.799,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "dungeon_room_clear__b": {
+      "file": "audio/candidates/dungeon_room_clear__b.wav",
+      "duration": 0.7703,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "dungeon_room_clear__c": {
+      "file": "audio/candidates/dungeon_room_clear__c.wav",
+      "duration": 0.5977,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "dungeon_spawn_warning": {
+      "file": "audio/sfx/dungeon_spawn_warning.wav",
+      "duration": 0.9124,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "dungeon_spawn_warning__a": {
+      "file": "audio/candidates/dungeon_spawn_warning__a.wav",
+      "duration": 0.9124,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "dungeon_spawn_warning__b": {
+      "file": "audio/candidates/dungeon_spawn_warning__b.wav",
+      "duration": 1.0877,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "dungeon_spawn_warning__c": {
+      "file": "audio/candidates/dungeon_spawn_warning__c.wav",
+      "duration": 1.116,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "dungeon_trapdoor": {
+      "file": "audio/sfx/dungeon_trapdoor.wav",
+      "duration": 0.8304,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "dungeon_trapdoor__a": {
+      "file": "audio/candidates/dungeon_trapdoor__a.wav",
+      "duration": 0.8304,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "dungeon_trapdoor__b": {
+      "file": "audio/candidates/dungeon_trapdoor__b.wav",
+      "duration": 0.8,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "dungeon_unlock": {
+      "file": "audio/sfx/dungeon_unlock.wav",
+      "duration": 0.6289,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "dungeon_unlock__a": {
+      "file": "audio/candidates/dungeon_unlock__a.wav",
+      "duration": 0.6289,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "dungeon_unlock__b": {
+      "file": "audio/candidates/dungeon_unlock__b.wav",
+      "duration": 0.4081,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "dungeon_unlock__c": {
+      "file": "audio/candidates/dungeon_unlock__c.wav",
+      "duration": 0.3342,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "dungeon_upgrade_common": {
+      "file": "audio/sfx/dungeon_upgrade_common.wav",
+      "duration": 0.4969,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "dungeon_upgrade_common__a": {
+      "file": "audio/candidates/dungeon_upgrade_common__a.wav",
+      "duration": 0.4969,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "dungeon_upgrade_common__b": {
+      "file": "audio/candidates/dungeon_upgrade_common__b.wav",
+      "duration": 0.2086,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "dungeon_upgrade_legendary": {
+      "file": "audio/sfx/dungeon_upgrade_legendary.wav",
+      "duration": 0.8346,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "dungeon_upgrade_legendary__a": {
+      "file": "audio/candidates/dungeon_upgrade_legendary__a.wav",
+      "duration": 0.8346,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "dungeon_upgrade_legendary__b": {
+      "file": "audio/candidates/dungeon_upgrade_legendary__b.wav",
+      "duration": 0.7938,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "dungeon_upgrade_rare": {
+      "file": "audio/sfx/dungeon_upgrade_rare.wav",
+      "duration": 0.7265,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "dungeon_upgrade_rare__a": {
+      "file": "audio/candidates/dungeon_upgrade_rare__a.wav",
+      "duration": 0.7265,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "dungeon_upgrade_rare__b": {
+      "file": "audio/candidates/dungeon_upgrade_rare__b.wav",
+      "duration": 0.3538,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "dungeon_ward": {
+      "file": "audio/sfx/dungeon_ward.wav",
+      "duration": 0.4193,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "dungeon_ward__a": {
+      "file": "audio/candidates/dungeon_ward__a.wav",
+      "duration": 0.4193,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "dungeon_ward__b": {
+      "file": "audio/candidates/dungeon_ward__b.wav",
+      "duration": 0.4597,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "enemy_brute_attack": {
+      "file": "audio/sfx/enemy_brute_attack.wav",
+      "duration": 0.4612,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "enemy_brute_attack__a": {
+      "file": "audio/candidates/enemy_brute_attack__a.wav",
+      "duration": 0.4612,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "enemy_brute_attack__b": {
+      "file": "audio/candidates/enemy_brute_attack__b.wav",
+      "duration": 0.4302,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "enemy_brute_step_1": {
+      "file": "audio/sfx/enemy_brute_step_1.wav",
+      "duration": 0.247,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "enemy_brute_step_1__a": {
+      "file": "audio/candidates/enemy_brute_step_1__a.wav",
+      "duration": 0.247,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "enemy_brute_step_1__b": {
+      "file": "audio/candidates/enemy_brute_step_1__b.wav",
+      "duration": 0.2601,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "enemy_brute_step_2": {
+      "file": "audio/sfx/enemy_brute_step_2.wav",
+      "duration": 0.2156,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "enemy_brute_step_2__a": {
+      "file": "audio/candidates/enemy_brute_step_2__a.wav",
+      "duration": 0.2156,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "enemy_brute_step_2__b": {
+      "file": "audio/candidates/enemy_brute_step_2__b.wav",
+      "duration": 0.2407,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "enemy_exploder_burst": {
+      "file": "audio/sfx/enemy_exploder_burst.wav",
+      "duration": 0.3993,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "enemy_exploder_burst__a": {
+      "file": "audio/candidates/enemy_exploder_burst__a.wav",
+      "duration": 0.3993,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "enemy_exploder_burst__b": {
+      "file": "audio/candidates/enemy_exploder_burst__b.wav",
+      "duration": 0.3665,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "enemy_exploder_burst__c": {
+      "file": "audio/candidates/enemy_exploder_burst__c.wav",
+      "duration": 0.3623,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "enemy_exploder_fuse": {
+      "file": "audio/sfx/enemy_exploder_fuse.wav",
+      "duration": 0.4993,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "enemy_exploder_fuse__a": {
+      "file": "audio/candidates/enemy_exploder_fuse__a.wav",
+      "duration": 0.4993,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "enemy_exploder_fuse__b": {
+      "file": "audio/candidates/enemy_exploder_fuse__b.wav",
+      "duration": 0.4876,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "enemy_exploder_fuse__c": {
+      "file": "audio/candidates/enemy_exploder_fuse__c.wav",
+      "duration": 0.2472,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "enemy_spitter_hit_1": {
+      "file": "audio/sfx/enemy_spitter_hit_1.wav",
+      "duration": 0.3055,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "enemy_spitter_hit_1__a": {
+      "file": "audio/candidates/enemy_spitter_hit_1__a.wav",
+      "duration": 0.3055,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "enemy_spitter_hit_1__b": {
+      "file": "audio/candidates/enemy_spitter_hit_1__b.wav",
+      "duration": 0.3433,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "enemy_spitter_hit_2": {
+      "file": "audio/sfx/enemy_spitter_hit_2.wav",
+      "duration": 0.3432,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "enemy_spitter_hit_2__a": {
+      "file": "audio/candidates/enemy_spitter_hit_2__a.wav",
+      "duration": 0.3432,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "enemy_spitter_hit_2__b": {
+      "file": "audio/candidates/enemy_spitter_hit_2__b.wav",
+      "duration": 0.2055,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "enemy_spitter_spit_1": {
+      "file": "audio/sfx/enemy_spitter_spit_1.wav",
+      "duration": 0.1466,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "enemy_spitter_spit_1__a": {
+      "file": "audio/candidates/enemy_spitter_spit_1__a.wav",
+      "duration": 0.1466,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "enemy_spitter_spit_1__b": {
+      "file": "audio/candidates/enemy_spitter_spit_1__b.wav",
+      "duration": 0.3049,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "enemy_spitter_spit_2": {
+      "file": "audio/sfx/enemy_spitter_spit_2.wav",
+      "duration": 0.1554,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "enemy_spitter_spit_2__a": {
+      "file": "audio/candidates/enemy_spitter_spit_2__a.wav",
+      "duration": 0.1554,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "enemy_spitter_spit_2__b": {
+      "file": "audio/candidates/enemy_spitter_spit_2__b.wav",
+      "duration": 0.3094,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "enemy_spitter_windup": {
+      "file": "audio/sfx/enemy_spitter_windup.wav",
+      "duration": 0.528,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "enemy_spitter_windup__a": {
+      "file": "audio/candidates/enemy_spitter_windup__a.wav",
+      "duration": 0.528,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "enemy_spitter_windup__b": {
+      "file": "audio/candidates/enemy_spitter_windup__b.wav",
+      "duration": 0.5203,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "enemy_spitter_windup__c": {
+      "file": "audio/candidates/enemy_spitter_windup__c.wav",
+      "duration": 0.2201,
+      "placeholder": false,
+      "candidate": "C"
+    },
     "hand_moved": {
       "file": "audio/sfx/hand_moved.wav",
       "duration": 1.2522,
@@ -2283,6 +2812,31 @@
     "jingle_boss_dead__c": {
       "file": "audio/candidates/jingle_boss_dead__c.wav",
       "duration": 2.2507,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "jingle_floor": {
+      "file": "audio/sfx/jingle_floor.wav",
+      "duration": 2.1019,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "jingle_floor__a": {
+      "file": "audio/candidates/jingle_floor__a.wav",
+      "duration": 2.1019,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "jingle_floor__b": {
+      "file": "audio/candidates/jingle_floor__b.wav",
+      "duration": 1.9026,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "jingle_floor__c": {
+      "file": "audio/candidates/jingle_floor__c.wav",
+      "duration": 0.7767,
       "placeholder": false,
       "candidate": "C"
     },
@@ -2665,6 +3219,31 @@
     "pickup_item__c": {
       "file": "audio/candidates/pickup_item__c.wav",
       "duration": 0.6885,
+      "placeholder": false,
+      "candidate": "C"
+    },
+    "pickup_key": {
+      "file": "audio/sfx/pickup_key.wav",
+      "duration": 0.4393,
+      "placeholder": false,
+      "picked": "A",
+      "pending": true
+    },
+    "pickup_key__a": {
+      "file": "audio/candidates/pickup_key__a.wav",
+      "duration": 0.4393,
+      "placeholder": false,
+      "candidate": "A"
+    },
+    "pickup_key__b": {
+      "file": "audio/candidates/pickup_key__b.wav",
+      "duration": 0.471,
+      "placeholder": false,
+      "candidate": "B"
+    },
+    "pickup_key__c": {
+      "file": "audio/candidates/pickup_key__c.wav",
+      "duration": 0.1962,
       "placeholder": false,
       "candidate": "C"
     },

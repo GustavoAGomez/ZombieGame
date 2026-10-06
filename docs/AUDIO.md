@@ -115,9 +115,9 @@ Avisa de:
 - dos variantes del mismo sonido casi idénticas (solo se comparan los cuerpos, porque el brillo de una racha es el mismo a propósito);
 - un archivo estéreo en un sonido posicional;
 - un bucle de música fuera de 30 a 90 s;
-- los efectos del juego por encima de 8 MB.
+- los efectos del juego por encima de 10 MB (`AUDIO_GEN.budgetBytes`; eran 8 con los 75 sonidos de Supervivencia).
 
-**Avisos que se quedan a propósito:** `buy.door` es un cerrojo, más grave que los golpes, y `weapon.empty`, `weapon.reload.start` y `weapon.reload.end` son clics metálicos, más agudos que los premios. Son mecánicos y no se confunden con un premio.
+**Avisos que se quedan a propósito:** `buy.door` es un cerrojo, más grave que los golpes, y `weapon.empty`, `weapon.reload.start` y `weapon.reload.end` son clics metálicos, más agudos que los premios. Son mecánicos y no se confunden con un premio. Lo mismo las puertas de la mazmorra (`dungeon.door.open`, `dungeon.door.shut`) y su trampilla (`dungeon.trapdoor`): madera y cerrojos.
 
 ## 4. Fuentes
 

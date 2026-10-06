@@ -1,4 +1,4 @@
-import { AUDIO, MERCHANT_VARIANT, SOUNDS, WEAPON_FIRE_SOUND, type AudioPriority, type LadderId, type MusicState, type SoundDef, type VolumeLevel } from '../config/audio';
+import { AUDIO, MERCHANT_VARIANT, RARITY_VARIANT, SOUNDS, WEAPON_FIRE_SOUND, type AudioPriority, type LadderId, type MusicState, type SoundDef, type VolumeLevel } from '../config/audio';
 import { ITEMS } from '../config/balance';
 import type { MerchantId } from '../config/merchants';
 import { WEAPONS } from '../config/weapons';
@@ -551,11 +551,48 @@ export class AudioDirector implements GameAudio, SoundTest {
     events.on('fire:blast', (e) => this.play('weapon.flame.blast', { at: e }));
     this.listenThreats(events);
     this.listenRewards(events, mine);
+    this.listenDungeon(events, mine);
+  }
+
+  /**
+   * The dungeon (spec 09 §11): its doors, the room's prize, the wave's
+   * warning, the new enemies where they are, keys, locks and chests, the
+   * wizard's wares (an upgrade in its rarity's signature), the pact and its
+   * curse, the trapdoor and the floor's banner.
+   */
+  private listenDungeon(events: EventBus, mine: (playerId: number, id: string) => void): void {
+    events.on('dungeon:roomLocked', () => this.play('dungeon.door.shut'));
+    events.on('dungeon:roomCleared', () => {
+      this.play('dungeon.door.open');
+      this.schedule(AUDIO.roomClearDelay, () => this.play('dungeon.room.clear'));
+    });
+    events.on('dungeon:spawnWarning', () => this.play('dungeon.spawn.warning'));
+    events.on('enemy:spitWindup', (e) => this.play('enemy.spitter.windup', { at: e }));
+    events.on('enemy:spit', (e) => this.play('enemy.spitter.spit', { at: e }));
+    events.on('enemy:spitHit', (e) => this.play('enemy.spitter.hit', { at: e }));
+    events.on('enemy:fuse', (e) => this.play('enemy.exploder.fuse', { at: e }));
+    events.on('enemy:exploded', (e) => this.play('enemy.exploder.burst', { at: e }));
+    events.on('enemy:bruteStep', (e) => this.play('enemy.brute.step', { at: e }));
+    events.on('dungeon:doorUnlocked', (e) => this.play('dungeon.unlock', { at: e }));
+    events.on('dungeon:chestOpened', (e) => this.play('dungeon.chest', { at: e }));
+    events.on('dungeon:upgrade', (e) => {
+      if (e.playerId === AUDIO.localPlayerId) this.play('dungeon.upgrade', { variant: RARITY_VARIANT[e.rarity] });
+    });
+    events.on('dungeon:reroll', () => this.play('dungeon.reroll'));
+    events.on('dungeon:pact', (e) => {
+      if (e.playerId !== AUDIO.localPlayerId) return;
+      this.play('dungeon.pact');
+      this.schedule(AUDIO.curseDelay, () => this.play('dungeon.curse'));
+    });
+    events.on('dungeon:ward', (e) => this.play('dungeon.ward', { at: e }));
+    events.on('dungeon:leech', () => mine(AUDIO.localPlayerId, 'pickup.health'));
+    events.on('dungeon:trapdoor', (e) => this.play('dungeon.trapdoor', { at: e }));
+    events.on('dungeon:floor', () => this.play('jingle.floor'));
   }
 
   /** The events of §6.4, each where it happens. */
   private listenThreats(events: EventBus): void {
-    events.on('zombie:attack', (e) => this.play('zombie.attack', { at: e }));
+    events.on('zombie:attack', (e) => this.play(e.kind === 'brute' ? 'enemy.brute.attack' : 'zombie.attack', { at: e }));
     events.on('zombie:crippled', (e) => this.play('zombie.crawl', { at: e }));
     events.on('barricade:plankBroken', (e) => this.play('barricade.break', { at: e }));
     events.on('boss:warning', (e) => this.play('boss.warning', { at: e }));
@@ -578,7 +615,7 @@ export class AudioDirector implements GameAudio, SoundTest {
     events.on('barricade:repaired', (e) => {
       if (local(e.playerId)) this.play('reward.repair', { rung: this.climb('repair') });
     });
-    events.on('pickup:collected', (e) => mine(e.playerId, e.kind === 'ammo' ? 'pickup.ammo' : 'pickup.health'));
+    events.on('pickup:collected', (e) => mine(e.playerId, e.kind === 'ammo' ? 'pickup.ammo' : e.kind === 'health' ? 'pickup.health' : 'pickup.key'));
     events.on('item:picked', (e) => mine(e.playerId, 'pickup.item'));
     events.on('money:spent', (e) => mine(e.playerId, 'buy.cash'));
     events.on('door:opened', (e) => this.play('buy.door', { at: e }));

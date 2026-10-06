@@ -161,6 +161,7 @@ export function spawnZombie(ctx: SimContext, z: ZombieState, spawnIndex: number)
   z.kind = pickZombieKind(round, random(state));
   z.elite = false;
   z.fuse = -1;
+  z.stepAcc = 0;
   z.spitTimer = 0;
   z.spitWindup = 0;
   z.x = z.prevX = spawn.x;

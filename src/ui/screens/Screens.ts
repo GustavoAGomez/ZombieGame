@@ -121,6 +121,9 @@ export interface RunOverInfo {
   time: number;
   seed: number;
   newRecord: boolean;
+  /** What the run carried (§10), by id. */
+  upgrades: readonly UpgradeId[];
+  curses: readonly CurseId[];
 }
 
 export interface RunOverActions {
@@ -149,6 +152,18 @@ export class RunOverScreen {
     const again = button(S.again, actions.again, 'screen-button--primary', playUi);
     buttons.append(again, button(S.sameSeed, actions.sameSeed, '', playUi), button(S.menu, actions.menu, '', playUi));
     if (actions.keepGoing) buttons.prepend(button(S.keepGoing, actions.keepGoing, 'screen-button--primary', playUi));
+    // The upgrades and curses carried (§10), each in its colour (icons: docs/ASSETS-TODO.md).
+    const carried = upgradeLines(info.upgrades, info.curses);
+    if (carried.length > 0) {
+      const row = el('p', 'screen-line screen-carried');
+      carried.forEach((line, i) => {
+        if (i > 0) row.append(' · ');
+        const name = el('span', 'screen-carried__name', line.name);
+        name.style.color = line.color;
+        row.append(name);
+      });
+      lines.append(row);
+    }
     this.root.append(el('h1', 'screen-title', info.won ? S.escaped : S.fell), lines);
     if (info.newRecord) this.root.append(el('p', 'screen-mode__record', S.newRecord));
     this.root.append(el('p', 'screen-subtitle', S.seed(info.seed)), buttons);

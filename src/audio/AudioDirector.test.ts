@@ -771,3 +771,44 @@ describe('WebAudioEngine without Web Audio', () => {
     expect(engine.state).toBe('sin Web Audio');
   });
 });
+
+describe('AudioDirector: the dungeon (spec 09 §11)', () => {
+  it('asks each of the dungeon\'s events for its sound, the upgrade in its rarity\'s signature', () => {
+    // The fake random (0.5) picks the second of two variants.
+    const { events, keys, advance } = gameSetup();
+    const at = { x: 0, y: 0 };
+    const cases: [() => void, string][] = [
+      [() => events.emit('dungeon:floor', { floor: 1, ambient: 'mansion', width: 1, height: 1, rooms: [], start: 0 }), 'jingle_floor'],
+      [() => events.emit('dungeon:roomLocked', { room: 1 }), 'dungeon_door_shut'],
+      [() => events.emit('dungeon:spawnWarning', { room: 1, points: [at], seconds: 0.8 }), 'dungeon_spawn_warning'],
+      [() => events.emit('dungeon:roomCleared', { room: 1, counter: 1 }), 'dungeon_door_open,dungeon_room_clear'],
+      [() => events.emit('enemy:spitWindup', at), 'enemy_spitter_windup'],
+      [() => events.emit('enemy:spit', at), 'enemy_spitter_spit_2'],
+      [() => events.emit('enemy:spitHit', { ...at, player: true }), 'enemy_spitter_hit_2'],
+      [() => events.emit('enemy:fuse', at), 'enemy_exploder_fuse'],
+      [() => events.emit('enemy:exploded', { ...at, radius: 60 }), 'enemy_exploder_burst'],
+      [() => events.emit('enemy:bruteStep', at), 'enemy_brute_step_2'],
+      [() => events.emit('zombie:attack', { ...at, kind: 'brute' }), 'enemy_brute_attack'],
+      [() => events.emit('zombie:attack', { ...at, kind: 'walker' }), 'zombie_attack_2'],
+      [() => events.emit('pickup:collected', { playerId: 0, kind: 'key' }), 'pickup_key'],
+      [() => events.emit('pickup:collected', { playerId: 0, kind: 'boss_key' }), 'pickup_key'],
+      [() => events.emit('dungeon:doorUnlocked', { kind: 'key', ...at }), 'dungeon_unlock'],
+      [() => events.emit('dungeon:chestOpened', { kind: 'open', ...at }), 'dungeon_chest_2'],
+      [() => events.emit('dungeon:upgrade', { playerId: 0, id: 'vitality', rarity: 'common', free: false }), 'dungeon_upgrade_common'],
+      [() => events.emit('dungeon:upgrade', { playerId: 0, id: 'piercing', rarity: 'rare', free: false }), 'dungeon_upgrade_rare'],
+      [() => events.emit('dungeon:upgrade', { playerId: 0, id: 'ward', rarity: 'legendary', free: true }), 'dungeon_upgrade_legendary'],
+      [() => events.emit('dungeon:upgrade', { playerId: 1, id: 'ward', rarity: 'legendary', free: true }), ''],
+      [() => events.emit('dungeon:reroll', { price: 50 }), 'dungeon_reroll'],
+      [() => events.emit('dungeon:pact', { playerId: 0, upgrade: 'ward', curse: 'frail' }), 'dungeon_pact,dungeon_curse'],
+      [() => events.emit('dungeon:ward', at), 'dungeon_ward'],
+      [() => events.emit('dungeon:leech', { heal: 5 }), 'pickup_health'],
+      [() => events.emit('dungeon:trapdoor', { ...at, won: false }), 'dungeon_trapdoor'],
+    ];
+    for (const [emit, expected] of cases) {
+      const before = keys().length;
+      advance(1);
+      emit();
+      expect(keys().slice(before).join(',')).toBe(expected);
+    }
+  });
+});

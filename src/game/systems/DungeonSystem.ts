@@ -18,7 +18,8 @@ import { BLOCK_PLAYER, cellBlocks, setDoorBlocking } from '../map/CollisionGrid'
 import type { MapData } from '../map/MapLoader';
 import { nearestWalkable } from './BossRewards';
 import { dropBossAt, freeBossSlot } from './BossSystem';
-import { isZombieAlive } from './Combat';
+import { damageZombie, isZombieAlive } from './Combat';
+import { damageBoss } from './BossCombat';
 import { isPlayerAlive } from './HealthSystem';
 import { findWeapon, giveWeapon, refillWeapon } from './InventorySystem';
 import { spawnPickup } from './PickupSystem';
@@ -164,6 +165,78 @@ function placeAltar(ctx: SimContext, run: RunState): void {
   const at = walkableInRoom(ctx, handRoom, spot.x + DUNGEON.altar.offsetTiles * ctx.map.tileSize, spot.y) ?? { x: spot.x, y: spot.y };
   run.altar = { x: at.x, y: at.y };
   run.pact = { ...pact, armed: false, accepted: false };
+}
+
+/** Where the wizard stands in a room (§7.1): its lower middle, clear of the HUD's corners. */
+export function wizardSeat(ctx: SimContext, room: number): { x: number; y: number } | null {
+  const zone = ctx.map.zones[room];
+  return zone ? walkableInRoom(ctx, room, zone.x + zone.width / 2, zone.y + zone.height * DUNGEON.merchant.seatY) : null;
+}
+
+/** The debug panel (§13): every room known. */
+export function debugRevealMap(ctx: SimContext): void {
+  const run = ctx.state.run;
+  if (!run) return;
+  run.visited.fill(true);
+  for (let i = 0; i < run.plan.rooms.length; i++) ctx.state.zonesUnlocked[i] = true;
+  emitRooms(ctx, run);
+}
+
+/** The debug panel (§13): a key, or the boss's. */
+export function debugGiveKey(ctx: SimContext, boss: boolean): void {
+  const run = ctx.state.run;
+  if (!run) return;
+  if (boss) run.bossKey = true;
+  else run.keys++;
+  emitRooms(ctx, run);
+}
+
+/** The debug panel (§13): the fight under way ends now (everything alive dies); a room not yet fought counts as cleared. */
+export function debugClearRoom(ctx: SimContext): void {
+  const run = ctx.state.run;
+  if (!run) return;
+  if (run.fight) {
+    for (const z of ctx.state.zombies) if (isZombieAlive(z)) damageZombie(ctx, z, Number.MAX_SAFE_INTEGER, -1);
+    for (const b of ctx.state.bosses) if (b.active && b.phase !== 'dead') damageBoss(ctx, b, Number.MAX_SAFE_INTEGER, -1);
+    return;
+  }
+  const room = run.room;
+  if (!canFight(run, room)) return;
+  run.cleared[room] = true;
+  run.roomsCleared++;
+  run.merchantCounter++;
+  emitRooms(ctx, run);
+}
+
+/** The debug panel (§13): the player inside the arena, by its door, with its lock open. */
+export function debugGoToBoss(ctx: SimContext): void {
+  const run = ctx.state.run;
+  const p = ctx.state.players[0];
+  const spot = ctx.map.bossSpots.find((s) => s.zoneIndex === run?.plan.boss);
+  if (!run || !p || !spot) return;
+  for (const i of roomDoors(ctx, run.plan.boss)) {
+    run.doorsUnlocked[i] = true;
+    setDoor(ctx, i, true);
+  }
+  const at = walkableInRoom(ctx, run.plan.boss, spot.x - 5 * ctx.map.tileSize, spot.y) ?? spot;
+  p.x = p.prevX = at.x;
+  p.y = p.prevY = at.y;
+  p.teleports++;
+}
+
+/** The debug panel (§13): down to the next floor at once. */
+export function debugDescend(ctx: SimContext): void {
+  const run = ctx.state.run;
+  if (!run || run.outcome !== 'playing') return;
+  run.descending = true;
+  ctx.events.emit('dungeon:descend', { floor: run.floor });
+}
+
+/** The debug panel (§13): the wizard, in the room the player is in. */
+export function debugCallWizard(ctx: SimContext): void {
+  const run = ctx.state.run;
+  if (!run || run.room < 0) return;
+  summonWizard(ctx, run, run.room, wizardSeat(ctx, run.room) ?? lootSpot(ctx, run.room));
 }
 
 /** The centre of the tile nearest to (x, y) within `room` a player can stand on, the room still dark or not; null when none is near. */
@@ -361,13 +434,18 @@ function spawnWave(ctx: SimContext, run: RunState, fight: RoomFight): void {
 }
 
 /** The boss comes (§5.3): the floor's boss and variant on the arena's spot, with the floor's life. */
+/** The floor's bosses fall (§5.3, §12), one per boss spot of the arena (a pair takes both), each with the floor's life. */
 function dropBoss(ctx: SimContext, run: RunState, fight: RoomFight): void {
   const config = floorConfig(run.floor);
-  const spot = ctx.map.bossSpots.findIndex((s) => s.zoneIndex === fight.room);
-  const slot = freeBossSlot(ctx);
-  if (spot >= 0 && slot >= 0) dropBossAt(ctx, slot, config.boss, config.variant, spot, DUNGEON.boss.shadow, config.bossHp);
+  const spots = ctx.map.bossSpots.flatMap((s, i) => (s.zoneIndex === fight.room ? [i] : []));
+  let dropped = 0;
+  config.bosses.forEach((b, i) => {
+    const spot = spots[i % spots.length];
+    const slot = freeBossSlot(ctx);
+    if (spot !== undefined && slot >= 0 && dropBossAt(ctx, slot, b.boss, b.variant, spot, DUNGEON.boss.shadow, config.bossHp)) dropped++;
+  });
   fight.phase = 'fighting';
-  fight.spawned = 1;
+  fight.spawned = dropped;
 }
 
 function tickFight(ctx: SimContext, run: RunState, fight: RoomFight, dt: number): void {
@@ -445,11 +523,7 @@ function clearRoom(ctx: SimContext, run: RunState, fight: RoomFight): void {
     run.chests.push({ x: chestSpot.x, y: chestSpot.y, room, kind: 'big', weapon: null, opened: false });
   }
   // Every so many rooms, the wizard (§7.1): in the lower middle of the room, where the HUD's corners never cover it.
-  if (run.merchantCounter % DUNGEON.merchant.every === 0) {
-    const zone = ctx.map.zones[room];
-    const seat = zone ? walkableInRoom(ctx, room, zone.x + zone.width / 2, zone.y + zone.height * DUNGEON.merchant.seatY) : null;
-    summonWizard(ctx, run, room, seat ?? at);
-  }
+  if (run.merchantCounter % DUNGEON.merchant.every === 0) summonWizard(ctx, run, room, wizardSeat(ctx, room) ?? at);
   ctx.events.emit('dungeon:roomCleared', { room, counter: run.merchantCounter });
   emitRooms(ctx, run);
 }

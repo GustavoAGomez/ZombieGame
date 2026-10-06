@@ -1,3 +1,4 @@
+import { UPGRADE_IDS } from '../config/upgrades';
 import type { SoundTest } from '../audio/AudioDirector';
 import type { GameMode } from '../config/dungeon';
 import type { SoundFamily } from '../config/audio';
@@ -60,6 +61,18 @@ export interface DebugActions {
   killBoss(): void;
   /** The bosses' next attack is this one, as soon as they finish what they are doing. */
   forceAttack(attack: 'charge' | 'slam' | 'leap'): void;
+  /** Spec 09 §13, the dungeon: the whole map known, keys, money, the room cleared, the arena, the next floor, an upgrade (with its selector) and the wizard. */
+  revealMap(): void;
+  giveKey(): void;
+  giveBossKey(): void;
+  addDungeonMoney(): void;
+  clearRoom(): void;
+  goToBoss(): void;
+  descendFloor(): void;
+  /** The upgrade DAR MEJORA gives, in turns; returns the button's new label. */
+  cycleUpgrade(): string;
+  giveUpgrade(): void;
+  callWizard(): void;
 }
 
 const TRIPLE_TAP_WINDOW_MS = 600;
@@ -153,6 +166,17 @@ export class DebugOverlay {
     button(STRINGS.debug.forceSlam, (a) => a.forceAttack('slam'));
     button(STRINGS.debug.forceLeap, (a) => a.forceAttack('leap'));
     button(STRINGS.debug.bossZones, (a) => a.toggleBossZones());
+    // The dungeon (spec 09 §13); they do nothing in Survival.
+    button(STRINGS.debug.revealMap, (a) => a.revealMap());
+    button(STRINGS.debug.giveKey, (a) => a.giveKey());
+    button(STRINGS.debug.giveBossKey, (a) => a.giveBossKey());
+    button(STRINGS.debug.dungeonMoney, (a) => a.addDungeonMoney());
+    button(STRINGS.debug.clearRoom, (a) => a.clearRoom());
+    button(STRINGS.debug.goToBoss, (a) => a.goToBoss());
+    button(STRINGS.debug.descendFloor, (a) => a.descendFloor());
+    button(STRINGS.debug.upgradeChoice(STRINGS.upgrades.names[UPGRADE_IDS[0] ?? ''] ?? ''), (a) => a.cycleUpgrade());
+    button(STRINGS.debug.giveUpgrade, (a) => a.giveUpgrade());
+    button(STRINGS.debug.callWizard, (a) => a.callWizard());
     this.panel.append(this.statsEl);
     this.panel.addEventListener('pointerup', (e) => {
       e.preventDefault();

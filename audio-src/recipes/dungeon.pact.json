@@ -1,0 +1,123 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Un coro corto sobre un golpe de subgrave que cae: el pacto se sella.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/444491_short_choir.ogg",
+                "process": {
+                  "end": 1.6,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/856174_subterranean_deep_sub_bass_rumble_drop.ogg",
+                "process": {
+                  "end": 1.2,
+                  "lowcut": 70
+                }
+              },
+              "gain": 0.6
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.25,
+            "length": 1.9,
+            "fadeOut": 0.5
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "El coro calentando con el piano fantasma detrás.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/702796_choir_warm_up.ogg",
+                "process": {
+                  "end": 1.6,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/557192_ghosts_play_piano.ogg",
+                "process": {
+                  "end": 1.4,
+                  "lowcut": 200
+                }
+              },
+              "gain": 0.4,
+              "delay": 0.2
+            }
+          ],
+          "process": {
+            "reverb": "hall",
+            "wet": 0.2,
+            "length": 1.9,
+            "fadeOut": 0.5
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "El coro al revés que acaba en un gong.",
+      "channels": 2,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/240745_choir_one_shot.ogg",
+                "process": {
+                  "end": 1.1,
+                  "reverse": true,
+                  "lowcut": 150
+                }
+              },
+              "gain": 0.9
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/518292_gong_2.ogg",
+                "process": {
+                  "end": 1.2,
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.7,
+              "delay": 1.0
+            }
+          ],
+          "process": {
+            "length": 2.1,
+            "fadeOut": 0.6
+          }
+        }
+      ]
+    }
+  }
+}

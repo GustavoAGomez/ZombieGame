@@ -2,7 +2,7 @@
 
 Registro vivo de las **reglas del juego tal como están implementadas**: qué hay, cuánto cuesta y cómo funciona. No describe el código; para eso están las specs (`docs/specs/`) y `docs/DECISIONS.md`.
 
-**Mantenlo al día:** cada vez que cambie una regla, un precio o un número de juego, o se añada un arma, un mago, un objeto o una activación, actualiza este documento en el mismo commit. Los números salen de `src/config/` (`balance.ts`, `weapons.ts`, `merchants.ts`, `items.ts`, `activations.ts`) y del plano del mapa (`maps/src/mansion.txt`).
+**Mantenlo al día:** cada vez que cambie una regla, un precio o un número de juego, o se añada un arma, un mago, un objeto o una activación, actualiza este documento en el mismo commit. Los números salen de `src/config/` (`balance.ts`, `weapons.ts`, `merchants.ts`, `items.ts`, `activations.ts`, `dungeon.ts`, `upgrades.ts`) y del plano del mapa (`maps/src/mansion.txt`). Las secciones hasta *Zombis* describen el modo **Supervivencia**; el modo **Mazmorra** va al final, con lo que cambia respecto a él.
 
 ## Armas
 
@@ -293,3 +293,90 @@ Zombis enormes que caen del cielo en rondas fijas. Hoy hay uno, **Matarife**: un
   - Los de las vallas del jardín (F1, F2) también aparecen fuera del mapa, por el norte.
   - Una entrada no se usa con un jugador a menos de 8 casillas del punto por donde entra.
   - Se elige el spawn al azar, con más peso cuanto más cerca está del jugador andando. Mientras quede alguno a 28 casillas o menos, los más lejanos no se usan.
+
+## Modo Mazmorra
+
+El segundo modo del título (spec 09): una mazmorra de **tres plantas** generadas por semilla (mansión, sótano, jardín), sala a sala, con un boss al final de cada una. Se gana bajando por la trampilla del tercer boss; se pierde al morir (no hay segunda vida). Lo que no se nombra aquí funciona como en Supervivencia.
+
+### La planta
+
+- **Plano:** una rejilla de 9×7 celdas; la sala inicial en el centro y el resto crece por vecinos. Tipos de sala por planta: 1 inicial, las de combate de la tabla, 1 de élite, 1 del tesoro, 1 de la Mano, 0 o 1 de reto (60 %) y la arena del boss (2×2 celdas, a 3 salas o más del inicio, en un callejón).
+- **Plantillas:** 16 por ambiente en `maps/src/rooms/<ambiente>/` (salas de 18×8 casillas de suelo; la arena 38×18), con sus puntos de enemigos, de mago, de cofre, de boss y de Mano. Una plantilla no se repite en la planta mientras queden otras; la mitad salen en espejo.
+- **Puertas:** las normales están abiertas; la del tesoro pide una **llave**, la de la arena la **llave del boss**, y la del reto avisa («SALA DE RETO») antes de entrar. Al entrar una casilla en una sala con enemigos, sus puertas se cierran hasta matar al último.
+- **Cámara por sala** y **minimapa** en el HUD (las salas visitadas y sus vecinas; marcas en tesoro, mano, reto, élite, arena y donde espera el mago), con las 5 marcas hasta el mago y las llaves en mano.
+
+| Planta | Ambiente | Salas con enemigos | Vida base del zombi | Boss | Vida del boss |
+|---|---|---|---|---|---|
+| 1 | Mansión | 6 | 3 | Matarife | 60 |
+| 2 | Sótano | 8 | 4 | Matarife rabioso | 110 |
+| 3 | Jardín | 10 | 5 | Matarife pútrido | 180 |
+
+### Combate
+
+- **Números del modo:** el zarpazo hace 20 (no 25), el botiquín cura 40, la **pistola tiene reserva infinita** (se rellena al recargar). No hay rondas, ventanas ni puertas de pago.
+- **Oleadas por presupuesto:** cada sala tiene una dificultad (planta 1: fácil o media; después media o difícil) con un presupuesto por planta —fácil 6/6/6, media 9/12/15, difícil 12/16/20— que se gasta en enemigos al azar. Tras 0,8 s de aviso (una sombra en cada punto) aparecen a 4 casillas o más del jugador. Una sala media o difícil trae una **segunda oleada** la mitad de las veces (la mitad del presupuesto, cuando quedan 2 enemigos); el reto siempre trae dos. Las salas de élite y de reto gastan el presupuesto difícil; el reto ×1,5.
+
+| Enemigo | Coste | Desde la planta | Qué hace |
+|---|---|---|---|
+| Caminante | 1 | 1 | El de siempre |
+| Corredor | 2 | 1 | El de siempre |
+| **Explosivo** | 2 | 1 | Corre; al alcanzarte se para 0,5 s y estalla: 30 a ti y 3 a los enemigos a 60 px. Su cadáver también estalla. Las explosiones se encadenan |
+| **Escupidor** | 3 | 2 | Se para a 160 px si te ve y cada 2,5 s escupe (0,6 s de hinchazón): 15 de daño si acierta y un charco de 2 s. Una vida menos que la base |
+| Sprinter | 3 | 2 | El de siempre |
+| **Bruto** | 5 | 2 | Vida ×5, velocidad ×0,6, zarpazo 35, el doble de grande; ni lo empuja la escopeta ni pierde las piernas |
+
+Como mucho 2 escupidores y 1 bruto por oleada. **Élite:** vida ×2,5, velocidad ×1,15 y dinero ×3; los dos primeros enemigos de la sala de élite lo son.
+
+- **El boss:** cae en la arena 1,5 s después de cerrarse las puertas (0,6 s de sombra), con la vida de la tabla tal cual. Al morir: puertas abiertas, +30 de vida, su cofre y la trampilla. Sin las recompensas de Supervivencia.
+
+### Dinero, llaves y cofres
+
+- **Dinero:** solo cuenta el dinero (no hay puntos en pantalla). Baja 10$ (élite 30$); los impactos no pagan. Sala limpia: 25$ y una tirada: llave 25 %, cofre cerrado 10 %. Sin llaves y con el tesoro de la planta sin abrir, la llave es un 15 % más probable por cada sala sin premio. Munición 12 % y botiquín 4 % por baja.
+- **Llaves:** abren la sala del tesoro o un cofre cerrado; pasan de planta. La **llave del boss** la suelta la sala de élite al limpiarla y no pasa de planta. Se recogen al pasar y no caducan.
+- **Cofres:** abierto (tesoro: 150$ y botiquín), cerrado (una llave: 150$ y munición o botiquín), **grande** (reto: una llave, 300$ y botiquín, sin llave para abrirlo) y el **del boss** (ver mejoras).
+- **Sala del tesoro:** su cofre y una vitrina con un arma básica que falte (SMG o escopeta); con las dos, munición completa y 200$.
+
+### Mejoras permanentes
+
+- **El mago** aparece en la 5.ª, 10.ª… sala con enemigos limpiada, en el centro bajo de esa sala: el **azul** si su mejor oferta es común, el **rojo** si es rara y el **dorado** si es legendaria. Vende 3 mejoras distintas (comprar una retira las otras), **CAMBIAR OFERTA** (50$, +50$ cada vez), una **LLAVE** (150$) y un **BOTIQUÍN** (200$, +40), uno por visita. Precios por rareza: común 300$, rara 500$, legendaria 900$. Probabilidades por hueco: 60/30/10 % hasta la planta 2, 45/35/20 % desde la 3. Nunca ofrece una mejora al máximo de copias.
+- **El cofre del boss:** tres mejoras gratis a elegir una, al menos una rara o legendaria, con las probabilidades de la planta siguiente. Si no queda ninguna, paga como un cofre grande.
+- **Las ⓘ** del HUD, de cada fila del mago y del altar abren la leyenda: qué hace cada mejora y cuáles llevas. El menú de pausa las lista.
+
+| Mejora | Rareza | Copias | Efecto |
+|---|---|---|---|
+| Vitalidad | Común | 3 | +25 de vida máxima y cura 25 |
+| Manos rápidas | Común | 2 | Recargas un 25 % más rápido (×0,75 cada copia) |
+| Pies ligeros | Común | 2 | +10 % de velocidad (×1,1 cada copia) |
+| Imán | Común | 1 | Recoges desde 3 veces más lejos y nada caduca en el suelo |
+| Codicia | Común | 2 | +30 % de dinero (×1,3 cada copia) |
+| Bolsillos hondos | Común | 2 | +50 % de reserva (×1,5 cada copia) |
+| Filo | Común | 1 | El cuchillo hace el doble y llega un 30 % más lejos |
+| Perforantes | Rara | 2 | Las balas atraviesan a un enemigo más por copia |
+| Rebote | Rara | 2 | Las balas rebotan una vez por copia en las paredes; con Perforantes recuperan sus perforaciones al rebotar |
+| Incendiarias | Rara | 2 | 20 % por copia de prender al enemigo |
+| Volátiles | Rara | 2 | Los enemigos estallan al morir: 2 de daño por copia a 40 px; ardiendo, a 60 px y prenden |
+| Sanguijuela | Rara | 2 | Curas 5 cada 10 bajas (cada 5 con dos copias) |
+| Segundo aire | Rara | 1 | Un segundo dash antes del enfriamiento |
+| Adrenalina | Rara | 1 | Con la vida por debajo de 30: +30 % de cadencia y de velocidad |
+| Abanico | Legendaria | 1 | Dos proyectiles más a los lados (12°), con la mitad de daño |
+| Paso de sombra | Legendaria | 1 | El dash hace 3 de daño y deja un rastro de fuego 1,5 s que prende |
+| Amuleto | Legendaria | 1 | Absorbe el primer golpe de cada sala |
+| Verdugo | Legendaria | 1 | 15 % de golpe crítico con el triple de daño |
+
+### La Mano y el pacto
+
+- **La Mano** está en su sala de cada planta: un arma al azar por **400$ o 30 de vida**, **un uso por planta** («LA MANO YA HA DADO LO SUYO» después).
+- **El altar del pacto**, tres casillas al este de la grieta: una **legendaria gratis por una maldición** que dura toda la partida; las dos se ven en la leyenda antes de aceptar. `ACEPTAR PACTO` y un segundo toque lo sellan; uno por planta, y el altar se queda apagado hasta bajar. Sin altar si no quedan legendarias o maldiciones.
+
+| Maldición | Efecto |
+|---|---|
+| Frágil | −25 de vida máxima |
+| Acosado | Los enemigos corren un 15 % más |
+| Diezmo | Los magos cobran un 30 % más |
+| Fuga | −30 % de munición de reserva |
+
+### Fin, récords y modo infinito
+
+- **Pantalla final:** HAS CAÍDO o HAS ESCAPADO, planta, salas, bajas, tiempo, las mejoras y maldiciones que llevabas, la semilla y OTRA PARTIDA / MISMA SEMILLA / MENÚ (y SEGUIR al ganar).
+- **Récords** en el dispositivo: mejor planta, más salas, victorias y mejor tiempo de victoria (y la mejor ronda de Supervivencia). Una partida con MISMA SEMILLA, `?seed=` o el debug activo no cuenta.
+- **Modo infinito:** SEGUIR baja a la planta 4. Los ambientes rotan, hay 10 salas con enemigos por planta, la vida y el presupuesto de los enemigos y la vida del boss crecen ×1,25 por planta sobre la 3, y la arena recorre el calendario de bosses de Supervivencia (base, rabioso, pareja base+base, pútrido, pareja rabioso+base…), cada boss con la vida de la planta.

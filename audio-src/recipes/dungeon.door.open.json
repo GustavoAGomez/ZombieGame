@@ -1,0 +1,97 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "La puerta de Kenney abriéndose con su bisagra, y un acorde La-Mi que sube.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/doorOpen_2.ogg",
+                "process": {
+                  "end": 0.7
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/creak1.ogg",
+                "process": {
+                  "end": 0.5
+                }
+              },
+              "gain": 0.4
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "A4",
+                    0.12
+                  ],
+                  [
+                    "E5",
+                    0
+                  ]
+                ],
+                "duration": 0.4
+              },
+              "gain": 0.35,
+              "delay": 0.15
+            }
+          ],
+          "process": {
+            "length": 0.75,
+            "fadeOut": 0.15
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Cerrojo que se descorre y la otra puerta de Kenney.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/448410_bolt_lock_3.ogg",
+                "process": {
+                  "start": 0.28,
+                  "end": 0.6
+                }
+              },
+              "gain": 0.9
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/doorOpen_1.ogg",
+                "process": {
+                  "start": 0.12,
+                  "end": 0.7
+                }
+              },
+              "gain": 1,
+              "delay": 0.12
+            }
+          ],
+          "process": {
+            "length": 0.8,
+            "fadeOut": 0.15
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Cristal duro que recibe el golpe y una nota de cristal que sube.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/418194_hard_glass_impact.ogg",
+                "process": {
+                  "end": 0.3,
+                  "lowcut": 300
+                }
+              },
+              "gain": 0.9
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "glass",
+                "notes": [
+                  [
+                    "E6",
+                    0.08
+                  ],
+                  [
+                    "A6",
+                    0
+                  ]
+                ],
+                "duration": 0.4
+              },
+              "gain": 0.8,
+              "delay": 0.03
+            }
+          ],
+          "process": {
+            "length": 0.55,
+            "fadeOut": 0.12
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "El cristal de la interfaz de Kenney y un fragmento que rebota.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-interface-sounds/glass_002.ogg",
+                "process": {
+                  "end": 0.3
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/203378_glass_shard_bounce_2.ogg",
+                "process": {
+                  "end": 0.4,
+                  "lowcut": 400
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.06
+            }
+          ],
+          "process": {
+            "length": 0.55,
+            "fadeOut": 0.12
+          }
+        }
+      ]
+    }
+  }
+}

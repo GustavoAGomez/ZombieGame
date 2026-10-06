@@ -290,6 +290,8 @@ export interface ZombieState {
   fuse: number;
   /** A spitter's (spec 09 §5.2): seconds to its next spit while it holds, and the swell before it (0 when not swelling). */
   spitTimer: number;
+  /** Px walked since the brute's last footstep sounded (spec 09 §11). */
+  stepAcc: number;
   spitWindup: number;
   ai: ZombieAi;
   x: number;
@@ -702,6 +704,7 @@ function createZombie(): ZombieState {
     kind: 'walker',
     elite: false,
     fuse: -1,
+    stepAcc: 0,
     spitTimer: 0,
     spitWindup: 0,
     ai: 'idle',

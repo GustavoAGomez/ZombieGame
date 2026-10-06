@@ -3,6 +3,7 @@
  * holds a volume or a time of its own: it names a sound by its id and the
  * director (src/audio/AudioDirector.ts) looks it up here.
  */
+import type { Rarity } from './upgrades';
 import { BOSS, HAND } from './balance';
 import type { MerchantId } from './merchants';
 import type { WeaponId } from './weapons';
@@ -110,6 +111,9 @@ export const AUDIO = {
   /** `jingle.boss.dead` after the boss's own fall (§6.4), and `jingle.gameover` after the player's death, seconds. */
   bossDeadJingleDelay: 1.2,
   gameOverJingleDelay: 1,
+  /** The dungeon (spec 09 §11): the room's bells after its doors open, and the curse's laugh after the pact's choir. */
+  roomClearDelay: 0.25,
+  curseDelay: 0.7,
   /**
    * Where a positional sound plays (§3.5): at full volume within `near` px
    * of the local player, falling in a line to `minGain` at `far` px and
@@ -136,6 +140,9 @@ export const AUDIO = {
 
 /** Which variant of a wizard's own sounds (`keyed`) is whose (§3.3: each wizard has its signature). */
 export const MERCHANT_VARIANT: Readonly<Record<MerchantId, number>> = { blue: 0, red: 1, gold: 2 };
+
+/** The dungeon's upgrade sound (spec 09 §11), keyed by rarity: the wizards' signatures, in the same order. */
+export const RARITY_VARIANT: Readonly<Record<Rarity, number>> = { common: 0, rare: 1, legendary: 2 };
 
 /** The sound of each weapon's shot or sweep (spec 08 §6.1); the beam and the jet are loops. */
 export const WEAPON_FIRE_SOUND: Readonly<Partial<Record<WeaponId, string>>> = {
@@ -190,8 +197,8 @@ export const AUDIO_GEN = {
   fftSize: 1024,
   /** Report: where the dominant pitch is looked for, Hz (a rewards' note against a hit's body, §4.5). */
   pitchRange: [80, 5000] as const,
-  /** Every effect together under this (§2), bytes. */
-  budgetBytes: 8 * 1024 * 1024,
+  /** Every effect together under this (§2), bytes: 8 MB for Survival's 75 sounds, 10 with the dungeon's 21 (spec 09 §11, docs/DECISIONS.md). */
+  budgetBytes: 10 * 1024 * 1024,
   /** A loop's end is blended into its start over this, so it repeats without a seam or a click, seconds. */
   loopCrossfade: 0.12,
   /** Report: a sound with a set `length` may be off it by this much, seconds. */
@@ -248,6 +255,12 @@ function shine(variants: readonly string[]): string[] {
 function wizards(id: string): string[] {
   const base = snake(id);
   return ['blue', 'red', 'gold'].map((m) => `${base}_${m}`);
+}
+
+/** The dungeon's upgrade sound: one variant per rarity, in RARITY_VARIANT order. */
+function rarities(id: string): string[] {
+  const base = snake(id);
+  return ['common', 'rare', 'legendary'].map((r) => `${base}_${r}`);
 }
 
 /** The catalog (spec 08 §6): one entry per sound id. */
@@ -328,6 +341,28 @@ export const SOUNDS: readonly SoundDef[] = [
   sound({ id: 'music.calm', family: 'music', variants: keys('music.calm'), bus: 'music', volume: 1, maxVoices: 2, priority: 'high', loop: true }),
   sound({ id: 'music.round', family: 'music', variants: keys('music.round'), bus: 'music', volume: 1, maxVoices: 2, priority: 'high', loop: true }),
   sound({ id: 'music.boss', family: 'music', variants: keys('music.boss'), bus: 'music', volume: 1, maxVoices: 2, priority: 'high', loop: true }),
+  // Spec 09 §11: the dungeon. Doors, the room's prize, the wave's warning, the new enemies, keys, locks and chests, the wizard's wares, the pact, the trapdoor and the floor's banner.
+  sound({ id: 'dungeon.door.shut', family: 'hit', variants: keys('dungeon.door.shut'), bus: 'sfx', volume: 0.7, maxVoices: 1, priority: 'high' }),
+  sound({ id: 'dungeon.door.open', family: 'reward', variants: keys('dungeon.door.open'), bus: 'sfx', volume: 0.6, maxVoices: 1 }),
+  sound({ id: 'dungeon.room.clear', family: 'reward', variants: keys('dungeon.room.clear'), bus: 'sfx', volume: 0.7, maxVoices: 1, priority: 'high' }),
+  sound({ id: 'dungeon.spawn.warning', family: 'threat', variants: keys('dungeon.spawn.warning'), bus: 'sfx', volume: 0.65, maxVoices: 1, priority: 'high' }),
+  sound({ id: 'enemy.spitter.windup', family: 'threat', variants: keys('enemy.spitter.windup'), bus: 'sfx', volume: 0.55, pitchVar: 5, maxVoices: 2, positional: true }),
+  sound({ id: 'enemy.spitter.spit', family: 'hit', variants: keys('enemy.spitter.spit', 2), bus: 'sfx', volume: 0.6, pitchVar: 6, maxVoices: 2, positional: true }),
+  sound({ id: 'enemy.spitter.hit', family: 'hit', variants: keys('enemy.spitter.hit', 2), bus: 'sfx', volume: 0.6, pitchVar: 6, maxVoices: 2, positional: true }),
+  sound({ id: 'enemy.exploder.fuse', family: 'threat', variants: keys('enemy.exploder.fuse'), bus: 'sfx', volume: 0.6, pitchVar: 4, maxVoices: 2, positional: true }),
+  sound({ id: 'enemy.exploder.burst', family: 'hit', variants: keys('enemy.exploder.burst'), bus: 'sfx', volume: 0.9, pitchVar: 4, maxVoices: 3, minInterval: 0.05, priority: 'high', positional: true }),
+  sound({ id: 'enemy.brute.step', family: 'threat', variants: keys('enemy.brute.step', 2), bus: 'sfx', volume: 0.5, pitchVar: 4, maxVoices: 2, minInterval: 0.2, priority: 'low', positional: true }),
+  sound({ id: 'enemy.brute.attack', family: 'threat', variants: keys('enemy.brute.attack'), bus: 'sfx', volume: 0.75, pitchVar: 4, maxVoices: 2, positional: true }),
+  sound({ id: 'pickup.key', family: 'reward', variants: keys('pickup.key'), bus: 'sfx', volume: 0.7, maxVoices: 1 }),
+  sound({ id: 'dungeon.unlock', family: 'reward', variants: keys('dungeon.unlock'), bus: 'sfx', volume: 0.75, maxVoices: 1, positional: true }),
+  sound({ id: 'dungeon.chest', family: 'reward', variants: keys('dungeon.chest', 2), bus: 'sfx', volume: 0.7, maxVoices: 1, positional: true }),
+  sound({ id: 'dungeon.upgrade', family: 'reward', variants: rarities('dungeon.upgrade'), keyed: true, bus: 'sfx', volume: 0.8, maxVoices: 1, priority: 'high' }),
+  sound({ id: 'dungeon.reroll', family: 'ui', variants: keys('dungeon.reroll'), bus: 'sfx', volume: 0.5, maxVoices: 1 }),
+  sound({ id: 'dungeon.pact', family: 'jingle', variants: keys('dungeon.pact'), bus: 'sfx', volume: 0.85, maxVoices: 1, priority: 'high', duck: true }),
+  sound({ id: 'dungeon.curse', family: 'threat', variants: keys('dungeon.curse'), bus: 'sfx', volume: 0.8, maxVoices: 1, priority: 'high' }),
+  sound({ id: 'dungeon.ward', family: 'reward', variants: keys('dungeon.ward'), bus: 'sfx', volume: 0.65, maxVoices: 1, priority: 'high' }),
+  sound({ id: 'dungeon.trapdoor', family: 'reward', variants: keys('dungeon.trapdoor'), bus: 'sfx', volume: 0.75, maxVoices: 1, priority: 'high', positional: true }),
+  sound({ id: 'jingle.floor', family: 'jingle', variants: keys('jingle.floor'), bus: 'sfx', volume: 0.85, maxVoices: 1, priority: 'high', duck: true }),
   // §6.6 Interface.
   sound({ id: 'ui.tap', family: 'ui', variants: ['ui_tap'], bus: 'ui', volume: 0.5, pitchVar: 3, maxVoices: 2, minInterval: 0.03, priority: 'low' }),
   sound({ id: 'ui.shop.open', family: 'ui', variants: wizards('ui.shop.open'), keyed: true, bus: 'ui', volume: 0.5, maxVoices: 1 }),

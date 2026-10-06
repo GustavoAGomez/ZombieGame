@@ -516,4 +516,6 @@ export const DEBUG = {
   /** IR A RONDA 6 (spec 07 §10): the first boss round; SIGUIENTE RONDA DE BOSS looks this many rounds ahead at most. */
   bossRound: 6,
   bossRoundSearch: 60,
+  /** The dungeon's +500$ (spec 09 §13). */
+  dungeonMoney: 500,
 } as const;

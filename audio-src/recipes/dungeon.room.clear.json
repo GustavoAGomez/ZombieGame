@@ -1,0 +1,106 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Tres campanas que suben (La-Do-Mi) con una campanilla real encima.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "A5",
+                    0.1
+                  ],
+                  [
+                    "C6",
+                    0.1
+                  ],
+                  [
+                    "E6",
+                    0
+                  ]
+                ],
+                "duration": 0.6
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/452371_small_bell.ogg",
+                "process": {
+                  "end": 0.6
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.2
+            }
+          ],
+          "process": {
+            "reverb": "room",
+            "wet": 0.2,
+            "length": 0.85,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "El destello de logro grabado, recortado.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/715067_achievement_sparkle.ogg",
+          "process": {
+            "end": 0.85,
+            "lowcut": 200,
+            "fadeOut": 0.2
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Una gema de OGA y una campanilla: más corto y cristalino.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/item_gem_01.ogg",
+                "process": {
+                  "end": 0.6
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/452379_small_bell_2.ogg",
+                "process": {
+                  "end": 0.5
+                }
+              },
+              "gain": 0.5,
+              "delay": 0.1
+            }
+          ],
+          "process": {
+            "length": 0.7,
+            "fadeOut": 0.15
+          }
+        }
+      ]
+    }
+  }
+}

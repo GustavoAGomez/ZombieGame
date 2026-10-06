@@ -1,0 +1,77 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Un interruptor de interfaz y una hoja de libro que pasa.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-interface-sounds/switch_002.ogg",
+                "process": {
+                  "end": 0.15
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/bookFlip1.ogg",
+                "process": {
+                  "end": 0.2
+                }
+              },
+              "gain": 0.9,
+              "delay": 0.02
+            }
+          ],
+          "process": {
+            "length": 0.19,
+            "fadeOut": 0.04
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Otra hoja y un clic.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/bookFlip2.ogg",
+                "process": {
+                  "end": 0.18
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-interface-sounds/click_003.ogg",
+                "process": {
+                  "end": 0.12
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.04
+            }
+          ],
+          "process": {
+            "length": 0.19,
+            "fadeOut": 0.04
+          }
+        }
+      ]
+    }
+  }
+}

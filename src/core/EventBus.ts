@@ -64,7 +64,8 @@ export interface GameEvents {
   /** A tap that could not be done (spec 08 §6.2): not enough money, a locked portal, a full inventory. */
   'action:denied': { playerId: number };
   /** A zombie starts drawing back its blow (spec 08 §6.4): its sound warns before the hit lands. */
-  'zombie:attack': { x: number; y: number };
+  /** A claw landing; `kind` tells the brute's apart (spec 09 §11). */
+  'zombie:attack': { x: number; y: number; kind?: ZombieKind };
   /** A zombie lost its legs and crawls from now on (spec 08 §6.4). */
   'zombie:crippled': { x: number; y: number };
   /** A zombie tore a plank off a window (spec 08 §6.4), at the window. */
@@ -260,6 +261,8 @@ export interface GameEvents {
   'enemy:spitWindup': { x: number; y: number };
   'enemy:spit': { x: number; y: number };
   'enemy:spitHit': { x: number; y: number; player: boolean };
+  /** The brute's footstep (§11), every so many px. */
+  'enemy:bruteStep': { x: number; y: number };
   /** The exploder (§5.2): its fuse is lit, and it bursts. */
   'enemy:fuse': { x: number; y: number };
   'enemy:exploded': { x: number; y: number; radius: number };

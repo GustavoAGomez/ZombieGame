@@ -80,6 +80,65 @@ Bandas: porcentaje de la energía por debajo de 100 Hz, 100–250, 250–1000, 1
 | denied__a | denied | A ✓ | Interfaz | mono | 175 ms | 25 ms | -1.0 dB | -16.1 dB | 360 Hz | 289 Hz | 3 · 46 · 51 · 0 · 0 |
 | denied__b | denied | B | Interfaz | mono | 169 ms | 39 ms | -1.0 dB | -14.9 dB | 227 Hz | 214 Hz | 3 · 77 · 20 · 0 · 0 |
 | denied__c | denied | C | Interfaz | mono | 151 ms | 1 ms | -1.0 dB | -11.6 dB | 455 Hz | 266 Hz | 1 · 25 · 73 · 0 · 0 |
+| dungeon_chest_1__a | dungeon.chest | A ✓ | Premio | mono | 539 ms | 139 ms | -1.0 dB | -16.0 dB | 3559 Hz | 1088 Hz | 0 · 0 · 1 · 94 · 5 |
+| dungeon_chest_2__a | dungeon.chest | A ✓ | Premio | mono | 679 ms | 99 ms | -1.0 dB | -19.7 dB | 3252 Hz | 1087 Hz | 0 · 0 · 6 · 91 · 3 |
+| dungeon_chest_1__b | dungeon.chest | B | Premio | mono | 614 ms | 4 ms | -1.0 dB | -19.5 dB | 10321 Hz | 191 Hz | 5 · 24 · 16 · 0 · 54 |
+| dungeon_chest_2__b | dungeon.chest | B | Premio | mono | 620 ms | 100 ms | -1.0 dB | -17.5 dB | 3560 Hz | 702 Hz | 0 · 0 · 75 · 18 · 7 |
+| dungeon_curse__a | dungeon.curse | A ✓ | Amenaza | mono | 1188 ms | 68 ms | -1.0 dB | -16.9 dB | 997 Hz | 255 Hz | 0 · 17 · 71 · 12 · 0 |
+| dungeon_curse__b | dungeon.curse | B | Amenaza | mono | 1240 ms | 10 ms | -1.0 dB | -15.3 dB | 1177 Hz | 175 Hz | 0 · 41 · 58 · 1 · 0 |
+| dungeon_curse__c | dungeon.curse | C | Amenaza | mono | 1330 ms | 120 ms | -1.0 dB | -17.6 dB | 550 Hz | 421 Hz | 3 · 28 · 68 · 1 · 0 |
+| dungeon_door_open__a | dungeon.door.open | A ✓ | Premio | mono | 655 ms | 205 ms | -1.0 dB | -20.9 dB | 3332 Hz | 436 Hz | 2 · 8 · 58 · 29 · 3 |
+| dungeon_door_open__b | dungeon.door.open | B | Premio | mono | 671 ms | 421 ms | -1.0 dB | -21.6 dB | 4269 Hz | 230 Hz | 3 · 13 · 38 · 34 · 12 |
+| dungeon_door_shut__a | dungeon.door.shut | A ✓ | Golpe | mono | 368 ms | 48 ms | -1.0 dB | -16.8 dB | 4326 Hz | 1169 Hz | 1 · 7 · 12 · 68 · 11 |
+| dungeon_door_shut__b | dungeon.door.shut | B | Golpe | mono | 370 ms | 50 ms | -1.0 dB | -18.1 dB | 3770 Hz | 698 Hz | 0 · 7 · 63 · 26 · 4 |
+| dungeon_door_shut__c | dungeon.door.shut | C | Golpe | mono | 338 ms | 58 ms | -1.0 dB | -21.9 dB | 4548 Hz | 165 Hz | 13 · 41 · 19 · 18 · 9 |
+| dungeon_pact__a | dungeon.pact | A ✓ | Carteles | estéreo | 1827 ms | 307 ms | -1.0 dB | -15.5 dB | 955 Hz | 994 Hz | 23 · 1 · 61 · 15 · 0 |
+| dungeon_pact__b | dungeon.pact | B | Carteles | estéreo | 1831 ms | 261 ms | -1.0 dB | -13.9 dB | 844 Hz | 864 Hz | 0 · 1 · 97 · 1 · 0 |
+| dungeon_pact__c | dungeon.pact | C | Carteles | estéreo | 1875 ms | 175 ms | -1.0 dB | -17.8 dB | 2050 Hz | 827 Hz | 0 · 17 · 61 · 21 · 0 |
+| dungeon_reroll__a | dungeon.reroll | A ✓ | Interfaz | mono | 189 ms | 19 ms | -1.0 dB | -16.8 dB | 5716 Hz | 153 Hz | 15 · 37 · 25 · 13 · 12 |
+| dungeon_reroll__b | dungeon.reroll | B | Interfaz | mono | 180 ms | 10 ms | -1.0 dB | -26.3 dB | 6140 Hz | 2252 Hz | 1 · 1 · 2 · 61 · 36 |
+| dungeon_room_clear__a | dungeon.room.clear | A ✓ | Premio | mono | 799 ms | 259 ms | -1.0 dB | -16.5 dB | 2062 Hz | 880 Hz | 0 · 0 · 44 · 55 · 2 |
+| dungeon_room_clear__b | dungeon.room.clear | B | Premio | mono | 770 ms | 70 ms | -1.0 dB | -13.4 dB | 2138 Hz | 1040 Hz | 0 · 0 · 3 · 97 · 0 |
+| dungeon_room_clear__c | dungeon.room.clear | C | Premio | mono | 598 ms | 148 ms | -1.0 dB | -19.3 dB | 4116 Hz | 4040 Hz | 0 · 0 · 5 · 92 · 3 |
+| dungeon_spawn_warning__a | dungeon.spawn.warning | A ✓ | Amenaza | mono | 912 ms | 12 ms | -1.0 dB | -16.8 dB | 1992 Hz | 67 Hz | 11 · 1 · 37 · 51 · 0 |
+| dungeon_spawn_warning__b | dungeon.spawn.warning | B | Amenaza | mono | 1088 ms | 38 ms | -1.0 dB | -13.1 dB | 389 Hz | 206 Hz | 23 · 61 · 16 · 0 · 0 |
+| dungeon_spawn_warning__c | dungeon.spawn.warning | C | Amenaza | mono | 1116 ms | 426 ms | -1.0 dB | -19.0 dB | 2481 Hz | 473 Hz | 2 · 6 · 89 · 2 · 1 |
+| dungeon_trapdoor__a | dungeon.trapdoor | A ✓ | Premio | mono | 830 ms | 130 ms | -1.0 dB | -26.8 dB | 4686 Hz | 177 Hz | 10 · 34 · 22 · 23 · 11 |
+| dungeon_trapdoor__b | dungeon.trapdoor | B | Premio | mono | 800 ms | 540 ms | -1.0 dB | -23.8 dB | 4004 Hz | 215 Hz | 5 · 14 · 38 · 34 · 8 |
+| dungeon_unlock__a | dungeon.unlock | A ✓ | Premio | mono | 629 ms | 169 ms | -1.0 dB | -19.0 dB | 3497 Hz | 1323 Hz | 0 · 1 · 39 · 57 · 3 |
+| dungeon_unlock__b | dungeon.unlock | B | Premio | mono | 408 ms | 58 ms | -1.0 dB | -26.2 dB | 6195 Hz | 3293 Hz | 0 · 0 · 6 · 49 · 45 |
+| dungeon_unlock__c | dungeon.unlock | C | Premio | mono | 334 ms | 104 ms | -1.0 dB | -25.4 dB | 6890 Hz | 141 Hz | 1 · 4 · 8 · 18 · 69 |
+| dungeon_upgrade_common__a | dungeon.upgrade | A ✓ | Premio | mono | 497 ms | 227 ms | -1.0 dB | -16.4 dB | 2473 Hz | 1323 Hz | 0 · 0 · 43 · 56 · 1 |
+| dungeon_upgrade_rare__a | dungeon.upgrade | A ✓ | Premio | mono | 726 ms | 146 ms | -1.0 dB | -17.4 dB | 2834 Hz | 1042 Hz | 0 · 0 · 35 · 62 · 3 |
+| dungeon_upgrade_legendary__a | dungeon.upgrade | A ✓ | Premio | mono | 835 ms | 85 ms | -1.0 dB | -12.4 dB | 4186 Hz | 995 Hz | 0 · 0 · 62 · 31 · 7 |
+| dungeon_upgrade_common__b | dungeon.upgrade | B | Premio | mono | 209 ms | 29 ms | -1.0 dB | -22.7 dB | 2698 Hz | 856 Hz | 0 · 0 · 39 · 58 · 3 |
+| dungeon_upgrade_rare__b | dungeon.upgrade | B | Premio | mono | 354 ms | 174 ms | -1.0 dB | -19.6 dB | 4461 Hz | 1763 Hz | 0 · 0 · 0 · 97 · 3 |
+| dungeon_upgrade_legendary__b | dungeon.upgrade | B | Premio | mono | 794 ms | 0 ms | -1.0 dB | -18.4 dB | 3231 Hz | 940 Hz | 0 · 1 · 44 · 52 · 3 |
+| dungeon_ward__a | dungeon.ward | A ✓ | Premio | mono | 419 ms | 179 ms | -1.0 dB | -16.6 dB | 6554 Hz | 1763 Hz | 0 · 2 · 2 · 81 · 15 |
+| dungeon_ward__b | dungeon.ward | B | Premio | mono | 460 ms | 140 ms | -1.0 dB | -21.5 dB | 7946 Hz | 1997 Hz | 0 · 0 · 1 · 39 · 60 |
+| enemy_brute_attack__a | enemy.brute.attack | A ✓ | Amenaza | mono | 461 ms | 161 ms | -1.0 dB | -21.4 dB | 4421 Hz | 87 Hz | 11 · 9 · 26 · 48 · 7 |
+| enemy_brute_attack__b | enemy.brute.attack | B | Amenaza | mono | 430 ms | 120 ms | -1.0 dB | -18.4 dB | 2745 Hz | 1069 Hz | 0 · 1 · 31 · 67 · 1 |
+| enemy_brute_step_1__a | enemy.brute.step | A ✓ | Amenaza | mono | 247 ms | 7 ms | -1.0 dB | -21.8 dB | 1453 Hz | 822 Hz | 5 · 20 · 67 · 8 · 0 |
+| enemy_brute_step_2__a | enemy.brute.step | A ✓ | Amenaza | mono | 216 ms | 6 ms | -1.0 dB | -19.9 dB | 2372 Hz | 154 Hz | 7 · 62 · 17 · 14 · 1 |
+| enemy_brute_step_1__b | enemy.brute.step | B | Amenaza | mono | 260 ms | 180 ms | -1.0 dB | -22.3 dB | 1485 Hz | 823 Hz | 9 · 8 · 77 · 6 · 0 |
+| enemy_brute_step_2__b | enemy.brute.step | B | Amenaza | mono | 241 ms | 11 ms | -1.0 dB | -19.7 dB | 1824 Hz | 133 Hz | 20 · 71 · 7 · 2 · 0 |
+| enemy_exploder_burst__a | enemy.exploder.burst | A ✓ | Golpe | mono | 399 ms | 19 ms | -1.0 dB | -16.5 dB | 4828 Hz | 123 Hz | 9 · 19 · 42 · 25 · 6 |
+| enemy_exploder_burst__b | enemy.exploder.burst | B | Golpe | mono | 367 ms | 27 ms | -1.0 dB | -13.1 dB | 2106 Hz | 285 Hz | 0 · 12 · 54 · 33 · 1 |
+| enemy_exploder_burst__c | enemy.exploder.burst | C | Golpe | mono | 362 ms | 12 ms | -1.0 dB | -15.4 dB | 4560 Hz | 133 Hz | 9 · 25 · 39 · 22 · 5 |
+| enemy_exploder_fuse__a | enemy.exploder.fuse | A ✓ | Amenaza | mono | 499 ms | 9 ms | -1.0 dB | -12.9 dB | 11038 Hz | 1393 Hz | 0 · 0 · 3 · 20 · 77 |
+| enemy_exploder_fuse__b | enemy.exploder.fuse | B | Amenaza | mono | 488 ms | 48 ms | -1.0 dB | -19.0 dB | 6908 Hz | 1519 Hz | 0 · 0 · 7 · 32 · 61 |
+| enemy_exploder_fuse__c | enemy.exploder.fuse | C | Amenaza | mono | 247 ms | 117 ms | -1.0 dB | -21.2 dB | 9061 Hz | 4580 Hz | 0 · 0 · 0 · 15 · 85 |
+| enemy_spitter_hit_1__a | enemy.spitter.hit | A ✓ | Golpe | mono | 305 ms | 225 ms | -1.0 dB | -21.3 dB | 5465 Hz | 1358 Hz | 0 · 4 · 19 · 63 · 14 |
+| enemy_spitter_hit_2__a | enemy.spitter.hit | A ✓ | Golpe | mono | 343 ms | 103 ms | -1.0 dB | -23.3 dB | 6715 Hz | 126 Hz | 2 · 6 · 10 · 53 · 28 |
+| enemy_spitter_hit_1__b | enemy.spitter.hit | B | Golpe | mono | 343 ms | 93 ms | -1.0 dB | -18.8 dB | 5347 Hz | 977 Hz | 0 · 0 · 18 · 45 · 37 |
+| enemy_spitter_hit_2__b | enemy.spitter.hit | B | Golpe | mono | 205 ms | 35 ms | -1.0 dB | -22.1 dB | 5252 Hz | 971 Hz | 0 · 0 · 16 · 42 · 42 |
+| enemy_spitter_spit_1__a | enemy.spitter.spit | A ✓ | Golpe | mono | 147 ms | 27 ms | -1.0 dB | -16.8 dB | 6968 Hz | 1164 Hz | 0 · 0 · 37 · 34 · 29 |
+| enemy_spitter_spit_2__a | enemy.spitter.spit | A ✓ | Golpe | mono | 155 ms | 35 ms | -1.0 dB | -15.8 dB | 4687 Hz | 523 Hz | 0 · 0 · 74 · 18 · 7 |
+| enemy_spitter_spit_1__b | enemy.spitter.spit | B | Golpe | mono | 305 ms | 35 ms | -1.0 dB | -21.4 dB | 4590 Hz | 297 Hz | 2 · 5 · 25 · 36 · 32 |
+| enemy_spitter_spit_2__b | enemy.spitter.spit | B | Golpe | mono | 309 ms | 89 ms | -1.0 dB | -18.8 dB | 4908 Hz | 763 Hz | 0 · 2 · 18 · 49 · 31 |
+| enemy_spitter_windup__a | enemy.spitter.windup | A ✓ | Amenaza | mono | 528 ms | 18 ms | -1.0 dB | -21.6 dB | 1192 Hz | 330 Hz | 1 · 12 · 82 · 4 · 0 |
+| enemy_spitter_windup__b | enemy.spitter.windup | B | Amenaza | mono | 520 ms | 70 ms | -1.0 dB | -20.0 dB | 3940 Hz | 899 Hz | 0 · 0 · 16 · 62 · 21 |
+| enemy_spitter_windup__c | enemy.spitter.windup | C | Amenaza | mono | 220 ms | 10 ms | -1.0 dB | -16.2 dB | 821 Hz | 827 Hz | 0 · 0 · 98 · 2 · 0 |
 | hand_moved__a | hand.moved | A ✓ | Amenaza | mono | 1252 ms | 412 ms | -1.0 dB | -17.6 dB | 1240 Hz | 195 Hz | 0 · 77 · 14 · 9 · 0 |
 | hand_moved__b | hand.moved | B | Amenaza | mono | 1198 ms | 418 ms | -1.0 dB | -17.5 dB | 520 Hz | 129 Hz | 24 · 55 · 20 · 1 · 0 |
 | hand_moved__c | hand.moved | C | Amenaza | mono | 1218 ms | 358 ms | -1.0 dB | -22.4 dB | 1889 Hz | 643 Hz | 0 · 24 · 70 · 5 · 1 |
@@ -125,6 +184,9 @@ Bandas: porcentaje de la energía por debajo de 100 Hz, 100–250, 250–1000, 1
 | jingle_boss_dead__a | jingle.boss.dead | A ✓ | Carteles | estéreo | 2234 ms | 644 ms | -1.0 dB | -16.3 dB | 1092 Hz | 626 Hz | 0 · 6 · 87 · 7 · 0 |
 | jingle_boss_dead__b | jingle.boss.dead | B | Carteles | estéreo | 2167 ms | 547 ms | -1.0 dB | -16.4 dB | 908 Hz | 515 Hz | 0 · 6 · 87 · 7 · 0 |
 | jingle_boss_dead__c | jingle.boss.dead | C | Carteles | estéreo | 2251 ms | 491 ms | -1.0 dB | -16.5 dB | 768 Hz | 522 Hz | 0 · 3 · 91 · 6 · 0 |
+| jingle_floor__a | jingle.floor | A ✓ | Carteles | estéreo | 2102 ms | 82 ms | -1.0 dB | -23.3 dB | 965 Hz | 120 Hz | 20 · 42 · 34 · 4 · 0 |
+| jingle_floor__b | jingle.floor | B | Carteles | estéreo | 1903 ms | 73 ms | -1.0 dB | -19.4 dB | 511 Hz | 154 Hz | 23 · 58 · 19 · 1 · 0 |
+| jingle_floor__c | jingle.floor | C | Carteles | estéreo | 777 ms | 437 ms | -1.0 dB | -20.5 dB | 4163 Hz | 197 Hz | 11 · 45 · 25 · 16 · 3 |
 | jingle_gameover__a | jingle.gameover | A ✓ | Carteles | estéreo | 2102 ms | 622 ms | -1.0 dB | -17.1 dB | 387 Hz | 262 Hz | 2 · 30 · 68 · 0 · 0 |
 | jingle_gameover__b | jingle.gameover | B | Carteles | estéreo | 2165 ms | 505 ms | -1.0 dB | -18.1 dB | 438 Hz | 217 Hz | 4 · 27 · 69 · 0 · 0 |
 | jingle_gameover__c | jingle.gameover | C | Carteles | estéreo | 2338 ms | 308 ms | -1.0 dB | -17.3 dB | 397 Hz | 215 Hz | 1 · 46 · 52 · 0 · 0 |
@@ -167,6 +229,9 @@ Bandas: porcentaje de la energía por debajo de 100 Hz, 100–250, 250–1000, 1
 | pickup_item__a | pickup.item | A ✓ | Premio | mono | 489 ms | 99 ms | -1.0 dB | -16.6 dB | 1979 Hz | 880 Hz | 0 · 0 · 58 · 41 · 1 |
 | pickup_item__b | pickup.item | B | Premio | mono | 523 ms | 83 ms | -1.0 dB | -19.3 dB | 2331 Hz | 880 Hz | 0 · 0 · 68 · 14 · 18 |
 | pickup_item__c | pickup.item | C | Premio | mono | 689 ms | 149 ms | -1.0 dB | -16.9 dB | 2304 Hz | 1323 Hz | 0 · 0 · 2 · 98 · 1 |
+| pickup_key__a | pickup.key | A ✓ | Premio | mono | 439 ms | 169 ms | -1.0 dB | -17.2 dB | 3520 Hz | 1763 Hz | 0 · 0 · 0 · 99 · 1 |
+| pickup_key__b | pickup.key | B | Premio | mono | 471 ms | 51 ms | -1.0 dB | -18.3 dB | 5071 Hz | 4040 Hz | 0 · 0 · 2 · 93 · 5 |
+| pickup_key__c | pickup.key | C | Premio | mono | 196 ms | 86 ms | -1.0 dB | -20.8 dB | 7775 Hz | 4225 Hz | 1 · 1 · 2 · 30 · 67 |
 | player_dash__a | player.dash | A ✓ | Golpe | mono | 302 ms | 82 ms | -1.0 dB | -17.8 dB | 2430 Hz | 727 Hz | 1 · 0 · 93 · 5 · 1 |
 | player_dash__b | player.dash | B | Golpe | mono | 270 ms | 80 ms | -1.0 dB | -19.5 dB | 2675 Hz | 330 Hz | 0 · 6 · 78 · 16 · 1 |
 | player_dash__c | player.dash | C | Golpe | mono | 327 ms | 57 ms | -1.0 dB | -14.9 dB | 4316 Hz | 2098 Hz | 0 · 1 · 30 · 63 · 6 |
@@ -379,6 +444,53 @@ Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.
 - **denied A** (en el juego): Dos golpes sordos de madera, apagados, el segundo más grave.
 - **denied B**: Dos «bong» graves de Kenney (afinados a La 3), apagados.
 - **denied C**: Dos puñetazos sordos, apagados.
+- **dungeon.chest A** (en el juego): La tapa cruje y caen monedas.
+- **dungeon.chest B**: Un golpe de madera y monedas grabadas.
+- **dungeon.curse A** (en el juego): Una risa malvada grabada, recortada y oscurecida.
+- **dungeon.curse B**: Otra risa con un golpe sordo delante.
+- **dungeon.curse C**: La risa grave y profunda.
+- **dungeon.door.open A** (en el juego): La puerta de Kenney abriéndose con su bisagra, y un acorde La-Mi que sube.
+- **dungeon.door.open B**: Cerrojo que se descorre y la otra puerta de Kenney.
+- **dungeon.door.shut A** (en el juego): La puerta de Kenney cerrándose de golpe, con un golpe sordo de madera debajo.
+- **dungeon.door.shut B**: Una puerta pesada grabada, recortada al portazo.
+- **dungeon.door.shut C**: Un tablón cayendo sobre madera: más seco y hueco.
+- **dungeon.pact A** (en el juego): Un coro corto sobre un golpe de subgrave que cae: el pacto se sella.
+- **dungeon.pact B**: El coro calentando con el piano fantasma detrás.
+- **dungeon.pact C**: El coro al revés que acaba en un gong.
+- **dungeon.reroll A** (en el juego): Un interruptor de interfaz y una hoja de libro que pasa.
+- **dungeon.reroll B**: Otra hoja y un clic.
+- **dungeon.room.clear A** (en el juego): Tres campanas que suben (La-Do-Mi) con una campanilla real encima.
+- **dungeon.room.clear B**: El destello de logro grabado, recortado.
+- **dungeon.room.clear C**: Una gema de OGA y una campanilla: más corto y cristalino.
+- **dungeon.spawn.warning A** (en el juego): Un golpe de subgrave que cae y un soplo de viento: algo se abre bajo el suelo.
+- **dungeon.spawn.warning B**: El retumbar largo del monstruo, recortado.
+- **dungeon.spawn.warning C**: Un whoosh al revés que acaba en timbal.
+- **dungeon.trapdoor A** (en el juego): Un tablón que cae sobre madera y un retumbar bajo.
+- **dungeon.trapdoor B**: La puerta de Kenney, una tabla que cruje y el retumbar.
+- **dungeon.unlock A** (en el juego): El cerrojo que se abre y una campana La que sube.
+- **dungeon.unlock B**: Las cerraduras de OGA sobre el cerrojo grabado.
+- **dungeon.unlock C**: Otra cerradura de OGA y el pestillo de Kenney.
+- **dungeon.upgrade A** (en el juego): La firma de cada mago: cristal y agua (común), fuego y brasas (rara), campana y coro (legendaria).
+- **dungeon.upgrade B**: Gemas de OGA, cada rareza más alta; la legendaria con el power-up.
+- **dungeon.ward A** (en el juego): Cristal duro que recibe el golpe y una nota de cristal que sube.
+- **dungeon.ward B**: El cristal de la interfaz de Kenney y un fragmento que rebota.
+- **enemy.brute.attack A** (en el juego): Un impacto carnoso con un swoosh pesado delante.
+- **enemy.brute.attack B**: Bofetón de carne y un whoosh ligero.
+- **enemy.brute.step A** (en el juego): Pisadas de robot grande, graves y recortadas.
+- **enemy.brute.step B**: Golpes sordos de madera, uno más grave.
+- **enemy.exploder.burst A** (en el juego): La explosión grabada con escombros que caen detrás.
+- **enemy.exploder.burst B**: Cacharros que revientan sobre un golpe sordo: más seco.
+- **enemy.exploder.burst C**: El soplido del lanzallamas al apagarse sobre la explosión: más fuego.
+- **enemy.exploder.fuse A** (en el juego): Una cerilla que prende y el chisporroteo de la mecha.
+- **enemy.exploder.fuse B**: Solo el siseo, más agudo.
+- **enemy.exploder.fuse C**: Un mechero que prende.
+- **enemy.spitter.hit A** (en el juego): Salpicón húmedo al caer.
+- **enemy.spitter.hit B**: Aplastamiento más blando.
+- **enemy.spitter.spit A** (en el juego): Dos salpicones grabados, el segundo más grave.
+- **enemy.spitter.spit B**: El limo de OGA escupiendo.
+- **enemy.spitter.windup A** (en el juego): Agua hirviendo: el gorgoteo de la garganta que se hincha.
+- **enemy.spitter.windup B**: El limo de OGA, más viscoso.
+- **enemy.spitter.windup C**: Burbujas gordas.
 - **hand.moved A** (en el juego): Retumbo de rocas lejano, con un gruñido que se pierde en una sala grande.
 - **hand.moved B**: Un retumbo de monstruo subido una octava (para que se oiga en el móvil) que se aleja.
 - **hand.moved C**: Piedras que ruedan y bajan de tono mientras se alejan.
@@ -415,6 +527,9 @@ Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.
 - **jingle.boss.dead A** (en el juego): La melodía más larga: La-Do-Mi-Re-Mi-La de campana, coro en Si, tambor y un acorde grave.
 - **jingle.boss.dead B**: Mi-La-Do-Si-Do-Mi-La con coro en La y gong afinado.
 - **jingle.boss.dead C**: La-Si-Do-Mi-Re-Do-La con el coro largo en La y timbal.
+- **jingle.floor A** (en el juego): Timbal y braam: la planta se anuncia.
+- **jingle.floor B**: Un taiko largo y un gong.
+- **jingle.floor C**: Tambores cinematográficos pesados.
 - **jingle.gameover A** (en el juego): Mi-Do-La de campana grave que desciende despacio, con la campana de iglesia afinada.
 - **jingle.gameover B**: Gong afinado en La y La-Mi-La que baja.
 - **jingle.gameover C**: Campana de iglesia y un acorde La-Mi que se hunde dos semitonos.
@@ -451,6 +566,9 @@ Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.
 - **pickup.item A** (en el juego): Cristal al revés que crece y desemboca en un La 5.
 - **pickup.item B**: El cristal brillante de Kenney al revés, y un La 5 de campana.
 - **pickup.item C**: Un destello mágico grabado, al revés, que desemboca en un Mi 6.
+- **pickup.key A** (en el juego): Un clic metálico y dos notas de cristal (Mi-La) que suben.
+- **pickup.key B**: Un objeto pequeño de OGA y una campanilla.
+- **pickup.key C**: El pestillo de Kenney y una gema.
 - **player.dash A** (en el juego): Soplo grabado con un Mi 7 de cristal al final.
 - **player.dash B**: Barrido grabado dos semitonos más grave con un La 6 de cristal.
 - **player.dash C**: Aire generado que sube de 600 a 2400 Hz y un Do 7 de cristal.
@@ -544,7 +662,10 @@ Cand.: el candidato del que sale el archivo; ✓ el que suena en el juego.
 
 ## Avisos
 
-- buy.door: Premio más grave (tono 219 Hz) que los de Golpe (mediana 438 Hz)
-- weapon.empty: Golpe más agudo (tono 2368 Hz) que los de Premio (mediana 880 Hz)
-- weapon.reload.end: Golpe más agudo (tono 3911 Hz) que los de Premio (mediana 880 Hz)
-- weapon.reload.start: Golpe más agudo (tono 3518 Hz) que los de Premio (mediana 880 Hz)
+- buy.door: Premio más grave (tono 219 Hz) que los de Golpe (mediana 530 Hz)
+- dungeon.door.open: Premio más grave (tono 436 Hz) que los de Golpe (mediana 530 Hz)
+- dungeon.trapdoor: Premio más grave (tono 177 Hz) que los de Golpe (mediana 530 Hz)
+- dungeon.door.shut: Golpe más agudo (tono 1169 Hz) que los de Premio (mediana 893 Hz)
+- weapon.empty: Golpe más agudo (tono 2368 Hz) que los de Premio (mediana 893 Hz)
+- weapon.reload.end: Golpe más agudo (tono 3911 Hz) que los de Premio (mediana 893 Hz)
+- weapon.reload.start: Golpe más agudo (tono 3518 Hz) que los de Premio (mediana 893 Hz)

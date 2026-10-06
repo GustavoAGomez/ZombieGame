@@ -1,0 +1,122 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "El cerrojo que se abre y una campana La que sube.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/364683_unlock_deadbolt.ogg",
+                "process": {
+                  "end": 0.5
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "synth",
+                "timbre": "bell",
+                "notes": [
+                  [
+                    "A5",
+                    0.1
+                  ],
+                  [
+                    "E6",
+                    0
+                  ]
+                ],
+                "duration": 0.4
+              },
+              "gain": 0.4,
+              "delay": 0.2
+            }
+          ],
+          "process": {
+            "length": 0.7,
+            "fadeOut": 0.15
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Las cerraduras de OGA sobre el cerrojo grabado.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/lock_01.ogg",
+                "process": {
+                  "end": 0.4
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/448410_bolt_lock_3.ogg",
+                "process": {
+                  "start": 0.28,
+                  "end": 0.6
+                }
+              },
+              "gain": 0.7,
+              "delay": 0.1
+            }
+          ],
+          "process": {
+            "length": 0.65,
+            "fadeOut": 0.12
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Otra cerradura de OGA y el pestillo de Kenney.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/oga-80-cc0-rpg-sfx/lock_03.ogg",
+                "process": {
+                  "end": 0.4
+                }
+              },
+              "gain": 1
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/kenney-rpg-audio/metalLatch.ogg",
+                "process": {
+                  "end": 0.25
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.15
+            }
+          ],
+          "process": {
+            "length": 0.6,
+            "fadeOut": 0.12
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Una risa malvada grabada, recortada y oscurecida.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/829881_evil_laugh.ogg",
+          "process": {
+            "end": 1.2,
+            "lowcut": 150,
+            "highcut": 4000,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "Otra risa con un golpe sordo delante.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/653370_dullthud.ogg",
+                "process": {
+                  "end": 0.3,
+                  "lowcut": 90
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/609909_evil_laugh_2.ogg",
+                "process": {
+                  "end": 1.1,
+                  "lowcut": 150
+                }
+              },
+              "gain": 1,
+              "delay": 0.15
+            }
+          ],
+          "process": {
+            "length": 1.3,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "La risa grave y profunda.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/350679_deep_evil_laugh.ogg",
+          "process": {
+            "end": 1.4,
+            "lowcut": 120,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    }
+  }
+}

@@ -72,6 +72,9 @@ src/
     systems/              Movement, Weapon, Bullet, ZombieAI, FlowField, Spawn,
                           Wave, Barricade, Door, Points, Health, Special
     map/MapLoader.ts      lee el .tmj y construye zonas, ventanas, puertas y spawns
+    map/ascii/            el compilador de planos ASCII (lo usan los scripts y la mazmorra en tiempo de ejecución)
+    dungeon/              modo Mazmorra (spec 09): generador de plantas, plantillas, montaje, mejoras (stats, mago, cofre, pacto)
+    rules.ts              lo que cambia entre Supervivencia y Mazmorra, en un solo sitio
     assets/               manifest.ts (tipos + carga), placeholders.ts
   input/
     VirtualJoystick.ts    joystick DOM (izquierda)
@@ -86,7 +89,7 @@ src/
 scripts/                  gen-placeholder-map.ts, import-pixellab.ts, check-assets.ts, build-map.ts, preview-map.ts,
                           audio-gen.ts, audio-search.ts, lib/audio/ (el taller de sonidos)
 audio-src/                recipes/ (una receta por sonido), library/<origen>/ (fuentes CC0 con su ficha), preview/ (informe)
-maps/src/                 planos ASCII de los mapas (fuente; skill level-design)
+maps/src/                 planos ASCII de los mapas (fuente; skill level-design); rooms/<ambiente>/ las plantillas de sala de la mazmorra
 maps/preview/             vistas previas generadas por map:preview
 public/assets/            manifest.json, maps/, sprites/, tiles/, audio/ (sfx/, music/; candidates/ fuera de git)
 docs/                     specs/, ASSETS.md, ASSETS-TODO.md, AUDIO.md, AUDIO-CREDITS.md, DECISIONS.md, GAME-DESIGN.md, ROADMAP.md

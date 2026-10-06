@@ -147,6 +147,13 @@
 }
 
 /* The pause menu's settings in one row: vibration, effects and music (spec 08 §2). */
+/* The end of a run (spec 09 §10): the upgrades and curses carried, in a row. */
+.screen-carried {
+  max-width: min(92vw, 560px);
+  font-size: 9px;
+  line-height: 1.6;
+}
+
 /* The dungeon's MEJORAS in the pause menu (spec 09 §4.2): a scrolling list under the settings. */
 .screen-upgrades {
   width: min(92vw, 520px);

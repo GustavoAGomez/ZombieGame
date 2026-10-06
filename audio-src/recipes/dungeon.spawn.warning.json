@@ -1,0 +1,95 @@
+{
+  "chosen": null,
+  "candidates": {
+    "A": {
+      "about": "Un golpe de subgrave que cae y un soplo de viento: algo se abre bajo el suelo.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/856174_subterranean_deep_sub_bass_rumble_drop.ogg",
+                "process": {
+                  "end": 0.9,
+                  "lowcut": 120
+                }
+              },
+              "gain": 0.55
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/683178_whoosh.ogg",
+                "process": {
+                  "end": 0.6
+                }
+              },
+              "gain": 0.9
+            }
+          ],
+          "process": {
+            "length": 1.1,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    },
+    "B": {
+      "about": "El retumbar largo del monstruo, recortado.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "file",
+          "source": "library/freesound/132868_monster_long_rumble_1.ogg",
+          "process": {
+            "end": 1.1,
+            "lowcut": 180,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    },
+    "C": {
+      "about": "Un whoosh al revés que acaba en timbal.",
+      "channels": 1,
+      "variants": [
+        {
+          "type": "layers",
+          "layers": [
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/733888_whoosh_01.ogg",
+                "process": {
+                  "end": 0.6,
+                  "reverse": true,
+                  "lowcut": 220
+                }
+              },
+              "gain": 0.8
+            },
+            {
+              "recipe": {
+                "type": "file",
+                "source": "library/freesound/573275_timpani_2.ogg",
+                "process": {
+                  "end": 0.6,
+                  "lowcut": 240
+                }
+              },
+              "gain": 0.6,
+              "delay": 0.55
+            }
+          ],
+          "process": {
+            "length": 1.2,
+            "fadeOut": 0.3
+          }
+        }
+      ]
+    }
+  }
+}

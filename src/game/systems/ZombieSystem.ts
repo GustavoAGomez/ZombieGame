@@ -338,7 +338,7 @@ function updateChasing(ctx: SimContext, z: ZombieState, dt: number): void {
     if (z.attackCooldown <= 0) {
       setState(ctx, z, 'attacking', ZOMBIES.attackWindup);
       z.actionTick = ctx.state.tick;
-      ctx.events.emit('zombie:attack', { x: z.x, y: z.y });
+      ctx.events.emit('zombie:attack', { x: z.x, y: z.y, kind: z.kind });
     }
     return; // in reach: hold position instead of pushing into the player
   }
@@ -379,6 +379,14 @@ function updateChasing(ctx: SimContext, z: ZombieState, dt: number): void {
     return;
   }
   moveCircle(ctx.grid, z, dirX * step, dirY * step, ZOMBIES.hitboxRadius, BLOCK_ZOMBIE);
+  // The brute's heavy steps (spec 09 §11), every so many px walked.
+  if (z.kind === 'brute') {
+    z.stepAcc += step;
+    if (z.stepAcc >= DUNGEON.kinds.brute.stepEvery) {
+      z.stepAcc = 0;
+      ctx.events.emit('enemy:bruteStep', { x: z.x, y: z.y });
+    }
+  }
 }
 
 /**

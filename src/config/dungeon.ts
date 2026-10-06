@@ -4,7 +4,7 @@
  * of them are starting values, to tune after playing. Survival reads none
  * of this.
  */
-import type { BossId, BossVariantId } from './bosses';
+import { BOSS_SCHEDULE, type BossSpawn, type BossId, type BossVariantId } from './bosses';
 import type { ZombieKind } from './balance';
 import type { WeaponId } from './weapons';
 
@@ -29,8 +29,11 @@ export interface FloorConfig {
   ambient: Ambient;
   /** `combat` rooms plus the `elite` one (§2.1); the challenge room is apart. */
   enemyRooms: number;
+  /** The arena's boss (the first of `bosses`, kept for the floors with one). */
   boss: BossId;
   variant: BossVariantId;
+  /** Every boss of the arena (§12: the endless floors run through the calendar of bosses.ts, pairs included), each with `bossHp`. */
+  bosses: readonly BossSpawn[];
   /** The boss's life, final (the variant's own multiplier does not apply: the user's choice, docs/DECISIONS.md). */
   bossHp: number;
   /** A base zombie's life on this floor (§5.1). */
@@ -42,9 +45,9 @@ export const DUNGEON = {
   grid: { width: 9, height: 7 },
   /** The three floors (§2). */
   floors: [
-    { ambient: 'mansion', enemyRooms: 6, boss: 'butcher', variant: 'base', bossHp: 60, zombieHp: 3 },
-    { ambient: 'basement', enemyRooms: 8, boss: 'butcher', variant: 'rabid', bossHp: 110, zombieHp: 4 },
-    { ambient: 'garden', enemyRooms: 10, boss: 'butcher', variant: 'putrid', bossHp: 180, zombieHp: 5 },
+    { ambient: 'mansion', enemyRooms: 6, boss: 'butcher', variant: 'base', bosses: [{ boss: 'butcher', variant: 'base' }], bossHp: 60, zombieHp: 3 },
+    { ambient: 'basement', enemyRooms: 8, boss: 'butcher', variant: 'rabid', bosses: [{ boss: 'butcher', variant: 'rabid' }], bossHp: 110, zombieHp: 4 },
+    { ambient: 'garden', enemyRooms: 10, boss: 'butcher', variant: 'putrid', bosses: [{ boss: 'butcher', variant: 'putrid' }], bossHp: 180, zombieHp: 5 },
   ] as const satisfies readonly FloorConfig[],
   /** Past the victory (§12): the ambients rotate, this many enemy rooms, and life and budgets grow this much per floor over the third. */
   endless: { enemyRooms: 10, scalePerFloor: 1.25 },
@@ -115,7 +118,7 @@ export const DUNGEON = {
   kinds: {
     spitter: { hpDelta: -1, keepDistance: 160, meleeRange: 70, spitEvery: 2.5, windup: 0.6, shotSpeed: 140, shotRange: 420, shotRadius: 5, damage: 15, puddleTime: 2, puddleRadius: 20 },
     exploder: { fuse: 0.5, radius: 60, damage: 30, enemyDamage: 3 },
-    brute: { hp: 5, speed: 0.6, scale: 1.5, damage: 35 },
+    brute: { hp: 5, speed: 0.6, scale: 1.5, damage: 35, stepEvery: 20 },
   },
   /** The enemies' shots (§5.2), pooled; an explosion's ring fades over `explosionFade` s. */
   shots: { pool: 16 },
@@ -167,7 +170,11 @@ export function floorConfig(floor: number): FloorConfig {
   const base = DUNGEON.floors[(n - 1) % FLOORS] as FloorConfig;
   if (n <= FLOORS) return base;
   const scale = DUNGEON.endless.scalePerFloor ** (n - FLOORS);
-  return { ...base, enemyRooms: DUNGEON.endless.enemyRooms, bossHp: Math.round(base.bossHp * scale), zombieHp: Math.round(base.zombieHp * scale) };
+  // The arena runs through the calendar of Survival's boss rounds (§12), pairs included; the first names the floor's boss.
+  const rounds = BOSS_SCHEDULE.rounds;
+  const bosses = (rounds[(n - FLOORS - 1) % rounds.length] ?? rounds[0]).bosses;
+  const first = bosses[0] ?? { boss: base.boss, variant: base.variant };
+  return { ...base, enemyRooms: DUNGEON.endless.enemyRooms, boss: first.boss, variant: first.variant, bosses, bossHp: Math.round(base.bossHp * scale), zombieHp: Math.round(base.zombieHp * scale) };
 }
 
 /** The difficulties a floor's rooms are drawn from (§3.2). */
