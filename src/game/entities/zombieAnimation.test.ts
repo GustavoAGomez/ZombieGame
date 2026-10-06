@@ -4,8 +4,8 @@ import type { ZombieState } from '../../core/GameState';
 import { createTestContext } from '../../test/fixtures';
 import { isStrike, letsStrikeFinish, swingId, zombiePose, type ZombieArt } from './zombieAnimation';
 
-const FULL: ZombieArt = { climb: true, crawl: true, crawlAttack: true, death: true };
-const NONE: ZombieArt = { climb: false, crawl: false, crawlAttack: false, death: false };
+const FULL: ZombieArt = { climb: true, crawl: true, crawlAttack: true, death: true, spit: true, fuse: true };
+const NONE: ZombieArt = { climb: false, crawl: false, crawlAttack: false, death: false, spit: false, fuse: false };
 
 function zombie(fields: Partial<ZombieState>): ZombieState {
   const z = createTestContext().state.zombies[0];
@@ -14,6 +14,17 @@ function zombie(fields: Partial<ZombieState>): ZombieState {
 }
 
 describe('zombiePose', () => {
+  it('swells to spit and with its fuse lit (the dungeon kinds), standing only', () => {
+    expect(zombiePose(zombie({ kind: 'spitter', spitWindup: 0.3 }), FULL).animation).toBe('spit');
+    expect(zombiePose(zombie({ kind: 'spitter', spitWindup: 0 }), FULL).animation).toBe('walk');
+    expect(zombiePose(zombie({ kind: 'exploder', fuse: 0.2, ai: 'idle' }), FULL).animation).toBe('fuse');
+    // Killed, its fuse burns on: it swells instead of falling.
+    expect(zombiePose(zombie({ kind: 'exploder', fuse: 0.2, ai: 'dead', hp: 0 }), FULL).animation).toBe('fuse');
+    // Legless, it keeps crawling (the view swells the sprite); without the art, the old poses.
+    expect(zombiePose(zombie({ kind: 'spitter', spitWindup: 0.3, hp: ZOMBIES.crawlAtHp }), FULL).animation).toBe('crawl');
+    expect(zombiePose(zombie({ kind: 'exploder', fuse: 0.2, ai: 'idle' }), NONE).animation).toBe('walk');
+  });
+
   it('walks, strikes, lunges through windows and dies with full art', () => {
     expect(zombiePose(zombie({ ai: 'chasing' }), FULL).animation).toBe('walk');
     expect(zombiePose(zombie({ ai: 'toWindow' }), FULL).animation).toBe('walk');

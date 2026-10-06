@@ -164,6 +164,48 @@
               "Idle/animations/climb/north/frame_008.png"
             ]
           },
+          "death": {
+            "north-east": [
+              "Idle/animations/death/north-east/frame_000.png",
+              "Idle/animations/death/north-east/frame_001.png",
+              "Idle/animations/death/north-east/frame_002.png",
+              "Idle/animations/death/north-east/frame_003.png",
+              "Idle/animations/death/north-east/frame_004.png",
+              "Idle/animations/death/north-east/frame_005.png"
+            ],
+            "south": [
+              "Idle/animations/death/south/frame_000.png",
+              "Idle/animations/death/south/frame_001.png",
+              "Idle/animations/death/south/frame_002.png",
+              "Idle/animations/death/south/frame_003.png",
+              "Idle/animations/death/south/frame_004.png",
+              "Idle/animations/death/south/frame_005.png"
+            ],
+            "east": [
+              "Idle/animations/death/east/frame_000.png",
+              "Idle/animations/death/east/frame_001.png",
+              "Idle/animations/death/east/frame_002.png",
+              "Idle/animations/death/east/frame_003.png",
+              "Idle/animations/death/east/frame_004.png",
+              "Idle/animations/death/east/frame_005.png"
+            ],
+            "north": [
+              "Idle/animations/death/north/frame_000.png",
+              "Idle/animations/death/north/frame_001.png",
+              "Idle/animations/death/north/frame_002.png",
+              "Idle/animations/death/north/frame_003.png",
+              "Idle/animations/death/north/frame_004.png",
+              "Idle/animations/death/north/frame_005.png"
+            ],
+            "south-east": [
+              "Idle/animations/death/south-east/frame_000.png",
+              "Idle/animations/death/south-east/frame_001.png",
+              "Idle/animations/death/south-east/frame_002.png",
+              "Idle/animations/death/south-east/frame_003.png",
+              "Idle/animations/death/south-east/frame_004.png",
+              "Idle/animations/death/south-east/frame_005.png"
+            ]
+          },
           "walking": {
             "south": [
               "Idle/animations/walking/south/frame_000.png",
@@ -473,5 +515,5 @@
     }
   ],
   "export_version": "3.1",
-  "export_date": "2026-10-02T00:17:41.823601"
+  "export_date": "2026-10-06T20:35:31.229228"
 }

@@ -24,14 +24,8 @@ export const COLORS = {
   /** Money ($): the HUD's money and every "+N$". */
   money: '#62d26f',
   /**
-   * Tints (multiplied) of the zombie kinds sharing the walker's art, so they
-   * read at a glance: runners amber, sprinters red. Walkers keep their colours.
-   */
-  zombieRunnerTint: '#ffc98a',
-  zombieSprinterTint: '#ff8a7a',
-  /**
    * Fire (the shotgun's special, spec 04): its pellets, the tint of a burning
-   * zombie and its flames. A deeper orange than the runners' amber tint.
+   * zombie and its flames.
    */
   fire: '#ff6a1a',
   fireLight: '#ffd24a',

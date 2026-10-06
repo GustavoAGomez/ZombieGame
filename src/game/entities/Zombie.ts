@@ -8,29 +8,18 @@ import { ASSET_KEYS, animationKey, characterTextureKey, isAnimationPlaceholder, 
 import { actorDepth } from '../depth';
 import { isLegless, isStrike, letsStrikeFinish, swingId, zombiePose, type ZombieArt, type ZombieAnimation, type ZombiePose } from './zombieAnimation';
 
+/** Each kind its own art (the brute drawn at its size already: 1.5× the walker, spec 09 §5.2). */
 const CHARACTER_BY_KIND: Record<ZombieKind, string> = {
   walker: ASSET_KEYS.zombieWalker,
   runner: ASSET_KEYS.zombieRunner,
   sprinter: ASSET_KEYS.zombieSprinter,
-  // The dungeon's kinds (spec 09 §5.2) borrow the art, with a tint and a size of their own (docs/ASSETS-TODO.md).
-  spitter: ASSET_KEYS.zombieWalker,
-  exploder: ASSET_KEYS.zombieRunner,
-  brute: ASSET_KEYS.zombieWalker,
+  spitter: ASSET_KEYS.zombieSpitter,
+  exploder: ASSET_KEYS.zombieExploder,
+  brute: ASSET_KEYS.zombieBrute,
 };
 
-/** Multiplied over the shared art so each kind reads at a glance (white = untouched). */
-const KIND_TINT: Record<ZombieKind, number> = {
-  walker: 0xffffff,
-  runner: hexToInt(COLORS.zombieRunnerTint),
-  sprinter: hexToInt(COLORS.zombieSprinterTint),
-  spitter: 0x8fd05a,
-  exploder: 0xe05040,
-  brute: 0x7a7088,
-};
-/** The exploder's red beats between these two this often; lit, faster. */
-const EXPLODER_TINT_LIGHT = 0xff8a70;
-const EXPLODER_PULSE_MS = 400;
-const EXPLODER_FUSE_PULSE_MS = 90;
+/** Untouched art. */
+const NO_TINT = 0xffffff;
 /** An elite's golden aura (spec 09 §5.2), until it has art of its own. */
 const ELITE_TINT = 0xe8b04a;
 
@@ -59,10 +48,12 @@ interface Slot {
   atWindow: boolean;
   /** 0..1, fading in and out at the edge of the darkness. */
   visibility: number;
-  /** Kind tint applied (-1 none yet), so it is set again only when it changes. */
+  /** Tint applied (-1 none yet), so it is set again only when it changes. */
   tint: number;
-  /** Scale applied (the brute's size, a swell before a spit or a burst). */
+  /** Scale applied (a swell before a spit or a burst drawn without its art). */
   scale: number;
+  /** Character drawn (a pooled sprite may change kind, and each kind stands on its own anchor). */
+  character: string;
 }
 
 /**
@@ -75,17 +66,21 @@ interface Slot {
 export class ZombieViewPool {
   private readonly slots: Slot[];
   private readonly art: Record<string, ZombieArt>;
+  /** Where each character's feet are in its frame (origin). */
+  private readonly anchors: Record<string, { x: number; y: number }>;
   private lastNow = 0;
 
   constructor(scene: Phaser.Scene, manifest: Manifest, poolSize: number) {
     const def = manifest.characters[ASSET_KEYS.zombieWalker];
+    const keys = [...new Set(Object.values(CHARACTER_BY_KIND))];
     this.art = Object.fromEntries(
-      Object.values(CHARACTER_BY_KIND).map((key) => {
+      keys.map((key) => {
         const c = manifest.characters[key];
         const real = (anim: string): boolean => c !== undefined && c.animations[anim] !== undefined && !isAnimationPlaceholder(c, anim);
-        return [key, { climb: real('climb'), crawl: real('crawl'), crawlAttack: real('crawl_attack'), death: real('death') }];
+        return [key, { climb: real('climb'), crawl: real('crawl'), crawlAttack: real('crawl_attack'), death: real('death'), spit: real('spit'), fuse: real('fuse') }];
       }),
     );
+    this.anchors = Object.fromEntries(keys.map((key) => [key, manifest.characters[key]?.anchor ?? def?.anchor ?? { x: 0.5, y: 0.8 }]));
     this.slots = Array.from({ length: poolSize }, () => ({
       sprite: scene.add
         .sprite(0, 0, characterTextureKey(ASSET_KEYS.zombieWalker, 'walk'), 0)
@@ -102,6 +97,7 @@ export class ZombieViewPool {
       visibility: 0,
       tint: -1,
       scale: 1,
+      character: ASSET_KEYS.zombieWalker,
     }));
   }
 
@@ -135,6 +131,16 @@ export class ZombieViewPool {
       }
 
       const character = CHARACTER_BY_KIND[z.kind];
+      // Burst (spec 09 §5.2): nothing is left of the exploder but its blast.
+      if (z.kind === 'exploder' && z.fuse === -2 && z.ai === 'dead') {
+        if (sprite.visible) sprite.setVisible(false).setAlpha(0);
+        continue;
+      }
+      if (character !== slot.character) {
+        slot.character = character;
+        const anchor = this.anchors[character];
+        if (anchor) sprite.setOrigin(anchor.x, anchor.y);
+      }
       const art = this.art[character] ?? NO_ART;
       const pose = zombiePose(z, art);
       // Without death art the body drops and fades out over the corpse time.
@@ -154,14 +160,19 @@ export class ZombieViewPool {
 
       if (slot.lastHp > 0 && z.hp < slot.lastHp && z.hp > 0) slot.flashUntil = now + HIT_FLASH_MS;
       slot.lastHp = z.hp;
-      // A hit flashes white; a burning zombie flickers orange; otherwise the kind's tint
-      // (a pooled sprite may change kind).
+      // A hit flashes white; a burning zombie flickers orange; an elite glows gold.
       const flashing = now < slot.flashUntil;
       const burning = z.burn.timer > 0 && z.hp > 0;
-      const tint = burning ? (Math.floor(now / BURN_FLICKER_MS) % 2 === 0 ? BURN_TINT : BURN_TINT_LIGHT) : z.elite ? ELITE_TINT : kindTint(z, now);
-      // The brute's size (spec 09 §5.2); a spitter about to spit and an exploder with its fuse lit swell.
-      const swell = z.kind === 'spitter' && z.spitWindup > 0 ? 1 + 0.25 * (1 - z.spitWindup / DUNGEON.kinds.spitter.windup) : z.kind === 'exploder' && z.fuse > 0 ? 1 + 0.35 * (1 - z.fuse / DUNGEON.kinds.exploder.fuse) : 1;
-      const scale = (z.kind === 'brute' ? DUNGEON.kinds.brute.scale : 1) * swell;
+      const tint = burning ? (Math.floor(now / BURN_FLICKER_MS) % 2 === 0 ? BURN_TINT : BURN_TINT_LIGHT) : z.elite ? ELITE_TINT : NO_TINT;
+      // A swell the art does not draw: the spit's without its animation (or crawling), and the
+      // exploder's always, since its fuse only flashes in place.
+      const swell =
+        z.kind === 'spitter' && z.spitWindup > 0 && pose.animation !== 'spit'
+          ? 1 + 0.25 * (1 - z.spitWindup / DUNGEON.kinds.spitter.windup)
+          : z.kind === 'exploder' && z.fuse > 0
+            ? 1 + 0.35 * (1 - z.fuse / DUNGEON.kinds.exploder.fuse)
+            : 1;
+      const scale = swell;
       if (scale !== slot.scale) {
         slot.scale = scale;
         sprite.setScale(scale);
@@ -215,11 +226,4 @@ export class ZombieViewPool {
   }
 }
 
-const NO_ART: ZombieArt = { climb: false, crawl: false, crawlAttack: false, death: false };
-
-/** A kind's tint now: the exploder's beats, faster with its fuse lit. */
-function kindTint(z: ZombieState, now: number): number {
-  if (z.kind !== 'exploder') return KIND_TINT[z.kind];
-  const period = z.fuse > 0 ? EXPLODER_FUSE_PULSE_MS : EXPLODER_PULSE_MS;
-  return Math.floor(now / period) % 2 === 0 ? KIND_TINT.exploder : EXPLODER_TINT_LIGHT;
-}
+const NO_ART: ZombieArt = { climb: false, crawl: false, crawlAttack: false, death: false, spit: false, fuse: false };

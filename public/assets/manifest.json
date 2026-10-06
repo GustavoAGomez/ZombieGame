@@ -123,8 +123,7 @@
           "file": "sprites/zombie_walker/death.png",
           "frames": 6,
           "fps": 10,
-          "loop": false,
-          "placeholder": true
+          "loop": false
         },
         "idle": {
           "file": "sprites/zombie_walker/idle.png",
@@ -151,7 +150,7 @@
       "frameHeight": 68,
       "anchor": {
         "x": 0.5,
-        "y": 0.8
+        "y": 0.84
       },
       "hitbox": {
         "radius": 6
@@ -160,45 +159,44 @@
       "placeholder": false,
       "animations": {
         "walk": {
-          "file": "sprites/zombie_walker/walk.png",
-          "frames": 9,
-          "fps": 15,
+          "file": "sprites/zombie_runner/walk.png",
+          "frames": 8,
+          "fps": 13,
           "loop": true
         },
         "attack": {
-          "file": "sprites/zombie_walker/attack.png",
+          "file": "sprites/zombie_runner/attack.png",
           "frames": 9,
           "fps": 12,
           "loop": false
         },
         "climb": {
-          "file": "sprites/zombie_walker/climb.png",
+          "file": "sprites/zombie_runner/climb.png",
           "frames": 9,
           "fps": 11,
           "loop": false,
           "directions": 4
         },
         "death": {
-          "file": "sprites/zombie_walker/death.png",
+          "file": "sprites/zombie_runner/death.png",
           "frames": 6,
           "fps": 10,
-          "loop": false,
-          "placeholder": true
+          "loop": false
         },
         "idle": {
-          "file": "sprites/zombie_walker/idle.png",
+          "file": "sprites/zombie_runner/idle.png",
           "frames": 1,
           "fps": 6,
           "loop": true
         },
         "crawl": {
-          "file": "sprites/zombie_walker/crawl.png",
-          "frames": 9,
-          "fps": 14,
+          "file": "sprites/zombie_runner/crawl.png",
+          "frames": 8,
+          "fps": 12,
           "loop": true
         },
         "crawl_attack": {
-          "file": "sprites/zombie_walker/crawl_attack.png",
+          "file": "sprites/zombie_runner/crawl_attack.png",
           "frames": 9,
           "fps": 15,
           "loop": false
@@ -210,7 +208,7 @@
       "frameHeight": 68,
       "anchor": {
         "x": 0.5,
-        "y": 0.8
+        "y": 0.82
       },
       "hitbox": {
         "radius": 6
@@ -219,45 +217,44 @@
       "placeholder": false,
       "animations": {
         "walk": {
-          "file": "sprites/zombie_walker/walk.png",
-          "frames": 9,
-          "fps": 21,
+          "file": "sprites/zombie_sprinter/walk.png",
+          "frames": 8,
+          "fps": 19,
           "loop": true
         },
         "attack": {
-          "file": "sprites/zombie_walker/attack.png",
+          "file": "sprites/zombie_sprinter/attack.png",
           "frames": 9,
           "fps": 12,
           "loop": false
         },
         "climb": {
-          "file": "sprites/zombie_walker/climb.png",
+          "file": "sprites/zombie_sprinter/climb.png",
           "frames": 9,
           "fps": 11,
           "loop": false,
           "directions": 4
         },
         "death": {
-          "file": "sprites/zombie_walker/death.png",
+          "file": "sprites/zombie_sprinter/death.png",
           "frames": 6,
           "fps": 10,
-          "loop": false,
-          "placeholder": true
+          "loop": false
         },
         "idle": {
-          "file": "sprites/zombie_walker/idle.png",
+          "file": "sprites/zombie_sprinter/idle.png",
           "frames": 1,
           "fps": 6,
           "loop": true
         },
         "crawl": {
-          "file": "sprites/zombie_walker/crawl.png",
-          "frames": 9,
-          "fps": 20,
+          "file": "sprites/zombie_sprinter/crawl.png",
+          "frames": 8,
+          "fps": 18,
           "loop": true
         },
         "crawl_attack": {
-          "file": "sprites/zombie_walker/crawl_attack.png",
+          "file": "sprites/zombie_sprinter/crawl_attack.png",
           "frames": 9,
           "fps": 15,
           "loop": false
@@ -367,6 +364,141 @@
           "fps": 8,
           "loop": false,
           "directions": 4
+        }
+      }
+    },
+    "zombie_spitter": {
+      "frameWidth": 68,
+      "frameHeight": 68,
+      "anchor": {
+        "x": 0.5,
+        "y": 0.83
+      },
+      "hitbox": {
+        "radius": 6
+      },
+      "directions": 8,
+      "placeholder": false,
+      "animations": {
+        "idle": {
+          "file": "sprites/zombie_spitter/idle.png",
+          "frames": 1,
+          "fps": 6,
+          "loop": true
+        },
+        "walk": {
+          "file": "sprites/zombie_spitter/walk.png",
+          "frames": 8,
+          "fps": 8,
+          "loop": true
+        },
+        "attack": {
+          "file": "sprites/zombie_spitter/attack.png",
+          "frames": 9,
+          "fps": 12,
+          "loop": false
+        },
+        "spit": {
+          "file": "sprites/zombie_spitter/spit.png",
+          "frames": 9,
+          "fps": 14,
+          "loop": false
+        },
+        "death": {
+          "file": "sprites/zombie_spitter/death.png",
+          "frames": 6,
+          "fps": 10,
+          "loop": false
+        },
+        "crawl": {
+          "file": "sprites/zombie_spitter/crawl.png",
+          "frames": 8,
+          "fps": 7,
+          "loop": true
+        },
+        "crawl_attack": {
+          "file": "sprites/zombie_spitter/crawl_attack.png",
+          "frames": 9,
+          "fps": 15,
+          "loop": false
+        }
+      }
+    },
+    "zombie_exploder": {
+      "frameWidth": 68,
+      "frameHeight": 68,
+      "anchor": {
+        "x": 0.5,
+        "y": 0.82
+      },
+      "hitbox": {
+        "radius": 6
+      },
+      "directions": 8,
+      "placeholder": false,
+      "animations": {
+        "idle": {
+          "file": "sprites/zombie_exploder/idle.png",
+          "frames": 1,
+          "fps": 6,
+          "loop": true
+        },
+        "walk": {
+          "file": "sprites/zombie_exploder/walk.png",
+          "frames": 8,
+          "fps": 13,
+          "loop": true
+        },
+        "fuse": {
+          "file": "sprites/zombie_exploder/fuse.png",
+          "frames": 9,
+          "fps": 18,
+          "loop": false
+        },
+        "crawl": {
+          "file": "sprites/zombie_exploder/crawl.png",
+          "frames": 8,
+          "fps": 12,
+          "loop": true
+        }
+      }
+    },
+    "zombie_brute": {
+      "frameWidth": 104,
+      "frameHeight": 104,
+      "anchor": {
+        "x": 0.5,
+        "y": 0.81
+      },
+      "hitbox": {
+        "radius": 6
+      },
+      "directions": 8,
+      "placeholder": false,
+      "animations": {
+        "idle": {
+          "file": "sprites/zombie_brute/idle.png",
+          "frames": 1,
+          "fps": 6,
+          "loop": true
+        },
+        "walk": {
+          "file": "sprites/zombie_brute/walk.png",
+          "frames": 8,
+          "fps": 5,
+          "loop": true
+        },
+        "attack": {
+          "file": "sprites/zombie_brute/attack.png",
+          "frames": 9,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "file": "sprites/zombie_brute/death.png",
+          "frames": 6,
+          "fps": 8,
+          "loop": false
         }
       }
     }
@@ -1191,6 +1323,20 @@
       "frameHeight": 16,
       "frames": 1,
       "placeholder": true
+    },
+    "enemy_shot": {
+      "file": "sprites/objects/enemy_shot.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 5,
+      "placeholder": false
+    },
+    "enemy_burst": {
+      "file": "sprites/objects/enemy_burst.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 9,
+      "placeholder": false
     }
   },
   "maps": {

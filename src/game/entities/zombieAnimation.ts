@@ -1,7 +1,7 @@
 import { ZOMBIES } from '../../config/balance';
 import type { ZombieState } from '../../core/GameState';
 
-export type ZombieAnimation = 'walk' | 'attack' | 'climb' | 'death' | 'crawl' | 'crawl_attack';
+export type ZombieAnimation = 'walk' | 'attack' | 'climb' | 'death' | 'crawl' | 'crawl_attack' | 'spit' | 'fuse';
 
 /** Which optional animations a zombie character has art for (docs/ASSETS.md §3). */
 export interface ZombieArt {
@@ -9,6 +9,9 @@ export interface ZombieArt {
   crawl: boolean;
   crawlAttack: boolean;
   death: boolean;
+  /** The dungeon's kinds (spec 09 §5.2): the spitter swelling to spit, the exploder's fuse burning. */
+  spit: boolean;
+  fuse: boolean;
 }
 
 export interface ZombiePose {
@@ -28,6 +31,9 @@ export function isLegless(z: ZombieState): boolean {
 /** The animation a zombie's state asks for. Pure: reads state only. */
 export function zombiePose(z: ZombieState, art: ZombieArt): ZombiePose {
   const crawling = isLegless(z) && art.crawl;
+  // Standing, a spitter swells before it spits and a lit exploder (alive or just killed) swells until it bursts.
+  if (!crawling && art.spit && z.kind === 'spitter' && z.spitWindup > 0) return { animation: 'spit', corpse: false };
+  if (!crawling && art.fuse && z.kind === 'exploder' && z.fuse > 0) return { animation: 'fuse', corpse: false };
   switch (z.ai) {
     case 'dead':
       if (art.death) return { animation: 'death', corpse: false };

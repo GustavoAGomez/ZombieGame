@@ -2237,3 +2237,27 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 - **Comprobado** midiendo los rectángulos en 844×390, 800×360 y 640×360, con 3 armas, 2000$, las dos clases de llave y la barra del boss: ninguno se solapa con otro. El único roce es a 640×360, entre la barra del boss y el bloque de vida (3 px, sin tocarse), y ya estaba antes.
 - **Limpieza:** desaparecen `STRINGS.dungeon.counter` y sus estilos. El segundo bloque `.hud-marks` (el del contador) pisaba el hueco de las marcas de mejora del arma: queda un solo bloque con el mismo hueco de 8 px que se veía.
 
+## Arte de los enemigos: los de la mazmorra y los de Supervivencia (PixelLab, petición del usuario)
+
+- **Petición:** los diseños de los tres enemigos de la mazmorra (escupidor, explosivo y bruto) con sus animaciones y ataques, y los de Supervivencia con las suyas. Prompts confirmados por el usuario antes de lanzar nada. Eligió «todo, con arrastrados».
+- **Generado** (modo estándar, vista *high top-down*, como el caminante; animaciones v3 con el prompt fotograma a fotograma):
+  - **Escupidor** (48 px): andar, escupir, zarpazo y muerte. Sin piernas: arrastrarse y zarpazo en el suelo.
+  - **Explosivo:** el primero salió con el cuerpo normal y el usuario pidió repetirlo con la barriga hinchada. El segundo (proporciones de cadera ×2, piernas y brazos cortos) es el que se usa: correr y mecha. Sin piernas, solo arrastrarse: no da zarpazos (al alcanzarte se hincha y revienta). El primero y su carrera se quedan en la cuenta sin usar.
+  - **Bruto** (72 px, 1,5 veces el caminante): andar, mazazo y muerte. No pierde las piernas.
+  - **Corredor** (sudadera ocre) y **sprinter** (chaqueta roja de paramédico), que antes eran el caminante teñido: correr, zarpazo, climb, muerte y, sin piernas, arrastrarse y zarpazo en el suelo.
+  - **Caminante:** la muerte, que era el placeholder.
+  - **Efectos:** el escupitajo (32×32, 5 fotogramas) y la explosión (128×128, 9 fotogramas), con *pixflux* más *animate image*.
+  - **Coste:** unas 250 generaciones. Las versiones sin piernas son lo más caro: un estado nuevo cuesta unas 40.
+- **5 direcciones y el resto en espejo** (indicación del usuario a mitad de la tanda): sur, sureste, este, noreste y norte; el oeste y sus diagonales, espejados. Lo lanzado antes en 8 direcciones (andar y escupir del escupidor, carrera y mecha del explosivo, andar del bruto, zarpazo del escupidor) conserva sus 8.
+  - El importador gana `"mirrorMissing"`: espeja solo lo que falta. `"mirror"` sigue sustituyendo siempre, como necesita el boss.
+- **Importación:** `crawl_claw` se llamaría `crawl` (lleva «craw»), así que `"sources"` lo lleva a `crawl_attack`; el mazazo (`smash`) pasa a `attack`. `alsoFor` desaparece del caminante. Escupir y mecha son animaciones nuevas del manifiesto.
+- **Manifiesto:** cada tipo con su ancla, medida por el importador en los pies: 0,84 el corredor, 0,82 el sprinter y el explosivo, 0,83 el escupidor y 0,81 el bruto (104×104); el caminante sigue en 0,8. Los bucles traen 8 fotogramas en vez de 9 y bajan los fps para durar lo mismo: corredor 13 y 12 arrastrándose, sprinter 19 y 18. Escupir va a 14 fps (9 fotogramas, 0,64 s para los 0,6 s de hinchazón) y la mecha a 18 (0,5 s).
+- **En el juego** (`Zombie.ts`):
+  - cada tipo usa su personaje y su ancla;
+  - fuera los tintes de tipo (`COLORS.zombieRunnerTint` y `zombieSprinterTint` desaparecen) y el latido rojo del explosivo; siguen el blanco del golpe, el naranja del fuego y el dorado de élite;
+  - fuera el escalado ×1,5 del bruto en la vista: su arte ya tiene ese tamaño. La caja de impacto sigue usando `DUNGEON.kinds.brute.scale`;
+  - el escupidor de pie reproduce `spit` mientras se hincha (sin el escalado de antes). El explosivo reproduce `fuse` con la mecha encendida, vivo o recién muerto, y conserva el hinchado por código porque su arte solo parpadea. Al reventar, su cuerpo desaparece: queda la explosión;
+  - arrastrándose, escupidor y explosivo siguen con `crawl` y el hinchado por código.
+- **Efectos** (`DungeonEffects`): el escupitajo y la explosión pasan a ser sprites de un pool. El escupitajo se gira hacia donde vuela y se bambolea; la explosión recorre sus 9 fotogramas en los 0,35 s de `explosionFade`, a la escala de su radio. Los círculos dibujados por código desaparecen; las brasas de Paso de sombra siguen igual.
+- **Comprobado:** typecheck, lint y tests. Los seis zombis, alineados por su ancla en una hoja de revisión, apoyan los pies en la misma línea, y el bruto mide 1,5 veces el caminante. No se pudo jugar a velocidad normal: el panel del navegador estaba oculto y la animación iba a 1 FPS.
+

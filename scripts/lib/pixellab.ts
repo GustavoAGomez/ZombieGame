@@ -209,13 +209,19 @@ export const MIRRORED = 'mirror:';
  * import.json "mirror": { "<direction>": "<direction it mirrors>" }. Each
  * direction becomes the other one mirrored when the animation has that one,
  * replacing its own: a boss facing west holds its mallet in the same hand,
- * mirrored, as facing east.
+ * mirrored, as facing east. With `onlyMissing` ("mirrorMissing") a direction
+ * the animation was drawn in keeps its own art: only the missing ones are
+ * mirrored (the west of animations generated in 5 directions).
  */
-export function mirrorDirections(frames: ReadonlyMap<string, string[]>, mirror: Readonly<Record<string, string>>): Map<string, string[]> {
+export function mirrorDirections(
+  frames: ReadonlyMap<string, string[]>,
+  mirror: Readonly<Record<string, string>>,
+  onlyMissing = false,
+): Map<string, string[]> {
   const out = new Map(frames);
   for (const [to, from] of Object.entries(mirror)) {
     const source = frames.get(from);
-    if (source) out.set(to, source.map((p) => MIRRORED + p));
+    if (source && !(onlyMissing && frames.has(to))) out.set(to, source.map((p) => MIRRORED + p));
   }
   return out;
 }

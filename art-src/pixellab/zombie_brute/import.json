@@ -1,0 +1,12 @@
+{
+  "sources": {
+    "attack": [
+      "smash"
+    ]
+  },
+  "mirrorMissing": {
+    "west": "east",
+    "south-west": "south-east",
+    "north-west": "north-east"
+  }
+}

@@ -152,6 +152,10 @@ export const REQUIRED_ANIMATIONS: Readonly<Record<string, readonly string[]>> = 
   player: ['idle', 'walk', 'shoot', 'dash', 'death'],
   zombie_walker: ['walk', 'attack', 'death'],
   zombie_runner: ['walk', 'attack', 'death'],
+  zombie_sprinter: ['walk', 'attack', 'death'],
+  zombie_spitter: ['walk', 'attack', 'spit', 'death'],
+  zombie_exploder: ['walk', 'fuse'],
+  zombie_brute: ['walk', 'attack', 'death'],
   ...Object.fromEntries(BOSS_IDS.map((id) => [bossCharacterKey(id), BOSS_ANIMATIONS])),
 };
 
@@ -179,6 +183,10 @@ export const ASSET_KEYS = {
   zombieWalker: 'zombie_walker',
   zombieRunner: 'zombie_runner',
   zombieSprinter: 'zombie_sprinter',
+  /** The dungeon's kinds (spec 09 §5.2), each with its own art. */
+  zombieSpitter: 'zombie_spitter',
+  zombieExploder: 'zombie_exploder',
+  zombieBrute: 'zombie_brute',
   tilesetInterior: 'interior',
   windowPlanks: 'window_planks',
   windowPlanksV: 'window_planks_v',
@@ -206,6 +214,9 @@ export const ASSET_KEYS = {
   muzzleFlash: 'muzzle_flash',
   meleeSlash: 'melee_slash',
   katanaSlash: 'katana_slash',
+  /** The dungeon kinds' effects (spec 09 §5.2): the spitter's acid glob in flight (pointing up-right) and the exploder's burst. */
+  enemyShot: 'enemy_shot',
+  enemyBurst: 'enemy_burst',
   /** Merchant bodies are `merchant_<id>` (merchantTextureKey). */
   merchantGem: 'merchant_gem',
   smokePuff: 'smoke_puff',

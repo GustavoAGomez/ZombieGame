@@ -264,7 +264,7 @@ export class GameScene extends Phaser.Scene {
     this.thrownItems = new ThrownItemViews(this, events, manifest);
     this.spawnMarks = new SpawnMarks(this);
     this.dungeonViews = new DungeonViews(this);
-    this.dungeonEffects = new DungeonEffects(this);
+    this.dungeonEffects = new DungeonEffects(this, manifest);
     this.debugDraw = new DebugDraw(this, this.map);
     this.services.debugActions = this.createDebugActions();
     this.syncViews(0);

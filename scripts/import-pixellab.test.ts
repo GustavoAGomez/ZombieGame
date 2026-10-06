@@ -141,12 +141,12 @@ describe('importAssets (end to end on a copy of the repo assets)', () => {
 });
 
 describe('importAssets (the zombie export)', () => {
-  it('imports walk, strikes, the 4-way climb and the crawl, and shares them with the other kinds', E2E, () => {
+  it('imports walk, strikes, the 4-way climb, the crawl and the death, mirroring the west of what came in 5 directions', E2E, () => {
     tmp = mkdtempSync(join(tmpdir(), 'zombies-import-'));
     cpSync(join(repo, 'public/assets'), join(tmp, 'public/assets'), { recursive: true });
     cpSync(join(repo, 'art-src/pixellab/zombie_walker'), join(tmp, 'art-src/pixellab/zombie_walker'), { recursive: true });
     const lines: string[] = [];
-    expect(importAssets(tmp, ['zombie_walker'], (l) => lines.push(l))).toBe(6);
+    expect(importAssets(tmp, ['zombie_walker'], (l) => lines.push(l))).toBe(7);
     const size = (anim: string): number[] => {
       const png = decodePng(readFileSync(join(tmp, `public/assets/sprites/zombie_walker/${anim}.png`)));
       return [png.width, png.height];
@@ -156,18 +156,18 @@ describe('importAssets (the zombie export)', () => {
     expect(size('climb')).toEqual([68 * 9, 68 * 4]);
     expect(size('crawl')).toEqual([68 * 9, 68 * 8]);
     expect(size('crawl_attack')).toEqual([68 * 9, 68 * 8]);
+    // The death came in 5 directions: the west side is the east one mirrored (import.json "mirrorMissing").
+    expect(size('death')).toEqual([68 * 6, 68 * 8]);
+    expect(lines.some((l) => l.includes('death: en espejo') && l.includes('west ← east'))).toBe(true);
     const manifest = JSON.parse(readFileSync(join(tmp, 'public/assets/manifest.json'), 'utf8')) as {
       characters: Record<string, { placeholder: boolean; animations: Record<string, { file: string; fps: number; directions?: number; placeholder?: boolean }> }>;
     };
     const walker = manifest.characters.zombie_walker;
-    const runner = manifest.characters.zombie_runner;
     expect(walker?.animations.climb?.directions).toBe(4);
-    expect(walker?.animations.death?.placeholder).toBe(true);
-    expect(runner?.placeholder).toBe(false);
-    expect(runner?.animations.crawl?.file).toBe('sprites/zombie_walker/crawl.png');
-    // Each kind keeps its own pace.
-    expect(runner?.animations.walk?.fps).toBeGreaterThan(walker?.animations.walk?.fps ?? Infinity);
-    expect(lines.some((l) => l.includes('zombie_sprinter usa el arte de zombie_walker'))).toBe(true);
+    expect(walker?.animations.death?.placeholder).toBeUndefined();
+    // Every kind has its own art now: nothing is copied over to them.
+    expect(manifest.characters.zombie_runner?.animations.crawl?.file).toBe('sprites/zombie_runner/crawl.png');
+    expect(lines.some((l) => l.includes('usa el arte de'))).toBe(false);
     // The crawl was drawn 1.5× bigger: brought down to the standing zombie's size.
     expect(lines.some((l) => l.includes('dragging_itself_forward') && l.includes('escalado'))).toBe(true);
     expect(checkAssets(tmp).errors).toEqual([]);

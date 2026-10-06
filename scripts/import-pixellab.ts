@@ -163,6 +163,7 @@ function importAnimation(
   frameCount?: number,
   scale?: ScaleOption,
   mirror: Record<string, string> = {},
+  mirrorMissing: Record<string, string> = {},
 ): ImportedAnimation {
   const frameWidth = typeof character.frameWidth === 'number' ? character.frameWidth : anim.width || 48;
   const frameHeight = typeof character.frameHeight === 'number' ? character.frameHeight : anim.height || 48;
@@ -171,8 +172,11 @@ function importAnimation(
 
   for (const note of anim.notes ?? []) log(`  · ${anim.sourceName}: ${note}`);
   const mirrored = Object.keys(mirror).filter((d) => anim.frames.has(mirror[d] ?? ''));
-  if (mirrored.length > 0) log(`  · ${anim.sourceName}: en espejo (import.json): ${mirrored.map((d) => `${d} ← ${mirror[d]}`).join(', ')}`);
-  const { directions, rows: sourceRows, filled } = directionRows(mirrorDirections(anim.frames, mirror), character.directions === 1);
+  const mirroredMissing = Object.keys(mirrorMissing).filter((d) => !anim.frames.has(d) && anim.frames.has(mirrorMissing[d] ?? ''));
+  const mirrorLog = [...mirrored.map((d) => `${d} ← ${mirror[d]}`), ...mirroredMissing.map((d) => `${d} ← ${mirrorMissing[d]}`)];
+  if (mirrorLog.length > 0) log(`  · ${anim.sourceName}: en espejo (import.json): ${mirrorLog.join(', ')}`);
+  const withMirrors = mirrorDirections(mirrorDirections(anim.frames, mirrorMissing, true), mirror);
+  const { directions, rows: sourceRows, filled } = directionRows(withMirrors, character.directions === 1);
   if (filled.length > 0) log(`  · ${anim.sourceName}: direcciones que faltan con la más cercana (${filled.join(', ')})`);
   // A sheet needs the same frame count in every row: stretch the shorter directions (or
   // squeeze all to the count chosen in import.json, better for a loop where most rows are shorter).
@@ -276,6 +280,8 @@ interface ImportOptions {
   sources: Record<string, string[]>;
   /** Directions drawn as another one mirrored. */
   mirror: Record<string, string>;
+  /** The same, only for the directions an animation was not drawn in. */
+  mirrorMissing: Record<string, string>;
 }
 
 /**
@@ -285,11 +291,12 @@ interface ImportOptions {
  *   "scale": { "<animation>": <factor> | { "<direction>" | "*": <factor> } },
  *   "alsoFor": ["<asset>", …],
  *   "sources": { "<animation>": ["<export animation>", …] },
- *   "mirror": { "<direction>": "<direction it mirrors>" } }
+ *   "mirror": { "<direction>": "<direction it mirrors>" },
+ *   "mirrorMissing": { "<direction>": "<direction it mirrors>" } }
  */
 function readOptions(assetDir: string, log: (line: string) => void): ImportOptions {
   const path = join(assetDir, 'import.json');
-  if (!existsSync(path)) return { takes: {}, frames: {}, scale: {}, alsoFor: [], sources: {}, mirror: {} };
+  if (!existsSync(path)) return { takes: {}, frames: {}, scale: {}, alsoFor: [], sources: {}, mirror: {}, mirrorMissing: {} };
   const json: unknown = JSON.parse(readFileSync(path, 'utf8'));
   const takes = isRecord(json) && isRecord(json.takes) ? json.takes : {};
   const out: TakeOverrides = {};
@@ -315,8 +322,10 @@ function readOptions(assetDir: string, log: (line: string) => void): ImportOptio
   }
   const mirrorRaw = isRecord(json) && isRecord(json.mirror) ? json.mirror : {};
   const mirror = Object.fromEntries(Object.entries(mirrorRaw).filter((e): e is [string, string] => typeof e[1] === 'string'));
+  const mirrorMissingRaw = isRecord(json) && isRecord(json.mirrorMissing) ? json.mirrorMissing : {};
+  const mirrorMissing = Object.fromEntries(Object.entries(mirrorMissingRaw).filter((e): e is [string, string] => typeof e[1] === 'string'));
   log(`  · import.json: elecciones de tomas para ${Object.keys(out).join(', ') || 'nada'}${alsoFor.length ? `; arte compartido con ${alsoFor.join(', ')}` : ''}`);
-  return { takes: out, frames, scale, alsoFor, sources, mirror };
+  return { takes: out, frames, scale, alsoFor, sources, mirror, mirrorMissing };
 }
 
 /**
@@ -451,6 +460,7 @@ export function importAssets(root: string, only: readonly string[], log: (line: 
           options.frames[anim.name],
           options.scale[anim.name],
           options.mirror,
+          options.mirrorMissing,
         );
         applyImport(manifest, asset, result, hasFile);
         imported++;

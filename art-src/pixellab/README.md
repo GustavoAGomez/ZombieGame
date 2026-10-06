@@ -25,7 +25,10 @@ su caja delimitadora sobre el fondo transparente.
 
 ## Personajes (export con metadata.json)
 - player: export completo de PixelLab (rotaciones, carrera, disparo, disparo andando y muerte en sur, este y oeste); formato en `docs/ASSETS.md` §6.
-- zombie_walker: el zombi (andar, zarpazo, climb de 4 direcciones, y en el estado sin piernas gatear y zarpazo en el suelo). Corredores y sprinters usan este arte (`alsoFor` en `import.json`).
+- zombie_walker: el zombi (andar, zarpazo, climb de 4 direcciones, muerte, y en el estado sin piernas gatear y zarpazo en el suelo).
+- zombie_runner, zombie_sprinter: corredor (sudadera ocre) y sprinter (chaqueta roja de paramédico), cada uno con su arte: correr, zarpazo, climb, muerte y, sin piernas, arrastrarse y zarpazo en el suelo.
+- zombie_spitter, zombie_exploder, zombie_brute: los de la mazmorra. El escupidor anda, escupe, da zarpazos y muere; sin piernas, se arrastra y da zarpazos. El explosivo (la versión con barriga) corre y se hincha con la mecha; sin piernas, se arrastra. El bruto (72 px, en un lienzo de 104) anda, da el mazazo (`smash` → `attack`) y muere.
+- En los zombis, lo generado en 5 direcciones se completa con el oeste en espejo (`"mirrorMissing"` en `import.json`); el zarpazo en el suelo se llama `crawl_claw` y `"sources"` lo lleva a `crawl_attack`.
 
 ## Objetos (`objects/<clave>/`, imágenes sueltas y `import.json` con el orden de fotogramas)
 - demon_hand: la Mano del Demonio a 32×48. Los PNG de la carpeta son los de PixelLab sin tocar (puño, abierta con la palma encendida, vacía y el gesto obsceno). En `retocado/` están con puntas de brasa en las garras abiertas, desplazados (+2, +6) y con una paleta común de 32 colores; esos son los que se importan (ver `docs/DECISIONS.md`).
@@ -34,6 +37,8 @@ su caja delimitadora sobre el fondo transparente.
 - item_worn_wand, item_living_heart: los objetos especiales (24×24), 8 fotogramas en bucle cada uno: la varita gastada con rayos en la punta y el corazón humano latiendo. La varita es la versión que el usuario retocó en PixelLab (sin el píxel claro suelto al final del mango), exportada de la galería. En `retocado/`, con alfa 0/255 y una paleta de 32 colores por objeto.
 - weapon_icon: las 6 armas de perfil (32×16, de 30-31 px de ancho para que sobresalgan del hueco; la pistola, en espejo). Los PNG de la carpeta son los candidatos de PixelLab tal cual; muchos venían «enrollados» (trozos pegados al borde contrario del lienzo), y en `retocado/` están desenrollados, recortados, centrados y con una paleta común de 32 colores.
 - icon_reload, icon_repair, icon_knife, icon_dash: los símbolos de los botones redondos (36×36, más grandes que el botón para que sobresalgan): cargador doble, martillo cruzado con llave inglesa, cuchillo y bota con líneas de velocidad. En `retocado/`, desenrollados y centrados.
+- enemy_shot: el escupitajo del escupidor (32×32, 5 fotogramas: el original y 4 de bamboleo), dibujado volando hacia arriba a la derecha; el juego lo gira hacia donde vuela.
+- enemy_burst: la explosión del explosivo (128×128, 9 fotogramas: destello, bola de fuego, anillo con trozos, humo que se apaga).
 - flame: 3 lenguas de fuego de PixelLab (8×12) con la paleta del fuego del agujero: centrada, inclinada a la derecha y esa misma en espejo, recortadas y apoyadas en el borde inferior en `retocado/`.
 - prop_*: el atrezo del mapa, un PNG por objeto tal como sale de PixelLab, salvo dos:
   - 20 objetos de 32 px (tanda de *Create 1-Direction Object* con una descripción por hueco) y 6 de 64 px (las cajas, la caldera, el depósito, el colchón, la alfombra del hogar y la estantería metálica corta, de 64×64 sobre su huella de 32×64).

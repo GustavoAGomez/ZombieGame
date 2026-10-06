@@ -288,4 +288,15 @@ describe('mirrorDirections', () => {
     expect(out.has('north-west')).toBe(false);
     expect(out.get('south')).toEqual(['s0.png']);
   });
+
+  it('only fills the missing directions when asked to, keeping the ones that were drawn', () => {
+    const frames = new Map([
+      ['east', ['e0.png']],
+      ['west', ['w0.png']],
+      ['north-east', ['ne0.png']],
+    ]);
+    const out = mirrorDirections(frames, { west: 'east', 'north-west': 'north-east' }, true);
+    expect(out.get('west')).toEqual(['w0.png']);
+    expect(out.get('north-west')).toEqual([`${MIRRORED}ne0.png`]);
+  });
 });

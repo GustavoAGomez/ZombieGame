@@ -1,0 +1,12 @@
+{
+  "sources": {
+    "crawl_attack": [
+      "crawl_claw"
+    ]
+  },
+  "mirrorMissing": {
+    "west": "east",
+    "south-west": "south-east",
+    "north-west": "north-east"
+  }
+}

@@ -323,7 +323,7 @@ El segundo modo del título (spec 09): una mazmorra de **tres plantas** generada
 | **Explosivo** | 2 | 1 | Corre; al alcanzarte se para 0,5 s y estalla: 30 a ti y 3 a los enemigos a 60 px. Su cadáver también estalla. Las explosiones se encadenan |
 | **Escupidor** | 3 | 2 | Se para a 160 px si te ve y cada 2,5 s escupe (0,6 s de hinchazón): 15 de daño si acierta y un charco de 2 s. Una vida menos que la base |
 | Sprinter | 3 | 2 | El de siempre |
-| **Bruto** | 5 | 2 | Vida ×5, velocidad ×0,6, zarpazo 35, el doble de grande; ni lo empuja la escopeta ni pierde las piernas |
+| **Bruto** | 5 | 2 | Vida ×5, velocidad ×0,6, zarpazo 35, 1,5 veces más grande; ni lo empuja la escopeta ni pierde las piernas |
 
 Como mucho 2 escupidores y 1 bruto por oleada. **Élite:** vida ×2,5, velocidad ×1,15 y dinero ×3; los dos primeros enemigos de la sala de élite lo son.
 
