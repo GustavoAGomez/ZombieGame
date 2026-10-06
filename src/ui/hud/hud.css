@@ -23,11 +23,6 @@
   gap: 8px;
 }
 
-/* A row the mode hides (the dungeon has no points to show, spec 09 §4.2). */
-.hud-row[hidden] {
-  display: none;
-}
-
 .hud-label {
   font-size: 11px;
   color: var(--muted);
@@ -222,7 +217,7 @@
 .hud-marks {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
   margin-left: -2px;
 }
 
@@ -395,21 +390,33 @@
   filter: drop-shadow(2px 2px 0 var(--ink));
 }
 
-/* The five marks towards the wizard (spec 09 §7.1), under the minimap. */
-.hud-counter {
-  gap: 3px;
+/*
+ * The dungeon's top right (spec 09 §4.2): the money alone in the corner and
+ * the minimap to its left, with the keys and the ⓘ under it. The money's
+ * column is at least as wide as the weapon slots that hang under it
+ * (controls.css), so the minimap never falls on them, and the floating
+ * "+N$" texts still come out under the block, left of the slots.
+ */
+.hud-right.is-dungeon {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
 }
 
-.hud-counter .hud-mark__box {
-  width: 6px;
-  height: 6px;
+.hud-map {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
 }
 
-.hud-counter .hud-mark__box.is-on {
-  background: var(--amber);
+.hud-wallet {
+  display: flex;
+  justify-content: flex-end;
+  min-width: 32px;
 }
 
-/* The dungeon's keys under the money (spec 09 §4.2): amber, red with the boss's. */
+/* The dungeon's keys under the minimap, left of the ⓘ (spec 09 §4.2): amber, red with the boss's. */
 .hud-keys {
   font-size: 9px;
   color: var(--amber);
@@ -681,13 +688,7 @@
   background: var(--ink);
 }
 
-/* The dungeon's ⓘ (spec 09 §7, §9) beside the wizard's marks: what the upgrades and curses carried do. */
-.hud-marks {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
+/* The dungeon's ⓘ (spec 09 §7, §9) under the minimap: what the upgrades and curses carried do. */
 .hud-info {
   width: 22px;
   height: 22px;

@@ -147,7 +147,6 @@ export const STRINGS = {
     floor: (n: number): string => `PLANTA ${n}`,
     ambients: { mansion: 'MANSIÓN', basement: 'SÓTANO', garden: 'JARDÍN' } as Record<string, string>,
     floorBanner: (n: number, ambient: string): string => `PLANTA ${n} · ${ambient}`,
-    counter: 'SALAS HASTA EL MAGO',
     wizardHere: 'EL MAGO TE ESPERA',
     /** The pact sealed (spec 09 §9): the curse, said out loud. */
     pactSealed: (curse: string): string => `PACTO SELLADO · ${curse}`,

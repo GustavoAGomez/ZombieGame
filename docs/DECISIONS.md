@@ -2224,3 +2224,16 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - las 80 juntas de cosas planas apiladas de la mansión, sin ninguna bala que las cruce;
   - los 176 tramos verticales de pared, como antes;
   - en room01, la pared oeste y la puerta vertical D2 cerradas a cualquier altura, y su pared sur todavía plana con suelo al norte.
+
+## Mazmorra: el HUD de arriba a la derecha sin solaparse con las armas (petición del usuario)
+
+- **Petición:** quitar el indicador de debajo del minimapa y mover el minimapa a la izquierda, con el dinero arriba del todo a la derecha, para que ni el minimapa ni el dinero se monten sobre el selector de armas. Antes el hueco del arma (que cuelga a 60 px de arriba) caía sobre la esquina del minimapa.
+- **El indicador quitado son las 5 marcas del contador del mago** («SALAS HASTA EL MAGO»): el usuario lo llamó «el indicador de cuando aparece un jefe», y es lo único que había debajo del minimapa. Contradice la spec 09 §4.2 («que el jugador vea siempre cuánto falta»), pero lo pide el usuario. El mago sigue saliendo cada 5 salas limpias y sigue el aviso «EL MAGO TE ESPERA».
+- **Disposición** (`.hud-right.is-dungeon`):
+  - el dinero, solo en la esquina; su columna mide al menos lo que el hueco de arma (32 px), así que el minimapa nunca cae sobre él;
+  - el minimapa a su izquierda, a 10 px;
+  - debajo del minimapa, las llaves y el ⓘ. Las llaves ya no van debajo del dinero: con «2 LLAVES · LLAVE DEL BOSS» la columna del dinero se ensancharía y el minimapa saltaría a la izquierda cada vez que se coge una llave;
+  - los «+N$» siguen saliendo debajo del bloque, a la izquierda de las armas.
+- **Comprobado** midiendo los rectángulos en 844×390, 800×360 y 640×360, con 3 armas, 2000$, las dos clases de llave y la barra del boss: ninguno se solapa con otro. El único roce es a 640×360, entre la barra del boss y el bloque de vida (3 px, sin tocarse), y ya estaba antes.
+- **Limpieza:** desaparecen `STRINGS.dungeon.counter` y sus estilos. El segundo bloque `.hud-marks` (el del contador) pisaba el hueco de las marcas de mejora del arma: queda un solo bloque con el mismo hueco de 8 px que se veía.
+

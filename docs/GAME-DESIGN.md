@@ -303,7 +303,7 @@ El segundo modo del título (spec 09): una mazmorra de **tres plantas** generada
 - **Plano:** una rejilla de 9×7 celdas; la sala inicial en el centro y el resto crece por vecinos. Tipos de sala por planta: 1 inicial, las de combate de la tabla, 1 de élite, 1 del tesoro, 1 de la Mano, 0 o 1 de reto (60 %) y la arena del boss (2×2 celdas, a 3 salas o más del inicio, en un callejón).
 - **Plantillas:** 16 por ambiente en `maps/src/rooms/<ambiente>/` (salas de 18×8 casillas de suelo; la arena 38×18), con sus puntos de enemigos, de mago, de cofre, de boss y de Mano. Una plantilla no se repite en la planta mientras queden otras; la mitad salen en espejo.
 - **Puertas:** las normales están abiertas; la del tesoro pide una **llave**, la de la arena la **llave del boss**, y la del reto avisa («SALA DE RETO») antes de entrar. Al entrar una casilla en una sala con enemigos, sus puertas se cierran hasta matar al último.
-- **Cámara por sala** y **minimapa** en el HUD (las salas visitadas y sus vecinas; marcas en tesoro, mano, reto, élite, arena y donde espera el mago), con las 5 marcas hasta el mago y las llaves en mano.
+- **Cámara por sala** y **minimapa** en el HUD (las salas visitadas y sus vecinas; marcas en tesoro, mano, reto, élite, arena y donde espera el mago), con las llaves en mano y el ⓘ de las mejoras debajo. El dinero va solo en la esquina de arriba a la derecha. El mago sigue apareciendo cada 5 salas limpias, aunque ya no se ve cuánto falta.
 
 | Planta | Ambiente | Salas con enemigos | Vida base del zombi | Boss | Vida del boss |
 |---|---|---|---|---|---|

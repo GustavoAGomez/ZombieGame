@@ -9,8 +9,6 @@ import { UPGRADE_KINDS, WEAPONS, type UpgradeKind } from '../../config/weapons';
 /** The dungeon's minimap (spec 09 §4.2): a cell per room in CSS px, and the marks of the special rooms. */
 const MINIMAP = { cell: 9, gap: 1, pad: 2 } as const;
 const MINIMAP_MARKS: Partial<Record<RoomType, string>> = { treasure: COLORS.amber, hand: COLORS.redLow, challenge: COLORS.red, boss: COLORS.red, elite: COLORS.amberDark };
-/** Enemy rooms cleared between two wizards (spec 09 §7.1). */
-const MERCHANT_EVERY = 5;
 /** The rarities' colours (spec 09 §7.1), the wizards' own. */
 const RARITY_COLORS: Record<Rarity, string> = { common: COLORS.merchantBlue, rare: COLORS.red, legendary: COLORS.amber };
 
@@ -70,10 +68,9 @@ export class Hud {
   private readonly bossRows: { row: HTMLDivElement; name: HTMLSpanElement; fill: HTMLDivElement; ghost: HTMLDivElement }[] = [];
   private blinkTimer = 0;
   private readonly unsubscribers: (() => void)[] = [];
-  /** The dungeon's minimap and the wizard's counter (spec 09 §4.2), and what they draw. */
+  /** The dungeon's minimap (spec 09 §4.2) and what it draws. */
   private readonly minimap: HTMLCanvasElement;
-  private readonly counter: HTMLDivElement;
-  /** The keys in hand (spec 09 §4.2), under the money. */
+  /** The keys in hand (spec 09 §4.2), under the minimap. */
   private readonly keys: HTMLSpanElement;
   private plan: GameEvents['dungeon:floor'] | null = null;
   private rooms: GameEvents['dungeon:rooms'] | null = null;
@@ -85,7 +82,7 @@ export class Hud {
     parent: HTMLElement,
     events: EventBus,
     private readonly localPlayerId = 0,
-    /** The dungeon (spec 09 §4.2) shows its minimap and the wizard's counter where Survival shows the points. */
+    /** The dungeon (spec 09 §4.2) shows its minimap where Survival shows the points. */
     mode: GameMode = 'survival',
   ) {
     this.root = el('div', 'hud');
@@ -165,16 +162,12 @@ export class Hud {
       this.floatPool.push(span);
       this.floats.appendChild(span);
     }
-    // The dungeon (spec 09 §4.2): the minimap, a cell per room, and the five marks towards the wizard, in place of the points.
+    // The dungeon (spec 09 §4.2): the minimap, a cell per room, in place of the points.
     this.minimap = el('canvas', 'hud-minimap');
     this.minimap.setAttribute('aria-label', STRINGS.dungeon.minimap);
-    this.counter = el('div', 'hud-mark hud-counter');
-    this.counter.setAttribute('aria-label', STRINGS.dungeon.counter);
-    for (let i = 0; i < MERCHANT_EVERY; i++) this.counter.appendChild(el('span', 'hud-mark__box'));
     this.keys = el('span', 'hud-keys');
     this.legend = new LegendPanel(this.root);
     if (mode === 'dungeon') {
-      pointsRow.hidden = true;
       // ⓘ: what the upgrades and curses carried do, at any moment (the match goes on).
       const info = el('button', 'hud-info');
       info.type = 'button';
@@ -184,11 +177,17 @@ export class Hud {
         e.preventDefault();
         this.legend.toggle(STRINGS.legend.title, ownedLegend(this.owned));
       });
-      const marks = el('div', 'hud-marks');
-      marks.append(this.counter, info);
-      right.append(this.minimap, marks);
-    }
-    right.append(pointsRow, this.money, this.keys, this.floats);
+      // The money alone in the top-right corner, over the weapon slots; the minimap to its left, clear
+      // of them, with the keys and the ⓘ under it (hud.css).
+      const under = el('div', 'hud-row hud-map__under');
+      under.append(this.keys, info);
+      const map = el('div', 'hud-map');
+      map.append(this.minimap, under);
+      const wallet = el('div', 'hud-wallet');
+      wallet.append(this.money);
+      right.classList.add('is-dungeon');
+      right.append(map, wallet, this.floats);
+    } else right.append(pointsRow, this.money, this.keys, this.floats);
 
     this.dead = el('div', 'hud-dead');
     this.dead.textContent = STRINGS.hud.dead;
@@ -322,9 +321,6 @@ export class Hud {
     if (e.bossKey) parts.push(STRINGS.dungeon.bossKey);
     this.keys.textContent = parts.join(' · ');
     this.keys.classList.toggle('is-boss', e.bossKey);
-    const boxes = this.counter.children;
-    const lit = e.counter % MERCHANT_EVERY;
-    for (let i = 0; i < boxes.length; i++) boxes[i]?.classList.toggle('is-on', i < lit);
     this.drawMinimap();
   };
 
