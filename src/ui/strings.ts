@@ -269,7 +269,6 @@ export const STRINGS = {
     curse: 'MALDICIÓN',
     owned: (n: number): string => (n > 1 ? `LA TIENES ×${n}` : n === 1 ? 'LA TIENES' : ''),
     none: 'Todavía no llevas ninguna. El mago aparece cada 5 salas limpias; el altar está en la sala de la Mano.',
-    info: 'Qué hace',
     button: 'Mejoras y maldiciones',
     close: 'Cerrar leyenda',
   },

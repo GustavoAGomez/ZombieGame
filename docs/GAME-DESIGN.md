@@ -340,7 +340,7 @@ Como mucho 2 escupidores y 1 bruto por oleada. **Élite:** vida ×2,5, velocidad
 
 - **El mago** aparece en la 5.ª, 10.ª… sala con enemigos limpiada, en el centro bajo de esa sala: el **azul** si su mejor oferta es común, el **rojo** si es rara y el **dorado** si es legendaria. Vende 3 mejoras distintas (comprar una retira las otras), **CAMBIAR OFERTA** (50$, +50$ cada vez), una **LLAVE** (150$) y un **BOTIQUÍN** (200$, +40), uno por visita. Precios por rareza: común 300$, rara 500$, legendaria 900$. Probabilidades por hueco: 60/30/10 % hasta la planta 2, 45/35/20 % desde la 3. Nunca ofrece una mejora al máximo de copias.
 - **El cofre del boss:** tres mejoras gratis a elegir una, al menos una rara o legendaria, con las probabilidades de la planta siguiente. Si no queda ninguna, paga como un cofre grande.
-- **Las ⓘ** del HUD, de cada fila del mago y del altar abren la leyenda: qué hace cada mejora y cuáles llevas. El menú de pausa las lista.
+- **Las ⓘ** del HUD y del altar abren la leyenda: qué hace cada mejora y cuáles llevas. En la tienda del mago cada fila ya lo dice en su descripción, sin ⓘ. El menú de pausa las lista.
 
 | Mejora | Rareza | Copias | Efecto |
 |---|---|---|---|

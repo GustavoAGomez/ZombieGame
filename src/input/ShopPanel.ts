@@ -1,5 +1,5 @@
 import { COLORS } from '../config/theme';
-import type { Rarity, UpgradeId } from '../config/upgrades';
+import type { Rarity } from '../config/upgrades';
 import type { BoostKind } from '../config/balance';
 import { UPGRADE_LEVELS, WEAPONS, type UpgradeKind } from '../config/weapons';
 import { merchantDef, type MerchantId, type MerchantItemId } from '../config/merchants';
@@ -62,8 +62,6 @@ export class ShopPanel {
   private buy = -1;
   private buySlot = -1;
   private close = false;
-  /** An upgrade row's ⓘ (spec 09 §7.1): the HUD shows what it does. Wired by the scene. */
-  onInfo: ((upgrade: UpgradeId) => void) | null = null;
 
   constructor(parent: HTMLElement, events: EventBus) {
     this.el = document.createElement('div');
@@ -154,7 +152,7 @@ export class ShopPanel {
       const name = document.createElement('span');
       name.className = 'shop-row__name';
       name.textContent = r.upgrade ? (STRINGS.upgrades.names[r.upgrade] ?? r.upgrade) : STRINGS.shop.items[r.item].name;
-      // The rarity on the name's line, and the ⓘ that opens the legend for that upgrade.
+      // The rarity on the name's line (what it does is the row's description).
       const head = document.createElement('span');
       head.className = 'shop-row__head';
       head.append(name);
@@ -164,19 +162,6 @@ export class ShopPanel {
         rarity.textContent = STRINGS.upgrades.rarities[r.rarity] ?? r.rarity;
         rarity.style.color = RARITY_COLORS[r.rarity];
         head.append(rarity);
-      }
-      if (r.upgrade) {
-        const upgrade = r.upgrade;
-        const info = document.createElement('button');
-        info.type = 'button';
-        info.className = 'shop-row__info';
-        info.textContent = 'i';
-        info.setAttribute('aria-label', STRINGS.legend.info);
-        info.addEventListener('pointerdown', (e) => {
-          e.preventDefault();
-          this.onInfo?.(upgrade);
-        });
-        head.append(info);
       }
       text.append(head);
       const description = document.createElement('span');

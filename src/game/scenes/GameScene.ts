@@ -223,7 +223,6 @@ export class GameScene extends Phaser.Scene {
 
     this.hud = new Hud(hudRoot, events, 0, mode);
     this.controls = new InputCollector(hudRoot, events);
-    this.controls.onInfo = (upgrade) => this.hud.showUpgradeInfo(upgrade);
     this.presenter = new HudPresenter(events, this.map);
     this.pauseMenu = new PauseMenu(hudRoot, () => this.setPaused(false), () => this.scene.restart(), this.services.preferences, this.services.audio.playUi, () =>
       this.state.run ? upgradeLines(this.state.run.upgrades, this.state.run.curses) : null,

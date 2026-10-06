@@ -1,4 +1,3 @@
-import type { UpgradeId } from '../config/upgrades';
 import type { EventBus } from '../core/EventBus';
 import type { InputCommand } from '../core/InputCommand';
 import { ActionButtons } from './ActionButtons';
@@ -48,11 +47,6 @@ export class InputCollector {
     // A finger lifted while the app was hidden never sends pointerup.
     document.addEventListener('visibilitychange', this.onVisibility);
     window.addEventListener('blur', this.resetAll);
-  }
-
-  /** The shop rows' ⓘ (spec 09 §7.1): who shows what an upgrade does. */
-  set onInfo(show: ((upgrade: UpgradeId) => void) | null) {
-    this.shop.onInfo = show;
   }
 
   /** Fills `cmd` for the given tick. Edge-triggered inputs are consumed. */

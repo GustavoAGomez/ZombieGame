@@ -5,6 +5,7 @@ import type { PickupState, PlayerState, ZombieState } from '../../core/GameState
 import type { RunState } from '../../core/RunState';
 import { random } from '../../core/Rng';
 import { isNavWalkable } from '../map/FlowField';
+import { emitRooms } from './dungeonRooms';
 import type { SimContext } from './SimContext';
 import { magazineSize, maxReserve } from './weaponStats';
 
@@ -96,6 +97,9 @@ export function updatePickups(ctx: SimContext, dt: number): void {
       if (applyPickup(p, pickup.kind, rules(ctx.state).medkitHeal, ctx.state.run)) {
         pickup.active = false;
         ctx.events.emit('pickup:collected', { playerId: p.id, kind: pickup.kind });
+        // A key shows in the HUD at once, not on entering the next room.
+        const run = ctx.state.run;
+        if (run && (pickup.kind === 'key' || pickup.kind === 'boss_key')) emitRooms(ctx, run);
         break;
       }
     }

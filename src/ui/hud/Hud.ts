@@ -378,12 +378,6 @@ export class Hud {
     this.showNotice(STRINGS.dungeon.wizardHere, merchantDef(e.merchant).color);
   };
 
-  /** A shop row's ⓘ (spec 09 §7.1, §7.3): what that upgrade does, and whether it is carried already. */
-  showUpgradeInfo(id: UpgradeId): void {
-    const copies = this.owned.upgrades.filter((u) => u === id).length;
-    this.legend.show(STRINGS.legend.info, [upgradeEntry(id, copies)]);
-  }
-
   private readonly onUpgrades = (e: GameEvents['dungeon:upgrades']): void => {
     this.owned = e;
     // The list open: it follows.

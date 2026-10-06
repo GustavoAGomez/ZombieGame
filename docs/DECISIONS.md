@@ -2277,3 +2277,12 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
 
 - **Comprobado** en hojas de revisión, de pie y tumbados lado a lado sobre su ancla, hacia el sur, el este y el noreste: la cabeza tumbada queda igual o algo menor que de pie, y siguen apoyados en el suelo porque se escala alrededor de los pies. No se recorta ningún píxel.
 
+## Tienda sin ⓘ, llaves al momento, escupidor de pie y corredor a su tamaño (petición del usuario)
+
+- **Fuera la ⓘ de las filas del mago:** la descripción de cada mejora ya se ve al abrir la tienda. Desaparecen el botón, su estilo, `onInfo` (tienda y controles), `Hud.showUpgradeInfo` y `STRINGS.legend.info`. Siguen la ⓘ del HUD (lo que llevas) y la leyenda del altar.
+- **Llaves que no salían hasta cambiar de sala:** `applyPickup` sumaba la llave a la partida, pero el HUD solo se entera con `dungeon:rooms`, y ese evento sale al entrar en una sala, al abrir una puerta o al comprar. Ahora `updatePickups` lo emite al recoger una llave o la del boss.
+  - `emitRooms` pasa a `systems/dungeonRooms.ts`: `PickupSystem` no podía importarlo de `DungeonSystem`, que ya importa `PickupSystem`.
+  - Test: recoger cada llave emite el evento con ella ya contada.
+- **El escupidor andaba sobre el sitio** mientras se plantaba a escupir: sigue en persecución, quieto, y la vista le ponía `walk`. Ahora, si no se ha movido en el tick (menos de 0,2 px, para no confundirlo con los empujones de los demás), está de pie (`idle`); al hincharse, `spit`. Los demás tipos parados un instante siguen con `walk`.
+- **Corredor de pie más grande que el caminante:** medía 46–48 px de alto frente a 41. `"scale"` ×0,88 en todas sus animaciones de pie (andar, zarpazo, climb, muerte y reposo), y también en las de sin piernas, para no descompensarlas: ×0,62 al sur y ×0,7 el resto. Ahora mide 42.
+

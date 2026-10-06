@@ -16,13 +16,20 @@ function zombie(fields: Partial<ZombieState>): ZombieState {
 describe('zombiePose', () => {
   it('swells to spit and with its fuse lit (the dungeon kinds), standing only', () => {
     expect(zombiePose(zombie({ kind: 'spitter', spitWindup: 0.3 }), FULL).animation).toBe('spit');
-    expect(zombiePose(zombie({ kind: 'spitter', spitWindup: 0 }), FULL).animation).toBe('walk');
+    expect(zombiePose(zombie({ kind: 'spitter', spitWindup: 0, x: 101, prevX: 100 }), FULL).animation).toBe('walk');
     expect(zombiePose(zombie({ kind: 'exploder', fuse: 0.2, ai: 'idle' }), FULL).animation).toBe('fuse');
     // Killed, its fuse burns on: it swells instead of falling.
     expect(zombiePose(zombie({ kind: 'exploder', fuse: 0.2, ai: 'dead', hp: 0 }), FULL).animation).toBe('fuse');
     // Legless, it keeps crawling (the view swells the sprite); without the art, the old poses.
     expect(zombiePose(zombie({ kind: 'spitter', spitWindup: 0.3, hp: ZOMBIES.crawlAtHp }), FULL).animation).toBe('crawl');
     expect(zombiePose(zombie({ kind: 'exploder', fuse: 0.2, ai: 'idle' }), NONE).animation).toBe('walk');
+  });
+
+  it('stands while a spitter holds its ground between spits, and walks when it moves', () => {
+    expect(zombiePose(zombie({ kind: 'spitter', x: 100, y: 100, prevX: 100, prevY: 100 }), FULL).animation).toBe('idle');
+    expect(zombiePose(zombie({ kind: 'spitter', x: 100.5, y: 100, prevX: 100, prevY: 100 }), FULL).animation).toBe('walk');
+    // Other kinds blocked for a tick keep walking.
+    expect(zombiePose(zombie({ kind: 'walker', x: 100, y: 100, prevX: 100, prevY: 100 }), FULL).animation).toBe('walk');
   });
 
   it('walks, strikes, lunges through windows and dies with full art', () => {

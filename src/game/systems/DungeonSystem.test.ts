@@ -259,10 +259,15 @@ describe('DungeonSystem (spec 09 §4)', () => {
     steps(ctx, 20);
     expect(key.active).toBe(true);
     expect(key.age).toBe(0);
+    // The HUD hears of each key as it is picked up, in the same room.
+    const rooms: GameEvents['dungeon:rooms'][] = [];
+    ctx.events.on('dungeon:rooms', (e) => rooms.push(e));
     teleport(ctx, key.x, key.y);
     stepSimulation(ctx, DT);
+    expect(rooms.at(-1)).toMatchObject({ keys: 1, bossKey: false });
     teleport(ctx, bossKey.x, bossKey.y);
     stepSimulation(ctx, DT);
+    expect(rooms.at(-1)).toMatchObject({ keys: 1, bossKey: true });
     expect(ctx.state.run!.keys).toBe(1);
     expect(ctx.state.run!.bossKey).toBe(true);
     expect(key.active).toBe(false);

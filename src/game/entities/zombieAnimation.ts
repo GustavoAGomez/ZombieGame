@@ -1,7 +1,7 @@
 import { ZOMBIES } from '../../config/balance';
 import type { ZombieState } from '../../core/GameState';
 
-export type ZombieAnimation = 'walk' | 'attack' | 'climb' | 'death' | 'crawl' | 'crawl_attack' | 'spit' | 'fuse';
+export type ZombieAnimation = 'idle' | 'walk' | 'attack' | 'climb' | 'death' | 'crawl' | 'crawl_attack' | 'spit' | 'fuse';
 
 /** Which optional animations a zombie character has art for (docs/ASSETS.md §3). */
 export interface ZombieArt {
@@ -22,6 +22,9 @@ export interface ZombiePose {
    */
   corpse: boolean;
 }
+
+/** Px a zombie may drift in a tick (the crowd nudging it) and still count as standing. */
+const STILL_PX = 0.2;
 
 /** Legless: little HP left (ZOMBIES.crawlAtHp), as in ZombieSystem. */
 export function isLegless(z: ZombieState): boolean {
@@ -46,7 +49,10 @@ export function zombiePose(z: ZombieState, art: ZombieArt): ZombiePose {
       if (crawling) return { animation: 'crawl', corpse: false };
       return { animation: art.climb ? 'climb' : 'walk', corpse: false };
     default:
-      return { animation: crawling ? 'crawl' : 'walk', corpse: false };
+      if (crawling) return { animation: 'crawl', corpse: false };
+      // A spitter holding its ground between spits (spec 09 §5.2) stands; it does not walk on the spot.
+      if (z.kind === 'spitter' && Math.hypot(z.x - z.prevX, z.y - z.prevY) < STILL_PX) return { animation: 'idle', corpse: false };
+      return { animation: 'walk', corpse: false };
   }
 }
 

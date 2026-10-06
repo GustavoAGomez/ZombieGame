@@ -22,6 +22,7 @@ import { damageZombie, isZombieAlive } from './Combat';
 import { damageBoss } from './BossCombat';
 import { isPlayerAlive } from './HealthSystem';
 import { findWeapon, giveWeapon, refillWeapon } from './InventorySystem';
+import { emitRooms } from './dungeonRooms';
 import { spawnPickup } from './PickupSystem';
 import { awardPoints } from './PointsSystem';
 import type { SimContext } from './SimContext';
@@ -273,10 +274,6 @@ function treasureWeapon(ctx: SimContext): WeaponId | null {
   const missing = p ? basics.filter((id) => findWeapon(p, id) < 0) : basics;
   if (missing.length === 0) return null;
   return missing[Math.floor(random(ctx.state) * missing.length)] as WeaponId;
-}
-
-export function emitRooms(ctx: SimContext, run: RunState): void {
-  ctx.events.emit('dungeon:rooms', { current: run.room, visited: [...run.visited], cleared: [...run.cleared], counter: run.merchantCounter, keys: run.keys, bossKey: run.bossKey, wizardRoom: run.shop?.room ?? -1 });
 }
 
 /** The player came into a room: it is visited, and its darkness lifts (§4). */

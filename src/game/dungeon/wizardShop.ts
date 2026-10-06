@@ -13,7 +13,7 @@ import type { GameState, PlayerState } from '../../core/GameState';
 import { random } from '../../core/Rng';
 import type { RunState } from '../../core/RunState';
 import type { ShopItemStatus } from '../../core/shop';
-import { emitRooms } from '../systems/DungeonSystem';
+import { emitRooms } from '../systems/dungeonRooms';
 import type { SimContext } from '../systems/SimContext';
 import { copiesOf, maxHpWith, playerStats } from './stats';
 
