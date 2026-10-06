@@ -1367,14 +1367,14 @@
     "pickup_key": {
       "file": "sprites/objects/pickup_key.png",
       "frameWidth": 16,
-      "frameHeight": 24,
+      "frameHeight": 28,
       "frames": 1,
       "placeholder": false
     },
     "pickup_boss_key": {
       "file": "sprites/objects/pickup_boss_key.png",
       "frameWidth": 16,
-      "frameHeight": 24,
+      "frameHeight": 28,
       "frames": 1,
       "placeholder": false
     },

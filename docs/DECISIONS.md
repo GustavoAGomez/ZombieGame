@@ -2330,3 +2330,13 @@ Petición del usuario tras probar las armas especiales: el láser y el lanzallam
   - El importador gana `"trim"`, con test.
 - **Coste:** unas 22 generaciones.
 
+## Llaves que se ven (petición del usuario)
+
+- **Problema:** las llaves se veían muy poco: 9×19 y 12×19 px, con el mismo bote de 1 px que la munición.
+- **Más grandes:** el arte de PixelLab sin reducir (13×26 la de latón, 16×26 la del boss), en un marco de 16×28.
+- **Más llamativas** (`PickupViewPool`):
+  - un halo de dos elipses en el suelo que late cada 1,2 s, ámbar la llave normal y rojo la del boss (los colores del HUD para ellas);
+  - un destello blanco de cuatro puntas que parpadea sobre el anillo de la llave en lo más alto de cada latido;
+  - un bote de 2 px en vez de 1.
+  - Se dibuja con un solo `Graphics` para todas, bajo las recogidas. La munición y los botiquines no cambian.
+
